@@ -1,2 +1,2 @@
 # sqltoolsservice
-SQL Tools API service repo.
+SQL Tools Service host
