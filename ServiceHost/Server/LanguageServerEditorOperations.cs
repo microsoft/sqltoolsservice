@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 #if false
-using Microsoft.PowerShell.EditorServices.Extensions;
-using Microsoft.PowerShell.EditorServices.Protocol.LanguageServer;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Extensions;
+using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
     internal class LanguageServerEditorOperations : IEditorOperations
     {

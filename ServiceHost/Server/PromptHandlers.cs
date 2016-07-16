@@ -5,13 +5,13 @@
 
 #if false
 using System;
-using Microsoft.PowerShell.EditorServices.Console;
-using Microsoft.PowerShell.EditorServices.Protocol.Messages;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
-using Microsoft.PowerShell.EditorServices.Utility;
+using Microsoft.SqlTools.EditorServices.Console;
+using Microsoft.SqlTools.EditorServices.Protocol.Messages;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Utility;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
     internal class ProtocolPromptHandlerContext : IPromptHandlerContext
     {

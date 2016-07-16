@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Serializers;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Channel
+namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel
 {
     /// <summary>
     /// Defines a base implementation for servers and their clients over a

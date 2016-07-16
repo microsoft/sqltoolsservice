@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Utility;
+using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Linq;
 //using System.Management.Automation;
 //using System.Management.Automation.Language;
 
-namespace Microsoft.PowerShell.EditorServices
+namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
     /// Contains the details and contents of an open script file.
@@ -22,7 +22,7 @@ namespace Microsoft.PowerShell.EditorServices
         #region Private Fields
 
         private Token[] scriptTokens;
-        private Version powerShellVersion;
+        private Version SqlToolsVersion;
 
         #endregion
 
@@ -134,18 +134,18 @@ namespace Microsoft.PowerShell.EditorServices
         /// <param name="filePath">The path at which the script file resides.</param>
         /// <param name="clientFilePath">The path which the client uses to identify the file.</param>
         /// <param name="textReader">The TextReader to use for reading the file's contents.</param>
-        /// <param name="powerShellVersion">The version of PowerShell for which the script is being parsed.</param>
+        /// <param name="SqlToolsVersion">The version of SqlTools for which the script is being parsed.</param>
         public ScriptFile(
             string filePath,
             string clientFilePath,
             TextReader textReader,
-            Version powerShellVersion)
+            Version SqlToolsVersion)
         {
             this.FilePath = filePath;
             this.ClientFilePath = clientFilePath;
             this.IsAnalysisEnabled = true;
             this.IsInMemory = Workspace.IsPathInMemory(filePath);
-            this.powerShellVersion = powerShellVersion;
+            this.SqlToolsVersion = SqlToolsVersion;
 
             this.SetFileContents(textReader.ReadToEnd());
         }
@@ -156,17 +156,17 @@ namespace Microsoft.PowerShell.EditorServices
         /// <param name="filePath">The path at which the script file resides.</param>
         /// <param name="clientFilePath">The path which the client uses to identify the file.</param>
         /// <param name="initialBuffer">The initial contents of the script file.</param>
-        /// <param name="powerShellVersion">The version of PowerShell for which the script is being parsed.</param>
+        /// <param name="SqlToolsVersion">The version of SqlTools for which the script is being parsed.</param>
         public ScriptFile(
             string filePath,
             string clientFilePath,
             string initialBuffer,
-            Version powerShellVersion)
+            Version SqlToolsVersion)
         {
             this.FilePath = filePath;
             this.ClientFilePath = clientFilePath;
             this.IsAnalysisEnabled = true;
-            this.powerShellVersion = powerShellVersion;
+            this.SqlToolsVersion = SqlToolsVersion;
 
             this.SetFileContents(initialBuffer);
         }
@@ -498,10 +498,10 @@ namespace Microsoft.PowerShell.EditorServices
 
             try
             {
-#if PowerShellv5r2
+#if SqlToolsv5r2
                 // This overload appeared with Windows 10 Update 1
-                if (this.powerShellVersion.Major >= 5 &&
-                    this.powerShellVersion.Build >= 10586)
+                if (this.SqlToolsVersion.Major >= 5 &&
+                    this.SqlToolsVersion.Build >= 10586)
                 {
                     // Include the file path so that module relative
                     // paths are evaluated correctly

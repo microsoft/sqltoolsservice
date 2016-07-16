@@ -8,7 +8,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Microsoft.PowerShell.EditorServices.Utility
+namespace Microsoft.SqlTools.EditorServices.Utility
 {
     /// <summary>
     /// Defines the level indicators for log messages.
@@ -54,7 +54,7 @@ namespace Microsoft.PowerShell.EditorServices.Utility
         /// Optional. Specifies the minimum log message level to write to the log file.
         /// </param>
         public static void Initialize(
-            string logFilePath = "EditorServices.log",
+            string logFilePath = "SqlToolsService.log",
             LogLevel minimumLogLevel = LogLevel.Normal)
         {
             if (logWriter != null)
@@ -118,32 +118,25 @@ namespace Microsoft.PowerShell.EditorServices.Utility
             this.minimumLogLevel = minimumLogLevel;
 
             // Ensure that we have a usable log file path
-//             if (!Path.IsPathRooted(logFilePath))
-//             {
-//                 logFilePath =
-//                     Path.Combine(
-// #if NanoServer
-//                         AppContext.BaseDirectory,
-// #else
-//                         AppDomain.CurrentDomain.BaseDirectory,
-// #endif
-//                         logFilePath);
-//             }
+             if (!Path.IsPathRooted(logFilePath))
+             {
+                 logFilePath =
+                     Path.Combine(
+                         AppContext.BaseDirectory,
+                         logFilePath);
+             }
 
-//             if (!this.TryOpenLogFile(logFilePath, deleteExisting))
-//             {
-//                 // If the log file couldn't be opened at this location,
-//                 // try opening it in a more reliable path
-//                 this.TryOpenLogFile(
-//                     Path.Combine(
-// #if NanoServer
-//                         Environment.GetEnvironmentVariable("TEMP"),
-// #else
-//                         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-// #endif
-//                         Path.GetFileName(logFilePath)),
-//                     deleteExisting);
-//             }
+
+             if (!this.TryOpenLogFile(logFilePath, deleteExisting))
+             {
+                 // If the log file couldn't be opened at this location,
+                 // try opening it in a more reliable path
+                 this.TryOpenLogFile(
+                     Path.Combine(
+                         Environment.GetEnvironmentVariable("TEMP"),
+                         Path.GetFileName(logFilePath)),
+                     deleteExisting);
+             }
         }
 
         public void Write(

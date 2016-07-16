@@ -5,7 +5,7 @@
 
 using System.Diagnostics;
 
-namespace Microsoft.PowerShell.EditorServices
+namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
     /// Provides details about a position in a file buffer.  All

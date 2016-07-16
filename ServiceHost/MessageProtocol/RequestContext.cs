@@ -6,7 +6,7 @@
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
 {
     public class RequestContext<TResult>
     {

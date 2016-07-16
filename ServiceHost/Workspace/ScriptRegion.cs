@@ -5,7 +5,7 @@
 
 //using System.Management.Automation.Language;
 
-namespace Microsoft.PowerShell.EditorServices
+namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
     /// Contains details about a specific region of text in script file.

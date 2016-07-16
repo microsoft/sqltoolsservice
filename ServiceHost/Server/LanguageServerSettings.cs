@@ -4,9 +4,9 @@
 //
 
 using System.IO;
-using Microsoft.PowerShell.EditorServices.Utility;
+using Microsoft.SqlTools.EditorServices.Utility;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
     public class LanguageServerSettings
     {
@@ -57,7 +57,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
                     if (string.IsNullOrEmpty(workspaceRootPath))
                     {
                         // The workspace root path could be an empty string
-                        // when the user has opened a PowerShell script file
+                        // when the user has opened a SqlTools script file
                         // without opening an entire folder (workspace) first.
                         // In this case we should just log an error and let
                         // the specified settings path go through even though
@@ -79,10 +79,10 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
 
     public class LanguageServerSettingsWrapper
     {
-        // NOTE: This property is capitalized as 'Powershell' because the
-        // mode name sent from the client is written as 'powershell' and
+        // NOTE: This property is capitalized as 'SqlTools' because the
+        // mode name sent from the client is written as 'SqlTools' and
         // JSON.net is using camelCasing.
 
-        public LanguageServerSettings Powershell { get; set; }
+        public LanguageServerSettings SqlTools { get; set; }
     }
 }

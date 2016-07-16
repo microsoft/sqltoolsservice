@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.LanguageServer
+namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
 {
     /// <summary>
     /// Defines a class that describes the capabilities of a language

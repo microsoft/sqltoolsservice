@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.DebugAdapter
+namespace Microsoft.SqlTools.EditorServices.Protocol.DebugAdapter
 {
     public class InitializedEvent
     {

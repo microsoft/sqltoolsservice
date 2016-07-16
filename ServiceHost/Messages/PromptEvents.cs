@@ -4,15 +4,15 @@
 //
 
 #if false
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.Messages
+namespace Microsoft.SqlTools.EditorServices.Protocol.Messages
 {
     public class ShowChoicePromptRequest
     {
         public static readonly
             RequestType<ShowChoicePromptRequest, ShowChoicePromptResponse> Type =
-            RequestType<ShowChoicePromptRequest, ShowChoicePromptResponse>.Create("powerShell/showChoicePrompt");
+            RequestType<ShowChoicePromptRequest, ShowChoicePromptResponse>.Create("SqlTools/showChoicePrompt");
 
         public string Caption { get; set; }
 
@@ -34,7 +34,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Messages
     {
         public static readonly
             RequestType<ShowInputPromptRequest, ShowInputPromptResponse> Type =
-            RequestType<ShowInputPromptRequest, ShowInputPromptResponse>.Create("powerShell/showInputPrompt");
+            RequestType<ShowInputPromptRequest, ShowInputPromptResponse>.Create("SqlTools/showInputPrompt");
 
         /// <summary>
         /// Gets or sets the name of the field.

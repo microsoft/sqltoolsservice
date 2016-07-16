@@ -4,15 +4,9 @@
 //
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
 {
     public static class Constants
     {

@@ -9,7 +9,7 @@ using System;
 using System.IO.Pipes;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Channel
+namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel
 {
     public class NamedPipeClientChannel : ChannelBase
     {

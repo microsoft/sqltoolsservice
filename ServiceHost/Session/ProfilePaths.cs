@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Microsoft.PowerShell.EditorServices.Session
+namespace Microsoft.SqlTools.EditorServices.Session
 {
     /// <summary>
     /// Provides profile path resolution behavior relative to the name
-    /// of a particular PowerShell host.
+    /// of a particular SqlTools host.
     /// </summary>
     public class ProfilePaths
     {

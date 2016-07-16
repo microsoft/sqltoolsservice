@@ -4,9 +4,9 @@
 //
 
 using System.Diagnostics;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.DebugAdapter
+namespace Microsoft.SqlTools.EditorServices.Protocol.DebugAdapter
 {
     public class StackTraceRequest
     {

@@ -4,9 +4,9 @@
 //
 
 using System.Collections.Generic;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.DebugAdapter
+namespace Microsoft.SqlTools.EditorServices.Protocol.DebugAdapter
 {
     public class LaunchRequest
     {
