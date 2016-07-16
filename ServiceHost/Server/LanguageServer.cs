@@ -8,17 +8,23 @@ using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
 using Microsoft.SqlTools.EditorServices.Session;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
     public class LanguageServer : LanguageServerBase
     {
+        private EditorSession editorSession;
+
         /// <param name="hostDetails">
         /// Provides details about the host application.
         /// </param>
         public LanguageServer(HostDetails hostDetails, ProfilePaths profilePaths)
             : base(new StdioServerChannel())
         {
+            this.editorSession = new EditorSession();
+            this.editorSession.StartSession(hostDetails, profilePaths);
         }
 
         protected override void Initialize()
@@ -43,6 +49,14 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 
         protected override async Task Shutdown()
         {
+            Logger.Write(LogLevel.Normal, "Language service is shutting down...");
+
+            if (this.editorSession != null)
+            {
+                this.editorSession.Dispose();
+                this.editorSession = null;
+            }
+
             await Task.FromResult(true);
         }
 
@@ -80,11 +94,46 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
                 });
         }
 
+        /// <summary>
+        /// Handles text document change events
+        /// </summary>
+        /// <param name="textChangeParams"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
         protected Task HandleDidChangeTextDocumentNotification(
             DidChangeTextDocumentParams textChangeParams,
             EventContext eventContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleDidChangeTextDocumentNotification");
+            StringBuilder msg = new StringBuilder();
+            msg.Append("HandleDidChangeTextDocumentNotification"); 
+            List<ScriptFile> changedFiles = new List<ScriptFile>();
+
+            // A text change notification can batch multiple change requests
+            foreach (var textChange in textChangeParams.ContentChanges)
+            {
+                string fileUri = textChangeParams.TextDocument.Uri;
+                msg.AppendLine();
+                msg.Append("  File: ");
+                msg.Append(fileUri);
+
+                ScriptFile changedFile = editorSession.Workspace.GetFile(fileUri);
+
+                // changedFile.ApplyChange(
+                //     GetFileChangeDetails(
+                //         textChange.Range.Value,
+                //         textChange.Text));
+
+                // changedFiles.Add(changedFile);
+            }
+
+            Logger.Write(LogLevel.Normal, msg.ToString());
+
+            // // TODO: Get all recently edited files in the workspace
+            // this.RunScriptDiagnostics(
+            //     changedFiles.ToArray(),
+            //     editorSession,
+            //     eventContext);
+
             return Task.FromResult(true);
         }
 

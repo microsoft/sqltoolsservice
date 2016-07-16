@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 

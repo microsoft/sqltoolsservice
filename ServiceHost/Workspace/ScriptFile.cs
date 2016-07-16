@@ -18,6 +18,30 @@ namespace Microsoft.SqlTools.EditorServices
     /// </summary>
     public class ScriptFile
     {
+         public ScriptFile(
+            string filePath,
+            string clientFilePath,
+            TextReader textReader,
+            Version SqlToolsVersion)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new ScriptFile instance with the specified file contents.
+        /// </summary>
+        /// <param name="filePath">The path at which the script file resides.</param>
+        /// <param name="clientFilePath">The path which the client uses to identify the file.</param>
+        /// <param name="initialBuffer">The initial contents of the script file.</param>
+        /// <param name="SqlToolsVersion">The version of SqlTools for which the script is being parsed.</param>
+        public ScriptFile(
+            string filePath,
+            string clientFilePath,
+            string initialBuffer,
+            Version SqlToolsVersion)
+        {
+        }
+
+
 #if false        
         #region Private Fields
 
