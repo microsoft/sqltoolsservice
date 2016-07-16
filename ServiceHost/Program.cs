@@ -18,7 +18,9 @@ namespace Microsoft.SqlTools.ServiceHost
         /// </summary>
         static void Main(string[] args)
         {
-            Logger.Initialize();
+            // turn on Verbose logging during early development
+            // we need to switch to Normal when preparing for public preview
+            Logger.Initialize(minimumLogLevel: LogLevel.Verbose);
             Logger.Write(LogLevel.Normal, "Starting SQL Tools Service Host");
 
             const string hostName = "SQL Tools Service Host";

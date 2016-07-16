@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace Microsoft.SqlTools.EditorServices
 {
@@ -149,15 +150,7 @@ namespace Microsoft.SqlTools.EditorServices
             return Regex.Replace(path, @"`(?=[ \[\]])", "");
         }
 
-        #endregion
-
-#if false        
-       
-
-        #region Public Methods
-      
-
-        /// <summary>
+         /// <summary>
         /// Gets a new ScriptFile instance which is identified by the given file
         /// path and initially contains the given buffer contents.
         /// </summary>
@@ -211,80 +204,6 @@ namespace Microsoft.SqlTools.EditorServices
             this.workspaceFiles.Remove(scriptFile.Id);
         }
 
-        /// <summary>
-        /// Gets all file references by recursively searching 
-        /// through referenced files in a scriptfile
-        /// </summary>
-        /// <param name="scriptFile">Contains the details and contents of an open script file</param>
-        /// <returns>A scriptfile array where the first file 
-        /// in the array is the "root file" of the search</returns>
-        public ScriptFile[] ExpandScriptReferences(ScriptFile scriptFile)
-        {
-            Dictionary<string, ScriptFile> referencedScriptFiles = new Dictionary<string, ScriptFile>();
-            List<ScriptFile> expandedReferences = new List<ScriptFile>();
-
-            // add original file so it's not searched for, then find all file references
-            referencedScriptFiles.Add(scriptFile.Id, scriptFile); 
-            RecursivelyFindReferences(scriptFile, referencedScriptFiles);
-
-            // remove original file from referened file and add it as the first element of the
-            // expanded referenced list to maintain order so the original file is always first in the list
-            referencedScriptFiles.Remove(scriptFile.Id);
-            expandedReferences.Add(scriptFile);
-
-            if (referencedScriptFiles.Count > 0)
-            {
-                expandedReferences.AddRange(referencedScriptFiles.Values);
-            }
-
-            return expandedReferences.ToArray();
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Recusrively searches through referencedFiles in scriptFiles
-        /// and builds a Dictonary of the file references
-        /// </summary>
-        /// <param name="scriptFile">Details an contents of "root" script file</param>
-        /// <param name="referencedScriptFiles">A Dictionary of referenced script files</param>
-        private void RecursivelyFindReferences(
-            ScriptFile scriptFile, 
-            Dictionary<string, ScriptFile> referencedScriptFiles)
-        {
-            // Get the base path of the current script for use in resolving relative paths
-            string baseFilePath = 
-                GetBaseFilePath(
-                    scriptFile.FilePath);
-
-            ScriptFile referencedFile;
-            foreach (string referencedFileName in scriptFile.ReferencedFiles)
-            {
-                string resolvedScriptPath =
-                    this.ResolveRelativeScriptPath(
-                        baseFilePath,
-                        referencedFileName);
-
-                // Make sure file exists before trying to get the file
-                if (File.Exists(resolvedScriptPath))
-                {
-                    // Get the referenced file if it's not already in referencedScriptFiles
-                    referencedFile = this.GetFile(resolvedScriptPath);
-
-                    // Normalize the resolved script path and add it to the
-                    // referenced files list if it isn't there already
-                    resolvedScriptPath = resolvedScriptPath.ToLower();
-                    if (!referencedScriptFiles.ContainsKey(resolvedScriptPath))
-                    {
-                        referencedScriptFiles.Add(resolvedScriptPath, referencedFile);
-                        RecursivelyFindReferences(referencedFile, referencedScriptFiles);
-                    }
-                }
-            }
-        }
-
         private string GetBaseFilePath(string filePath)
         {
             if (IsPathInMemory(filePath))
@@ -324,7 +243,6 @@ namespace Microsoft.SqlTools.EditorServices
             return combinedPath;
         }
 
-        #endregion
-#endif        
+        #endregion  
     }
 }

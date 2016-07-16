@@ -8,8 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-//using System.Management.Automation;
-//using System.Management.Automation.Language;
 
 namespace Microsoft.SqlTools.EditorServices
 {
@@ -18,34 +16,8 @@ namespace Microsoft.SqlTools.EditorServices
     /// </summary>
     public class ScriptFile
     {
-         public ScriptFile(
-            string filePath,
-            string clientFilePath,
-            TextReader textReader,
-            Version SqlToolsVersion)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new ScriptFile instance with the specified file contents.
-        /// </summary>
-        /// <param name="filePath">The path at which the script file resides.</param>
-        /// <param name="clientFilePath">The path which the client uses to identify the file.</param>
-        /// <param name="initialBuffer">The initial contents of the script file.</param>
-        /// <param name="SqlToolsVersion">The version of SqlTools for which the script is being parsed.</param>
-        public ScriptFile(
-            string filePath,
-            string clientFilePath,
-            string initialBuffer,
-            Version SqlToolsVersion)
-        {
-        }
-
-
-#if false        
         #region Private Fields
 
-        private Token[] scriptTokens;
         private Version SqlToolsVersion;
 
         #endregion
@@ -119,23 +91,6 @@ namespace Microsoft.SqlTools.EditorServices
         {
             get;
             private set;
-        }
-
-        /// <summary>
-        /// Gets the ScriptBlockAst representing the parsed script contents.
-        /// </summary>
-        public ScriptBlockAst ScriptAst
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the array of Tokens representing the parsed script contents.
-        /// </summary>
-        public Token[] ScriptTokens
-        {
-            get { return this.scriptTokens; }
         }
 
         /// <summary>
@@ -502,6 +457,7 @@ namespace Microsoft.SqlTools.EditorServices
         /// </summary>
         private void ParseFileContents()
         {
+#if false            
             ParseError[] parseErrors = null;
 
             // First, get the updated file range
@@ -574,9 +530,9 @@ namespace Microsoft.SqlTools.EditorServices
             //Get all dot sourced referenced files and store  them
             this.ReferencedFiles =
                 AstOperations.FindDotSourcedIncludes(this.ScriptAst);
+#endif                
         }
 
 #endregion
-#endif
     }
 }
