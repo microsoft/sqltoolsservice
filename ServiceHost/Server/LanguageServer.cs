@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Linq;
+using System;
 
 namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
@@ -21,6 +22,8 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
     public class LanguageServer : LanguageServerBase
     {
         private static CancellationTokenSource existingRequestCancellation;
+
+        private LanguageServerSettings currentSettings = new LanguageServerSettings();
         
         private EditorSession editorSession;
 
@@ -34,6 +37,9 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             this.editorSession.StartSession(hostDetails, profilePaths);
         }
 
+        /// <summary>
+        /// Initialize the VS Code request/response callbacks
+        /// </summary>
         protected override void Initialize()
         {
             // Register all supported message types
@@ -54,6 +60,9 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             this.SetRequestHandler(WorkspaceSymbolRequest.Type, this.HandleWorkspaceSymbolRequest);               
         }
 
+        /// <summary>
+        /// Handles the shutdown event for the Language Server
+        /// </summary>
         protected override async Task Shutdown()
         {
             Logger.Write(LogLevel.Normal, "Language service is shutting down...");
@@ -67,14 +76,20 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             await Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Handles the initialization request
+        /// </summary>
+        /// <param name="initializeParams"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
         protected async Task HandleInitializeRequest(
             InitializeRequest initializeParams,
             RequestContext<InitializeResult> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleDidChangeTextDocumentNotification");
+            Logger.Write(LogLevel.Verbose, "HandleDidChangeTextDocumentNotification");
 
             // Grab the workspace path from the parameters
-           //editorSession.Workspace.WorkspacePath = initializeParams.RootPath;
+           editorSession.Workspace.WorkspacePath = initializeParams.RootPath;
 
             await requestContext.SendResult(
                 new InitializeResult
@@ -133,7 +148,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
                 changedFiles.Add(changedFile);
             }
 
-            Logger.Write(LogLevel.Normal, msg.ToString());
+            Logger.Write(LogLevel.Verbose, msg.ToString());
 
             this.RunScriptDiagnostics(
                 changedFiles.ToArray(),
@@ -147,7 +162,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             DidOpenTextDocumentNotification openParams,
             EventContext eventContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleDidOpenTextDocumentNotification");
+            Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
             return Task.FromResult(true);
         }
 
@@ -155,15 +170,57 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             TextDocumentIdentifier closeParams,
             EventContext eventContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleDidCloseTextDocumentNotification");
+            Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");
             return Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Handles the configuration change event
+        /// </summary>
+        /// <param name="configChangeParams"></param>
+        /// <param name="eventContext"></param>
         protected async Task HandleDidChangeConfigurationNotification(
             DidChangeConfigurationParams<LanguageServerSettingsWrapper> configChangeParams,
             EventContext eventContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleDidChangeConfigurationNotification");
+            Logger.Write(LogLevel.Verbose, "HandleDidChangeConfigurationNotification");
+
+            bool oldLoadProfiles = this.currentSettings.EnableProfileLoading;
+            bool oldScriptAnalysisEnabled = 
+                this.currentSettings.ScriptAnalysis.Enable.HasValue;
+            string oldScriptAnalysisSettingsPath =
+                this.currentSettings.ScriptAnalysis.SettingsPath;
+
+            this.currentSettings.Update(
+                configChangeParams.Settings.SqlTools, 
+                this.editorSession.Workspace.WorkspacePath);
+
+            // If script analysis settings have changed we need to clear & possibly update the current diagnostic records.
+            if ((oldScriptAnalysisEnabled != this.currentSettings.ScriptAnalysis.Enable))
+            {
+                // If the user just turned off script analysis or changed the settings path, send a diagnostics
+                // event to clear the analysis markers that they already have.
+                if (!this.currentSettings.ScriptAnalysis.Enable.Value)
+                {
+                    ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
+
+                    foreach (var scriptFile in editorSession.Workspace.GetOpenedFiles())
+                    {
+                        await PublishScriptDiagnostics(
+                            scriptFile,
+                            emptyAnalysisDiagnostics,
+                            eventContext);
+                    }
+                }
+                else
+                {
+                    await this.RunScriptDiagnostics(
+                        this.editorSession.Workspace.GetOpenedFiles(),
+                        this.editorSession,
+                        eventContext);
+                }
+            }
+
             await Task.FromResult(true);
         }
 
@@ -171,7 +228,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             TextDocumentPosition textDocumentPosition,
             RequestContext<Location[]> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleDefinitionRequest");
+            Logger.Write(LogLevel.Verbose, "HandleDefinitionRequest");
             await Task.FromResult(true);
         }
 
@@ -179,7 +236,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             ReferencesParams referencesParams,
             RequestContext<Location[]> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleReferencesRequest");
+            Logger.Write(LogLevel.Verbose, "HandleReferencesRequest");
             await Task.FromResult(true);
         }
 
@@ -187,7 +244,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleCompletionRequest");
+            Logger.Write(LogLevel.Verbose, "HandleCompletionRequest");
             await Task.FromResult(true);
         }
 
@@ -195,7 +252,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleCompletionResolveRequest");
+            Logger.Write(LogLevel.Verbose, "HandleCompletionResolveRequest");
             await Task.FromResult(true);
         }
 
@@ -203,7 +260,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleSignatureHelpRequest");
+            Logger.Write(LogLevel.Verbose, "HandleSignatureHelpRequest");
             await Task.FromResult(true);
         }
 
@@ -211,7 +268,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             TextDocumentPosition textDocumentPosition,
             RequestContext<DocumentHighlight[]> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleDocumentHighlightRequest");
+            Logger.Write(LogLevel.Verbose, "HandleDocumentHighlightRequest");
             await Task.FromResult(true);
         }
 
@@ -219,7 +276,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleHoverRequest");
+            Logger.Write(LogLevel.Verbose, "HandleHoverRequest");
             await Task.FromResult(true);
         }
 
@@ -227,7 +284,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             TextDocumentIdentifier textDocumentIdentifier,
             RequestContext<SymbolInformation[]> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleDocumentSymbolRequest");
+            Logger.Write(LogLevel.Verbose, "HandleDocumentSymbolRequest");
             await Task.FromResult(true);     
         }
 
@@ -235,53 +292,57 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             WorkspaceSymbolParams workspaceSymbolParams,
             RequestContext<SymbolInformation[]> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "HandleWorkspaceSymbolRequest");
+            Logger.Write(LogLevel.Verbose, "HandleWorkspaceSymbolRequest");
             await Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Runs script diagnostics on changed files
+        /// </summary>
+        /// <param name="filesToAnalyze"></param>
+        /// <param name="editorSession"></param>
+        /// <param name="eventContext"></param>
         private Task RunScriptDiagnostics(
             ScriptFile[] filesToAnalyze,
             EditorSession editorSession,
             EventContext eventContext)
         {
-            // if (!this.currentSettings.ScriptAnalysis.Enable.Value)
-            // {
-            //     // If the user has disabled script analysis, skip it entirely
-            //     return Task.FromResult(true);
-            // }
+            if (!this.currentSettings.ScriptAnalysis.Enable.Value)
+            {
+                // If the user has disabled script analysis, skip it entirely
+                return Task.FromResult(true);
+            }
 
-            // // If there's an existing task, attempt to cancel it
-            // try
-            // {
-            //     if (existingRequestCancellation != null)
-            //     {
-            //         // Try to cancel the request
-            //         existingRequestCancellation.Cancel();
+            // If there's an existing task, attempt to cancel it
+            try
+            {
+                if (existingRequestCancellation != null)
+                {
+                    // Try to cancel the request
+                    existingRequestCancellation.Cancel();
 
-            //         // If cancellation didn't throw an exception,
-            //         // clean up the existing token
-            //         existingRequestCancellation.Dispose();
-            //         existingRequestCancellation = null;
-            //     }
-            // }
-            // catch (Exception e)
-            // {
-            //     // TODO: Catch a more specific exception!
-            //     Logger.Write(
-            //         LogLevel.Error,
-            //         string.Format(
-            //             "Exception while cancelling analysis task:\n\n{0}",
-            //             e.ToString()));
+                    // If cancellation didn't throw an exception,
+                    // clean up the existing token
+                    existingRequestCancellation.Dispose();
+                    existingRequestCancellation = null;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Write(
+                    LogLevel.Error,
+                    string.Format(
+                        "Exception while cancelling analysis task:\n\n{0}",
+                        e.ToString()));
 
-            //     TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
-            //     cancelTask.SetCanceled();
-            //     return cancelTask.Task;
-            // }
+                TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
+                cancelTask.SetCanceled();
+                return cancelTask.Task;
+            }
 
             // Create a fresh cancellation token and then start the task.
             // We create this on a different TaskScheduler so that we
             // don't block the main message loop thread.
-            // TODO: Is there a better way to do this?
             existingRequestCancellation = new CancellationTokenSource();
             Task.Factory.StartNew(
                 () =>
@@ -298,7 +359,14 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             return Task.FromResult(true);
         }
 
-
+        /// <summary>
+        /// Actually run the script diagnostics after waiting for some small delay
+        /// </summary>
+        /// <param name="delayMilliseconds"></param>
+        /// <param name="filesToAnalyze"></param>
+        /// <param name="editorSession"></param>
+        /// <param name="eventContext"></param>
+        /// <param name="cancellationToken"></param>
         private static async Task DelayThenInvokeDiagnostics(
             int delayMilliseconds,
             ScriptFile[] filesToAnalyze,
@@ -329,37 +397,17 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             foreach (ScriptFile scriptFile in filesToAnalyze)
             {
                 ScriptFileMarker[] semanticMarkers = null;
-                // if (editorSession.AnalysisService != null)
-                // {
-                //     Logger.Write(LogLevel.Verbose, "Analyzing script file: " + scriptFile.FilePath);
-
-                //     semanticMarkers =
-                //         editorSession.AnalysisService.GetSemanticMarkers(
-                //             scriptFile);
-
-                //     Logger.Write(LogLevel.Verbose, "Analysis complete.");
-                // }
-                // else
+                if (editorSession.LanguageService != null)
+                {
+                    Logger.Write(LogLevel.Verbose, "Analyzing script file: " + scriptFile.FilePath);
+                    semanticMarkers = editorSession.LanguageService.GetSemanticMarkers(scriptFile);
+                    Logger.Write(LogLevel.Verbose, "Analysis complete.");
+                }
+                else
                 {
                     // Semantic markers aren't available if the AnalysisService
                     // isn't available
-                    semanticMarkers = new ScriptFileMarker[0];
-                    // semanticMarkers = new ScriptFileMarker[1];
-                    // semanticMarkers[0] = new ScriptFileMarker()
-                    // {
-                    //     Message = "Error message",
-                    //     Level = ScriptFileMarkerLevel.Error,
-                    //     ScriptRegion = new ScriptRegion()
-                    //     {
-                    //         File = scriptFile.FilePath,
-                    //         StartLineNumber = 2,
-                    //         StartColumnNumber = 2,  
-                    //         StartOffset = 0,
-                    //         EndLineNumber = 4,
-                    //         EndColumnNumber = 10,
-                    //         EndOffset = 0
-                    //     }
-                    // };
+                    semanticMarkers = new ScriptFileMarker[0];                   
                 }
 
                 await PublishScriptDiagnostics(
@@ -369,6 +417,12 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             }
         }
 
+        /// <summary>
+        /// Send the diagnostic results back to the host application
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        /// <param name="semanticMarkers"></param>
+        /// <param name="eventContext"></param>
         private static async Task PublishScriptDiagnostics(
             ScriptFile scriptFile,
             ScriptFileMarker[] semanticMarkers,
@@ -392,6 +446,11 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
                 });
         }
         
+        /// <summary>
+        /// Convert a ScriptFileMarker to a Diagnostic that is Language Service compatible
+        /// </summary>
+        /// <param name="scriptFileMarker"></param>
+        /// <returns></returns>
         private static Diagnostic GetDiagnosticFromMarker(ScriptFileMarker scriptFileMarker)
         {
             return new Diagnostic
@@ -415,6 +474,10 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             };
         }
 
+        /// <summary>
+        /// Map ScriptFileMarker severity to Diagnostic severity
+        /// </summary>
+        /// <param name="markerLevel"></param>        
         private static DiagnosticSeverity MapDiagnosticSeverity(ScriptFileMarkerLevel markerLevel)
         {
             switch (markerLevel)
@@ -433,10 +496,14 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             }
         }
 
+        /// <summary>
+        /// Switch from 0-based offsets to 1 based offsets
+        /// </summary>
+        /// <param name="changeRange"></param>
+        /// <param name="insertString"></param>        
         private static FileChange GetFileChangeDetails(Range changeRange, string insertString)
         {
             // The protocol's positions are zero-based so add 1 to all offsets
-
             return new FileChange
             {
                 InsertString = insertString,
