@@ -9,7 +9,6 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using System;
 
 namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
 {

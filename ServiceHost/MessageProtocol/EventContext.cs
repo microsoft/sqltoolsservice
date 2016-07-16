@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
