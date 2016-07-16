@@ -3,11 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-// using Microsoft.SqlTools.EditorServices.Console;
-// using Microsoft.SqlTools.EditorServices.Extensions;
+using System;
 using Microsoft.SqlTools.EditorServices.Session;
-// using Microsoft.SqlTools.EditorServices.Utility;
-// using System.IO;
 
 namespace Microsoft.SqlTools.EditorServices
 {
@@ -15,12 +12,8 @@ namespace Microsoft.SqlTools.EditorServices
     /// Manages a single session for all editor services.  This 
     /// includes managing all open script files for the session.
     /// </summary>
-    public class EditorSession
+    public class EditorSession : IDisposable
     {
-        public void StartSession(HostDetails hostDetails, ProfilePaths profilePaths)
-        {
-        }
-#if false        
         #region Properties
 
         /// <summary>
@@ -32,6 +25,59 @@ namespace Microsoft.SqlTools.EditorServices
         /// Gets the SqlToolsContext instance for this session.
         /// </summary>
         public SqlToolsContext SqlToolsContext { get; private set; }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Starts the session using the provided IConsoleHost implementation
+        /// for the ConsoleService.
+        /// </summary>
+        /// <param name="hostDetails">
+        /// Provides details about the host application.
+        /// </param>
+        /// <param name="profilePaths">
+        /// An object containing the profile paths for the session.
+        /// </param>
+        public void StartSession(HostDetails hostDetails, ProfilePaths profilePaths)
+        {
+            // Initialize all services
+            this.SqlToolsContext = new SqlToolsContext(hostDetails, profilePaths);
+
+
+            // this.LanguageService = new LanguageService(this.SqlToolsContext);
+            // this.DebugService = new DebugService(this.SqlToolsContext);
+            // this.ConsoleService = new ConsoleService(this.SqlToolsContext);
+            // this.ExtensionService = new ExtensionService(this.SqlToolsContext);
+
+            // this.InstantiateAnalysisService();
+
+            // Create a workspace to contain open files
+            this.Workspace = new Workspace(this.SqlToolsContext.SqlToolsVersion);
+        }
+
+        #endregion
+
+        #region IDisposable Implementation
+
+        /// <summary>
+        /// Disposes of any Runspaces that were created for the
+        /// services used in this session.
+        /// </summary>
+        public void Dispose()
+        {            
+        }
+
+        #endregion
+
+
+#if false        
+        #region Properties
+
+        
+
+        
 
         /// <summary>
         /// Gets the LanguageService instance for this session.

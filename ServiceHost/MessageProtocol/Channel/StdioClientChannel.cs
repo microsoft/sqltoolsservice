@@ -3,11 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel

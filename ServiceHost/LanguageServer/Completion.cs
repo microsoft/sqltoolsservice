@@ -83,4 +83,3 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
         public object Data { get; set; }
     }
 }
-

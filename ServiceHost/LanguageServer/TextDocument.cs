@@ -61,10 +61,25 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
 
     public class DidChangeTextDocumentParams : TextDocumentIdentifier
     {
+        public TextDocumentUriChangeEvent TextDocument { get; set; } 
+
         /// <summary>
         /// Gets or sets the list of changes to the document content.
         /// </summary>
         public TextDocumentChangeEvent[] ContentChanges { get; set; }
+    }
+
+    public class TextDocumentUriChangeEvent
+    {
+        /// <summary>
+        /// Gets or sets the Uri of the changed text document
+        /// </summary>
+        public string Uri { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Version of the changed text document 
+        /// </summary>
+        public int Version { get; set; }
     }
 
     public class TextDocumentChangeEvent
