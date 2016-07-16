@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.PowerShell.EditorServices
+namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
     /// Enumerates the types of output lines that will be sent
@@ -34,7 +34,7 @@ namespace Microsoft.PowerShell.EditorServices
 
         /// <summary>
         /// An error output line, written with the Write-Error cmdlet or
-        /// as a result of some error during PowerShell pipeline execution.
+        /// as a result of some error during SqlTools pipeline execution.
         /// </summary>
         Error
     }

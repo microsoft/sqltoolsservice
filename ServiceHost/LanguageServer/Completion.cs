@@ -4,9 +4,9 @@
 //
 
 using System.Diagnostics;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.LanguageServer
+namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
 {
     public class CompletionRequest
     {

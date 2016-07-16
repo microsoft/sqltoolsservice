@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Utility;
+using Microsoft.SqlTools.EditorServices.Utility;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
 {
     public class MessageWriter
     {

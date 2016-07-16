@@ -6,7 +6,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Utility
+namespace Microsoft.SqlTools.EditorServices.Utility
 {
     /// <summary>
     /// Restricts the invocation of an operation to a specified time

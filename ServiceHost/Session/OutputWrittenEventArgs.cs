@@ -5,11 +5,11 @@
 
 using System;
 
-namespace Microsoft.PowerShell.EditorServices
+namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
     /// Provides details about output that has been written to the
-    /// PowerShell host.
+    /// SqlTools host.
     /// </summary>
     public class OutputWrittenEventArgs
     {

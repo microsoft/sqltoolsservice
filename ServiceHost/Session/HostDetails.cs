@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.PowerShell.EditorServices.Session
+namespace Microsoft.SqlTools.EditorServices.Session
 {
     /// <summary>
     /// Contains details about the current host application (most
@@ -16,19 +16,19 @@ namespace Microsoft.PowerShell.EditorServices.Session
         #region Constants
 
         /// <summary>
-        /// The default host name for PowerShell Editor Services.  Used
+        /// The default host name for SqlTools Editor Services.  Used
         /// if no host name is specified by the host application.
         /// </summary>
-        public const string DefaultHostName = "PowerShell Editor Services Host";
+        public const string DefaultHostName = "SqlTools Editor Services Host";
 
         /// <summary>
-        /// The default host ID for PowerShell Editor Services.  Used
+        /// The default host ID for SqlTools Editor Services.  Used
         /// for the host-specific profile path if no host ID is specified.
         /// </summary>
-        public const string DefaultHostProfileId = "Microsoft.PowerShellEditorServices";
+        public const string DefaultHostProfileId = "Microsoft.SqlToolsEditorServices";
 
         /// <summary>
-        /// The default host version for PowerShell Editor Services.  If
+        /// The default host version for SqlTools Editor Services.  If
         /// no version is specified by the host application, we use 0.0.0
         /// to indicate a lack of version.
         /// </summary>
@@ -71,7 +71,7 @@ namespace Microsoft.PowerShell.EditorServices.Session
         /// "[Application Name] Host".
         /// </param>
         /// <param name="profileId">
-        /// The identifier of the PowerShell host to use for its profile path.
+        /// The identifier of the SqlTools host to use for its profile path.
         /// loaded. Used to resolve a profile path of the form 'X_profile.ps1'
         /// where 'X' represents the value of hostProfileId.  If null, a default
         /// will be used.

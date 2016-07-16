@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Protocol.DebugAdapter;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
-using Microsoft.PowerShell.EditorServices.Utility;
+using Microsoft.SqlTools.EditorServices.Protocol.DebugAdapter;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Utility;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
     /// <summary>
     /// Throttles output written via OutputEvents by batching all output

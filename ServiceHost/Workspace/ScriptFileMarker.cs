@@ -3,15 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Utility;
+using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 //using System.Management.Automation.Language;
 
 #if ScriptAnalyzer
-using Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic;
+using Microsoft.Windows.SqlTools.ScriptAnalyzer.Generic;
 #endif
 
-namespace Microsoft.PowerShell.EditorServices
+namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
     /// Defines the message level of a script file marker.

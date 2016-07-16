@@ -3,14 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Serializers;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Channel
+namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel
 {
     /// <summary>
     /// Provides a client implementation for the standard I/O channel.

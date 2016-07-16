@@ -3,14 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Utility;
+using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text;
 
-namespace Microsoft.PowerShell.EditorServices
+namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
     /// Manages a "workspace" of script files that are open for a particular
@@ -21,7 +21,7 @@ namespace Microsoft.PowerShell.EditorServices
 #if false        
         #region Private Fields
 
-        private Version powerShellVersion;
+        private Version SqlToolsVersion;
         private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
 
         #endregion
@@ -40,10 +40,10 @@ namespace Microsoft.PowerShell.EditorServices
         /// <summary>
         /// Creates a new instance of the Workspace class.
         /// </summary>
-        /// <param name="powerShellVersion">The version of PowerShell for which scripts will be parsed.</param>
-        public Workspace(Version powerShellVersion)
+        /// <param name="SqlToolsVersion">The version of SqlTools for which scripts will be parsed.</param>
+        public Workspace(Version SqlToolsVersion)
         {
-            this.powerShellVersion = powerShellVersion;
+            this.SqlToolsVersion = SqlToolsVersion;
         }
 
         #endregion
@@ -83,7 +83,7 @@ namespace Microsoft.PowerShell.EditorServices
                             resolvedFilePath,
                             filePath,
                             streamReader,
-                            this.powerShellVersion);
+                            this.SqlToolsVersion);
 
                     this.workspaceFiles.Add(keyName, scriptFile);
                 }
@@ -118,7 +118,7 @@ namespace Microsoft.PowerShell.EditorServices
                         resolvedFilePath,
                         filePath,
                         initialBuffer,
-                        this.powerShellVersion);
+                        this.SqlToolsVersion);
 
                 this.workspaceFiles.Add(keyName, scriptFile);
 
@@ -239,8 +239,8 @@ namespace Microsoft.PowerShell.EditorServices
 
                 // Clients could specify paths with escaped space, [ and ] characters which .NET APIs
                 // will not handle.  These paths will get appropriately escaped just before being passed
-                // into the PowerShell engine.
-                filePath = PowerShellContext.UnescapePath(filePath);
+                // into the SqlTools engine.
+                filePath = SqlToolsContext.UnescapePath(filePath);
 
                 // Get the absolute file path
                 filePath = Path.GetFullPath(filePath);
@@ -253,10 +253,10 @@ namespace Microsoft.PowerShell.EditorServices
 
         internal static bool IsPathInMemory(string filePath)
         {
-            // When viewing PowerShell files in the Git diff viewer, VS Code
+            // When viewing SqlTools files in the Git diff viewer, VS Code
             // sends the contents of the file at HEAD with a URI that starts
             // with 'inmemory'.  Untitled files which have been marked of
-            // type PowerShell have a path starting with 'untitled'.
+            // type SqlTools have a path starting with 'untitled'.
             return
                 filePath.StartsWith("inmemory") ||
                 filePath.StartsWith("untitled");

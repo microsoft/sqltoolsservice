@@ -1,6 +1,6 @@
 ﻿using System;
-using Microsoft.PowerShell.EditorServices.Protocol.Server;
-using Microsoft.PowerShell.EditorServices.Session;
+using Microsoft.SqlTools.EditorServices.Protocol.Server;
+using Microsoft.SqlTools.EditorServices.Session;
 
 namespace Microsoft.SqlTools.ServiceHost
 {        

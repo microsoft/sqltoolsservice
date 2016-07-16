@@ -3,15 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Protocol.LanguageServer;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Channel;
+using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.Client
+namespace Microsoft.SqlTools.EditorServices.Protocol.Client
 {
     public class LanguageServiceClient : LanguageClientBase
     {

@@ -8,7 +8,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Microsoft.PowerShell.EditorServices.Utility
+namespace Microsoft.SqlTools.EditorServices.Utility
 {
     /// <summary>
     /// Defines the level indicators for log messages.

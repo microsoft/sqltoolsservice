@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Serializers
+namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers
 {
     /// <summary>
     /// Serializes messages in the V8 format.  Used primarily for debug adapters.

@@ -3,13 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-// using Microsoft.PowerShell.EditorServices.Console;
-// using Microsoft.PowerShell.EditorServices.Extensions;
-using Microsoft.PowerShell.EditorServices.Session;
-// using Microsoft.PowerShell.EditorServices.Utility;
+// using Microsoft.SqlTools.EditorServices.Console;
+// using Microsoft.SqlTools.EditorServices.Extensions;
+using Microsoft.SqlTools.EditorServices.Session;
+// using Microsoft.SqlTools.EditorServices.Utility;
 // using System.IO;
 
-namespace Microsoft.PowerShell.EditorServices
+namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
     /// Manages a single session for all editor services.  This 
@@ -29,9 +29,9 @@ namespace Microsoft.PowerShell.EditorServices
         public Workspace Workspace { get; private set; }
 
         /// <summary>
-        /// Gets the PowerShellContext instance for this session.
+        /// Gets the SqlToolsContext instance for this session.
         /// </summary>
-        public PowerShellContext PowerShellContext { get; private set; }
+        public SqlToolsContext SqlToolsContext { get; private set; }
 
         /// <summary>
         /// Gets the LanguageService instance for this session.
@@ -75,16 +75,16 @@ namespace Microsoft.PowerShell.EditorServices
         public void StartSession(HostDetails hostDetails, ProfilePaths profilePaths)
         {
             // Initialize all services
-            this.PowerShellContext = new PowerShellContext(hostDetails, profilePaths);
-            this.LanguageService = new LanguageService(this.PowerShellContext);
-            this.DebugService = new DebugService(this.PowerShellContext);
-            this.ConsoleService = new ConsoleService(this.PowerShellContext);
-            this.ExtensionService = new ExtensionService(this.PowerShellContext);
+            this.SqlToolsContext = new SqlToolsContext(hostDetails, profilePaths);
+            this.LanguageService = new LanguageService(this.SqlToolsContext);
+            this.DebugService = new DebugService(this.SqlToolsContext);
+            this.ConsoleService = new ConsoleService(this.SqlToolsContext);
+            this.ExtensionService = new ExtensionService(this.SqlToolsContext);
 
             this.InstantiateAnalysisService();
 
             // Create a workspace to contain open files
-            this.Workspace = new Workspace(this.PowerShellContext.PowerShellVersion);
+            this.Workspace = new Workspace(this.SqlToolsContext.SqlToolsVersion);
         }
 
         /// <summary>
@@ -99,20 +99,20 @@ namespace Microsoft.PowerShell.EditorServices
 
         internal void InstantiateAnalysisService(string settingsPath = null)
         {
-            // Only enable the AnalysisService if the machine has PowerShell
-            // v5 installed.  Script Analyzer works on earlier PowerShell
+            // Only enable the AnalysisService if the machine has SqlTools
+            // v5 installed.  Script Analyzer works on earlier SqlTools
             // versions but our hard dependency on their binaries complicates
             // the deployment and assembly loading since we would have to
             // conditionally load the binaries for v3/v4 support.  This problem
             // will be solved in the future by using Script Analyzer as a
             // module rather than an assembly dependency.
-            if (this.PowerShellContext.PowerShellVersion.Major >= 5)
+            if (this.SqlToolsContext.SqlToolsVersion.Major >= 5)
             {
                 // AnalysisService will throw FileNotFoundException if
                 // Script Analyzer binaries are not included.
                 try
                 {
-                    this.AnalysisService = new AnalysisService(this.PowerShellContext.ConsoleHost, settingsPath);
+                    this.AnalysisService = new AnalysisService(this.SqlToolsContext.ConsoleHost, settingsPath);
                 }
                 catch (FileNotFoundException)
                 {
@@ -125,8 +125,8 @@ namespace Microsoft.PowerShell.EditorServices
             {
                 Logger.Write(
                     LogLevel.Normal,
-                    "Script Analyzer cannot be loaded due to unsupported PowerShell version " +
-                    this.PowerShellContext.PowerShellVersion.ToString());
+                    "Script Analyzer cannot be loaded due to unsupported SqlTools version " +
+                    this.SqlToolsContext.SqlToolsVersion.ToString());
             }
         }
 
@@ -146,10 +146,10 @@ namespace Microsoft.PowerShell.EditorServices
                 this.AnalysisService = null;
             }
 
-            if (this.PowerShellContext != null)
+            if (this.SqlToolsContext != null)
             {
-                this.PowerShellContext.Dispose();
-                this.PowerShellContext = null;
+                this.SqlToolsContext.Dispose();
+                this.SqlToolsContext = null;
             }
         }
 

@@ -3,15 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.LanguageServer
+namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
 {
     public class ExtensionCommandAddedNotification
     {
         public static readonly
             EventType<ExtensionCommandAddedNotification> Type =
-            EventType<ExtensionCommandAddedNotification>.Create("powerShell/extensionCommandAdded");
+            EventType<ExtensionCommandAddedNotification>.Create("SqlTools/extensionCommandAdded");
 
         public string Name { get; set; }
 
@@ -22,7 +22,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.LanguageServer
     {
         public static readonly
             EventType<ExtensionCommandUpdatedNotification> Type =
-            EventType<ExtensionCommandUpdatedNotification>.Create("powerShell/extensionCommandUpdated");
+            EventType<ExtensionCommandUpdatedNotification>.Create("SqlTools/extensionCommandUpdated");
 
         public string Name { get; set; }
     }
@@ -31,7 +31,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.LanguageServer
     {
         public static readonly
             EventType<ExtensionCommandRemovedNotification> Type =
-            EventType<ExtensionCommandRemovedNotification>.Create("powerShell/extensionCommandRemoved");
+            EventType<ExtensionCommandRemovedNotification>.Create("SqlTools/extensionCommandRemoved");
 
         public string Name { get; set; }
     }
@@ -50,7 +50,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.LanguageServer
     {
         public static readonly
             RequestType<InvokeExtensionCommandRequest, string> Type =
-            RequestType<InvokeExtensionCommandRequest, string>.Create("powerShell/invokeExtensionCommand");
+            RequestType<InvokeExtensionCommandRequest, string>.Create("SqlTools/invokeExtensionCommand");
 
         public string Name { get; set; }
 

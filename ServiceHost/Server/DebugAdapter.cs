@@ -5,11 +5,11 @@
 
 #if false
 
-using Microsoft.PowerShell.EditorServices.Protocol.DebugAdapter;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Channel;
-using Microsoft.PowerShell.EditorServices.Session;
-using Microsoft.PowerShell.EditorServices.Utility;
+using Microsoft.SqlTools.EditorServices.Protocol.DebugAdapter;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
+using Microsoft.SqlTools.EditorServices.Session;
+using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,7 +17,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
     public class DebugAdapter : DebugAdapterBase
     {
@@ -40,7 +40,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
             this.editorSession = new EditorSession();
             this.editorSession.StartSession(hostDetails, profilePaths);
             this.editorSession.DebugService.DebuggerStopped += this.DebugService_DebuggerStopped;
-            this.editorSession.ConsoleService.OutputWritten += this.powerShellContext_OutputWritten;
+            this.editorSession.ConsoleService.OutputWritten += this.SqlToolsContext_OutputWritten;
 
             // Set up the output debouncer to throttle output event writes
             this.outputDebouncer = new OutputDebouncer(this);
@@ -75,7 +75,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
 
         protected Task LaunchScript(RequestContext<object> requestContext)
         {
-            return editorSession.PowerShellContext
+            return editorSession.SqlToolsContext
                     .ExecuteScriptAtPath(this.scriptPathToLaunch, this.arguments)
                     .ContinueWith(
                         async (t) => {
@@ -130,11 +130,11 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
             LaunchRequestArguments launchParams,
             RequestContext<object> requestContext)
         {
-            // Set the working directory for the PowerShell runspace to the cwd passed in via launch.json. 
+            // Set the working directory for the SqlTools runspace to the cwd passed in via launch.json. 
             // In case that is null, use the the folder of the script to be executed.  If the resulting 
             // working dir path is a file path then extract the directory and use that.
             string workingDir = launchParams.Cwd ?? launchParams.Program;
-            workingDir = PowerShellContext.UnescapePath(workingDir);
+            workingDir = SqlToolsContext.UnescapePath(workingDir);
             try
             {
                 if ((File.GetAttributes(workingDir) & FileAttributes.Directory) != FileAttributes.Directory)
@@ -153,7 +153,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
 #endif
             }
 
-            editorSession.PowerShellContext.SetWorkingDirectory(workingDir);
+            editorSession.SqlToolsContext.SetWorkingDirectory(workingDir);
             Logger.Write(LogLevel.Verbose, "Working dir set to: " + workingDir);
 
             // Prepare arguments to the script - if specified
@@ -203,18 +203,18 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
             handler =
                 async (o, e) =>
                 {
-                    if (e.NewSessionState == PowerShellContextState.Ready)
+                    if (e.NewSessionState == SqlToolsContextState.Ready)
                     {
                         await requestContext.SendResult(null);
-                        editorSession.PowerShellContext.SessionStateChanged -= handler;
+                        editorSession.SqlToolsContext.SessionStateChanged -= handler;
 
                         // Stop the server
                         this.Stop();
                     }
                 };
 
-            editorSession.PowerShellContext.SessionStateChanged += handler;
-            editorSession.PowerShellContext.AbortExecution();
+            editorSession.SqlToolsContext.SessionStateChanged += handler;
+            editorSession.SqlToolsContext.AbortExecution();
 
             return Task.FromResult(true);
         }
@@ -571,7 +571,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
                 });
         }
 
-        async void powerShellContext_OutputWritten(object sender, OutputWrittenEventArgs e)
+        async void SqlToolsContext_OutputWritten(object sender, OutputWrittenEventArgs e)
         {
             // Queue the output for writing
             await this.outputDebouncer.Invoke(e);

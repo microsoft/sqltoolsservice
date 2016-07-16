@@ -4,12 +4,12 @@
 //
 
 
-//using Microsoft.PowerShell.EditorServices.Extensions;
-using Microsoft.PowerShell.EditorServices.Protocol.LanguageServer;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol;
-using Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol.Channel;
-using Microsoft.PowerShell.EditorServices.Session;
-//using Microsoft.PowerShell.EditorServices.Utility;
+//using Microsoft.SqlTools.EditorServices.Extensions;
+using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
+using Microsoft.SqlTools.EditorServices.Session;
+//using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,9 +18,9 @@ using System.Linq;
 //using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using DebugAdapterMessages = Microsoft.PowerShell.EditorServices.Protocol.DebugAdapter;
+using DebugAdapterMessages = Microsoft.SqlTools.EditorServices.Protocol.DebugAdapter;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
     public class LanguageServer : LanguageServerBase
     {
@@ -49,7 +49,7 @@ namespace Microsoft.PowerShell.EditorServices.Protocol.Server
 #if false            
             this.editorSession = new EditorSession();
             this.editorSession.StartSession(hostDetails, profilePaths);
-            this.editorSession.ConsoleService.OutputWritten += this.powerShellContext_OutputWritten;
+            this.editorSession.ConsoleService.OutputWritten += this.SqlToolsContext_OutputWritten;
 
             // Attach to ExtensionService events
             this.editorSession.ExtensionService.CommandAdded += ExtensionService_ExtensionAdded;
@@ -206,7 +206,7 @@ protected async Task HandleInitializeRequest(
             psCommand.AddArgument(helpParams);
             psCommand.AddParameter("Online");
 
-            await editorSession.PowerShellContext.ExecuteCommand<object>(psCommand);
+            await editorSession.SqlToolsContext.ExecuteCommand<object>(psCommand);
 
             await requestContext.SendResult(null);
         }
@@ -219,7 +219,7 @@ protected async Task HandleInitializeRequest(
             var script = string.Format("Install-Module -Name {0} -Scope CurrentUser", moduleName);
 
             var executeTask =
-               editorSession.PowerShellContext.ExecuteScriptString(
+               editorSession.SqlToolsContext.ExecuteScriptString(
                    script,
                    true,
                    true).ConfigureAwait(false);
@@ -281,11 +281,11 @@ function __Expand-Alias {
 }";
             var psCommand = new PSCommand();
             psCommand.AddScript(script);
-            await this.editorSession.PowerShellContext.ExecuteCommand<PSObject>(psCommand);
+            await this.editorSession.SqlToolsContext.ExecuteCommand<PSObject>(psCommand);
 
             psCommand = new PSCommand();
             psCommand.AddCommand("__Expand-Alias").AddArgument(content);
-            var result = await this.editorSession.PowerShellContext.ExecuteCommand<string>(psCommand);
+            var result = await this.editorSession.SqlToolsContext.ExecuteCommand<string>(psCommand);
 
             await requestContext.SendResult(result.First().ToString());
         }
@@ -297,7 +297,7 @@ function __Expand-Alias {
             var psCommand = new PSCommand();
             psCommand.AddScript("Find-Module | Select Name, Description");
 
-            var modules = await editorSession.PowerShellContext.ExecuteCommand<PSObject>(psCommand);
+            var modules = await editorSession.SqlToolsContext.ExecuteCommand<PSObject>(psCommand);
 
             var moduleList = new List<PSModuleMessage>();
 
@@ -388,14 +388,14 @@ function __Expand-Alias {
                 this.currentSettings.ScriptAnalysis.SettingsPath;
 
             this.currentSettings.Update(
-                configChangeParams.Settings.Powershell, 
+                configChangeParams.Settings.SqlTools, 
                 this.editorSession.Workspace.WorkspacePath);
 
             if (!this.profilesLoaded &&
                 this.currentSettings.EnableProfileLoading &&
                 oldLoadProfiles != this.currentSettings.EnableProfileLoading)
             {
-                await this.editorSession.PowerShellContext.LoadHostProfiles();
+                await this.editorSession.SqlToolsContext.LoadHostProfiles();
                 this.profilesLoaded = true;
             }
 
@@ -570,12 +570,12 @@ function __Expand-Alias {
                 CommandInfo commandInfo =
                     await CommandHelpers.GetCommandInfo(
                         completionItem.Label,
-                        this.editorSession.PowerShellContext);
+                        this.editorSession.SqlToolsContext);
 
                 completionItem.Documentation =
                     await CommandHelpers.GetCommandSynopsis(
                         commandInfo,
-                        this.editorSession.PowerShellContext);
+                        this.editorSession.SqlToolsContext);
             }
 
             // Send back the updated CompletionItem
@@ -696,7 +696,7 @@ function __Expand-Alias {
                 symbolInfo.Add(
                     new MarkedString
                     {
-                        Language = "PowerShell",
+                        Language = "SqlTools",
                         Value = symbolDetails.DisplayString
                     });
 
@@ -853,7 +853,7 @@ function __Expand-Alias {
             // is executing.  This important in cases where the pipeline thread
             // gets blocked by something in the script like a prompt to the user.
             var executeTask =
-                this.editorSession.PowerShellContext.ExecuteScriptString(
+                this.editorSession.SqlToolsContext.ExecuteScriptString(
                     evaluateParams.Expression,
                     true,
                     true);
@@ -881,7 +881,7 @@ function __Expand-Alias {
 
         #region Event Handlers
 
-        private async void powerShellContext_OutputWritten(object sender, OutputWrittenEventArgs e)
+        private async void SqlToolsContext_OutputWritten(object sender, OutputWrittenEventArgs e)
         {
             // Queue the output for writing
             await this.outputDebouncer.Invoke(e);
@@ -1149,7 +1149,7 @@ function __Expand-Alias {
                 (completionDetails.CompletionType == CompletionType.ParameterName))
             {
                 // Look for type encoded in the tooltip for parameters and variables.
-                // Display PowerShell type names in [] to be consistent with PowerShell syntax
+                // Display SqlTools type names in [] to be consistent with SqlTools syntax
                 // and now the debugger displays type names.
                 var matches = Regex.Matches(completionDetails.ToolTipText, @"^(\[.+\])");
                 if ((matches.Count > 0) && (matches[0].Groups.Count > 1))
@@ -1187,7 +1187,7 @@ function __Expand-Alias {
             }
 
             // We want a special "sort order" for parameters that is not lexicographical.
-            // Fortunately, PowerShell returns parameters in the preferred sort order by
+            // Fortunately, SqlTools returns parameters in the preferred sort order by
             // default (with common params at the end). We just need to make sure the default
             // order also be the lexicographical order which we do by prefixig the ListItemText
             // with a leading 0's four digit index.  This would not sort correctly for a list

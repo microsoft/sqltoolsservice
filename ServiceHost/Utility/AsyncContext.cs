@@ -7,7 +7,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.PowerShell.EditorServices.Utility
+namespace Microsoft.SqlTools.EditorServices.Utility
 {
     /// <summary>
     /// Simplifies the setup of a SynchronizationContext for the use

@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.PowerShell.EditorServices.Utility
+namespace Microsoft.SqlTools.EditorServices.Utility
 {
     internal static class ObjectExtensions
     {

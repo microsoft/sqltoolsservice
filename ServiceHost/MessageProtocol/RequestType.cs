@@ -5,7 +5,7 @@
 
 using System.Diagnostics;
 
-namespace Microsoft.PowerShell.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
 {
     [DebuggerDisplay("RequestType MethodName = {MethodName}")]
     public class RequestType<TParams, TResult>
