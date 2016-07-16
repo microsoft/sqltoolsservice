@@ -4,11 +4,6 @@
 //
 
 using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
 {

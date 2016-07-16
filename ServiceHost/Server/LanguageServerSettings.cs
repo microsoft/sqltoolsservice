@@ -28,6 +28,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             }
         }
     }
+ 
 
     public class ScriptAnalysisSettings
     {
@@ -76,6 +77,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             }
         }
     }
+
 
     public class LanguageServerSettingsWrapper
     {

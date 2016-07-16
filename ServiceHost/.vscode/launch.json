@@ -10,13 +10,15 @@
             "args": [],
             "cwd": "${workspaceRoot}",
             "externalConsole": true,
+            "requireExactSource": false,
             "stopAtEntry": false
         },
         {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",
-            "processId": 16900
+            "requireExactSource": false,
+            "processId": 14720
         }
     ]
 }
