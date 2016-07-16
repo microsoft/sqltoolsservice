@@ -75,10 +75,6 @@ namespace Microsoft.SqlTools.EditorServices
 #if false        
         #region Properties
 
-        
-
-        
-
         /// <summary>
         /// Gets the LanguageService instance for this session.
         /// </summary>

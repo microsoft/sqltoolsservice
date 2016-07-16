@@ -11,14 +11,6 @@ namespace Microsoft.SqlTools.EditorServices
     /// </summary>
     public class FilePosition : BufferPosition
     {
-        public FilePosition(
-            ScriptFile scriptFile,
-            int line,
-            int column)
-                : base(line, column)
-        {
-        }
-#if false        
         #region Private Fields
 
         private ScriptFile scriptFile;
@@ -112,7 +104,7 @@ namespace Microsoft.SqlTools.EditorServices
         }
 
         #endregion
-#endif        
+   
     }
 }
 

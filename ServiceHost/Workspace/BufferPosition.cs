@@ -108,4 +108,3 @@ namespace Microsoft.SqlTools.EditorServices
         #endregion
     }
 }
-

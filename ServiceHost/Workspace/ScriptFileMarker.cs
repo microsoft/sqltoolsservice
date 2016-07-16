@@ -3,14 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Utility;
-using System;
-//using System.Management.Automation.Language;
-
-#if ScriptAnalyzer
-using Microsoft.Windows.SqlTools.ScriptAnalyzer.Generic;
-#endif
-
 namespace Microsoft.SqlTools.EditorServices
 {
     /// <summary>
@@ -57,60 +49,6 @@ namespace Microsoft.SqlTools.EditorServices
         /// Gets or sets the ScriptRegion where the marker should appear.
         /// </summary>
         public ScriptRegion ScriptRegion { get; set; }
-
-        #endregion
-
-        #region Public Methods
-
-#if false
-        internal static ScriptFileMarker FromParseError(
-            ParseError parseError)
-        {
-            Validate.IsNotNull("parseError", parseError);
-
-            return new ScriptFileMarker
-            {
-                Message = parseError.Message,
-                Level = ScriptFileMarkerLevel.Error,
-                ScriptRegion = ScriptRegion.Create(parseError.Extent)
-            };
-        }
-#endif        
-
-#if ScriptAnalyzer
-        internal static ScriptFileMarker FromDiagnosticRecord(
-            DiagnosticRecord diagnosticRecord)
-        {
-            Validate.IsNotNull("diagnosticRecord", diagnosticRecord);
-
-            return new ScriptFileMarker
-            {
-                Message = diagnosticRecord.Message,
-                Level = GetMarkerLevelFromDiagnosticSeverity(diagnosticRecord.Severity),
-                ScriptRegion = ScriptRegion.Create(diagnosticRecord.Extent)
-            };
-        }
-
-        private static ScriptFileMarkerLevel GetMarkerLevelFromDiagnosticSeverity(
-            DiagnosticSeverity diagnosticSeverity)
-        {
-            switch (diagnosticSeverity)
-            {
-                case DiagnosticSeverity.Information:
-                    return ScriptFileMarkerLevel.Information;
-                case DiagnosticSeverity.Warning:
-                    return ScriptFileMarkerLevel.Warning;
-                case DiagnosticSeverity.Error:
-                    return ScriptFileMarkerLevel.Error;
-                default:
-                    throw new ArgumentException(
-                        string.Format(
-                            "The provided DiagnosticSeverity value '{0}' is unknown.",
-                            diagnosticSeverity),
-                        "diagnosticSeverity");
-            }
-        }
-#endif
 
         #endregion
     }
