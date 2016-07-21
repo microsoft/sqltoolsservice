@@ -13,24 +13,25 @@ using System.Text;
 using System.Threading;
 using System.Linq;
 using System;
+using Microsoft.SqlTools.EditorServices;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
 {
     /// <summary>
     /// SQL Tools VS Code Language Server request handler
     /// </summary>
-    public class LanguageServer : LanguageServerBase
+    public class ServiceHost : ServiceHostBase
     {
         private static CancellationTokenSource existingRequestCancellation;
 
-        private LanguageServerSettings currentSettings = new LanguageServerSettings();
+        private ServiceHostSettings currentSettings = new ServiceHostSettings();
         
         private EditorSession editorSession;
 
         /// <param name="hostDetails">
         /// Provides details about the host application.
         /// </param>
-        public LanguageServer(HostDetails hostDetails, ProfilePaths profilePaths)
+        public ServiceHost(HostDetails hostDetails, ProfilePaths profilePaths)
             : base(new StdioServerChannel())
         {
             this.editorSession = new EditorSession();

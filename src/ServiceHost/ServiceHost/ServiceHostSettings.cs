@@ -6,20 +6,20 @@
 using System.IO;
 using Microsoft.SqlTools.EditorServices.Utility;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
 {
-    public class LanguageServerSettings
+    public class ServiceHostSettings
     {
         public bool EnableProfileLoading { get; set; }
 
         public ScriptAnalysisSettings ScriptAnalysis { get; set; }
 
-        public LanguageServerSettings()
+        public ServiceHostSettings()
         {
             this.ScriptAnalysis = new ScriptAnalysisSettings();
         }
 
-        public void Update(LanguageServerSettings settings, string workspaceRootPath)
+        public void Update(ServiceHostSettings settings, string workspaceRootPath)
         {
             if (settings != null)
             {
@@ -85,6 +85,6 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
         // mode name sent from the client is written as 'SqlTools' and
         // JSON.net is using camelCasing.
 
-        public LanguageServerSettings SqlTools { get; set; }
+        public ServiceHostSettings SqlTools { get; set; }
     }
 }

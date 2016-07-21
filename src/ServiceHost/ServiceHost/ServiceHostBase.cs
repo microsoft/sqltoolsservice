@@ -8,15 +8,15 @@ using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
 using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
 {
-    public abstract class LanguageServerBase : ProtocolEndpoint
+    public abstract class ServiceHostBase : ProtocolEndpoint
     {
         private bool isStarted;
         private ChannelBase serverChannel;
         private TaskCompletionSource<bool> serverExitedTask;
 
-        public LanguageServerBase(ChannelBase serverChannel) : 
+        public ServiceHostBase(ChannelBase serverChannel) : 
             base(serverChannel, MessageProtocolType.LanguageServer)
         {
             this.serverChannel = serverChannel;
