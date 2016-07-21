@@ -2,18 +2,19 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
-using Microsoft.SqlTools.EditorServices.Session;
+
 using System.Threading.Tasks;
-using Microsoft.SqlTools.EditorServices.Utility;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Linq;
 using System;
 using Microsoft.SqlTools.EditorServices;
+using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
+using Microsoft.SqlTools.EditorServices.Session;
+using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
 {

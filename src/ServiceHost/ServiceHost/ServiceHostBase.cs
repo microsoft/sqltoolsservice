@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
 {

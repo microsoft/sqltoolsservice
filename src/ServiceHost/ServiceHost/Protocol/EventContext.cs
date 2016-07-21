@@ -4,8 +4,9 @@
 //
 
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol
 {
     /// <summary>
     /// Provides context for a received event so that handlers

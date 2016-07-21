@@ -5,7 +5,7 @@
 
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Serializers
 {
     /// <summary>
     /// Defines a common interface for message serializers.

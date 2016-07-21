@@ -3,15 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
-using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel;
+using Microsoft.SqlTools.EditorServices.Utility;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol
 {
     public class MessageDispatcher
     {

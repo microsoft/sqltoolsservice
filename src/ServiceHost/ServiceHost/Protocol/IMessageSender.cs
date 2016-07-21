@@ -4,8 +4,9 @@
 //
 
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol
 {
     internal interface IMessageSender
     {

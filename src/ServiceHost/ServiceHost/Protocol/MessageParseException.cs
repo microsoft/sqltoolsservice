@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol
 {
     public class MessageParseException : Exception
     {

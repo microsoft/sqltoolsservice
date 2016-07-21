@@ -7,7 +7,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel
 {
     /// <summary>
     /// Provides a server implementation for the standard I/O channel.

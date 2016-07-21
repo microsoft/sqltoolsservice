@@ -3,13 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol
 {
     /// <summary>
     /// Provides behavior for a client or server endpoint that

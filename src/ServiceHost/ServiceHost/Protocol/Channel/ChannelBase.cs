@@ -6,7 +6,7 @@
 using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Channel
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel
 {
     /// <summary>
     /// Defines a base implementation for servers and their clients over a

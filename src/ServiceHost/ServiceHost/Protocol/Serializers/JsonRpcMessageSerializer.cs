@@ -5,7 +5,7 @@
 
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Serializers
 {
     /// <summary>
     /// Serializes messages in the JSON RPC format.  Used primarily

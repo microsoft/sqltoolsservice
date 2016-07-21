@@ -3,10 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Contracts;
+using Newtonsoft.Json.Linq;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol
 {
     public class RequestContext<TResult>
     {

@@ -6,7 +6,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Serializers
 {
     /// <summary>
     /// Serializes messages in the V8 format.  Used primarily for debug adapters.
