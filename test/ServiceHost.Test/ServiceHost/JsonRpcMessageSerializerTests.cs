@@ -3,12 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Serializers;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace Microsoft.SqlTools.EditorServices.Test.Protocol.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
 {
     public class TestMessageContents
     {
@@ -44,7 +43,7 @@ namespace Microsoft.SqlTools.EditorServices.Test.Protocol.LanguageServer
         {
             var messageObj =
                 this.messageSerializer.SerializeMessage(
-                    Message.Request(
+                    ServiceLayer.ServiceHost.Protocol.Contracts.Message.Request(
                         MessageId, 
                         MethodName, 
                         MessageContent));
@@ -61,7 +60,7 @@ namespace Microsoft.SqlTools.EditorServices.Test.Protocol.LanguageServer
         {
             var messageObj =
                 this.messageSerializer.SerializeMessage(
-                    Message.Event(
+                    ServiceLayer.ServiceHost.Protocol.Contracts.Message.Event(
                         MethodName, 
                         MessageContent));
 
@@ -76,7 +75,7 @@ namespace Microsoft.SqlTools.EditorServices.Test.Protocol.LanguageServer
         {
             var messageObj =
                 this.messageSerializer.SerializeMessage(
-                    Message.Response(
+                    ServiceLayer.ServiceHost.Protocol.Contracts.Message.Response(
                         MessageId,
                         null,
                         MessageContent));
@@ -92,7 +91,7 @@ namespace Microsoft.SqlTools.EditorServices.Test.Protocol.LanguageServer
         {
             var messageObj =
                 this.messageSerializer.SerializeMessage(
-                    Message.ResponseError(
+                    ServiceLayer.ServiceHost.Protocol.Contracts.Message.ResponseError(
                         MessageId,
                         null,
                         MessageContent));
