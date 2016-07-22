@@ -16,12 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
     /// </summary>
     public class ScriptFile
     {
-        #region Private Fields
-
-        private Version SqlToolsVersion;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -113,18 +107,15 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
         /// <param name="filePath">The path at which the script file resides.</param>
         /// <param name="clientFilePath">The path which the client uses to identify the file.</param>
         /// <param name="textReader">The TextReader to use for reading the file's contents.</param>
-        /// <param name="SqlToolsVersion">The version of SqlTools for which the script is being parsed.</param>
         public ScriptFile(
             string filePath,
             string clientFilePath,
-            TextReader textReader,
-            Version SqlToolsVersion)
+            TextReader textReader)
         {
             this.FilePath = filePath;
             this.ClientFilePath = clientFilePath;
             this.IsAnalysisEnabled = true;
             this.IsInMemory = Workspace.IsPathInMemory(filePath);
-            this.SqlToolsVersion = SqlToolsVersion;
 
             this.SetFileContents(textReader.ReadToEnd());
         }
@@ -135,17 +126,14 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
         /// <param name="filePath">The path at which the script file resides.</param>
         /// <param name="clientFilePath">The path which the client uses to identify the file.</param>
         /// <param name="initialBuffer">The initial contents of the script file.</param>
-        /// <param name="SqlToolsVersion">The version of SqlTools for which the script is being parsed.</param>
         public ScriptFile(
             string filePath,
             string clientFilePath,
-            string initialBuffer,
-            Version SqlToolsVersion)
+            string initialBuffer)
         {
             this.FilePath = filePath;
             this.ClientFilePath = clientFilePath;
             this.IsAnalysisEnabled = true;
-            this.SqlToolsVersion = SqlToolsVersion;
 
             this.SetFileContents(initialBuffer);
         }

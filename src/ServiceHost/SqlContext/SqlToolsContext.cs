@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.EditorServices.Session
+namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
     public class SqlToolsContext
     {

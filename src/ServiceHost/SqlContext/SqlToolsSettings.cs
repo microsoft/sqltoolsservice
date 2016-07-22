@@ -1,25 +1,26 @@
-﻿//
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
-
-using System.IO;
+﻿using System.IO;
 using Microsoft.SqlTools.EditorServices.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
+namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
-    public class ServiceHostSettings
+    public class SqlToolsSettings
     {
-        public bool EnableProfileLoading { get; set; }
+        // TODO: Is this needed? I can't make sense of this comment.
+        // NOTE: This property is capitalized as 'SqlTools' because the
+        // mode name sent from the client is written as 'SqlTools' and
+        // JSON.net is using camelCasing.
+        //public ServiceHostSettings SqlTools { get; set; }
 
-        public ScriptAnalysisSettings ScriptAnalysis { get; set; }
-
-        public ServiceHostSettings()
+        public SqlToolsSettings()
         {
             this.ScriptAnalysis = new ScriptAnalysisSettings();
         }
 
-        public void Update(ServiceHostSettings settings, string workspaceRootPath)
+        public bool EnableProfileLoading { get; set; }
+
+        public ScriptAnalysisSettings ScriptAnalysis { get; set; }
+
+        public void Update(SqlToolsSettings settings, string workspaceRootPath)
         {
             if (settings != null)
             {
@@ -28,7 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
             }
         }
     }
- 
 
     public class ScriptAnalysisSettings
     {
@@ -76,15 +76,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
                 this.SettingsPath = settingsPath;
             }
         }
-    }
-
-
-    public class LanguageServerSettingsWrapper
-    {
-        // NOTE: This property is capitalized as 'SqlTools' because the
-        // mode name sent from the client is written as 'SqlTools' and
-        // JSON.net is using camelCasing.
-
-        public ServiceHostSettings SqlTools { get; set; }
     }
 }

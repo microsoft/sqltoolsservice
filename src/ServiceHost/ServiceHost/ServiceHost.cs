@@ -5,18 +5,11 @@
 
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading;
 using System.Linq;
-using System;
-using Microsoft.SqlTools.EditorServices;
-using Microsoft.SqlTools.EditorServices.Session;
 using Microsoft.SqlTools.EditorServices.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageService.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ServiceHost.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol;
 using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel;
-using Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
 {
@@ -35,18 +28,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
         /// <summary>
         /// Creates or retrieves the current instance of the ServiceHost
         /// </summary>
-        /// <param name="hostDetails">Details about the host application</param>
-        /// <param name="profilePaths">Details about the profile</param>
         /// <returns>Instance of the service host</returns>
-        public static ServiceHost Create(HostDetails hostDetails, ProfilePaths profilePaths)
+        public static ServiceHost Create()
         {
             if (instance == null)
             {
-                instance = new ServiceHost(hostDetails, profilePaths);
+                instance = new ServiceHost();
             }
-            // TODO: hostDetails and profilePaths are thrown out in SqlDataToolsContext,
-            // so we don't need to keep track of whether these have changed for now.
-
             return instance;
         }
 
@@ -54,17 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
         /// Constructs new instance of ServiceHost using the host and profile details provided.
         /// Access is private to ensure only one instance exists at a time.
         /// </summary>
-        /// <param name="hostDetails">Details about the host application</param>
-        /// <param name="profilePaths">Details about the profile</param>
-        private ServiceHost(HostDetails hostDetails, ProfilePaths profilePaths)
-            : base(new StdioServerChannel())
+        private ServiceHost() : base(new StdioServerChannel())
         {
             // Initialize the shutdown activities
             shutdownActivities = new List<ShutdownHandler>();
-
-            // Create an editor session that we'll use for keeping track of state
-            this.editorSession = new EditorSession();
-            this.editorSession.StartSession(hostDetails, profilePaths);
+            initializeActivities = new List<InitializeHandler>();
 
             // Register the requests that this service host will handle
             this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
@@ -75,15 +57,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
 
         #region Member Variables
 
-        private static CancellationTokenSource existingRequestCancellation;
-
-        private ServiceHostSettings currentSettings = new ServiceHostSettings();
-        
-        private EditorSession editorSession;
-
         public delegate Task ShutdownHandler(object shutdownParams, RequestContext<object> shutdownRequestContext);
 
+        public delegate Task InitializeHandler(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
+
         private readonly List<ShutdownHandler> shutdownActivities;
+
+        private readonly List<InitializeHandler> initializeActivities;
 
         #endregion
 
@@ -98,24 +78,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
             shutdownActivities.Add(activity);
         }
 
+        /// <summary>
+        /// Add a new method to be called when the initialize request is submitted
+        /// </summary>
+        /// <param name="activity"></param>
+        public void RegisterInitializeTask(InitializeHandler activity)
+        {
+            initializeActivities.Add(activity);
+        }
+
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        /// Initialize the VS Code request/response callbacks
-        /// </summary>
-        private void Initialize()
-        {
-            // Register all supported message types
-
-            this.SetEventHandler(DidChangeTextDocumentNotification.Type, this.HandleDidChangeTextDocumentNotification);
-            this.SetEventHandler(DidOpenTextDocumentNotification.Type, this.HandleDidOpenTextDocumentNotification);
-            this.SetEventHandler(DidCloseTextDocumentNotification.Type, this.HandleDidCloseTextDocumentNotification);
-            this.SetEventHandler(DidChangeConfigurationNotification<LanguageServerSettingsWrapper>.Type, this.HandleDidChangeConfigurationNotification);
-
-                          
-        }
+        #region Request Handlers
 
         /// <summary>
         /// Handles the shutdown event for the Language Server
@@ -127,13 +101,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
             // Call all the shutdown methods provided by the service components
             Task[] shutdownTasks = shutdownActivities.Select(t => t(shutdownParams, requestContext)).ToArray();
             await Task.WhenAll(shutdownTasks);
-
-            // Shutdown the editor session
-            if (this.editorSession != null)
-            {
-                this.editorSession.Dispose();
-                this.editorSession = null;
-            }
         }
 
         /// <summary>
@@ -146,9 +113,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
         {
             Logger.Write(LogLevel.Verbose, "HandleInitializationRequest");
 
-            // Grab the workspace path from the parameters
-           editorSession.Workspace.WorkspacePath = initializeParams.RootPath;
+            // Call all tasks that registered on the initialize request
+            var initializeTasks = initializeActivities.Select(t => t(initializeParams, requestContext));
+            await Task.WhenAll(initializeTasks);
 
+            // TODO: Figure out where this needs to go to be agnostic of the language
+
+            // Send back what this server can do
             await requestContext.SendResult(
                 new InitializeResult
                 {
@@ -175,334 +146,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
         }
 
         #endregion
-
-        ///////////////////////////////////////////////
-
-
-        /// <summary>
-        /// Handles text document change events
-        /// </summary>
-        /// <param name="textChangeParams"></param>
-        /// <param name="eventContext"></param>
-        /// <returns></returns>
-        protected Task HandleDidChangeTextDocumentNotification(
-            DidChangeTextDocumentParams textChangeParams,
-            EventContext eventContext)
-        {
-            StringBuilder msg = new StringBuilder();
-            msg.Append("HandleDidChangeTextDocumentNotification"); 
-            List<ScriptFile> changedFiles = new List<ScriptFile>();
-
-            // A text change notification can batch multiple change requests
-            foreach (var textChange in textChangeParams.ContentChanges)
-            {
-                string fileUri = textChangeParams.TextDocument.Uri;
-                msg.AppendLine();
-                msg.Append("  File: ");
-                msg.Append(fileUri);
-
-                ScriptFile changedFile = editorSession.Workspace.GetFile(fileUri);
-
-                changedFile.ApplyChange(
-                    GetFileChangeDetails(
-                        textChange.Range.Value,
-                        textChange.Text));
-
-                changedFiles.Add(changedFile);
-            }
-
-            Logger.Write(LogLevel.Verbose, msg.ToString());
-
-            this.RunScriptDiagnostics(
-                changedFiles.ToArray(),
-                editorSession,
-                eventContext);
-
-            return Task.FromResult(true);
-        }
-
-        protected Task HandleDidOpenTextDocumentNotification(
-            DidOpenTextDocumentNotification openParams,
-            EventContext eventContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
-            return Task.FromResult(true);
-        }
-
-         protected Task HandleDidCloseTextDocumentNotification(
-            TextDocumentIdentifier closeParams,
-            EventContext eventContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");
-            return Task.FromResult(true);
-        }
-
-        /// <summary>
-        /// Handles the configuration change event
-        /// </summary>
-        /// <param name="configChangeParams"></param>
-        /// <param name="eventContext"></param>
-        protected async Task HandleDidChangeConfigurationNotification(
-            DidChangeConfigurationParams<LanguageServerSettingsWrapper> configChangeParams,
-            EventContext eventContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleDidChangeConfigurationNotification");
-
-            bool oldLoadProfiles = this.currentSettings.EnableProfileLoading;
-            bool oldScriptAnalysisEnabled = 
-                this.currentSettings.ScriptAnalysis.Enable.HasValue;
-            string oldScriptAnalysisSettingsPath =
-                this.currentSettings.ScriptAnalysis.SettingsPath;
-
-            this.currentSettings.Update(
-                configChangeParams.Settings.SqlTools, 
-                this.editorSession.Workspace.WorkspacePath);
-
-            // If script analysis settings have changed we need to clear & possibly update the current diagnostic records.
-            if ((oldScriptAnalysisEnabled != this.currentSettings.ScriptAnalysis.Enable))
-            {
-                // If the user just turned off script analysis or changed the settings path, send a diagnostics
-                // event to clear the analysis markers that they already have.
-                if (!this.currentSettings.ScriptAnalysis.Enable.Value)
-                {
-                    ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
-
-                    foreach (var scriptFile in editorSession.Workspace.GetOpenedFiles())
-                    {
-                        await PublishScriptDiagnostics(
-                            scriptFile,
-                            emptyAnalysisDiagnostics,
-                            eventContext);
-                    }
-                }
-                else
-                {
-                    await this.RunScriptDiagnostics(
-                        this.editorSession.Workspace.GetOpenedFiles(),
-                        this.editorSession,
-                        eventContext);
-                }
-            }
-
-            await Task.FromResult(true);
-        }
-
-        /// <summary>
-        /// Runs script diagnostics on changed files
-        /// </summary>
-        /// <param name="filesToAnalyze"></param>
-        /// <param name="editorSession"></param>
-        /// <param name="eventContext"></param>
-        private Task RunScriptDiagnostics(
-            ScriptFile[] filesToAnalyze,
-            EditorSession editorSession,
-            EventContext eventContext)
-        {
-            if (!this.currentSettings.ScriptAnalysis.Enable.Value)
-            {
-                // If the user has disabled script analysis, skip it entirely
-                return Task.FromResult(true);
-            }
-
-            // If there's an existing task, attempt to cancel it
-            try
-            {
-                if (existingRequestCancellation != null)
-                {
-                    // Try to cancel the request
-                    existingRequestCancellation.Cancel();
-
-                    // If cancellation didn't throw an exception,
-                    // clean up the existing token
-                    existingRequestCancellation.Dispose();
-                    existingRequestCancellation = null;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Write(
-                    LogLevel.Error,
-                    String.Format(
-                        "Exception while cancelling analysis task:\n\n{0}",
-                        e.ToString()));
-
-                TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
-                cancelTask.SetCanceled();
-                return cancelTask.Task;
-            }
-
-            // Create a fresh cancellation token and then start the task.
-            // We create this on a different TaskScheduler so that we
-            // don't block the main message loop thread.
-            existingRequestCancellation = new CancellationTokenSource();
-            Task.Factory.StartNew(
-                () =>
-                    DelayThenInvokeDiagnostics(
-                        750,
-                        filesToAnalyze,
-                        editorSession,
-                        eventContext,
-                        existingRequestCancellation.Token),
-                CancellationToken.None,
-                TaskCreationOptions.None,
-                TaskScheduler.Default);
-
-            return Task.FromResult(true);
-        }
-
-        /// <summary>
-        /// Actually run the script diagnostics after waiting for some small delay
-        /// </summary>
-        /// <param name="delayMilliseconds"></param>
-        /// <param name="filesToAnalyze"></param>
-        /// <param name="editorSession"></param>
-        /// <param name="eventContext"></param>
-        /// <param name="cancellationToken"></param>
-        private static async Task DelayThenInvokeDiagnostics(
-            int delayMilliseconds,
-            ScriptFile[] filesToAnalyze,
-            EditorSession editorSession,
-            EventContext eventContext,
-            CancellationToken cancellationToken)
-        {
-            // First of all, wait for the desired delay period before
-            // analyzing the provided list of files
-            try
-            {
-                await Task.Delay(delayMilliseconds, cancellationToken);
-            }
-            catch (TaskCanceledException)
-            {
-                // If the task is cancelled, exit directly
-                return;
-            }
-
-            // If we've made it past the delay period then we don't care
-            // about the cancellation token anymore.  This could happen
-            // when the user stops typing for long enough that the delay
-            // period ends but then starts typing while analysis is going
-            // on.  It makes sense to send back the results from the first
-            // delay period while the second one is ticking away.
-
-            // Get the requested files
-            foreach (ScriptFile scriptFile in filesToAnalyze)
-            {
-                ScriptFileMarker[] semanticMarkers = null;
-                if (editorSession.LanguageService != null)
-                {
-                    Logger.Write(LogLevel.Verbose, "Analyzing script file: " + scriptFile.FilePath);
-                    semanticMarkers = editorSession.LanguageService.GetSemanticMarkers(scriptFile);
-                    Logger.Write(LogLevel.Verbose, "Analysis complete.");
-                }
-                else
-                {
-                    // Semantic markers aren't available if the AnalysisService
-                    // isn't available
-                    semanticMarkers = new ScriptFileMarker[0];                   
-                }
-
-                await PublishScriptDiagnostics(
-                    scriptFile,
-                    semanticMarkers,
-                    eventContext);
-            }
-        }
-
-        /// <summary>
-        /// Send the diagnostic results back to the host application
-        /// </summary>
-        /// <param name="scriptFile"></param>
-        /// <param name="semanticMarkers"></param>
-        /// <param name="eventContext"></param>
-        private static async Task PublishScriptDiagnostics(
-            ScriptFile scriptFile,
-            ScriptFileMarker[] semanticMarkers,
-            EventContext eventContext)
-        {
-            var allMarkers = scriptFile.SyntaxMarkers != null 
-                    ? scriptFile.SyntaxMarkers.Concat(semanticMarkers)
-                    : semanticMarkers;
-
-            // Always send syntax and semantic errors.  We want to 
-            // make sure no out-of-date markers are being displayed.
-            await eventContext.SendEvent(
-                PublishDiagnosticsNotification.Type,
-                new PublishDiagnosticsNotification
-                {
-                    Uri = scriptFile.ClientFilePath,
-                    Diagnostics =
-                       allMarkers
-                            .Select(GetDiagnosticFromMarker)
-                            .ToArray()
-                });
-        }
-        
-        /// <summary>
-        /// Convert a ScriptFileMarker to a Diagnostic that is Language Service compatible
-        /// </summary>
-        /// <param name="scriptFileMarker"></param>
-        /// <returns></returns>
-        private static Diagnostic GetDiagnosticFromMarker(ScriptFileMarker scriptFileMarker)
-        {
-            return new Diagnostic
-            {
-                Severity = MapDiagnosticSeverity(scriptFileMarker.Level),
-                Message = scriptFileMarker.Message,
-                Range = new Range
-                {
-                    // TODO: What offsets should I use?
-                    Start = new Position
-                    {
-                        Line = scriptFileMarker.ScriptRegion.StartLineNumber - 1,
-                        Character = scriptFileMarker.ScriptRegion.StartColumnNumber - 1
-                    },
-                    End = new Position
-                    {
-                        Line = scriptFileMarker.ScriptRegion.EndLineNumber - 1,
-                        Character = scriptFileMarker.ScriptRegion.EndColumnNumber - 1
-                    }
-                }
-            };
-        }
-
-        /// <summary>
-        /// Map ScriptFileMarker severity to Diagnostic severity
-        /// </summary>
-        /// <param name="markerLevel"></param>        
-        private static DiagnosticSeverity MapDiagnosticSeverity(ScriptFileMarkerLevel markerLevel)
-        {
-            switch (markerLevel)
-            {
-                case ScriptFileMarkerLevel.Error:
-                    return DiagnosticSeverity.Error;
-
-                case ScriptFileMarkerLevel.Warning:
-                    return DiagnosticSeverity.Warning;
-
-                case ScriptFileMarkerLevel.Information:
-                    return DiagnosticSeverity.Information;
-
-                default:
-                    return DiagnosticSeverity.Error;
-            }
-        }
-
-        /// <summary>
-        /// Switch from 0-based offsets to 1 based offsets
-        /// </summary>
-        /// <param name="changeRange"></param>
-        /// <param name="insertString"></param>        
-        private static FileChange GetFileChangeDetails(Range changeRange, string insertString)
-        {
-            // The protocol's positions are zero-based so add 1 to all offsets
-            return new FileChange
-            {
-                InsertString = insertString,
-                Line = changeRange.Start.Line + 1,
-                Offset = changeRange.Start.Character + 1,
-                EndLine = changeRange.End.Line + 1,
-                EndOffset = changeRange.End.Character + 1
-            };
-        }
     }
 }

@@ -3,25 +3,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService
 {
     /// <summary>
     /// Manages a "workspace" of script files that are open for a particular
     /// editing session.  Also helps to navigate references between ScriptFiles.
     /// </summary>
-    public class Workspace
+    public class Workspace : IDisposable
     {
-         #region Private Fields
+        #region Private Fields
 
-        private Version SqlToolsVersion;
         private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
 
         #endregion
@@ -40,10 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
         /// <summary>
         /// Creates a new instance of the Workspace class.
         /// </summary>
-        /// <param name="SqlToolsVersion">The version of SqlTools for which scripts will be parsed.</param>
-        public Workspace(Version SqlToolsVersion)
+        public Workspace()
         {
-            this.SqlToolsVersion = SqlToolsVersion;
         }
 
         #endregion
@@ -78,12 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
                 using (FileStream fileStream = new FileStream(resolvedFilePath, FileMode.Open, FileAccess.Read))
                 using (StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
-                    scriptFile = 
-                        new ScriptFile(
-                            resolvedFilePath,
-                            filePath,
-                            streamReader,
-                            this.SqlToolsVersion);
+                    scriptFile = new ScriptFile(resolvedFilePath, filePath,streamReader);
 
                     this.workspaceFiles.Add(keyName, scriptFile);
                 }
@@ -169,12 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
             ScriptFile scriptFile = null;
             if (!this.workspaceFiles.TryGetValue(keyName, out scriptFile))
             {
-                scriptFile = 
-                    new ScriptFile(
-                        resolvedFilePath,
-                        filePath,
-                        initialBuffer,
-                        this.SqlToolsVersion);
+                scriptFile = new ScriptFile(resolvedFilePath, filePath, initialBuffer);
 
                 this.workspaceFiles.Add(keyName, scriptFile);
 
@@ -244,5 +232,17 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
         }
 
         #endregion  
+
+        #region IDisposable Implementation
+
+        /// <summary>
+        /// Disposes of any Runspaces that were created for the
+        /// services used in this session.
+        /// </summary>
+        public void Dispose()
+        {
+        }
+
+        #endregion
     }
 }
