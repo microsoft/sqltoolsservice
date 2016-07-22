@@ -10,11 +10,13 @@ using System.Threading;
 using System.Linq;
 using System;
 using Microsoft.SqlTools.EditorServices;
-using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
 using Microsoft.SqlTools.EditorServices.Session;
 using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.LanguageService.Contracts;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol;
 using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel;
+using Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
 {
@@ -23,59 +25,115 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
     /// </summary>
     public class ServiceHost : ServiceHostBase
     {
+        #region Singleton Instance Code
+
+        /// <summary>
+        /// Singleton instance of the instance
+        /// </summary>
+        private static ServiceHost instance;
+
+        /// <summary>
+        /// Creates or retrieves the current instance of the ServiceHost
+        /// </summary>
+        /// <param name="hostDetails">Details about the host application</param>
+        /// <param name="profilePaths">Details about the profile</param>
+        /// <returns>Instance of the service host</returns>
+        public static ServiceHost Create(HostDetails hostDetails, ProfilePaths profilePaths)
+        {
+            if (instance == null)
+            {
+                instance = new ServiceHost(hostDetails, profilePaths);
+            }
+            // TODO: hostDetails and profilePaths are thrown out in SqlDataToolsContext,
+            // so we don't need to keep track of whether these have changed for now.
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Constructs new instance of ServiceHost using the host and profile details provided.
+        /// Access is private to ensure only one instance exists at a time.
+        /// </summary>
+        /// <param name="hostDetails">Details about the host application</param>
+        /// <param name="profilePaths">Details about the profile</param>
+        private ServiceHost(HostDetails hostDetails, ProfilePaths profilePaths)
+            : base(new StdioServerChannel())
+        {
+            // Initialize the shutdown activities
+            shutdownActivities = new List<ShutdownHandler>();
+
+            // Create an editor session that we'll use for keeping track of state
+            this.editorSession = new EditorSession();
+            this.editorSession.StartSession(hostDetails, profilePaths);
+
+            // Register the requests that this service host will handle
+            this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
+            this.SetRequestHandler(ShutdownRequest.Type, this.HandleShutdownRequest);
+        }
+
+        #endregion
+
+        #region Member Variables
+
         private static CancellationTokenSource existingRequestCancellation;
 
         private ServiceHostSettings currentSettings = new ServiceHostSettings();
         
         private EditorSession editorSession;
 
-        /// <param name="hostDetails">
-        /// Provides details about the host application.
-        /// </param>
-        public ServiceHost(HostDetails hostDetails, ProfilePaths profilePaths)
-            : base(new StdioServerChannel())
+        public delegate Task ShutdownHandler(object shutdownParams, RequestContext<object> shutdownRequestContext);
+
+        private readonly List<ShutdownHandler> shutdownActivities;
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Adds a new method to be called when the shutdown request is submitted
+        /// </summary>
+        /// <param name="activity"></param>
+        public void RegisterShutdownTask(ShutdownHandler activity)
         {
-            this.editorSession = new EditorSession();
-            this.editorSession.StartSession(hostDetails, profilePaths);
+            shutdownActivities.Add(activity);
         }
+
+        #endregion
+
+        #region Private Methods
 
         /// <summary>
         /// Initialize the VS Code request/response callbacks
         /// </summary>
-        protected override void Initialize()
+        private void Initialize()
         {
             // Register all supported message types
-            this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
+
             this.SetEventHandler(DidChangeTextDocumentNotification.Type, this.HandleDidChangeTextDocumentNotification);
             this.SetEventHandler(DidOpenTextDocumentNotification.Type, this.HandleDidOpenTextDocumentNotification);
             this.SetEventHandler(DidCloseTextDocumentNotification.Type, this.HandleDidCloseTextDocumentNotification);
             this.SetEventHandler(DidChangeConfigurationNotification<LanguageServerSettingsWrapper>.Type, this.HandleDidChangeConfigurationNotification);
 
-            this.SetRequestHandler(DefinitionRequest.Type, this.HandleDefinitionRequest);
-            this.SetRequestHandler(ReferencesRequest.Type, this.HandleReferencesRequest);
-            this.SetRequestHandler(CompletionRequest.Type, this.HandleCompletionRequest);
-            this.SetRequestHandler(CompletionResolveRequest.Type, this.HandleCompletionResolveRequest);
-            this.SetRequestHandler(SignatureHelpRequest.Type, this.HandleSignatureHelpRequest);
-            this.SetRequestHandler(DocumentHighlightRequest.Type, this.HandleDocumentHighlightRequest);
-            this.SetRequestHandler(HoverRequest.Type, this.HandleHoverRequest);
-            this.SetRequestHandler(DocumentSymbolRequest.Type, this.HandleDocumentSymbolRequest);
-            this.SetRequestHandler(WorkspaceSymbolRequest.Type, this.HandleWorkspaceSymbolRequest);               
+                          
         }
 
         /// <summary>
         /// Handles the shutdown event for the Language Server
         /// </summary>
-        protected override async Task Shutdown()
+        private async Task HandleShutdownRequest(object shutdownParams, RequestContext<object> requestContext)
         {
-            Logger.Write(LogLevel.Normal, "Language service is shutting down...");
+            Logger.Write(LogLevel.Normal, "Service host is shutting down...");
 
+            // Call all the shutdown methods provided by the service components
+            Task[] shutdownTasks = shutdownActivities.Select(t => t(shutdownParams, requestContext)).ToArray();
+            await Task.WhenAll(shutdownTasks);
+
+            // Shutdown the editor session
             if (this.editorSession != null)
             {
                 this.editorSession.Dispose();
                 this.editorSession = null;
             }
-
-            await Task.FromResult(true);
         }
 
         /// <summary>
@@ -84,11 +142,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
         /// <param name="initializeParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task HandleInitializeRequest(
-            InitializeRequest initializeParams,
-            RequestContext<InitializeResult> requestContext)
+        private async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDidChangeTextDocumentNotification");
+            Logger.Write(LogLevel.Verbose, "HandleInitializationRequest");
 
             // Grab the workspace path from the parameters
            editorSession.Workspace.WorkspacePath = initializeParams.RootPath;
@@ -117,6 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
                     }
                 });
         }
+
+        #endregion
+
+        ///////////////////////////////////////////////
+
 
         /// <summary>
         /// Handles text document change events
@@ -226,78 +287,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
             await Task.FromResult(true);
         }
 
-        protected async Task HandleDefinitionRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<Location[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleDefinitionRequest");
-            await Task.FromResult(true);
-        }
-
-        protected async Task HandleReferencesRequest(
-            ReferencesParams referencesParams,
-            RequestContext<Location[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleReferencesRequest");
-            await Task.FromResult(true);
-        }
-
-        protected async Task HandleCompletionRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<CompletionItem[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleCompletionRequest");
-            await Task.FromResult(true);
-        }
-
-        protected async Task HandleCompletionResolveRequest(
-            CompletionItem completionItem,
-            RequestContext<CompletionItem> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleCompletionResolveRequest");
-            await Task.FromResult(true);
-        }
-
-        protected async Task HandleSignatureHelpRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<SignatureHelp> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleSignatureHelpRequest");
-            await Task.FromResult(true);
-        }
-
-        protected async Task HandleDocumentHighlightRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<DocumentHighlight[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleDocumentHighlightRequest");
-            await Task.FromResult(true);
-        }
-
-        protected async Task HandleHoverRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<Hover> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleHoverRequest");
-            await Task.FromResult(true);
-        }
-
-        protected async Task HandleDocumentSymbolRequest(
-            TextDocumentIdentifier textDocumentIdentifier,
-            RequestContext<SymbolInformation[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleDocumentSymbolRequest");
-            await Task.FromResult(true);     
-        }
-
-        protected async Task HandleWorkspaceSymbolRequest(
-            WorkspaceSymbolParams workspaceSymbolParams,
-            RequestContext<SymbolInformation[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleWorkspaceSymbolRequest");
-            await Task.FromResult(true);
-        }
-
         /// <summary>
         /// Runs script diagnostics on changed files
         /// </summary>
@@ -333,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServiceHost
             {
                 Logger.Write(
                     LogLevel.Error,
-                    string.Format(
+                    String.Format(
                         "Exception while cancelling analysis task:\n\n{0}",
                         e.ToString()));
 

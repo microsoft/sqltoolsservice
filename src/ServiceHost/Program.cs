@@ -2,11 +2,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using System;
-using Microsoft.SqlTools.EditorServices.Protocol.Server;
 using Microsoft.SqlTools.EditorServices.Session;
 using Microsoft.SqlTools.EditorServices.Utility;
 
-namespace Microsoft.SqlTools.ServiceHost
+namespace Microsoft.SqlTools.ServiceLayer
 {     
     /// <summary>
     /// Main application class for SQL Tools API Service Host executable
@@ -31,10 +30,15 @@ namespace Microsoft.SqlTools.ServiceHost
             var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);     
             var profilePaths = new ProfilePaths(hostProfileId, "baseAllUsersPath", "baseCurrentUserPath");
 
-            // create and run the language server
-            var languageServer = new LanguageServer(hostDetails, profilePaths);            
-            languageServer.Start().Wait();            
-            languageServer.WaitForExit();
+            // Create the service host
+            ServiceHost.ServiceHost serviceHost = ServiceHost.ServiceHost.Create(hostDetails, profilePaths);
+
+            // Initialize the services that will be hosted here
+            LanguageService.LanguageService.Instance.InitializeService(serviceHost);
+
+            // Start the service
+            serviceHost.Start().Wait();
+            serviceHost.WaitForExit();
         }
     }
 }

@@ -4,7 +4,7 @@
 //
 
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Contracts
 {
     /// <summary>
     /// Defines a class that describes the capabilities of a language

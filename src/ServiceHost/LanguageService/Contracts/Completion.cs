@@ -4,9 +4,10 @@
 //
 
 using System.Diagnostics;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.LanguageService.Contracts
 {
     public class CompletionRequest
     {

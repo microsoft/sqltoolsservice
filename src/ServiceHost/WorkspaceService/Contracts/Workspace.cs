@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 
-namespace Microsoft.SqlTools.EditorServices
+namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
 {
     /// <summary>
     /// Manages a "workspace" of script files that are open for a particular

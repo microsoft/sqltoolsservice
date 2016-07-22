@@ -5,7 +5,7 @@
 
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.EditorServices
+namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
 {
     /// <summary>
     /// Provides details about a position in a file buffer.  All

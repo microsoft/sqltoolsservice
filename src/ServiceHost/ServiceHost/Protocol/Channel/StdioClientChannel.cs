@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Serializers;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel
 {

@@ -4,9 +4,9 @@
 //
 
 using System.Diagnostics;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
 {
     /// <summary>
     /// Defines a base parameter class for identifying a text document.

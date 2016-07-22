@@ -5,7 +5,7 @@
 
 //using System.Management.Automation.Language;
 
-namespace Microsoft.SqlTools.EditorServices
+namespace Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts
 {
     /// <summary>
     /// Contains details about a specific region of text in script file.

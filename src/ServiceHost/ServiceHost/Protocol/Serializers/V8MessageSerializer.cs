@@ -5,6 +5,7 @@
 
 using Newtonsoft.Json.Linq;
 using System;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Serializers
 {

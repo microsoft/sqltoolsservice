@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Channel;
 using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol
 {

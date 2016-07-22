@@ -5,7 +5,8 @@
 
 using System;
 using Microsoft.SqlTools.EditorServices.Session;
-using Microsoft.SqlTools.LanguageSupport;
+using Microsoft.SqlTools.ServiceLayer.LanguageService;
+using Microsoft.SqlTools.ServiceLayer.WorkspaceService.Contracts;
 
 namespace Microsoft.SqlTools.EditorServices
 {
