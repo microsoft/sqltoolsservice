@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
         /// <param name="textChangeParams"></param>
         /// <param name="eventContext"></param>
         /// <returns></returns>
-        protected Task HandleDidChangeTextDocumentNotification(
+        protected async Task HandleDidChangeTextDocumentNotification(
             DidChangeTextDocumentParams textChangeParams,
             EventContext eventContext)
         {
@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             // A text change notification can batch multiple change requests
             foreach (var textChange in textChangeParams.ContentChanges)
             {
-                string fileUri = textChangeParams.TextDocument.Uri;
+                string fileUri = textChangeParams.Uri ?? textChangeParams.TextDocument.Uri;
                 msg.AppendLine();
                 msg.Append("  File: ");
                 msg.Append(fileUri);
@@ -150,12 +150,12 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 
             Logger.Write(LogLevel.Verbose, msg.ToString());
 
-            this.RunScriptDiagnostics(
+            await this.RunScriptDiagnostics(
                 changedFiles.ToArray(),
                 editorSession,
                 eventContext);
 
-            return Task.FromResult(true);
+            await Task.FromResult(true);
         }
 
         protected Task HandleDidOpenTextDocumentNotification(
