@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading;
 using System.Linq;
 using System;
+using Microsoft.SqlTools.EditorServices.Connection;
+using Microsoft.SqlTools.LanguageSupport;
 
 namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
@@ -57,7 +59,22 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             this.SetRequestHandler(DocumentHighlightRequest.Type, this.HandleDocumentHighlightRequest);
             this.SetRequestHandler(HoverRequest.Type, this.HandleHoverRequest);
             this.SetRequestHandler(DocumentSymbolRequest.Type, this.HandleDocumentSymbolRequest);
-            this.SetRequestHandler(WorkspaceSymbolRequest.Type, this.HandleWorkspaceSymbolRequest);               
+            this.SetRequestHandler(WorkspaceSymbolRequest.Type, this.HandleWorkspaceSymbolRequest);   
+
+            this.SetRequestHandler(ConnectionRequest.Type, this.HandleConnectRequest);  
+
+            // register an OnConnection callback
+            ConnectionService.Instance.RegisterOnConnectionTask(OnConnection);          
+        }
+
+        /// <summary>
+        /// Callback for when a user connection is done processing
+        /// </summary>
+        /// <param name="sqlConnection"></param>
+        public Task OnConnection(ISqlConnection sqlConnection)
+        {
+            AutoCompleteService.Instance.UpdateAutoCompleteCache(sqlConnection);
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -245,7 +262,57 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             RequestContext<CompletionItem[]> requestContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleCompletionRequest");
-            await Task.FromResult(true);
+
+            var connectionService = ConnectionService.Instance;
+            if (connectionService.ActiveConnections.Count > 0)
+            {
+                AutoCompleteService.Instance.UpdateAutoCompleteCache(
+                    connectionService.ActiveConnections.First().Value);
+            }
+
+            var autoCompleteList = AutoCompleteService.Instance.AutoCompleteList;
+            var completions = new List<CompletionItem>();
+
+            int i = 0;
+            if (autoCompleteList != null)
+            {
+                foreach (var autoCompleteItem in autoCompleteList)
+                {
+                    completions.Add(new CompletionItem()
+                    {
+                        Label = autoCompleteItem,
+                        Kind = CompletionItemKind.Keyword,
+                        Detail = autoCompleteItem + " details",
+                        Documentation = autoCompleteItem + " documentation",
+                        //SortText = "SortText",
+                        TextEdit = new TextEdit
+                        {
+                            NewText = "New Text",
+                            Range = new Range
+                            {
+                                Start = new Position
+                                {
+                                    Line = textDocumentPosition.Position.Line,
+                                    Character = textDocumentPosition.Position.Character
+                                },
+                                End = new Position
+                                {
+                                    Line = textDocumentPosition.Position.Line,
+                                    Character = textDocumentPosition.Position.Character + 5
+                                }
+                            }
+                        }
+                    });
+
+                    // only show 50 items
+                    if (++i == 50)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            await requestContext.SendResult(completions.ToArray());
         }
 
         protected async Task HandleCompletionResolveRequest(
@@ -294,6 +361,24 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
         {
             Logger.Write(LogLevel.Verbose, "HandleWorkspaceSymbolRequest");
             await Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Handle new connection requests
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        protected async Task HandleConnectRequest(
+            ConnectionDetails connectionDetails,
+            RequestContext<ConnectionResult> requestContext)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleConnectRequest");
+
+            // open connection base on request details
+            ConnectionResult result = ConnectionService.Instance.Connect(connectionDetails);
+
+            await requestContext.SendResult(result);     
         }
 
         /// <summary>

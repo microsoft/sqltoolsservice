@@ -6,6 +6,8 @@
 using Microsoft.SqlTools.EditorServices;
 using Microsoft.SqlTools.EditorServices.Session;
 using Microsoft.SqlTools.LanguageSupport;
+using Microsoft.SqlTools.Test.Connection;
+using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.Test.LanguageServer
@@ -15,15 +17,6 @@ namespace Microsoft.SqlTools.Test.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
-        /// <summary>
-        /// Create a test language service instance
-        /// </summary>
-        /// <returns></returns>
-        private LanguageService CreateTestService()
-        {
-            return new LanguageService(new SqlToolsContext(null, null));
-        }
-
         #region "Diagnostics tests"
 
         /// <summary>
@@ -36,7 +29,7 @@ namespace Microsoft.SqlTools.Test.LanguageServer
             const string sqlWithErrors = "SELECT * FROM sys.objects";
 
             // get the test service 
-            LanguageService service = CreateTestService();
+            LanguageService service = TestObjects.GetTestLanguageService();
 
             // parse the sql statement
             var scriptFile = new ScriptFile();
@@ -57,7 +50,7 @@ namespace Microsoft.SqlTools.Test.LanguageServer
             const string sqlWithErrors = "SELECT *** FROM sys.objects";
 
             // get test service
-            LanguageService service = CreateTestService();
+            LanguageService service = TestObjects.GetTestLanguageService();
 
             // parse sql statement
             var scriptFile = new ScriptFile();
@@ -87,7 +80,7 @@ namespace Microsoft.SqlTools.Test.LanguageServer
                 "SELECT *** FROM sys.objects;\n";
 
             // get test service
-            LanguageService service = CreateTestService();
+            LanguageService service = TestObjects.GetTestLanguageService();
 
             // parse sql
             var scriptFile = new ScriptFile();
@@ -108,6 +101,23 @@ namespace Microsoft.SqlTools.Test.LanguageServer
             Assert.Equal(3, fileMarkers[1].ScriptRegion.StartLineNumber);
             Assert.Equal(10, fileMarkers[1].ScriptRegion.EndColumnNumber);
             Assert.Equal(3, fileMarkers[1].ScriptRegion.EndLineNumber);
+        }
+
+        #endregion
+
+        #region "Autocomplete Tests"
+
+        /// <summary>
+        /// Verify that the SQL parser correctly detects errors in text
+        /// </summary>
+        [Fact]
+        public void AutocompleteTest()
+        {
+            var autocompleteService = TestObjects.GetAutoCompleteService();
+            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionResult = connectionService.Connect(TestObjects.GetTestConnectionDetails());
+            var sqlConnection = connectionService.ActiveConnections[connectionResult.ConnectionId];
+            autocompleteService.UpdateAutoCompleteCache(sqlConnection);
         }
 
         #endregion
