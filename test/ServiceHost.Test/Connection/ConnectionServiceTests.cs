@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#define USE_LIVE_CONNECTION
-
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
@@ -51,8 +49,7 @@ namespace Microsoft.SqlTools.Test.Connection
             );
             
             // connect to a database instance 
-            var connectionResult = TestObjects.GetTestConnectionService()
-                .Connect(TestObjects.GetTestConnectionDetails());
+            var connectionResult = connectionService.Connect(TestObjects.GetTestConnectionDetails());
 
             // verify that a valid connection id was returned
             Assert.True(callbackInvoked);

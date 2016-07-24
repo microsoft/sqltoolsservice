@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using System;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.EditorServices.Test.Protocol.MessageProtocol
