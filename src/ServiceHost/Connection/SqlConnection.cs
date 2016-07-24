@@ -52,8 +52,10 @@ namespace Microsoft.SqlTools.EditorServices.Connection
         /// <returns></returns>
         public IEnumerable<string> GetServerObjects()
         {
+            // Select the values from sys.tables to give a super basic
+            // autocomplete experience.  This will be replaced by SMO.
             SqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT name FROM sys.objects";
+            command.CommandText = "SELECT name FROM sys.tables";
             command.CommandTimeout = 15;
             command.CommandType = CommandType.Text;
             var reader = command.ExecuteReader();

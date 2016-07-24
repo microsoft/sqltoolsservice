@@ -175,15 +175,38 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             await Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Handle the file open notification
+        /// </summary>
+        /// <param name="openParams"></param>
+        /// <param name="eventContext"></param>
         protected Task HandleDidOpenTextDocumentNotification(
             DidOpenTextDocumentNotification openParams,
             EventContext eventContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
+
+            // read the SQL file contents into the ScriptFile
+            ScriptFile openedFile =
+                editorSession.Workspace.GetFileBuffer(
+                    openParams.Uri,
+                    openParams.Text);
+
+            // run diagnostics on the opened file
+            this.RunScriptDiagnostics(
+                new ScriptFile[] { openedFile },
+                editorSession,
+                eventContext);
+
             return Task.FromResult(true);
         }
 
-         protected Task HandleDidCloseTextDocumentNotification(
+        /// <summary>
+        /// Handle the close document notication
+        /// </summary>
+        /// <param name="closeParams"></param>
+        /// <param name="eventContext"></param>
+        protected Task HandleDidCloseTextDocumentNotification(
             TextDocumentIdentifier closeParams,
             EventContext eventContext)
         {
@@ -257,62 +280,20 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             await Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Handles the completion list request
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="requestContext"></param>
         protected async Task HandleCompletionRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleCompletionRequest");
 
-            var connectionService = ConnectionService.Instance;
-            if (connectionService.ActiveConnections.Count > 0)
-            {
-                AutoCompleteService.Instance.UpdateAutoCompleteCache(
-                    connectionService.ActiveConnections.First().Value);
-            }
-
-            var autoCompleteList = AutoCompleteService.Instance.AutoCompleteList;
-            var completions = new List<CompletionItem>();
-
-            int i = 0;
-            if (autoCompleteList != null)
-            {
-                foreach (var autoCompleteItem in autoCompleteList)
-                {
-                    completions.Add(new CompletionItem()
-                    {
-                        Label = autoCompleteItem,
-                        Kind = CompletionItemKind.Keyword,
-                        Detail = autoCompleteItem + " details",
-                        Documentation = autoCompleteItem + " documentation",
-                        //SortText = "SortText",
-                        TextEdit = new TextEdit
-                        {
-                            NewText = "New Text",
-                            Range = new Range
-                            {
-                                Start = new Position
-                                {
-                                    Line = textDocumentPosition.Position.Line,
-                                    Character = textDocumentPosition.Position.Character
-                                },
-                                End = new Position
-                                {
-                                    Line = textDocumentPosition.Position.Line,
-                                    Character = textDocumentPosition.Position.Character + 5
-                                }
-                            }
-                        }
-                    });
-
-                    // only show 50 items
-                    if (++i == 50)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            await requestContext.SendResult(completions.ToArray());
+            // get teh current list of completion items and return to client
+            var completionItems = AutoCompleteService.Instance.GetCompletionItems(textDocumentPosition);
+            await requestContext.SendResult(completionItems);
         }
 
         protected async Task HandleCompletionResolveRequest(
