@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             });
 
             // Register the configuration update handler
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterDidChangeConfigurationNotificationTask(HandleDidChangeConfigurationNotification);
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
 
             // Store the SqlToolsContext for future use
             Context = context;

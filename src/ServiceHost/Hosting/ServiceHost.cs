@@ -4,9 +4,9 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -27,12 +27,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         private static readonly Lazy<ServiceHost> instance = new Lazy<ServiceHost>(() => new ServiceHost());
 
         /// <summary>
-        /// Creates or retrieves the current instance of the ServiceHost
+        /// Current instance of the ServiceHost
         /// </summary>
-        /// <returns>Instance of the service host</returns>
-        public static ServiceHost Create()
+        public static ServiceHost Instance
         {
-            return instance.Value;
+            get { return instance.Value; }
         }
 
         /// <summary>
@@ -42,8 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         private ServiceHost() : base(new StdioServerChannel())
         {
             // Initialize the shutdown activities
-            shutdownActivities = new List<ShutdownHandler>();
-            initializeActivities = new List<InitializeHandler>();
+            shutdownCallbacks = new List<ShutdownCallback>();
+            initializeCallbacks = new List<InitializeCallback>();
 
             // Register the requests that this service host will handle
             this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
@@ -54,34 +53,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
         #region Member Variables
 
-        public delegate Task ShutdownHandler(object shutdownParams, RequestContext<object> shutdownRequestContext);
+        public delegate Task ShutdownCallback(object shutdownParams, RequestContext<object> shutdownRequestContext);
 
-        public delegate Task InitializeHandler(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
+        public delegate Task InitializeCallback(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
 
-        private readonly List<ShutdownHandler> shutdownActivities;
+        private readonly List<ShutdownCallback> shutdownCallbacks;
 
-        private readonly List<InitializeHandler> initializeActivities;
+        private readonly List<InitializeCallback> initializeCallbacks;
 
         #endregion
 
         #region Public Methods
 
         /// <summary>
-        /// Adds a new method to be called when the shutdown request is submitted
+        /// Adds a new callback to be called when the shutdown request is submitted
         /// </summary>
-        /// <param name="activity"></param>
-        public void RegisterShutdownTask(ShutdownHandler activity)
+        /// <param name="callback">Callback to perform when a shutdown request is submitted</param>
+        public void RegisterShutdownTask(ShutdownCallback callback)
         {
-            shutdownActivities.Add(activity);
+            shutdownCallbacks.Add(callback);
         }
 
         /// <summary>
         /// Add a new method to be called when the initialize request is submitted
         /// </summary>
-        /// <param name="activity"></param>
-        public void RegisterInitializeTask(InitializeHandler activity)
+        /// <param name="callback">Callback to perform when an initialize request is submitted</param>
+        public void RegisterInitializeTask(InitializeCallback callback)
         {
-            initializeActivities.Add(activity);
+            initializeCallbacks.Add(callback);
         }
 
         #endregion
@@ -96,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
             Logger.Write(LogLevel.Normal, "Service host is shutting down...");
 
             // Call all the shutdown methods provided by the service components
-            Task[] shutdownTasks = shutdownActivities.Select(t => t(shutdownParams, requestContext)).ToArray();
+            Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();
             await Task.WhenAll(shutdownTasks);
         }
 
@@ -111,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
             Logger.Write(LogLevel.Verbose, "HandleInitializationRequest");
 
             // Call all tasks that registered on the initialize request
-            var initializeTasks = initializeActivities.Select(t => t(initializeParams, requestContext));
+            var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
             await Task.WhenAll(initializeTasks);
 
             // TODO: Figure out where this needs to go to be agnostic of the language

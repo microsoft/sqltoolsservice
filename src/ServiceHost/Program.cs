@@ -34,8 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer
             var profilePaths = new ProfilePaths(hostProfileId, "baseAllUsersPath", "baseCurrentUserPath");
             SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails, profilePaths);
 
-            // Create the service host
-            ServiceHost serviceHost = ServiceHost.Create();
+            // Grab the instance of the service host
+            ServiceHost serviceHost = ServiceHost.Instance;
 
             // Initialize the services that will be hosted here
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);

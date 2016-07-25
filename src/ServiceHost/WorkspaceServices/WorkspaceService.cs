@@ -5,13 +5,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
-using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 {
@@ -29,8 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 
         private WorkspaceService()
         {
-            ConfigurationNotificationHandlers = new List<DidChangeConfigurationNotificationHandler>();
-            TextDocumentChangeHandlers = new List<DidChangeTextDocumentNotificationTask>();
+            ConfigChangeCallbacks = new List<ConfigChangeCallback>();
+            TextDocChangeCallbacks = new List<TextDocChangeCallback>();
         }
 
         #endregion
@@ -41,12 +41,31 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 
         public TConfig CurrentSettings { get; private set; }
 
-        public delegate Task DidChangeConfigurationNotificationHandler(TConfig newSettings, TConfig oldSettings, EventContext eventContext);
+        /// <summary>
+        /// Delegate for callbacks that occur when the configuration for the workspace changes
+        /// </summary>
+        /// <param name="newSettings">The settings that were just set</param>
+        /// <param name="oldSettings">The settings before they were changed</param>
+        /// <param name="eventContext">Context of the event that triggered the callback</param>
+        /// <returns></returns>
+        public delegate Task ConfigChangeCallback(TConfig newSettings, TConfig oldSettings, EventContext eventContext);
 
-        public delegate Task DidChangeTextDocumentNotificationTask(ScriptFile[] changedFiles, EventContext eventContext);
+        /// <summary>
+        /// Delegate for callbacks that occur when the current text document changes
+        /// </summary>
+        /// <param name="changedFiles">Array of files that changed</param>
+        /// <param name="eventContext">Context of the event raised for the changed files</param>
+        public delegate Task TextDocChangeCallback(ScriptFile[] changedFiles, EventContext eventContext);
 
-        private List<DidChangeConfigurationNotificationHandler> ConfigurationNotificationHandlers { get; set; }
-        private List<DidChangeTextDocumentNotificationTask> TextDocumentChangeHandlers { get; set; }
+        /// <summary>
+        /// List of callbacks to call when the configuration of the workspace changes
+        /// </summary>
+        private List<ConfigChangeCallback> ConfigChangeCallbacks { get; set; }
+
+        /// <summary>
+        /// List of callbacks to call when the current text document changes
+        /// </summary>
+        private List<TextDocChangeCallback> TextDocChangeCallbacks { get; set; }
 
         #endregion
 
@@ -95,18 +114,18 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
         /// handle changing configuration and changing the current configuration.
         /// </summary>
         /// <param name="task">Task to handle the request</param>
-        public void RegisterDidChangeConfigurationNotificationTask(DidChangeConfigurationNotificationHandler task)
+        public void RegisterConfigChangeCallback(ConfigChangeCallback task)
         {
-            ConfigurationNotificationHandlers.Add(task);
+            ConfigChangeCallbacks.Add(task);
         }
 
         /// <summary>
         /// Adds a new task to be called when the text of a document changes.
         /// </summary>
         /// <param name="task">Delegate to call when the document changes</param>
-        public void RegisterDidChangeTextDocumentNotificationTask(DidChangeTextDocumentNotificationTask task)
+        public void RegisterTextDocChangeCallback(TextDocChangeCallback task)
         {
-            TextDocumentChangeHandlers.Add(task);
+            TextDocChangeCallbacks.Add(task);
         }
 
         #endregion
@@ -145,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 
             Logger.Write(LogLevel.Verbose, msg.ToString());
 
-            var handlers = TextDocumentChangeHandlers.Select(t => t(changedFiles.ToArray(), eventContext));
+            var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
             return Task.WhenAll(handlers);
         }
 
@@ -177,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
             Logger.Write(LogLevel.Verbose, "HandleDidChangeConfigurationNotification");
 
             // Propagate the changes to the event handlers
-            var configUpdateTasks = ConfigurationNotificationHandlers.Select(
+            var configUpdateTasks = ConfigChangeCallbacks.Select(
                 t => t(configChangeParams.Settings, CurrentSettings, eventContext));
             await Task.WhenAll(configUpdateTasks);
         }
