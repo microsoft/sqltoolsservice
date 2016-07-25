@@ -101,6 +101,13 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts
         #region Constructors
 
         /// <summary>
+        /// Add a default constructor for testing
+        /// </summary>
+        public ScriptFile()
+        {
+        }
+
+        /// <summary>
         /// Creates a new ScriptFile instance by reading file contents from
         /// the given TextReader.
         /// </summary>
@@ -421,11 +428,11 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts
             return new BufferRange(startPosition, endPosition);
         }
 
-        #endregion
-
-        #region Private Methods
-
-        private void SetFileContents(string fileContents)
+        /// <summary>
+        /// Set the script files contents
+        /// </summary>
+        /// <param name="fileContents"></param>
+        public void SetFileContents(string fileContents)
         {
             // Split the file contents into lines and trim
             // any carriage returns from the strings.
@@ -438,6 +445,10 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts
             // Parse the contents to get syntax tree and errors
             this.ParseFileContents();
         }
+
+        #endregion
+
+        #region Private Methods
 
         /// <summary>
         /// Parses the current file contents to get the AST, tokens,

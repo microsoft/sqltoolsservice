@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
@@ -14,6 +15,8 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
 using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
 using System.Linq;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Location = Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -35,8 +38,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         /// <summary>
         /// Default, parameterless constructor.
+        /// TODO: Figure out how to make this truely singleton even with dependency injection for tests
         /// </summary>
-        private LanguageService()
+        public LanguageService()
         {
         }
 
@@ -62,7 +66,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         private SqlToolsContext Context { get; set; }
 
+        /// <summary>
+        /// The cached parse result from previous incremental parse
+        /// </summary>
+        private ParseResult prevParseResult;
+
         #endregion
+
+        #region Public Methods
 
         public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
         {
@@ -90,6 +101,48 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Store the SqlToolsContext for future use
             Context = context;
         }
+
+        /// <summary>
+        /// Gets a list of semantic diagnostic marks for the provided script file
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        public ScriptFileMarker[] GetSemanticMarkers(ScriptFile scriptFile)
+        {
+            // parse current SQL file contents to retrieve a list of errors
+            ParseOptions parseOptions = new ParseOptions();
+            ParseResult parseResult = Parser.IncrementalParse(
+                scriptFile.Contents,
+                prevParseResult,
+                parseOptions);
+
+            // save previous result for next incremental parse
+            this.prevParseResult = parseResult;
+
+            // build a list of SQL script file markers from the errors
+            List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
+            foreach (var error in parseResult.Errors)
+            {
+                markers.Add(new ScriptFileMarker()
+                {
+                    Message = error.Message,
+                    Level = ScriptFileMarkerLevel.Error,
+                    ScriptRegion = new ScriptRegion()
+                    {
+                        File = scriptFile.FilePath,
+                        StartLineNumber = error.Start.LineNumber,
+                        StartColumnNumber = error.Start.ColumnNumber,
+                        StartOffset = 0,
+                        EndLineNumber = error.End.LineNumber,
+                        EndColumnNumber = error.End.ColumnNumber,
+                        EndOffset = 0
+                    }
+                });
+            }
+
+            return markers.ToArray();
+        }
+
+        #endregion
 
         #region Request Handlers
 
@@ -203,32 +256,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         #endregion
 
         #region Private Helpers
-
-        /// <summary>
-        /// Gets a list of semantic diagnostic marks for the provided script file
-        /// </summary>
-        /// <param name="scriptFile"></param>
-        private ScriptFileMarker[] GetSemanticMarkers(ScriptFile scriptFile)
-        {
-            // the commented out snippet is an example of how to create a error marker
-            // semanticMarkers = new ScriptFileMarker[1];
-            // semanticMarkers[0] = new ScriptFileMarker()
-            // {
-            //     Message = "Error message",
-            //     Level = ScriptFileMarkerLevel.Error,
-            //     ScriptRegion = new ScriptRegion()
-            //     {
-            //         File = scriptFile.FilePath,
-            //         StartLineNumber = 2,
-            //         StartColumnNumber = 2,  
-            //         StartOffset = 0,
-            //         EndLineNumber = 4,
-            //         EndColumnNumber = 10,
-            //         EndOffset = 0
-            //     }
-            // };
-            return new ScriptFileMarker[0];
-        }
 
         /// <summary>
         /// Runs script diagnostics on changed files

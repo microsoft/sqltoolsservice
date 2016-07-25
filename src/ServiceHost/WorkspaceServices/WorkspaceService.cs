@@ -35,7 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
             get { return instance.Value; }
         }
 
-        private WorkspaceService()
+        /// <summary>
+        /// Default, parameterless constructor.
+        /// TODO: Figure out how to make this truely singleton even with dependency injection for tests
+        /// </summary>
+        public WorkspaceService()
         {
             ConfigChangeCallbacks = new List<ConfigChangeCallback>();
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
