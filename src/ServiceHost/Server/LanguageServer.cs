@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading;
 using System.Linq;
 using System;
+using Microsoft.SqlTools.EditorServices.Connection;
+using Microsoft.SqlTools.LanguageSupport;
 
 namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 {
@@ -57,7 +59,22 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             this.SetRequestHandler(DocumentHighlightRequest.Type, this.HandleDocumentHighlightRequest);
             this.SetRequestHandler(HoverRequest.Type, this.HandleHoverRequest);
             this.SetRequestHandler(DocumentSymbolRequest.Type, this.HandleDocumentSymbolRequest);
-            this.SetRequestHandler(WorkspaceSymbolRequest.Type, this.HandleWorkspaceSymbolRequest);               
+            this.SetRequestHandler(WorkspaceSymbolRequest.Type, this.HandleWorkspaceSymbolRequest);   
+
+            this.SetRequestHandler(ConnectionRequest.Type, this.HandleConnectRequest);  
+
+            // register an OnConnection callback
+            ConnectionService.Instance.RegisterOnConnectionTask(OnConnection);          
+        }
+
+        /// <summary>
+        /// Callback for when a user connection is done processing
+        /// </summary>
+        /// <param name="sqlConnection"></param>
+        public Task OnConnection(ISqlConnection sqlConnection)
+        {
+            AutoCompleteService.Instance.UpdateAutoCompleteCache(sqlConnection);
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -122,7 +139,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
         /// <param name="textChangeParams"></param>
         /// <param name="eventContext"></param>
         /// <returns></returns>
-        protected Task HandleDidChangeTextDocumentNotification(
+        protected async Task HandleDidChangeTextDocumentNotification(
             DidChangeTextDocumentParams textChangeParams,
             EventContext eventContext)
         {
@@ -133,7 +150,7 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             // A text change notification can batch multiple change requests
             foreach (var textChange in textChangeParams.ContentChanges)
             {
-                string fileUri = textChangeParams.TextDocument.Uri;
+                string fileUri = textChangeParams.Uri ?? textChangeParams.TextDocument.Uri;
                 msg.AppendLine();
                 msg.Append("  File: ");
                 msg.Append(fileUri);
@@ -150,23 +167,46 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
 
             Logger.Write(LogLevel.Verbose, msg.ToString());
 
-            this.RunScriptDiagnostics(
+            await this.RunScriptDiagnostics(
                 changedFiles.ToArray(),
+                editorSession,
+                eventContext);
+
+            await Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Handle the file open notification
+        /// </summary>
+        /// <param name="openParams"></param>
+        /// <param name="eventContext"></param>
+        protected Task HandleDidOpenTextDocumentNotification(
+            DidOpenTextDocumentNotification openParams,
+            EventContext eventContext)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
+
+            // read the SQL file contents into the ScriptFile
+            ScriptFile openedFile =
+                editorSession.Workspace.GetFileBuffer(
+                    openParams.Uri,
+                    openParams.Text);
+
+            // run diagnostics on the opened file
+            this.RunScriptDiagnostics(
+                new ScriptFile[] { openedFile },
                 editorSession,
                 eventContext);
 
             return Task.FromResult(true);
         }
 
-        protected Task HandleDidOpenTextDocumentNotification(
-            DidOpenTextDocumentNotification openParams,
-            EventContext eventContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
-            return Task.FromResult(true);
-        }
-
-         protected Task HandleDidCloseTextDocumentNotification(
+        /// <summary>
+        /// Handle the close document notication
+        /// </summary>
+        /// <param name="closeParams"></param>
+        /// <param name="eventContext"></param>
+        protected Task HandleDidCloseTextDocumentNotification(
             TextDocumentIdentifier closeParams,
             EventContext eventContext)
         {
@@ -240,12 +280,20 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
             await Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Handles the completion list request
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="requestContext"></param>
         protected async Task HandleCompletionRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleCompletionRequest");
-            await Task.FromResult(true);
+
+            // get teh current list of completion items and return to client
+            var completionItems = AutoCompleteService.Instance.GetCompletionItems(textDocumentPosition);
+            await requestContext.SendResult(completionItems);
         }
 
         protected async Task HandleCompletionResolveRequest(
@@ -294,6 +342,24 @@ namespace Microsoft.SqlTools.EditorServices.Protocol.Server
         {
             Logger.Write(LogLevel.Verbose, "HandleWorkspaceSymbolRequest");
             await Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Handle new connection requests
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        protected async Task HandleConnectRequest(
+            ConnectionDetails connectionDetails,
+            RequestContext<ConnectionResult> requestContext)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleConnectRequest");
+
+            // open connection base on request details
+            ConnectionResult result = ConnectionService.Instance.Connect(connectionDetails);
+
+            await requestContext.SendResult(result);     
         }
 
         /// <summary>

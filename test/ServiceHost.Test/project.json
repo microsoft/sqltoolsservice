@@ -6,11 +6,13 @@
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
     "System.Runtime.Serialization.Primitives": "4.1.1",
+    "System.Data.Common": "4.1.0",
+    "System.Data.SqlClient": "4.1.0",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",
-	"ServiceHost": {
-		"target": "project"
-	  }
+    "ServiceHost": {
+       "target": "project"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {
