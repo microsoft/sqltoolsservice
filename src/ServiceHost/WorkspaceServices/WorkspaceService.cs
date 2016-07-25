@@ -15,23 +15,16 @@ using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 {
-    public class WorkspaceService<TConfig> where TConfig : new()
+    public class WorkspaceService<TConfig> where TConfig : class, new()
     {
 
         #region Singleton Instance Implementation
 
-        private static WorkspaceService<TConfig> instance;
+        private static readonly Lazy<WorkspaceService<TConfig>> instance = new Lazy<WorkspaceService<TConfig>>(() => new WorkspaceService<TConfig>());
 
         public static WorkspaceService<TConfig> Instance
         {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new WorkspaceService<TConfig>();
-                }
-                return instance;
-            }
+            get { return instance.Value; }
         }
 
         private WorkspaceService()
@@ -52,9 +45,8 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 
         public delegate Task DidChangeTextDocumentNotificationTask(ScriptFile[] changedFiles, EventContext eventContext);
 
-        public List<DidChangeConfigurationNotificationHandler> ConfigurationNotificationHandlers;
-        public List<DidChangeTextDocumentNotificationTask> TextDocumentChangeHandlers;
-
+        private List<DidChangeConfigurationNotificationHandler> ConfigurationNotificationHandlers { get; set; }
+        private List<DidChangeTextDocumentNotificationTask> TextDocumentChangeHandlers { get; set; }
 
         #endregion
 
@@ -153,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 
             Logger.Write(LogLevel.Verbose, msg.ToString());
 
-            var handlers = TextDocumentChangeHandlers.Select(t => t(changedFiles.ToArray(), eventContext)).ToArray();
+            var handlers = TextDocumentChangeHandlers.Select(t => t(changedFiles.ToArray(), eventContext));
             return Task.WhenAll(handlers);
         }
 
@@ -186,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 
             // Propagate the changes to the event handlers
             var configUpdateTasks = ConfigurationNotificationHandlers.Select(
-                t => t(configChangeParams.Settings, CurrentSettings, eventContext)).ToArray();
+                t => t(configChangeParams.Settings, CurrentSettings, eventContext));
             await Task.WhenAll(configUpdateTasks);
         }
 

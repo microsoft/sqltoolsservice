@@ -20,32 +20,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// <summary>
     /// Main class for Language Service functionality
     /// </summary>
-    public class LanguageService
+    public sealed class LanguageService
     {
 
         #region Singleton Instance Implementation
 
-        private static LanguageService instance;
+        private static readonly Lazy<LanguageService> instance = new Lazy<LanguageService>(() => new LanguageService());
 
         public static LanguageService Instance
         {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new LanguageService();
-                }
-                return instance;
-            }
+            get { return instance.Value; }
         }
 
         /// <summary>
-        /// Default, parameterless contstructor.
-        /// TODO: Remove once the SqlToolsContext stuff is sorted out
+        /// Default, parameterless constructor.
         /// </summary>
         private LanguageService()
         {
-            
         }
 
         #endregion

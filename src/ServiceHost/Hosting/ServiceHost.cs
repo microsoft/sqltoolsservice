@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,14 +17,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
     /// <summary>
     /// SQL Tools VS Code Language Server request handler
     /// </summary>
-    public class ServiceHost : ServiceHostBase
+    public sealed class ServiceHost : ServiceHostBase
     {
         #region Singleton Instance Code
 
         /// <summary>
-        /// Singleton instance of the instance
+        /// Singleton instance of the service host for internal storage
         /// </summary>
-        private static ServiceHost instance;
+        private static readonly Lazy<ServiceHost> instance = new Lazy<ServiceHost>(() => new ServiceHost());
 
         /// <summary>
         /// Creates or retrieves the current instance of the ServiceHost
@@ -31,11 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// <returns>Instance of the service host</returns>
         public static ServiceHost Create()
         {
-            if (instance == null)
-            {
-                instance = new ServiceHost();
-            }
-            return instance;
+            return instance.Value;
         }
 
         /// <summary>
