@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.Test.Connection
+namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 {
     /// <summary>
     /// Tests for the ServiceHost Connection Service tests

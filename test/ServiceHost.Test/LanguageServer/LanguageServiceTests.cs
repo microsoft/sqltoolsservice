@@ -3,14 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices;
-using Microsoft.SqlTools.EditorServices.Session;
-using Microsoft.SqlTools.LanguageSupport;
-using Microsoft.SqlTools.Test.Connection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.Test.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
 {
     /// <summary>
     /// Tests for the ServiceHost Language Service tests

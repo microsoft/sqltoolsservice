@@ -7,19 +7,46 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 
-namespace Microsoft.SqlTools.EditorServices.Connection
+namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
     /// Main class for the Connection Management services
     /// </summary>
     public class ConnectionService
     {
+        #region Singleton Instance Implementation
+
         /// <summary>
         /// Singleton service instance
         /// </summary>
         private static Lazy<ConnectionService> instance 
             = new Lazy<ConnectionService>(() => new ConnectionService());
+
+        /// <summary>
+        /// Gets the singleton service instance
+        /// </summary>
+        public static ConnectionService Instance
+        {
+            get
+            {
+                return instance.Value;
+            }
+        }
+
+        /// <summary>
+        /// Default constructor is private since it's a singleton class
+        /// </summary>
+        private ConnectionService()
+        {
+        }
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// The SQL connection factory object
@@ -61,17 +88,6 @@ namespace Microsoft.SqlTools.EditorServices.Connection
         }
 
         /// <summary>
-        /// Gets the singleton service instance
-        /// </summary>
-        public static ConnectionService Instance 
-        {
-            get
-            {
-                return instance.Value;
-            }
-        }
-
-        /// <summary>
         /// Gets the SQL connection factory instance
         /// </summary>
         public ISqlConnectionFactory ConnectionFactory
@@ -86,12 +102,7 @@ namespace Microsoft.SqlTools.EditorServices.Connection
             }
         }
 
-        /// <summary>
-        /// Default constructor is private since it's a singleton class
-        /// </summary>
-        private ConnectionService()
-        {
-        }
+        #endregion
 
         /// <summary>
         /// Test constructor that injects dependency interfaces
@@ -101,6 +112,8 @@ namespace Microsoft.SqlTools.EditorServices.Connection
         {
             this.connectionFactory = testFactory;
         }
+
+        #region Public Methods
 
         /// <summary>
         /// Open a connection with the specified connection details
@@ -133,6 +146,12 @@ namespace Microsoft.SqlTools.EditorServices.Connection
             };
         }
 
+        public void Initialize(ServiceHost serviceHost)
+        {
+            // Register request and event handlers with the Service Host
+            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
+        }
+
         /// <summary> 
         /// Add a new method to be called when the onconnection request is submitted 
         /// </summary> 
@@ -140,7 +159,33 @@ namespace Microsoft.SqlTools.EditorServices.Connection
         public void RegisterOnConnectionTask(OnConnectionHandler activity) 
         { 
             onConnectionActivities.Add(activity); 
-        } 
+        }
+
+        #endregion
+
+        #region Request Handlers
+
+        /// <summary>
+        /// Handle new connection requests
+        /// </summary>
+        /// <param name="connectionDetails"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        protected async Task HandleConnectRequest(
+            ConnectionDetails connectionDetails,
+            RequestContext<ConnectionResult> requestContext)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleConnectRequest");
+
+            // open connection base on request details
+            ConnectionResult result = ConnectionService.Instance.Connect(connectionDetails);
+
+            await requestContext.SendResult(result);
+        }
+
+        #endregion
+
+        #region Private Helpers
 
         /// <summary>
         /// Build a connection string from a connection details instance
@@ -156,5 +201,7 @@ namespace Microsoft.SqlTools.EditorServices.Connection
             connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
             return connectionBuilder.ToString();
         }
+
+        #endregion
     }
 }

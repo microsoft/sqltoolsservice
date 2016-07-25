@@ -3,19 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
-using System;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 
-namespace Microsoft.SqlTools.EditorServices.Test.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.Test.Message
 {
     #region Request Types
 
     internal class TestRequest 
     {
-        public Task ProcessMessage(
-            EditorSession editorSession, 
-            MessageWriter messageWriter)
+        public Task ProcessMessage(MessageWriter messageWriter)
         {
             return Task.FromResult(false);
         }

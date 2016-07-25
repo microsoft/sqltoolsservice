@@ -3,15 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol.Serializers;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using HostingMessage = Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
 using Xunit;
 
-namespace Microsoft.SqlTools.EditorServices.Test.Protocol.MessageProtocol
+namespace Microsoft.SqlTools.ServiceLayer.Test.Message
 {
     public class MessageReaderWriterTests
     {
@@ -38,7 +39,7 @@ namespace Microsoft.SqlTools.EditorServices.Test.Protocol.MessageProtocol
 
             // Write the message and then roll back the stream to be read
             // TODO: This will need to be redone!
-            await messageWriter.WriteMessage(Message.Event("testEvent", null));
+            await messageWriter.WriteMessage(HostingMessage.Event("testEvent", null));
             outputStream.Seek(0, SeekOrigin.Begin);
 
             string expectedHeaderString =
@@ -82,7 +83,7 @@ namespace Microsoft.SqlTools.EditorServices.Test.Protocol.MessageProtocol
             inputStream.Flush();
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            Message messageResult = messageReader.ReadMessage().Result;
+            HostingMessage messageResult = messageReader.ReadMessage().Result;
             Assert.Equal("testEvent", messageResult.Method);
 
             inputStream.Dispose();
@@ -117,7 +118,7 @@ namespace Microsoft.SqlTools.EditorServices.Test.Protocol.MessageProtocol
             // Read the written messages from the stream
             for (int i = 0; i < overflowMessageCount; i++)
             {
-                Message messageResult = messageReader.ReadMessage().Result;
+                HostingMessage messageResult = messageReader.ReadMessage().Result;
                 Assert.Equal("testEvent", messageResult.Method);
             }
 
@@ -145,7 +146,7 @@ namespace Microsoft.SqlTools.EditorServices.Test.Protocol.MessageProtocol
             inputStream.Flush();
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            Message messageResult = messageReader.ReadMessage().Result;
+            HostingMessage messageResult = messageReader.ReadMessage().Result;
             Assert.Equal("testEvent", messageResult.Method);
 
             inputStream.Dispose();

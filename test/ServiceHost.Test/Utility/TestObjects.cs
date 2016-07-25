@@ -7,9 +7,9 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.EditorServices.Connection;
-using Microsoft.SqlTools.EditorServices.Session;
-using Microsoft.SqlTools.LanguageSupport;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Xunit;
 
 namespace Microsoft.SqlTools.Test.Utility
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.Test.Utility
         /// <returns></returns>
         public static LanguageService GetTestLanguageService()
         {
-            return new LanguageService(new SqlToolsContext(null, null));
+            return new LanguageService();
         }
 
         /// <summary>
