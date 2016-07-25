@@ -15,7 +15,9 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
 namespace Microsoft.SqlTools.ServiceLayer.Hosting
 {
     /// <summary>
-    /// SQL Tools VS Code Language Server request handler
+    /// SQL Tools VS Code Language Server request handler. Provides the entire JSON RPC
+    /// implementation for sending/receiving JSON requests and dispatching the requests to
+    /// handlers that are registered prior to startup.
     /// </summary>
     public sealed class ServiceHost : ServiceHostBase
     {

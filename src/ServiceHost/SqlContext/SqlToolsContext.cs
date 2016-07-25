@@ -7,6 +7,9 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
+    /// <summary>
+    /// Context for SQL Tools
+    /// </summary>
     public class SqlToolsContext
     {
         /// <summary>

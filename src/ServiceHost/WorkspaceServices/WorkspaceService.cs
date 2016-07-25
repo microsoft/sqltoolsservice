@@ -15,6 +15,14 @@ using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
 {
+    /// <summary>
+    /// Class for handling requests/events that deal with the state of the workspace, including the
+    /// opening and closing of files, the changing of configuration, etc.
+    /// </summary>
+    /// <typeparam name="TConfig">
+    /// The type of the class used for serializing and deserializing the configuration. Must be the
+    /// actual type of the instance otherwise deserialization will be incomplete.
+    /// </typeparam>
     public class WorkspaceService<TConfig> where TConfig : class, new()
     {
 
@@ -135,9 +143,6 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
         /// <summary>
         /// Handles text document change events
         /// </summary>
-        /// <param name="textChangeParams"></param>
-        /// <param name="eventContext"></param>
-        /// <returns></returns>
         protected Task HandleDidChangeTextDocumentNotification(
             DidChangeTextDocumentParams textChangeParams,
             EventContext eventContext)
@@ -187,8 +192,6 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
         /// <summary>
         /// Handles the configuration change event
         /// </summary>
-        /// <param name="configChangeParams"></param>
-        /// <param name="eventContext"></param>
         protected async Task HandleDidChangeConfigurationNotification(
             DidChangeConfigurationParams<TConfig> configChangeParams,
             EventContext eventContext)

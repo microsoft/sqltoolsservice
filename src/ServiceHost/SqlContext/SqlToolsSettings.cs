@@ -3,6 +3,9 @@ using Microsoft.SqlTools.EditorServices.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
+    /// <summary>
+    /// Class for serialization and deserialization of the settings the SQL Tools Service needs.
+    /// </summary>
     public class SqlToolsSettings
     {
         // TODO: Is this needed? I can't make sense of this comment.
@@ -30,6 +33,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
     }
 
+    /// <summary>
+    /// Sub class for serialization and deserialization of script analysis settings
+    /// </summary>
     public class ScriptAnalysisSettings
     {
         public bool? Enable { get; set; }

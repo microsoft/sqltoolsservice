@@ -18,7 +18,8 @@ using System.Linq;
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
     /// <summary>
-    /// Main class for Language Service functionality
+    /// Main class for Language Service functionality including anything that reqires knowledge of
+    /// the language to perfom, such as definitions, intellisense, etc.
     /// </summary>
     public sealed class LanguageService
     {
