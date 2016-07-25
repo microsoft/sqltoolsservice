@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using System;
 using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {     
@@ -32,11 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails, profilePaths);
 
             // Create the service host
-            ServiceHost.ServiceHost serviceHost = ServiceHost.ServiceHost.Create();
+            ServiceHost serviceHost = ServiceHost.Create();
 
             // Initialize the services that will be hosted here
-            WorkspaceService.WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
-            LanguageService.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
+            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
+            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
 
             // Start the service
             serviceHost.Start().Wait();

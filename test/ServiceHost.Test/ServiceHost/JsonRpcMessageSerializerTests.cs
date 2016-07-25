@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol.Serializers;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
+using HostingMessage = Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         {
             var messageObj =
                 this.messageSerializer.SerializeMessage(
-                    ServiceLayer.ServiceHost.Protocol.Contracts.Message.Request(
+                    HostingMessage.Request(
                         MessageId, 
                         MethodName, 
                         MessageContent));
@@ -60,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         {
             var messageObj =
                 this.messageSerializer.SerializeMessage(
-                    ServiceLayer.ServiceHost.Protocol.Contracts.Message.Event(
+                    HostingMessage.Event(
                         MethodName, 
                         MessageContent));
 
@@ -75,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         {
             var messageObj =
                 this.messageSerializer.SerializeMessage(
-                    ServiceLayer.ServiceHost.Protocol.Contracts.Message.Response(
+                    HostingMessage.Response(
                         MessageId,
                         null,
                         MessageContent));
@@ -91,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         {
             var messageObj =
                 this.messageSerializer.SerializeMessage(
-                    ServiceLayer.ServiceHost.Protocol.Contracts.Message.ResponseError(
+                   HostingMessage.ResponseError(
                         MessageId,
                         null,
                         MessageContent));

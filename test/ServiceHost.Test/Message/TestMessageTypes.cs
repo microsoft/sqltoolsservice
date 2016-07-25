@@ -4,7 +4,7 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.ServiceHost.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Message
 {
