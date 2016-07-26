@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.Test.Utility
         /// <returns></returns>
         public static LanguageService GetTestLanguageService()
         {
-            return new LanguageService(new SqlToolsContext(null, null));
+            return new LanguageService();
         }
 
         /// <summary>
