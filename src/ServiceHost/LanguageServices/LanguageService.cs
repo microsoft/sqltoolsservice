@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
 using System.Linq;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Location = Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts.Location;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -97,6 +98,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the configuration update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
 
+            // Register the file change update handler
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocChangeCallback(HandleDidChangeTextDocumentNotification);
+
+            // Register the file open update handler
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
+
+            // register an OnConnection callback 
+            ConnectionService.Instance.RegisterOnConnectionTask(OnConnection);      
+
             // Store the SqlToolsContext for future use
             Context = context;
         }
@@ -165,8 +175,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleCompletionRequest");
-            await Task.FromResult(true);
+            Logger.Write(LogLevel.Verbose, "HandleCompletionRequest"); 
+ 
+            // get the current list of completion items and return to client 
+            var completionItems = AutoCompleteService.Instance.GetCompletionItems(textDocumentPosition); 
+            await requestContext.SendResult(completionItems); 
         }
 
         private static async Task HandleCompletionResolveRequest(
@@ -221,6 +234,45 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         #region Handlers for Events from Other Services
 
+        /// <summary>
+        /// Handle the file open notification 
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public async Task HandleDidOpenTextDocumentNotification(
+            ScriptFile scriptFile, 
+            EventContext eventContext)
+        {
+            await this.RunScriptDiagnostics( 
+                new ScriptFile[] { scriptFile },
+                eventContext); 
+
+            await Task.FromResult(true);             
+        }
+
+        
+        /// <summary> 
+        /// Handles text document change events 
+        /// </summary> 
+        /// <param name="textChangeParams"></param> 
+        /// <param name="eventContext"></param> 
+        /// <returns></returns> 
+        public async Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles, EventContext eventContext) 
+        { 
+            await this.RunScriptDiagnostics( 
+                changedFiles.ToArray(), 
+                eventContext); 
+
+            await Task.FromResult(true); 
+        }
+
+        /// <summary>
+        /// Handle the file configuration change notification
+        /// </summary>
+        /// <param name="newSettings"></param>
+        /// <param name="oldSettings"></param>
+        /// <param name="eventContext"></param>
         public async Task HandleDidChangeConfigurationNotification(
             SqlToolsSettings newSettings, 
             SqlToolsSettings oldSettings, 
@@ -251,7 +303,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CurrentSettings.EnableProfileLoading = newSettings.EnableProfileLoading;
             CurrentSettings.ScriptAnalysis.Update(newSettings.ScriptAnalysis, CurrentWorkspace.WorkspacePath);
         }
-
+        
+        /// <summary> 
+        /// Callback for when a user connection is done processing 
+        /// </summary> 
+        /// <param name="sqlConnection"></param> 
+        public async Task OnConnection(ISqlConnection sqlConnection) 
+        { 
+            await AutoCompleteService.Instance.UpdateAutoCompleteCache(sqlConnection); 
+            await Task.FromResult(true); 
+        } 
+        
         #endregion
 
         #region Private Helpers

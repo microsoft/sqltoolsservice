@@ -7,6 +7,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {     
@@ -37,13 +38,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             // Grab the instance of the service host
             ServiceHost serviceHost = ServiceHost.Instance;
 
+            // Start the service
+            serviceHost.Start().Wait();
+
             // Initialize the services that will be hosted here
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             AutoCompleteService.Instance.InitializeService(serviceHost);
             LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
+            ConnectionService.Instance.Initialize(serviceHost);
 
-            // Start the service
-            serviceHost.Start().Wait();
+            serviceHost.Initialize();
             serviceHost.WaitForExit();
         }
     }

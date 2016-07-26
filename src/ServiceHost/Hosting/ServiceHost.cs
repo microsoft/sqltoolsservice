@@ -45,7 +45,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
             // Initialize the shutdown activities
             shutdownCallbacks = new List<ShutdownCallback>();
             initializeCallbacks = new List<InitializeCallback>();
+        }
 
+        /// <summary>
+        /// Provide initialization that must occur after the service host is started
+        /// </summary>
+        public void Initialize()
+        {
             // Register the requests that this service host will handle
             this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
             this.SetRequestHandler(ShutdownRequest.Type, this.HandleShutdownRequest);
