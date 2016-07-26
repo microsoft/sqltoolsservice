@@ -43,6 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
         {
             ConfigChangeCallbacks = new List<ConfigChangeCallback>();
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
+            TextDocOpenCallbacks = new List<TextDocOpenCallback>();
         }
 
         #endregion
@@ -70,6 +71,13 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
         public delegate Task TextDocChangeCallback(ScriptFile[] changedFiles, EventContext eventContext);
 
         /// <summary>
+        /// Delegate for callbacks that occur when a text document is opened
+        /// </summary>
+        /// <param name="openFile">File that was opened</param>
+        /// <param name="eventContext">Context of the event raised for the changed files</param>
+        public delegate Task TextDocOpenCallback(ScriptFile openFile, EventContext eventContext);
+        
+        /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
         /// </summary>
         private List<ConfigChangeCallback> ConfigChangeCallbacks { get; set; }
@@ -78,6 +86,12 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
         /// List of callbacks to call when the current text document changes
         /// </summary>
         private List<TextDocChangeCallback> TextDocChangeCallbacks { get; set; }
+
+        /// <summary>
+        /// List of callbacks to call when a text document is opened
+        /// </summary>
+        private List<TextDocOpenCallback> TextDocOpenCallbacks { get; set; }
+
 
         #endregion
 
@@ -140,6 +154,15 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
             TextDocChangeCallbacks.Add(task);
         }
 
+        /// <summary>
+        /// Adds a new task to be called when a file is opened
+        /// </summary>
+        /// <param name="task">Delegate to call when a document is opened</param>
+        public void RegisterTextDocOpenCallback(TextDocOpenCallback task)
+        {
+            TextDocOpenCallbacks.Add(task);
+        }        
+
         #endregion
 
         #region Event Handlers
@@ -158,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
             // A text change notification can batch multiple change requests
             foreach (var textChange in textChangeParams.ContentChanges)
             {
-                string fileUri = textChangeParams.TextDocument.Uri;
+                string fileUri = textChangeParams.Uri ?? textChangeParams.TextDocument.Uri; 
                 msg.AppendLine(String.Format("  File: {0}", fileUri));
 
                 ScriptFile changedFile = Workspace.GetFile(fileUri);
@@ -177,12 +200,20 @@ namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
             return Task.WhenAll(handlers);
         }
 
-        protected Task HandleDidOpenTextDocumentNotification(
+        protected async Task HandleDidOpenTextDocumentNotification(
             DidOpenTextDocumentNotification openParams,
             EventContext eventContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
-            return Task.FromResult(true);
+
+            // read the SQL file contents into the ScriptFile 
+            ScriptFile openedFile = Workspace.GetFileBuffer(openParams.Uri, openParams.Text); 
+
+             // Propagate the changes to the event handlers
+            var textDocOpenTasks = TextDocOpenCallbacks.Select(
+                t => t(openedFile, eventContext));
+
+            await Task.WhenAll(textDocOpenTasks);
         }
 
         protected Task HandleDidCloseTextDocumentNotification(

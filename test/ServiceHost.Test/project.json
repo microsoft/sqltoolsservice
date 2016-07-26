@@ -1,4 +1,5 @@
 {
+  "name": "Microsoft.SqlTools.ServiceHost.Test",
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable"
