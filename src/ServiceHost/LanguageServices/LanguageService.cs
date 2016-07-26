@@ -38,9 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         /// <summary>
         /// Default, parameterless constructor.
-        /// TODO: Figure out how to make this truely singleton even with dependency injection for tests
         /// </summary>
-        public LanguageService()
+        internal LanguageService()
         {
         }
 
