@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.EditorServices.Connection
+namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
     /// Interface for the SQL Connection factory

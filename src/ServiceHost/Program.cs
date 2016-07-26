@@ -2,11 +2,13 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using System;
-using Microsoft.SqlTools.EditorServices.Protocol.Server;
-using Microsoft.SqlTools.EditorServices.Session;
 using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 
-namespace Microsoft.SqlTools.ServiceHost
+namespace Microsoft.SqlTools.ServiceLayer
 {     
     /// <summary>
     /// Main application class for SQL Tools API Service Host executable
@@ -25,16 +27,24 @@ namespace Microsoft.SqlTools.ServiceHost
 
             const string hostName = "SQL Tools Service Host";
             const string hostProfileId = "SQLToolsService";
-            Version hostVersion = new Version(1,0);
+            Version hostVersion = new Version(1,0); 
 
             // set up the host details and profile paths 
             var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);     
             var profilePaths = new ProfilePaths(hostProfileId, "baseAllUsersPath", "baseCurrentUserPath");
+            SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails, profilePaths);
 
-            // create and run the language server
-            var languageServer = new LanguageServer(hostDetails, profilePaths);            
-            languageServer.Start().Wait();            
-            languageServer.WaitForExit();
+            // Grab the instance of the service host
+            ServiceHost serviceHost = ServiceHost.Instance;
+
+            // Initialize the services that will be hosted here
+            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
+            AutoCompleteService.Instance.InitializeService(serviceHost);
+            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
+
+            // Start the service
+            serviceHost.Start().Wait();
+            serviceHost.WaitForExit();
         }
     }
 }

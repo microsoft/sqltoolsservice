@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace Microsoft.SqlTools.EditorServices.Connection
+namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
     /// Factory class to create SqlClientConnections

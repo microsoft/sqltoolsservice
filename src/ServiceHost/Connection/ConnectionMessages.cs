@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.EditorServices.Connection
+namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
     /// Message format for the initial connection request
