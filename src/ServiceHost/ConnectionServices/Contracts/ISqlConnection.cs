@@ -5,19 +5,8 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
 {
-    /// <summary>
-    /// Interface for the SQL Connection factory
-    /// </summary>
-    public interface ISqlConnectionFactory
-    {
-        /// <summary>
-        /// Create a new SQL Connection object
-        /// </summary>
-        ISqlConnection CreateSqlConnection();
-    }
-
     /// <summary>
     /// Interface for the SQL Connection wrapper
     /// </summary>

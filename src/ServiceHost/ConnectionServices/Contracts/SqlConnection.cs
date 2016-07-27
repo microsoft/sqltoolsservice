@@ -7,24 +7,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
 {
-    /// <summary>
-    /// Factory class to create SqlClientConnections
-    /// The purpose of the factory is to make it easier to mock out the database
-    /// in 'offline' unit test scenarios.
-    /// </summary>
-    public class SqlConnectionFactory : ISqlConnectionFactory
-    {
-        /// <summary>
-        /// Creates a new SqlClientConnection object
-        /// </summary>
-        public ISqlConnection CreateSqlConnection()
-        {
-            return new SqlClientConnection();
-        }
-    }
-
     /// <summary>
     /// Wrapper class that implements ISqlConnection and hosts a SqlConnection.
     /// This wrapper exists primarily for decoupling to support unit testing.
