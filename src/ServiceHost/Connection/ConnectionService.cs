@@ -146,8 +146,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 ConnectionId = maxConnectionId
             };
-
-            
         }
 
         public void InitializeService(ServiceHost serviceHost)
