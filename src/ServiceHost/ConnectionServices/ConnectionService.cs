@@ -6,12 +6,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
 {
     /// <summary>
     /// Main class for the Connection Management services
@@ -119,25 +121,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Open a connection with the specified connection details
         /// </summary>
         /// <param name="connectionDetails"></param>
-        public ConnectionResult Connect(ConnectionDetails connectionDetails)
+        public async Task<ConnectionResult> Connect(ConnectionDetails connectionDetails)
         {
             // build the connection string from the input parameters
             string connectionString = BuildConnectionString(connectionDetails);
 
             // create a sql connection instance
-            ISqlConnection connection = this.ConnectionFactory.CreateSqlConnection();
+            ISqlConnection connection = ConnectionFactory.CreateSqlConnection(connectionString);
 
             // open the database
-            connection.OpenDatabaseConnection(connectionString);
+            await connection.OpenAsync();
 
             // map the connection id to the connection object for future lookups
-            this.ActiveConnections.Add(++maxConnectionId, connection);
+            ActiveConnections.Add(++maxConnectionId, connection);
 
             // invoke callback notifications
-            foreach (var activity in this.onConnectionActivities)
-            {
-                activity(connection);
-            }
+            var onConnectionCallbackTasks = onConnectionActivities.Select(t => t(connection));
+            await Task.WhenAll(onConnectionCallbackTasks);
+            // TODO: Evaulate if we want to avoid waiting here. We'll need error handling on the other side if we don't wait
 
             // return the connection result
             return new ConnectionResult()
@@ -178,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             Logger.Write(LogLevel.Verbose, "HandleConnectRequest");
 
             // open connection base on request details
-            ConnectionResult result = ConnectionService.Instance.Connect(connectionDetails);
+            ConnectionResult result = await Connect(connectionDetails);
 
             await requestContext.SendResult(result);
         }

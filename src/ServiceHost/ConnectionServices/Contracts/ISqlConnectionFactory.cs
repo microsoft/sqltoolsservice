@@ -13,6 +13,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        ISqlConnection CreateSqlConnection();
+        ISqlConnection CreateSqlConnection(string connectionString);
     }
 }

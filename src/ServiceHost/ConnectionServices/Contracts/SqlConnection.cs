@@ -3,9 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
+using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
 {
@@ -21,36 +23,161 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
         private SqlConnection connection;
 
         /// <summary>
-        /// Opens a SqlConnection using provided connection string
+        /// Creates a new instance of the SqlClientConnection with an underlying connection to the
+        /// database server provided in <paramref name="connectionString"/>.
         /// </summary>
-        /// <param name="connectionString"></param>
-        public void OpenDatabaseConnection(string connectionString)
+        /// <param name="connectionString">Connection string for the database to connect to</param>
+        public SqlClientConnection(string connectionString)
         {
-            this.connection = new SqlConnection(connectionString);
-            this.connection.Open();
+            connection = new SqlConnection(connectionString);
         }
 
-        /// <summary>
-        /// Gets a list of database server schema objects
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<string> GetServerObjects()
-        {
-            // Select the values from sys.tables to give a super basic
-            // autocomplete experience.  This will be replaced by SMO.
-            SqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT name FROM sys.tables";
-            command.CommandTimeout = 15;
-            command.CommandType = CommandType.Text;
-            var reader = command.ExecuteReader();
+        ///// <summary>
+        ///// Gets a list of database server schema objects
+        ///// </summary>
+        ///// <returns></returns>
+        //public IEnumerable<string> GetServerObjects()
+        //{
+        //    // Select the values from sys.tables to give a super basic
+        //    // autocomplete experience.  This will be replaced by SMO.
+        //    SqlCommand command = connection.CreateCommand();
+        //    command.CommandText = "SELECT name FROM sys.tables";
+        //    command.CommandTimeout = 15;
+        //    command.CommandType = CommandType.Text;
+        //    var reader = command.ExecuteReader();
 
-            List<string> results = new List<string>();
-            while (reader.Read())
+        //    List<string> results = new List<string>();
+        //    while (reader.Read())
+        //    {
+        //        results.Add(reader[0].ToString());
+        //    }
+
+        //    return results;
+        //}
+
+        #region ISqlConnection Implementation
+
+        #region Properties
+
+        public string ConnectionString
+        {
+            get { return connection.ConnectionString; }
+            set { connection.ConnectionString = value; }
+        }
+
+        public int ConnectionTimeout
+        {
+            get { return connection.ConnectionTimeout; }
+        }
+
+        public string Database
+        {
+            get { return connection.Database; }
+        }
+
+        public string DataSource
+        {
+            get { return connection.DataSource; }
+        }
+
+        public string ServerVersion
+        {
+            get { return connection.ServerVersion; }
+        }
+
+        public ConnectionState State
+        {
+            get { return connection.State; }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public IDbTransaction BeginTransaction()
+        {
+            return connection.BeginTransaction();
+        }
+
+        public IDbTransaction BeginTransaction(IsolationLevel il)
+        {
+            return connection.BeginTransaction(il);
+        }
+
+        public void ChangeDatabase(string databaseName)
+        {
+            connection.ChangeDatabase(databaseName);
+        }
+
+        public void ClearPool()
+        {
+            if (connection != null)
             {
-                results.Add(reader[0].ToString());
+                SqlConnection.ClearPool(connection);
             }
-
-            return results;
         }
+
+        public void Close()
+        {
+            connection.Close();
+        }
+
+        public IDbCommand CreateCommand()
+        {
+            return connection.CreateCommand();
+        }
+
+        public void Open()
+        {
+            connection.Open();
+        }
+
+        public Task OpenAsync()
+        {
+            return connection.OpenAsync();
+        }
+
+        public Task OpenAsync(CancellationToken token)
+        {
+            return connection.OpenAsync(token);
+        } 
+
+        #endregion
+
+        #endregion
+
+        #region IDisposable Implementation
+
+        private bool disposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    if (connection.State == ConnectionState.Open)
+                    {
+                        connection.Close();
+                    }
+                    connection.Dispose();
+                }
+                disposed = true;
+            }
+        }
+
+        ~SqlClientConnection()
+        {
+            Dispose(false);
+        }
+
+        #endregion
+
     }
 }

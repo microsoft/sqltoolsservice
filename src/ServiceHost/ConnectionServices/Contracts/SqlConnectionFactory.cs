@@ -15,9 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
         /// <summary>
         /// Creates a new SqlClientConnection object
         /// </summary>
-        public ISqlConnection CreateSqlConnection()
+        public ISqlConnection CreateSqlConnection(string connectionString)
         {
-            return new SqlClientConnection();
+            return new SqlClientConnection(connectionString);
         }
     }
 }
