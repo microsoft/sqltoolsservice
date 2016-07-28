@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -144,12 +146,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 ConnectionId = maxConnectionId
             };
+
+            
         }
 
-        public void Initialize(ServiceHost serviceHost)
+        public void InitializeService(ServiceHost serviceHost)
         {
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
+
+            // Register the configuration update handler
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
         }
 
         /// <summary> 
@@ -177,10 +184,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             Logger.Write(LogLevel.Verbose, "HandleConnectRequest");
 
-            // open connection base on request details
-            ConnectionResult result = ConnectionService.Instance.Connect(connectionDetails);
+            try
+            {
+                // open connection base on request details
+                ConnectionResult result = ConnectionService.Instance.Connect(connectionDetails);
+                await requestContext.SendResult(result);
+            }
+            catch(Exception ex)
+            {
+                await requestContext.SendError(ex.Message);
+            }
+        }
 
-            await requestContext.SendResult(result);
+        #endregion
+
+        #region Handlers for Events from Other Services
+
+        public Task HandleDidChangeConfigurationNotification(
+            SqlToolsSettings newSettings, 
+            SqlToolsSettings oldSettings, 
+            EventContext eventContext)
+        {
+            return Task.FromResult(true);
         }
 
         #endregion

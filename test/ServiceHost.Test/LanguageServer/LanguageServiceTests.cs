@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 {
     /// <summary>
     /// Tests for the ServiceHost Language Service tests
