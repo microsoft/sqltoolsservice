@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,16 +57,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
         private ISqlConnectionFactory connectionFactory;
 
         /// <summary>
-        /// The current connection id that was previously used
-        /// </summary>
-        private int maxConnectionId = 0;
-
-        /// <summary>
         /// Active connections lazy dictionary instance
         /// </summary>
-        private Lazy<Dictionary<int, ISqlConnection>> activeConnections
-            = new Lazy<Dictionary<int, ISqlConnection>>(() 
-                => new Dictionary<int, ISqlConnection>());
+        private Lazy<Dictionary<Guid, ISqlConnection>> activeConnections
+            = new Lazy<Dictionary<Guid, ISqlConnection>>(() 
+                => new Dictionary<Guid, ISqlConnection>());
           
         /// <summary>
         /// Callback for onconnection handler
@@ -81,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
         /// <summary>
         /// Gets the active connection map
         /// </summary>
-        public Dictionary<int, ISqlConnection> ActiveConnections
+        public Dictionary<Guid, ISqlConnection> ActiveConnections
         {
             get
             {
@@ -133,7 +129,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
             await connection.OpenAsync();
 
             // map the connection id to the connection object for future lookups
-            ActiveConnections.Add(++maxConnectionId, connection);
+            Guid connectionId = Guid.NewGuid();
+            ActiveConnections.Add(connectionId, connection);
 
             // invoke callback notifications
             var onConnectionCallbackTasks = onConnectionActivities.Select(t => t(connection));
@@ -141,16 +138,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
             // TODO: Evaulate if we want to avoid waiting here. We'll need error handling on the other side if we don't wait
 
             // return the connection result
-            return new ConnectionResult()
+            return new ConnectionResult
             {
-                ConnectionId = maxConnectionId
+                ConnectionId = connectionId
             };
+        }
+
+        /// <summary>
+        /// Closes an active connection and removes it from the active connections list
+        /// </summary>
+        /// <param name="connectionId">ID of the connection to close</param>
+        public void Disconnect(Guid connectionId)
+        {
+            if (!ActiveConnections.ContainsKey(connectionId))
+            {
+                // TODO: Should this possibly be a throw condition?
+                return;
+            }
+
+            ActiveConnections[connectionId].Close();
+            ActiveConnections.Remove(connectionId);
         }
 
         public void Initialize(ServiceHost serviceHost)
         {
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
+            
+            // Register the shutdown handler
+            serviceHost.RegisterShutdownTask(HandleShutdownRequest);
         }
 
         /// <summary> 
@@ -160,6 +176,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
         public void RegisterOnConnectionTask(OnConnectionHandler activity) 
         { 
             onConnectionActivities.Add(activity); 
+        }
+
+        public ISqlConnection GetConnection(Guid connectionId)
+        {
+            if (!ActiveConnections.ContainsKey(connectionId))
+            {
+                throw new ArgumentException("Connection with provided ID could not be found");
+            }
+            return ActiveConnections[connectionId];
         }
 
         #endregion
@@ -182,6 +207,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
             ConnectionResult result = await Connect(connectionDetails);
 
             await requestContext.SendResult(result);
+        }
+
+        /// <summary>
+        /// Handles shutdown event by closing out any active connections
+        /// </summary>
+        protected async Task HandleShutdownRequest(object shutdownObj, RequestContext<object> shutdownContext)
+        {
+            // Go through all the existing connections and close them out
+            foreach (ISqlConnection conn in ActiveConnections.Values)
+            {
+                conn.Close();
+            }
+
+            await Task.FromResult(0);
         }
 
         #endregion

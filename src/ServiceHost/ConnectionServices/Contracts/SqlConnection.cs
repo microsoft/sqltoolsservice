@@ -32,29 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
             connection = new SqlConnection(connectionString);
         }
 
-        ///// <summary>
-        ///// Gets a list of database server schema objects
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<string> GetServerObjects()
-        //{
-        //    // Select the values from sys.tables to give a super basic
-        //    // autocomplete experience.  This will be replaced by SMO.
-        //    SqlCommand command = connection.CreateCommand();
-        //    command.CommandText = "SELECT name FROM sys.tables";
-        //    command.CommandTimeout = 15;
-        //    command.CommandType = CommandType.Text;
-        //    var reader = command.ExecuteReader();
-
-        //    List<string> results = new List<string>();
-        //    while (reader.Read())
-        //    {
-        //        results.Add(reader[0].ToString());
-        //    }
-
-        //    return results;
-        //}
-
         #region ISqlConnection Implementation
 
         #region Properties

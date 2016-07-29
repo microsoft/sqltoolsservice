@@ -17,7 +17,8 @@ using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
 using System.Linq;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Location = Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts.Location;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.ConnectionServices;
+using Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {

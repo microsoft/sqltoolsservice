@@ -5,8 +5,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.ConnectionServices;
+using Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
@@ -60,11 +63,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         /// <summary>
         /// Update the cached autocomplete candidate list when the user connects to a database
+        /// TODO: Update with refactoring/async
         /// </summary>
         /// <param name="connection"></param>
         public async Task UpdateAutoCompleteCache(ISqlConnection connection)
         {
-            AutoCompleteList = connection.GetServerObjects();
+            IDbCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT name FROM sys.tables";
+            command.CommandTimeout = 15;
+            command.CommandType = CommandType.Text;
+            var reader = command.ExecuteReader();
+
+            List<string> results = new List<string>();
+            while (reader.Read())
+            {
+                results.Add(reader[0].ToString());
+            }
+
+            AutoCompleteList = results;
             await Task.FromResult(0);
         }
 
