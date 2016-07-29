@@ -1,5 +1,5 @@
 {
-  "name": "Microsoft.SqlTools.ServiceHost.Test",
+  "name": "Microsoft.SqlTools.ServiceLayer.Test",
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable"
@@ -11,7 +11,7 @@
     "System.Data.SqlClient": "4.1.0",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",
-    "ServiceHost": {
+    "Microsoft.SqlTools.ServiceLayer": {
        "target": "project"
     }
   },
