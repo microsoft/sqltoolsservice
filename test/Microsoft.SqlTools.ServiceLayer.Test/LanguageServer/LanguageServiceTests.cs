@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 {
     /// <summary>
     /// Tests for the ServiceHost Language Service tests
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             var connectionService = TestObjects.GetTestConnectionService();
             var connectionResult = connectionService.Connect(TestObjects.GetTestConnectionDetails());
             var sqlConnection = connectionService.ActiveConnections[connectionResult.ConnectionId];
-            autocompleteService.UpdateAutoCompleteCache(sqlConnection);
+            autocompleteService.UpdateAutoCompleteCache(sqlConnection).Wait();
         }
 
         #endregion

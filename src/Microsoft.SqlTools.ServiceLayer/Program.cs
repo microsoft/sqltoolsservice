@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             AutoCompleteService.Instance.InitializeService(serviceHost);
             LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
-            ConnectionService.Instance.Initialize(serviceHost);
+            ConnectionService.Instance.InitializeService(serviceHost);
 
             serviceHost.Initialize();
             serviceHost.WaitForExit();

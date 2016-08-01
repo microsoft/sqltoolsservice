@@ -3,10 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
 {
     /// <summary>
     /// Message format for the initial connection request
@@ -43,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
         /// <summary>
         /// Gets or sets the connection id
         /// </summary>
-        public Guid ConnectionId { get; set; }
+        public int ConnectionId { get; set; }
 
         /// <summary>
         /// Gets or sets any connection error messages

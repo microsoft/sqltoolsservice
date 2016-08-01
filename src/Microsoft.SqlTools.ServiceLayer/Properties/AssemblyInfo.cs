@@ -41,4 +41,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: AssemblyInformationalVersion("1.0.0.0")]
 
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceHost.Test")]
+[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test")]
