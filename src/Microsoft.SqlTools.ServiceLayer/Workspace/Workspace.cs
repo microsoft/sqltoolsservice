@@ -10,9 +10,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using Microsoft.SqlTools.EditorServices.Utility;
-using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
+namespace Microsoft.SqlTools.ServiceLayer.Workspace
 {
     /// <summary>
     /// Manages a "workspace" of script files that are open for a particular

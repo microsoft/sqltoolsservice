@@ -6,7 +6,7 @@
 using System.Data.Common;
 using System.Data.SqlClient;
 
-namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
     /// Factory class to create SqlClientConnections
@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
     public class SqlConnectionFactory : ISqlConnectionFactory
     {
         /// <summary>
-        /// Creates a new SqlClientConnection object
+        /// Creates a new SqlConnection object
         /// </summary>
         public DbConnection CreateSqlConnection(string connectionString)
         {
