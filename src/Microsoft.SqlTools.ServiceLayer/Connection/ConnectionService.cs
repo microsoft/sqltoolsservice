@@ -15,13 +15,45 @@ using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
+    public class ConnectionInfo
+    {
+        public ConnectionInfo(ISqlConnectionFactory factory, string ownerUri, ConnectionDetails details)
+        {
+            Factory = factory;
+            OwnerUri = ownerUri;
+            ConnectionDetails = details;
+            ConnectionId = Guid.NewGuid();
+        }
+
+        /// <summary>
+        /// Unique Id, helpful to identify a connection info object
+        /// </summary>
+        public Guid ConnectionId { get; private set; }
+
+        public string OwnerUri { get; private set; }
+
+        private ISqlConnectionFactory Factory {get; set;}
+
+        public ConnectionDetails ConnectionDetails { get; private set; }
+        
+        public ISqlConnection SqlConnection { get; private set; }
+
+        public void OpenConnection()
+        {
+            // build the connection string from the input parameters
+            string connectionString = ConnectionService.BuildConnectionString(ConnectionDetails);
+
+            // create a sql connection instance
+            SqlConnection = Factory.CreateSqlConnection();
+            SqlConnection.OpenDatabaseConnection(connectionString);
+        }
+    }
+
     /// <summary>
     /// Main class for the Connection Management services
     /// </summary>
     public class ConnectionService
     {
-        #region Singleton Instance Implementation
-
         /// <summary>
         /// Singleton service instance
         /// </summary>
@@ -38,6 +70,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return instance.Value;
             }
         }
+        
+        /// <summary>
+        /// The SQL connection factory object
+        /// </summary>
+        private ISqlConnectionFactory connectionFactory;
+           
+        private Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// Default constructor is private since it's a singleton class
@@ -45,49 +84,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ConnectionService()
         {
         }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// The SQL connection factory object
-        /// </summary>
-        private ISqlConnectionFactory connectionFactory;
-
-        /// <summary>
-        /// The current connection id that was previously used
-        /// </summary>
-        private int maxConnectionId = 0;
-
-        /// <summary>
-        /// Active connections lazy dictionary instance
-        /// </summary>
-        private Lazy<Dictionary<int, ISqlConnection>> activeConnections
-            = new Lazy<Dictionary<int, ISqlConnection>>(() 
-                => new Dictionary<int, ISqlConnection>());
-          
         /// <summary>
         /// Callback for onconnection handler
         /// </summary>
         /// <param name="sqlConnection"></param>
-        public delegate Task OnConnectionHandler(ISqlConnection sqlConnection); 
+        public delegate Task OnConnectionHandler(ConnectionInfo info); 
 
         /// <summary>
         /// List of onconnection handlers
         /// </summary>
-        private readonly List<OnConnectionHandler> onConnectionActivities = new List<OnConnectionHandler>(); 
-
-        /// <summary>
-        /// Gets the active connection map
-        /// </summary>
-        public Dictionary<int, ISqlConnection> ActiveConnections
-        {
-            get
-            {
-                return activeConnections.Value;
-            }
-        }
+        private readonly List<OnConnectionHandler> onConnectionActivities = new List<OnConnectionHandler>();
 
         /// <summary>
         /// Gets the SQL connection factory instance
@@ -103,9 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return this.connectionFactory;
             }
         }
-
-        #endregion
-
+       
         /// <summary>
         /// Test constructor that injects dependency interfaces
         /// </summary>
@@ -115,40 +119,62 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             this.connectionFactory = testFactory;
         }
 
-        #region Public Methods
+        // Attempts to link a URI to an actively used connection for this URI
+        public bool TryFindConnection(string ownerUri, out ConnectionSummary connectionSummary)
+        {
+            connectionSummary = null;
+            ConnectionInfo connectionInfo;
+            if (this.ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
+            {
+                connectionSummary = CopySummary(connectionInfo.ConnectionDetails);
+                return true;
+            }
+            return false;
+        }
+        
+        private static ConnectionSummary CopySummary(ConnectionSummary summary)
+        {
+            return new ConnectionSummary()
+            {
+                ServerName = summary.ServerName,
+                DatabaseName = summary.DatabaseName,
+                UserName = summary.UserName
+            };
+        }
 
         /// <summary>
         /// Open a connection with the specified connection details
         /// </summary>
         /// <param name="connectionDetails"></param>
-        public ConnectionResult Connect(ConnectionDetails connectionDetails)
+        public ConnectResponse Connect(ConnectParams connectionParams)
         {
-            // build the connection string from the input parameters
-            string connectionString = BuildConnectionString(connectionDetails);
+            ConnectionInfo connectionInfo;
+            if (ownerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo) )
+            {
+                // TODO disconnect
+            }
+            connectionInfo = new ConnectionInfo(this.connectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
 
-            // create a sql connection instance
-            ISqlConnection connection = this.ConnectionFactory.CreateSqlConnection();
+            // try to connect
+            connectionInfo.OpenConnection();
+            // TODO: check that connection worked
 
-            // open the database
-            connection.OpenDatabaseConnection(connectionString);
-
-            // map the connection id to the connection object for future lookups
-            this.ActiveConnections.Add(++maxConnectionId, connection);
+            ownerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
 
             // invoke callback notifications
             foreach (var activity in this.onConnectionActivities)
             {
-                activity(connection);
+                activity(connectionInfo);
             }
 
             // return the connection result
-            return new ConnectionResult()
+            return new ConnectResponse()
             {
-                ConnectionId = maxConnectionId
+                ConnectionId = connectionInfo.ConnectionId.ToString()
             };
         }
 
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(IProtocolEndpoint serviceHost)
         {
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
@@ -165,11 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         { 
             onConnectionActivities.Add(activity); 
         }
-
-        #endregion
-
-        #region Request Handlers
-
+        
         /// <summary>
         /// Handle new connection requests
         /// </summary>
@@ -177,15 +199,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="requestContext"></param>
         /// <returns></returns>
         protected async Task HandleConnectRequest(
-            ConnectionDetails connectionDetails,
-            RequestContext<ConnectionResult> requestContext)
+            ConnectParams connectParams,
+            RequestContext<ConnectResponse> requestContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleConnectRequest");
 
             try
             {
                 // open connection base on request details
-                ConnectionResult result = ConnectionService.Instance.Connect(connectionDetails);
+                ConnectResponse result = ConnectionService.Instance.Connect(connectParams);
                 await requestContext.SendResult(result);
             }
             catch(Exception ex)
@@ -193,11 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 await requestContext.SendError(ex.Message);
             }
         }
-
-        #endregion
-
-        #region Handlers for Events from Other Services
-
+        
         public Task HandleDidChangeConfigurationNotification(
             SqlToolsSettings newSettings, 
             SqlToolsSettings oldSettings, 
@@ -205,16 +223,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             return Task.FromResult(true);
         }
-
-        #endregion
-
-        #region Private Helpers
-
+        
         /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
-        private string BuildConnectionString(ConnectionDetails connectionDetails)
+        public static string BuildConnectionString(ConnectionDetails connectionDetails)
         {
             SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder();
             connectionBuilder["Data Source"] = connectionDetails.ServerName;
@@ -224,7 +238,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
             return connectionBuilder.ToString();
         }
-
-        #endregion
     }
 }

@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
     /// Provides behavior for a client or server endpoint that
     /// communicates using the specified protocol.
     /// </summary>
-    public class ProtocolEndpoint : IMessageSender
+    public class ProtocolEndpoint : IMessageSender, IProtocolEndpoint
     {
         private bool isStarted;
         private int currentMessageId;

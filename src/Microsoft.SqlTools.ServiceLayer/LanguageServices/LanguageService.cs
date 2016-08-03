@@ -308,9 +308,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Callback for when a user connection is done processing 
         /// </summary> 
         /// <param name="sqlConnection"></param> 
-        public async Task OnConnection(ISqlConnection sqlConnection) 
+        public async Task OnConnection(ConnectionInfo connectionInfo) 
         { 
-            await AutoCompleteService.Instance.UpdateAutoCompleteCache(sqlConnection); 
+            // TODO consider whether this is needed at all - currently AutoComplete service handles its own updating
             await Task.FromResult(true); 
         } 
         
