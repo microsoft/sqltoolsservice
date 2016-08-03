@@ -54,12 +54,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public IEnumerable<string> AutoCompleteList { get; private set; }
 
-        public void InitializeService(ServiceHost serviceHost)
-        {
-            // Register a callback for when a connection is created
-            ConnectionService.Instance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
-        }
-
         /// <summary>
         /// Update the cached autocomplete candidate list when the user connects to a database
         /// TODO: Update with refactoring/async
@@ -71,16 +65,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             command.CommandText = "SELECT name FROM sys.tables";
             command.CommandTimeout = 15;
             command.CommandType = CommandType.Text;
-            var reader = await command.ExecuteReaderAsync();
-
-            List<string> results = new List<string>();
-            while (await reader.ReadAsync())
+            using (var reader = await command.ExecuteReaderAsync())
             {
-                results.Add(reader[0].ToString());
-            }
 
-            AutoCompleteList = results;
-            await Task.FromResult(0);
+                List<string> results = new List<string>();
+                while (await reader.ReadAsync())
+                {
+                    results.Add(reader[0].ToString());
+                }
+
+                AutoCompleteList = results;
+            }
         }
 
         /// <summary>
