@@ -6,7 +6,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
 {
     /// <summary>
     /// Provides details about a range between two positions in

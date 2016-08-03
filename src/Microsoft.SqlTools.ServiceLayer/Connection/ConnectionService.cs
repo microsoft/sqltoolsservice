@@ -5,9 +5,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -63,15 +65,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Active connections lazy dictionary instance
         /// </summary>
-        private Lazy<Dictionary<int, ISqlConnection>> activeConnections
-            = new Lazy<Dictionary<int, ISqlConnection>>(() 
-                => new Dictionary<int, ISqlConnection>());
+        private readonly Lazy<Dictionary<int, DbConnection>> activeConnections
+            = new Lazy<Dictionary<int, DbConnection>>(() 
+                => new Dictionary<int, DbConnection>());
           
         /// <summary>
         /// Callback for onconnection handler
         /// </summary>
         /// <param name="sqlConnection"></param>
-        public delegate Task OnConnectionHandler(ISqlConnection sqlConnection); 
+        public delegate Task OnConnectionHandler(DbConnection sqlConnection); 
 
         /// <summary>
         /// List of onconnection handlers
@@ -81,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Gets the active connection map
         /// </summary>
-        public Dictionary<int, ISqlConnection> ActiveConnections
+        public Dictionary<int, DbConnection> ActiveConnections
         {
             get
             {
@@ -127,10 +129,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             string connectionString = BuildConnectionString(connectionDetails);
 
             // create a sql connection instance
-            ISqlConnection connection = this.ConnectionFactory.CreateSqlConnection();
+            DbConnection connection = this.ConnectionFactory.CreateSqlConnection(connectionString);
 
             // open the database
-            connection.OpenDatabaseConnection(connectionString);
+            connection.Open();
 
             // map the connection id to the connection object for future lookups
             this.ActiveConnections.Add(++maxConnectionId, connection);

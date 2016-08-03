@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             var connectionService = TestObjects.GetTestConnectionService();
             var connectionResult = connectionService.Connect(TestObjects.GetTestConnectionDetails());
             var sqlConnection = connectionService.ActiveConnections[connectionResult.ConnectionId];
-            autocompleteService.UpdateAutoCompleteCache(sqlConnection);
+            autocompleteService.UpdateAutoCompleteCache(sqlConnection).Wait();
         }
 
         #endregion

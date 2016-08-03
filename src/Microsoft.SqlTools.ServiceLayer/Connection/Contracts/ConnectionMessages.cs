@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection
+namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
     /// Message format for the initial connection request

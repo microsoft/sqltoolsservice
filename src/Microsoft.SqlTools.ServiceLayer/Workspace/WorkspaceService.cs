@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices
+namespace Microsoft.SqlTools.ServiceLayer.Workspace
 {
     /// <summary>
     /// Class for handling requests/events that deal with the state of the workspace, including the

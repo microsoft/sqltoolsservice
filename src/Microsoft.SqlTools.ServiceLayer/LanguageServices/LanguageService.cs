@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
@@ -17,7 +18,8 @@ using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
 using System.Linq;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Location = Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts.Location;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.ConnectionServices;
+using Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -308,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Callback for when a user connection is done processing 
         /// </summary> 
         /// <param name="sqlConnection"></param> 
-        public async Task OnConnection(ISqlConnection sqlConnection) 
+        public async Task OnConnection(DbConnection sqlConnection) 
         { 
             await AutoCompleteService.Instance.UpdateAutoCompleteCache(sqlConnection); 
             await Task.FromResult(true); 

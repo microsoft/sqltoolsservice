@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
 {
     /// <summary>
     /// Defines the message level of a script file marker.
