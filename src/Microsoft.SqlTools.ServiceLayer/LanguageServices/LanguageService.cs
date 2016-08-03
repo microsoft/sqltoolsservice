@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
@@ -309,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Callback for when a user connection is done processing 
         /// </summary> 
         /// <param name="sqlConnection"></param> 
-        public async Task OnConnection(ISqlConnection sqlConnection) 
+        public async Task OnConnection(DbConnection sqlConnection) 
         { 
             await AutoCompleteService.Instance.UpdateAutoCompleteCache(sqlConnection); 
             await Task.FromResult(true); 

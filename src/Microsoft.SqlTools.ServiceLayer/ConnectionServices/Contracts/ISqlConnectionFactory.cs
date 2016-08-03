@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Data.Common;
+
 namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
 {
     /// <summary>
@@ -13,6 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        ISqlConnection CreateSqlConnection(string connectionString);
+        DbConnection CreateSqlConnection(string connectionString);
     }
 }
