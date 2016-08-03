@@ -41,6 +41,15 @@ namespace Microsoft.SqlTools.Test.Utility
 #endif
         }
 
+        public static ConnectParams GetTestConnectionParams()
+        {
+            return new ConnectParams() 
+            {
+                OwnerUri = "file://some/file.sql",
+                Connection = GetTestConnectionDetails()
+            };
+        }
+
         /// <summary>
         /// Creates a test connection details object
         /// </summary>
