@@ -9,13 +9,13 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
-using Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
 
-namespace Microsoft.SqlTools.ServiceLayer.ConnectionServices
+namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
     /// Main class for the Connection Management services
