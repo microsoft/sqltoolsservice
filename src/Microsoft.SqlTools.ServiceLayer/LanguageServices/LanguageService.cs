@@ -13,13 +13,12 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
-using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System.Linq;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Location = Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts.Location;
-using Microsoft.SqlTools.ServiceLayer.ConnectionServices;
-using Microsoft.SqlTools.ServiceLayer.ConnectionServices.Contracts;
+using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -57,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
-        private Workspace CurrentWorkspace
+        private Workspace.Workspace CurrentWorkspace
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.Workspace; }
         }

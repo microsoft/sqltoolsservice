@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.WorkspaceServices;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {

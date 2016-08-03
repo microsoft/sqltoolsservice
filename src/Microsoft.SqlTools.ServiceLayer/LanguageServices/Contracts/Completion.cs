@@ -5,7 +5,7 @@
 
 using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.WorkspaceServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
 {
