@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
 {
-    internal interface IMessageSender
+    public interface IMessageSender
     {
         Task SendEvent<TParams>(
             EventType<TParams> eventType,
