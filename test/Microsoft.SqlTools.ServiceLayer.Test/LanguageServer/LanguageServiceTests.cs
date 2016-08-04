@@ -3,8 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+<<<<<<< HEAD
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+=======
+using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+>>>>>>> a40180bcb1203cfafc908e7a1e26e673f53393ac
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
