@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
-    public class QueryExecuteCompleteNotification
+    public class QueryExecuteCompleteParams
     {
+        /// <summary>
+        /// URI for the editor that owns the query
+        /// </summary>
+        public string OwnerUri { get; set; }
+
         /// <summary>
         /// Any messages that came back from the server during execution of the query
         /// </summary>
@@ -21,5 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
         /// Summaries of the result sets that were returned with the query
         /// </summary>
         public ResultSetSummary[] ResultSetSummaries { get; set; }
+    }
+
+    public class QueryExecuteCompleteEvent
+    {
+        public static readonly 
+            EventType<QueryExecuteCompleteParams> Type =
+            EventType<QueryExecuteCompleteParams>.Create("query/complete");
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     public class ResultSet
     {

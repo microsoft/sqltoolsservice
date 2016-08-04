@@ -6,7 +6,7 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
     /// Parameters for a query result subset retrieval request
@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
         /// <summary>
         /// ID of the query to look up the results for
         /// </summary>
-        public Guid QueryId { get; set; }
+        public string OwnerId { get; set; }
 
         /// <summary>
         /// Index of the result set to get the results from
@@ -38,11 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
     }
 
     /// <summary>
-    /// 
+    /// Parameters for the result of a subset retrieval request
     /// </summary>
     public class QueryExecuteSubsetResult
     {
-        
+        public string Message { get; set; }
+        public ResultSetSubset ResultSubset { get; set; }
     }
 
     public class QueryExecuteSubsetRequest

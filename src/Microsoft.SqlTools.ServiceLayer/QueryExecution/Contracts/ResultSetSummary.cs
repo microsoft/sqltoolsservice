@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Data.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     public class ResultSetSummary
     {
@@ -16,11 +12,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
         /// <summary>
         /// The number of rows that was returned with the resultset
         /// </summary>
-        public long RowCount { get; set; }
+        public int RowCount { get; set; }
 
         /// <summary>
         /// Details about the columns that are provided as solutions
         /// </summary>
-        public DbColumn ColumnInfo { get; set; }
+        public DbColumn[] ColumnInfo { get; set; }
     }
 }

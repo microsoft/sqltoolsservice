@@ -6,7 +6,7 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecutionServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
     /// Parameters for the query execute request
