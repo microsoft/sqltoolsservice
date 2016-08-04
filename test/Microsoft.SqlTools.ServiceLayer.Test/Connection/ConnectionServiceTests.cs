@@ -6,6 +6,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.Test.Utility;
 using Moq;
