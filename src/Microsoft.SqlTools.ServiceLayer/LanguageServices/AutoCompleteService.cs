@@ -265,10 +265,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // If we have a connection but no cache, we don't care - assuming the OnConnect and OnDisconnect listeners
             // behave well, there should be a cache for any actively connected document. This also helps skip documents
             // that are not backed by a SQL connection
-            ConnectionSummary connectionSummary;
+            ConnectionInfo connectionInfo;
             IntellisenseCache cache;
-            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out connectionSummary)
-                && caches.TryGetValue(connectionSummary, out cache))
+            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out connectionInfo)
+                && caches.TryGetValue(connectionInfo.ConnectionDetails, out cache))
             {
                 return cache.GetAutoCompleteItems(textDocumentPosition).ToArray();
             }
@@ -278,3 +278,4 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
     }
 }
+

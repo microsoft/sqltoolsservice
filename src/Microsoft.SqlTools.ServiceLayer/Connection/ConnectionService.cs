@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public string OwnerUri { get; private set; }
 
-        private ISqlConnectionFactory Factory {get; set;}
+        public ISqlConnectionFactory Factory {get; private set;}
 
         public ConnectionDetails ConnectionDetails { get; private set; }
         
@@ -123,16 +123,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         // Attempts to link a URI to an actively used connection for this URI
-        public bool TryFindConnection(string ownerUri, out ConnectionSummary connectionSummary)
+        public bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo)
         {
-            connectionSummary = null;
-            ConnectionInfo connectionInfo;
-            if (this.ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
-            {
-                connectionSummary = CopySummary(connectionInfo.ConnectionDetails);
-                return true;
-            }
-            return false;
+            return this.ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
         }
         
         private static ConnectionSummary CopySummary(ConnectionSummary summary)
@@ -151,16 +144,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionParams"></param>
         public ConnectResponse Connect(ConnectParams connectionParams)
         {
+            // Validate parameters
+            if(connectionParams == null || !connectionParams.IsValid())
+            {
+                return new ConnectResponse()
+                {
+                    Messages = "Error: Invalid connection parameters provided."
+                };
+            }
+
             ConnectionInfo connectionInfo;
             if (ownerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo) )
             {
                 // TODO disconnect
             }
-            connectionInfo = new ConnectionInfo(this.connectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
+            connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
 
             // try to connect
-            connectionInfo.OpenConnection();
-            // TODO: check that connection worked
+            var response = new ConnectResponse();
+            try
+            {
+                connectionInfo.OpenConnection();
+            }
+            catch(Exception ex)
+            {
+                response.Messages = ex.Message;
+                return response;
+            }
 
             ownerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
 
@@ -171,10 +181,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // return the connection result
-            return new ConnectResponse()
-            {
-                ConnectionId = connectionInfo.ConnectionId.ToString()
-            };
+            response.ConnectionId = connectionInfo.ConnectionId.ToString();
+            return response;
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost)
