@@ -124,6 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             // type SqlTools have a path starting with 'untitled'.
             return
                 filePath.StartsWith("inmemory") ||
+                filePath.StartsWith("tsqloutput") ||
                 filePath.StartsWith("untitled");
         }
 
