@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             // Attempt to load the query
             Query query;
-            if (!ActiveQueries.TryGetValue(subsetParams.OwnerId, out query))
+            if (!ActiveQueries.TryGetValue(subsetParams.OwnerUri, out query))
             {
                 var errorResult = new QueryExecuteSubsetResult
                 {
