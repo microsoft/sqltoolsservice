@@ -327,7 +327,11 @@ namespace Microsoft.SqlTools.Test.Utility
 
         public override void Open()
         {
-            // No Op
+            // No Op, unless credentials are bad
+            if(ConnectionString.Contains("invalidUsername"))
+            {
+                throw new Exception("Invalid credentials provided");
+            }
         }
 
         public override string ConnectionString { get; set; }

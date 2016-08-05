@@ -203,6 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             new Dictionary<ConnectionSummary, IntellisenseCache>(new ConnectionSummaryComparer());
 
         private ISqlConnectionFactory factory;
+        private Object factoryLock = new Object();
 
         /// <summary>
         /// Internal for testing purposes only
@@ -211,16 +212,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                // TODO consider protecting against multi-threaded access
-                if(factory == null)
+                lock(factoryLock)
                 {
-                    factory = new SqlConnectionFactory();
+                    if(factory == null)
+                    {
+                        factory = new SqlConnectionFactory();
+                    }
                 }
                 return factory;
             }
             set
             {
-                factory = value;
+                lock(factoryLock)
+                {
+                    factory = value;
+                }
             }
         }
         public void InitializeService(ServiceHost serviceHost)
@@ -265,10 +271,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // If we have a connection but no cache, we don't care - assuming the OnConnect and OnDisconnect listeners
             // behave well, there should be a cache for any actively connected document. This also helps skip documents 
             // that are not backed by a SQL connection
-            ConnectionSummary connectionSummary;
+            ConnectionInfo info;
             IntellisenseCache cache;
-            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out connectionSummary)
-                && caches.TryGetValue(connectionSummary, out cache))
+            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out info)
+                && caches.TryGetValue((ConnectionSummary)info.ConnectionDetails, out cache))
             {
                 return cache.GetAutoCompleteItems(textDocumentPosition).ToArray();
             }
