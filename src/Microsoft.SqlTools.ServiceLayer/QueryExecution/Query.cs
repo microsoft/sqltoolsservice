@@ -68,7 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Create a connection from the connection details
-            using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(EditorConnection.ConnectionDetails))
+            string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
+            using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
             {
                 await conn.OpenAsync(cancellationSource.Token);
 
