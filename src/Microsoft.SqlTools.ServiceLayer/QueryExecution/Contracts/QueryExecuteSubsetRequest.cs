@@ -14,9 +14,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class QueryExecuteSubsetParams
     {
         /// <summary>
-        /// ID of the query to look up the results for
+        /// URI for the file that owns the query to look up the results for
         /// </summary>
-        public string OwnerId { get; set; }
+        public string OwnerUri { get; set; }
 
         /// <summary>
         /// Index of the result set to get the results from
