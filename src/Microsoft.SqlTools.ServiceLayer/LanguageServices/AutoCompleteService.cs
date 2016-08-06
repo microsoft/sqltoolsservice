@@ -21,8 +21,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         // connection used to query for intellisense info
         private DbConnection connection;
 
+        // number of documents (URI's) that are using the cache for the same database
+        // the autocomplete service uses this to remove unreferenced caches
+        public int ReferenceCount { get; set; }
+
         public IntellisenseCache(ISqlConnectionFactory connectionFactory, ConnectionDetails connectionDetails)
         {
+            ReferenceCount = 0;
             DatabaseInfo = CopySummary(connectionDetails);
 
             // TODO error handling on this. Intellisense should catch or else the service should handle
@@ -201,6 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         // Dictionary of unique intellisense caches for each Connection
         private Dictionary<ConnectionSummary, IntellisenseCache> caches = 
             new Dictionary<ConnectionSummary, IntellisenseCache>(new ConnectionSummaryComparer());
+        private Object cachesLock = new Object(); // Used when we insert/remove something from the cache dictionary
 
         private ISqlConnectionFactory factory;
         private Object factoryLock = new Object();
@@ -233,6 +239,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // Register a callback for when a connection is created
             ConnectionService.Instance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
+
+            // Register a callback for when a connection is closed
+            ConnectionService.Instance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
         }
 
         private async Task UpdateAutoCompleteCache(ConnectionInfo connectionInfo)
@@ -244,17 +253,47 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Remove a reference to an autocomplete cache from a URI. If
+        /// it is the last URI connected to a particular connection,
+        /// then remove the cache.
+        /// </summary>
+        public async Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary)
+        {
+            await Task.Run( () => 
+            {
+                lock(cachesLock)
+                {
+                    IntellisenseCache cache;
+                    if( caches.TryGetValue(summary, out cache) )
+                    {
+                        cache.ReferenceCount--;
+
+                        // Remove unused caches
+                        if( cache.ReferenceCount == 0 )
+                        {
+                            caches.Remove(summary);
+                        }
+                    }
+                }
+            });
+        }
+
+
+        /// <summary>
         /// Update the cached autocomplete candidate list when the user connects to a database
-        /// TODO: Update with refactoring/async
         /// </summary>
         /// <param name="details"></param>
         public async Task UpdateAutoCompleteCache(ConnectionDetails details)
         {
             IntellisenseCache cache;
-            if(!caches.TryGetValue(details, out cache))
+            lock(cachesLock)
             {
-                cache = new IntellisenseCache(ConnectionFactory, details);
-                caches[cache.DatabaseInfo] = cache;
+                if(!caches.TryGetValue(details, out cache))
+                {
+                    cache = new IntellisenseCache(ConnectionFactory, details);
+                    caches[cache.DatabaseInfo] = cache;
+                }
+                cache.ReferenceCount++;
             }
             
             await cache.UpdateCache();

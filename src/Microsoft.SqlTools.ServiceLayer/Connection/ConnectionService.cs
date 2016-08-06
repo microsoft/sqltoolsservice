@@ -94,9 +94,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public delegate Task OnConnectionHandler(ConnectionInfo info);
 
         /// <summary>
+        // Callback for ondisconnect handler
+        /// </summary>
+        public delegate Task OnDisconnectHandler(ConnectionSummary summary);
+
+        /// <summary>
         /// List of onconnection handlers
         /// </summary>
         private readonly List<OnConnectionHandler> onConnectionActivities = new List<OnConnectionHandler>();
+
+        /// <summary>
+        /// List of ondisconnect handlers
+        /// </summary>
+        private readonly List<OnDisconnectHandler> onDisconnectActivities = new List<OnDisconnectHandler>();
 
         /// <summary>
         /// Gets the SQL connection factory instance
@@ -127,16 +137,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             return this.ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
         }
-        
-        private static ConnectionSummary CopySummary(ConnectionSummary summary)
-        {
-            return new ConnectionSummary()
-            {
-                ServerName = summary.ServerName,
-                DatabaseName = summary.DatabaseName,
-                UserName = summary.UserName
-            };
-        }
 
         /// <summary>
         /// Open a connection with the specified connection details
@@ -153,10 +153,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 };
             }
 
+            // Resolve if it is an existing connection
+            // Disconnect active connection if the URI is already connected
             ConnectionInfo connectionInfo;
             if (ownerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo) )
             {
-                // TODO disconnect
+                var disconnectParams = new DisconnectParams()
+                {
+                    OwnerUri = connectionParams.OwnerUri
+                };
+                Disconnect(disconnectParams);
             }
             connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
 
@@ -185,10 +191,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return response;
         }
 
+        /// <summary>
+        /// Close a connection with the specified connection details.
+        /// </summary>
+        public bool Disconnect(DisconnectParams disconnectParams)
+        {
+            // Validate parameters
+            if (disconnectParams == null || String.IsNullOrEmpty(disconnectParams.OwnerUri))
+            {
+                return false;
+            }
+
+            // Lookup the connection owned by the URI
+            ConnectionInfo info;
+            if (!ownerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
+            {
+                return false;
+            }
+
+            // Close the connection            
+            info.SqlConnection.Close();
+
+            // Remove URI mapping
+            ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
+
+            // Invoke callback notifications
+            foreach (var activity in this.onDisconnectActivities)
+            {
+                activity(info.ConnectionDetails);
+            }
+
+            // Success
+            return true;
+        }
+
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
+            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
 
             // Register the configuration update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
@@ -201,6 +242,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public void RegisterOnConnectionTask(OnConnectionHandler activity) 
         { 
             onConnectionActivities.Add(activity); 
+        }
+
+        /// <summary>
+        /// Add a new method to be called when the ondisconnect request is submitted
+        /// </summary>
+        public void RegisterOnDisconnectTask(OnDisconnectHandler activity)
+        {
+            onDisconnectActivities.Add(activity);
         }
         
         /// <summary>
@@ -225,6 +274,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 await requestContext.SendError(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Handle disconnect requests
+        /// </summary>
+        protected async Task HandleDisconnectRequest(
+            DisconnectParams disconnectParams,
+            RequestContext<bool> requestContext)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleDisconnectRequest");
+
+            try
+            {
+                bool result = ConnectionService.Instance.Disconnect(disconnectParams);
+                await requestContext.SendResult(result);
+            }
+            catch(Exception ex)
+            {
+                await requestContext.SendError(ex.Message);
+            }
+
         }
         
         public Task HandleDidChangeConfigurationNotification(

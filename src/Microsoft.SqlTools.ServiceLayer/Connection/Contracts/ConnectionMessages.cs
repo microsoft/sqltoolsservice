@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
         /// or a virtual file representing an object in a database.         
         /// </summary>
-        public string ownerUri { get; set; }
+        public string OwnerUri { get; set; }
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
         /// or a virtual file representing an object in a database.         
         /// </summary>
-        public string ownerUri { get; set; }
+        public string OwnerUri { get; set; }
         /// <summary>
         /// Contains the high-level properties about the connection, for display to the user.
         /// </summary>
