@@ -84,17 +84,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         do
                         {
-                            // Create a new result set that we'll use to store all the data
-                            ResultSet resultSet = new ResultSet();
-                            if (reader.CanGetColumnSchema())
+                            // TODO: This doesn't properly handle scenarios where the query is SELECT but does not have rows
+                            if (!reader.HasRows)
                             {
-                                resultSet.Columns = reader.GetColumnSchema().ToArray();
+                                continue;
                             }
 
                             // Read until we hit the end of the result set
+                            ResultSet resultSet = new ResultSet();
                             while (await reader.ReadAsync(cancellationSource.Token))
                             {
                                 resultSet.AddRow(reader);
+                            }
+
+                            // Read off the column schema information
+                            if (reader.CanGetColumnSchema())
+                            {
+                                resultSet.Columns = reader.GetColumnSchema().ToArray();
                             }
 
                             // Add the result set to the results of the query
