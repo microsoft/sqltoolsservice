@@ -19,7 +19,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             get { return instance.Value; }
         }
 
-        private QueryExecutionService() { }
+        private QueryExecutionService()
+        {
+            ConnectionService = ConnectionService.Instance;
+        }
+
+        internal QueryExecutionService(ConnectionService connService)
+        {
+            ConnectionService = connService;
+        }
 
         #endregion
 
@@ -32,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get { return queries.Value; }
         }
+
+        private ConnectionService ConnectionService { get; set; }
 
         #endregion
 
@@ -55,12 +65,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Request Handlers
 
-        private async Task HandleExecuteRequest(QueryExecuteParams executeParams,
+        public async Task HandleExecuteRequest(QueryExecuteParams executeParams,
             RequestContext<QueryExecuteResult> requestContext)
         {
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
-            if(!ConnectionService.Instance.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
+            if(!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
             {
                 await requestContext.SendError("This editor is not connected to a database.");
                 return;
@@ -94,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
         }
 
-        private async Task HandleResultSubsetRequest(QueryExecuteSubsetParams subsetParams,
+        public async Task HandleResultSubsetRequest(QueryExecuteSubsetParams subsetParams,
             RequestContext<QueryExecuteSubsetResult> requestContext)
         {
             // Attempt to load the query
@@ -129,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        private async Task HandleDisposeRequest(QueryDisposeParams disposeParams,
+        public async Task HandleDisposeRequest(QueryDisposeParams disposeParams,
             RequestContext<QueryDisposeResult> requestContext)
         {
             // Attempt to remove the query for the owner uri

@@ -23,14 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 
         private IEnumerator<Dictionary<string, string>> Rows { get; set; }
 
-        private const string tableNameTestCommand = "SELECT name FROM sys.tables";
-
-        private List<Dictionary<string, string>> tableNamesTest = new List<Dictionary<string, string>>
-        {
-            new Dictionary<string, string> { {"name", "table1"} },
-            new Dictionary<string, string> { {"name", "table2"} }
-        };
-
         public TestDbDataReader(Dictionary<string, string>[][] data)
         {
             Data = data;
