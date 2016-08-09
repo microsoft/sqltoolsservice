@@ -38,17 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public ConnectionDetails ConnectionDetails { get; private set; }
         
-        public DbConnection SqlConnection { get; private set; }
-
-        public void OpenConnection()
-        {
-            // build the connection string from the input parameters
-            string connectionString = ConnectionService.BuildConnectionString(ConnectionDetails);
-
-            // create a sql connection instance
-            SqlConnection = Factory.CreateSqlConnection(connectionString);
-            SqlConnection.Open();
-        }
+        public DbConnection SqlConnection { get; set; }
     }
 
     /// <summary>
@@ -170,7 +160,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var response = new ConnectResponse();
             try
             {
-                connectionInfo.OpenConnection();
+                // build the connection string from the input parameters
+                string connectionString = ConnectionService.BuildConnectionString(connectionInfo.ConnectionDetails);
+
+                // create a sql connection instance
+                connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+                connectionInfo.SqlConnection.Open();
             }
             catch(Exception ex)
             {

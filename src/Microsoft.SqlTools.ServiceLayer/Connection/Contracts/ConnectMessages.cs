@@ -27,31 +27,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     }
 
     /// <summary>
-    /// Parameters for the Disconnect Request.
+    /// Message format for the connection result response
     /// </summary>
-    public class DisconnectParams
+    public class ConnectResponse
     {
         /// <summary>
-        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.         
+        /// A GUID representing a unique connection ID
         /// </summary>
-        public string OwnerUri { get; set; }
-    }
+        public string ConnectionId { get; set; }
 
-    /// <summary>
-    /// Parameters for the ConnectionChanged Notification.
-    /// </summary>
-    public class ConnectionChangedParams
-    {
         /// <summary>
-        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.         
+        /// Gets or sets any connection error messages
         /// </summary>
-        public string OwnerUri { get; set; }
-        /// <summary>
-        /// Contains the high-level properties about the connection, for display to the user.
-        /// </summary>
-        public ConnectionSummary Connection { get; set; }
+        public string Messages { get; set; }
     }
 
     /// <summary>
@@ -74,6 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// </summary>
         public string UserName { get; set; }
     }
+
     /// <summary>
     /// Message format for the initial connection request
     /// </summary>
@@ -89,22 +78,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     }
 
     /// <summary>
-    /// Message format for the connection result response
-    /// </summary>
-    public class ConnectResponse
-    {
-        /// <summary>
-        /// A GUID representing a unique connection ID
-        /// </summary>
-        public string ConnectionId { get; set; }
-
-        /// <summary>
-        /// Gets or sets any connection error messages
-        /// </summary>
-        public string Messages { get; set; }
-    }
-
-    /// <summary>
     /// Connect request mapping entry 
     /// </summary>
     public class ConnectionRequest
@@ -113,25 +86,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             RequestType<ConnectParams, ConnectResponse> Type =
             RequestType<ConnectParams, ConnectResponse>.Create("connection/connect");
     }
-
-    /// <summary>
-    /// Disconnect request mapping entry 
-    /// </summary>
-    public class DisconnectRequest
-    {
-        public static readonly
-            RequestType<DisconnectParams, bool> Type =
-            RequestType<DisconnectParams, bool>.Create("connection/disconnect");
-    }
-
-    /// <summary>
-    /// ConnectionChanged notification mapping entry 
-    /// </summary>
-    public class ConnectionChangedNotification
-    {
-        public static readonly
-            EventType<ConnectionChangedParams> Type =
-            EventType<ConnectionChangedParams>.Create("connection/connectionchanged");
-    }
-
 }
