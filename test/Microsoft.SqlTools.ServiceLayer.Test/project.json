@@ -11,8 +11,9 @@
     "System.Data.SqlClient": "4.1.0",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",
+    "moq.netcore": "4.4.0-beta8",
     "Microsoft.SqlTools.ServiceLayer": {
-       "target": "project"
+      "target": "project"
     }
   },
   "testRunner": "xunit",

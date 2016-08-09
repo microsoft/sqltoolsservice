@@ -9,63 +9,46 @@ using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
-    /// <summary>
-    /// Main class for Autocomplete functionality
-    /// </summary>
-    public class AutoCompleteService
+    internal class IntellisenseCache
     {
-        #region Singleton Instance Implementation
+        // connection used to query for intellisense info
+        private DbConnection connection;
 
-        /// <summary>
-        /// Singleton service instance
-        /// </summary>
-        private static Lazy<AutoCompleteService> instance 
-            = new Lazy<AutoCompleteService>(() => new AutoCompleteService());
+        // number of documents (URI's) that are using the cache for the same database
+        // the autocomplete service uses this to remove unreferenced caches
+        public int ReferenceCount { get; set; }
 
-        /// <summary>
-        /// Gets the singleton service instance
-        /// </summary>
-        public static AutoCompleteService Instance 
+        public IntellisenseCache(ISqlConnectionFactory connectionFactory, ConnectionDetails connectionDetails)
         {
-            get
-            {
-                return instance.Value;
-            }
+            ReferenceCount = 0;
+            DatabaseInfo = CopySummary(connectionDetails);
+
+            // TODO error handling on this. Intellisense should catch or else the service should handle
+            connection = connectionFactory.CreateSqlConnection(ConnectionService.BuildConnectionString(connectionDetails));
+            connection.Open();
         }
 
         /// <summary>
-        /// Default, parameterless constructor.
-        /// TODO: Figure out how to make this truely singleton even with dependency injection for tests
+        /// Used to identify a database for which this cache is used
         /// </summary>
-        public AutoCompleteService()
-        { 
+        public ConnectionSummary DatabaseInfo
+        {
+            get;
+            private set;
         }
-
-        #endregion
-
         /// <summary>
         /// Gets the current autocomplete candidate list
         /// </summary>
         public IEnumerable<string> AutoCompleteList { get; private set; }
 
-        public void InitializeService(ServiceHost serviceHost)
-        {
-            // Register a callback for when a connection is created
-            ConnectionService.Instance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
-        }
-
-        /// <summary>
-        /// Update the cached autocomplete candidate list when the user connects to a database
-        /// TODO: Update with refactoring/async
-        /// </summary>
-        /// <param name="connection"></param>
-        public async Task UpdateAutoCompleteCache(DbConnection connection)
+        public async Task UpdateCache()
         {
             DbCommand command = connection.CreateCommand();
             command.CommandText = "SELECT name FROM sys.tables";
@@ -83,20 +66,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             await Task.FromResult(0);
         }
 
-        /// <summary>
-        /// Return the completion item list for the current text position
-        /// </summary>
-        /// <param name="textDocumentPosition"></param>
-        public CompletionItem[] GetCompletionItems(TextDocumentPosition textDocumentPosition)
+        public List<CompletionItem> GetAutoCompleteItems(TextDocumentPosition textDocumentPosition)
         {
-            var completions = new List<CompletionItem>();
+            List<CompletionItem> completions = new List<CompletionItem>();
 
             int i = 0;
 
+            // Take a reference to the list at a point in time in case we update and replace the list
+            var suggestions = AutoCompleteList;
             // the completion list will be null is user not connected to server
             if (this.AutoCompleteList != null)
             {
-                foreach (var autoCompleteItem in this.AutoCompleteList)
+
+                foreach (var autoCompleteItem in suggestions)
                 {
                     // convert the completion item candidates into CompletionItems
                     completions.Add(new CompletionItem()
@@ -131,7 +113,212 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             }
-            return completions.ToArray();
+
+            return completions;
+        }
+
+        private static ConnectionSummary CopySummary(ConnectionSummary summary)
+        {
+            return new ConnectionSummary()
+            {
+                ServerName = summary.ServerName,
+                DatabaseName = summary.DatabaseName,
+                UserName = summary.UserName
+            };
+        }
+    }
+
+    /// <summary>
+    /// Treats connections as the same if their server, db and usernames all match
+    /// </summary>
+    public class ConnectionSummaryComparer : IEqualityComparer<ConnectionSummary>
+    {
+        public bool Equals(ConnectionSummary x, ConnectionSummary y)
+        {
+            if(x == y) { return true; }
+            else if(x != null)
+            {
+                if(y == null) { return false; }
+
+                // Compare server, db, username. Note: server is case-insensitive in the driver
+                return string.Compare(x.ServerName, y.ServerName, StringComparison.OrdinalIgnoreCase) == 0
+                    && string.Compare(x.DatabaseName, y.DatabaseName, StringComparison.Ordinal) == 0
+                    && string.Compare(x.UserName, y.UserName, StringComparison.Ordinal) == 0;
+            }
+            return false;
+        }
+
+        public int GetHashCode(ConnectionSummary obj)
+        {
+            int hashcode = 31;
+            if(obj != null)
+            {
+                if(obj.ServerName != null)
+                {
+                    hashcode ^= obj.ServerName.GetHashCode();
+                }
+                if (obj.DatabaseName != null)
+                {
+                    hashcode ^= obj.DatabaseName.GetHashCode();
+                }
+                if (obj.UserName != null)
+                {
+                    hashcode ^= obj.UserName.GetHashCode();
+                }
+            }
+            return hashcode;
+        }
+    }
+    /// <summary>
+    /// Main class for Autocomplete functionality
+    /// </summary>
+    public class AutoCompleteService
+    {
+        #region Singleton Instance Implementation
+
+        /// <summary>
+        /// Singleton service instance
+        /// </summary>
+        private static Lazy<AutoCompleteService> instance 
+            = new Lazy<AutoCompleteService>(() => new AutoCompleteService());
+
+        /// <summary>
+        /// Gets the singleton service instance
+        /// </summary>
+        public static AutoCompleteService Instance 
+        {
+            get
+            {
+                return instance.Value;
+            }
+        }
+
+        /// <summary>
+        /// Default, parameterless constructor.
+        /// TODO: Figure out how to make this truely singleton even with dependency injection for tests
+        /// </summary>
+        public AutoCompleteService()
+        { 
+        }
+
+        #endregion
+
+        // Dictionary of unique intellisense caches for each Connection
+        private Dictionary<ConnectionSummary, IntellisenseCache> caches = 
+            new Dictionary<ConnectionSummary, IntellisenseCache>(new ConnectionSummaryComparer());
+        private Object cachesLock = new Object(); // Used when we insert/remove something from the cache dictionary
+
+        private ISqlConnectionFactory factory;
+        private Object factoryLock = new Object();
+
+        /// <summary>
+        /// Internal for testing purposes only
+        /// </summary>
+        internal ISqlConnectionFactory ConnectionFactory
+        {
+            get
+            {
+                lock(factoryLock)
+                {
+                    if(factory == null)
+                    {
+                        factory = new SqlConnectionFactory();
+                    }
+                }
+                return factory;
+            }
+            set
+            {
+                lock(factoryLock)
+                {
+                    factory = value;
+                }
+            }
+        }
+        public void InitializeService(ServiceHost serviceHost)
+        {
+            // Register a callback for when a connection is created
+            ConnectionService.Instance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
+
+            // Register a callback for when a connection is closed
+            ConnectionService.Instance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
+        }
+
+        private async Task UpdateAutoCompleteCache(ConnectionInfo connectionInfo)
+        {
+            if (connectionInfo != null)
+            {
+                await UpdateAutoCompleteCache(connectionInfo.ConnectionDetails);
+            }
+        }
+
+        /// <summary>
+        /// Remove a reference to an autocomplete cache from a URI. If
+        /// it is the last URI connected to a particular connection,
+        /// then remove the cache.
+        /// </summary>
+        public async Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary)
+        {
+            await Task.Run( () => 
+            {
+                lock(cachesLock)
+                {
+                    IntellisenseCache cache;
+                    if( caches.TryGetValue(summary, out cache) )
+                    {
+                        cache.ReferenceCount--;
+
+                        // Remove unused caches
+                        if( cache.ReferenceCount == 0 )
+                        {
+                            caches.Remove(summary);
+                        }
+                    }
+                }
+            });
+        }
+
+
+        /// <summary>
+        /// Update the cached autocomplete candidate list when the user connects to a database
+        /// </summary>
+        /// <param name="details"></param>
+        public async Task UpdateAutoCompleteCache(ConnectionDetails details)
+        {
+            IntellisenseCache cache;
+            lock(cachesLock)
+            {
+                if(!caches.TryGetValue(details, out cache))
+                {
+                    cache = new IntellisenseCache(ConnectionFactory, details);
+                    caches[cache.DatabaseInfo] = cache;
+                }
+                cache.ReferenceCount++;
+            }
+            
+            await cache.UpdateCache();
+        }
+
+        /// <summary>
+        /// Return the completion item list for the current text position.
+        /// This method does not await cache builds since it expects to return quickly
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        public CompletionItem[] GetCompletionItems(TextDocumentPosition textDocumentPosition)
+        {
+            // Try to find a cache for the document's backing connection (if available)
+            // If we have a connection but no cache, we don't care - assuming the OnConnect and OnDisconnect listeners
+            // behave well, there should be a cache for any actively connected document. This also helps skip documents 
+            // that are not backed by a SQL connection
+            ConnectionInfo info;
+            IntellisenseCache cache;
+            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out info)
+                && caches.TryGetValue((ConnectionSummary)info.ConnectionDetails, out cache))
+            {
+                return cache.GetAutoCompleteItems(textDocumentPosition).ToArray();
+            }
+            
+            return new CompletionItem[0];
         }
         
     }

@@ -41,6 +41,15 @@ namespace Microsoft.SqlTools.Test.Utility
 #endif
         }
 
+        public static ConnectParams GetTestConnectionParams()
+        {
+            return new ConnectParams() 
+            {
+                OwnerUri = "file://some/file.sql",
+                Connection = GetTestConnectionDetails()
+            };
+        }
+
         /// <summary>
         /// Creates a test connection details object
         /// </summary>
@@ -313,12 +322,16 @@ namespace Microsoft.SqlTools.Test.Utility
 
         public override void Close()
         {
-            throw new NotImplementedException();
+            // No Op
         }
 
         public override void Open()
         {
-            // No Op
+            // No Op, unless credentials are bad
+            if(ConnectionString.Contains("invalidUsername"))
+            {
+                throw new Exception("Invalid credentials provided");
+            }
         }
 
         public override string ConnectionString { get; set; }
