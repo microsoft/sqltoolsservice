@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
         public override void Close()
         {
-            throw new NotImplementedException();
+            // No Op
         }
 
         public override void Open()

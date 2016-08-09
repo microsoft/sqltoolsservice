@@ -103,10 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocChangeCallback(HandleDidChangeTextDocumentNotification);
 
             // Register the file open update handler
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
-
-            // register an OnConnection callback 
-            ConnectionService.Instance.RegisterOnConnectionTask(OnConnection);      
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification); 
 
             // Store the SqlToolsContext for future use
             Context = context;
@@ -304,16 +301,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CurrentSettings.EnableProfileLoading = newSettings.EnableProfileLoading;
             CurrentSettings.ScriptAnalysis.Update(newSettings.ScriptAnalysis, CurrentWorkspace.WorkspacePath);
         }
-        
-        /// <summary> 
-        /// Callback for when a user connection is done processing 
-        /// </summary> 
-        /// <param name="sqlConnection"></param> 
-        public async Task OnConnection(ConnectionInfo connectionInfo) 
-        { 
-            // TODO consider whether this is needed at all - currently AutoComplete service handles its own updating
-            await Task.FromResult(true); 
-        } 
         
         #endregion
 

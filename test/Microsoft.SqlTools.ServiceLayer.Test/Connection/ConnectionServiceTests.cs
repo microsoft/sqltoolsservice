@@ -20,6 +20,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
     public class ConnectionServiceTests
     {
         /// <summary>
+        /// Verify that when a connection is started for a URI with an already existing
+        /// connection, we disconnect first before connecting.
+        /// </summary>
+        [Fact]
+        public void ConnectingWhenConnectionExistCausesDisconnectThenConnect()
+        {
+            bool callbackInvoked = false;
+
+            // first connect
+            string ownerUri = "file://my/sample/file.sql";
+            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            // verify that we are connected
+            Assert.NotEmpty(connectionResult.ConnectionId);
+
+            // register disconnect callback
+            connectionService.RegisterOnDisconnectTask(
+                (result) => { 
+                    callbackInvoked = true;
+                    return Task.FromResult(true);
+                }
+            );
+
+            // send annother connect request
+            connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            // verify that the event was fired (we disconnected first before connecting)
+            Assert.True(callbackInvoked);
+
+            // verify that we connected again
+            Assert.NotEmpty(connectionResult.ConnectionId);
+        }
+
+        /// <summary>
         /// Verify that when connecting with invalid credentials, an error is thrown.
         /// </summary>
         [Fact]
@@ -118,6 +165,151 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         /// <summary>
+        /// Verify that we can disconnect from an active connection succesfully
+        /// </summary>
+        [Fact]
+        public void DisconnectFromDatabaseTest()
+        {
+            // first connect
+            string ownerUri = "file://my/sample/file.sql";
+            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            // verify that we are connected
+            Assert.NotEmpty(connectionResult.ConnectionId);
+
+            // send disconnect request
+            var disconnectResult =
+                connectionService
+                .Disconnect(new DisconnectParams()
+                {
+                    OwnerUri = ownerUri
+                });
+            Assert.True(disconnectResult);
+        }
+
+        /// <summary>
+        /// Test that when a disconnect is performed, the callback event is fired
+        /// </summary>
+        [Fact]
+        public void DisconnectFiresCallbackEvent()
+        {
+            bool callbackInvoked = false;
+
+            // first connect
+            string ownerUri = "file://my/sample/file.sql";
+            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            // verify that we are connected
+            Assert.NotEmpty(connectionResult.ConnectionId);
+
+            // register disconnect callback
+            connectionService.RegisterOnDisconnectTask(
+                (result) => { 
+                    callbackInvoked = true;
+                    return Task.FromResult(true);
+                }
+            );
+
+            // send disconnect request
+            var disconnectResult =
+                connectionService
+                .Disconnect(new DisconnectParams()
+                {
+                    OwnerUri = ownerUri
+                });
+            Assert.True(disconnectResult);
+
+            // verify that the event was fired
+            Assert.True(callbackInvoked);
+        }
+
+        /// <summary>
+        /// Test that disconnecting an active connection removes the Owner URI -> ConnectionInfo mapping
+        /// </summary>
+        [Fact]
+        public void DisconnectRemovesOwnerMapping()
+        {
+            // first connect
+            string ownerUri = "file://my/sample/file.sql";
+            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            // verify that we are connected
+            Assert.NotEmpty(connectionResult.ConnectionId);
+
+            // check that the owner mapping exists
+            ConnectionInfo info;
+            Assert.True(connectionService.TryFindConnection(ownerUri, out info));
+
+            // send disconnect request
+            var disconnectResult =
+                connectionService
+                .Disconnect(new DisconnectParams()
+                {
+                    OwnerUri = ownerUri
+                });
+            Assert.True(disconnectResult);
+
+            // check that the owner mapping no longer exists
+            Assert.False(connectionService.TryFindConnection(ownerUri, out info));
+        }
+
+        /// <summary>
+        /// Test that disconnecting validates parameters and doesn't succeed when they are invalid
+        /// </summary>
+        [Theory]
+        [InlineDataAttribute(null)]
+        [InlineDataAttribute("")]
+
+        public void DisconnectValidatesParameters(string disconnectUri)
+        {
+            // first connect
+            string ownerUri = "file://my/sample/file.sql";
+            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            // verify that we are connected
+            Assert.NotEmpty(connectionResult.ConnectionId);
+
+            // send disconnect request
+            var disconnectResult =
+                connectionService
+                .Disconnect(new DisconnectParams()
+                {
+                    OwnerUri = disconnectUri
+                });
+
+            // verify that disconnect failed
+            Assert.False(disconnectResult);
+        }
+
+        /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
         [Fact]
@@ -151,24 +343,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             var service = TestObjects.GetTestConnectionService();
             var connectParams = TestObjects.GetTestConnectionParams();
 
-            //var endpoint = new Mock<IProtocolEndpoint>();
-            //Func<ConnectParams, RequestContext<ConnectResponse>, Task> connectRequestHandler = null;
-            //endpoint.Setup(e => e.SetRequestHandler(ConnectionRequest.Type, It.IsAny<Func<ConnectParams, RequestContext<ConnectResponse>, Task>>()))
-            //    .Callback<Func<ConnectParams, RequestContext<ConnectResponse>, Task>>(handler => connectRequestHandler = handler);
-
-            // when I initialize the service
-            //service.InitializeService(endpoint.Object);
-
-            // then I expect the handler to be captured
-            //Assert.NotNull(connectRequestHandler);
-
-            // when I call the service
-            //var requestContext = new Mock<RequestContext<ConnectResponse>>();
-
-            //connectRequestHandler(connectParams, requestContext.Object);
-            // then I should get a live connection
-
-            // and then I should have 
             // connect to a database instance 
             var connectionResult = service.Connect(connectParams);
 

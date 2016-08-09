@@ -21,8 +21,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         // connection used to query for intellisense info
         private DbConnection connection;
 
+        // number of documents (URI's) that are using the cache for the same database
+        // the autocomplete service uses this to remove unreferenced caches
+        public int ReferenceCount { get; set; }
+
         public IntellisenseCache(ISqlConnectionFactory connectionFactory, ConnectionDetails connectionDetails)
         {
+            ReferenceCount = 0;
             DatabaseInfo = CopySummary(connectionDetails);
 
             // TODO error handling on this. Intellisense should catch or else the service should handle
@@ -130,10 +135,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         public bool Equals(ConnectionSummary x, ConnectionSummary y)
         {
-            if (x == y) { return true; }
-            else if (x != null)
+            if(x == y) { return true; }
+            else if(x != null)
             {
-                if (y == null) { return false; }
+                if(y == null) { return false; }
 
                 // Compare server, db, username. Note: server is case-insensitive in the driver
                 return string.Compare(x.ServerName, y.ServerName, StringComparison.OrdinalIgnoreCase) == 0
@@ -146,9 +151,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public int GetHashCode(ConnectionSummary obj)
         {
             int hashcode = 31;
-            if (obj != null)
+            if(obj != null)
             {
-                if (obj.ServerName != null)
+                if(obj.ServerName != null)
                 {
                     hashcode ^= obj.ServerName.GetHashCode();
                 }
@@ -174,13 +179,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Singleton service instance
         /// </summary>
-        private static Lazy<AutoCompleteService> instance
+        private static Lazy<AutoCompleteService> instance 
             = new Lazy<AutoCompleteService>(() => new AutoCompleteService());
 
         /// <summary>
         /// Gets the singleton service instance
         /// </summary>
-        public static AutoCompleteService Instance
+        public static AutoCompleteService Instance 
         {
             get
             {
@@ -193,16 +198,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// TODO: Figure out how to make this truely singleton even with dependency injection for tests
         /// </summary>
         public AutoCompleteService()
-        {
+        { 
         }
 
         #endregion
 
         // Dictionary of unique intellisense caches for each Connection
-        private Dictionary<ConnectionSummary, IntellisenseCache> caches =
+        private Dictionary<ConnectionSummary, IntellisenseCache> caches = 
             new Dictionary<ConnectionSummary, IntellisenseCache>(new ConnectionSummaryComparer());
+        private Object cachesLock = new Object(); // Used when we insert/remove something from the cache dictionary
 
         private ISqlConnectionFactory factory;
+        private Object factoryLock = new Object();
 
         /// <summary>
         /// Internal for testing purposes only
@@ -211,22 +218,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                // TODO consider protecting against multi-threaded access
-                if (factory == null)
+                lock(factoryLock)
                 {
-                    factory = new SqlConnectionFactory();
+                    if(factory == null)
+                    {
+                        factory = new SqlConnectionFactory();
+                    }
                 }
                 return factory;
             }
             set
             {
-                factory = value;
+                lock(factoryLock)
+                {
+                    factory = value;
+                }
             }
         }
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register a callback for when a connection is created
             ConnectionService.Instance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
+
+            // Register a callback for when a connection is closed
+            ConnectionService.Instance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
         }
 
         private async Task UpdateAutoCompleteCache(ConnectionInfo connectionInfo)
@@ -238,19 +253,49 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Remove a reference to an autocomplete cache from a URI. If
+        /// it is the last URI connected to a particular connection,
+        /// then remove the cache.
+        /// </summary>
+        public async Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary)
+        {
+            await Task.Run( () => 
+            {
+                lock(cachesLock)
+                {
+                    IntellisenseCache cache;
+                    if( caches.TryGetValue(summary, out cache) )
+                    {
+                        cache.ReferenceCount--;
+
+                        // Remove unused caches
+                        if( cache.ReferenceCount == 0 )
+                        {
+                            caches.Remove(summary);
+                        }
+                    }
+                }
+            });
+        }
+
+
+        /// <summary>
         /// Update the cached autocomplete candidate list when the user connects to a database
-        /// TODO: Update with refactoring/async
         /// </summary>
         /// <param name="details"></param>
         public async Task UpdateAutoCompleteCache(ConnectionDetails details)
         {
             IntellisenseCache cache;
-            if (!caches.TryGetValue(details, out cache))
+            lock(cachesLock)
             {
-                cache = new IntellisenseCache(ConnectionFactory, details);
-                caches[cache.DatabaseInfo] = cache;
+                if(!caches.TryGetValue(details, out cache))
+                {
+                    cache = new IntellisenseCache(ConnectionFactory, details);
+                    caches[cache.DatabaseInfo] = cache;
+                }
+                cache.ReferenceCount++;
             }
-
+            
             await cache.UpdateCache();
         }
 
@@ -263,19 +308,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // Try to find a cache for the document's backing connection (if available)
             // If we have a connection but no cache, we don't care - assuming the OnConnect and OnDisconnect listeners
-            // behave well, there should be a cache for any actively connected document. This also helps skip documents
+            // behave well, there should be a cache for any actively connected document. This also helps skip documents 
             // that are not backed by a SQL connection
-            ConnectionInfo connectionInfo;
+            ConnectionInfo info;
             IntellisenseCache cache;
-            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out connectionInfo)
-                && caches.TryGetValue(connectionInfo.ConnectionDetails, out cache))
+            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out info)
+                && caches.TryGetValue((ConnectionSummary)info.ConnectionDetails, out cache))
             {
                 return cache.GetAutoCompleteItems(textDocumentPosition).ToArray();
             }
-
+            
             return new CompletionItem[0];
         }
-
+        
     }
 }
-
