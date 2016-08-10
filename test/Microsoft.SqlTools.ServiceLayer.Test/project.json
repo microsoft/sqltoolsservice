@@ -14,7 +14,8 @@
     "moq.netcore": "4.4.0-beta8",
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
-    }
+    },
+    "System.Diagnostics.TraceSource": "4.0.0"
   },
   "testRunner": "xunit",
   "frameworks": {

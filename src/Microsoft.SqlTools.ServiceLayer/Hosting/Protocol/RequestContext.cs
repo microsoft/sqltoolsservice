@@ -20,7 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
             this.messageWriter = messageWriter;
         }
 
-        public async Task SendResult(TResult resultDetails)
+        public RequestContext() { }
+
+        public virtual async Task SendResult(TResult resultDetails)
         {
             await this.messageWriter.WriteResponse<TResult>(
                 resultDetails,
@@ -28,14 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 requestMessage.Id);
         }
 
-        public async Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
+        public virtual async Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
         {
             await this.messageWriter.WriteEvent(
                 eventType,
                 eventParams);
         }
 
-        public async Task SendError(object errorDetails)
+        public virtual async Task SendError(object errorDetails)
         {
             await this.messageWriter.WriteMessage(
                 Message.ResponseError(
