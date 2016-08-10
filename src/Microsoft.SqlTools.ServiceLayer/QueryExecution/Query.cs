@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
-                using (EditorConnection.Factory.CreateSqlConnection(connectionString))
+                using (conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
                 {
                     await conn.OpenAsync(cancellationSource.Token);
 
@@ -150,6 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 // Dispose of the connection
                 conn?.Dispose();
+                throw;
             }
             finally
             {
