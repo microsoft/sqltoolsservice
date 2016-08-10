@@ -1,7 +1,15 @@
-﻿using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
+    /// <summary>
+    /// Parameters to be sent back with a query execution complete event
+    /// </summary>
     public class QueryExecuteCompleteParams
     {
         /// <summary>
@@ -17,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Whether or not the query was successful. True indicates errors, false indicates success
         /// </summary>
-        public bool Error { get; set; }
+        public bool HasError { get; set; }
 
         /// <summary>
         /// Summaries of the result sets that were returned with the query

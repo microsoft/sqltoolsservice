@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Null(result.Messages);
             Assert.Empty(completeParams.Messages);
             Assert.Empty(completeParams.ResultSetSummaries);
-            Assert.False(completeParams.Error);
+            Assert.False(completeParams.HasError);
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
@@ -241,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Null(result.Messages);
             Assert.Empty(completeParams.Messages);
             Assert.NotEmpty(completeParams.ResultSetSummaries);
-            Assert.False(completeParams.Error);
+            Assert.False(completeParams.HasError);
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
@@ -321,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... There should only be one active query
             VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.Once(), Times.Never());
             Assert.Null(result.Messages);
-            Assert.False(complete.Error);
+            Assert.False(complete.HasError);
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
@@ -368,7 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... A completion event should have been sent with error
             VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
             Assert.Null(result.Messages);
-            Assert.True(complete.Error);
+            Assert.True(complete.HasError);
             Assert.NotEmpty(complete.Messages);
         }
 

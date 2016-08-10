@@ -1,7 +1,15 @@
-﻿using System.Data.Common;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System.Data.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
+    /// <summary>
+    /// Represents a summary of information about a result without returning any cells of the results
+    /// </summary>
     public class ResultSetSummary
     {
         /// <summary>

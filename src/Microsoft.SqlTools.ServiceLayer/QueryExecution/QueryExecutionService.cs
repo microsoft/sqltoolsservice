@@ -14,7 +14,10 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
-    public sealed class QueryExecutionService
+    /// <summary>
+    /// Service for executing queries
+    /// </summary>
+    public sealed class QueryExecutionService : IDisposable
     {
         #region Singleton Instance Implementation
 
@@ -39,24 +42,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Properties
 
-        private readonly Lazy<ConcurrentDictionary<string, Query>> queries =
-            new Lazy<ConcurrentDictionary<string, Query>>(() => new ConcurrentDictionary<string, Query>());
-
+        /// <summary>
+        /// The collection of active queries
+        /// </summary>
         internal ConcurrentDictionary<string, Query> ActiveQueries
         {
             get { return queries.Value; }
         }
 
+        /// <summary>
+        /// Instance of the connection service, used to get the connection info for a given owner URI
+        /// </summary>
         private ConnectionService ConnectionService { get; set; }
+
+        /// <summary>
+        /// Internal storage of active queries, lazily constructed as a threadsafe dictionary
+        /// </summary>
+        private readonly Lazy<ConcurrentDictionary<string, Query>> queries =
+            new Lazy<ConcurrentDictionary<string, Query>>(() => new ConcurrentDictionary<string, Query>());
 
         #endregion
 
-        #region Public Methods
-
         /// <summary>
-        /// 
+        /// Initializes the service with the service host, registers request handlers and shutdown
+        /// event handler.
         /// </summary>
-        /// <param name="serviceHost"></param>
+        /// <param name="serviceHost">The service host instance to register with</param>
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
@@ -64,10 +75,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecuteSubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
 
-            // Register handlers for events
+            // Register handler for shutdown event
+            serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
+            {
+                Dispose();
+                return Task.FromResult(0);
+            });
         }
-
-        #endregion
 
         #region Request Handlers
 
@@ -167,6 +181,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
+        #region Private Helpers
+
         private async Task<Query> CreateAndActivateNewQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext)
         {
             try
@@ -232,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await Task.WhenAll(executeTask);
                 QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
                 {
-                    Error = false,
+                    HasError = false,
                     Messages = new string[] { }, // TODO: Figure out how to get messages back from the server
                     OwnerUri = executeParams.OwnerUri,
                     ResultSetSummaries = query.ResultSummary
@@ -244,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Dump the message to a complete event
                 QueryExecuteCompleteParams errorEvent = new QueryExecuteCompleteParams
                 {
-                    Error = true,
+                    HasError = true,
                     Messages = new[] {dbe.Message},
                     OwnerUri = executeParams.OwnerUri,
                     ResultSetSummaries = query.ResultSummary
@@ -252,5 +268,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, errorEvent);
             }
         }
+
+        #endregion
+
+        #region IDisposable Implementation
+
+        private bool disposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                foreach (var query in ActiveQueries)
+                {
+                    query.Value.Dispose();
+                }
+            }
+
+            disposed = true;
+        }
+
+        ~QueryExecutionService()
+        {
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

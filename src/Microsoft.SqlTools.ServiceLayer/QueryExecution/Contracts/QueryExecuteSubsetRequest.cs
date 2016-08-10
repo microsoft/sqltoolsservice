@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
@@ -42,7 +41,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// </summary>
     public class QueryExecuteSubsetResult
     {
+        /// <summary>
+        /// Subset request error messages. Optional, can be set to null to indicate no errors
+        /// </summary>
         public string Message { get; set; }
+
+        /// <summary>
+        /// The requested subset of results. Optional, can be set to null to indicate an error
+        /// </summary>
         public ResultSetSubset ResultSubset { get; set; }
     }
 
