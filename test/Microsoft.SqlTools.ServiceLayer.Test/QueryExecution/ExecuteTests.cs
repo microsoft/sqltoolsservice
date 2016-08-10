@@ -1,13 +1,18 @@
 ﻿using System;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class ExecuteTests
     {
+        #region Query Class Tests
+
         [Fact]
         public void QueryCreationTest()
         {
@@ -159,6 +164,223 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.True(query.HasExecuted, "The query should still be marked executed.");
             Assert.NotEmpty(query.ResultSets);
             Assert.NotEmpty(query.ResultSummary);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("     ")]
+        [InlineData(null)]
+        public void QueryExecuteNoQuery(string query)
+        {
+            // If:
+            // ... I create a query that has an empty query
+            // Then:
+            // ... It should throw an exception
+            Assert.Throws<ArgumentNullException>(() => new Query(query, null));
+        }
+
+        [Fact]
+        public void QueryExecuteNoConnectionInfo()
+        {
+            // If:
+            // ... I create a query that has a null connection info
+            // Then:
+            // ... It should throw an exception
+            Assert.Throws<ArgumentNullException>(() => new Query("Some Query", null));
+        }
+
+        #endregion
+
+        #region Service Tests
+
+        [Fact]
+        public void QueryExecuteValidNoResultsTest()
+        {
+            // If:
+            // ... I request to execute a valid query with no results
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryParams = new QueryExecuteParams { QueryText = "Doesn't Matter", OwnerUri = Common.OwnerUri };
+
+            QueryExecuteResult result = null;
+            QueryExecuteCompleteParams completeParams = null;
+            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, (et, cp) => completeParams = cp, null);
+            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+
+            // Then:
+            // ... No Errors should have been sent
+            // ... A successful result should have been sent with no messages
+            // ... A completion event should have been fired with empty results
+            // ... There should be one active query
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.Empty(completeParams.Messages);
+            Assert.Empty(completeParams.ResultSetSummaries);
+            Assert.False(completeParams.Error);
+            Assert.Equal(1, queryService.ActiveQueries.Count);
+        }
+
+        [Fact]
+        public void QueryExecuteValidResultsTest()
+        {
+            // If:
+            // ... I request to execute a valid query with results
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = "Doesn't Matter" };
+
+            QueryExecuteResult result = null;
+            QueryExecuteCompleteParams completeParams = null;
+            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, (et, cp) => completeParams = cp, null);
+            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+
+            // Then:
+            // ... No errors should have been sent
+            // ... A successful result should have been sent with no messages
+            // ... A completion event should have been fired with one result
+            // ... There should be one active query
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.Empty(completeParams.Messages);
+            Assert.NotEmpty(completeParams.ResultSetSummaries);
+            Assert.False(completeParams.Error);
+            Assert.Equal(1, queryService.ActiveQueries.Count);
+        }
+
+        [Fact]
+        public void QueryExecuteUnconnectedUriTest()
+        {
+            // If:
+            // ... I request to execute a query using a file URI that isn't connected
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false);
+            var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QueryText = "Doesn't Matter" };
+
+            QueryExecuteResult result = null;
+            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
+            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+
+            // Then:
+            // ... An error message should have been returned via the result
+            // ... No completion event should have been fired
+            // ... No error event should have been fired
+            // ... There should be no active queries
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
+            Assert.NotNull(result.Messages);
+            Assert.NotEmpty(result.Messages);
+            Assert.Empty(queryService.ActiveQueries);
+        }
+
+        [Fact]
+        public void QueryExecuteInProgressTest()
+        {
+            // If:
+            // ... I request to execute a query
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = "Some Query" };
+
+            // Note, we don't care about the results of the first request
+            var firstRequestContext = Common.GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
+
+            // ... And then I request another query without waiting for the first to complete
+            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;   // Simulate query hasn't finished
+            QueryExecuteResult result = null;
+            var secondRequestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
+            queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
+
+            // Then:
+            // ... No errors should have been sent
+            // ... A result should have been sent with an error message
+            // ... No completion event should have been fired
+            // ... There should only be one active query
+            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.AtMostOnce(), Times.Never());
+            Assert.NotNull(result.Messages);
+            Assert.NotEmpty(result.Messages);
+            Assert.Equal(1, queryService.ActiveQueries.Count);
+        }
+
+        [Fact]
+        public void QueryExecuteCompletedTest()
+        {
+            // If:
+            // ... I request to execute a query
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = "Some Query" };
+
+            // Note, we don't care about the results of the first request
+            var firstRequestContext = Common.GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
+
+            // ... And then I request another query after waiting for the first to complete
+            QueryExecuteResult result = null;
+            QueryExecuteCompleteParams complete = null;
+            var secondRequestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, (et, qecp) => complete = qecp, null);
+            queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
+
+            // Then:
+            // ... No errors should have been sent
+            // ... A result should have been sent with no errors
+            // ... There should only be one active query
+            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.False(complete.Error);
+            Assert.Equal(1, queryService.ActiveQueries.Count);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("    ")]
+        [InlineData(null)]
+        public void QueryExecuteMissingQueryTest(string query)
+        {
+            // If:
+            // ... I request to execute a query with a missing query string
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = query };
+
+            QueryExecuteResult result = null;
+            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
+            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+
+            // Then:
+            // ... No errors should have been sent
+            // ... A result should have been sent with an error message
+            // ... No completion event should have been fired
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
+            Assert.NotNull(result.Messages);
+            Assert.NotEmpty(result.Messages);
+        }
+
+        [Fact]
+        public void QueryExecuteInvalidQueryTest()
+        {
+            // If:
+            // ... I request to execute a query that is invalid
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, true), true);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = "Bad query!" };
+
+            QueryExecuteResult result = null;
+            QueryExecuteCompleteParams complete = null;
+            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, (et, qecp) => complete = qecp, null);
+            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+
+            // Then:
+            // ... No errors should have been sent
+            // ... A result should have been sent with success (we successfully started the query)
+            // ... A completion event should have been sent with error
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.True(complete.Error);
+            Assert.NotEmpty(complete.Messages);
+        }
+
+        #endregion
+
+        private void VerifyQueryExecuteCallCount(Mock<RequestContext<QueryExecuteResult>> mock, Times sendResultCalls, Times sendEventCalls, Times sendErrorCalls)
+        {
+            mock.Verify(rc => rc.SendResult(It.IsAny<QueryExecuteResult>()), sendResultCalls);
+            mock.Verify(rc => rc.SendEvent(
+                It.Is<EventType<QueryExecuteCompleteParams>>(m => m == QueryExecuteCompleteEvent.Type),
+                It.IsAny<QueryExecuteCompleteParams>()), sendEventCalls);
+            mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
         }
     }
 }

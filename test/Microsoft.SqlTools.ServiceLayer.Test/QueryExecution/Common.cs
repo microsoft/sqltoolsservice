@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Moq.Protected;
@@ -13,6 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class Common
     {
+        public const string OwnerUri = "testFile";
+
         public static readonly Dictionary<string, string>[] StandardTestData =
         {
             new Dictionary<string, string> { {"col1", "val11"}, { "col2", "val12"}, { "col3", "val13"}, { "col4", "col14"} },
@@ -45,43 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return query;
         }
 
-        #region Mocking
-
-        //private static DbDataReader CreateTestReader(int columnCount, int rowCount)
-        //{
-        //    var readerMock = new Mock<DbDataReader> { CallBase = true };
-
-        //    // Setup for column reads
-        //    // TODO: We can't test columns because of oddities with how datatable/GetColumn
-
-        //    // Setup for row reads
-        //    var readSequence = readerMock.SetupSequence(dbReader => dbReader.Read());
-        //    for (int i = 0; i < rowCount; i++)
-        //    {
-        //        readSequence.Returns(true);
-        //    }
-        //    readSequence.Returns(false);
-
-        //    // Make sure that if we call for data from the reader it works
-        //    readerMock.Setup(dbReader => dbReader[InColumnRange(columnCount)])
-        //        .Returns<object>(i => i.ToString());
-        //    readerMock.Setup(dbReader => dbReader[NotInColumnRange(columnCount)])
-        //        .Throws(new ArgumentOutOfRangeException());
-        //    readerMock.Setup(dbReader => dbReader.HasRows)
-        //        .Returns(rowCount > 0);
-
-        //    return readerMock.Object;
-        //}
-
-        //private static int InColumnRange(int columnCount)
-        //{
-        //    return Match.Create<int>(i => i < columnCount && i > 0);
-        //}
-
-        //private static int NotInColumnRange(int columnCount)
-        //{
-        //    return Match.Create<int>(i => i >= columnCount || i < 0);
-        //}
+        #region DbConnection Mocking
 
         public static DbCommand CreateTestCommand(Dictionary<string, string>[][] data, bool throwOnRead)
         {
@@ -138,5 +108,74 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #endregion
 
+        #region Service Mocking
+
+        public static ConnectionDetails GetTestConnectionDetails()
+        {
+            return new ConnectionDetails
+            {
+                DatabaseName = "123",
+                Password = "456",
+                ServerName = "789",
+                UserName = "012"
+            };
+        }
+
+        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected)
+        {
+            var connectionService = new ConnectionService(factory);
+            if (isConnected)
+            {
+                connectionService.Connect(new ConnectParams
+                {
+                    Connection = GetTestConnectionDetails(),
+                    OwnerUri = OwnerUri
+                });
+            }
+            return new QueryExecutionService(connectionService);
+        }
+
+        #endregion
+
+        #region Request Mocking
+
+        public static Mock<RequestContext<QueryExecuteResult>> GetQueryExecuteResultContextMock(
+            Action<QueryExecuteResult> resultCallback,
+            Action<EventType<QueryExecuteCompleteParams>, QueryExecuteCompleteParams> eventCallback,
+            Action<object> errorCallback)
+        {
+            var requestContext = new Mock<RequestContext<QueryExecuteResult>>();
+
+            // Setup the mock for SendResult
+            var sendResultFlow = requestContext
+                .Setup(rc => rc.SendResult(It.IsAny<QueryExecuteResult>()))
+                .Returns(Task.FromResult(0));
+            if (resultCallback != null)
+            {
+                sendResultFlow.Callback(resultCallback);
+            }
+
+            // Setup the mock for SendEvent
+            var sendEventFlow = requestContext.Setup(rc => rc.SendEvent(
+                It.Is<EventType<QueryExecuteCompleteParams>>(m => m == QueryExecuteCompleteEvent.Type),
+                It.IsAny<QueryExecuteCompleteParams>()))
+                .Returns(Task.FromResult(0));
+            if (eventCallback != null)
+            {
+                sendEventFlow.Callback(eventCallback);
+            }
+
+            // Setup the mock for SendError
+            var sendErrorFlow = requestContext.Setup(rc => rc.SendError(It.IsAny<object>()))
+                .Returns(Task.FromResult(0));
+            if (errorCallback != null)
+            {
+                sendErrorFlow.Callback(errorCallback);
+            }
+
+            return requestContext;
+        }
+
+        #endregion
     }
 }
