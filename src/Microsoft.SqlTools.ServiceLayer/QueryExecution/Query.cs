@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,12 +34,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public ConnectionInfo EditorConnection { get; set; }
 
+        public bool HasError { get; set; }
+
+        /// <summary>
+        /// Whether or not the query has completed executed, regardless of success or failure
+        /// </summary>
         public bool HasExecuted { get; set; }
 
         /// <summary>
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; set; }
+
+        /// <summary>
+        /// Messages that have come back from the server
+        /// </summary>
+        public List<string> ResultMessages { get; set; }
 
         /// <summary>
         /// The result sets of the query execution
@@ -71,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Query(string queryText, ConnectionInfo connection)
         {
             // Sanity check for input
-            if (String.IsNullOrWhiteSpace(queryText))
+            if (String.IsNullOrEmpty(queryText))
             {
                 throw new ArgumentNullException(nameof(queryText), "Query text cannot be null");
             }
@@ -85,6 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             EditorConnection = connection;
             HasExecuted = false;
             ResultSets = new List<ResultSet>();
+            ResultMessages = new List<string>();
             cancellationSource = new CancellationTokenSource();
         }
 
@@ -107,6 +119,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
                 using (conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
                 {
+                    // If we have the message listener, bind to it
+                    // TODO: This doesn't allow testing via mocking
+                    SqlConnection sqlConn = conn as SqlConnection;
+                    if (sqlConn != null)
+                    {
+                        sqlConn.InfoMessage += StoreDbMessage;
+                    }
+
                     await conn.OpenAsync(cancellationSource.Token);
 
                     // Create a command that we'll use for executing the query
@@ -120,8 +140,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             do
                             {
-                                // TODO: This doesn't properly handle scenarios where the query is SELECT but does not have rows
-                                if (!reader.HasRows)
+                                // Create a message with the number of affected rows
+                                ResultMessages.Add(String.Format("({0} row(s) affected)", reader.RecordsAffected));
+
+                                if (!reader.HasRows && reader.FieldCount == 0)
                                 {
                                     continue;
                                 }
@@ -146,9 +168,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
             }
+            catch (DbException dbe)
+            {
+                HasError = true;
+                UnwrapDbException(dbe);
+                conn?.Dispose();
+            }
             catch (Exception)
             {
-                // Dispose of the connection
+                HasError = true;
                 conn?.Dispose();
                 throw;
             }
@@ -198,6 +226,48 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Rows = rows,
                 RowCount = rows.Length
             };
+        }
+
+        /// <summary>
+        /// Delegate handler for storing messages that are returned from the server
+        /// NOTE: Only messages that are below a certain severity will be returned via this
+        /// mechanism. Anything above that level will trigger an exception.
+        /// </summary>
+        /// <param name="sender">Object that fired the event</param>
+        /// <param name="args">Arguments from the event</param>
+        private void StoreDbMessage(object sender, SqlInfoMessageEventArgs args)
+        {
+            ResultMessages.Add(args.Message);
+        }
+
+        /// <summary>
+        /// Attempts to convert a <see cref="DbException"/> to a <see cref="SqlException"/> that
+        /// contains much more info about Sql Server errors. The exception is then unwrapped and
+        /// messages are formatted and stored in <see cref="ResultMessages"/>. If the exception
+        /// cannot be converted to SqlException, the message is written to the messages list.
+        /// </summary>
+        /// <param name="dbe">The exception to unwrap</param>
+        private void UnwrapDbException(DbException dbe)
+        {
+            SqlException se = dbe as SqlException;
+            if (se != null)
+            {
+                foreach (var error in se.Errors)
+                {
+                    SqlError sqlError = error as SqlError;
+                    if (sqlError != null)
+                    {
+                        string message = String.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
+                            sqlError.Number, sqlError.Class, sqlError.State, sqlError.LineNumber,
+                            Environment.NewLine, sqlError.Message);
+                        ResultMessages.Add(message);
+                    }
+                }
+            }
+            else
+            {
+                ResultMessages.Add(dbe.Message);
+            }
         }
 
         #region IDisposable Implementation

@@ -242,31 +242,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Messages = null
             });
 
-            try
+            // Wait for query execution and then send back the results
+            await Task.WhenAll(executeTask);
+            QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
             {
-                // Wait for query execution and then send back the results
-                await Task.WhenAll(executeTask);
-                QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
-                {
-                    HasError = false,
-                    Messages = new string[] { }, // TODO: Figure out how to get messages back from the server
-                    OwnerUri = executeParams.OwnerUri,
-                    ResultSetSummaries = query.ResultSummary
-                };
-                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
-            }
-            catch (DbException dbe)
-            {
-                // Dump the message to a complete event
-                QueryExecuteCompleteParams errorEvent = new QueryExecuteCompleteParams
-                {
-                    HasError = true,
-                    Messages = new[] {dbe.Message},
-                    OwnerUri = executeParams.OwnerUri,
-                    ResultSetSummaries = query.ResultSummary
-                };
-                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, errorEvent);
-            }
+                HasError = query.HasError,
+                Messages = query.ResultMessages.ToArray(),
+                OwnerUri = executeParams.OwnerUri,
+                ResultSetSummaries = query.ResultSummary
+            };
+            await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
         }
 
         #endregion
