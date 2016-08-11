@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
