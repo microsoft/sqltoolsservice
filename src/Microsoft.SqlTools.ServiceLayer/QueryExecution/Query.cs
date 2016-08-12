@@ -34,6 +34,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public ConnectionInfo EditorConnection { get; set; }
 
+        /// <summary>
+        /// Whether or not the query has an error
+        /// </summary>
         public bool HasError { get; set; }
 
         /// <summary>
@@ -120,7 +123,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 using (conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
                 {
                     // If we have the message listener, bind to it
-                    // TODO: This doesn't allow testing via mocking
                     SqlConnection sqlConn = conn as SqlConnection;
                     if (sqlConn != null)
                     {
@@ -141,7 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             do
                             {
                                 // Create a message with the number of affected rows
-                                ResultMessages.Add(String.Format("({0} row(s) affected)", reader.RecordsAffected));
+                                if (reader.RecordsAffected >= 0)
+                                {
+                                    ResultMessages.Add(String.Format("({0} row(s) affected)", reader.RecordsAffected));
+                                }
 
                                 if (!reader.HasRows && reader.FieldCount == 0)
                                 {
