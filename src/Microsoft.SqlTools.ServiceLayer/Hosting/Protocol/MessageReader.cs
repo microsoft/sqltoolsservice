@@ -112,13 +112,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
             // Get the JObject for the JSON content
             JObject messageObject = JObject.Parse(messageContent);
 
-            // Load the message
-            Logger.Write(
-                LogLevel.Verbose,
-                string.Format(
-                    "READ MESSAGE:\r\n\r\n{0}",
-                    messageObject.ToString(Formatting.Indented)));
-
             // Return the parsed message
             return this.messageSerializer.DeserializeMessage(messageObject);
         }

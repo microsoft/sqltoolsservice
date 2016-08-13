@@ -243,6 +243,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 // previous message.  In this case, do not try to dispatch it.
                 if (newMessage != null)
                 {
+                    // Verbose logging
+                    string logMessage = String.Format("Received message of type[{0}] and method[{1}]",
+                        newMessage.MessageType, newMessage.Method);
+                    Logger.Write(LogLevel.Verbose, logMessage);
+
                     // Process the message
                     await this.DispatchMessage(newMessage, this.MessageWriter);
                 }
