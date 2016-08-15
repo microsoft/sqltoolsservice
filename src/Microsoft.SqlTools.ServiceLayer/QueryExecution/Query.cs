@@ -234,6 +234,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// Cancels the query by issuing the cancellation token
+        /// </summary>
+        public void Cancel()
+        {
+            // Make sure that the query hasn't completed execution
+            if (HasExecuted)
+            {
+                throw new InvalidOperationException("The query has already completed, it cannot be cancelled.");
+            }
+
+            // Issue the cancellation token for the query
+            cancellationSource.Cancel();
+        }
+
+        /// <summary>
         /// Delegate handler for storing messages that are returned from the server
         /// NOTE: Only messages that are below a certain severity will be returned via this
         /// mechanism. Anything above that level will trigger an exception.
