@@ -36,8 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             query.Execute().Wait();
 
             // Then:
-            // ... It should have executed
+            // ... It should have executed without error
             Assert.True(query.HasExecuted, "The query should have been marked executed.");
+            Assert.False(query.HasError);
             
             // ... The results should be empty
             Assert.Empty(query.ResultSets);
@@ -46,6 +47,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... The results should not be null
             Assert.NotNull(query.ResultSets);
             Assert.NotNull(query.ResultSummary);
+
+            // ... There should be a message for how many rows were affected
+            Assert.Equal(1, query.ResultMessages.Count);
         }
 
         [Fact]
@@ -61,8 +65,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             query.Execute().Wait();
 
             // Then:
-            // ... It should have executed
+            // ... It should have executed without error
             Assert.True(query.HasExecuted, "The query should have been marked executed.");
+            Assert.False(query.HasError);
 
             // ... There should be exactly one result set
             Assert.Equal(resultSets, query.ResultSets.Count);
@@ -82,6 +87,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... Inside the result summary, there should be 5 rows
             Assert.Equal(rows, query.ResultSummary[0].RowCount);
+
+            // ... There should be a message for how many rows were affected
+            Assert.Equal(resultSets, query.ResultMessages.Count);
         }
 
         [Fact]
@@ -98,8 +106,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             query.Execute().Wait();
 
             // Then:
-            // ... It should have executed
+            // ... It should have executed without error
             Assert.True(query.HasExecuted, "The query should have been marked executed.");
+            Assert.False(query.HasError);
 
             // ... There should be exactly two result sets
             Assert.Equal(resultSets, query.ResultSets.Count);
@@ -125,6 +134,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 // ... Inside each result summary, there should be 5 rows
                 Assert.Equal(rows, rs.RowCount);
             }
+
+            // ... There should be a message for how many rows were affected
+            Assert.Equal(resultSets, query.ResultMessages.Count);
         }
 
         [Fact]
@@ -134,10 +146,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If I execute a query that is invalid
             Query query = new Query("Invalid query", ci);
+            query.Execute().Wait();
 
             // Then:
-            // ... It should throw an exception
-            Exception e = Assert.Throws<AggregateException>(() => query.Execute().Wait());
+            // ... It should have executed with error
+            Assert.True(query.HasExecuted);
+            Assert.True(query.HasError);
+            
+            // ... There should be plenty of messages for the eror
+            Assert.NotEmpty(query.ResultMessages);
         }
 
         [Fact]
@@ -150,8 +167,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             query.Execute().Wait();
 
             // Then:
-            // ... It should have executed
+            // ... It should have executed without error
             Assert.True(query.HasExecuted, "The query should have been marked executed.");
+            Assert.False(query.HasError);
 
             // If I execute it again
             // Then:
@@ -160,7 +178,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Equal(1, ae.InnerExceptions.Count);
             Assert.IsType<InvalidOperationException>(ae.InnerExceptions[0]);
 
-            // ... The data should still be available
+            // ... The data should still be available without error
+            Assert.False(query.HasError);
             Assert.True(query.HasExecuted, "The query should still be marked executed.");
             Assert.NotEmpty(query.ResultSets);
             Assert.NotEmpty(query.ResultSummary);
@@ -208,12 +227,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // Then:
             // ... No Errors should have been sent
-            // ... A successful result should have been sent with no messages
+            // ... A successful result should have been sent with messages
             // ... A completion event should have been fired with empty results
             // ... There should be one active query
             VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
             Assert.Null(result.Messages);
-            Assert.Empty(completeParams.Messages);
+            Assert.NotEmpty(completeParams.Messages);
             Assert.Empty(completeParams.ResultSetSummaries);
             Assert.False(completeParams.HasError);
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -234,12 +253,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // Then:
             // ... No errors should have been sent
-            // ... A successful result should have been sent with no messages
+            // ... A successful result should have been sent with messages
             // ... A completion event should have been fired with one result
             // ... There should be one active query
             VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
             Assert.Null(result.Messages);
-            Assert.Empty(completeParams.Messages);
+            Assert.NotEmpty(completeParams.Messages);
             Assert.NotEmpty(completeParams.ResultSetSummaries);
             Assert.False(completeParams.HasError);
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -327,7 +346,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         [Theory]
         [InlineData("")]
-        [InlineData("    ")]
         [InlineData(null)]
         public void QueryExecuteMissingQueryTest(string query)
         {
