@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.EditorServices.Utility;
@@ -198,10 +199,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
             this.SynchronizationContext = SynchronizationContext.Current;
 
             // Run the message loop
-            bool isRunning = true;
-            while (isRunning && !cancellationToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                Message newMessage = null;
+                Message newMessage;
 
                 try
                 {
@@ -210,12 +210,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 }
                 catch (MessageParseException e)
                 {
-                    // TODO: Write an error response
-
-                    Logger.Write(
-                        LogLevel.Error,
-                        "Could not parse a message that was received:\r\n\r\n" +
-                        e.ToString());
+                    string message = string.Format("Exception occurred while parsing message: {0}", e.Message);
+                    Logger.Write(LogLevel.Error, message);
+                    await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams
+                    {
+                        Message = message
+                    });
 
                     // Continue the loop
                     continue;
@@ -227,18 +227,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 }
                 catch (Exception e)
                 {
-                    var b = e.Message;
-                    newMessage = null;
+                    // Log the error and send an error event to the client
+                    string message = string.Format("Exception occurred while receiving message: {0}", e.Message);
+                    Logger.Write(LogLevel.Error, message);
+                    await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams
+                    {
+                        Message = message
+                    });
+
+                    // Continue the loop
+                    continue;
                 }
 
                 // The message could be null if there was an error parsing the
                 // previous message.  In this case, do not try to dispatch it.
                 if (newMessage != null)
                 {
+                    // Verbose logging
+                    string logMessage = string.Format("Received message of type[{0}] and method[{1}]",
+                        newMessage.MessageType, newMessage.Method);
+                    Logger.Write(LogLevel.Verbose, logMessage);
+
                     // Process the message
-                    await this.DispatchMessage(
-                        newMessage,
-                        this.MessageWriter);
+                    await this.DispatchMessage(newMessage, this.MessageWriter);
                 }
             }
         }
