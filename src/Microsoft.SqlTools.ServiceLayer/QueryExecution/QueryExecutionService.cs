@@ -213,6 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (InvalidOperationException e)
             {
+                // If this exception occurred, we most likely were trying to cancel a completed query
                 await requestContext.SendResult(new QueryCancelResult
                 {
                     Messages = e.Message

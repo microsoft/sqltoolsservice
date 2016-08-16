@@ -177,12 +177,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 HasError = true;
                 UnwrapDbException(dbe);
-                conn?.Dispose();
             }
             catch (Exception)
             {
                 HasError = true;
-                conn?.Dispose();
                 throw;
             }
             finally
