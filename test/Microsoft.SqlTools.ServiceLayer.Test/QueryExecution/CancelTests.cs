@@ -1,0 +1,124 @@
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Moq;
+using Xunit;
+
+namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
+{
+    public class CancelTests
+    {
+        [Fact]
+        public void CancelInProgressQueryTest()
+        {
+            // If:
+            // ... I request a query (doesn't matter what kind) and execute it
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var executeParams = new QueryExecuteParams { QueryText = "Doesn't Matter", OwnerUri = Common.OwnerUri };
+            var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
+
+            // ... And then I request to cancel the query
+            var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
+            QueryCancelResult result = null;
+            var cancelRequest = GetQueryCancelResultContextMock(qcr => result = qcr, null);
+            queryService.HandleCancelRequest(cancelParams, cancelRequest.Object).Wait();
+
+            // Then:
+            // ... I should have seen a successful event (no messages)
+            VerifyQueryCancelCallCount(cancelRequest, Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            
+            // ... The query should have been disposed as well
+            Assert.Empty(queryService.ActiveQueries);
+        }
+
+        [Fact]
+        public void CancelExecutedQueryTest()
+        {
+            // If:
+            // ... I request a query (doesn't matter what kind) and wait for execution
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var executeParams = new QueryExecuteParams {QueryText = "Doesn't Matter", OwnerUri = Common.OwnerUri};
+            var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+
+            // ... And then I request to cancel the query
+            var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
+            QueryCancelResult result = null;
+            var cancelRequest = GetQueryCancelResultContextMock(qcr => result = qcr, null);
+            queryService.HandleCancelRequest(cancelParams, cancelRequest.Object).Wait();
+
+            // Then:
+            // ... I should have seen a result event with an error message
+            VerifyQueryCancelCallCount(cancelRequest, Times.Once(), Times.Never());
+            Assert.NotNull(result.Messages);
+
+            // ... The query should not have been disposed
+            Assert.NotEmpty(queryService.ActiveQueries);
+        }
+
+        [Fact]
+        public void CancelNonExistantTest()
+        {
+            // If:
+            // ... I request to cancel a query that doesn't exist
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false);
+            var cancelParams = new QueryCancelParams {OwnerUri = "Doesn't Exist"};
+            QueryCancelResult result = null;
+            var cancelRequest = GetQueryCancelResultContextMock(qcr => result = qcr, null);
+            queryService.HandleCancelRequest(cancelParams, cancelRequest.Object).Wait();
+
+            // Then:
+            // ... I should have seen a result event with an error message
+            VerifyQueryCancelCallCount(cancelRequest, Times.Once(), Times.Never());
+            Assert.NotNull(result.Messages);
+        }
+
+        #region Mocking
+
+        private static Mock<RequestContext<QueryCancelResult>> GetQueryCancelResultContextMock(
+            Action<QueryCancelResult> resultCallback,
+            Action<object> errorCallback)
+        {
+            var requestContext = new Mock<RequestContext<QueryCancelResult>>();
+
+            // Setup the mock for SendResult
+            var sendResultFlow = requestContext
+                .Setup(rc => rc.SendResult(It.IsAny<QueryCancelResult>()))
+                .Returns(Task.FromResult(0));
+            if (resultCallback != null)
+            {
+                sendResultFlow.Callback(resultCallback);
+            }
+
+            // Setup the mock for SendError
+            var sendErrorFlow = requestContext
+                .Setup(rc => rc.SendError(It.IsAny<object>()))
+                .Returns(Task.FromResult(0));
+            if (errorCallback != null)
+            {
+                sendErrorFlow.Callback(errorCallback);
+            }
+
+            return requestContext;
+        }
+
+        private static void VerifyQueryCancelCallCount(Mock<RequestContext<QueryCancelResult>> mock,
+            Times sendResultCalls, Times sendErrorCalls)
+        {
+            mock.Verify(rc => rc.SendResult(It.IsAny<QueryCancelResult>()), sendResultCalls);
+            mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
+        }
+
+        #endregion
+
+    }
+}

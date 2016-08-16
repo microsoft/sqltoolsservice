@@ -177,12 +177,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 HasError = true;
                 UnwrapDbException(dbe);
-                conn?.Dispose();
             }
             catch (Exception)
             {
                 HasError = true;
-                conn?.Dispose();
                 throw;
             }
             finally
@@ -231,6 +229,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Rows = rows,
                 RowCount = rows.Length
             };
+        }
+
+        /// <summary>
+        /// Cancels the query by issuing the cancellation token
+        /// </summary>
+        public void Cancel()
+        {
+            // Make sure that the query hasn't completed execution
+            if (HasExecuted)
+            {
+                throw new InvalidOperationException("The query has already completed, it cannot be cancelled.");
+            }
+
+            // Issue the cancellation token for the query
+            cancellationSource.Cancel();
         }
 
         /// <summary>
