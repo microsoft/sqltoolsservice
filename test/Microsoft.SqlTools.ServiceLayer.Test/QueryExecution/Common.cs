@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 Dictionary<string, string> rowDictionary = new Dictionary<string, string>();
                 for (int column = 0; column < columns; column++)
                 {
-                    rowDictionary.Add(String.Format("column{0}", column), String.Format("val{0}{1}", column, row));
+                    rowDictionary.Add(string.Format("column{0}", column), string.Format("val{0}{1}", column, row));
                 }
                 output[row] = rowDictionary;
             }

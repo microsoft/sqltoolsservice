@@ -210,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 }
                 catch (MessageParseException e)
                 {
-                    string message = String.Format("Exception occurred while parsing message: {0}", e.Message);
+                    string message = string.Format("Exception occurred while parsing message: {0}", e.Message);
                     Logger.Write(LogLevel.Error, message);
                     await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams
                     {
@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 catch (Exception e)
                 {
                     // Log the error and send an error event to the client
-                    string message = String.Format("Exception occurred while receiving message: {0}", e.Message);
+                    string message = string.Format("Exception occurred while receiving message: {0}", e.Message);
                     Logger.Write(LogLevel.Error, message);
                     await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams
                     {
@@ -244,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 if (newMessage != null)
                 {
                     // Verbose logging
-                    string logMessage = String.Format("Received message of type[{0}] and method[{1}]",
+                    string logMessage = string.Format("Received message of type[{0}] and method[{1}]",
                         newMessage.MessageType, newMessage.Method);
                     Logger.Write(LogLevel.Verbose, logMessage);
 
