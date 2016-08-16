@@ -14,6 +14,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     public class ConnectionInfo
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public ConnectionInfo(ISqlConnectionFactory factory, string ownerUri, ConnectionDetails details)
         {
             Factory = factory;
@@ -27,12 +30,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         public Guid ConnectionId { get; private set; }
 
+        /// <summary>
+        /// URI identifying the owner/user of the connection. Could be a file, service, resource, etc.
+        /// </summary>
         public string OwnerUri { get; private set; }
 
+        /// <summary>
+        /// Factory used for creating the SQL connection associated with the connection info.
+        /// </summary>
         public ISqlConnectionFactory Factory {get; private set;}
 
+        /// <summary>
+        /// Properties used for creating/opening the SQL connection.
+        /// </summary>
         public ConnectionDetails ConnectionDetails { get; private set; }
         
+        /// <summary>
+        /// The connection to the SQL database that commands will be run against.
+        /// </summary>
         public DbConnection SqlConnection { get; set; }
     }
 }

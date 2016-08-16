@@ -14,14 +14,17 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
-
     internal class IntellisenseCache
     {
-        // connection used to query for intellisense info
+        /// <summary>
+        /// connection used to query for intellisense info
+        /// </summary>
         private DbConnection connection;
 
-        // number of documents (URI's) that are using the cache for the same database
-        // the autocomplete service uses this to remove unreferenced caches
+        /// <summary>
+        /// Number of documents (URI's) that are using the cache for the same database.
+        /// The autocomplete service uses this to remove unreferenced caches.
+        /// </summary>
         public int ReferenceCount { get; set; }
 
         public IntellisenseCache(ISqlConnectionFactory connectionFactory, ConnectionDetails connectionDetails)
