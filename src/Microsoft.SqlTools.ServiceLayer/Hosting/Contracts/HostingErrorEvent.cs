@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
     public class HostingErrorParams
     {
         /// <summary>
-        /// 
+        /// The message of the error
         /// </summary>
         public string Message { get; set; }
     }
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
     {
         public static readonly 
             EventType<HostingErrorParams> Type =
-            EventType<HostingErrorParams>.Create("hostingError");
+            EventType<HostingErrorParams>.Create("hosting/error");
 
     }
 }
