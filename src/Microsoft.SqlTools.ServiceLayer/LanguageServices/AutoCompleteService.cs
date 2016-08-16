@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Intellisense cache count access for testing.
         /// </summary>
-        public int GetCacheCount()
+        internal int GetCacheCount()
         {
             return caches.Count;
         }
