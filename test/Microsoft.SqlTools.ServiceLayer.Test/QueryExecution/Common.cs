@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -62,7 +63,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Setup the expected behavior
             if (throwOnRead)
             {
-                commandMockSetup.Throws(new Mock<DbException>().Object);
+                var mockException = new Mock<DbException>();
+                mockException.SetupGet(dbe => dbe.Message).Returns("Message");
+                commandMockSetup.Throws(mockException.Object);
             }
             else
             {
