@@ -80,13 +80,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
         }
+
+        private ConnectionService connectionService = null;
+
+        /// <summary>
+        /// Internal for testing purposes only
+        /// </summary>
+        internal ConnectionService ConnectionServiceInstance
+        {
+            get
+            {
+                if(connectionService == null)
+                {
+                    connectionService = ConnectionService.Instance;
+                }
+                return connectionService;
+            }
+
+            set
+            {
+                connectionService = value;
+            }
+        }
+
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register a callback for when a connection is created
-            ConnectionService.Instance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
+            ConnectionServiceInstance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
 
             // Register a callback for when a connection is closed
-            ConnectionService.Instance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
+            ConnectionServiceInstance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
         }
 
         private async Task UpdateAutoCompleteCache(ConnectionInfo connectionInfo)
@@ -95,6 +118,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await UpdateAutoCompleteCache(connectionInfo.ConnectionDetails);
             }
+        }
+
+        /// <summary>
+        /// Intellisense cache count access for testing.
+        /// </summary>
+        internal int GetCacheCount()
+        {
+            return caches.Count;
         }
 
         /// <summary>
@@ -157,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // that are not backed by a SQL connection
             ConnectionInfo info;
             IntellisenseCache cache;
-            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out info)
+            if (ConnectionServiceInstance.TryFindConnection(textDocumentPosition.Uri, out info)
                 && caches.TryGetValue((ConnectionSummary)info.ConnectionDetails, out cache))
             {
                 return cache.GetAutoCompleteItems(textDocumentPosition).ToArray();
