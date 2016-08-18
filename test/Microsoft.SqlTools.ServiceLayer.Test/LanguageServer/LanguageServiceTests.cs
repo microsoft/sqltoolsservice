@@ -220,6 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             var autocompleteService = new AutoCompleteService();
             autocompleteService.ConnectionServiceInstance = connectionService;
             autocompleteService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.Instance);
+            autocompleteService.ConnectionFactory = TestObjects.GetTestSqlConnectionFactory();
 
             // Open two connections
             ConnectParams connectionRequest1 = TestObjects.GetTestConnectionParams();
