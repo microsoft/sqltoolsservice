@@ -5,8 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -16,159 +14,6 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
-    internal class IntellisenseCache
-    {
-        // connection used to query for intellisense info
-        private DbConnection connection;
-
-        // number of documents (URI's) that are using the cache for the same database
-        // the autocomplete service uses this to remove unreferenced caches
-        public int ReferenceCount { get; set; }
-
-        public IntellisenseCache(ISqlConnectionFactory connectionFactory, ConnectionDetails connectionDetails)
-        {
-            ReferenceCount = 0;
-            DatabaseInfo = CopySummary(connectionDetails);
-
-            // TODO error handling on this. Intellisense should catch or else the service should handle
-            connection = connectionFactory.CreateSqlConnection(ConnectionService.BuildConnectionString(connectionDetails));
-            connection.Open();
-        }
-
-        /// <summary>
-        /// Used to identify a database for which this cache is used
-        /// </summary>
-        public ConnectionSummary DatabaseInfo
-        {
-            get;
-            private set;
-        }
-        /// <summary>
-        /// Gets the current autocomplete candidate list
-        /// </summary>
-        public IEnumerable<string> AutoCompleteList { get; private set; }
-
-        public async Task UpdateCache()
-        {
-            DbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT name FROM sys.tables";
-            command.CommandTimeout = 15;
-            command.CommandType = CommandType.Text;
-            var reader = await command.ExecuteReaderAsync();
-
-            List<string> results = new List<string>();
-            while (await reader.ReadAsync())
-            {
-                results.Add(reader[0].ToString());
-            }
-
-            AutoCompleteList = results;
-            await Task.FromResult(0);
-        }
-
-        public List<CompletionItem> GetAutoCompleteItems(TextDocumentPosition textDocumentPosition)
-        {
-            List<CompletionItem> completions = new List<CompletionItem>();
-
-            int i = 0;
-
-            // Take a reference to the list at a point in time in case we update and replace the list
-            var suggestions = AutoCompleteList;
-            // the completion list will be null is user not connected to server
-            if (this.AutoCompleteList != null)
-            {
-
-                foreach (var autoCompleteItem in suggestions)
-                {
-                    // convert the completion item candidates into CompletionItems
-                    completions.Add(new CompletionItem()
-                    {
-                        Label = autoCompleteItem,
-                        Kind = CompletionItemKind.Keyword,
-                        Detail = autoCompleteItem + " details",
-                        Documentation = autoCompleteItem + " documentation",
-                        TextEdit = new TextEdit
-                        {
-                            NewText = autoCompleteItem,
-                            Range = new Range
-                            {
-                                Start = new Position
-                                {
-                                    Line = textDocumentPosition.Position.Line,
-                                    Character = textDocumentPosition.Position.Character
-                                },
-                                End = new Position
-                                {
-                                    Line = textDocumentPosition.Position.Line,
-                                    Character = textDocumentPosition.Position.Character + 5
-                                }
-                            }
-                        }
-                    });
-
-                    // only show 50 items
-                    if (++i == 50)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return completions;
-        }
-
-        private static ConnectionSummary CopySummary(ConnectionSummary summary)
-        {
-            return new ConnectionSummary()
-            {
-                ServerName = summary.ServerName,
-                DatabaseName = summary.DatabaseName,
-                UserName = summary.UserName
-            };
-        }
-    }
-
-    /// <summary>
-    /// Treats connections as the same if their server, db and usernames all match
-    /// </summary>
-    public class ConnectionSummaryComparer : IEqualityComparer<ConnectionSummary>
-    {
-        public bool Equals(ConnectionSummary x, ConnectionSummary y)
-        {
-            if(x == y) { return true; }
-            else if(x != null)
-            {
-                if(y == null) { return false; }
-
-                // Compare server, db, username. Note: server is case-insensitive in the driver
-                return string.Compare(x.ServerName, y.ServerName, StringComparison.OrdinalIgnoreCase) == 0
-                    && string.Compare(x.DatabaseName, y.DatabaseName, StringComparison.Ordinal) == 0
-                    && string.Compare(x.UserName, y.UserName, StringComparison.Ordinal) == 0;
-            }
-            return false;
-        }
-
-        public int GetHashCode(ConnectionSummary obj)
-        {
-            int hashcode = 31;
-            if(obj != null)
-            {
-                if(obj.ServerName != null)
-                {
-                    hashcode ^= obj.ServerName.GetHashCode();
-                }
-                if (obj.DatabaseName != null)
-                {
-                    hashcode ^= obj.DatabaseName.GetHashCode();
-                }
-                if (obj.UserName != null)
-                {
-                    hashcode ^= obj.UserName.GetHashCode();
-                }
-            }
-            return hashcode;
-        }
-    }
     /// <summary>
     /// Main class for Autocomplete functionality
     /// </summary>
@@ -235,13 +80,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
         }
+
+        private ConnectionService connectionService = null;
+
+        /// <summary>
+        /// Internal for testing purposes only
+        /// </summary>
+        internal ConnectionService ConnectionServiceInstance
+        {
+            get
+            {
+                if(connectionService == null)
+                {
+                    connectionService = ConnectionService.Instance;
+                }
+                return connectionService;
+            }
+
+            set
+            {
+                connectionService = value;
+            }
+        }
+
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register a callback for when a connection is created
-            ConnectionService.Instance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
+            ConnectionServiceInstance.RegisterOnConnectionTask(UpdateAutoCompleteCache);
 
             // Register a callback for when a connection is closed
-            ConnectionService.Instance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
+            ConnectionServiceInstance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
         }
 
         private async Task UpdateAutoCompleteCache(ConnectionInfo connectionInfo)
@@ -250,6 +118,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await UpdateAutoCompleteCache(connectionInfo.ConnectionDetails);
             }
+        }
+
+        /// <summary>
+        /// Intellisense cache count access for testing.
+        /// </summary>
+        internal int GetCacheCount()
+        {
+            return caches.Count;
         }
 
         /// <summary>
@@ -312,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // that are not backed by a SQL connection
             ConnectionInfo info;
             IntellisenseCache cache;
-            if (ConnectionService.Instance.TryFindConnection(textDocumentPosition.Uri, out info)
+            if (ConnectionServiceInstance.TryFindConnection(textDocumentPosition.Uri, out info)
                 && caches.TryGetValue((ConnectionSummary)info.ConnectionDetails, out cache))
             {
                 return cache.GetAutoCompleteItems(textDocumentPosition).ToArray();

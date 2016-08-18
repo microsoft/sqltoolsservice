@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             foreach (var textChange in textChangeParams.ContentChanges)
             {
                 string fileUri = textChangeParams.Uri ?? textChangeParams.TextDocument.Uri; 
-                msg.AppendLine(String.Format("  File: {0}", fileUri));
+                msg.AppendLine(string.Format("  File: {0}", fileUri));
 
                 ScriptFile changedFile = Workspace.GetFile(fileUri);
 

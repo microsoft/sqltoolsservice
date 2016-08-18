@@ -337,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Write(
                     LogLevel.Error,
-                    String.Format(
+                    string.Format(
                         "Exception while cancelling analysis task:\n\n{0}",
                         e.ToString()));
 
