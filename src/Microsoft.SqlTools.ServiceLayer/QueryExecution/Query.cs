@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
+        private const string RowsAffectedFormat = "({0} row(s) affected)";
+
         #region Properties
 
         /// <summary>
@@ -114,13 +116,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException("Query has already executed.");
             }
 
-            DbConnection conn = null;
-
             // Create a connection from the connection details
             try
             {
                 string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
-                using (conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
+                using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
                 {
                     // If we have the message listener, bind to it
                     SqlConnection sqlConn = conn as SqlConnection;
@@ -142,14 +142,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             do
                             {
-                                // Create a message with the number of affected rows
-                                if (reader.RecordsAffected >= 0)
-                                {
-                                    ResultMessages.Add(String.Format("({0} row(s) affected)", reader.RecordsAffected));
-                                }
-
+                                // Skip this result set if there aren't any rows
                                 if (!reader.HasRows && reader.FieldCount == 0)
                                 {
+                                    // Create a message with the number of affected rows -- IF the query affects rows
+                                    ResultMessages.Add(reader.RecordsAffected >= 0
+                                        ? string.Format(RowsAffectedFormat, reader.RecordsAffected)
+                                        : "Command Executed Successfully");
+
                                     continue;
                                 }
 
@@ -168,6 +168,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                                 // Add the result set to the results of the query
                                 ResultSets.Add(resultSet);
+
+                                // Add a message for the number of rows the query returned
+                                ResultMessages.Add(string.Format(RowsAffectedFormat, resultSet.Rows.Count));
+
                             } while (await reader.NextResultAsync(cancellationSource.Token));
                         }
                     }

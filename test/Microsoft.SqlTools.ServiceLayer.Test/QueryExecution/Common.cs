@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -106,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 ServerName = "sqltools11"
             };
 
-            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), "test://test", connDetails);
+            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, connDetails);
         }
 
         #endregion
