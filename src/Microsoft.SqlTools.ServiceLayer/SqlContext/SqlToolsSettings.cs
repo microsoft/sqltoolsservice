@@ -31,6 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                 this.ScriptAnalysis.Update(settings.ScriptAnalysis, workspaceRootPath);
             }
         }
+
+        public QueryExecutionSettings QueryExecutionSettings { get; set; }
     }
 
     /// <summary>

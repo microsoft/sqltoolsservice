@@ -44,6 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             ConfigChangeCallbacks = new List<ConfigChangeCallback>();
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
             TextDocOpenCallbacks = new List<TextDocOpenCallback>();
+
+            CurrentSettings = new TConfig();
         }
 
         #endregion
@@ -101,7 +103,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             // Create a workspace that will handle state for the session
             Workspace = new Workspace();
-            CurrentSettings = new TConfig();
 
             // Register the handlers for when changes to the workspae occur
             serviceHost.SetEventHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
