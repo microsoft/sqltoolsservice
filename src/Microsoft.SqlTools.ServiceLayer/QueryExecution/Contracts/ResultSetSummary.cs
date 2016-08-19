@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class ResultSetSummary
     {
         /// <summary>
-        /// The ID of the result set within the query results
+        /// The ID of the result set within the batch results
         /// </summary>
         public int Id { get; set; }
 
