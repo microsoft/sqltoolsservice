@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Moq;
 using Xunit;
 
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Query q = Common.GetBasicExecutedQuery();
 
             // ... And I ask for a subset with valid arguments
-            ResultSetSubset subset = q.GetSubset(0, 0, rowCount);
+            ResultSetSubset subset = q.GetSubset(0, 0, 0, rowCount);
 
             // Then:
             // I should get the requested number of rows
@@ -33,12 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void SubsetUnexecutedQueryTest()
         {
             // If I have a query that has *not* been executed
-            Query q = new Query("NO OP", Common.CreateTestConnectionInfo(null, false));
+            Query q = new Query("NO OP", Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings());
 
             // ... And I ask for a subset with valid arguments
             // Then:
             // ... It should throw an exception
-            Assert.Throws<InvalidOperationException>(() => q.GetSubset(0, 0, 2));
+            Assert.Throws<InvalidOperationException>(() => q.GetSubset(0, 0, 0, 2));
         }
 
         [Theory]
@@ -56,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.Throws<ArgumentOutOfRangeException>(() => q.GetSubset(resultSetIndex, rowStartInex, rowCount));
+            Assert.Throws<ArgumentOutOfRangeException>(() => q.GetSubset(0, resultSetIndex, rowStartInex, rowCount));
         }
 
         #endregion
@@ -119,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
             var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
-            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;
+            //queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };

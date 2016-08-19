@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The batches underneath this query
         /// </summary>
-        private IEnumerable<Batch> Batches { get; set; }
+        private Batch[] Batches { get; set; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
@@ -72,7 +73,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="queryText">The text of the query to execute</param>
         /// <param name="connection">The information of the connection to use to execute the query</param>
-        public Query(string queryText, ConnectionInfo connection)
+        /// <param name="settings">Settings for how to execute the query, from the user</param>
+        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings)
         {
             // Sanity check for input
             if (String.IsNullOrEmpty(queryText))
@@ -90,8 +92,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             cancellationSource = new CancellationTokenSource();
 
             // Process the query into batches
-            ParseResult parseResult = Parser.Parse(queryText);
-            Batches = parseResult.Script.Batches.Select(b => new Batch(b.Sql));
+            ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
+            {
+                BatchSeparator = settings.BatchSeparator
+            });
+            Batches = parseResult.Script.Batches.Select(b => new Batch(b.Sql)).ToArray();
         }
 
         /// <summary>
@@ -120,11 +125,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Retrieves a subset of the result sets
         /// </summary>
+        /// <param name="batchIndex">The index for selecting the batch item</param>
         /// <param name="resultSetIndex">The index for selecting the result set</param>
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public ResultSetSubset GetSubset(int resultSetIndex, int startRow, int rowCount)
+        public ResultSetSubset GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check that the results are available
             if (!HasExecuted)
@@ -132,30 +138,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException("The query has not completed, yet.");
             }
 
-            // Sanity check to make sure we have valid numbers
-            if (resultSetIndex < 0 || resultSetIndex >= ResultSets.Count)
+            // Sanity check to make sure that the batch is within bounds
+            if (batchIndex < 0 || batchIndex >= Batches.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), "Result set index cannot be less than 0" +
+                throw new ArgumentOutOfRangeException(nameof(batchIndex), "Result set index cannot be less than 0" +
                                                                              "or greater than the number of result sets");
             }
-            ResultSet targetResultSet = ResultSets[resultSetIndex];
-            if (startRow < 0 || startRow >= targetResultSet.Rows.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(startRow), "Start row cannot be less than 0 " +
-                                                                        "or greater than the number of rows in the resultset");
-            }
-            if (rowCount <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rowCount), "Row count must be a positive integer");
-            }
 
-            // Retrieve the subset of the results as per the request
-            object[][] rows = targetResultSet.Rows.Skip(startRow).Take(rowCount).ToArray();
-            return new ResultSetSubset
-            {
-                Rows = rows,
-                RowCount = rows.Length
-            };
+            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
 
         /// <summary>

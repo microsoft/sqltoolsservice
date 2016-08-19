@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 var result = new QueryExecuteSubsetResult
                 {
                     Message = null,
-                    ResultSubset = query.GetSubset(
+                    ResultSubset = query.GetSubset(subsetParams.BatchIndex,
                         subsetParams.ResultSetIndex, subsetParams.RowsStartIndex, subsetParams.RowsCount)
                 };
                 await requestContext.SendResult(result);
@@ -262,8 +262,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
                 }
 
+                // Retrieve the current settings for executing the query with
+                QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
+
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(executeParams.QueryText, connectionInfo);
+                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendResult(new QueryExecuteResult
@@ -292,11 +295,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Retrieve the current settings for executing the query with
-            QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
-
             // Launch the query and respond with successfully launching it
-            Task executeTask = query.Execute(/*settings*/);
+            Task executeTask = query.Execute();
             await requestContext.SendResult(new QueryExecuteResult
             {
                 Messages = null
@@ -306,10 +306,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             await Task.WhenAll(executeTask);
             QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
             {
-                HasError = query.HasError,
-                Messages = query.ResultMessages.ToArray(),
                 OwnerUri = executeParams.OwnerUri,
-                ResultSetSummaries = query.ResultSummary
+                BatchSummaries = query.BatchSummaries
             };
             await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
         }

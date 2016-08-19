@@ -72,6 +72,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         public async Task Execute(DbConnection conn, CancellationToken cancellationToken)
         {
+            // Sanity check to make sure we haven't already run this batch
+            if (HasExecuted)
+            {
+                throw new InvalidOperationException("Batch has already executed.");
+            }
+
             try
             {
                 // Register the message listener to *this instance* of the batch
@@ -99,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 // Create a message with the number of affected rows -- IF the query affects rows
                                 ResultMessages.Add(reader.RecordsAffected >= 0
                                     ? string.Format(RowsAffectedFormat, reader.RecordsAffected)
-                                    : "Commad Executed Successfully");
+                                    : "Command(s) completed successfully.");
                                 continue;
                             }
 
@@ -144,6 +150,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Mark that we have executed
                 HasExecuted = true;
             }
+        }
+
+        /// <summary>
+        /// Generates a subset of the rows from a result set of the batch
+        /// </summary>
+        /// <param name="resultSetIndex">The index for selecting the result set</param>
+        /// <param name="startRow">The starting row of the results</param>
+        /// <param name="rowCount">How many rows to retrieve</param>
+        /// <returns>A subset of results</returns>
+        public ResultSetSubset GetSubset(int resultSetIndex, int startRow, int rowCount)
+        {
+            // Sanity check to make sure we have valid numbers
+            if (resultSetIndex < 0 || resultSetIndex >= ResultSets.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), "Result set index cannot be less than 0" +
+                                                                             "or greater than the number of result sets");
+            }
+
+            // Retrieve the result set
+            return ResultSets[resultSetIndex].GetSubset(startRow, rowCount);
         }
 
         #region Private Helpers

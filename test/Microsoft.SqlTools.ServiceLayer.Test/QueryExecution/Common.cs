@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -10,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Moq.Protected;
@@ -20,14 +20,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
     {
         public const string OwnerUri = "testFile";
 
-        public static readonly Dictionary<string, string>[] StandardTestData =
+        public const int StandardRows = 5;
+
+        public const int StandardColumns = 5;
+
+        public static Dictionary<string, string>[] StandardTestData
         {
-            new Dictionary<string, string> { {"col1", "val11"}, { "col2", "val12"}, { "col3", "val13"}, { "col4", "col14"} },
-            new Dictionary<string, string> { {"col1", "val21"}, { "col2", "val22"}, { "col3", "val23"}, { "col4", "col24"} },
-            new Dictionary<string, string> { {"col1", "val31"}, { "col2", "val32"}, { "col3", "val33"}, { "col4", "col34"} },
-            new Dictionary<string, string> { {"col1", "val41"}, { "col2", "val42"}, { "col3", "val43"}, { "col4", "col44"} },
-            new Dictionary<string, string> { {"col1", "val51"}, { "col2", "val52"}, { "col3", "val53"}, { "col4", "col54"} },
-        };
+            get { return GetTestData(StandardRows, StandardColumns); }
+        }
 
         public static Dictionary<string, string>[] GetTestData(int columns, int rows)
         {
@@ -47,7 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Query GetBasicExecutedQuery()
         {
-            Query query = new Query("SIMPLE QUERY", CreateTestConnectionInfo(new[] { StandardTestData }, false));
+            ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
+            Query query = new Query("SIMPLE QUERY", ci, new QueryExecutionSettings());
             query.Execute().Wait();
             return query;
         }
