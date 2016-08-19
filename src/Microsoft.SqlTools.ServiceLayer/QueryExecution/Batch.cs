@@ -124,6 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                             // Add the result set to the results of the query
                             ResultSets.Add(resultSet);
+
+                            // Add a message for the number of rows the query returned
+                            ResultMessages.Add(string.Format(RowsAffectedFormat, resultSet.Rows.Count));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }

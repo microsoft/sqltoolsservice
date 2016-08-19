@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
+        private const string RowsAffectedFormat = "({0} row(s) affected)";
+
         #region Properties
 
         /// <summary>

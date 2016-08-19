@@ -381,6 +381,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             //VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
             //Assert.NotNull(result.Messages);
             //Assert.NotEmpty(result.Messages);
+
+            // ... There should not be an active query
+            Assert.Empty(queryService.ActiveQueries);
         }
 
         //[Fact]

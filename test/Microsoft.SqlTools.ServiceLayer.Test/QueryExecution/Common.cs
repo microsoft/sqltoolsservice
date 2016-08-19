@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 ServerName = "sqltools11"
             };
 
-            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), "test://test", connDetails);
+            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, connDetails);
         }
 
         #endregion
