@@ -14,8 +14,7 @@
     "moq": "4.6.36-alpha",
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
-    },
-    "System.Diagnostics.TraceSource": "4.0.0"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {

@@ -14,16 +14,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class CancelTests
     {
-        //[Fact]
+        [Fact]
         public void CancelInProgressQueryTest()
         {
             // If:
             // ... I request a query (doesn't matter what kind) and execute it
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = "Doesn't Matter", OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
             var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
-            //queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
+            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
             // ... And then I request to cancel the query
             var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I request a query (doesn't matter what kind) and wait for execution
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams {QueryText = "Doesn't Matter", OwnerUri = Common.OwnerUri};
+            var executeParams = new QueryExecuteParams {QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri};
             var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 

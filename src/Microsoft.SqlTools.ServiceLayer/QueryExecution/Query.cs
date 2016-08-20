@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -21,27 +20,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
-        private const string RowsAffectedFormat = "({0} row(s) affected)";
-
         #region Properties
 
         /// <summary>
         /// The batches underneath this query
         /// </summary>
-        private Batch[] Batches { get; set; }
+        internal Batch[] Batches { get; set; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
         /// </summary>
         public BatchSummary[] BatchSummaries
         {
-            get { return Batches.Select((batch, index) => new BatchSummary
+            get
             {
-                Id = index,
-                HasError = batch.HasError,
-                Messages = batch.ResultMessages.ToArray(),
-                ResultSetSummaries = batch.ResultSummaries
-            }).ToArray(); }
+                if (!HasExecuted)
+                {
+                    throw new InvalidOperationException("Query has not been executed.");
+                }
+
+                return Batches.Select((batch, index) => new BatchSummary
+                {
+                    Id = index,
+                    HasError = batch.HasError,
+                    Messages = batch.ResultMessages.ToArray(),
+                    ResultSetSummaries = batch.ResultSummaries
+                }).ToArray();
+            }
         }
 
         /// <summary>
@@ -53,14 +58,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The connection info associated with the file editor owner URI, used to create a new
         /// connection upon execution of the query
         /// </summary>
-        public ConnectionInfo EditorConnection { get; set; }
+        private ConnectionInfo EditorConnection { get; set; }
 
         /// <summary>
         /// Whether or not the query has completed executed, regardless of success or failure
         /// </summary>
+        /// <remarks>
+        /// Don't touch the setter unless you're doing unit tests!
+        /// </remarks>
         public bool HasExecuted
         {
             get { return Batches.All(b => b.HasExecuted); }
+            internal set
+            {
+                foreach (var batch in Batches)
+                {
+                    batch.HasExecuted = value;
+                }
+            }
         }
 
         /// <summary>
@@ -87,6 +102,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new ArgumentNullException(nameof(connection), "Connection cannot be null");
             }
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings), "Settings cannot be null");
+            }
 
             // Initialize the internal state
             QueryText = queryText;
@@ -106,16 +125,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public async Task Execute()
         {
-            // Sanity check to make sure we haven't already run this query
-            if (HasExecuted)
-            {
-                throw new InvalidOperationException("Query has already executed.");
-            }
-
             // Open up a connection for querying the database
             string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
             using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
             {
+                await conn.OpenAsync();
+
                 // We need these to execute synchronously, otherwise the user will be very unhappy
                 foreach (Batch b in Batches)
                 {

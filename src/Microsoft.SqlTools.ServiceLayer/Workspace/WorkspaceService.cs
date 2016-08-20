@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         public Workspace Workspace { get; private set; }
 
-        public TConfig CurrentSettings { get; private set; }
+        public TConfig CurrentSettings { get; internal set; }
 
         /// <summary>
         /// Delegate for callbacks that occur when the configuration for the workspace changes

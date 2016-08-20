@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         public SqlToolsSettings()
         {
             this.ScriptAnalysis = new ScriptAnalysisSettings();
+            this.QueryExecutionSettings = new QueryExecutionSettings();
         }
 
         public bool EnableProfileLoading { get; set; }

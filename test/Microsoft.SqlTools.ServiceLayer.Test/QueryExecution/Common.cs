@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -18,6 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class Common
     {
+        public const string StandardQuery = "SELECT * FROM sys.objects";
+
         public const string OwnerUri = "testFile";
 
         public const int StandardRows = 5;
@@ -45,10 +48,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return output;
         }
 
+        public static Batch GetBasicExecutedBatch()
+        {
+            Batch batch = new Batch(StandardQuery);
+            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
+            return batch;
+        }
+
         public static Query GetBasicExecutedQuery()
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
-            Query query = new Query("SIMPLE QUERY", ci, new QueryExecutionSettings());
+            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings());
             query.Execute().Wait();
             return query;
         }

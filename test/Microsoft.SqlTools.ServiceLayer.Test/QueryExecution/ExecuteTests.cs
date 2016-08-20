@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -8,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using Xunit;
 
@@ -21,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void BatchCreationTest()
         {
             // If I create a new batch...
-            Batch batch = new Batch("NO OP");
+            Batch batch = new Batch(Common.StandardQuery);
 
             // Then: 
             // ... The text of the batch should be stored
@@ -41,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void BatchExecuteNoResultSets()
         {
             // If I execute a query that should get no result sets
-            Batch batch = new Batch("Query with no result sets");
+            Batch batch = new Batch(Common.StandardQuery);
             batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None).Wait();
 
             // Then:
@@ -68,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a query that should get one result set
-            Batch batch = new Batch("Query with one result sets");
+            Batch batch = new Batch(Common.StandardQuery);
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -101,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(dataset, false);
 
             // If I execute a query that should get two result sets
-            Batch batch = new Batch("Query with two result sets");
+            Batch batch = new Batch(Common.StandardQuery);
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -144,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
 
             // If I execute a batch that is invalid
-            Batch batch = new Batch("Invalid query");
+            Batch batch = new Batch(Common.StandardQuery);
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -166,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a batch
-            Batch batch = new Batch("Any query");
+            Batch batch = new Batch(Common.StandardQuery);
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -204,6 +206,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         #region Query Class Tests
 
         [Fact]
+        public void QueryExecuteNoQueryText()
+        {
+            // If:
+            // ... I create a query that has a null query text
+            // Then:
+            // ... It should throw an exception
+            Assert.Throws<ArgumentNullException>(() =>
+                new Query(null, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings()));
+        }
+
+        [Fact]
         public void QueryExecuteNoConnectionInfo()
         {
             // If:
@@ -224,17 +237,105 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 new Query("Some query", Common.CreateTestConnectionInfo(null, false), null));
         }
 
+        [Fact]
+        public void QueryExecuteSingleBatch()
+        {
+            // If:
+            // ... I create a query from a single batch (without separator)
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
+            Query query = new Query(Common.StandardQuery, ci, new QueryExecutionSettings());
+
+            // Then:
+            // ... I should get a single batch to execute that hasn't been executed
+            Assert.NotEmpty(query.QueryText);
+            Assert.NotEmpty(query.Batches);
+            Assert.Equal(1, query.Batches.Length);
+            Assert.False(query.HasExecuted);
+            Assert.Throws<InvalidOperationException>(() => query.BatchSummaries);
+
+            // If:
+            // ... I then execute the query
+            query.Execute().Wait();
+
+            // Then:
+            // ... The query should have completed successfully with one batch summary returned
+            Assert.True(query.HasExecuted);
+            Assert.NotEmpty(query.BatchSummaries);
+            Assert.Equal(1, query.BatchSummaries.Length);
+        }
+
+        [Fact]
+        public void QueryExecuteMultipleBatches()
+        {
+            // If:
+            // ... I create a query from two batches (with separator)
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
+            string queryText = string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery);
+            Query query = new Query(queryText, ci, new QueryExecutionSettings());
+
+            // Then:
+            // ... I should get back two batches to execute that haven't been executed
+            Assert.NotEmpty(query.QueryText);
+            Assert.NotEmpty(query.Batches);
+            Assert.Equal(2, query.Batches.Length);
+            Assert.False(query.HasExecuted);
+            Assert.Throws<InvalidOperationException>(() => query.BatchSummaries);
+
+            // If:
+            // ... I then execute the query
+            query.Execute().Wait();
+
+            // Then:
+            // ... The query should have completed successfully with two batch summaries returned
+            Assert.True(query.HasExecuted);
+            Assert.NotEmpty(query.BatchSummaries);
+            Assert.Equal(2, query.BatchSummaries.Length);
+        }
+
+        [Fact]
+        public void QueryExecuteInvalidBatch()
+        {
+            // If:
+            // ... I create a query from an invalid batch
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
+            Query query = new Query("SELECT *** FROM sys.objects", ci, new QueryExecutionSettings());
+
+            // Then:
+            // ... I should get back a query with one batch not executed
+            Assert.NotEmpty(query.QueryText);
+            Assert.NotEmpty(query.Batches);
+            Assert.Equal(1, query.Batches.Length);
+            Assert.False(query.HasExecuted);
+            Assert.Throws<InvalidOperationException>(() => query.BatchSummaries);
+
+            // If:
+            // ... I then execute the query
+            query.Execute().Wait();
+
+            // Then:
+            // ... There should be an error on the batch
+            Assert.True(query.HasExecuted);
+            Assert.NotEmpty(query.BatchSummaries);
+            Assert.Equal(1, query.BatchSummaries.Length);
+            Assert.True(query.BatchSummaries[0].HasError);
+            Assert.NotEmpty(query.BatchSummaries[0].Messages);
+        }
+
         #endregion
 
         #region Service Tests
 
-        //[Fact]
+        [Fact]
         public void QueryExecuteValidNoResultsTest()
         {
+            // Given:
+            // ... Default settings are stored in the workspace service
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
+
             // If:
             // ... I request to execute a valid query with no results
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var queryParams = new QueryExecuteParams { QueryText = "Doesn't Matter", OwnerUri = Common.OwnerUri };
+            var queryParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
@@ -243,24 +344,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // Then:
             // ... No Errors should have been sent
-            // ... A successful result should have been sent with messages
+            // ... A successful result should have been sent with messages on the first batch
             // ... A completion event should have been fired with empty results
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.Equal(1, completeParams.BatchSummaries.Length);
+            Assert.Empty(completeParams.BatchSummaries[0].ResultSetSummaries);
+            Assert.NotEmpty(completeParams.BatchSummaries[0].Messages);
+
             // ... There should be one active query
-            //VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
-            //Assert.Null(result.Messages);
-            //Assert.NotEmpty(completeParams.Messages);
-            //Assert.Equal(1, completeParams.BatchSummaries);
-            //Assert.True(completeParams.);
-            //Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        //[Fact]
+        [Fact]
         public void QueryExecuteValidResultsTest()
         {
             // If:
             // ... I request to execute a valid query with results
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = "Doesn't Matter" };
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
@@ -271,22 +373,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... No errors should have been sent
             // ... A successful result should have been sent with messages
             // ... A completion event should have been fired with one result
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.Equal(1, completeParams.BatchSummaries.Length);
+            Assert.NotEmpty(completeParams.BatchSummaries[0].ResultSetSummaries);
+            Assert.NotEmpty(completeParams.BatchSummaries[0].Messages);
+            Assert.False(completeParams.BatchSummaries[0].HasError);
+
             // ... There should be one active query
-            //VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
-            //Assert.Null(result.Messages);
-            //Assert.NotEmpty(completeParams.Messages);
-            //Assert.NotEmpty(completeParams.ResultSetSummaries);
-            //Assert.False(completeParams.HasError);
-            //Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        //[Fact]
+        [Fact]
         public void QueryExecuteUnconnectedUriTest()
         {
             // If:
             // ... I request to execute a query using a file URI that isn't connected
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false);
-            var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QueryText = "Doesn't Matter" };
+            var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QueryText = Common.StandardQuery };
 
             QueryExecuteResult result = null;
             var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
@@ -297,48 +401,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... No completion event should have been fired
             // ... No error event should have been fired
             // ... There should be no active queries
-            //VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
-            //Assert.NotNull(result.Messages);
-            //Assert.NotEmpty(result.Messages);
-            //Assert.Empty(queryService.ActiveQueries);
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
+            Assert.NotNull(result.Messages);
+            Assert.NotEmpty(result.Messages);
+            Assert.Empty(queryService.ActiveQueries);
         }
 
-        //[Fact]
+        [Fact]
         public void QueryExecuteInProgressTest()
         {
             // If:
             // ... I request to execute a query
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = "Some Query" };
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = Common.GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
 
             // ... And then I request another query without waiting for the first to complete
-            //queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;   // Simulate query hasn't finished
-            //QueryExecuteResult result = null;
-            //var secondRequestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
-            //queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
+            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;   // Simulate query hasn't finished
+            QueryExecuteResult result = null;
+            var secondRequestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
+            queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
 
-            //// Then:
-            //// ... No errors should have been sent
-            //// ... A result should have been sent with an error message
-            //// ... No completion event should have been fired
-            //// ... There should only be one active query
-            //VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.AtMostOnce(), Times.Never());
-            //Assert.NotNull(result.Messages);
-            //Assert.NotEmpty(result.Messages);
-            //Assert.Equal(1, queryService.ActiveQueries.Count);
+            // Then:
+            // ... No errors should have been sent
+            // ... A result should have been sent with an error message
+            // ... No completion event should have been fired
+            // ... There should only be one active query
+            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.AtMostOnce(), Times.Never());
+            Assert.NotNull(result.Messages);
+            Assert.NotEmpty(result.Messages);
+            Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        //[Fact]
+        [Fact]
         public void QueryExecuteCompletedTest()
         {
             // If:
             // ... I request to execute a query
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = "Some Query" };
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = Common.GetQueryExecuteResultContextMock(null, null, null);
@@ -354,15 +458,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... No errors should have been sent
             // ... A result should have been sent with no errors
             // ... There should only be one active query
-            //VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.Once(), Times.Never());
-            //Assert.Null(result.Messages);
-            //Assert.False(complete.HasError);
-            //Assert.Equal(1, queryService.ActiveQueries.Count);
+            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.False(complete.BatchSummaries.Any(b => b.HasError));
+            Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
-        //[Theory]
-        //[InlineData("")]
-        //[InlineData(null)]
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
         public void QueryExecuteMissingQueryTest(string query)
         {
             // If:
@@ -378,21 +482,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... No errors should have been sent
             // ... A result should have been sent with an error message
             // ... No completion event should have been fired
-            //VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
-            //Assert.NotNull(result.Messages);
-            //Assert.NotEmpty(result.Messages);
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
+            Assert.NotNull(result.Messages);
+            Assert.NotEmpty(result.Messages);
 
             // ... There should not be an active query
             Assert.Empty(queryService.ActiveQueries);
         }
 
-        //[Fact]
+        [Fact]
         public void QueryExecuteInvalidQueryTest()
         {
             // If:
             // ... I request to execute a query that is invalid
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, true), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = "Bad query!" };
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
@@ -403,10 +507,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... No errors should have been sent
             // ... A result should have been sent with success (we successfully started the query)
             // ... A completion event should have been sent with error
-            //VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
-            //Assert.Null(result.Messages);
-            //Assert.True(complete.HasError);
-            //Assert.NotEmpty(complete.Messages);
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.Equal(1, complete.BatchSummaries.Length);
+            Assert.True(complete.BatchSummaries[0].HasError);
+            Assert.NotEmpty(complete.BatchSummaries[0].Messages);
         }
 
         #endregion
