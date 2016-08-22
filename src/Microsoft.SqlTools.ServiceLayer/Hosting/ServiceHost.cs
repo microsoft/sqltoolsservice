@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
         private readonly List<InitializeCallback> initializeCallbacks;
 
-        private static Version _serviceServion = Assembly.GetEntryAssembly().GetName().Version;
+        private static readonly Version serviceVersion = Assembly.GetEntryAssembly().GetName().Version;
 
         #endregion
 
@@ -153,12 +153,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                 });
         }
 
+        /// <summary>
+        /// Handles the version request. Sends back the server version as result.
+        /// </summary>
         private static async Task HandleVersionRequest(
-          string workspaceSymbolParams,
+          object versionRequestParams,
           RequestContext<string> requestContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleVersionRequest");
-            await requestContext.SendResult(_serviceServion.ToString());
+            await requestContext.SendResult(serviceVersion.ToString());
         }
 
         #endregion
