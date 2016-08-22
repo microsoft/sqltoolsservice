@@ -181,12 +181,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
                 .Returns(CreateMockDbConnection(new[] {data}));
 
-            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionService = new ConnectionService(mockFactory.Object);
             var autocompleteService = new AutoCompleteService();
             autocompleteService.ConnectionServiceInstance = connectionService;
             autocompleteService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.Instance);
-
-            autocompleteService.ConnectionFactory = mockFactory.Object;
             
             // Open a connection
             // The cache should get updated as part of this
@@ -216,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void OnlyOneCacheIsCreatedForTwoDocumentsWithSameConnection()
         {
-            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionService = new ConnectionService(TestObjects.GetTestSqlConnectionFactory());
             var autocompleteService = new AutoCompleteService();
             autocompleteService.ConnectionServiceInstance = connectionService;
             autocompleteService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.Instance);
@@ -242,6 +240,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void TwoCachesAreCreatedForTwoDocumentsWithDifferentConnections()
         {
+            const string testDb1 = "my_db";
+            const string testDb2 = "my_other_db";
+
             // Result set for the query of database tables
             Dictionary<string, string>[] data1 =
             {
@@ -257,21 +258,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             };
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.SetupSequence(factory => factory.CreateSqlConnection(It.IsAny<string>()))
-                .Returns(CreateMockDbConnection(new[] {data1}))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.Is<string>(x => x.Contains(testDb1))))
+                .Returns(CreateMockDbConnection(new[] {data1}));
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.Is<string>(x => x.Contains(testDb2))))
                 .Returns(CreateMockDbConnection(new[] {data2}));
 
-            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionService = new ConnectionService(mockFactory.Object);
             var autocompleteService = new AutoCompleteService();
             autocompleteService.ConnectionServiceInstance = connectionService;
             autocompleteService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.Instance);
-
-            autocompleteService.ConnectionFactory = mockFactory.Object;
             
             // Open connections
             // The cache should get updated as part of this
             ConnectParams connectionRequest = TestObjects.GetTestConnectionParams();
             connectionRequest.OwnerUri = "file:///my/first/sql/file.sql";
+            connectionRequest.Connection.DatabaseName = testDb1;
             var connectionResult = connectionService.Connect(connectionRequest);
             Assert.NotEmpty(connectionResult.ConnectionId);
 
@@ -281,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             // Open second connection
             ConnectParams connectionRequest2 = TestObjects.GetTestConnectionParams();
             connectionRequest2.OwnerUri = "file:///my/second/sql/file.sql";
-            connectionRequest2.Connection.DatabaseName = "my_other_db";
+            connectionRequest2.Connection.DatabaseName = testDb2;
             var connectionResult2 = connectionService.Connect(connectionRequest2);
             Assert.NotEmpty(connectionResult2.ConnectionId);
 
