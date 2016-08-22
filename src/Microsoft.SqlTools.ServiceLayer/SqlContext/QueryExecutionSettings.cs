@@ -1,16 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
+    /// <summary>
+    /// Collection of settings related to the execution of queries
+    /// </summary>
     public class QueryExecutionSettings
     {
+        /// <summary>
+        /// Default value for batch separator (de facto standard as per SSMS)
+        /// </summary>
         private const string DefaultBatchSeparator = "GO";
 
         private string batchSeparator;
 
+        /// <summary>
+        /// The configured batch separator, will use a default if a value was not configured
+        /// </summary>
         public string BatchSeparator
         {
             get { return batchSeparator ?? DefaultBatchSeparator; }

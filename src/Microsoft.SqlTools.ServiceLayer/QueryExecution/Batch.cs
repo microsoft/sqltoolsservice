@@ -1,4 +1,9 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -10,6 +15,9 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
+    /// <summary>
+    /// This class represents a batch within a query
+    /// </summary>
     public class Batch
     {
         private const string RowsAffectedFormat = "({0} row(s) affected)";
@@ -21,10 +29,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public string BatchText { get; set; }
 
         /// <summary>
-        /// Whether or not the query has an error
+        /// Whether or not this batch has an error
         /// </summary>
         public bool HasError { get; set; }
 
+        /// <summary>
+        /// Whether or not this batch has been executed, regardless of success or failure 
+        /// </summary>
         public bool HasExecuted { get; set; }
 
         /// <summary>
@@ -33,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public List<string> ResultMessages { get; set; }
 
         /// <summary>
-        /// The result sets of the query execution
+        /// The result sets of the batch execution
         /// </summary>
         public List<ResultSet> ResultSets { get; set; }
 
@@ -70,6 +81,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ResultMessages = new List<string>();
         }
 
+        /// <summary>
+        /// Executes this batch and captures any server messages that are returned.
+        /// </summary>
+        /// <param name="conn">The connection to use to execute the batch</param>
+        /// <param name="cancellationToken">Token for cancelling the execution</param>
         public async Task Execute(DbConnection conn, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we haven't already run this batch
