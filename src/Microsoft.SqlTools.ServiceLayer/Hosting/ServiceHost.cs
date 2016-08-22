@@ -11,6 +11,7 @@ using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
+using System.Reflection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting
 {
@@ -55,6 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
             // Register the requests that this service host will handle
             this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
             this.SetRequestHandler(ShutdownRequest.Type, this.HandleShutdownRequest);
+            this.SetRequestHandler(VersionRequest.Type, HandleVersionRequest);
         }
 
         #endregion
@@ -68,6 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         private readonly List<ShutdownCallback> shutdownCallbacks;
 
         private readonly List<InitializeCallback> initializeCallbacks;
+
+        private static Version _serviceServion = Assembly.GetEntryAssembly().GetName().Version;
 
         #endregion
 
@@ -147,6 +151,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         }
                     }
                 });
+        }
+
+        private static async Task HandleVersionRequest(
+          string workspaceSymbolParams,
+          RequestContext<string> requestContext)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleVersionRequest");
+            await requestContext.SendResult(_serviceServion.ToString());
         }
 
         #endregion
