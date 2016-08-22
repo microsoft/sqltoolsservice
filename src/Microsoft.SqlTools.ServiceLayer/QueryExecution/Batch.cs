@@ -64,9 +64,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// The 0-indexed line number that this batch started on
+        /// </summary>
+        private int StartLine { get; set; }
+
         #endregion
 
-        public Batch(string batchText)
+        public Batch(string batchText, int startLine)
         {
             // Sanity check for input
             if (string.IsNullOrEmpty(batchText))
@@ -76,6 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             BatchText = batchText;
+            StartLine = startLine - 1;
             HasExecuted = false;
             ResultSets = new List<ResultSet>();
             ResultMessages = new List<string>();
@@ -222,8 +228,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     SqlError sqlError = error as SqlError;
                     if (sqlError != null)
                     {
+                        int lineNumber = sqlError.LineNumber + StartLine;
                         string message = String.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                            sqlError.Number, sqlError.Class, sqlError.State, sqlError.LineNumber,
+                            sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
                             Environment.NewLine, sqlError.Message);
                         ResultMessages.Add(message);
                     }

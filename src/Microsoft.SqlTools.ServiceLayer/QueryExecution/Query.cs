@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 BatchSeparator = settings.BatchSeparator
             });
-            Batches = parseResult.Script.Batches.Select(b => new Batch(b.Sql)).ToArray();
+            Batches = parseResult.Script.Batches.Select(b => new Batch(b.Sql, b.StartLocation.LineNumber)).ToArray();
         }
 
         /// <summary>
