@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch(Exception ex)
             {
-                response.Messages = ex.Message;
+                response.Messages = ex.ToString();
                 return response;
             }
 
@@ -241,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch(Exception ex)
             {
-                await requestContext.SendError(ex.Message);
+                await requestContext.SendError(ex.ToString());
             }
         }
 
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch(Exception ex)
             {
-                await requestContext.SendError(ex.Message);
+                await requestContext.SendError(ex.ToString());
             }
 
         }
@@ -285,7 +285,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionBuilder["Integrated Security"] = false;
             connectionBuilder["User Id"] = connectionDetails.UserName;
             connectionBuilder["Password"] = connectionDetails.Password;
-            connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
+            if( !String.IsNullOrEmpty(connectionDetails.DatabaseName) )
+            {
+                connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
+            }
             return connectionBuilder.ToString();
         }
     }
