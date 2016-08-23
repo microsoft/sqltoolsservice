@@ -18,12 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public static bool IsValid(this ConnectParams parameters)
         {
             return !(
-                String.IsNullOrEmpty(parameters.OwnerUri) ||
+                string.IsNullOrEmpty(parameters.OwnerUri) ||
                 parameters.Connection == null ||
-                String.IsNullOrEmpty(parameters.Connection.DatabaseName) ||
-                String.IsNullOrEmpty(parameters.Connection.Password) ||
-                String.IsNullOrEmpty(parameters.Connection.ServerName) ||
-                String.IsNullOrEmpty(parameters.Connection.UserName)
+                string.IsNullOrEmpty(parameters.Connection.Password) ||
+                string.IsNullOrEmpty(parameters.Connection.ServerName) ||
+                string.IsNullOrEmpty(parameters.Connection.UserName)
             );
         }
     }
