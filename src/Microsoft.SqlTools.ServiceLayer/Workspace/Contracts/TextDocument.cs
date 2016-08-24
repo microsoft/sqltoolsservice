@@ -19,37 +19,70 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// text document.
         /// </summary>
         public string Uri { get; set; }
-    }
+    }   
 
     /// <summary>
     /// Defines a position in a text document.
     /// </summary>
     [DebuggerDisplay("TextDocumentPosition = {Position.Line}:{Position.Character}")]
-    public class TextDocumentPosition : TextDocumentIdentifier
+    public class TextDocumentPosition
     {
+        /// <summary>
+        /// Gets or sets the document identifier.
+        /// </summary>
+        public TextDocumentIdentifier TextDocument { get; set; }
+
         /// <summary>
         /// Gets or sets the position in the document.
         /// </summary>
         public Position Position { get; set; }
     }
 
-    public class DidOpenTextDocumentNotification : TextDocumentIdentifier
+    /// <summary>
+    /// Defines a text document.
+    /// </summary>
+    [DebuggerDisplay("TextDocumentItem = {Uri}")]
+    public class TextDocumentItem
+    {
+        /// <summary>
+        /// Gets or sets the URI which identifies the path of the
+        /// text document.
+        /// </summary>
+        public string Uri { get; set; }
+
+        /// <summary>
+        /// Gets or sets the language of the document
+        /// </summary>
+        public string LanguageId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the version of the document
+        /// </summary>
+        public int Version { get; set; }
+
+        /// <summary>
+        /// Gets or sets the full content of the document.
+        /// </summary>
+        public string Text { get; set; }
+    }
+
+    public class DidOpenTextDocumentNotification
     {
         public static readonly
             EventType<DidOpenTextDocumentNotification> Type =
             EventType<DidOpenTextDocumentNotification>.Create("textDocument/didOpen");
 
         /// <summary>
-        /// Gets or sets the full content of the opened document.
+        /// Gets or sets the opened document.
         /// </summary>
-        public string Text { get; set; }
+        public TextDocumentItem TextDocument { get; set; }
     }
 
     public class DidCloseTextDocumentNotification
     {
         public static readonly
-            EventType<TextDocumentIdentifier> Type =
-            EventType<TextDocumentIdentifier>.Create("textDocument/didClose");
+            EventType<DidCloseTextDocumentParams> Type =
+            EventType<DidCloseTextDocumentParams>.Create("textDocument/didClose");
     }
 
     public class DidChangeTextDocumentNotification
@@ -59,9 +92,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             EventType<DidChangeTextDocumentParams>.Create("textDocument/didChange");
     }
 
-    public class DidChangeTextDocumentParams : TextDocumentIdentifier
+    public class DidCloseTextDocumentParams
     {
-        public TextDocumentUriChangeEvent TextDocument { get; set; } 
+        /// <summary>
+        /// Gets or sets the closed document.
+        /// </summary>
+        public TextDocumentItem TextDocument { get; set; }
+    }
+
+    public class DidChangeTextDocumentParams
+    {
+        /// <summary>
+        /// Gets or sets the changed document.
+        /// </summary>
+        public VersionedTextDocumentIdentifier TextDocument { get; set; } 
 
         /// <summary>
         /// Gets or sets the list of changes to the document content.
@@ -69,13 +113,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         public TextDocumentChangeEvent[] ContentChanges { get; set; }
     }
 
-    public class TextDocumentUriChangeEvent
-    {
-        /// <summary>
-        /// Gets or sets the Uri of the changed text document
-        /// </summary>
-        public string Uri { get; set; }
-
+    /// <summary>
+    /// Define a specific version of a text document
+    /// </summary>
+    public class VersionedTextDocumentIdentifier : TextDocumentIdentifier
+    {        
         /// <summary>
         /// Gets or sets the Version of the changed text document 
         /// </summary>

@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             // A text change notification can batch multiple change requests
             foreach (var textChange in textChangeParams.ContentChanges)
             {
-                string fileUri = textChangeParams.Uri ?? textChangeParams.TextDocument.Uri; 
+                string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri; 
                 msg.AppendLine(string.Format("  File: {0}", fileUri));
 
                 ScriptFile changedFile = Workspace.GetFile(fileUri);
@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
 
             // read the SQL file contents into the ScriptFile 
-            ScriptFile openedFile = Workspace.GetFileBuffer(openParams.Uri, openParams.Text); 
+            ScriptFile openedFile = Workspace.GetFileBuffer(openParams.TextDocument.Uri, openParams.TextDocument.Text);
 
              // Propagate the changes to the event handlers
             var textDocOpenTasks = TextDocOpenCallbacks.Select(
@@ -218,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         }
 
         protected Task HandleDidCloseTextDocumentNotification(
-           TextDocumentIdentifier closeParams,
+           DidCloseTextDocumentParams closeParams,
            EventContext eventContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");

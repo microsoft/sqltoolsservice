@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // that are not backed by a SQL connection
             ConnectionInfo info;
             IntellisenseCache cache;
-            if (ConnectionServiceInstance.TryFindConnection(textDocumentPosition.Uri, out info)
+            if (ConnectionServiceInstance.TryFindConnection(textDocumentPosition.TextDocument.Uri, out info)
                 && caches.TryGetValue((ConnectionSummary)info.ConnectionDetails, out cache))
             {
                 return cache.GetAutoCompleteItems(textDocumentPosition).ToArray();
