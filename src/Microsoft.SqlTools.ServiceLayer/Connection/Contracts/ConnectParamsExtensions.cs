@@ -20,7 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             return !(
                 String.IsNullOrEmpty(parameters.OwnerUri) ||
                 parameters.Connection == null ||
-                String.IsNullOrEmpty(parameters.Connection.DatabaseName) ||
                 String.IsNullOrEmpty(parameters.Connection.Password) ||
                 String.IsNullOrEmpty(parameters.Connection.ServerName) ||
                 String.IsNullOrEmpty(parameters.Connection.UserName)
