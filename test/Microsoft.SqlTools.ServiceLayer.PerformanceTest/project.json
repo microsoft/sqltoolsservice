@@ -1,0 +1,30 @@
+﻿{
+  "name": "Microsoft.SqlTools.ServiceLayer.PerformanceTest",
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable",
+    "emitEntryPoint": true
+  },
+  "dependencies": {
+    "Newtonsoft.Json": "9.0.1",
+    "System.Runtime.Serialization.Primitives": "4.1.1",
+    "moq.netcore": "4.4.0-beta8",
+    "System.Diagnostics.TraceSource": "4.0.0",
+    "Microsoft.SqlTools.ServiceLayer": "1.0.0-*"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
+      },
+      "imports": [
+        "dotnet5.4",
+        "portable-net451+win8"
+      ]
+    }
+  }
+}
