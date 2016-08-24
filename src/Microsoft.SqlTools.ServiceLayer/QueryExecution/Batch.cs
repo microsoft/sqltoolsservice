@@ -39,14 +39,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasExecuted { get; set; }
 
         /// <summary>
+        /// Internal representation of the messages so we can modify internally
+        /// </summary>
+        private List<string> resultMessages;
+
+        /// <summary>
         /// Messages that have come back from the server
         /// </summary>
-        public List<string> ResultMessages { get; set; }
+        public IEnumerable<string> ResultMessages
+        {
+            get { return resultMessages; }
+        }
+
+        /// <summary>
+        /// Internal representation of the result sets so we can modify internally
+        /// </summary>
+        private List<ResultSet> resultSets;
 
         /// <summary>
         /// The result sets of the batch execution
         /// </summary>
-        public List<ResultSet> ResultSets { get; set; }
+        public IEnumerable<ResultSet> ResultSets
+        {
+            get { return resultSets; }
+        }
 
         /// <summary>
         /// Property for generating a set result set summaries from the result sets
@@ -67,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The 0-indexed line number that this batch started on
         /// </summary>
-        private int StartLine { get; set; }
+        internal int StartLine { get; set; }
 
         #endregion
 
@@ -81,10 +97,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             BatchText = batchText;
-            StartLine = startLine - 1;
+            StartLine = startLine - 1;  // -1 to make sure that the line number of the batch is 0-indexed, since SqlParser gives 1-indexed line numbers
             HasExecuted = false;
-            ResultSets = new List<ResultSet>();
-            ResultMessages = new List<string>();
+            resultSets = new List<ResultSet>();
+            resultMessages = new List<string>();
         }
 
         /// <summary>
@@ -125,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
-                                ResultMessages.Add(reader.RecordsAffected >= 0
+                                resultMessages.Add(reader.RecordsAffected >= 0
                                     ? string.Format(RowsAffectedFormat, reader.RecordsAffected)
                                     : "Command(s) completed successfully.");
                                 continue;
@@ -145,10 +161,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // Add the result set to the results of the query
-                            ResultSets.Add(resultSet);
+                            resultSets.Add(resultSet);
 
                             // Add a message for the number of rows the query returned
-                            ResultMessages.Add(string.Format(RowsAffectedFormat, resultSet.Rows.Count));
+                            resultMessages.Add(string.Format(RowsAffectedFormat, resultSet.Rows.Count));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -187,14 +203,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public ResultSetSubset GetSubset(int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check to make sure we have valid numbers
-            if (resultSetIndex < 0 || resultSetIndex >= ResultSets.Count)
+            if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
             {
                 throw new ArgumentOutOfRangeException(nameof(resultSetIndex), "Result set index cannot be less than 0" +
                                                                              "or greater than the number of result sets");
             }
 
             // Retrieve the result set
-            return ResultSets[resultSetIndex].GetSubset(startRow, rowCount);
+            return resultSets[resultSetIndex].GetSubset(startRow, rowCount);
         }
 
         #region Private Helpers
@@ -208,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="args">Arguments from the event</param>
         private void StoreDbMessage(object sender, SqlInfoMessageEventArgs args)
         {
-            ResultMessages.Add(args.Message);
+            resultMessages.Add(args.Message);
         }
 
         /// <summary>
@@ -232,13 +248,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         string message = String.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
                             Environment.NewLine, sqlError.Message);
-                        ResultMessages.Add(message);
+                        resultMessages.Add(message);
                     }
                 }
             }
             else
             {
-                ResultMessages.Add(dbe.Message);
+                resultMessages.Add(dbe.Message);
             }
         }
 

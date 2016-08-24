@@ -60,6 +60,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private ConnectionInfo EditorConnection { get; set; }
 
+        private bool HasExecuteBeenCalled { get; set; }
+
         /// <summary>
         /// Whether or not the query has completed executed, regardless of success or failure
         /// </summary>
@@ -68,9 +70,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </remarks>
         public bool HasExecuted
         {
-            get { return Batches.All(b => b.HasExecuted); }
+            get { return Batches.Length == 0 ? HasExecuteBeenCalled : Batches.All(b => b.HasExecuted); }
             internal set
             {
+                HasExecuteBeenCalled = value;
                 foreach (var batch in Batches)
                 {
                     batch.HasExecuted = value;
@@ -94,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings)
         {
             // Sanity check for input
-            if (String.IsNullOrEmpty(queryText))
+            if (string.IsNullOrEmpty(queryText))
             {
                 throw new ArgumentNullException(nameof(queryText), "Query text cannot be null");
             }
@@ -117,7 +120,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 BatchSeparator = settings.BatchSeparator
             });
-            Batches = parseResult.Script.Batches.Select(b => new Batch(b.Sql, b.StartLocation.LineNumber)).ToArray();
+            // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
+            Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
+                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber)).ToArray();
         }
 
         /// <summary>
@@ -125,6 +130,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public async Task Execute()
         {
+            // Mark that we've internally executed
+            HasExecuteBeenCalled = true;
+
+            // Don't actually execute if there aren't any batches to execute
+            if (Batches.Length == 0)
+            {
+                return;
+            }
+
             // Open up a connection for querying the database
             string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
             using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))

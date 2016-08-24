@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void BatchCreationTest()
         {
             // If I create a new batch...
-            Batch batch = new Batch(Common.StandardQuery);
+            Batch batch = new Batch(Common.StandardQuery, 1);
 
             // Then: 
             // ... The text of the batch should be stored
@@ -42,13 +42,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Empty(batch.ResultSets);
             Assert.Empty(batch.ResultSummaries);
             Assert.Empty(batch.ResultMessages);
+
+            // ... The start line of the batch should be 0
+            Assert.Equal(0, batch.StartLine);
         }
 
         [Fact]
         public void BatchExecuteNoResultSets()
         {
             // If I execute a query that should get no result sets
-            Batch batch = new Batch(Common.StandardQuery);
+            Batch batch = new Batch(Common.StandardQuery, 1);
             batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None).Wait();
 
             // Then:
@@ -65,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.NotNull(batch.ResultSummaries);
 
             // ... There should be a message for how many rows were affected
-            Assert.Equal(1, batch.ResultMessages.Count);
+            Assert.Equal(1, batch.ResultMessages.Count());
         }
 
         [Fact]
@@ -75,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a query that should get one result set
-            Batch batch = new Batch(Common.StandardQuery);
+            Batch batch = new Batch(Common.StandardQuery, 1);
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -84,20 +87,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.False(batch.HasError, "The batch should not have an error");
 
             // ... There should be exactly one result set
-            Assert.Equal(resultSets, batch.ResultSets.Count);
+            Assert.Equal(resultSets, batch.ResultSets.Count());
             Assert.Equal(resultSets, batch.ResultSummaries.Length);
 
             // ... Inside the result set should be with 5 rows
-            Assert.Equal(Common.StandardRows, batch.ResultSets[0].Rows.Count);
+            Assert.Equal(Common.StandardRows, batch.ResultSets.First().Rows.Count);
             Assert.Equal(Common.StandardRows, batch.ResultSummaries[0].RowCount);
 
             // ... Inside the result set should have 5 columns and 5 column definitions
-            Assert.Equal(Common.StandardColumns, batch.ResultSets[0].Rows[0].Length);
-            Assert.Equal(Common.StandardColumns, batch.ResultSets[0].Columns.Length);
+            Assert.Equal(Common.StandardColumns, batch.ResultSets.First().Rows[0].Length);
+            Assert.Equal(Common.StandardColumns, batch.ResultSets.First().Columns.Length);
             Assert.Equal(Common.StandardColumns, batch.ResultSummaries[0].ColumnInfo.Length);
 
             // ... There should be a message for how many rows were affected
-            Assert.Equal(resultSets, batch.ResultMessages.Count);
+            Assert.Equal(resultSets, batch.ResultMessages.Count());
         }
 
         [Fact]
@@ -108,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(dataset, false);
 
             // If I execute a query that should get two result sets
-            Batch batch = new Batch(Common.StandardQuery);
+            Batch batch = new Batch(Common.StandardQuery, 1);
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -117,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.False(batch.HasError, "The batch should not have an error");
 
             // ... There should be exactly two result sets
-            Assert.Equal(resultSets, batch.ResultSets.Count);
+            Assert.Equal(resultSets, batch.ResultSets.Count());
 
             foreach (ResultSet rs in batch.ResultSets)
             {
@@ -142,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             }
 
             // ... There should be a message for how many rows were affected
-            Assert.Equal(resultSets, batch.ResultMessages.Count);
+            Assert.Equal(resultSets, batch.ResultMessages.Count());
         }
 
         [Fact]
@@ -151,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
 
             // If I execute a batch that is invalid
-            Batch batch = new Batch(Common.StandardQuery);
+            Batch batch = new Batch(Common.StandardQuery, 1);
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -173,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a batch
-            Batch batch = new Batch(Common.StandardQuery);
+            Batch batch = new Batch(Common.StandardQuery, 1);
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -203,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a batch that has an empty query
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new Batch(query));
+            Assert.Throws<ArgumentNullException>(() => new Batch(query, 1));
         }
 
         #endregion
@@ -270,6 +273,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
+        public void QueryExecuteNoOpBatch()
+        {
+            // If:
+            // ... I create a query from a single batch that does nothing
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
+            Query query = new Query(Common.NoOpQuery, ci, new QueryExecutionSettings());
+
+            // Then:
+            // ... I should get no batches back
+            Assert.NotEmpty(query.QueryText);
+            Assert.Empty(query.Batches);
+            Assert.False(query.HasExecuted);
+            Assert.Throws<InvalidOperationException>(() => query.BatchSummaries);
+
+            // If:
+            // ... I Then execute the query
+            query.Execute().Wait();
+
+            // Then:
+            // ... The query should have completed successfully with no batch summaries returned
+            Assert.True(query.HasExecuted);
+            Assert.Empty(query.BatchSummaries);
+        }
+
+        [Fact]
         public void QueryExecuteMultipleBatches()
         {
             // If:
@@ -298,12 +326,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
+        public void QueryExecuteMultipleBatchesWithNoOp()
+        {
+            // If:
+            // ... I create a query from a two batches (with separator)
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
+            string queryText = string.Format("{0}\r\nGO\r\n{1}", Common.StandardQuery, Common.NoOpQuery);
+            Query query = new Query(queryText, ci, new QueryExecutionSettings());
+
+            // Then:
+            // ... I should get back one batch to execute that hasn't been executed
+            Assert.NotEmpty(query.QueryText);
+            Assert.NotEmpty(query.Batches);
+            Assert.Equal(1, query.Batches.Length);
+            Assert.False(query.HasExecuted);
+            Assert.Throws<InvalidOperationException>(() => query.BatchSummaries);
+
+            // If:
+            // .. I then execute the query
+            query.Execute().Wait();
+
+            // ... The query should have completed successfully with one batch summary returned
+            Assert.True(query.HasExecuted);
+            Assert.NotEmpty(query.BatchSummaries);
+            Assert.Equal(1, query.BatchSummaries.Length);
+        }
+
+        [Fact]
         public void QueryExecuteInvalidBatch()
         {
             // If:
             // ... I create a query from an invalid batch
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
-            Query query = new Query("SELECT *** FROM sys.objects", ci, new QueryExecutionSettings());
+            Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings());
 
             // Then:
             // ... I should get back a query with one batch not executed

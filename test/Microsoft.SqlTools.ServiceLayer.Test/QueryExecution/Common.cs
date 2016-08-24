@@ -26,6 +26,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
     {
         public const string StandardQuery = "SELECT * FROM sys.objects";
 
+        public const string InvalidQuery = "SELECT *** FROM sys.objects";
+
+        public const string NoOpQuery = "-- No ops here, just us chickens.";
+
         public const string OwnerUri = "testFile";
 
         public const int StandardRows = 5;
@@ -55,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(StandardQuery);
+            Batch batch = new Batch(StandardQuery, 1);
             batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
             return batch;
         }
