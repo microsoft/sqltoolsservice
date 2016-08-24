@@ -5,42 +5,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
-    public class ConnectionInfo
-    {
-        public ConnectionInfo(ISqlConnectionFactory factory, string ownerUri, ConnectionDetails details)
-        {
-            Factory = factory;
-            OwnerUri = ownerUri;
-            ConnectionDetails = details;
-            ConnectionId = Guid.NewGuid();
-        }
-
-        /// <summary>
-        /// Unique Id, helpful to identify a connection info object
-        /// </summary>
-        public Guid ConnectionId { get; private set; }
-
-        public string OwnerUri { get; private set; }
-
-        public ISqlConnectionFactory Factory {get; private set;}
-
-        public ConnectionDetails ConnectionDetails { get; private set; }
-        
-        public DbConnection SqlConnection { get; set; }
-    }
-
     /// <summary>
     /// Main class for the Connection Management services
     /// </summary>
@@ -169,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch(Exception ex)
             {
-                response.Messages = ex.Message;
+                response.Messages = ex.ToString();
                 return response;
             }
 
@@ -267,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch(Exception ex)
             {
-                await requestContext.SendError(ex.Message);
+                await requestContext.SendError(ex.ToString());
             }
         }
 
@@ -287,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch(Exception ex)
             {
-                await requestContext.SendError(ex.Message);
+                await requestContext.SendError(ex.ToString());
             }
 
         }
@@ -311,7 +285,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionBuilder["Integrated Security"] = false;
             connectionBuilder["User Id"] = connectionDetails.UserName;
             connectionBuilder["Password"] = connectionDetails.Password;
-            connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
+            if( !String.IsNullOrEmpty(connectionDetails.DatabaseName) )
+            {
+                connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
+            }
             return connectionBuilder.ToString();
         }
     }

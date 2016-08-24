@@ -91,6 +91,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 
         public override int FieldCount { get { return Rows?.Current.Count ?? 0; } }
 
+        public override int RecordsAffected
+        {
+            // Mimics the behavior of SqlDataReader
+            get { return Rows != null ? -1 : 1; }
+        }
+
         #region Not Implemented
 
         public override bool GetBoolean(int ordinal)
@@ -200,7 +206,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 
         public override int Depth { get; }
         public override bool IsClosed { get; }
-        public override int RecordsAffected { get; }
 
         #endregion        
     }

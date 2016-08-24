@@ -73,6 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecuteRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(QueryExecuteSubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
+            serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -170,6 +171,52 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendResult(new QueryDisposeResult
                 {
                     Messages = null
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
+        }
+
+        public async Task HandleCancelRequest(QueryCancelParams cancelParams,
+            RequestContext<QueryCancelResult> requestContext)
+        {
+            try
+            {
+                // Attempt to find the query for the owner uri
+                Query result;
+                if (!ActiveQueries.TryGetValue(cancelParams.OwnerUri, out result))
+                {
+                    await requestContext.SendResult(new QueryCancelResult
+                    {
+                        Messages = "Failed to cancel query, ID not found."
+                    });
+                    return;
+                }
+
+                // Cancel the query
+                result.Cancel();
+
+                // Attempt to dispose the query
+                if (!ActiveQueries.TryRemove(cancelParams.OwnerUri, out result))
+                {
+                    // It really shouldn't be possible to get to this scenario, but we'll cover it anyhow
+                    await requestContext.SendResult(new QueryCancelResult
+                    {
+                        Messages = "Query successfully cancelled, failed to dispose query. ID not found."
+                    });
+                    return;
+                }
+
+                await requestContext.SendResult(new QueryCancelResult());
+            }
+            catch (InvalidOperationException e)
+            {
+                // If this exception occurred, we most likely were trying to cancel a completed query
+                await requestContext.SendResult(new QueryCancelResult
+                {
+                    Messages = e.Message
                 });
             }
             catch (Exception e)

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -37,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 Dictionary<string, string> rowDictionary = new Dictionary<string, string>();
                 for (int column = 0; column < columns; column++)
                 {
-                    rowDictionary.Add(String.Format("column{0}", column), String.Format("val{0}{1}", column, row));
+                    rowDictionary.Add(string.Format("column{0}", column), string.Format("val{0}{1}", column, row));
                 }
                 output[row] = rowDictionary;
             }
@@ -106,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 ServerName = "sqltools11"
             };
 
-            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), "test://test", connDetails);
+            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, connDetails);
         }
 
         #endregion
