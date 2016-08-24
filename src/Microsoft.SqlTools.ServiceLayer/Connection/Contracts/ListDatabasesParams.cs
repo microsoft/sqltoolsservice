@@ -13,6 +13,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// URI of the owner of the connection requesting the list of databases.
         /// </summary>
-        public string OwnerUri;
+        public string OwnerUri { get; set; }
     }
 }
