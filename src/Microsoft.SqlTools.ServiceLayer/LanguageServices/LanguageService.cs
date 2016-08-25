@@ -19,6 +19,10 @@ using System.Linq;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SmoMetadataProvider;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -32,6 +36,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         #region Singleton Instance Implementation
 
         private static readonly Lazy<LanguageService> instance = new Lazy<LanguageService>(() => new LanguageService());
+
+        private Lazy<Dictionary<string, ScriptParseInfo>> scriptParseInfoMap 
+            = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
+
+        internal class ScriptParseInfo
+        {
+            public IBinder Binder { get; set; }
+
+            public ParseResult ParseResult { get; set; }
+
+            public SmoMetadataProvider MetadataProvider { get; set; }
+
+            public MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
+        }
+
+        internal Dictionary<string, ScriptParseInfo> ScriptParseInfoMap 
+        {
+            get
+            {
+                return this.scriptParseInfoMap.Value;
+            }
+        }
 
         public static LanguageService Instance
         {
@@ -124,6 +150,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // save previous result for next incremental parse
             this.prevParseResult = parseResult;
+
+            ConnectionInfo connInfo;
+            bool isConnected = ConnectionService.Instance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+            if (isConnected)
+            {
+                if (!this.ScriptParseInfoMap.ContainsKey(scriptFile.ClientFilePath))
+                {
+                    var srvConn = ConnectionService.GetServerConnection(connInfo);
+                    var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
+                    var binder = BinderProvider.CreateBinder(metadataProvider);
+                    var displayInfoProvider = new MetadataDisplayInfoProvider();
+
+                    this.ScriptParseInfoMap.Add(scriptFile.ClientFilePath,
+                        new ScriptParseInfo()
+                        {
+                            Binder = binder,
+                            ParseResult = parseResult,
+                            MetadataProvider = metadataProvider,
+                            MetadataDisplayInfoProvider = displayInfoProvider
+                        });
+                }
+
+                ScriptParseInfo parseInfo = this.ScriptParseInfoMap[scriptFile.ClientFilePath];
+                List<ParseResult> parseResults = new List<ParseResult>();
+                parseResults.Add(parseResult);
+                parseInfo.Binder.Bind(
+                    parseResults, 
+                    connInfo.ConnectionDetails.DatabaseName, 
+                    BindMode.Batch);
+            }
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();

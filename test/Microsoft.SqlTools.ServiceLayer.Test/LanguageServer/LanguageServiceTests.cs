@@ -3,10 +3,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
+using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.SmoMetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -25,6 +36,85 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     public class LanguageServiceTests
     {
         #region "Diagnostics tests"
+
+        [Fact]
+        public void TestSmo()
+        {            
+            SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder();
+            connectionBuilder["Data Source"] = "sqltools11";
+            connectionBuilder["Integrated Security"] = false;
+            connectionBuilder["User Id"] = "sa";
+            connectionBuilder["Password"] = "Yukon900";
+            connectionBuilder["Initial Catalog"] = "master";
+            string connectionString = connectionBuilder.ToString();
+
+            var conn = new SqlConnection(connectionString);
+            var sqlConn = new ServerConnection(conn);
+
+            var server = new Server(sqlConn);
+            string s = "";
+            foreach (Database db2 in server.Databases)
+            {
+                s += db2.Name;
+            }
+
+            var metadata = SmoMetadataProvider.CreateConnectedProvider(sqlConn);
+            var db = metadata.Server.Databases["master"];            
+        }
+
+        [Fact]
+        public void TestSmoMetadataProvider()
+        {            
+            SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder();
+            //connectionBuilder["Data Source"] = "sqltools11";
+            connectionBuilder["Data Source"] = "localhost";
+            connectionBuilder["Integrated Security"] = false;
+            connectionBuilder["User Id"] = "sa";
+            connectionBuilder["Password"] = "Yukon900";
+            connectionBuilder["Initial Catalog"] = "master";
+            
+            try
+            {
+                var sqlConnection = new SqlConnection(connectionBuilder.ToString());
+                var connection = new ServerConnection(sqlConnection);                      
+                var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(connection);
+                var binder = BinderProvider.CreateBinder(metadataProvider);
+                var displayInfoProvider = new MetadataDisplayInfoProvider();
+
+                //string sql = @"SELECT * FROM sys.objects;";
+
+                string sql = @"SELECT ";
+          
+                ParseOptions parseOptions = new ParseOptions();
+                ParseResult parseResult = Parser.IncrementalParse(
+                    sql,
+                    null,
+                    parseOptions);
+
+                List<ParseResult> parseResults = new List<ParseResult>();
+                parseResults.Add(parseResult);
+                binder.Bind(parseResults, "master", BindMode.Batch);
+
+                var comp = Resolver.FindCompletions(parseResult, 1, 8, displayInfoProvider);   
+                comp.Add(null);         
+            }
+            finally
+            {
+                // Check if we failed to create a binder object. If so, we temporarely 
+                // use a no-op binder which has the effect of turning off binding. We
+                // also set a timer that after the specified timeout expires removes
+                // the no-op timer (object becomes dead) which would give clients of
+                // this class an opportunity to remove it and create a new one. 
+            } 
+        }
+
+
+        // [Fact]
+        // public void TestAltParse()
+        // {
+        //     var ls = new LanguageService();
+        //     ls.AltParse();
+        // }
 
         /// <summary>
         /// Verify that the latest SqlParser (2016 as of this writing) is used by default
@@ -317,4 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         #endregion
     }
 }
+
+
+
 

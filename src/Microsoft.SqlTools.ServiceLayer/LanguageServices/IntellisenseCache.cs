@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -72,10 +73,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
+            // Take a reference to the list at a point in time in case we update and replace the list
+            //var suggestions = AutoCompleteList;
+            if (!LanguageService.Instance.ScriptParseInfoMap.ContainsKey(textDocumentPosition.Uri))
+            {
+                return completions;
+            }
+
+            var scriptParseInfo = LanguageService.Instance.ScriptParseInfoMap[textDocumentPosition.Uri];
+            var suggestions = Resolver.FindCompletions(
+                scriptParseInfo.ParseResult, 
+                textDocumentPosition.Position.Line, 
+                textDocumentPosition.Position.Character, 
+                scriptParseInfo.MetadataDisplayInfoProvider); 
+
             int i = 0;
 
-            // Take a reference to the list at a point in time in case we update and replace the list
-            var suggestions = AutoCompleteList;
             // the completion list will be null is user not connected to server
             if (this.AutoCompleteList != null)
             {
@@ -85,13 +98,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // convert the completion item candidates into CompletionItems
                     completions.Add(new CompletionItem()
                     {
-                        Label = autoCompleteItem,
+                        Label = autoCompleteItem.Title,
                         Kind = CompletionItemKind.Keyword,
-                        Detail = autoCompleteItem + " details",
-                        Documentation = autoCompleteItem + " documentation",
+                        Detail = autoCompleteItem.Title + " details",
+                        Documentation = autoCompleteItem.Title + " documentation",
                         TextEdit = new TextEdit
                         {
-                            NewText = autoCompleteItem,
+                            NewText = autoCompleteItem.Title,
                             Range = new Range
                             {
                                 Start = new Position
