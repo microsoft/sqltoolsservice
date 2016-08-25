@@ -287,7 +287,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             // Check that we get table suggestions for an autocomplete request
             TextDocumentPosition position = new TextDocumentPosition();
-            position.Uri = connectionRequest.OwnerUri;
+            position.TextDocument = new TextDocumentIdentifier();
+            position.TextDocument.Uri = connectionRequest.OwnerUri;
             position.Position = new Position();
             position.Position.Line = 1;
             position.Position.Character = 1;
@@ -381,7 +382,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             // Check that we get 2 different table suggestions for autocomplete requests
             TextDocumentPosition position = new TextDocumentPosition();
-            position.Uri = connectionRequest.OwnerUri;
+            position.TextDocument = new TextDocumentIdentifier();
+            position.TextDocument.Uri = connectionRequest.OwnerUri;
             position.Position = new Position();
             position.Position.Line = 1;
             position.Position.Character = 1;
@@ -392,7 +394,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.Equal("model", items[1].Label);
 
             TextDocumentPosition position2 = new TextDocumentPosition();
-            position2.Uri = connectionRequest2.OwnerUri;
+            position2.TextDocument = new TextDocumentIdentifier();
+            position2.TextDocument.Uri = connectionRequest2.OwnerUri;
             position2.Position = new Position();
             position2.Position.Line = 1;
             position2.Position.Character = 1;
