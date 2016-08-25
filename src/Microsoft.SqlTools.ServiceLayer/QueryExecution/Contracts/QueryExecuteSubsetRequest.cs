@@ -18,6 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
+        /// Index of the batch to get the results from
+        /// </summary>
+        public int BatchIndex { get; set; }
+
+        /// <summary>
         /// Index of the result set to get the results from
         /// </summary>
         public int ResultSetIndex { get; set; }

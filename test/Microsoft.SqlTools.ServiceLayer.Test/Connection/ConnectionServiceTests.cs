@@ -51,6 +51,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             return connectionMock.Object;
         }
 
+        /// Verify that we can connect to the default database when no database name is
+        /// provided as a parameter.
+        /// </summary>
+        [Theory]
+        [InlineDataAttribute(null)]
+        [InlineDataAttribute("")]
+        public void CanConnectWithEmptyDatabaseName(string databaseName)
+        {
+            // Connect
+            var connectionDetails = TestObjects.GetTestConnectionDetails();
+            connectionDetails.DatabaseName = databaseName;
+            var connectionResult =
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = connectionDetails
+                });
+            
+            // check that a connection was created
+            Assert.NotEmpty(connectionResult.ConnectionId);
+        }
+
         /// <summary>
         /// Verify that when a connection is started for a URI with an already existing
         /// connection, we disconnect first before connecting.
@@ -131,12 +154,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Theory]
         [InlineDataAttribute(null, "my-server", "test", "sa", "123456")]
         [InlineDataAttribute("file://my/sample/file.sql", null, "test", "sa", "123456")]
-        [InlineDataAttribute("file://my/sample/file.sql", "my-server", null, "sa", "123456")]
         [InlineDataAttribute("file://my/sample/file.sql", "my-server", "test", null, "123456")]
         [InlineDataAttribute("file://my/sample/file.sql", "my-server", "test", "sa", null)]
         [InlineDataAttribute("", "my-server", "test", "sa", "123456")]
         [InlineDataAttribute("file://my/sample/file.sql", "", "test", "sa", "123456")]
-        [InlineDataAttribute("file://my/sample/file.sql", "my-server", "", "sa", "123456")]
         [InlineDataAttribute("file://my/sample/file.sql", "my-server", "test", "", "123456")]
         [InlineDataAttribute("file://my/sample/file.sql", "my-server", "test", "sa", "")]
         public void ConnectingWithInvalidParametersYieldsErrorMessage(string ownerUri, string server, string database, string userName, string password)
