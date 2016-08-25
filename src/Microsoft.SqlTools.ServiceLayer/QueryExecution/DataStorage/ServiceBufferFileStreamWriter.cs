@@ -28,7 +28,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         #region IFileStreamWriter Implementation
 
         // TODO: Internal init/constructor to allow for proper unit testing
+        // TODO: Add checks to make sure things are initialized before proceeding
 
+        /// <summary>
+        ///  
+        /// </summary>
+        /// <remarks>This logic needs to exist outside the constructor because we can't have constructors with parameters, and that would break the facade pattern</remarks>
+        /// <param name="fileName"></param>
         public void Init(string fileName)
         {
             // open file for reading/writing
@@ -145,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             int[] arrInt32 = val.Data;
             int iLen = 3 + (arrInt32.Length * 4);
-            int iTotalLen = WriteLength(iLen); // length
+            int iTotalLen = await WriteLength(iLen); // length
 
             // precision
             byteBuffer[0] = val.Precision;
@@ -168,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             int[] arrInt32 = decimal.GetBits(val);
 
             int iLen = arrInt32.Length * 4;
-            int iTotalLen = WriteLength(iLen); // length
+            int iTotalLen = await WriteLength(iLen); // length
 
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 0, iLen);
             iTotalLen += await fileStream.WriteData(byteBuffer, iLen);
@@ -187,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // DateTimeOffset gets written as a DateTime + TimeOffset
             // both represented as 'Ticks' written as Int64's
-            return (await WriteInt64(dtoVal.Ticks)) + (await awaitWriteInt64(dtoVal.Offset.Ticks));
+            return (await WriteInt64(dtoVal.Ticks)) + (await WriteInt64(dtoVal.Offset.Ticks));
         }
 
         // TimeSpan
@@ -216,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             else
             {
                 int iLen = sVal.Length * 2; //writing UNICODE chars
-                iTotalLen = WriteLength(iLen);
+                iTotalLen = await WriteLength(iLen);
 
                 // convert char array into byte array and write it out							
                 AssureBufferLength(iLen);
@@ -331,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             disposed = true;
         }
 
-        ~FileStreamWriter()
+        ~ServiceBufferFileStreamWriter()
         {
             Dispose(false);
         }

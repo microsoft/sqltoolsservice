@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -41,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Internal representation of the messages so we can modify internally
         /// </summary>
-        private List<string> resultMessages;
+        private readonly List<string> resultMessages;
 
         /// <summary>
         /// Messages that have come back from the server
@@ -54,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Internal representation of the result sets so we can modify internally
         /// </summary>
-        private List<ResultSet> resultSets;
+        private readonly List<ResultSet> resultSets;
 
         /// <summary>
         /// The result sets of the batch execution
@@ -75,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     ColumnInfo = set.Columns,
                     Id = index,
-                    RowCount = set.Rows.Count
+                    RowCount = set.RowCount
                 }).ToArray();
             }
         }
@@ -148,23 +149,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // Read until we hit the end of the result set
-                            ResultSet resultSet = new ResultSet();
-                            while (await reader.ReadAsync(cancellationToken))
-                            {
-                                resultSet.AddRow(reader);
-                            }
-
-                            // Read off the column schema information
-                            if (reader.CanGetColumnSchema())
-                            {
-                                resultSet.Columns = reader.GetColumnSchema().ToArray();
-                            }
+                            // TODO: Make the facade work
+                            ResultSet resultSet = new ResultSet(reader, new ServiceBufferFileStreamWriter());
+                            await resultSet.ReadResultToEnd(cancellationToken);
 
                             // Add the result set to the results of the query
                             resultSets.Add(resultSet);
 
                             // Add a message for the number of rows the query returned
-                            resultMessages.Add(string.Format(RowsAffectedFormat, resultSet.Rows.Count));
+                            resultMessages.Add(string.Format(RowsAffectedFormat, resultSet.RowCount));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }

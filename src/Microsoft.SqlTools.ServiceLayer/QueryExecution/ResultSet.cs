@@ -10,6 +10,7 @@ using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
@@ -23,13 +24,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         public DbColumnWrapper[] Columns { get; set; }
 
-        public List<object[]> Rows { get; private set; }
-
         public long RowCount { get; set; }
 
         private string bufferFileName;
 
-        private DbDataReader DataReader { get; set; }
+        private StorageDataReader DataReader { get; set; }
+
+        private IFileStreamWriter FileWriter { get; set; }
 
         public bool HasLongFields { get; private set; }
 
@@ -38,6 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private long currentFileOffset;
 
         public int MaxCharsToStore { get; set; }
+
+        public int MaxXmlCharsToStore { get; set; }
 
         #endregion
 
@@ -48,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new ArgumentNullException(nameof(reader), "Reader cannot be null");
             }
-            DataReader = reader;
+            DataReader = new StorageDataReader(reader);
 
             // Initialize the storage
             bufferFileName = Path.GetTempFileName();
@@ -56,23 +59,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new FileNotFoundException("Failed to get buffer file name");
             }
+            FileOffsets = new ArrayList64();
 
             // Open a writer for the file
-            IFileStreamWriter writer = fileWriter;
-            writer.Init(bufferFileName);
+            FileWriter = fileWriter;
+            FileWriter.Init(bufferFileName);
         }
 
-        public async Task ReadResultToEnd()
+        public async Task ReadResultToEnd(CancellationToken cancellationToken)
         {
             // If we can initialize the columns using the column schema, use that
-            if (!DataReader.CanGetColumnSchema())
+            if (!DataReader.DbDataReader.CanGetColumnSchema())
             {
                 throw new InvalidOperationException("Could not retrieve column schema for result set.");
             }
-            Columns = DataReader.GetColumnSchema().Select(column => new DbColumnWrapper(column)).ToArray();
+            Columns = DataReader.DbDataReader.GetColumnSchema().Select(column => new DbColumnWrapper(column)).ToArray();
             HasLongFields = Columns.Any(column => column.IsLong.HasValue && column.IsLong.Value);
 
-            while (await DataReader.ReadAsync())
+            while (await DataReader.ReadAsync(cancellationToken))
             {
                 RowCount++;
                 FileOffsets.Add(currentFileOffset);
@@ -84,6 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     DataReader.GetValues(values);
                 }
 
+                // Loop over all the columns and write the values to the temp file
                 for (int i = 0; i < Columns.Length; i++)
                 {
                     if (HasLongFields)
@@ -92,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             // Need special case for DBNull because
                             // reader.GetValue doesn't return DBNull in case of SqlXml and CLR type
-                            values[i] = System.DBNull.Value;
+                            values[i] = DBNull.Value;
                         }
                         else
                         {
@@ -112,334 +117,310 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 else if (ci.IsChars)
                                 {
                                     Debug.Assert(MaxCharsToStore > 0);
-                                    values[i] = reader.GetCharsWithMaxCapacity(i,
+                                    values[i] = DataReader.GetCharsWithMaxCapacity(i,
                                         ci.IsXml ? MaxXmlCharsToStore : MaxCharsToStore);
                                 }
                                 else if (ci.IsXml)
                                 {
                                     Debug.Assert(MaxXmlCharsToStore > 0);
-                                    // GetXmlWithMaxCapacity uses an anonymous delegate that allows the underlying
-                                    // StreamWriter to periodically check the value of m_bKeepStoringData
-                                    values[i] = reader.GetXmlWithMaxCapacity(i, this.MaxXmlCharsToStore, delegate () { return m_bKeepStoringData; });
+                                    values[i] = DataReader.GetXmlWithMaxCapacity(i, MaxXmlCharsToStore);
                                 }
-                                else // we should never get here
+                                else
                                 {
+                                    // we should never get here
                                     Debug.Assert(false);
-                                    values[i] = reader.GetValue(i); // read anyway using standard retrieval mechanism
                                 }
                             }
                         }
                     }
 
-                    tVal = values[i].GetType(); // get true type of the object
-                    STrace.Trace(DataStorageConstants.ComponentName, DataStorageConstants.NormalTrace, "Column " + i + " Type " + tVal.ToString());
+                    Type tVal = values[i].GetType(); // get true type of the object
 
-                    if (Variables.dbNullType == tVal)
+                    if (tVal == typeof(DBNull))
                     {
-                        m_i64CurrentOffset += m_fsw.WriteNull();
+                        currentFileOffset += await FileWriter.WriteNull();
                     }
                     else
                     {
-                        if (((IColumnInfo)m_arrColumns[i]).IsSqlVariant())
+                        if (Columns[i].IsSqlVariant)
                         {
                             // serialize type information as a string before the value
-                            Variables.strVal = tVal.ToString();
-                            m_i64CurrentOffset += m_fsw.WriteString(Variables.strVal);
-                            Variables.strVal = null;
+                            string val = tVal.ToString();
+                            currentFileOffset += await FileWriter.WriteString(val);
                         }
 
-                        if (Variables.strType == tVal)        // String - most frequently used data type
+                        if (tVal == typeof(string))
                         {
-                            Variables.strVal = (string)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteString(Variables.strVal);
-                            Variables.strVal = null;
+                            // String - most frequently used data type
+                            string val = (string)values[i];
+                            currentFileOffset += await FileWriter.WriteString(val);
                         }
-                        else if (Variables.sqlStringType == tVal)  // SqlString
+                        else if (tVal == typeof(SqlString))
                         {
-                            Variables.sqlStringVal = (SqlString)values[i];
-                            if (Variables.sqlStringVal.IsNull)
+                            // SqlString
+                            SqlString val = (SqlString)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteString(Variables.sqlStringVal.Value);
+                                currentFileOffset += await FileWriter.WriteString(val.Value);
                             }
-                            Variables.sqlStringVal = null;
                         }
-                        else if (Variables.i16Type == tVal)    // Int16
+                        else if (tVal == typeof(short))
                         {
-                            Variables.i16Val = (Int16)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteInt16(Variables.i16Val);
+                            // Int16
+                            short val = (short)values[i];
+                            currentFileOffset += await FileWriter.WriteInt16(val);
                         }
-                        else if (Variables.sqlI16Type == tVal) // SqlInt16
+                        else if (tVal == typeof(SqlInt16)) 
                         {
-                            Variables.sqlI16Val = (SqlInt16)values[i];
-                            if (Variables.sqlI16Val.IsNull)
+                            // SqlInt16
+                            SqlInt16 val = (SqlInt16)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteInt16(Variables.sqlI16Val.Value);
+                                currentFileOffset += await FileWriter.WriteInt16(val.Value);
                             }
                         }
-                        else if (Variables.i32Type == tVal)     // Int32
+                        else if (tVal == typeof(int)) 
                         {
-                            Variables.i32Val = (Int32)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteInt32(Variables.i32Val);
+                            // Int32
+                            int val = (int)values[i];
+                            currentFileOffset += await FileWriter.WriteInt32(val);
                         }
-                        else if (Variables.sqlI32Type == tVal) // SqlInt32
+                        else if (tVal == typeof(SqlInt32)) 
                         {
-                            Variables.sqlI32Val = (SqlInt32)values[i];
-                            if (Variables.sqlI32Val.IsNull)
+                            // SqlInt32
+                            SqlInt32 val = (SqlInt32)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteInt32(Variables.sqlI32Val.Value);
+                                currentFileOffset += await FileWriter.WriteInt32(val.Value);
                             }
                         }
-                        else if (Variables.i64Type == tVal)     // Int64
+                        else if (tVal == typeof(long))
                         {
-                            Variables.i64Val = (Int64)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteInt64(Variables.i64Val);
+                            // Int64
+                            long val = (long)values[i];
+                            currentFileOffset += await FileWriter.WriteInt64(val);
                         }
-                        else if (Variables.sqlI64Type == tVal) // SqlInt64
+                        else if (tVal == typeof(SqlInt64)) 
                         {
-                            Variables.sqlI64Val = (SqlInt64)values[i];
-                            if (Variables.sqlI64Val.IsNull)
+                            // SqlInt64
+                            SqlInt64 val = (SqlInt64)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteInt64(Variables.sqlI64Val.Value);
+                                currentFileOffset += await FileWriter.WriteInt64(val.Value);
                             }
                         }
-                        else if (Variables.byteType == tVal)    // Byte
+                        else if (tVal == typeof(byte))
                         {
-                            Variables.byteVal = (byte)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteByte(Variables.byteVal);
+                            // Byte
+                            byte val = (byte)values[i];
+                            currentFileOffset += await FileWriter.WriteByte(val);
                         }
-                        else if (Variables.sqlByteType == tVal)  // SqlByte
+                        else if (tVal == typeof(SqlByte))
                         {
-                            Variables.sqlByteVal = (SqlByte)values[i];
-                            if (Variables.sqlByteVal.IsNull)
+                            // SqlByte
+                            SqlByte val = (SqlByte)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteByte(Variables.sqlByteVal.Value);
+                                currentFileOffset += await FileWriter.WriteByte(val.Value);
                             }
                         }
-                        else if (Variables.chType == tVal)       // Char
+                        else if (tVal == typeof(char))
                         {
-                            Variables.chVal = (char)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteChar(Variables.chVal);
+                            // Char
+                            char val = (char)values[i];
+                            currentFileOffset += await FileWriter.WriteChar(val);
                         }
-                        else if (Variables.boolType == tVal)       // Boolean
+                        else if (tVal == typeof(bool))
                         {
-                            Variables.boolVal = (bool)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteBoolean(Variables.boolVal);
+                            // Boolean
+                            bool val = (bool)values[i];
+                            currentFileOffset += await FileWriter.WriteBoolean(val);
                         }
-                        else if (Variables.sqlBoolType == tVal)       // SqlBoolean
+                        else if (tVal == typeof(SqlBoolean))
                         {
-                            Variables.sqlBoolVal = (SqlBoolean)values[i];
-                            if (Variables.sqlBoolVal.IsNull)
+                            // SqlBoolean
+                            SqlBoolean val = (SqlBoolean)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteBoolean(Variables.sqlBoolVal.Value);
+                                currentFileOffset += await FileWriter.WriteBoolean(val.Value);
                             }
                         }
-                        else if (Variables.dblType == tVal)       // Double
+                        else if (tVal == typeof(double)) 
                         {
-                            Variables.dblVal = (double)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteDouble(Variables.dblVal);
+                            // Double
+                            double val = (double)values[i];
+                            currentFileOffset += await FileWriter.WriteDouble(val);
                         }
-                        else if (Variables.sqlDblType == tVal)       // SqlDouble
+                        else if (tVal == typeof(SqlDouble))
                         {
-                            Variables.sqlDblVal = (SqlDouble)values[i];
-                            if (Variables.sqlDblVal.IsNull)
+                            // SqlDouble
+                            SqlDouble val = (SqlDouble)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteDouble(Variables.sqlDblVal.Value);
+                                currentFileOffset += await FileWriter.WriteDouble(val.Value);
                             }
                         }
-                        else if (Variables.sqlSingleType == tVal)       // SqlSingle
+                        else if (tVal == typeof(SqlSingle))
                         {
-                            Variables.sqlSingleVal = (SqlSingle)values[i];
-                            if (Variables.sqlSingleVal.IsNull)
+                            // SqlSingle
+                            SqlSingle val = (SqlSingle)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteSingle(Variables.sqlSingleVal.Value);
+                                currentFileOffset += await FileWriter.WriteSingle(val.Value);
                             }
                         }
-                        else if (Variables.decimalType == tVal)     // Decimal
+                        else if (tVal == typeof(decimal))
                         {
-                            Variables.decimalVal = (Decimal)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteDecimal(Variables.decimalVal);
+                            // Decimal
+                            decimal val = (decimal)values[i];
+                            currentFileOffset += await FileWriter.WriteDecimal(val);
                         }
-                        else if (Variables.sqlDecimalType == tVal) // SqlDecimal
+                        else if (tVal == typeof(SqlDecimal))
                         {
-                            Variables.sqlDecimalVal = (SqlDecimal)values[i];
-                            if (Variables.sqlDecimalVal.IsNull)
+                            // SqlDecimal
+                            SqlDecimal val = (SqlDecimal) values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteSqlDecimal(Variables.sqlDecimalVal);
+                                currentFileOffset += await FileWriter.WriteSqlDecimal(val);
                             }
                         }
-                        else if (Variables.dateTimeType == tVal)      // DateTime
+                        else if (tVal == typeof(DateTime))
                         {
-                            Variables.dateTimeVal = (DateTime)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteDateTime(Variables.dateTimeVal);
+                            // DateTime
+                            DateTime val = (DateTime)values[i];
+                            currentFileOffset += await FileWriter.WriteDateTime(val);
                         }
-                        else if (Variables.dateTimeOffsetType == tVal)      // DateTimeOffset
+                        else if (tVal == typeof(DateTimeOffset))
                         {
-                            Variables.dateTimeOffsetVal = (DateTimeOffset)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteDateTimeOffset(Variables.dateTimeOffsetVal);
+                            // DateTimeOffset
+                            DateTimeOffset val = (DateTimeOffset)values[i];
+                            currentFileOffset += await FileWriter.WriteDateTimeOffset(val);
                         }
-                        else if (Variables.sqlDateTimeType == tVal)      // SqlDateTime
+                        else if (tVal == typeof(SqlDateTime))
                         {
-                            Variables.sqlDateTimeVal = (SqlDateTime)values[i];
-                            if (Variables.sqlDateTimeVal.IsNull)
+                            // SqlDateTime
+                            SqlDateTime val = (SqlDateTime)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                m_i64CurrentOffset += m_fsw.WriteDateTime(Variables.sqlDateTimeVal.Value);
+                                currentFileOffset += await FileWriter.WriteDateTime(val.Value);
                             }
                         }
-                        else if (Variables.timeSpanType == tVal) // System.TimeSpan
+                        else if (tVal == typeof(TimeSpan)) 
                         {
-                            Variables.timeSpan = (TimeSpan)values[i];
-                            m_i64CurrentOffset += m_fsw.WriteTimeSpan(Variables.timeSpan);
+                            // TimeSpan
+                            TimeSpan val = (TimeSpan) values[i];
+                            currentFileOffset += await FileWriter.WriteTimeSpan(val);
                         }
-                        else if (tVal == Variables.bytesType) // Bytes
+                        else if (tVal == typeof(byte[])) 
                         {
-                            Variables.bytesVal = (Byte[])values[i];
-                            m_i64CurrentOffset += m_fsw.WriteBytes(Variables.bytesVal, Variables.bytesVal.Length);
-
-                            Variables.bytesVal = null;
+                            // Bytes
+                            byte[] val = (byte[])values[i];
+                            currentFileOffset += await FileWriter.WriteBytes(val, val.Length);
                         }
-                        else if (tVal == Variables.sqlBytesType) // SqlBytes
+                        else if (tVal == typeof(SqlBytes)) 
                         {
-                            Variables.sqlBytesVal = (SqlBytes)values[i];
-                            if (Variables.sqlBytesVal.IsNull)
+                            // SqlBytes
+                            SqlBytes val = (SqlBytes)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                Variables.bytesVal = Variables.sqlBytesVal.Value;
-                                m_i64CurrentOffset += m_fsw.WriteBytes(Variables.bytesVal, Variables.bytesVal.Length);
+                                currentFileOffset += await FileWriter.WriteBytes(val.Value, val.Value.Length);
                             }
-
-                            Variables.sqlBytesVal = null;
-                            Variables.bytesVal = null;
                         }
-                        else if (Variables.sqlBinaryType == tVal)    // SqlBinary
+                        else if (tVal == typeof(SqlBinary))
                         {
-                            Variables.sqlBinaryVal = (SqlBinary)values[i];
-                            if (Variables.sqlBinaryVal.IsNull)
+                            // SqlBinary
+                            SqlBinary val = (SqlBinary)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                Variables.bytesVal = Variables.sqlBinaryVal.Value;
-                                m_i64CurrentOffset += m_fsw.WriteBytes(Variables.bytesVal, Variables.bytesVal.Length);
+                                currentFileOffset += await FileWriter.WriteBytes(val.Value, val.Value.Length);
                             }
-
-                            Variables.sqlBinaryVal = null;
-                            Variables.bytesVal = null;
                         }
-                        else if (Variables.sqlGuidType == tVal)    // SqlGuid
+                        else if (tVal == typeof(SqlGuid))
                         {
-                            Variables.sqlGuidVal = (SqlGuid)values[i];
-                            if (Variables.sqlGuidVal.IsNull)
+                            // SqlGuid
+                            SqlGuid val = (SqlGuid)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                Variables.bytesVal = Variables.sqlGuidVal.ToByteArray();
-                                m_i64CurrentOffset += m_fsw.WriteBytes(Variables.bytesVal, Variables.bytesVal.Length);
+                                byte[] bytesVal = val.ToByteArray();
+                                currentFileOffset += await FileWriter.WriteBytes(bytesVal, bytesVal.Length);
                             }
                         }
-                        else if (Variables.sqlMoneyType == tVal)    // SqlMoney
+                        else if (tVal == typeof(SqlMoney))
                         {
-                            Variables.sqlMoneyVal = (SqlMoney)values[i];
-                            if (Variables.sqlMoneyVal.IsNull)
+                            // SqlMoney
+                            SqlMoney val = (SqlMoney)values[i];
+                            if (val.IsNull)
                             {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
+                                currentFileOffset += await FileWriter.WriteNull();
                             }
                             else
                             {
-                                Variables.decimalVal = Variables.sqlMoneyVal.Value;
-                                m_i64CurrentOffset += m_fsw.WriteDecimal(Variables.decimalVal);
+                                currentFileOffset += await FileWriter.WriteDecimal(val.Value);
                             }
                         }
-                        /*
-                        * There are bugs in web data provider that don't allow us to find out
-                        * true object type
-                        *
-                        else if (Variables.sqlDateType == tVal)    // SqlDate
+                        else 
                         {
-                            Variables.sqlDateVal = (SqlDate)values[i];
-                            if (Variables.sqlDateVal.IsNull)
-                            {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
-                            }
-                            else
-                            {
-                                Variables.sqlI64Val = Variables.sqlDateVal.Ticks;
-                                m_i64CurrentOffset += m_fsw.WriteInt64(Variables.sqlI64Val.Value);
-                            }
-                        }
-                        else if (Variables.sqlTimeType == tVal)    // SqlTime
-                        {
-                            Variables.sqlTimeVal = (SqlTime)values[i];
-                            if (Variables.sqlTimeVal.IsNull)
-                            {
-                                m_i64CurrentOffset += m_fsw.WriteNull();
-                            }
-                            else
-                            {
-                                Variables.sqlI64Val = Variables.sqlTimeVal.Ticks;
-                                m_i64CurrentOffset += m_fsw.WriteInt64(Variables.sqlI64Val.Value);
-                            }
-                        }
-                        */
-                        else // treat everything else as string
-                        {
-                            Variables.strVal = values[i].ToString();
-                            m_i64CurrentOffset += m_fsw.WriteString(Variables.strVal);
+                            // treat everything else as string
+                            string val = values[i].ToString();
+                            currentFileOffset += await FileWriter.WriteString(val);
                         }
                     }
                 }
-                m_fsw.FlushBuffer();
 
-                // Loop over the columns and read the data from the column
-                for (int i = 0; i < Columns.Length; ++i)
-                {
-                    
-                }
+                // Flush the buffer after every row
+                await FileWriter.FlushBuffer();
             }
         }
 
@@ -448,15 +429,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// read in a row.
         /// </summary>
         /// <param name="reader">A <see cref="DbDataReader"/> that has already had a read performed</param>
-        public void AddRow(DbDataReader reader)
-        {
-            List<object> row = new List<object>();
-            for (int i = 0; i < reader.FieldCount; ++i)
-            {
-                row.Add(reader.GetValue(i));
-            }
-            Rows.Add(row.ToArray());
-        }
+        //public void AddRow(DbDataReader reader)
+        //{
+        //    List<object> row = new List<object>();
+        //    for (int i = 0; i < reader.FieldCount; ++i)
+        //    {
+        //        row.Add(reader.GetValue(i));
+        //    }
+        //    Rows.Add(row.ToArray());
+        //}
 
         /// <summary>
         /// Generates a subset of the rows from the result set
@@ -467,7 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public ResultSetSubset GetSubset(int startRow, int rowCount)
         {
             // Sanity check to make sure that the row and the row count are within bounds
-            if (startRow < 0 || startRow >= Rows.Count)
+            if (startRow < 0 || startRow >= RowCount)
             {
                 throw new ArgumentOutOfRangeException(nameof(startRow), "Start row cannot be less than 0 " +
                                                                         "or greater than the number of rows in the resultset");
@@ -478,13 +459,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Retrieve the subset of the results as per the request
-            object[][] rows = Rows.Skip(startRow).Take(rowCount).ToArray();
-            return new ResultSetSubset
-            {
-                Rows = rows,
-                RowCount = rows.Length
-            };
+            //object[][] rows = Rows.Skip(startRow).Take(rowCount).ToArray();
+            //return new ResultSetSubset
+            //{
+            //    Rows = rows,
+            //    RowCount = rows.Length
+            //};
+            return null;
         }
+
         #region IDisposable Implementation
 
         private bool disposed;
