@@ -75,16 +75,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Take a reference to the list at a point in time in case we update and replace the list
             //var suggestions = AutoCompleteList;
-            if (!LanguageService.Instance.ScriptParseInfoMap.ContainsKey(textDocumentPosition.Uri))
+            if (!LanguageService.Instance.ScriptParseInfoMap.ContainsKey(textDocumentPosition.TextDocument.Uri))
             {
                 return completions;
             }
 
-            var scriptParseInfo = LanguageService.Instance.ScriptParseInfoMap[textDocumentPosition.Uri];
+            var scriptParseInfo = LanguageService.Instance.ScriptParseInfoMap[textDocumentPosition.TextDocument.Uri];
             var suggestions = Resolver.FindCompletions(
                 scriptParseInfo.ParseResult, 
-                textDocumentPosition.Position.Line, 
-                textDocumentPosition.Position.Character, 
+                textDocumentPosition.Position.Line + 1, 
+                textDocumentPosition.Position.Character + 1, 
                 scriptParseInfo.MetadataDisplayInfoProvider); 
 
             int i = 0;

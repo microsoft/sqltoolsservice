@@ -10,10 +10,11 @@
     "Microsoft.SqlServer.SqlParser": "140.1.5",
     "System.Data.Common": "4.1.0",
     "System.Data.SqlClient": "4.1.0",
-    "Microsoft.SqlServer.Smo": "140.1.2",
+    "Microsoft.SqlServer.Smo": "140.1.5",
     "System.Security.SecureString": "4.0.0",
     "System.Collections.Specialized": "4.0.1",
-    "System.ComponentModel.TypeConverter": "4.1.0"
+    "System.ComponentModel.TypeConverter": "4.1.0",    
+    "System.Diagnostics.TraceSource": "4.0.0"
   },
   "frameworks": {
     "netcoreapp1.0": {

@@ -173,6 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
                 ScriptParseInfo parseInfo = this.ScriptParseInfoMap[scriptFile.ClientFilePath];
+                parseInfo.ParseResult = parseResult;
                 List<ParseResult> parseResults = new List<ParseResult>();
                 parseResults.Add(parseResult);
                 parseInfo.Binder.Bind(
