@@ -2,14 +2,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
+using CsvHelper;
 using System;
 using System.Collections.Concurrent;
+using System.Data.Common;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+// using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -74,6 +77,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecuteSubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
+            // shravind
+            serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -225,6 +230,58 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        public async Task HandleSaveResultsAsCsvRequest( SaveResultsRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // retrieve query for OwnerUri
+            Query result;
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+                {
+                    await requestContext.SendResult(new SaveResultRequestResult
+                    {
+                        Messages = "Failed to save results, ID not found."
+                    });
+                    return;
+                }
+            using (StreamWriter csvFile = new StreamWriter(File.OpenWrite(saveParams.FilePath)))
+            {
+                var csv = new CsvWriter(csvFile);
+                //csv.Configuration.Encoding = saveParams.FileEncoding;
+                csv.Configuration.Delimiter = ",";
+
+                // get resultSets from query to write as csv
+                //shravind. temporary hardcoding.
+                ResultSet currentResultSet = result.ResultSets[saveParams.ResultSetNo];
+
+                // write column names to csv
+                foreach( DbColumn column in currentResultSet.Columns)
+                {
+                    csv.WriteField(column.ColumnName);
+                }
+                csv.NextRecord();
+                // write rows to csv
+                foreach( var row in currentResultSet.Rows)
+                {
+                    // string[] strRow = ((System.Collections.IEnumerable)row).Cast<object>()
+                    //             .Select(x => x.ToString())
+                    //             .ToArray();
+                    // csv.WriteRecord(strRow);
+                    foreach( var field in row)
+                    {
+                        csv.WriteField(field);
+                    }
+                    csv.NextRecord();
+                }
+
+
+
+            }
+            await requestContext.SendResult(new SaveResultRequestResult
+            {
+                Messages = "Success"
+            });
+            return;
+        }
         #endregion
 
         #region Private Helpers
