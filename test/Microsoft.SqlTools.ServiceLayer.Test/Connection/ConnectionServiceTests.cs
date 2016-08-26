@@ -4,12 +4,17 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.Test.Utility;
 using Moq;
+using Moq.Protected;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
@@ -20,6 +25,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
     public class ConnectionServiceTests
     {
         /// <summary>
+        /// Creates a mock db command that returns a predefined result set
+        /// </summary>
+        public static DbCommand CreateTestCommand(Dictionary<string, string>[][] data)
+        {
+            var commandMock = new Mock<DbCommand> { CallBase = true };
+            var commandMockSetup = commandMock.Protected()
+                .Setup<DbDataReader>("ExecuteDbDataReader", It.IsAny<CommandBehavior>());
+
+            commandMockSetup.Returns(new TestDbDataReader(data));
+
+            return commandMock.Object;
+        }
+
+        /// <summary>
+        /// Creates a mock db connection that returns predefined data when queried for a result set
+        /// </summary>
+        public DbConnection CreateMockDbConnection(Dictionary<string, string>[][] data)
+        {
+            var connectionMock = new Mock<DbConnection> { CallBase = true };
+            connectionMock.Protected()
+                .Setup<DbCommand>("CreateDbCommand")
+                .Returns(CreateTestCommand(data));
+
+            return connectionMock.Object;
+        }
+
         /// Verify that we can connect to the default database when no database name is
         /// provided as a parameter.
         /// </summary>
@@ -329,6 +360,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // verify that disconnect failed
             Assert.False(disconnectResult);
+        }
+
+        /// <summary>
+        /// Verifies the the list databases operation lists database names for the server used by a connection.
+        /// </summary>
+        [Fact]
+        public void ListDatabasesOnServerForCurrentConnectionReturnsDatabaseNames()
+        {
+            // Result set for the query of database names
+            Dictionary<string, string>[] data =
+            {
+                new Dictionary<string, string> { {"name", "master" } },
+                new Dictionary<string, string> { {"name", "model" } },
+                new Dictionary<string, string> { {"name", "msdb" } },
+                new Dictionary<string, string> { {"name", "tempdb" } },
+                new Dictionary<string, string> { {"name", "mydatabase" } },
+            };
+
+            // Setup mock connection factory to inject query results
+            var mockFactory = new Mock<ISqlConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
+                .Returns(CreateMockDbConnection(new[] {data}));
+            var connectionService = new ConnectionService(mockFactory.Object);
+
+            // connect to a database instance 
+            string ownerUri = "file://my/sample/file.sql";
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            // verify that a valid connection id was returned
+            Assert.NotEmpty(connectionResult.ConnectionId);
+
+            // list databases for the connection
+            ListDatabasesParams parameters = new ListDatabasesParams();
+            parameters.OwnerUri = ownerUri;
+            var listDatabasesResult = connectionService.ListDatabases(parameters);
+            string[] databaseNames = listDatabasesResult.DatabaseNames;
+
+            Assert.Equal(databaseNames.Length, 5);
+            Assert.Equal(databaseNames[0], "master");
+            Assert.Equal(databaseNames[1], "model");
+            Assert.Equal(databaseNames[2], "msdb");
+            Assert.Equal(databaseNames[3], "tempdb");
+            Assert.Equal(databaseNames[4], "mydatabase");
         }
 
         /// <summary>

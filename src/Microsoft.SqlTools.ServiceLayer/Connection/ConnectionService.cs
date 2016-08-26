@@ -5,6 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
@@ -194,11 +196,57 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return true;
         }
 
+        /// <summary>
+        /// List all databases on the server specified
+        /// </summary>
+        public ListDatabasesResponse ListDatabases(ListDatabasesParams listDatabasesParams)
+        {
+            // Verify parameters
+            var owner = listDatabasesParams.OwnerUri;
+            if (String.IsNullOrEmpty(owner))
+            {
+                throw new ArgumentException("OwnerUri cannot be null or empty");
+            }
+
+            // Use the existing connection as a base for the search
+            ConnectionInfo info;
+            if (!TryFindConnection(owner, out info))
+            {
+                throw new Exception("Specified OwnerUri \"" + owner + "\" does not have an existing connection");
+            }
+            ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
+
+            // Connect to master and query sys.databases
+            connectionDetails.DatabaseName = "master";
+            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
+            connection.Open();
+            
+            DbCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT name FROM sys.databases";
+            command.CommandTimeout = 15;
+            command.CommandType = CommandType.Text;
+            var reader = command.ExecuteReader();
+
+            List<string> results = new List<string>();
+            while (reader.Read())
+            {
+                results.Add(reader[0].ToString());
+            }
+
+            connection.Close();
+
+            ListDatabasesResponse response = new ListDatabasesResponse();
+            response.DatabaseNames = results.ToArray();
+
+            return response;
+        }
+
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
+            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
 
             // Register the configuration update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
@@ -264,6 +312,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 await requestContext.SendError(ex.ToString());
             }
 
+        }
+
+        /// <summary>
+        /// Handle requests to list databases on the current server
+        /// </summary>
+        protected async Task HandleListDatabasesRequest(
+            ListDatabasesParams listDatabasesParams,
+            RequestContext<ListDatabasesResponse> requestContext)
+        {
+            Logger.Write(LogLevel.Verbose, "ListDatabasesRequest");
+
+            try
+            {
+                ListDatabasesResponse result = ConnectionService.Instance.ListDatabases(listDatabasesParams);
+                await requestContext.SendResult(result);
+            }
+            catch(Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
         
         public Task HandleDidChangeConfigurationNotification(
