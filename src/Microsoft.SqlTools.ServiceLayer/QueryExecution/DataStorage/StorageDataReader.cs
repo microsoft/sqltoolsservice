@@ -224,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private class StringWriterWithMaxCapacity : StringWriter
         {
-            bool stopWriting = false;
+            bool stopWriting;
 
 
             private int CurrentLength

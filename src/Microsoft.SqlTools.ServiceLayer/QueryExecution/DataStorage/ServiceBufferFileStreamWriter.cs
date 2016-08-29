@@ -21,21 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #endregion
 
-        public ServiceBufferFileStreamWriter()
-        {
-        }
-
-        #region IFileStreamWriter Implementation
-
-        // TODO: Internal init/constructor to allow for proper unit testing
-        // TODO: Add checks to make sure things are initialized before proceeding
-
-        /// <summary>
-        ///  
-        /// </summary>
-        /// <remarks>This logic needs to exist outside the constructor because we can't have constructors with parameters, and that would break the facade pattern</remarks>
-        /// <param name="fileName"></param>
-        public void Init(string fileName)
+        public ServiceBufferFileStreamWriter(string fileName)
         {
             // open file for reading/writing
             fileStream = new FileStreamWrapper();
@@ -53,6 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             doubleBuffer = new double[1];
             floatBuffer = new float[1];
         }
+
+        #region IFileStreamWriter Implementation
 
         // Null
         public async Task<int> WriteNull()
@@ -274,27 +262,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
             return await fileStream.WriteData(byteBuffer, 5);
         }
-
-        //public async Task<int> ReadLength(long i64Offset, out int iLen)
-        //{
-        //    // read in length information
-        //    int iTotalLen = await fileStream.ReadData(byteBuffer, 1, i64Offset);
-        //    if (byteBuffer[0] != 0xFF)
-        //    {
-        //        // one byte is enough
-        //        iLen = Convert.ToInt32(byteBuffer[0]);
-        //    }
-        //    else
-        //    {
-        //        // read in next 4 bytes
-        //        iTotalLen += fileStream.ReadData(byteBuffer, 4);
-
-        //        // reconstruct the length
-        //        Buffer.BlockCopy(byteBuffer, 0, m_arrI32, 0, 4);
-        //        iLen = m_arrI32[0];
-        //    }
-        //    return iTotalLen;
-        //}
 
         public Task FlushBuffer()
         {

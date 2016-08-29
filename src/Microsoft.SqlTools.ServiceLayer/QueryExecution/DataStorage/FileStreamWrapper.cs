@@ -129,6 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     await Flush();
                 }
             }
+            Debug.Assert(bytesCopied == bytes);
             return bytesCopied;
         }
 
