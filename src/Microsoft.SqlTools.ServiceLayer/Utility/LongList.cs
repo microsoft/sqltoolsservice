@@ -1,21 +1,22 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
-    public class ArrayList64
+    public class LongList<T> : IEnumerable<T>
     {
-        private List<object> shortList;
+        private readonly List<T> shortList;
         public long Count { get; private set; }
-        private List<List<object>> expandedList;
+        private List<List<T>> expandedList;
 
-        public ArrayList64()
+        public LongList()
         {
-            shortList = new List<object>();
+            shortList = new List<T>();
             Count = 0;
         }
 
-        public long Add(object val)
+        public long Add(T val)
         {
             if (Count <= int.MaxValue)
             {
@@ -26,18 +27,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 if (expandedList == null)
                 {
                     // very inefficient so delay as much as possible
-                    expandedList = new List<List<object>>();
-
                     // immediately add 0th array
-                    expandedList.Add(shortList);
+                    expandedList = new List<List<T>> {shortList};
                 }
 
                 int arrayIndex = (int)(Count/int.MaxValue); // 0 based
 
-                List<object> arr;
+                List<T> arr;
                 if (expandedList.Count <= arrayIndex) // need to make a new array
                 {
-                    arr = new List<object>();
+                    arr = new List<T>();
                     expandedList.Add(arr);
                 }
                 else // use existing array
@@ -60,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 // find out which array it is in
                 int arrayIndex = (int) (index/int.MaxValue);
-                List<object> arr = expandedList[arrayIndex];
+                List<T> arr = expandedList[arrayIndex];
 
                 // find out index into this array
                 int iArray32MemberIndex = (int) (index%int.MaxValue);
@@ -70,8 +69,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 int iArray32TotalIndex = (int) (Count/Int32.MaxValue);
                 for (int i = arrayIndex + 1; i < iArray32TotalIndex; i++)
                 {
-                    List<object> arr1 = expandedList[i - 1];
-                    List<object> arr2 = expandedList[i];
+                    List<T> arr1 = expandedList[i - 1];
+                    List<T> arr2 = expandedList[i];
 
                     arr1.Add(arr2[int.MaxValue - 1]);
                     arr2.RemoveAt(0);
@@ -80,11 +79,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             --Count;
         }
 
-        public object GetItem(long index)
+        public T GetItem(long index)
         {
             object val = null;
 
-            if (Count <= Int32.MaxValue)
+            if (Count <= int.MaxValue)
             {
                 int i32Index = Convert.ToInt32(index);
                 val = shortList[i32Index];
@@ -94,9 +93,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 int iArray32Index = (int) (Count/int.MaxValue);
                 if (expandedList.Count > iArray32Index)
                 {
-                    List<object> arr = expandedList[iArray32Index];
+                    List<T> arr = expandedList[iArray32Index];
 
-                    int i32Index = (int) (Count%Int32.MaxValue);
+                    int i32Index = (int) (Count%int.MaxValue);
                     if (arr.Count > i32Index)
                     {
                         val = arr[i32Index];
@@ -104,6 +103,74 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 }
             }
             return val;
+        }
+
+        public T this[long index]
+        {
+            get { return GetItem(index); }
+        }
+
+        #region IEnumerable<object> Implementation
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return new LongListEnumerator<T>(this);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
+
+        public class LongListEnumerator<TEt> : IEnumerator<TEt>
+        {
+            #region Properties
+
+            /// <summary>
+            /// The current list that we're iterating over.
+            /// </summary>
+            private LongList<TEt> List { get; set; }
+
+            /// <summary>
+            /// The index into the list of the item that is the current item
+            /// </summary>
+            private long CurrentIndex { get; set; }
+
+            #endregion
+
+            #region IEnumerator Implementation
+
+            public LongListEnumerator(LongList<TEt> list)
+            {
+                List = list;
+                CurrentIndex = 0;
+            }
+
+            public bool MoveNext()
+            {
+                CurrentIndex++;
+                return CurrentIndex < List.Count;
+            }
+
+            public void Reset()
+            {
+                CurrentIndex = 0;
+            }
+
+            public TEt Current { get { return List[CurrentIndex]; } }
+
+            object IEnumerator.Current
+            {
+                get { return Current; }
+            }
+
+            public void Dispose()
+            {
+            }
+
+            #endregion
         }
     }
 }
