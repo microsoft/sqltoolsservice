@@ -27,7 +27,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string BaseColumnName { get { return InternalColumn.BaseColumnName; } }
         public string BaseServerName { get { return InternalColumn.BaseServerName; } }
         public string BaseTableName { get { return InternalColumn.BaseTableName; } }
-        public string ColumnName { get { return InternalColumn.ColumnName; } }
+
+        public string ColumnName
+        {
+            get
+            {
+                return string.IsNullOrEmpty(InternalColumn.ColumnName) ? "(No column name)" : InternalColumn.ColumnName;
+            }
+        }
+
         public int? ColumnOrdinal { get { return InternalColumn.ColumnOrdinal; } }
         public int? ColumnSize { get { return InternalColumn.ColumnSize; } }
         public bool? IsAliased { get { return InternalColumn.IsAliased; } }

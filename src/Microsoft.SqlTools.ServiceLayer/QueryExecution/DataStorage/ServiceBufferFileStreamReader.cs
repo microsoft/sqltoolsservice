@@ -15,12 +15,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private byte[] buffer;
 
-        private FileStreamWrapper FileStream { get; set; }
+        private IFileStreamWrapper FileStream { get; set; }
 
-        public ServiceBufferFileStreamReader(string fileName)
+        public ServiceBufferFileStreamReader(IFileStreamWrapper fileWrapper, string fileName)
         {
             // Open file for reading/writing
-            FileStream = new FileStreamWrapper();
+            FileStream = fileWrapper;
             FileStream.Init(fileName, DefaultBufferSize);
 
             // Create internal buffer

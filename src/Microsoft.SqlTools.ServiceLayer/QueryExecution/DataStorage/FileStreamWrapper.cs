@@ -177,6 +177,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             Debug.Assert(startOffset == currentOffset);
         }
 
+        public static void DeleteFile(string fileName)
+        {
+            File.Delete(fileName);
+        }
+
         #endregion
 
         private async Task MoveTo(long offset)

@@ -8,5 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         IFileStreamWriter GetWriter(string fileName, int maxCharsToStore, int maxXmlCharsToStore);
 
+        void DisposeFile(string fileName);
+
     }
 }

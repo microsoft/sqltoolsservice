@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (disposing)
             {
-                // TODO: Cleanup the file that we opened to buffer results
+                fileStreamFactory.DisposeFile(bufferFileName);
             }
 
             disposed = true;

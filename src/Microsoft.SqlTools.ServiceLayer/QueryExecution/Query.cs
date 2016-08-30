@@ -217,6 +217,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (disposing)
             {
                 cancellationSource.Dispose();
+                foreach (Batch b in Batches)
+                {
+                    b.Dispose();
+                }
             }
 
             disposed = true;

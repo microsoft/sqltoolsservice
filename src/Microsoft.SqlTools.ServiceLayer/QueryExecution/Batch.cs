@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// <summary>
     /// This class represents a batch within a query
     /// </summary>
-    public class Batch
+    public class Batch : IDisposable
     {
         private const string RowsAffectedFormat = "({0} row(s) affected)";
 
@@ -249,6 +249,41 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 resultMessages.Add(dbe.Message);
             }
+        }
+
+        #endregion
+
+        #region IDisposable Implementation
+
+        private bool disposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                foreach (ResultSet r in ResultSets)
+                {
+                    r.Dispose();
+                }
+            }
+
+            disposed = true;
+        }
+
+        ~Batch()
+        {
+            Dispose(false);
         }
 
         #endregion
