@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     public interface IFileStreamReader : IDisposable
     {
+        Task<object[]> ReadRow(long offset, IEnumerable<DbColumnWrapper> columns);
         Task<FileStreamReadResult<short>>  ReadInt16(long i64Offset, bool bSkipValue);
         Task<FileStreamReadResult<int>>  ReadInt32(long i64Offset, bool bSkipValue);
         Task<FileStreamReadResult<long>> ReadInt64(long i64Offset, bool bSkipValue);

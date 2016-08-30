@@ -6,7 +6,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         IFileStreamReader GetReader(string fileName);
 
-        IFileStreamWriter GetWriter(string fileName);
+        IFileStreamWriter GetWriter(string fileName, int maxCharsToStore, int maxXmlCharsToStore);
 
     }
 }

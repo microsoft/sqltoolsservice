@@ -141,6 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Open up a connection for querying the database
             string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
+            // TODO: Don't create a new connection every time
             using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
             {
                 await conn.OpenAsync();
@@ -150,6 +151,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await b.Execute(conn, cancellationSource.Token);
                 }
+
+                // TODO: Close connection
             }
         }
 
@@ -161,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public ResultSetSubset GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check that the results are available
             if (!HasExecuted)

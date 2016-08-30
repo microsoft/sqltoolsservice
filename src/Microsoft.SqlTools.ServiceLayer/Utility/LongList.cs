@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         public T GetItem(long index)
         {
-            object val = null;
+            T val = default(T);
 
             if (Count <= int.MaxValue)
             {
@@ -131,12 +131,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             /// <summary>
             /// The current list that we're iterating over.
             /// </summary>
-            private LongList<TEt> List { get; set; }
+            private LongList<TEt> localList;
 
             /// <summary>
             /// The index into the list of the item that is the current item
             /// </summary>
-            private long CurrentIndex { get; set; }
+            private long index;
+
+            private TEt current;
 
             #endregion
 
@@ -144,22 +146,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
             public LongListEnumerator(LongList<TEt> list)
             {
-                List = list;
-                CurrentIndex = 0;
+                localList = list;
+                index = 0;
+                current = default(TEt);
             }
 
             public bool MoveNext()
             {
-                CurrentIndex++;
-                return CurrentIndex < List.Count;
+                if (index < localList.Count)
+                {
+                    current = localList[index];
+                    index++;
+                    return true;
+                }
+                current = default(TEt);
+                return false;
             }
 
             public void Reset()
             {
-                CurrentIndex = 0;
+                index = 0;
+                current = default(TEt);
             }
 
-            public TEt Current { get { return List[CurrentIndex]; } }
+            public TEt Current { get { return current; } }
 
             object IEnumerator.Current
             {

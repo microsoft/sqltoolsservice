@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -26,6 +28,421 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         #region IFileStreamStorage Implementation
+
+        public async Task<object[]> ReadRow(long fileOffset, IEnumerable<DbColumnWrapper> columns)
+        {
+            // Initialize for the loop
+            long currentFileOffset = fileOffset;
+            List<object> results = new List<object>();
+
+            // Iterate over the columns
+            foreach (DbColumnWrapper column in columns)
+            {
+                // We will pivot based on the type of the column
+                Type colType;
+                if (column.IsSqlVariant)
+                {
+                    // For SQL Variant columns, the type is written first in string format
+                    FileStreamReadResult<string> sqlVariantTypeResult = await ReadString(currentFileOffset, false);
+                    currentFileOffset += sqlVariantTypeResult.TotalLength;
+
+                    // If the typename is null, then the whole value is null
+                    if (sqlVariantTypeResult.IsNull)
+                    {
+                        results.Add(null);
+                        continue;
+                    }
+
+                    // The typename is stored in the string
+                    colType = Type.GetType(sqlVariantTypeResult.Value);
+
+                    // Workaround .NET bug, see sqlbu# 440643 and vswhidbey# 599834
+                    // TODO: Is this workaround necessary for .NET Core?
+                    if (colType == null && sqlVariantTypeResult.Value == "System.Data.SqlTypes.SqlSingle")
+                    {
+                        colType = typeof(SqlSingle);
+                    }
+                }
+                else
+                {
+                    colType = column.DataType;
+                }
+
+                if (colType == typeof(string))
+                {
+                    // String - most frequently used data type
+                    FileStreamReadResult<string> result = await ReadString(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    results.Add(result.IsNull ? null : result.Value);
+                }
+                else if (colType == typeof(SqlString))
+                {
+                    // SqlString
+                    FileStreamReadResult<string> result = await ReadString(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    results.Add(result.IsNull ? null : (SqlString) result.Value);
+                }
+                else if (colType == typeof(short))
+                {
+                    // Int16
+                    FileStreamReadResult<short> result = await ReadInt16(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlInt16))
+                {
+                    // SqlInt16
+                    FileStreamReadResult<short> result = await ReadInt16(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add((SqlInt16)result.Value);
+                    }
+                }
+                else if (colType == typeof(int))
+                {
+                    // Int32
+                    FileStreamReadResult<int> result = await ReadInt32(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlInt32))
+                {
+                    // SqlInt32
+                    FileStreamReadResult<int> result = await ReadInt32(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add((SqlInt32)result.Value);
+                    }
+                }
+                else if (colType == typeof(long))
+                {
+                    // Int64
+                    FileStreamReadResult<long> result = await ReadInt64(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlInt64))
+                {
+                    // SqlInt64
+                    FileStreamReadResult<long> result = await ReadInt64(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add((SqlInt64)result.Value);
+                    }
+                }
+                else if (colType == typeof(byte))
+                {
+                    // byte
+                    FileStreamReadResult<byte> result = await ReadByte(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlByte))
+                {
+                    // SqlByte
+                    FileStreamReadResult<byte> result = await ReadByte(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add((SqlByte)result.Value);
+                    }
+                }
+                else if (colType == typeof(char))
+                {
+                    // Char
+                    FileStreamReadResult<char> result = await ReadChar(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(bool))
+                {
+                    // Bool
+                    FileStreamReadResult<bool> result = await ReadBoolean(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlBoolean))
+                {
+                    // SqlBoolean
+                    FileStreamReadResult<bool> result = await ReadBoolean(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add((SqlBoolean)result.Value);
+                    }
+                }
+                else if (colType == typeof(double))
+                {
+                    // double
+                    FileStreamReadResult<double> result = await ReadDouble(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlDouble))
+                {
+                    // SqlByte
+                    FileStreamReadResult<double> result = await ReadDouble(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add((SqlDouble)result.Value);
+                    }
+                }
+                else if (colType == typeof(float))
+                {
+                    // float
+                    FileStreamReadResult<float> result = await ReadSingle(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlSingle))
+                {
+                    // SqlSingle
+                    FileStreamReadResult<float> result = await ReadSingle(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add((SqlSingle)result.Value);
+                    }
+                }
+                else if (colType == typeof(decimal))
+                {
+                    // Decimal
+                    FileStreamReadResult<decimal> result = await ReadDecimal(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlDecimal))
+                {
+                    // SqlDecimal
+                    FileStreamReadResult<SqlDecimal> result = await ReadSqlDecimal(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(DateTime))
+                {
+                    // DateTime
+                    FileStreamReadResult<DateTime> result = await ReadDateTime(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlDateTime))
+                {
+                    // SqlDateTime
+                    FileStreamReadResult<DateTime> result = await ReadDateTime(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add((SqlDateTime)result.Value);
+                    }
+                }
+                else if (colType == typeof(DateTimeOffset))
+                {
+                    // DateTimeOffset
+                    FileStreamReadResult<DateTimeOffset> result = await ReadDateTimeOffset(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(TimeSpan))
+                {
+                    // TimeSpan
+                    FileStreamReadResult<TimeSpan> result = await ReadTimeSpan(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(byte[]))
+                {
+                    // Byte Array
+                    FileStreamReadResult<byte[]> result = await ReadBytes(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull || (column.IsUdt && result.Value.Length == 0))
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(result.Value);
+                    }
+                }
+                else if (colType == typeof(SqlBytes))
+                {
+                    // SqlBytes
+                    FileStreamReadResult<byte[]> result = await ReadBytes(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    results.Add(result.IsNull ? null : new SqlBytes(result.Value));
+                }
+                else if (colType == typeof(SqlBinary))
+                {
+                    // SqlBinary
+                    FileStreamReadResult<byte[]> result = await ReadBytes(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    results.Add(result.IsNull ? null : new SqlBinary(result.Value));
+                }
+                else if (colType == typeof(SqlGuid))
+                {
+                    // SqlGuid
+                    FileStreamReadResult<byte[]> result = await ReadBytes(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(new SqlGuid(result.Value));
+                    }
+                }
+                else if (colType == typeof(SqlMoney))
+                {
+                    // SqlMoney
+                    FileStreamReadResult<decimal> result = await ReadDecimal(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    if (result.IsNull)
+                    {
+                        results.Add(null);
+                    }
+                    else
+                    {
+                        results.Add(new SqlMoney(result.Value));
+                    }
+                }
+                else
+                {
+                    // Treat everything else as a string
+                    FileStreamReadResult<string> result = await ReadString(currentFileOffset, false);
+                    currentFileOffset += result.TotalLength;
+                    results.Add(result.IsNull ? null : result.Value);
+                }
+            }
+
+            return results.ToArray();
+        }
 
         public async Task<FileStreamReadResult<short>> ReadInt16(long fileOffset, bool skipValue)
         {
@@ -69,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             if (!skipValue && !isNull)
             {
                 await FileStream.ReadData(buffer, length.ValueLength);
-                val = BitConverter.ToInt32(buffer, 0);
+                val = BitConverter.ToInt64(buffer, 0);
             }
             return new FileStreamReadResult<long>(val, length.TotalLength, isNull);
         }
@@ -257,7 +674,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // positive length
             AssureBufferLength(fieldLength.ValueLength);
             await FileStream.ReadData(buffer, fieldLength.ValueLength);
-            return new FileStreamReadResult<string>(Encoding.Unicode.GetString(buffer), fieldLength.TotalLength, false);
+            return new FileStreamReadResult<string>(Encoding.Unicode.GetString(buffer, 0, fieldLength.ValueLength), fieldLength.TotalLength, false);
         }
 
         public async Task<FileStreamReadResult<byte[]>> ReadBytes(long offset, bool skipValue)
@@ -292,7 +709,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             if (buffer[0] != 0xFF)
             {
                 // one byte is enough
-                lengthValue = Convert.ToInt32(buffer);
+                lengthValue = Convert.ToInt32(buffer[0]);
             }
             else
             {

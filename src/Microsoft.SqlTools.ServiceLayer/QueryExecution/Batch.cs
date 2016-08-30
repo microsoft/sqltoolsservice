@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                             // Read until we hit the end of the result set
                             // TODO: Make the facade work
-                            ResultSet resultSet = new ResultSet(reader, new ServiceBufferFileStreamWriter());
+                            ResultSet resultSet = new ResultSet(reader, new ServiceBufferFileStreamFactory());
                             await resultSet.ReadResultToEnd(cancellationToken);
 
                             // Add the result set to the results of the query
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public ResultSetSubset GetSubset(int resultSetIndex, int startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check to make sure we have valid numbers
             if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)

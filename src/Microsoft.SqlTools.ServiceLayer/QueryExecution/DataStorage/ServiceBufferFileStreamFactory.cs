@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+﻿namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     public class ServiceBufferFileStreamFactory : IFileStreamFactory
     {
@@ -12,9 +7,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return new ServiceBufferFileStreamReader(fileName);
         }
 
-        public IFileStreamWriter GetWriter(string fileName)
+        public IFileStreamWriter GetWriter(string fileName, int maxCharsToStore, int maxXmlCharsToStore)
         {
-            return new ServiceBufferFileStreamWriter(fileName);
+            return new ServiceBufferFileStreamWriter(fileName, maxCharsToStore, maxXmlCharsToStore);
         }
 
     }

@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 var result = new QueryExecuteSubsetResult
                 {
                     Message = null,
-                    ResultSubset = query.GetSubset(subsetParams.BatchIndex,
+                    ResultSubset = await query.GetSubset(subsetParams.BatchIndex,
                         subsetParams.ResultSetIndex, subsetParams.RowsStartIndex, subsetParams.RowsCount)
                 };
                 await requestContext.SendResult(result);

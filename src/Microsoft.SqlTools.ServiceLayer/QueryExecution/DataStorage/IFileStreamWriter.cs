@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Data.SqlTypes;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     public interface IFileStreamWriter : IDisposable
     {
+        Task<int> WriteRow(StorageDataReader dataReader, DbColumnWrapper[] columns);
         Task<int> WriteNull();
         Task<int> WriteInt16(short val);
         Task<int> WriteInt32(int val);

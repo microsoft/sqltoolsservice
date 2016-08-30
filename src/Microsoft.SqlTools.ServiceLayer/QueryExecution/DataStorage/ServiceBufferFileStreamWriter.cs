@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Data.Common;
 using System.Data.SqlTypes;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -9,19 +13,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         #region Properties
 
         public const int DefaultBufferLength = 8192;
+        
+        private int MaxCharsToStore { get; set; }
+        private int MaxXmlCharsToStore { get; set; }
 
         private byte[] byteBuffer;
-        private IFileStreamWrapper fileStream;
-        private short[] shortBuffer;
-        private int[] intBuffer;
-        private long[] longBuffer;
-        private char[] charBuffer;
-        private double[] doubleBuffer;
-        private float[] floatBuffer;
+        private readonly IFileStreamWrapper fileStream;
+        private readonly short[] shortBuffer;
+        private readonly int[] intBuffer;
+        private readonly long[] longBuffer;
+        private readonly char[] charBuffer;
+        private readonly double[] doubleBuffer;
+        private readonly float[] floatBuffer;
 
         #endregion
 
-        public ServiceBufferFileStreamWriter(string fileName)
+        public ServiceBufferFileStreamWriter(string fileName, int maxCharsToStore, int maxXmlCharsToStore)
         {
             // open file for reading/writing
             fileStream = new FileStreamWrapper();
@@ -38,9 +45,362 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             charBuffer = new char[1];
             doubleBuffer = new double[1];
             floatBuffer = new float[1];
+
+            // Store max chars to store
+            MaxCharsToStore = maxCharsToStore;
+            MaxXmlCharsToStore = maxXmlCharsToStore;
         }
 
         #region IFileStreamWriter Implementation
+
+        public async Task<int> WriteRow(StorageDataReader reader, DbColumnWrapper[] columns)
+        {
+            // Determine if we have any long fields
+            bool hasLongFields = columns.Any(column => column.IsLong.HasValue && column.IsLong.Value);
+
+            object[] values = new object[columns.Length];
+            int rowBytes = 0;
+            if (!hasLongFields)
+            {
+                // get all record values in one shot if there are no extra long fields
+                reader.GetValues(values);
+            }
+
+            // Loop over all the columns and write the values to the temp file
+            for (int i = 0; i < columns.Length; i++)
+            {
+                if (hasLongFields)
+                {
+                    if (reader.IsDBNull(i))
+                    {
+                        // Need special case for DBNull because
+                        // reader.GetValue doesn't return DBNull in case of SqlXml and CLR type
+                        values[i] = DBNull.Value;
+                    }
+                    else
+                    {
+                        DbColumnWrapper ci = columns[i];
+                        if (ci.IsLongField)
+                        {
+                            // not a long field 
+                            values[i] = reader.GetValue(i);
+                        }
+                        else
+                        {
+                            // this is a long field
+                            if (ci.IsBytes)
+                            {
+                                values[i] = reader.GetBytesWithMaxCapacity(i, MaxCharsToStore);
+                            }
+                            else if (ci.IsChars)
+                            {
+                                Debug.Assert(MaxCharsToStore > 0);
+                                values[i] = reader.GetCharsWithMaxCapacity(i,
+                                    ci.IsXml ? MaxXmlCharsToStore : MaxCharsToStore);
+                            }
+                            else if (ci.IsXml)
+                            {
+                                Debug.Assert(MaxXmlCharsToStore > 0);
+                                values[i] = reader.GetXmlWithMaxCapacity(i, MaxXmlCharsToStore);
+                            }
+                            else
+                            {
+                                // we should never get here
+                                Debug.Assert(false);
+                            }
+                        }
+                    }
+                }
+
+                Type tVal = values[i].GetType(); // get true type of the object
+
+                if (tVal == typeof(DBNull))
+                {
+                    rowBytes += await WriteNull();
+                }
+                else
+                {
+                    if (columns[i].IsSqlVariant)
+                    {
+                        // serialize type information as a string before the value
+                        string val = tVal.ToString();
+                        rowBytes += await WriteString(val);
+                    }
+
+                    if (tVal == typeof(string))
+                    {
+                        // String - most frequently used data type
+                        string val = (string)values[i];
+                        rowBytes += await WriteString(val);
+                    }
+                    else if (tVal == typeof(SqlString))
+                    {
+                        // SqlString
+                        SqlString val = (SqlString)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteString(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(short))
+                    {
+                        // Int16
+                        short val = (short)values[i];
+                        rowBytes += await WriteInt16(val);
+                    }
+                    else if (tVal == typeof(SqlInt16))
+                    {
+                        // SqlInt16
+                        SqlInt16 val = (SqlInt16)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteInt16(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(int))
+                    {
+                        // Int32
+                        int val = (int)values[i];
+                        rowBytes += await WriteInt32(val);
+                    }
+                    else if (tVal == typeof(SqlInt32))
+                    {
+                        // SqlInt32
+                        SqlInt32 val = (SqlInt32)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteInt32(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(long))
+                    {
+                        // Int64
+                        long val = (long)values[i];
+                        rowBytes += await WriteInt64(val);
+                    }
+                    else if (tVal == typeof(SqlInt64))
+                    {
+                        // SqlInt64
+                        SqlInt64 val = (SqlInt64)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteInt64(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(byte))
+                    {
+                        // Byte
+                        byte val = (byte)values[i];
+                        rowBytes += await WriteByte(val);
+                    }
+                    else if (tVal == typeof(SqlByte))
+                    {
+                        // SqlByte
+                        SqlByte val = (SqlByte)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteByte(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(char))
+                    {
+                        // Char
+                        char val = (char)values[i];
+                        rowBytes += await WriteChar(val);
+                    }
+                    else if (tVal == typeof(bool))
+                    {
+                        // Boolean
+                        bool val = (bool)values[i];
+                        rowBytes += await WriteBoolean(val);
+                    }
+                    else if (tVal == typeof(SqlBoolean))
+                    {
+                        // SqlBoolean
+                        SqlBoolean val = (SqlBoolean)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteBoolean(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(double))
+                    {
+                        // Double
+                        double val = (double)values[i];
+                        rowBytes += await WriteDouble(val);
+                    }
+                    else if (tVal == typeof(SqlDouble))
+                    {
+                        // SqlDouble
+                        SqlDouble val = (SqlDouble)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteDouble(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(SqlSingle))
+                    {
+                        // SqlSingle
+                        SqlSingle val = (SqlSingle)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteSingle(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(decimal))
+                    {
+                        // Decimal
+                        decimal val = (decimal)values[i];
+                        rowBytes += await WriteDecimal(val);
+                    }
+                    else if (tVal == typeof(SqlDecimal))
+                    {
+                        // SqlDecimal
+                        SqlDecimal val = (SqlDecimal)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteSqlDecimal(val);
+                        }
+                    }
+                    else if (tVal == typeof(DateTime))
+                    {
+                        // DateTime
+                        DateTime val = (DateTime)values[i];
+                        rowBytes += await WriteDateTime(val);
+                    }
+                    else if (tVal == typeof(DateTimeOffset))
+                    {
+                        // DateTimeOffset
+                        DateTimeOffset val = (DateTimeOffset)values[i];
+                        rowBytes += await WriteDateTimeOffset(val);
+                    }
+                    else if (tVal == typeof(SqlDateTime))
+                    {
+                        // SqlDateTime
+                        SqlDateTime val = (SqlDateTime)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteDateTime(val.Value);
+                        }
+                    }
+                    else if (tVal == typeof(TimeSpan))
+                    {
+                        // TimeSpan
+                        TimeSpan val = (TimeSpan)values[i];
+                        rowBytes += await WriteTimeSpan(val);
+                    }
+                    else if (tVal == typeof(byte[]))
+                    {
+                        // Bytes
+                        byte[] val = (byte[])values[i];
+                        rowBytes += await WriteBytes(val, val.Length);
+                    }
+                    else if (tVal == typeof(SqlBytes))
+                    {
+                        // SqlBytes
+                        SqlBytes val = (SqlBytes)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteBytes(val.Value, val.Value.Length);
+                        }
+                    }
+                    else if (tVal == typeof(SqlBinary))
+                    {
+                        // SqlBinary
+                        SqlBinary val = (SqlBinary)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteBytes(val.Value, val.Value.Length);
+                        }
+                    }
+                    else if (tVal == typeof(SqlGuid))
+                    {
+                        // SqlGuid
+                        SqlGuid val = (SqlGuid)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            byte[] bytesVal = val.ToByteArray();
+                            rowBytes += await WriteBytes(bytesVal, bytesVal.Length);
+                        }
+                    }
+                    else if (tVal == typeof(SqlMoney))
+                    {
+                        // SqlMoney
+                        SqlMoney val = (SqlMoney)values[i];
+                        if (val.IsNull)
+                        {
+                            rowBytes += await WriteNull();
+                        }
+                        else
+                        {
+                            rowBytes += await WriteDecimal(val.Value);
+                        }
+                    }
+                    else
+                    {
+                        // treat everything else as string
+                        string val = values[i].ToString();
+                        rowBytes += await WriteString(val);
+                    }
+                }
+            }
+
+            // Flush the buffer after every row
+            await FlushBuffer();
+            return rowBytes;
+        }
 
         // Null
         public async Task<int> WriteNull()
