@@ -111,11 +111,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectResponse Connect(ConnectParams connectionParams)
         {
             // Validate parameters
-            if(connectionParams == null || !connectionParams.IsValid())
+            string paramValidationErrorMessage;
+            if (connectionParams == null)
             {
                 return new ConnectResponse()
                 {
-                    Messages = "Error: Invalid connection parameters provided."
+                    Messages = "Error: Connection parameters cannot be null."
+                };
+            }
+            else if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            {
+                return new ConnectResponse()
+                {
+                    Messages = paramValidationErrorMessage
                 };
             }
 
@@ -168,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool Disconnect(DisconnectParams disconnectParams)
         {
             // Validate parameters
-            if (disconnectParams == null || String.IsNullOrEmpty(disconnectParams.OwnerUri))
+            if (disconnectParams == null || string.IsNullOrEmpty(disconnectParams.OwnerUri))
             {
                 return false;
             }
@@ -203,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             // Verify parameters
             var owner = listDatabasesParams.OwnerUri;
-            if (String.IsNullOrEmpty(owner))
+            if (string.IsNullOrEmpty(owner))
             {
                 throw new ArgumentException("OwnerUri cannot be null or empty");
             }
@@ -355,11 +363,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionBuilder["Password"] = connectionDetails.Password;
 
             // Check for any optional parameters
-            if (!String.IsNullOrEmpty(connectionDetails.DatabaseName))
+            if (!string.IsNullOrEmpty(connectionDetails.DatabaseName))
             {
                 connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
             }
-            if (!String.IsNullOrEmpty(connectionDetails.AuthenticationType))
+            if (!string.IsNullOrEmpty(connectionDetails.AuthenticationType))
             {
                 switch(connectionDetails.AuthenticationType)
                 {
@@ -370,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.IntegratedSecurity = false;
                         break;
                     default:
-                        throw new ArgumentException("Invalid value \"" + connectionDetails.AuthenticationType + "\" for AuthenticationType. Valid values are \"Integrated\" and \"SqlLogin\".");
+                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for AuthenticationType. Valid values are \"Integrated\" and \"SqlLogin\".", connectionDetails.AuthenticationType));
                 }
             }
             if (connectionDetails.Encrypt.HasValue)
@@ -397,15 +405,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.ConnectRetryInterval = connectionDetails.ConnectRetryInterval.Value;
             }
-            if (!String.IsNullOrEmpty(connectionDetails.ApplicationName))
+            if (!string.IsNullOrEmpty(connectionDetails.ApplicationName))
             {
                 connectionBuilder.ApplicationName = connectionDetails.ApplicationName;
             }
-            if (!String.IsNullOrEmpty(connectionDetails.WorkstationId))
+            if (!string.IsNullOrEmpty(connectionDetails.WorkstationId))
             {
                 connectionBuilder.WorkstationID = connectionDetails.WorkstationId;
             }
-            if (!String.IsNullOrEmpty(connectionDetails.ApplicationIntent))
+            if (!string.IsNullOrEmpty(connectionDetails.ApplicationIntent))
             {
                 ApplicationIntent intent;
                 switch (connectionDetails.ApplicationIntent)
@@ -417,11 +425,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         intent = ApplicationIntent.ReadWrite;
                         break;
                     default:
-                        throw new ArgumentException("Invalid value \"" + connectionDetails.ApplicationIntent + "\" for ApplicationIntent. Valid values are \"ReadWrite\" and \"ReadOnly\".");
+                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for ApplicationIntent. Valid values are \"ReadWrite\" and \"ReadOnly\".", connectionDetails.ApplicationIntent));
                 }
                 connectionBuilder.ApplicationIntent = intent;
             }
-            if (!String.IsNullOrEmpty(connectionDetails.CurrentLanguage))
+            if (!string.IsNullOrEmpty(connectionDetails.CurrentLanguage))
             {
                 connectionBuilder.CurrentLanguage = connectionDetails.CurrentLanguage;
             }
@@ -445,11 +453,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.Replication = connectionDetails.Replication.Value;
             }
-            if (!String.IsNullOrEmpty(connectionDetails.AttachDbFilename))
+            if (!string.IsNullOrEmpty(connectionDetails.AttachDbFilename))
             {
                 connectionBuilder.AttachDBFilename = connectionDetails.AttachDbFilename;
             }
-            if (!String.IsNullOrEmpty(connectionDetails.FailoverPartner))
+            if (!string.IsNullOrEmpty(connectionDetails.FailoverPartner))
             {
                 connectionBuilder.FailoverPartner = connectionDetails.FailoverPartner;
             }
@@ -465,7 +473,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.PacketSize = connectionDetails.PacketSize.Value;
             }
-            if (!String.IsNullOrEmpty(connectionDetails.TypeSystemVersion))
+            if (!string.IsNullOrEmpty(connectionDetails.TypeSystemVersion))
             {
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
