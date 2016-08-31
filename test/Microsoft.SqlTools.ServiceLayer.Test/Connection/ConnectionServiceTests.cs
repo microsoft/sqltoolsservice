@@ -7,10 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.Test.Utility;
 using Moq;
@@ -195,6 +195,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // check that an error was caught
             Assert.NotNull(connectionResult.Messages);
             Assert.NotEqual(String.Empty, connectionResult.Messages);
+        }
+
+        /// <summary>
+        /// Verify that optional parameters can be built into a connection string for connecting.
+        /// </summary>
+        [Theory]
+        [InlineDataAttribute("AuthenticationType", "Integrated")]
+        [InlineDataAttribute("AuthenticationType", "SqlLogin")]
+        [InlineDataAttribute("Encrypt", true)]
+        [InlineDataAttribute("Encrypt", false)]
+        [InlineDataAttribute("TrustServerCertificate", true)]
+        [InlineDataAttribute("TrustServerCertificate", false)]
+        [InlineDataAttribute("PersistSecurityInfo", true)]
+        [InlineDataAttribute("PersistSecurityInfo", false)]
+        [InlineDataAttribute("ConnectTimeout", 15)]
+        [InlineDataAttribute("ConnectRetryCount", 1)]
+        [InlineDataAttribute("ConnectRetryInterval", 10)]
+        [InlineDataAttribute("ApplicationName", "vscode-mssql")]
+        [InlineDataAttribute("WorkstationId", "mycomputer")]
+        [InlineDataAttribute("ApplicationIntent", "ReadWrite")]
+        [InlineDataAttribute("ApplicationIntent", "ReadOnly")]
+        [InlineDataAttribute("CurrentLanguage", "test")]
+        [InlineDataAttribute("Pooling", false)]
+        [InlineDataAttribute("Pooling", true)]
+        [InlineDataAttribute("MaxPoolSize", 100)]
+        [InlineDataAttribute("MinPoolSize", 0)]
+        [InlineDataAttribute("LoadBalanceTimeout", 0)]
+        [InlineDataAttribute("Replication", true)]
+        [InlineDataAttribute("Replication", false)]
+        [InlineDataAttribute("AttachDbFilename", "myfile")]
+        [InlineDataAttribute("FailoverPartner", "partner")]
+        [InlineDataAttribute("MultiSubnetFailover", true)]
+        [InlineDataAttribute("MultiSubnetFailover", false)]
+        [InlineDataAttribute("MultipleActiveResultSets", false)]
+        [InlineDataAttribute("MultipleActiveResultSets", true)]
+        [InlineDataAttribute("PacketSize", 8192)]
+        [InlineDataAttribute("TypeSystemVersion", "Latest")]
+        public void ConnectingWithOptionalParametersBuildsConnectionString(string propertyName, object propertyValue)
+        {
+            // Create a test connection details object and set the property to a specific value
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            PropertyInfo info = details.GetType().GetProperty(propertyName);
+            info.SetValue(details, propertyValue);
+
+            // Test that a connection string can be created without exceptions
+            string connectionString = ConnectionService.BuildConnectionString(details);
+            Assert.NotNull(connectionString);
+            Assert.NotEmpty(connectionString);
         }
 
         /// <summary>
