@@ -3,13 +3,15 @@
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "allowUnsafe": true
   },
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
     "Microsoft.SqlServer.SqlParser": "140.1.5",
     "System.Data.Common": "4.1.0",
-    "System.Data.SqlClient": "4.1.0"
+    "System.Data.SqlClient": "4.1.0",
+    "system.security.securestring": "4.0.0"
   },
   "frameworks": {
     "netcoreapp1.0": {

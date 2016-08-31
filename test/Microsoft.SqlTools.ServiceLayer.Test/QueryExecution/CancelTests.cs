@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Xunit;
 
@@ -21,7 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I request a query (doesn't matter what kind) and execute it
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
             var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
-            var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
+            var executeRequest = 
+                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
@@ -47,7 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I request a query (doesn't matter what kind) and wait for execution
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
             var executeParams = new QueryExecuteParams {QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri};
-            var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
+            var executeRequest =
+                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
             // ... And then I request to cancel the query

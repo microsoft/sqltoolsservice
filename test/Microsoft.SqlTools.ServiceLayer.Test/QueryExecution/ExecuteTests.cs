@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using Xunit;
@@ -399,7 +400,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
-            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, (et, cp) => completeParams = cp, null);
+            var requestContext = 
+                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(
+                    resultCallback: qer => result = qer,
+                    expectedEvent: QueryExecuteCompleteEvent.Type,
+                    eventCallback: (et, cp) => completeParams = cp,
+                    errorCallback: null);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
@@ -426,7 +432,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
-            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, (et, cp) => completeParams = cp, null);
+            var requestContext = 
+                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(
+                    resultCallback: qer => result = qer, 
+                    expectedEvent: QueryExecuteCompleteEvent.Type, 
+                    eventCallback: (et, cp) => completeParams = cp, 
+                    errorCallback: null);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
@@ -453,7 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QueryText = Common.StandardQuery };
 
             QueryExecuteResult result = null;
-            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
+            var requestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
@@ -476,13 +487,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
 
             // Note, we don't care about the results of the first request
-            var firstRequestContext = Common.GetQueryExecuteResultContextMock(null, null, null);
+            var firstRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
 
             // ... And then I request another query without waiting for the first to complete
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;   // Simulate query hasn't finished
             QueryExecuteResult result = null;
-            var secondRequestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
+            var secondRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
 
             // Then:
@@ -505,13 +516,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
 
             // Note, we don't care about the results of the first request
-            var firstRequestContext = Common.GetQueryExecuteResultContextMock(null, null, null);
+            var firstRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
+
             queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
 
             // ... And then I request another query after waiting for the first to complete
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
-            var secondRequestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, (et, qecp) => complete = qecp, null);
+            var secondRequestContext =
+                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp, null);
             queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
 
             // Then:
@@ -535,7 +548,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = query };
 
             QueryExecuteResult result = null;
-            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, null, null);
+            var requestContext =
+                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
@@ -560,7 +574,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
-            var requestContext = Common.GetQueryExecuteResultContextMock(qer => result = qer, (et, qecp) => complete = qecp, null);
+            var requestContext =
+                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp, null);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
