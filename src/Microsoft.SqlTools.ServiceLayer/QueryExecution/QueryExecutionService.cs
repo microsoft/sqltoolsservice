@@ -2,17 +2,16 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using CsvHelper;
 using System;
 using System.Collections.Concurrent;
 using System.Data.Common;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-// using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -236,45 +235,57 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // retrieve query for OwnerUri
             Query result;
             if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
-                {
-                    await requestContext.SendResult(new SaveResultRequestResult
-                    {
-                        Messages = "Failed to save results, ID not found."
-                    });
-                    return;
-                }
-            using (StreamWriter csvFile = new StreamWriter(File.OpenWrite(saveParams.FilePath)))
             {
-                var csv = new CsvWriter(csvFile);
-                //csv.Configuration.Encoding = saveParams.FileEncoding;
-                csv.Configuration.Delimiter = ",";
-
-                // get resultSets from query to write as csv
-                //shravind. temporary hardcoding.
-                ResultSet currentResultSet = result.ResultSets[saveParams.ResultSetNo];
-
-                // write column names to csv
-                foreach( DbColumn column in currentResultSet.Columns)
+                await requestContext.SendResult(new SaveResultRequestResult
                 {
-                    csv.WriteField(column.ColumnName);
-                }
-                csv.NextRecord();
-                // write rows to csv
-                foreach( var row in currentResultSet.Rows)
+                    Messages = "Failed to save results, ID not found."
+                });
+                return;
+            }
+            try
+            {
+                using (StreamWriter csvFile = new StreamWriter(File.OpenWrite(saveParams.FilePath)))
                 {
-                    // string[] strRow = ((System.Collections.IEnumerable)row).Cast<object>()
-                    //             .Select(x => x.ToString())
-                    //             .ToArray();
-                    // csv.WriteRecord(strRow);
-                    foreach( var field in row)
+                    StringBuilder rowBuilder = new StringBuilder();
+                    String separator = ",";
+
+                    // get the requested resultSet from query to write as csv
+                    ResultSet currentResultSet = result.ResultSets[saveParams.ResultSetNo];
+                    if ( saveParams.IncludeHeaders )
                     {
-                        csv.WriteField(field);
+                        // write column names to csv
+                        foreach( DbColumn column in currentResultSet.Columns)
+                        {
+                            rowBuilder.Append((column.ColumnName != null) ? column.ColumnName : string.Empty);
+                            rowBuilder.Append(separator);
+                        }
+                        rowBuilder.Length--;
+                        csvFile.WriteLine(rowBuilder.ToString());
+                        rowBuilder.Clear();
                     }
-                    csv.NextRecord();
+
+                    // write rows to csv
+                    foreach( var row in currentResultSet.Rows)
+                    {
+
+                        foreach( var field in row)
+                        {
+                            rowBuilder.Append((field != null) ? SaveResults.EncodeCsvField(field.ToString()) : string.Empty);
+                            rowBuilder.Append(separator);
+                        }
+                        rowBuilder.Length--;
+                        csvFile.WriteLine(rowBuilder.ToString());
+                        rowBuilder.Clear();
+                    }
                 }
-
-
-
+            }
+            catch(Exception ex)
+            {
+                await requestContext.SendResult(new SaveResultRequestResult
+                {
+                    Messages = ex.Message
+                });
+                return;
             }
             await requestContext.SendResult(new SaveResultRequestResult
             {

@@ -24,9 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string FileEncoding { get; set; }
 
         /// <summary>
-        /// Formatting for the csv such as Tab or space
+        /// Include headers of columns in CSV
         /// </summary>
-        public string Formatting { get; set; }
+        public Boolean IncludeHeaders { get; set; }
 
         /// <summary>
         /// The ResultSetNumber to write out to CSV
@@ -37,11 +37,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// CSV - Write values in quotes 
         /// </summary>
         public Boolean ValueInQuotes { get; set; }
-
-        /// <summary>
-        /// CSV - Replace missing values in the results 
-        /// </summary>
-        public Boolean MissingValueReplacement { get; set; }
 
         /// <summary>
         /// URI for the editor that is asking for the save results
