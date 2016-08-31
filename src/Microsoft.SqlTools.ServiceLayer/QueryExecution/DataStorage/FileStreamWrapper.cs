@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private byte[] buffer;
         private int bufferDataSize;
         private FileStream fileStream;
+        private bool readingOnly;
         private long startOffset;
         private long currentOffset;
 
@@ -45,27 +46,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileName">Name of the file to open/create</param>
         /// <param name="bufferLength">The length of the internal buffer</param>
-        public void Init(string fileName, int bufferLength)
+        /// <param name="forReadingOnly">
+        /// Whether or not the wrapper will be used for reading. If <c>true</c>, any calls to a
+        /// method that writes will cause an InvalidOperationException
+        /// </param>
+        public void Init(string fileName, int bufferLength, bool forReadingOnly)
         {
-            // Sanity check for valid buffer length
+            // Sanity check for valid buffer length and filename
             if (bufferLength <= 0)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(bufferLength), "Buffer length must be a positive value");
+            }
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                throw new ArgumentNullException(nameof(fileName), "File name cannot be null or whitespace");
             }
 
             // Setup the buffer
             buffer = new byte[bufferLength];
 
             // Open the requested file for reading/writing, creating one if it doesn't exist
-            fileStream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite,
+            fileStream = new FileStream(fileName, FileMode.OpenOrCreate,
+                forReadingOnly ? FileAccess.Read : FileAccess.ReadWrite, FileShare.ReadWrite,
                 bufferLength, false /*don't use asyncio*/);
+            readingOnly = forReadingOnly;
 
             // make file hidden
             FileInfo fileInfo = new FileInfo(fileName);
-            if (fileInfo.Exists)
-            {
-                fileInfo.Attributes |= FileAttributes.Hidden;
-            }
+            fileInfo.Attributes |= FileAttributes.Hidden;
         }
 
         /// <summary>
@@ -116,8 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
                 else
                 {
-                    // copied all the bytes simply adjust the current buffer pointer
+                    // copied all the bytes requested or possible, adjust the current buffer pointer
                     currentOffset += bytesToCopy;
+                    break;
                 }
             }
             return bytesCopied;
@@ -135,6 +144,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             if (buffer == null)
             {
                 throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
+            }
+            if (readingOnly)
+            {
+                throw new InvalidOperationException("This FileStreamWrapper canot be used for writing");
             }
 
             int bytesCopied = 0;
@@ -172,6 +185,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             if (buffer == null)
             {
                 throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
+            }
+            if (readingOnly)
+            {
+                throw new InvalidOperationException("This FileStreamWrapper cannot be used for writing");
             }
 
             // Make sure we are at the right place in the file
@@ -236,8 +253,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 return;
             }
 
-            if (disposing)
+            if (disposing && fileStream != null)
             {
+                if(!readingOnly) { Flush().Wait(); }
                 fileStream.Dispose();
             }
 

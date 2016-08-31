@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // open file for reading/writing
             FileStream = fileWrapper;
-            FileStream.Init(fileName, DefaultBufferLength);
+            FileStream.Init(fileName, DefaultBufferLength, false);
 
             // create internal buffer
             byteBuffer = new byte[DefaultBufferLength];
