@@ -1,14 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Represents a value returned from a read from a file stream. This is used to eliminate ref
+    /// parameters used in the read methods of the SSMS code this was based on.
+    /// </summary>
+    /// <typeparam name="T">The type of the value that was read</typeparam>
     public struct FileStreamReadResult<T>
     {
+        /// <summary>
+        /// Whether or not the value of the field is null
+        /// </summary>
         public bool IsNull { get; set; }
 
+        /// <summary>
+        /// The value of the field. If <see cref="IsNull"/> is true, this will be set to <c>default(T)</c>
+        /// </summary>
         public T Value { get; set; }
 
         /// <summary>
@@ -23,6 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </remarks>
         public int TotalLength { get; set; }
 
+        /// <summary>
+        /// Constructs a new FileStreamReadResult
+        /// </summary>
+        /// <param name="value">The value of the result</param>
+        /// <param name="totalLength">The number of bytes for the used to store the value's length and value</param>
+        /// <param name="isNull">Whether or not the value is <c>null</c></param>
         public FileStreamReadResult(T value, int totalLength, bool isNull)
         {
             Value = value;

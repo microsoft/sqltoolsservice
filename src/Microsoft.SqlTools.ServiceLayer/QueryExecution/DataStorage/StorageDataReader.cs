@@ -1,91 +1,133 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Wrapper around a DbData reader to perform some special operations more simply
+    /// </summary>
+    /// <remarks>
+    /// This code is based on code from Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage, 
+    /// StorageDataReader
+    /// </remarks>
     public class StorageDataReader
     {
+        #region Properties
 
+        public DbColumnWrapper[] Columns { get; private set; }
+
+        /// <summary>
+        /// The <see cref="DbDataReader"/> that will be read from
+        /// </summary>
         public DbDataReader DbDataReader { get; private set; }
-        private readonly SqlDataReader sqlDataReader;
 
+        /// <summary>
+        /// If the DbDataReader is a SqlDataReader, it will be set here
+        /// </summary>
+        private SqlDataReader SqlDataReader { get; set; }
+
+        /// <summary>
+        /// Whether or not the data reader supports SqlXml types
+        /// </summary>
         private bool SupportSqlXml
         {
-            get { return sqlDataReader != null; }
+            get { return SqlDataReader != null; }
         }
 
+        #endregion
+
+        /// <summary>
+        /// Constructs a new wrapper around the provided reader
+        /// </summary>
+        /// <param name="reader">The reader to wrap around</param>
         public StorageDataReader(DbDataReader reader)
         {
+            // Sanity check to make sure there is a data reader
             if (reader == null)
             {
                 throw new ArgumentNullException(nameof(reader), "Reader cannot be null.");
             }
 
             // Attempt to use this reader as a SqlDataReader
-            sqlDataReader = reader as SqlDataReader;
+            SqlDataReader = reader as SqlDataReader;
             DbDataReader = reader;
+
+            // Read the columns into a set of wrappers
+            Columns = DbDataReader.GetColumnSchema().Select(column => new DbColumnWrapper(column)).ToArray();
         }
 
-        public int FieldCount
-        {
-            get { return DbDataReader.VisibleFieldCount; }
-        }
+        #region DbDataReader Methods
 
-        public string GetName(int i)
-        {
-            return DbDataReader.GetName(i);
-        }
-
-        public string GetDataTypeName(int i)
-        {
-            return DbDataReader.GetDataTypeName(i);
-        }
-
-        public string GetProviderSpecificDataTypeName(int i)
-        {
-            Type t = GetFieldType(i);
-            return t.ToString();
-        }
-
-        public Type GetFieldType(int i)
-        {
-            return DbDataReader.GetProviderSpecificFieldType(i);
-        }
-
+        /// <summary>
+        /// Pass-through to DbDataReader.ReadAsync()
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token to use for cancelling a query</param>
+        /// <returns></returns>
         public Task<bool> ReadAsync(CancellationToken cancellationToken)
         {
             return DbDataReader.ReadAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves a value
+        /// </summary>
+        /// <param name="i">Column ordinal</param>
+        /// <returns>The value of the given column</returns>
         public object GetValue(int i)
         {
-            return sqlDataReader == null ? DbDataReader.GetValue(i) : sqlDataReader.GetValue(i);
+            return SqlDataReader == null ? DbDataReader.GetValue(i) : SqlDataReader.GetValue(i);
         }
 
+        /// <summary>
+        /// Stores all values of the current row into the provided object array
+        /// </summary>
+        /// <param name="values">Where to store the values from this row</param>
         public void GetValues(object[] values)
         {
-            if (sqlDataReader == null)
+            if (SqlDataReader == null)
             {
                 DbDataReader.GetValues(values);
             }
             else
             {
-                sqlDataReader.GetValues(values);
+                SqlDataReader.GetValues(values);
             }
         }
 
+        /// <summary>
+        /// Whether or not the cell of the given column at the current row is a DBNull
+        /// </summary>
+        /// <param name="i">Column ordinal</param>
+        /// <returns>True if the cell is DBNull, false otherwise</returns>
         public bool IsDBNull(int i)
         {
             return DbDataReader.IsDBNull(i);
         }
 
+        #endregion
+
+        #region Custom Implementation
+
+        /// <summary>
+        /// Retrieves bytes with a maximum number of bytes to return
+        /// </summary>
+        /// <param name="iCol">Column ordinal</param>
+        /// <param name="maxNumBytesToReturn">Number of bytes to return at maximum</param>
+        /// <returns>Byte array</returns>
         public byte[] GetBytesWithMaxCapacity(int iCol, int maxNumBytesToReturn)
         {
             if (maxNumBytesToReturn <= 0)
@@ -122,6 +164,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return bytesBuffer;
         }
 
+        /// <summary>
+        /// Retrieves characters with a maximum number of charss to return
+        /// </summary>
+        /// <param name="iCol">Column ordinal</param>
+        /// <param name="maxCharsToReturn">Number of chars to return at maximum</param>
+        /// <returns>String</returns>
         public string GetCharsWithMaxCapacity(int iCol, int maxCharsToReturn)
         {
             if (maxCharsToReturn <= 0)
@@ -162,6 +210,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return res;
         }
 
+        /// <summary>
+        /// Retrieves xml with a maximum number of bytes to return
+        /// </summary>
+        /// <param name="iCol">Column ordinal</param>
+        /// <param name="maxCharsToReturn">Number of chars to return at maximum</param>
+        /// <returns>String</returns>
         public string GetXmlWithMaxCapacity(int iCol, int maxCharsToReturn)
         {
             if (SupportSqlXml)
@@ -197,6 +251,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return o?.ToString();
         }
 
+        #endregion
+
         #region Private Helpers
 
         private long GetBytes(int i, long dataIndex, byte[] buffer, int bufferIndex, int length)
@@ -211,17 +267,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private SqlXml GetSqlXml(int i)
         {
-            if (sqlDataReader == null)
+            if (SqlDataReader == null)
             {
                 // We need a Sql data reader in order to retrieve sql xml
                 throw new InvalidOperationException("Cannot retrieve SqlXml without a SqlDataReader");
             }
 
-            return sqlDataReader.GetSqlXml(i);
+            return SqlDataReader.GetSqlXml(i);
         }
 
         #endregion
 
+        /// <summary>
+        /// Internal class for writing strings with a maximum capacity
+        /// </summary>
+        /// <remarks>
+        /// This code is take almost verbatim from Microsoft.SqlServer.Management.UI.Grid, SSMS 
+        /// DataStorage, StorageDataReader class.
+        /// </remarks>
         private class StringWriterWithMaxCapacity : StringWriter
         {
             bool stopWriting;
@@ -288,32 +351,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         base.Write(value);
                     }
                 }
-            }
-        }
-
-        public class StorageAbortedException : Exception
-        {
-            /// <summary>
-            /// TODO
-            /// </summary>
-            public StorageAbortedException()
-            {
-            }
-
-            /// <summary>
-            /// TODO
-            /// </summary>
-            public StorageAbortedException(String message)
-                : base(message)
-            {
-            }
-
-            /// <summary>
-            /// TODO
-            /// </summary>
-            public StorageAbortedException(String message, Exception innerException)
-                : base(message, innerException)
-            {
             }
         }
 

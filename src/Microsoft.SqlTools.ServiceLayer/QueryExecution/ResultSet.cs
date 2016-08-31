@@ -20,28 +20,64 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     {
         #region Properties
 
-        public DbColumnWrapper[] Columns { get; set; }
-
-        public long RowCount { get; set; }
-
+        /// <summary>
+        /// The name of the temporary file we're using to buffer these results in
+        /// </summary>
         private readonly string bufferFileName;
 
-        private readonly IFileStreamFactory fileStreamFactory;
+        /// <summary>
+        /// The columns for this result set
+        /// </summary>
+        public DbColumnWrapper[] Columns { get; private set; }
 
+        /// <summary>
+        /// The reader to use for this resultset
+        /// </summary>
         private StorageDataReader DataReader { get; set; }
 
-        public bool HasLongFields { get; private set; }
-
+        /// <summary>
+        /// A list of offsets into the buffer file that correspond to where rows start
+        /// </summary>
         private LongList<long> FileOffsets { get; set; }
 
-        private long currentFileOffset;
+        /// <summary>
+        /// The factory to use to get reading/writing handlers
+        /// </summary>
+        private readonly IFileStreamFactory fileStreamFactory;
 
+        /// <summary>
+        /// File stream reader that will be reused to make rapid-fire retrieval of result subsets
+        /// quick and low perf impact.
+        /// </summary>
+        private IFileStreamReader fileStreamReader;
+
+        /// <summary>
+        /// Whether or not the 
+        /// </summary>
+        private bool HasBeenRead { get; set; }
+
+        /// <summary>
+        /// Maximum number of characters to store for a field
+        /// </summary>
         public int MaxCharsToStore { get; set; }
 
+        /// <summary>
+        /// Maximum number of characters to store for an XML field
+        /// </summary>
         public int MaxXmlCharsToStore { get; set; }
+
+        /// <summary>
+        /// The number of rows for this result set
+        /// </summary>
+        public long RowCount { get; private set; }
 
         #endregion
 
+        /// <summary>
+        /// Creates a new result set and initializes its state
+        /// </summary>
+        /// <param name="reader">The reader from executing a query</param>
+        /// <param name="factory">Factory for creating a reader/writer</param>
         public ResultSet(DbDataReader reader, IFileStreamFactory factory)
         {
             // Sanity check to make sure we got a reader
@@ -61,29 +97,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Store the factory
             fileStreamFactory = factory;
+            HasBeenRead = false;
         }
 
+        /// <summary>
+        /// Reads from the reader until there are no more results to read
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
         public async Task ReadResultToEnd(CancellationToken cancellationToken)
         {
             // Open a writer for the file
             using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(bufferFileName, MaxCharsToStore, MaxXmlCharsToStore))
             {
-
                 // If we can initialize the columns using the column schema, use that
                 if (!DataReader.DbDataReader.CanGetColumnSchema())
                 {
                     throw new InvalidOperationException("Could not retrieve column schema for result set.");
                 }
-                Columns = DataReader.DbDataReader.GetColumnSchema().Select(column => new DbColumnWrapper(column)).ToArray();
-                HasLongFields = Columns.Any(column => column.IsLong.HasValue && column.IsLong.Value);
+                Columns = DataReader.Columns;
+                long currentFileOffset = 0;
 
                 while (await DataReader.ReadAsync(cancellationToken))
                 {
                     RowCount++;
                     FileOffsets.Add(currentFileOffset);
-                    currentFileOffset += await fileWriter.WriteRow(DataReader, Columns);
+                    currentFileOffset += await fileWriter.WriteRow(DataReader);
                 }
             }
+
+            // Mark that result has been read
+            HasBeenRead = true;
+            fileStreamReader = fileStreamFactory.GetReader(bufferFileName);
         }
 
         /// <summary>
@@ -94,6 +138,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public async Task<ResultSetSubset> GetSubset(int startRow, int rowCount)
         {
+            // Sanity check to make sure that the results have been read beforehand
+            if (!HasBeenRead || fileStreamReader == null)
+            {
+                throw new InvalidOperationException("Cannot read subset unless the results have been read from the server");
+            }
+
             // Sanity check to make sure that the row and the row count are within bounds
             if (startRow < 0 || startRow >= RowCount)
             {
@@ -106,24 +156,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Figure out which rows we need to read back
-            using (IFileStreamReader fileReader = fileStreamFactory.GetReader(bufferFileName))
+            IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
+
+            // Iterate over the rows we need and process them into output
+            List<object[]> rows = new List<object[]>();
+            foreach (long rowOffset in rowOffsets)
             {
-                IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
-
-                // Iterate over the rows we need and process them into output
-                List<object[]> rows = new List<object[]>();
-                foreach (long rowOffset in rowOffsets)
-                {
-                    rows.Add(await fileReader.ReadRow(rowOffset, Columns));
-                }
-
-                // Retrieve the subset of the results as per the request
-                return new ResultSetSubset
-                {
-                    Rows = rows.ToArray(),
-                    RowCount = rows.Count
-                };
+                rows.Add(await fileStreamReader.ReadRow(rowOffset, Columns));
             }
+
+            // Retrieve the subset of the results as per the request
+            return new ResultSetSubset
+            {
+                Rows = rows.ToArray(),
+                RowCount = rows.Count
+            };
         }
 
         #region IDisposable Implementation
@@ -145,6 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (disposing)
             {
+                fileStreamReader?.Dispose();
                 fileStreamFactory.DisposeFile(bufferFileName);
             }
 

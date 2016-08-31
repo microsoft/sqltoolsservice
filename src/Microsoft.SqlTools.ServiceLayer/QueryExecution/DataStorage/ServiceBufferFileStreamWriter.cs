@@ -1,4 +1,9 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Linq;
@@ -8,6 +13,12 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Writer for SSMS formatted file streams
+    /// </summary>
+    /// <remarks>
+    /// Most of this code is based on code from the Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage
+    /// </remarks>
     public class ServiceBufferFileStreamWriter : IFileStreamWriter
     {
         #region Properties
@@ -17,8 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private int MaxCharsToStore { get; set; }
         private int MaxXmlCharsToStore { get; set; }
 
-        private byte[] byteBuffer;
         private IFileStreamWrapper FileStream { get; set; }
+        private byte[] byteBuffer;
         private readonly short[] shortBuffer;
         private readonly int[] intBuffer;
         private readonly long[] longBuffer;
@@ -28,6 +39,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #endregion
 
+        /// <summary>
+        /// Constructs a new writer
+        /// </summary>
+        /// <param name="fileWrapper">The file wrapper to use as the underlying file stream</param>
+        /// <param name="fileName">Name of the file to write to</param>
+        /// <param name="maxCharsToStore">Maximum number of characters to store for long text fields</param>
+        /// <param name="maxXmlCharsToStore">Maximum number of characters to store for XML fields</param>
         public ServiceBufferFileStreamWriter(IFileStreamWrapper fileWrapper, string fileName, int maxCharsToStore, int maxXmlCharsToStore)
         {
             // open file for reading/writing
@@ -53,12 +71,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #region IFileStreamWriter Implementation
 
-        public async Task<int> WriteRow(StorageDataReader reader, DbColumnWrapper[] columns)
+        /// <summary>
+        /// Writes an entire row to the file stream
+        /// </summary>
+        /// <param name="reader">A primed reader</param>
+        /// <param name="columns">The columns to read into the file stream</param>
+        /// <returns>Number of bytes used to write the row</returns>
+        public async Task<int> WriteRow(StorageDataReader reader)
         {
             // Determine if we have any long fields
-            bool hasLongFields = columns.Any(column => column.IsLong.HasValue && column.IsLong.Value);
+            bool hasLongFields = reader.Columns.Any(column => column.IsLong.HasValue && column.IsLong.Value);
 
-            object[] values = new object[columns.Length];
+            object[] values = new object[reader.Columns.Length];
             int rowBytes = 0;
             if (!hasLongFields)
             {
@@ -67,8 +91,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             // Loop over all the columns and write the values to the temp file
-            for (int i = 0; i < columns.Length; i++)
+            for (int i = 0; i < reader.Columns.Length; i++)
             {
+                DbColumnWrapper ci = reader.Columns[i];
                 if (hasLongFields)
                 {
                     if (reader.IsDBNull(i))
@@ -79,7 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
                     else
                     {
-                        DbColumnWrapper ci = columns[i];
                         if (ci.IsLongField)
                         {
                             // not a long field 
@@ -120,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
                 else
                 {
-                    if (columns[i].IsSqlVariant)
+                    if (ci.IsSqlVariant)
                     {
                         // serialize type information as a string before the value
                         string val = tVal.ToString();
@@ -402,14 +426,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return rowBytes;
         }
 
-        // Null
+        /// <summary>
+        /// Writes null to the file as one 0x00 byte
+        /// </summary>
+        /// <returns>Number of bytes used to store the null</returns>
         public async Task<int> WriteNull()
         {
             byteBuffer[0] = 0x00;
             return await FileStream.WriteData(byteBuffer, 1);
         }
 
-        // Int16
+        /// <summary>
+        /// Writes a short to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the short</returns>
         public async Task<int> WriteInt16(short val)
         {
             byteBuffer[0] = 0x02; // length
@@ -418,7 +448,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 3);
         }
 
-        // Int32
+        /// <summary>
+        /// Writes a int to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the int</returns>
         public async Task<int> WriteInt32(int val)
         {
             byteBuffer[0] = 0x04; // length
@@ -427,15 +460,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 5);
         }
 
-        public async Task<int> WriteInt32(long offset, int val)
-        {
-            byteBuffer[0] = 0x04; // length
-            intBuffer[0] = val;
-            Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return await FileStream.WriteData(byteBuffer, 5, offset);
-        }
-
-        // Int64
+        /// <summary>
+        /// Writes a long to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the long</returns>
         public async Task<int> WriteInt64(long val)
         {
             byteBuffer[0] = 0x08; // length
@@ -444,7 +472,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 9);
         }
 
-        // Char
+        /// <summary>
+        /// Writes a char to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the char</returns>
         public async Task<int> WriteChar(char val)
         {
             byteBuffer[0] = 0x02; // length
@@ -453,7 +484,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 3);
         }
 
-        // Boolean
+        /// <summary>
+        /// Writes a bool to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the bool</returns>
         public async Task<int> WriteBoolean(bool val)
         {
             byteBuffer[0] = 0x01; // length
@@ -461,7 +495,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 2);
         }
 
-        // Byte
+        /// <summary>
+        /// Writes a byte to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the byte</returns>
         public async Task<int> WriteByte(byte val)
         {
             byteBuffer[0] = 0x01; // length
@@ -469,7 +506,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 2);
         }
 
-        // Single
+        /// <summary>
+        /// Writes a float to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the float</returns>
         public async Task<int> WriteSingle(float val)
         {
             byteBuffer[0] = 0x04; // length
@@ -478,7 +518,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 5);
         }
 
-        // Double
+        /// <summary>
+        /// Writes a double to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the double</returns>
         public async Task<int> WriteDouble(double val)
         {
             byteBuffer[0] = 0x08; // length
@@ -487,7 +530,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 9);
         }
 
-        // SqlDecimal
+        /// <summary>
+        /// Writes a SqlDecimal to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the SqlDecimal</returns>
         public async Task<int> WriteSqlDecimal(SqlDecimal val)
         {
             int[] arrInt32 = val.Data;
@@ -509,7 +555,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return iTotalLen; // len+data
         }
 
-        // Decimal
+        /// <summary>
+        /// Writes a decimal to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the decimal</returns>
         public async Task<int> WriteDecimal(decimal val)
         {
             int[] arrInt32 = decimal.GetBits(val);
@@ -523,13 +572,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return iTotalLen; // len+data
         }
 
-        // DateTime
+        /// <summary>
+        /// Writes a DateTime to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the DateTime</returns>
         public Task<int> WriteDateTime(DateTime dtVal)
         {
             return WriteInt64(dtVal.Ticks);
         }
 
-        // DateTimeOffset
+        /// <summary>
+        /// Writes a DateTimeOffset to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the DateTimeOffset</returns>
         public async Task<int> WriteDateTimeOffset(DateTimeOffset dtoVal)
         {
             // DateTimeOffset gets written as a DateTime + TimeOffset
@@ -537,13 +592,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return (await WriteInt64(dtoVal.Ticks)) + (await WriteInt64(dtoVal.Offset.Ticks));
         }
 
-        // TimeSpan
+        /// <summary>
+        /// Writes a TimeSpan to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the TimeSpan</returns>
         public Task<int> WriteTimeSpan(TimeSpan timeSpan)
         {
             return WriteInt64(timeSpan.Ticks);
         }
 
-        // String
+        /// <summary>
+        /// Writes a string to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the string</returns>
         public async Task<int> WriteString(string sVal)
         {
             int iTotalLen;
@@ -572,7 +633,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return iTotalLen; // len+data
         }
 
-        // Bytes
+        /// <summary>
+        /// Writes a byte[] to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the byte[]</returns>
         public async Task<int> WriteBytes(byte[] bytesVal, int iLen)
         {
             int iTotalLen;
@@ -597,16 +661,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return iTotalLen; // len+data
         }
 
+        /// <summary>
+        /// Writes the length of the field using the appropriate number of bytes (ie, 1 if the
+        /// length is &lt;255, 5 if the length is &gt;=255)
+        /// </summary>
+        /// <returns>Number of bytes used to store the length</returns>
         internal async Task<int> WriteLength(int iLen)
         {
-            if (iLen < 0xFF) // fits in one byte of memory
+            if (iLen < 0xFF)
             {
-                // only need to write one byte
+                // fits in one byte of memory only need to write one byte
                 int iTmp = iLen & 0x000000FF;
 
                 byteBuffer[0] = Convert.ToByte(iTmp);
                 return await FileStream.WriteData(byteBuffer, 1);
             }
+            // The length won't fit in 1 byte, so we need to use 1 byte to signify that the length
+            // is a full 4 bytes.
             byteBuffer[0] = 0xFF;
 
             // convert int32 into array of bytes
@@ -615,6 +686,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return await FileStream.WriteData(byteBuffer, 5);
         }
 
+        /// <summary>
+        /// Flushes the internal buffer to the file stream
+        /// </summary>
         public Task FlushBuffer()
         {
             return FileStream.Flush();

@@ -1,17 +1,23 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Data.SqlTypes;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Interface for a object that writes to a filesystem wrapper
+    /// </summary>
     public interface IFileStreamWriter : IDisposable
     {
-        Task<int> WriteRow(StorageDataReader dataReader, DbColumnWrapper[] columns);
+        Task<int> WriteRow(StorageDataReader dataReader);
         Task<int> WriteNull();
         Task<int> WriteInt16(short val);
         Task<int> WriteInt32(int val);
-        Task<int> WriteInt32(long offset, int val);
         Task<int> WriteInt64(long val);
         Task<int> WriteByte(byte val);
         Task<int> WriteChar(char val);

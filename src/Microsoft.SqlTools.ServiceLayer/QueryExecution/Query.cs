@@ -60,6 +60,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private ConnectionInfo EditorConnection { get; set; }
 
+        /// <summary>
+        /// Whether or the execute method has been called for this query
+        /// </summary>
         private bool HasExecuteBeenCalled { get; set; }
 
         /// <summary>

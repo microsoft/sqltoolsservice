@@ -1,15 +1,22 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Wrapper for a file stream, providing simplified creation, deletion, read, and write
+    /// functionality.
+    /// </summary>
     public class FileStreamWrapper : IFileStreamWrapper
     {
-        #region Properties
-
-        private const int DefaultBufferLength = 8192;
+        #region Member Variables
 
         private byte[] buffer;
         private int bufferDataSize;
@@ -19,6 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #endregion
 
+        /// <summary>
+        /// Constructs a new FileStreamWrapper and initializes its state.
+        /// </summary>
         public FileStreamWrapper()
         {
             // Initialize the internal state
@@ -29,11 +39,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #region IFileStreamWrapper Implementation
 
-        public void Init(string fileName)
-        {
-            Init(fileName, DefaultBufferLength);
-        }
-
+        /// <summary>
+        /// Initializes the wrapper by creating the internal buffer and opening the requested file.
+        /// If the file does not already exist, it will be created.
+        /// </summary>
+        /// <param name="fileName">Name of the file to open/create</param>
+        /// <param name="bufferLength">The length of the internal buffer</param>
         public void Init(string fileName, int bufferLength)
         {
             // Sanity check for valid buffer length
@@ -53,15 +64,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             FileInfo fileInfo = new FileInfo(fileName);
             if (fileInfo.Exists)
             {
-                fileInfo.Attributes |= System.IO.FileAttributes.Hidden;
+                fileInfo.Attributes |= FileAttributes.Hidden;
             }
         }
 
-        public async Task<int> ReadData(byte[] buf, int bytes)
+        /// <summary>
+        /// Reads data into a buffer from the current offset into the file
+        /// </summary>
+        /// <param name="buf">The buffer to output the read data to</param>
+        /// <param name="bytes">The number of bytes to read into the buffer</param>
+        /// <returns>The number of bytes read</returns>
+        public Task<int> ReadData(byte[] buf, int bytes)
         {
-            return await ReadData(buf, bytes, currentOffset);
+            return ReadData(buf, bytes, currentOffset);
         }
 
+        /// <summary>
+        /// Reads data into a buffer from the specified offset into the file
+        /// </summary>
+        /// <param name="buf">The buffer to output the read data to</param>
+        /// <param name="bytes">The number of bytes to read into the buffer</param>
+        /// <param name="offset">The offset into the file to start reading bytes from</param>
+        /// <returns>The number of bytes read</returns>
         public async Task<int> ReadData(byte[] buf, int bytes, long offset)
         {
             // Make sure that we're initialized before performing operations
@@ -99,6 +123,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return bytesCopied;
         }
 
+        /// <summary>
+        /// Writes data to the underlying filestream, with buffering.
+        /// </summary>
+        /// <param name="buf">The buffer of bytes to write to the filestream</param>
+        /// <param name="bytes">The number of bytes to write</param>
+        /// <returns>The number of bytes written</returns>
         public async Task<int> WriteData(byte[] buf, int bytes)
         {
             // Make sure that we're initialized before performing operations
@@ -133,31 +163,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return bytesCopied;
         }
 
-        public async Task<int> WriteData(byte[] buf, int bytes, long offset)
-        {
-            // Make sure that we're initialized before performing operations
-            if (buffer == null)
-            {
-                throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
-            }
-
-            long position = fileStream.Position;
-            int retVal;
-            try
-            {
-                fileStream.Seek(offset, SeekOrigin.Begin);
-                await fileStream.WriteAsync(buf, 0, bytes);
-                await fileStream.FlushAsync();
-
-                retVal = bytes;
-            }
-            finally
-            {
-                fileStream.Position = position;
-            }
-            return retVal;
-        }
-
+        /// <summary>
+        /// Flushes the internal buffer to the filestream
+        /// </summary>
         public async Task Flush()
         {
             // Make sure that we're initialized before performing operations
@@ -177,6 +185,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             Debug.Assert(startOffset == currentOffset);
         }
 
+        /// <summary>
+        /// Deletes the given file (ideally, created with this wrapper) from the filesystem
+        /// </summary>
+        /// <param name="fileName">The path to the file to delete</param>
         public static void DeleteFile(string fileName)
         {
             File.Delete(fileName);
@@ -184,6 +196,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #endregion
 
+        /// <summary>
+        /// Moves the internal buffer to the specified offset into the file
+        /// </summary>
+        /// <param name="offset">Offset into the file to move to</param>
         private async Task MoveTo(long offset)
         {
             if (buffer.Length > bufferDataSize ||         // buffer is not completely filled
