@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public Boolean ValueInQuotes { get; set; }
 
         /// <summary>
-        /// URI for the editor that is asking for the save results
+        /// URI for the editor that called save results
         /// </summary>
         public string OwnerUri { get; set; }
     }
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class SaveResultRequestResult
     {
         /// <summary>
-        /// Error messages for saving to file. Optional, can be set to null to indicate no errors
+        /// Error messages for saving to file. 
         /// </summary>
         public string Messages { get; set; }
     }

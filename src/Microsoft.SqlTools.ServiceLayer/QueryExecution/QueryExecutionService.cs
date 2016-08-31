@@ -253,7 +253,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
             try
-
             {
                 using (StreamWriter csvFile = new StreamWriter(File.OpenWrite(saveParams.FilePath)))
                 {
@@ -278,7 +277,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // write rows to csv
                     foreach( var row in selectedResultSet.Rows)
                     {
-
                         foreach( var field in row)
                         {
                             rowBuilder.Append((field != null) ? SaveResults.EncodeCsvField(field.ToString()) : string.Empty);
