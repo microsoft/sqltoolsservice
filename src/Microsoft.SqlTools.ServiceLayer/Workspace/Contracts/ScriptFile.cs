@@ -103,8 +103,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <summary>
         /// Add a default constructor for testing
         /// </summary>
-        public ScriptFile()
+        internal ScriptFile()
         {
+            ClientFilePath = "test.sql";
         }
 
         /// <summary>
