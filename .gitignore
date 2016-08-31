@@ -29,7 +29,10 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 
-
+# code coverage artifacts
+node_modules
+packages
+coverage.xml
 
 # Cross building rootfs
 cross/rootfs/
