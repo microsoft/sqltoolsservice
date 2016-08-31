@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Internal representation of the result sets so we can modify internally
         /// </summary>
-        private List<ResultSet> resultSets;
+        internal List<ResultSet> resultSets;
 
         /// <summary>
         /// The result sets of the batch execution

@@ -80,7 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecuteSubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
-            // shravind
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
 
             // Register handler for shutdown event
@@ -254,18 +253,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
             try
+
             {
                 using (StreamWriter csvFile = new StreamWriter(File.OpenWrite(saveParams.FilePath)))
                 {
                     StringBuilder rowBuilder = new StringBuilder();
                     String separator = ",";
 
-                    // get the requested resultSet from query to write as csv
-                    ResultSet currentResultSet = result.ResultSets[saveParams.ResultSetNo];
-                    if ( saveParams.IncludeHeaders )
+                    // get the requested resultSet from query
+                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
+                    ResultSet selectedResultSet = selectedBatch.resultSets[saveParams.ResultSetIndex] ; 
                     {
                         // write column names to csv
-                        foreach( DbColumn column in currentResultSet.Columns)
+                        foreach( DbColumn column in selectedResultSet.Columns)
                         {
                             rowBuilder.Append((column.ColumnName != null) ? column.ColumnName : string.Empty);
                             rowBuilder.Append(separator);
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
 
                     // write rows to csv
-                    foreach( var row in currentResultSet.Rows)
+                    foreach( var row in selectedResultSet.Rows)
                     {
 
                         foreach( var field in row)

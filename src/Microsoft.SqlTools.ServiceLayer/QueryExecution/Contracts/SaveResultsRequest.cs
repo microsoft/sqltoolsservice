@@ -29,9 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public Boolean IncludeHeaders { get; set; }
 
         /// <summary>
-        /// The ResultSetNumber to write out to CSV
+        /// Index of the batch to get the results from
         /// </summary>
-        public int ResultSetNo { get; set; }
+        public int BatchIndex { get; set; }
+
+        /// <summary>
+        /// Index of the result set to get the results from
+        /// </summary>
+        public int ResultSetIndex { get; set; }
 
         /// <summary>
         /// CSV - Write values in quotes 
