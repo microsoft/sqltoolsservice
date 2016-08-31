@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         private static async Task HandleDocumentSymbolRequest(
-            TextDocumentIdentifier textDocumentIdentifier,
+            DocumentSymbolParams documentSymbolParams,
             RequestContext<SymbolInformation[]> requestContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleDocumentSymbolRequest");

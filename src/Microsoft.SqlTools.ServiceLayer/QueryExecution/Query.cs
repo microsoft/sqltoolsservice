@@ -4,15 +4,14 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -24,6 +23,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
+        /// The batches underneath this query
+        /// </summary>
+        internal Batch[] Batches { get; set; }
+
+        /// <summary>
+        /// The summaries of the batches underneath this query
+        /// </summary>
+        public BatchSummary[] BatchSummaries
+        {
+            get
+            {
+                if (!HasExecuted)
+                {
+                    throw new InvalidOperationException("Query has not been executed.");
+                }
+
+                return Batches.Select((batch, index) => new BatchSummary
+                {
+                    Id = index,
+                    HasError = batch.HasError,
+                    Messages = batch.ResultMessages.ToArray(),
+                    ResultSetSummaries = batch.ResultSummaries
+                }).ToArray();
+            }
+        }
+
+        /// <summary>
         /// Cancellation token source, used for cancelling async db actions
         /// </summary>
         private readonly CancellationTokenSource cancellationSource;
@@ -32,48 +58,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The connection info associated with the file editor owner URI, used to create a new
         /// connection upon execution of the query
         /// </summary>
-        public ConnectionInfo EditorConnection { get; set; }
+        private ConnectionInfo EditorConnection { get; set; }
 
-        /// <summary>
-        /// Whether or not the query has an error
-        /// </summary>
-        public bool HasError { get; set; }
+        private bool HasExecuteBeenCalled { get; set; }
 
         /// <summary>
         /// Whether or not the query has completed executed, regardless of success or failure
         /// </summary>
-        public bool HasExecuted { get; set; }
+        /// <remarks>
+        /// Don't touch the setter unless you're doing unit tests!
+        /// </remarks>
+        public bool HasExecuted
+        {
+            get { return Batches.Length == 0 ? HasExecuteBeenCalled : Batches.All(b => b.HasExecuted); }
+            internal set
+            {
+                HasExecuteBeenCalled = value;
+                foreach (var batch in Batches)
+                {
+                    batch.HasExecuted = value;
+                }
+            }
+        }
 
         /// <summary>
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; set; }
-
-        /// <summary>
-        /// Messages that have come back from the server
-        /// </summary>
-        public List<string> ResultMessages { get; set; }
-
-        /// <summary>
-        /// The result sets of the query execution
-        /// </summary>
-        public List<ResultSet> ResultSets { get; set; }
-
-        /// <summary>
-        /// Property for generating a set result set summaries from the result sets
-        /// </summary>
-        public ResultSetSummary[] ResultSummary
-        {
-            get
-            {
-                return ResultSets.Select((set, index) => new ResultSetSummary
-                {
-                    ColumnInfo = set.Columns,
-                    Id = index,
-                    RowCount = set.Rows.Count
-                }).ToArray();
-            }
-        }
 
         #endregion
 
@@ -82,10 +93,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="queryText">The text of the query to execute</param>
         /// <param name="connection">The information of the connection to use to execute the query</param>
-        public Query(string queryText, ConnectionInfo connection)
+        /// <param name="settings">Settings for how to execute the query, from the user</param>
+        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings)
         {
             // Sanity check for input
-            if (String.IsNullOrEmpty(queryText))
+            if (string.IsNullOrEmpty(queryText))
             {
                 throw new ArgumentNullException(nameof(queryText), "Query text cannot be null");
             }
@@ -93,14 +105,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new ArgumentNullException(nameof(connection), "Connection cannot be null");
             }
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings), "Settings cannot be null");
+            }
 
             // Initialize the internal state
             QueryText = queryText;
             EditorConnection = connection;
-            HasExecuted = false;
-            ResultSets = new List<ResultSet>();
-            ResultMessages = new List<string>();
             cancellationSource = new CancellationTokenSource();
+
+            // Process the query into batches
+            ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
+            {
+                BatchSeparator = settings.BatchSeparator
+            });
+            // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
+            Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
+                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber)).ToArray();
         }
 
         /// <summary>
@@ -108,96 +130,38 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public async Task Execute()
         {
-            // Sanity check to make sure we haven't already run this query
-            if (HasExecuted)
+            // Mark that we've internally executed
+            HasExecuteBeenCalled = true;
+
+            // Don't actually execute if there aren't any batches to execute
+            if (Batches.Length == 0)
             {
-                throw new InvalidOperationException("Query has already executed.");
+                return;
             }
 
-            DbConnection conn = null;
-
-            // Create a connection from the connection details
-            try
+            // Open up a connection for querying the database
+            string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
+            using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
             {
-                string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
-                using (conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
+                await conn.OpenAsync();
+
+                // We need these to execute synchronously, otherwise the user will be very unhappy
+                foreach (Batch b in Batches)
                 {
-                    // If we have the message listener, bind to it
-                    SqlConnection sqlConn = conn as SqlConnection;
-                    if (sqlConn != null)
-                    {
-                        sqlConn.InfoMessage += StoreDbMessage;
-                    }
-
-                    await conn.OpenAsync(cancellationSource.Token);
-
-                    // Create a command that we'll use for executing the query
-                    using (DbCommand command = conn.CreateCommand())
-                    {
-                        command.CommandText = QueryText;
-                        command.CommandType = CommandType.Text;
-
-                        // Execute the command to get back a reader
-                        using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationSource.Token))
-                        {
-                            do
-                            {
-                                // Create a message with the number of affected rows
-                                if (reader.RecordsAffected >= 0)
-                                {
-                                    ResultMessages.Add(String.Format("({0} row(s) affected)", reader.RecordsAffected));
-                                }
-
-                                if (!reader.HasRows && reader.FieldCount == 0)
-                                {
-                                    continue;
-                                }
-
-                                // Read until we hit the end of the result set
-                                ResultSet resultSet = new ResultSet();
-                                while (await reader.ReadAsync(cancellationSource.Token))
-                                {
-                                    resultSet.AddRow(reader);
-                                }
-
-                                // Read off the column schema information
-                                if (reader.CanGetColumnSchema())
-                                {
-                                    resultSet.Columns = reader.GetColumnSchema().ToArray();
-                                }
-
-                                // Add the result set to the results of the query
-                                ResultSets.Add(resultSet);
-                            } while (await reader.NextResultAsync(cancellationSource.Token));
-                        }
-                    }
+                    await b.Execute(conn, cancellationSource.Token);
                 }
-            }
-            catch (DbException dbe)
-            {
-                HasError = true;
-                UnwrapDbException(dbe);
-            }
-            catch (Exception)
-            {
-                HasError = true;
-                throw;
-            }
-            finally
-            {
-                // Mark that we have executed
-                HasExecuted = true;
             }
         }
 
         /// <summary>
         /// Retrieves a subset of the result sets
         /// </summary>
+        /// <param name="batchIndex">The index for selecting the batch item</param>
         /// <param name="resultSetIndex">The index for selecting the result set</param>
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public ResultSetSubset GetSubset(int resultSetIndex, int startRow, int rowCount)
+        public ResultSetSubset GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check that the results are available
             if (!HasExecuted)
@@ -205,30 +169,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException("The query has not completed, yet.");
             }
 
-            // Sanity check to make sure we have valid numbers
-            if (resultSetIndex < 0 || resultSetIndex >= ResultSets.Count)
+            // Sanity check to make sure that the batch is within bounds
+            if (batchIndex < 0 || batchIndex >= Batches.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), "Result set index cannot be less than 0" +
+                throw new ArgumentOutOfRangeException(nameof(batchIndex), "Result set index cannot be less than 0" +
                                                                              "or greater than the number of result sets");
             }
-            ResultSet targetResultSet = ResultSets[resultSetIndex];
-            if (startRow < 0 || startRow >= targetResultSet.Rows.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(startRow), "Start row cannot be less than 0 " +
-                                                                        "or greater than the number of rows in the resultset");
-            }
-            if (rowCount <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rowCount), "Row count must be a positive integer");
-            }
 
-            // Retrieve the subset of the results as per the request
-            object[][] rows = targetResultSet.Rows.Skip(startRow).Take(rowCount).ToArray();
-            return new ResultSetSubset
-            {
-                Rows = rows,
-                RowCount = rows.Length
-            };
+            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
 
         /// <summary>
@@ -244,48 +192,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Issue the cancellation token for the query
             cancellationSource.Cancel();
-        }
-
-        /// <summary>
-        /// Delegate handler for storing messages that are returned from the server
-        /// NOTE: Only messages that are below a certain severity will be returned via this
-        /// mechanism. Anything above that level will trigger an exception.
-        /// </summary>
-        /// <param name="sender">Object that fired the event</param>
-        /// <param name="args">Arguments from the event</param>
-        private void StoreDbMessage(object sender, SqlInfoMessageEventArgs args)
-        {
-            ResultMessages.Add(args.Message);
-        }
-
-        /// <summary>
-        /// Attempts to convert a <see cref="DbException"/> to a <see cref="SqlException"/> that
-        /// contains much more info about Sql Server errors. The exception is then unwrapped and
-        /// messages are formatted and stored in <see cref="ResultMessages"/>. If the exception
-        /// cannot be converted to SqlException, the message is written to the messages list.
-        /// </summary>
-        /// <param name="dbe">The exception to unwrap</param>
-        private void UnwrapDbException(DbException dbe)
-        {
-            SqlException se = dbe as SqlException;
-            if (se != null)
-            {
-                foreach (var error in se.Errors)
-                {
-                    SqlError sqlError = error as SqlError;
-                    if (sqlError != null)
-                    {
-                        string message = String.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                            sqlError.Number, sqlError.Class, sqlError.State, sqlError.LineNumber,
-                            Environment.NewLine, sqlError.Message);
-                        ResultMessages.Add(message);
-                    }
-                }
-            }
-            else
-            {
-                ResultMessages.Add(dbe.Message);
-            }
         }
 
         #region IDisposable Implementation

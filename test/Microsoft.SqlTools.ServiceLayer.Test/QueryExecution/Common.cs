@@ -1,8 +1,13 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -10,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Moq.Protected;
@@ -18,16 +24,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class Common
     {
+        public const string StandardQuery = "SELECT * FROM sys.objects";
+
+        public const string InvalidQuery = "SELECT *** FROM sys.objects";
+
+        public const string NoOpQuery = "-- No ops here, just us chickens.";
+
         public const string OwnerUri = "testFile";
 
-        public static readonly Dictionary<string, string>[] StandardTestData =
+        public const int StandardRows = 5;
+
+        public const int StandardColumns = 5;
+
+        public static Dictionary<string, string>[] StandardTestData
         {
-            new Dictionary<string, string> { {"col1", "val11"}, { "col2", "val12"}, { "col3", "val13"}, { "col4", "col14"} },
-            new Dictionary<string, string> { {"col1", "val21"}, { "col2", "val22"}, { "col3", "val23"}, { "col4", "col24"} },
-            new Dictionary<string, string> { {"col1", "val31"}, { "col2", "val32"}, { "col3", "val33"}, { "col4", "col34"} },
-            new Dictionary<string, string> { {"col1", "val41"}, { "col2", "val42"}, { "col3", "val43"}, { "col4", "col44"} },
-            new Dictionary<string, string> { {"col1", "val51"}, { "col2", "val52"}, { "col3", "val53"}, { "col4", "col54"} },
-        };
+            get { return GetTestData(StandardRows, StandardColumns); }
+        }
 
         public static Dictionary<string, string>[] GetTestData(int columns, int rows)
         {
@@ -45,9 +57,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return output;
         }
 
+        public static Batch GetBasicExecutedBatch()
+        {
+            Batch batch = new Batch(StandardQuery, 1);
+            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
+            return batch;
+        }
+
         public static Query GetBasicExecutedQuery()
         {
-            Query query = new Query("SIMPLE QUERY", CreateTestConnectionInfo(new[] { StandardTestData }, false));
+            ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
+            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings());
             query.Execute().Wait();
             return query;
         }
@@ -106,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 ServerName = "sqltools11"
             };
 
-            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), "test://test", connDetails);
+            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, connDetails);
         }
 
         #endregion

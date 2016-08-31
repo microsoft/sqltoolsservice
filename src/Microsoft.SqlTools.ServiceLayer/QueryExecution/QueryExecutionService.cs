@@ -12,6 +12,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -62,6 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly Lazy<ConcurrentDictionary<string, Query>> queries =
             new Lazy<ConcurrentDictionary<string, Query>>(() => new ConcurrentDictionary<string, Query>());
 
+        private SqlToolsSettings Settings { get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; } }
+
         #endregion
 
         /// <summary>
@@ -83,6 +87,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
             {
                 Dispose();
+                return Task.FromResult(0);
+            });
+
+            // Register a handler for when the configuration changes
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((oldSettings, newSettings, eventContext) =>
+            {
+                Settings.QueryExecutionSettings.Update(newSettings.QueryExecutionSettings);
                 return Task.FromResult(0);
             });
         }
@@ -127,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 var result = new QueryExecuteSubsetResult
                 {
                     Message = null,
-                    ResultSubset = query.GetSubset(
+                    ResultSubset = query.GetSubset(subsetParams.BatchIndex,
                         subsetParams.ResultSetIndex, subsetParams.RowsStartIndex, subsetParams.RowsCount)
                 };
                 await requestContext.SendResult(result);
@@ -319,8 +330,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
                 }
 
+                // Retrieve the current settings for executing the query with
+                QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
+
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(executeParams.QueryText, connectionInfo);
+                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendResult(new QueryExecuteResult
@@ -360,10 +374,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             await Task.WhenAll(executeTask);
             QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
             {
-                HasError = query.HasError,
-                Messages = query.ResultMessages.ToArray(),
                 OwnerUri = executeParams.OwnerUri,
-                ResultSetSummaries = query.ResultSummary
+                BatchSummaries = query.BatchSummaries
             };
             await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
         }

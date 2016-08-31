@@ -53,34 +53,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             new Dictionary<ConnectionSummary, IntellisenseCache>(new ConnectionSummaryComparer());
         private Object cachesLock = new Object(); // Used when we insert/remove something from the cache dictionary
 
-        private ISqlConnectionFactory factory;
-        private Object factoryLock = new Object();
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal ISqlConnectionFactory ConnectionFactory
-        {
-            get
-            {
-                lock(factoryLock)
-                {
-                    if(factory == null)
-                    {
-                        factory = new SqlConnectionFactory();
-                    }
-                }
-                return factory;
-            }
-            set
-            {
-                lock(factoryLock)
-                {
-                    factory = value;
-                }
-            }
-        }
-
         private ConnectionService connectionService = null;
 
         /// <summary>
@@ -110,14 +82,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Register a callback for when a connection is closed
             ConnectionServiceInstance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
-        }
-
-        private async Task UpdateAutoCompleteCache(ConnectionInfo connectionInfo)
-        {
-            if (connectionInfo != null)
-            {
-                await UpdateAutoCompleteCache(connectionInfo.ConnectionDetails);
-            }
         }
 
         /// <summary>
@@ -158,21 +122,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Update the cached autocomplete candidate list when the user connects to a database
         /// </summary>
-        /// <param name="details"></param>
-        public async Task UpdateAutoCompleteCache(ConnectionDetails details)
+        /// <param name="info"></param>
+        public async Task UpdateAutoCompleteCache(ConnectionInfo info)
         {
-            IntellisenseCache cache;
-            lock(cachesLock)
+            if (info != null)
             {
-                if(!caches.TryGetValue(details, out cache))
+                IntellisenseCache cache;
+                lock(cachesLock)
                 {
-                    cache = new IntellisenseCache(ConnectionFactory, details);
-                    caches[cache.DatabaseInfo] = cache;
+                    if(!caches.TryGetValue(info.ConnectionDetails, out cache))
+                    {
+                        cache = new IntellisenseCache(info.Factory, info.ConnectionDetails);
+                        caches[cache.DatabaseInfo] = cache;
+                    }
+                    cache.ReferenceCount++;
                 }
-                cache.ReferenceCount++;
+                
+                await cache.UpdateCache();
             }
-            
-            await cache.UpdateCache();
         }
 
         /// <summary>
@@ -188,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // that are not backed by a SQL connection
             ConnectionInfo info;
             IntellisenseCache cache;
-            if (ConnectionServiceInstance.TryFindConnection(textDocumentPosition.Uri, out info)
+            if (ConnectionServiceInstance.TryFindConnection(textDocumentPosition.TextDocument.Uri, out info)
                 && caches.TryGetValue((ConnectionSummary)info.ConnectionDetails, out cache))
             {
                 return cache.GetAutoCompleteItems(textDocumentPosition).ToArray();

@@ -44,6 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             ConfigChangeCallbacks = new List<ConfigChangeCallback>();
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
             TextDocOpenCallbacks = new List<TextDocOpenCallback>();
+
+            CurrentSettings = new TConfig();
         }
 
         #endregion
@@ -52,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         public Workspace Workspace { get; private set; }
 
-        public TConfig CurrentSettings { get; private set; }
+        public TConfig CurrentSettings { get; internal set; }
 
         /// <summary>
         /// Delegate for callbacks that occur when the configuration for the workspace changes
@@ -101,7 +103,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             // Create a workspace that will handle state for the session
             Workspace = new Workspace();
-            CurrentSettings = new TConfig();
 
             // Register the handlers for when changes to the workspae occur
             serviceHost.SetEventHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
@@ -181,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             // A text change notification can batch multiple change requests
             foreach (var textChange in textChangeParams.ContentChanges)
             {
-                string fileUri = textChangeParams.Uri ?? textChangeParams.TextDocument.Uri; 
+                string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri; 
                 msg.AppendLine(string.Format("  File: {0}", fileUri));
 
                 ScriptFile changedFile = Workspace.GetFile(fileUri);
@@ -207,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
 
             // read the SQL file contents into the ScriptFile 
-            ScriptFile openedFile = Workspace.GetFileBuffer(openParams.Uri, openParams.Text); 
+            ScriptFile openedFile = Workspace.GetFileBuffer(openParams.TextDocument.Uri, openParams.TextDocument.Text);
 
              // Propagate the changes to the event handlers
             var textDocOpenTasks = TextDocOpenCallbacks.Select(
@@ -217,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         }
 
         protected Task HandleDidCloseTextDocumentNotification(
-           TextDocumentIdentifier closeParams,
+           DidCloseTextDocumentParams closeParams,
            EventContext eventContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");
