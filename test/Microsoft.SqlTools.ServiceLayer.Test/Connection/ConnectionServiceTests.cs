@@ -7,10 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.Test.Utility;
 using Moq;
@@ -152,15 +152,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify that when connecting with invalid parameters, an error is thrown.
         /// </summary>
         [Theory]
-        [InlineDataAttribute(null, "my-server", "test", "sa", "123456")]
-        [InlineDataAttribute("file://my/sample/file.sql", null, "test", "sa", "123456")]
-        [InlineDataAttribute("file://my/sample/file.sql", "my-server", "test", null, "123456")]
-        [InlineDataAttribute("file://my/sample/file.sql", "my-server", "test", "sa", null)]
-        [InlineDataAttribute("", "my-server", "test", "sa", "123456")]
-        [InlineDataAttribute("file://my/sample/file.sql", "", "test", "sa", "123456")]
-        [InlineDataAttribute("file://my/sample/file.sql", "my-server", "test", "", "123456")]
-        [InlineDataAttribute("file://my/sample/file.sql", "my-server", "test", "sa", "")]
-        public void ConnectingWithInvalidParametersYieldsErrorMessage(string ownerUri, string server, string database, string userName, string password)
+        [InlineData("SqlLogin", null, "my-server", "test", "sa", "123456")]
+        [InlineData("SqlLogin", "file://my/sample/file.sql", null, "test", "sa", "123456")]
+        [InlineData("SqlLogin", "file://my/sample/file.sql", "my-server", "test", null, "123456")]
+        [InlineData("SqlLogin", "file://my/sample/file.sql", "my-server", "test", "sa", null)]
+        [InlineData("SqlLogin", "", "my-server", "test", "sa", "123456")]
+        [InlineData("SqlLogin", "file://my/sample/file.sql", "", "test", "sa", "123456")]
+        [InlineData("SqlLogin", "file://my/sample/file.sql", "my-server", "test", "", "123456")]
+        [InlineData("SqlLogin", "file://my/sample/file.sql", "my-server", "test", "sa", "")]
+        [InlineData("Integrated", null, "my-server", "test", "sa", "123456")]
+        [InlineData("Integrated", "file://my/sample/file.sql", null, "test", "sa", "123456")]
+        [InlineData("Integrated", "", "my-server", "test", "sa", "123456")]
+        [InlineData("Integrated", "file://my/sample/file.sql", "", "test", "sa", "123456")]
+        public void ConnectingWithInvalidParametersYieldsErrorMessage(string authType, string ownerUri, string server, string database, string userName, string password)
         {
             // Connect with invalid parameters
             var connectionResult =
@@ -172,13 +176,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                         ServerName = server,
                         DatabaseName = database,
                         UserName = userName,
-                        Password = password
+                        Password = password,
+                        AuthenticationType = authType
                     }
                 });
             
             // check that an error was caught
             Assert.NotNull(connectionResult.Messages);
             Assert.NotEqual(String.Empty, connectionResult.Messages);
+        }
+
+        /// <summary>
+        /// Verify that when using integrated authentication, the username and/or password can be empty.
+        /// </summary>
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData(null, "")]
+        [InlineData("", null)]
+        [InlineData("", "")]
+        [InlineData("sa", null)]
+        [InlineData("sa", "")]
+        [InlineData(null, "12345678")]
+        [InlineData("", "12345678")]
+        public void ConnectingWithNoUsernameOrPasswordWorksForIntegratedAuth(string userName, string password)
+        {
+            // Connect
+            var connectionResult =
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = new ConnectionDetails() {
+                        ServerName = "my-server",
+                        DatabaseName = "test",
+                        UserName = userName,
+                        Password = password,
+                        AuthenticationType = "Integrated"
+                    }
+                });
+            
+            // check that the connection was successful
+            Assert.NotEmpty(connectionResult.ConnectionId);
+            Assert.Null(connectionResult.Messages);
         }
 
         /// <summary>
@@ -195,6 +234,57 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // check that an error was caught
             Assert.NotNull(connectionResult.Messages);
             Assert.NotEqual(String.Empty, connectionResult.Messages);
+        }
+
+        /// <summary>
+        /// Verify that optional parameters can be built into a connection string for connecting.
+        /// </summary>
+        [Theory]
+        [InlineData("AuthenticationType", "Integrated", "Integrated Security")]
+        [InlineData("AuthenticationType", "SqlLogin", "Integrated Security")]
+        [InlineData("Encrypt", true, "Encrypt")]
+        [InlineData("Encrypt", false, "Encrypt")]
+        [InlineData("TrustServerCertificate", true, "TrustServerCertificate")]
+        [InlineData("TrustServerCertificate", false, "TrustServerCertificate")]
+        [InlineData("PersistSecurityInfo", true, "Persist Security Info")]
+        [InlineData("PersistSecurityInfo", false, "Persist Security Info")]
+        [InlineData("ConnectTimeout", 15, "Connect Timeout")]
+        [InlineData("ConnectRetryCount", 1, "ConnectRetryCount")]
+        [InlineData("ConnectRetryInterval", 10, "ConnectRetryInterval")]
+        [InlineData("ApplicationName", "vscode-mssql", "Application Name")]
+        [InlineData("WorkstationId", "mycomputer", "Workstation ID")]
+        [InlineData("ApplicationIntent", "ReadWrite", "ApplicationIntent")]
+        [InlineData("ApplicationIntent", "ReadOnly", "ApplicationIntent")]
+        [InlineData("CurrentLanguage", "test", "Current Language")]
+        [InlineData("Pooling", false, "Pooling")]
+        [InlineData("Pooling", true, "Pooling")]
+        [InlineData("MaxPoolSize", 100, "Max Pool Size")]
+        [InlineData("MinPoolSize", 0, "Min Pool Size")]
+        [InlineData("LoadBalanceTimeout", 0, "Load Balance Timeout")]
+        [InlineData("Replication", true, "Replication")]
+        [InlineData("Replication", false, "Replication")]
+        [InlineData("AttachDbFilename", "myfile", "AttachDbFilename")]
+        [InlineData("FailoverPartner", "partner", "Failover Partner")]
+        [InlineData("MultiSubnetFailover", true, "MultiSubnetFailover")]
+        [InlineData("MultiSubnetFailover", false, "MultiSubnetFailover")]
+        [InlineData("MultipleActiveResultSets", false, "MultipleActiveResultSets")]
+        [InlineData("MultipleActiveResultSets", true, "MultipleActiveResultSets")]
+        [InlineData("PacketSize", 8192, "Packet Size")]
+        [InlineData("TypeSystemVersion", "Latest", "Type System Version")]
+        public void ConnectingWithOptionalParametersBuildsConnectionString(string propertyName, object propertyValue, string connectionStringMarker)
+        {
+            // Create a test connection details object and set the property to a specific value
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            PropertyInfo info = details.GetType().GetProperty(propertyName);
+            info.SetValue(details, propertyValue);
+
+            // Test that a connection string can be created without exceptions
+            string connectionString = ConnectionService.BuildConnectionString(details);
+            Assert.NotNull(connectionString);
+            Assert.NotEmpty(connectionString);
+
+            // Verify that the parameter is in the connection string
+            Assert.True(connectionString.Contains(connectionStringMarker));
         }
 
         /// <summary>
