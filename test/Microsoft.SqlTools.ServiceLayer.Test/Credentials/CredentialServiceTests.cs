@@ -48,6 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
         private void DeleteDefaultCreds()
         {
+            credStore.DeletePassword(credentialId, null);
             credStore.DeletePassword(credentialId, username1);
             credStore.DeletePassword(credentialId, username2);
         }
@@ -93,12 +94,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
+        public async Task SaveCredential_Returns_True_When_Password_Saved_Twice()
+        {
+            await RunAndVerify<bool>(
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, null, password1), requestContext),
+                verify: (actual => Assert.True(actual)));
+
+            await RunAndVerify<bool>(
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, null, password1), requestContext),
+                verify: (actual => Assert.True(actual)));
+        }
+
+        [Fact]
         public async Task ReadCredential_Returns_Password_For_Credential()
         {
             // Given we have saved the credential
             await RunAndVerify<bool>(
                 test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, null, password1), requestContext),
-                verify: (actual => Assert.True(actual)));
+                verify: (actual => Assert.True(actual, "Expect Credential to be saved successfully")));
 
 
             // Expect read of the credential to return the password

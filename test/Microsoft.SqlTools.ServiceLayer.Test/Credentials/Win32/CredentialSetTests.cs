@@ -15,66 +15,84 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void CredentialSet_Create()
         {
-            Assert.NotNull(new CredentialSet());
+            RunIfWindows(() => 
+            {
+                Assert.NotNull(new CredentialSet());
+            });
         }
 
         [Fact]
         public void CredentialSet_Create_WithTarget()
         {
-            Assert.NotNull(new CredentialSet("target"));
+            RunIfWindows(() => 
+            {
+                Assert.NotNull(new CredentialSet("target"));
+            });
         }
 
         [Fact]
         public void CredentialSet_ShouldBeIDisposable()
         {
-            Assert.True(new CredentialSet() is IDisposable, "CredentialSet needs to implement IDisposable Interface.");
+            RunIfWindows(() => 
+            {
+                Assert.True(new CredentialSet() is IDisposable, "CredentialSet needs to implement IDisposable Interface.");
+            });
         }
 
         [Fact]
         public void CredentialSet_Load()
         {
-            Win32Credential credential = new Win32Credential
-                                        {
-                                            Username = "username",
-                                            Password = "password",
-                                            Target = "target",
-                                            Type = CredentialType.Generic
-                                        };
-            credential.Save();
+            RunIfWindows(() => 
+            {
+                Win32Credential credential = new Win32Credential
+                                            {
+                                                Username = "username",
+                                                Password = "password",
+                                                Target = "target",
+                                                Type = CredentialType.Generic
+                                            };
+                credential.Save();
 
-            CredentialSet set = new CredentialSet();
-            set.Load();
-            Assert.NotNull(set);
-            Assert.NotEmpty(set);
+                CredentialSet set = new CredentialSet();
+                set.Load();
+                Assert.NotNull(set);
+                Assert.NotEmpty(set);
 
-            credential.Delete();
+                credential.Delete();
 
-            set.Dispose();
+                set.Dispose();
+            });
         }
 
         [Fact]
         public void CredentialSet_Load_ShouldReturn_Self()
         {
-            CredentialSet set = new CredentialSet();
-            Assert.IsType<CredentialSet>(set.Load());
+            RunIfWindows(() => 
+            {
+                CredentialSet set = new CredentialSet();
+                Assert.IsType<CredentialSet>(set.Load());
 
-            set.Dispose();
+                set.Dispose();
+            });
         }
 
         [Fact]
         public void CredentialSet_Load_With_TargetFilter()
         {
-            Win32Credential credential = new Win32Credential
-                                        {
-                                            Username = "filteruser",
-                                            Password = "filterpassword",
-                                            Target = "filtertarget"
-                                        };
-            credential.Save();
+            RunIfWindows(() => 
+            {
+                Win32Credential credential = new Win32Credential
+                                            {
+                                                Username = "filteruser",
+                                                Password = "filterpassword",
+                                                Target = "filtertarget"
+                                            };
+                credential.Save();
 
-            CredentialSet set = new CredentialSet("filtertarget");
-            Assert.Equal(1, set.Load().Count);
-            set.Dispose();
+                CredentialSet set = new CredentialSet("filtertarget");
+                Assert.Equal(1, set.Load().Count);
+                set.Dispose();
+            });
         }
 
         private static void RunIfWindows(Action test)

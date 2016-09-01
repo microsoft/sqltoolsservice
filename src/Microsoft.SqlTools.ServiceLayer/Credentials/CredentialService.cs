@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Credentials.OSX;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Win32;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 
@@ -62,6 +63,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
             if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new Win32CredentialStore();
+            }
+            else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return new OSXCredentialStore();
             }
             // TODO add Linux and Mac support
             throw new InvalidOperationException("Platform not currently supported");

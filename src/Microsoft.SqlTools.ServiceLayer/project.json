@@ -3,8 +3,7 @@
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true,
-    "allowUnsafe": true
+    "emitEntryPoint": true
   },
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
