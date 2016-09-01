@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
@@ -20,9 +19,8 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
-using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -39,17 +37,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private Lazy<Dictionary<string, ScriptParseInfo>> scriptParseInfoMap 
             = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
-
-        internal class ScriptParseInfo
-        {
-            public IBinder Binder { get; set; }
-
-            public ParseResult ParseResult { get; set; }
-
-            public SmoMetadataProvider MetadataProvider { get; set; }
-
-            public MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
-        }
 
         internal Dictionary<string, ScriptParseInfo> ScriptParseInfoMap 
         {
@@ -93,21 +80,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         private SqlToolsContext Context { get; set; }
 
-        /// <summary>
-        /// The cached parse result from previous incremental parse
-        /// </summary>
-        private ParseResult prevParseResult;
-
         #endregion
 
         #region Public Methods
 
+        /// <summary>
+        /// Initializes the Language Service instance
+        /// </summary>
+        /// <param name="serviceHost"></param>
+        /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
         {
             // Register the requests that this service will handle
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
             serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
-            serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
             serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
             serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
@@ -136,51 +122,68 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Parses the SQL text and binds it to the SMO metadata provider if connected 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="sqlText"></param>
+        /// <returns></returns>
+        public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
+        {
+            ScriptParseInfo parseInfo = null;
+            if (this.ScriptParseInfoMap.ContainsKey(scriptFile.ClientFilePath))
+            {
+                parseInfo = this.ScriptParseInfoMap[scriptFile.ClientFilePath];   
+            }
+
+            // parse current SQL file contents to retrieve a list of errors
+            ParseOptions parseOptions = new ParseOptions();
+            ParseResult parseResult = Parser.IncrementalParse(
+                scriptFile.Contents,
+                parseInfo != null ? parseInfo.ParseResult : null,
+                parseOptions);
+
+            // save previous result for next incremental parse
+            if (parseInfo != null)
+            {
+                parseInfo.ParseResult = parseResult;
+            }
+
+            if (connInfo != null)
+            {
+                try
+                {
+                    List<ParseResult> parseResults = new List<ParseResult>();
+                    parseResults.Add(parseResult);
+                    parseInfo.Binder.Bind(
+                        parseResults, 
+                        connInfo.ConnectionDetails.DatabaseName, 
+                        BindMode.Batch);
+                }
+                catch (ConnectionException)
+                {
+                    Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
+                }
+                catch (SqlParserInternalBinderError)
+                {
+                    Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
+                }
+            }
+
+            return parseResult;
+        }
+
+        /// <summary>
         /// Gets a list of semantic diagnostic marks for the provided script file
         /// </summary>
         /// <param name="scriptFile"></param>
         public ScriptFileMarker[] GetSemanticMarkers(ScriptFile scriptFile)
         {
-            // parse current SQL file contents to retrieve a list of errors
-            ParseOptions parseOptions = new ParseOptions();
-            ParseResult parseResult = Parser.IncrementalParse(
-                scriptFile.Contents,
-                prevParseResult,
-                parseOptions);
-
-            // save previous result for next incremental parse
-            this.prevParseResult = parseResult;
-
             ConnectionInfo connInfo;
-            bool isConnected = ConnectionService.Instance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-            if (isConnected)
-            {
-                if (!this.ScriptParseInfoMap.ContainsKey(scriptFile.ClientFilePath))
-                {
-                    var srvConn = ConnectionService.GetServerConnection(connInfo);
-                    var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
-                    var binder = BinderProvider.CreateBinder(metadataProvider);
-                    var displayInfoProvider = new MetadataDisplayInfoProvider();
-
-                    this.ScriptParseInfoMap.Add(scriptFile.ClientFilePath,
-                        new ScriptParseInfo()
-                        {
-                            Binder = binder,
-                            ParseResult = parseResult,
-                            MetadataProvider = metadataProvider,
-                            MetadataDisplayInfoProvider = displayInfoProvider
-                        });
-                }
-
-                ScriptParseInfo parseInfo = this.ScriptParseInfoMap[scriptFile.ClientFilePath];
-                parseInfo.ParseResult = parseResult;
-                List<ParseResult> parseResults = new List<ParseResult>();
-                parseResults.Add(parseResult);
-                parseInfo.Binder.Bind(
-                    parseResults, 
-                    connInfo.ConnectionDetails.DatabaseName, 
-                    BindMode.Batch);
-            }
+            ConnectionService.Instance.TryFindConnection(
+                scriptFile.ClientFilePath, 
+                out connInfo);
+    
+            var parseResult = ParseAndBind(scriptFile, connInfo);
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
@@ -224,17 +227,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             Logger.Write(LogLevel.Verbose, "HandleReferencesRequest");
             await Task.FromResult(true);
-        }
-
-        private static async Task HandleCompletionRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<CompletionItem[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleCompletionRequest"); 
- 
-            // get the current list of completion items and return to client 
-            var completionItems = AutoCompleteService.Instance.GetCompletionItems(textDocumentPosition); 
-            await requestContext.SendResult(completionItems); 
         }
 
         private static async Task HandleCompletionResolveRequest(
@@ -305,7 +297,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             await Task.FromResult(true);             
         }
-
         
         /// <summary> 
         /// Handles text document change events 
@@ -506,7 +497,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Message = scriptFileMarker.Message,
                 Range = new Range
                 {
-                    // TODO: What offsets should I use?
                     Start = new Position
                     {
                         Line = scriptFileMarker.ScriptRegion.StartLineNumber - 1,

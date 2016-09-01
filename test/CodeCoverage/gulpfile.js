@@ -1,5 +1,4 @@
 ﻿var gulp = require('gulp');
-//var install = require('gulp-install');;
 var del = require('del');
 var request = require('request');
 var fs = require('fs');

@@ -34,9 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         public string FilePath { get; private set; }
 
         /// <summary>
-        /// Gets the path which the editor client uses to identify this file.
+        /// Gets or sets the path which the editor client uses to identify this file.
+        /// Setter for testing purposes only
         /// </summary>
-        public string ClientFilePath { get; private set; }
+        public string ClientFilePath { get; internal set; }
 
         /// <summary>
         /// Gets or sets a boolean that determines whether
@@ -52,13 +53,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         public bool IsInMemory { get; private set; }
 
         /// <summary>
-        /// Gets a string containing the full contents of the file.
+        /// Gets or sets a string containing the full contents of the file.
+        /// Setter for testing purposes only
         /// </summary>
         public string Contents 
         {
             get
             {
                 return string.Join("\r\n", this.FileLines);
+            }
+            set
+            {
+                this.FileLines = value != null ? value.Split('\n') : null;
             }
         }
 
