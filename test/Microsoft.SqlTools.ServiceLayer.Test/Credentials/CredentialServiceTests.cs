@@ -234,3 +234,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
     }
 }
+
