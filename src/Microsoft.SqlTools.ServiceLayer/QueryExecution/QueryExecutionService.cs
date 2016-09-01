@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -257,32 +258,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 using (StreamWriter csvFile = new StreamWriter(File.OpenWrite(saveParams.FilePath)))
                 {
                     StringBuilder rowBuilder = new StringBuilder();
-                    String separator = ",";
 
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = selectedBatch.resultSets[saveParams.ResultSetIndex] ; 
+                    ResultSet selectedResultSet = selectedBatch.resultSets[saveParams.ResultSetIndex] ;
+                    if ( saveParams.IncludeHeaders) 
                     {
                         // write column names to csv
-                        foreach( DbColumn column in selectedResultSet.Columns)
-                        {
-                            rowBuilder.Append((column.ColumnName != null) ? column.ColumnName : string.Empty);
-                            rowBuilder.Append(separator);
-                        }
-                        rowBuilder.Length--;
-                        csvFile.WriteLine(rowBuilder.ToString());
-                        rowBuilder.Clear();
+                        csvFile.WriteLine( string.Join( ",", selectedResultSet.Columns.Select( column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
                     }
 
                     // write rows to csv
                     foreach( var row in selectedResultSet.Rows)
                     {
-                        foreach( var field in row)
-                        {
-                            rowBuilder.Append((field != null) ? SaveResults.EncodeCsvField(field.ToString()) : string.Empty);
-                            rowBuilder.Append(separator);
-                        }
-                        rowBuilder.Length--;
+                        rowBuilder.Append( string.Join( ",", row.Select( field => SaveResults.EncodeCsvField(field.ToString()) ?? string.Empty)));
                         csvFile.WriteLine(rowBuilder.ToString());
                         rowBuilder.Clear();
                     }
