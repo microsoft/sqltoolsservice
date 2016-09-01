@@ -121,24 +121,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public async Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary)
         {
+            // currently this method is disabled, but we need to reimplement now that the 
+            // implementation of the 'cache' has changed.
             await Task.FromResult(0);
-            // await Task.Run( () => 
-            // {
-            //     lock(cachesLock)
-            //     {
-            //         AutoCompleteCache cache;
-            //         if( caches.TryGetValue(summary, out cache) )
-            //         {
-            //             cache.ReferenceCount--;
-
-            //             // Remove unused caches
-            //             if( cache.ReferenceCount == 0 )
-            //             {
-            //                 caches.Remove(summary);
-            //             }
-            //         }
-            //     }
-            // });
         }
 
         /// <summary>
