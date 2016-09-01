@@ -26,18 +26,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         /// Gets a Password and sets it into a <see cref="Credential"/> object
         /// </summary>
         /// <param name="credentialId">The name of the credential to find the password for. This is required</param>
-        /// <param name="username">Optional username</param>
         /// <param name="password">Out value</param>
         /// <returns>true if password was found, false otherwise</returns>
-        bool TryGetPassword(string credentialId, string username, out string password);
+        bool TryGetPassword(string credentialId, out string password);
 
         /// <summary>
         /// Deletes a password linked to a given credential
         /// </summary>
         /// <param name="credentialId">The name of the credential to find the password for. This is required</param>
-        /// <param name="username">Optional username</param>
         /// <returns>True if password existed and was deleted, false otherwise</returns>
-        bool DeletePassword(string credentialId, string username);
+        bool DeletePassword(string credentialId);
 
     }
 }

@@ -14,15 +14,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
     /// </summary>
     internal class Win32CredentialStore : ICredentialStore
     {
-        public bool DeletePassword(string credentialId, string username)
+        private const string AnyUsername = "*";
+
+        public bool DeletePassword(string credentialId)
         {
-            using (Win32Credential cred = new Win32Credential() { Target = credentialId, Username = username })
+            using (Win32Credential cred = new Win32Credential() { Target = credentialId, Username = AnyUsername })
             {
                 return cred.Delete();
             }
         }
 
-        public bool TryGetPassword(string credentialId, string username, out string password)
+        public bool TryGetPassword(string credentialId, out string password)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
             password = null;
@@ -31,25 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             {
                 // Note: Credentials are disposed on disposal of the set
                 Win32Credential foundCred = null;
-                if (string.IsNullOrEmpty(username))
+                if (set.Count > 0)
                 {
-                    // Expecting just 1 credential
-                    if (set.Count > 0)
-                    {
-                        foundCred = set[0];
-                    }
-                }
-                else
-                {
-                    foreach (Win32Credential cred in set)
-                    {
-                        if (string.Equals(cred.Username, username, StringComparison.Ordinal))
-                        {
-                            foundCred = cred;
-                            break;
-                        }
-                    }
-                }
+                    foundCred = set[0];
+                }                
 
                 if (foundCred != null)
                 {
@@ -65,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             Credential.ValidateForSave(credential);
 
             using (Win32Credential cred = 
-                new Win32Credential(credential.Username, credential.Password, credential.CredentialId, CredentialType.Generic)
+                new Win32Credential(AnyUsername, credential.Password, credential.CredentialId, CredentialType.Generic)
                 { PersistanceType = PersistanceType.LocalComputer })
             {
                 return cred.Save();

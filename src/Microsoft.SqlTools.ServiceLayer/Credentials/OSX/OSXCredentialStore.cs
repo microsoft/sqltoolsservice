@@ -16,16 +16,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
     /// </summary>
     internal class OSXCredentialStore : ICredentialStore
     {
-        public bool DeletePassword(string credentialId, string username)
+        public bool DeletePassword(string credentialId)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
             return DeletePasswordImpl(credentialId);
         }
 
-        public bool TryGetPassword(string credentialId, string username, out string password)
+        public bool TryGetPassword(string credentialId, out string password)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
-            return FindPassword(credentialId, username, out password);
+            return FindPassword(credentialId, out password);
         }
 
         public bool Save(Credential credential)
@@ -50,8 +50,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
               IntPtr.Zero, 
               GetLengthInBytes(credential.CredentialId), 
               credential.CredentialId,
-              GetLengthInBytes(credential.Username), 
-              credential.Username,
+              0, 
+              null,
               GetLengthInBytes(credential.Password),
               passwordPtr,
               IntPtr.Zero);
@@ -62,10 +62,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
         /// <summary>
         /// Finds the first password matching this credential
         /// </summary>
-        private bool FindPassword(string credentialId, string username, out string password)
+        private bool FindPassword(string credentialId, out string password)
         {
             password = null;
-            using (KeyChainItemHandle handle = LookupKeyChainItem(credentialId, username))
+            using (KeyChainItemHandle handle = LookupKeyChainItem(credentialId))
             {
                 if( handle == null)
                 {
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
             return true;
         }
 
-        private KeyChainItemHandle LookupKeyChainItem(string credentialId, string username = null)
+        private KeyChainItemHandle LookupKeyChainItem(string credentialId)
         {
             UInt32 passwordLength;
             IntPtr passwordPtr;
@@ -86,8 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
                 IntPtr.Zero,
                 GetLengthInBytes(credentialId),
                 credentialId,
-                GetLengthInBytes(username),
-                username,
+                0,
+                null,
                 out passwordLength,
                 out passwordPtr,
                 out item);

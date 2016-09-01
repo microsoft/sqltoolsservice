@@ -21,10 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
         /// A unique ID to identify the credential being saved. 
         /// </summary>
         public string CredentialId { get; set; }
-        /// <summary>
-        /// An optional username 
-        /// </summary>
-        public string Username { get; set; }
+        
         /// <summary>
         /// The Password stored for this credential. 
         /// </summary>
@@ -37,16 +34,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
         {
         }
 
-        public Credential(string credentialId, string username)
-            : this(credentialId, username, null)
+        public Credential(string credentialId)
+            : this(credentialId, null)
         {
             
         }
 
-        public Credential(string credentialId, string username, string password)
+        public Credential(string credentialId, string password)
         {
             CredentialId = credentialId;
-            Username = username;
             Password = password;
         }
 
@@ -55,7 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
             return new Credential
             {
                 CredentialId = credential.CredentialId,
-                Username = credential.Username,
                 Password = credential.Password
             };
         }
@@ -75,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
     }
 
     /// <summary>
-    /// Read Credential request mapping entry. Expects a Credential with CredentialId and optional username, 
+    /// Read Credential request mapping entry. Expects a Credential with CredentialId, 
     /// and responds with the <see cref="Credential.Password"/> filled in if found
     /// </summary>
     public class ReadCredentialRequest

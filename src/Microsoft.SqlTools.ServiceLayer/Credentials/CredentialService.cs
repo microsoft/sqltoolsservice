@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
 
             Credential result = Credential.Copy(credential);
             string password;
-            if (credStore.TryGetPassword(credential.CredentialId, credential.Username, out password))
+            if (credStore.TryGetPassword(credential.CredentialId, out password))
             {
                 result.Password = password;
             }
@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
             Func<bool> doDelete = () =>
             {
                 Credential.ValidateForLookup(credential);
-                return credStore.DeletePassword(credential.CredentialId, credential.Username);
+                return credStore.DeletePassword(credential.CredentialId);
             };
             await HandleRequest(doDelete, requestContext, "HandleDeleteCredentialRequest");
         }

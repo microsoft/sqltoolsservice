@@ -22,9 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
     public class CredentialServiceTests : IDisposable
     {
         const string credentialId = "Microsoft_SqlToolsTest_TestId";
-        const string username1 = "User1";
         const string password1 = "P@ssw0rd1";
-        const string username2 = "User2";
         const string password2 = "2Pass2Furious";
 
         // Test-owned credential store used to clean up before/after tests to ensure code works as expected 
@@ -48,9 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
         private void DeleteDefaultCreds()
         {
-            credStore.DeletePassword(credentialId, null);
-            credStore.DeletePassword(credentialId, username1);
-            credStore.DeletePassword(credentialId, username2);
+            credStore.DeletePassword(credentialId);
         }
 
         [Fact]
@@ -59,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling(obj => errorResponse = obj);
 
-            await service.HandleSaveCredentialRequest(new Credential(null, username1), contextMock.Object);
+            await service.HandleSaveCredentialRequest(new Credential(null), contextMock.Object);
             VerifyErrorSent(contextMock);
             Assert.True(((string)errorResponse).Contains("ArgumentException"));
         }
@@ -70,26 +66,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling(obj => errorResponse = obj);
             
-            await service.HandleSaveCredentialRequest(new Credential(credentialId, username1), contextMock.Object);
+            await service.HandleSaveCredentialRequest(new Credential(credentialId), contextMock.Object);
             VerifyErrorSent(contextMock);
             Assert.True(((string)errorResponse).Contains("ArgumentException"));
         }
         
         [Fact]
-        public async Task SaveCredential_Returns_True_When_Credential_And_Password_Defined_And_Username_IsNull()
+        public async Task SaveCredential_Returns_True_When_Credential_And_Password_Defined()
         {
-            // verify with no username defined
             await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, null, password1), requestContext),
-                verify: (actual => Assert.True(actual)));
-        }
-
-        [Fact]
-        public async Task SaveCredential_Returns_True_When_Credential_And_Password_Defined_And_Username_NotNull()
-        {
-            // verify with username defined
-            await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, username1, password1), requestContext),
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
                 verify: (actual => Assert.True(actual)));
         }
 
@@ -97,11 +83,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         public async Task SaveCredential_Returns_True_When_Password_Saved_Twice()
         {
             await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, null, password1), requestContext),
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
                 verify: (actual => Assert.True(actual)));
 
             await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, null, password1), requestContext),
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
                 verify: (actual => Assert.True(actual)));
         }
 
@@ -110,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         {
             // Given we have saved the credential
             await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, null, password1), requestContext),
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
                 verify: (actual => Assert.True(actual, "Expect Credential to be saved successfully")));
 
 
@@ -120,42 +106,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 verify: (actual =>
                 {
                     Assert.Equal(password1, actual.Password);
-                    Assert.Equal(null, actual.Username);
                 }));
         }
 
         [Fact]
-        public async Task ReadCredential_Finds_Password_For_Last_Saved_Username()
+        public async Task ReadCredential_Finds_Last_Saved_Password()
         {
-            // Given we have saved twice with a different username & password
+            // Given we have saved twice with a different password
             await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, username1, password1), requestContext),
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
                 verify: (actual => Assert.True(actual)));
 
             await RunAndVerify<bool>(
-               test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, username2, password2), requestContext),
+               test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password2), requestContext),
                verify: (actual => Assert.True(actual)));
 
             // When we read the value for this credential
-            // Then we expect only the last saved username and password to be found
-
-            // Case 1: call with last used, expect this is found
+            // Then we expect only the last saved password to be found
             await RunAndVerify<Credential>(
-                test: (requestContext) => service.HandleReadCredentialRequest(new Credential(credentialId, username2), requestContext),
+                test: (requestContext) => service.HandleReadCredentialRequest(new Credential(credentialId), requestContext),
                 verify: (actual =>
                 {
                     Assert.Equal(password2, actual.Password);
-                    Assert.Equal(username2, actual.Username);
                 }));
-
-            // Case 2: call with first used, expect no password returned
-            await RunAndVerify<Credential>(
-                test: (requestContext) => service.HandleReadCredentialRequest(new Credential(credentialId, username1), requestContext),
-                verify: (actual =>
-                {
-                    Assert.Equal(null, actual.Password);
-                    Assert.Equal(username1, actual.Username);
-                }));            
         }
 
         [Fact]
@@ -196,7 +169,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 {
                     Assert.NotNull(actual);
                     Assert.Equal(credWithNoPassword, actual.CredentialId);
-                    Assert.Null(actual.Username);
                     Assert.Null(actual.Password);
                 }));
         }
@@ -218,17 +190,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         {
             // Save should be true
             await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, username1, password1), requestContext),
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
                 verify: (actual => Assert.True(actual)));
 
             // Then delete - should return true
             await RunAndVerify<bool>(
-                test: (requestContext) => service.HandleDeleteCredentialRequest(new Credential(credentialId, null), requestContext),
+                test: (requestContext) => service.HandleDeleteCredentialRequest(new Credential(credentialId), requestContext),
                 verify: (actual => Assert.True(actual)));
 
             // Then delete - should return false as no longer exists
             await RunAndVerify<bool>(
-               test: (requestContext) => service.HandleDeleteCredentialRequest(new Credential(credentialId, null), requestContext),
+               test: (requestContext) => service.HandleDeleteCredentialRequest(new Credential(credentialId), requestContext),
                verify: (actual => Assert.False(actual)));
         }
 
