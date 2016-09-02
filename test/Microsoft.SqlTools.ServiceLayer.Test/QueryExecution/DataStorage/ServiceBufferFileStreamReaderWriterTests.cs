@@ -552,7 +552,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 sb.Append(values[i%values.Length]);
             }
             string value = sb.ToString();
-            int valueLength = sizeof(char)*length + 5;
+            int lengthLength = length == 0 || length > 255 ? 5 : 1;
+            int valueLength = sizeof(char)*length + lengthLength;
 
             // If:
             // ... I write an int32 to the writer
@@ -614,7 +615,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 sb.Add(values[i % values.Length]);
             }
             byte[] value = sb.ToArray();
-            int valueLength = sizeof(byte)*length + 5;
+            int lengthLength = length == 0 || length > 255 ? 5 : 1;
+            int valueLength = sizeof(byte)*length + lengthLength;
 
             // If:
             // ... I write an int32 to the writer

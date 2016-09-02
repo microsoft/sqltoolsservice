@@ -45,6 +45,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
+        /// File factory to be used to create a buffer file for results.
+        /// </summary>
+        /// <remarks>
+        /// Made internal here to allow for overriding in unit testing
+        /// </remarks>
+        internal IFileStreamFactory BufferFileStreamFactory;
+
+        /// <summary>
+        /// File factory to be used to create a buffer file for results
+        /// </summary>
+        private IFileStreamFactory BufferFileFactory
+        {
+            get { return BufferFileStreamFactory ?? (BufferFileStreamFactory = new ServiceBufferFileStreamFactory()); }
+        }
+
+        /// <summary>
         /// The collection of active queries
         /// </summary>
         internal ConcurrentDictionary<string, Query> ActiveQueries
@@ -267,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
 
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings, new ServiceBufferFileStreamFactory());
+                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendResult(new QueryExecuteResult

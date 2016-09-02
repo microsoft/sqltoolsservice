@@ -27,12 +27,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Batch b = Common.GetBasicExecutedBatch();
 
             // ... And I ask for a subset with valid arguments
-            //ResultSetSubset subset = b.GetSubset(0, 0, rowCount);
+            ResultSetSubset subset = b.GetSubset(0, 0, rowCount).Result;
 
             // Then:
             // I should get the requested number of rows
-            //Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.RowCount);
-            //Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.Rows.Length);
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.Rows.Length);
         }
 
         [Theory]
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            //Assert.Throws<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, rowStartInex, rowCount));
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, rowStartInex, rowCount)).Wait();
         }
 
         #endregion
@@ -61,12 +61,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void SubsetUnexecutedQueryTest()
         {
             // If I have a query that has *not* been executed
-            Query q = new Query(Common.StandardQuery, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings());
+            Query q = new Query(Common.StandardQuery, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings(), Common.GetFileStreamFactory());
 
             // ... And I ask for a subset with valid arguments
             // Then:
             // ... It should throw an exception
-            //Assert.Throws<InvalidOperationException>(() => q.GetSubset(0, 0, 0, 2));
+            Assert.ThrowsAsync<InvalidOperationException>(() => q.GetSubset(0, 0, 0, 2)).Wait();
         }
 
         [Theory]
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            //Assert.Throws<ArgumentOutOfRangeException>(() => q.GetSubset(batchIndex, 0, 0, 1));
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => q.GetSubset(batchIndex, 0, 0, 1)).Wait();
         }
 
         #endregion

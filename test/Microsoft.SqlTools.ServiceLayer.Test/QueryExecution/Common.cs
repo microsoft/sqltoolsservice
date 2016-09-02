@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(StandardQuery, 1);
+            Batch batch = new Batch(StandardQuery, 1, GetFileStreamFactory());
             batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
             return batch;
         }
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public static Query GetBasicExecutedQuery()
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
-            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings());
+            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory());
             query.Execute().Wait();
             return query;
         }
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     OwnerUri = OwnerUri
                 });
             }
-            return new QueryExecutionService(connectionService);
+            return new QueryExecutionService(connectionService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 
         #endregion

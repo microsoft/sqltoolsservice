@@ -64,6 +64,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             return this[ordinal];
         }
 
+        public override int GetValues(object[] values)
+        {
+            for(int i = 0; i < Rows.Current.Count; i++)
+            {
+                values[i] = this[i];
+            }
+            return Rows.Current.Count;
+        }
+
         public override object this[string name]
         {
             get { return Rows.Current[name]; }
@@ -185,11 +194,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
         }
 
         public override string GetString(int ordinal)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetValues(object[] values)
         {
             throw new NotImplementedException();
         }
