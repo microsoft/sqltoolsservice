@@ -47,6 +47,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
+        /// Service host object for sending/receiving requests/events.
+        /// Internal for testing purposes.
+        /// </summary>
+        internal IProtocolEndpoint ServiceHost
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Default constructor is private since it's a singleton class
         /// </summary>
         private ConnectionService()
@@ -251,6 +261,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
+            this.ServiceHost = serviceHost;
+
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
@@ -479,6 +491,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             return connectionBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Change the database context of a connection.
+        /// </summary>
+        /// <param name="ownerUri">URI of the owner of the connection</param>
+        /// <param name="newDatabaseName">Name of the database to change the connection to</param>
+        public void ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName)
+        {
+            ConnectionInfo info;
+            if (TryFindConnection(ownerUri, out info))
+            {
+                try
+                {
+                    info.SqlConnection.ChangeDatabase(newDatabaseName);
+                    info.ConnectionDetails.DatabaseName = newDatabaseName;
+
+                    // Fire a connection changed event
+                    ConnectionChangedParams parameters = new ConnectionChangedParams();
+                    ConnectionSummary summary = (ConnectionSummary)(info.ConnectionDetails);
+                    parameters.Connection = summary.Clone();
+                    parameters.OwnerUri = ownerUri;
+                    ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                }
+                catch (Exception e)
+                {
+                    Logger.Write(
+                        LogLevel.Error, 
+                        string.Format(
+                            "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}", 
+                            newDatabaseName, 
+                            ownerUri, 
+                            e.ToString())
+                    );
+                }
+            }
         }
     }
 }
