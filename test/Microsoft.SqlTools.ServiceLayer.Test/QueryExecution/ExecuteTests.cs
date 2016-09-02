@@ -39,9 +39,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.False(batch.HasError, "The batch should not have an error");
 
             // ... The results should be empty
-            Assert.Empty(batch.ResultSets);
+            Assert.Empty(batch.resultSets);
             Assert.Empty(batch.ResultSummaries);
-            Assert.Empty(batch.ResultMessages);
+            Assert.Empty(batch.resultMessages);
 
             // ... The start line of the batch should be 0
             Assert.Equal(0, batch.StartLine);
@@ -60,15 +60,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.False(batch.HasError, "The batch should not have an error");
 
             // ... The results should be empty
-            Assert.Empty(batch.ResultSets);
+            Assert.Empty(batch.resultSets);
             Assert.Empty(batch.ResultSummaries);
 
             // ... The results should not be null
-            Assert.NotNull(batch.ResultSets);
+            Assert.NotNull(batch.resultSets);
             Assert.NotNull(batch.ResultSummaries);
 
             // ... There should be a message for how many rows were affected
-            Assert.Equal(1, batch.ResultMessages.Count());
+            Assert.Equal(1, batch.resultMessages.Count());
         }
 
         [Fact]
@@ -87,20 +87,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.False(batch.HasError, "The batch should not have an error");
 
             // ... There should be exactly one result set
-            Assert.Equal(resultSets, batch.ResultSets.Count());
+            Assert.Equal(resultSets, batch.resultSets.Count());
             Assert.Equal(resultSets, batch.ResultSummaries.Length);
 
             // ... Inside the result set should be with 5 rows
-            Assert.Equal(Common.StandardRows, batch.ResultSets.First().Rows.Count);
+            Assert.Equal(Common.StandardRows, batch.resultSets.First().Rows.Count);
             Assert.Equal(Common.StandardRows, batch.ResultSummaries[0].RowCount);
 
             // ... Inside the result set should have 5 columns and 5 column definitions
-            Assert.Equal(Common.StandardColumns, batch.ResultSets.First().Rows[0].Length);
-            Assert.Equal(Common.StandardColumns, batch.ResultSets.First().Columns.Length);
+            Assert.Equal(Common.StandardColumns, batch.resultSets.First().Rows[0].Length);
+            Assert.Equal(Common.StandardColumns, batch.resultSets.First().Columns.Length);
             Assert.Equal(Common.StandardColumns, batch.ResultSummaries[0].ColumnInfo.Length);
 
             // ... There should be a message for how many rows were affected
-            Assert.Equal(resultSets, batch.ResultMessages.Count());
+            Assert.Equal(resultSets, batch.resultMessages.Count());
         }
 
         [Fact]
@@ -120,9 +120,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.False(batch.HasError, "The batch should not have an error");
 
             // ... There should be exactly two result sets
-            Assert.Equal(resultSets, batch.ResultSets.Count());
+            Assert.Equal(resultSets, batch.resultSets.Count());
 
-            foreach (ResultSet rs in batch.ResultSets)
+            foreach (ResultSet rs in batch.resultSets)
             {
                 // ... Each result set should have 5 rows
                 Assert.Equal(Common.StandardRows, rs.Rows.Count);
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             }
 
             // ... There should be a message for how many rows were affected
-            Assert.Equal(resultSets, batch.ResultMessages.Count());
+            Assert.Equal(resultSets, batch.resultMessages.Count());
         }
 
         [Fact]
@@ -163,11 +163,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.True(batch.HasError);
 
             // ... There should be no result sets
-            Assert.Empty(batch.ResultSets);
+            Assert.Empty(batch.resultSets);
             Assert.Empty(batch.ResultSummaries);
 
             // ... There should be plenty of messages for the error
-            Assert.NotEmpty(batch.ResultMessages);
+            Assert.NotEmpty(batch.resultMessages);
         }
 
         [Fact]
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... The data should still be available without error
             Assert.False(batch.HasError, "The batch should not be in an error condition");
             Assert.True(batch.HasExecuted, "The batch should still be marked executed.");
-            Assert.NotEmpty(batch.ResultSets);
+            Assert.NotEmpty(batch.resultSets);
             Assert.NotEmpty(batch.ResultSummaries);
         }
 
