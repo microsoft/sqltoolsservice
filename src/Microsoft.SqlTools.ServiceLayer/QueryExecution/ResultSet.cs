@@ -21,9 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
-        /// The name of the temporary file we're using to buffer these results in
+        /// The name of the temporary file we're using to output these results in
         /// </summary>
-        private readonly string bufferFileName;
+        private readonly string outputFileName;
 
         /// <summary>
         /// The columns for this result set
@@ -88,10 +88,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             DataReader = new StorageDataReader(reader);
 
             // Initialize the storage
-            bufferFileName = Path.GetTempFileName();
-            if (bufferFileName.Length == 0)
+            outputFileName = Path.GetTempFileName();
+            if (outputFileName.Length == 0)
             {
-                throw new FileNotFoundException("Failed to get buffer file name");
+                throw new FileNotFoundException("Failed to get output file name");
             }
             FileOffsets = new LongList<long>();
 
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task ReadResultToEnd(CancellationToken cancellationToken)
         {
             // Open a writer for the file
-            using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(bufferFileName, MaxCharsToStore, MaxXmlCharsToStore))
+            using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
             {
                 // If we can initialize the columns using the column schema, use that
                 if (!DataReader.DbDataReader.CanGetColumnSchema())
@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Mark that result has been read
             HasBeenRead = true;
-            fileStreamReader = fileStreamFactory.GetReader(bufferFileName);
+            fileStreamReader = fileStreamFactory.GetReader(outputFileName);
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (disposing)
             {
                 fileStreamReader?.Dispose();
-                fileStreamFactory.DisposeFile(bufferFileName);
+                fileStreamFactory.DisposeFile(outputFileName);
             }
 
             disposed = true;

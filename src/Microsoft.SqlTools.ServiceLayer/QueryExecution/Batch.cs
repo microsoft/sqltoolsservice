@@ -86,14 +86,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         internal int StartLine { get; set; }
 
+        /// <summary>
+        /// Factory for creating readers/writrs for the output of the batch
+        /// </summary>
+        private IFileStreamFactory OutputFileFactory { get; set; }
+
         #endregion
 
-        public Batch(string batchText, int startLine)
+        internal Batch(string batchText, int startLine, IFileStreamFactory outputFileFactory)
         {
             // Sanity check for input
             if (string.IsNullOrEmpty(batchText))
             {
                 throw new ArgumentNullException(nameof(batchText), "Query text cannot be null");
+            }
+            if (outputFileFactory == null)
+            {
+                throw new ArgumentNullException(nameof(outputFileFactory), "Output file factory cannot be null");
             }
 
             // Initialize the internal state
@@ -102,6 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             HasExecuted = false;
             resultSets = new List<ResultSet>();
             resultMessages = new List<string>();
+            OutputFileFactory = outputFileFactory;
         }
 
         /// <summary>
@@ -149,8 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // Read until we hit the end of the result set
-                            // TODO: Make the facade work
-                            ResultSet resultSet = new ResultSet(reader, new ServiceBufferFileStreamFactory());
+                            ResultSet resultSet = new ResultSet(reader, OutputFileFactory);
                             await resultSet.ReadResultToEnd(cancellationToken);
 
                             // Add the result set to the results of the query

@@ -10,6 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     public interface IFileStreamFactory
     {
+        string CreateFile();
 
         IFileStreamReader GetReader(string fileName);
 

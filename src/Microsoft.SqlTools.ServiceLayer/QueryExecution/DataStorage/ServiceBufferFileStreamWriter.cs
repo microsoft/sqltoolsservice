@@ -607,6 +607,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Number of bytes used to store the string</returns>
         public async Task<int> WriteString(string sVal)
         {
+            if (sVal == null)
+            {
+                throw new ArgumentNullException(nameof(sVal), "String to store must be non-null.");
+            }
+
             int iTotalLen;
             if (0 == sVal.Length) // special case of 0 length string
             {
@@ -639,6 +644,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Number of bytes used to store the byte[]</returns>
         public async Task<int> WriteBytes(byte[] bytesVal, int iLen)
         {
+            if (bytesVal == null)
+            {
+                throw new ArgumentNullException(nameof(bytesVal), "Byte array to store must be non-null.");
+            }
+
             int iTotalLen;
             if (0 == iLen) // special case of 0 length byte array "0x"
             {
@@ -666,7 +676,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// length is &lt;255, 5 if the length is &gt;=255)
         /// </summary>
         /// <returns>Number of bytes used to store the length</returns>
-        internal async Task<int> WriteLength(int iLen)
+        private async Task<int> WriteLength(int iLen)
         {
             if (iLen < 0xFF)
             {

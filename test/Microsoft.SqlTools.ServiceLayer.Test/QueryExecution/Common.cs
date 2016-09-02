@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -15,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
@@ -71,6 +73,74 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             query.Execute().Wait();
             return query;
         }
+
+        #region FileStreamWriteMocking 
+
+        public static IFileStreamFactory GetFileStreamFactory()
+        {
+            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
+                .Returns(new ServiceBufferFileStreamReader(new InMemoryWrapper(), It.IsAny<string>()));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new ServiceBufferFileStreamWriter(new InMemoryWrapper(), It.IsAny<string>(), It.IsAny<int>(),
+                    It.IsAny<int>()));
+
+            return mock.Object;
+        }
+
+        public class InMemoryWrapper : IFileStreamWrapper
+        {
+            private readonly byte[] storage = new byte[8192];
+            private readonly MemoryStream memoryStream;
+            private bool readingOnly;
+
+            public InMemoryWrapper()
+            {
+                memoryStream = new MemoryStream(storage);
+            }
+
+            public void Dispose()
+            {
+                // We'll dispose this via a special method
+            }
+
+            public void Init(string fileName, int bufferSize, bool forReadingOnly)
+            {
+                readingOnly = forReadingOnly;
+            }
+
+            public Task<int> ReadData(byte[] buffer, int bytes)
+            {
+                return ReadData(buffer, bytes, memoryStream.Position);
+            }
+
+            public Task<int> ReadData(byte[] buffer, int bytes, long fileOffset)
+            {
+                memoryStream.Seek(fileOffset, SeekOrigin.Begin);
+                return memoryStream.ReadAsync(buffer, 0, bytes);
+            }
+
+            public Task<int> WriteData(byte[] buffer, int bytes)
+            {
+                if (readingOnly) { throw new InvalidOperationException(); }
+                memoryStream.Write(buffer, 0, bytes);
+                memoryStream.Flush();
+                return Task.FromResult(bytes);
+            }
+
+            public Task Flush()
+            {
+                if (readingOnly) { throw new InvalidOperationException(); }
+                return Task.FromResult(0);
+            }
+
+            public void Close()
+            {
+                memoryStream.Dispose();
+            }
+        }
+
+        #endregion
 
         #region DbConnection Mocking
 

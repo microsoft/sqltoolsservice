@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
@@ -85,6 +86,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// The factory to use for outputing the results of this query
+        /// </summary>
+        private IFileStreamFactory OutputFileFactory { get; set; }
+
+        /// <summary>
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; set; }
@@ -97,7 +103,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="queryText">The text of the query to execute</param>
         /// <param name="connection">The information of the connection to use to execute the query</param>
         /// <param name="settings">Settings for how to execute the query, from the user</param>
-        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings)
+        /// <param name="outputFactory">Factory for creating output files</param>
+        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory)
         {
             // Sanity check for input
             if (string.IsNullOrEmpty(queryText))
@@ -112,11 +119,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new ArgumentNullException(nameof(settings), "Settings cannot be null");
             }
+            if (outputFactory == null)
+            {
+                throw new ArgumentNullException(nameof(outputFactory), "Output file factory cannot be null");
+            }
 
             // Initialize the internal state
             QueryText = queryText;
             EditorConnection = connection;
             cancellationSource = new CancellationTokenSource();
+            OutputFileFactory = outputFactory;
 
             // Process the query into batches
             ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
@@ -125,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             });
             // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
             Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
-                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber)).ToArray();
+                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber, OutputFileFactory)).ToArray();
         }
 
         /// <summary>

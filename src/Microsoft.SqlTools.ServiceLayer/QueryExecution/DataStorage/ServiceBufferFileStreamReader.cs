@@ -626,7 +626,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             if (!isNull)
             {
                 await FileStream.ReadData(buffer, length.ValueLength);
-                val = BitConverter.ToSingle(buffer, 0);
+                val = BitConverter.ToDouble(buffer, 0);
             }
             return new FileStreamReadResult<double>(val, length.TotalLength, isNull);
         }
@@ -753,7 +753,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 // If the total length is 5 (5 bytes for length, 0 for value), then the string is empty
                 // Otherwise, the string is null
-                bool isNull = fieldLength.TotalLength == 5;
+                bool isNull = fieldLength.TotalLength != 5;
                 return new FileStreamReadResult<string>(isNull ? null : string.Empty,
                     fieldLength.TotalLength, isNull);
             }
@@ -775,10 +775,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             if (fieldLength.ValueLength == 0)
             {
-                // there is no data
                 // If the total length is 5 (5 bytes for length, 0 for value), then the byte array is 0x
                 // Otherwise, the byte array is null
-                bool isNull = fieldLength.TotalLength == 5;
+                bool isNull = fieldLength.TotalLength != 5;
                 return new FileStreamReadResult<byte[]>(isNull ? null : new byte[0],
                     fieldLength.TotalLength, isNull);
             }

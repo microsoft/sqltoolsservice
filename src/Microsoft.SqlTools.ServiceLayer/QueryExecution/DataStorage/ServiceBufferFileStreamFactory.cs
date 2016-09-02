@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.IO;
+
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
@@ -10,6 +12,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     public class ServiceBufferFileStreamFactory : IFileStreamFactory
     {
+        /// <summary>
+        ///  Creates a new temporary file
+        /// </summary>
+        /// <returns>The name of the temporary file</returns>
+        public string CreateFile()
+        {
+            return Path.GetTempFileName();
+        }
+
         /// <summary>
         /// Creates a new <see cref="ServiceBufferFileStreamReader"/> for reading values back from
         /// an SSMS formatted buffer file

@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
@@ -266,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
 
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings);
+                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings, new ServiceBufferFileStreamFactory());
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendResult(new QueryExecuteResult
