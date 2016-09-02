@@ -359,14 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
             }
             return connectionBuilder.ToString();
-        }
-
-        public static ServerConnection GetServerConnection(ConnectionInfo connection)
-        {
-            string connectionString = BuildConnectionString(connection.ConnectionDetails);
-            var sqlConnection = new SqlConnection(connectionString);
-            return new ServerConnection(sqlConnection);
-        }
+        }      
 
     }
 }

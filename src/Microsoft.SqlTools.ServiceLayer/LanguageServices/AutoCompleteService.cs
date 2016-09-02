@@ -5,7 +5,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -136,22 +138,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (!LanguageService.Instance.ScriptParseInfoMap.ContainsKey(info.OwnerUri))
                 {
-                    var srvConn = ConnectionService.GetServerConnection(info);
-                    var displayInfoProvider = new MetadataDisplayInfoProvider();
-                    var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
-                    var binder = BinderProvider.CreateBinder(metadataProvider);
+                    var sqlConn = info.SqlConnection as SqlConnection;
+                    if (sqlConn != null)
+                    {
+                        var srvConn = new ServerConnection(sqlConn);
+                        var displayInfoProvider = new MetadataDisplayInfoProvider();
+                        var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
+                        var binder = BinderProvider.CreateBinder(metadataProvider);
 
-                    LanguageService.Instance.ScriptParseInfoMap.Add(info.OwnerUri,
-                        new ScriptParseInfo()
-                        {
-                            Binder = binder,
-                            MetadataProvider = metadataProvider,
-                            MetadataDisplayInfoProvider = displayInfoProvider
-                        });
+                        LanguageService.Instance.ScriptParseInfoMap.Add(info.OwnerUri,
+                            new ScriptParseInfo()
+                            {
+                                Binder = binder,
+                                MetadataProvider = metadataProvider,
+                                MetadataDisplayInfoProvider = displayInfoProvider
+                            });
 
-                    var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);
-                    
-                    LanguageService.Instance.ParseAndBind(scriptFile, info);
+                        var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);
+                        
+                        LanguageService.Instance.ParseAndBind(scriptFile, info);
+                    }
                 }
             });
         }

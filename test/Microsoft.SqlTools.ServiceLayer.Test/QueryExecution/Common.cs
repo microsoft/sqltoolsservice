@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
@@ -147,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         #endregion
 
         #region Service Mocking
-
+        
         public static void GetAutoCompleteTestObjects(
             out TextDocumentPosition textDocument,
             out ScriptFile scriptFile,
@@ -162,7 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             textDocument.Position.Character = 0;
 
             connInfo = Common.CreateTestConnectionInfo(null, false);
-            var srvConn = ConnectionService.GetServerConnection(connInfo);
+           
+            var srvConn = GetServerConnection(connInfo);
             var displayInfoProvider = new MetadataDisplayInfoProvider();
             var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
             var binder = BinderProvider.CreateBinder(metadataProvider);
@@ -176,9 +179,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 });
 
             scriptFile = new ScriptFile();
-            scriptFile.ClientFilePath = textDocument.TextDocument.Uri;
+            scriptFile.ClientFilePath = textDocument.TextDocument.Uri;     
         }
 
+        public static ServerConnection GetServerConnection(ConnectionInfo connection)
+        {
+            string connectionString = ConnectionService.BuildConnectionString(connection.ConnectionDetails);
+            var sqlConnection = new SqlConnection(connectionString);
+            return new ServerConnection(sqlConnection);
+        }
+        
         public static ConnectionDetails GetTestConnectionDetails()
         {
             return new ConnectionDetails
