@@ -43,8 +43,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
     public class DocumentSymbolRequest
     {
         public static readonly
-            RequestType<TextDocumentIdentifier, SymbolInformation[]> Type =
-            RequestType<TextDocumentIdentifier, SymbolInformation[]>.Create("textDocument/documentSymbol");
+            RequestType<DocumentSymbolParams, SymbolInformation[]> Type =
+            RequestType<DocumentSymbolParams, SymbolInformation[]>.Create("textDocument/documentSymbol");
+    }
+
+    /// <summary>
+    /// Defines a set of parameters to send document symbol request
+    /// </summary>
+    public class DocumentSymbolParams
+    {
+        public TextDocumentIdentifier TextDocument { get; set; }
     }
 
     public class WorkspaceSymbolRequest
