@@ -10,7 +10,8 @@
     "Microsoft.SqlServer.SqlParser": "140.1.5",
     "System.Data.Common": "4.1.0",
     "System.Data.SqlClient": "4.1.0",
-    "system.security.securestring": "4.0.0"
+    "system.security.securestring": "4.0.0",
+    "system.io.filesystem.accesscontrol": "4.0.0-beta-23123"
   },
   "frameworks": {
     "netcoreapp1.0": {

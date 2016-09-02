@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Credentials.Linux;
 using Microsoft.SqlTools.ServiceLayer.Credentials.OSX;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Win32;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -20,6 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
     /// </summary>
     public class CredentialService
     {
+        private const string DefaultSecretsFolder = ".sqlsecrets";
+        private const string DefaultSecretsFile = "sqlsecrets.json";
+
         /// <summary>
         /// Singleton service instance
         /// </summary>
@@ -67,6 +71,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
             else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return new OSXCredentialStore();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return new LinuxCredentialStore(DefaultSecretsFolder, DefaultSecretsFile);
             }
             // TODO add Linux and Mac support
             throw new InvalidOperationException("Platform not currently supported");

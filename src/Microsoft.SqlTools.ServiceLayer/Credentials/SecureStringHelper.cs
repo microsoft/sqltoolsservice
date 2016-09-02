@@ -7,7 +7,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials
+namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
 {
     internal static class SecureStringHelper
     {
@@ -15,25 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         internal static SecureString CreateSecureString(string plainString)
         {
             SecureString str = new SecureString();
-            
             if (!string.IsNullOrEmpty(plainString))
             {
-                foreach(char c in plainString)
-                {
-                    str.AppendChar(c);
-                }
-            }
-            str.MakeReadOnly();
-            return str;
-        }
-        internal static SecureString CreateSecureString(IntPtr stringPtr, UInt32 length)
-        {
-            SecureString str = new SecureString();
-            int len = (int) length;
-            if (stringPtr != IntPtr.Zero && len > 0)
-            {
-                string plainString = Marshal.PtrToStringUni(stringPtr, len);
-                foreach(char c in plainString)
+                foreach (char c in plainString)
                 {
                     str.AppendChar(c);
                 }
