@@ -4,10 +4,8 @@
 //
 using System;
 using System.Collections.Concurrent;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -257,23 +255,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 using (StreamWriter csvFile = new StreamWriter(File.OpenWrite(saveParams.FilePath)))
                 {
-                    StringBuilder rowBuilder = new StringBuilder();
-
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = selectedBatch.resultSets[saveParams.ResultSetIndex] ;
                     if ( saveParams.IncludeHeaders) 
                     {
                         // write column names to csv
-                        csvFile.WriteLine( string.Join( ",", selectedResultSet.Columns.Select( column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
+                        await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Select( column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
                     }
 
                     // write rows to csv
                     foreach( var row in selectedResultSet.Rows)
                     {
-                        rowBuilder.Append( string.Join( ",", row.Select( field => SaveResults.EncodeCsvField(field.ToString()) ?? string.Empty)));
-                        csvFile.WriteLine(rowBuilder.ToString());
-                        rowBuilder.Clear();
+                        await csvFile.WriteLineAsync(string.Join( ",", row.Select( field => SaveResults.EncodeCsvField(field.ToString()) ?? string.Empty)));
                     }
                 }
             }

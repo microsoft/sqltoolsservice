@@ -22,6 +22,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     {
         private const string RowsAffectedFormat = "({0} row(s) affected)";
 
+        public Batch(string batchText, int startLine)
+        {
+            // Sanity check for input
+            if (string.IsNullOrEmpty(batchText))
+            {
+                throw new ArgumentNullException(nameof(batchText), "Query text cannot be null");
+            }
+
+            // Initialize the internal state
+            BatchText = batchText;
+            StartLine = startLine - 1;  // -1 to make sure that the line number of the batch is 0-indexed, since SqlParser gives 1-indexed line numbers
+            HasExecuted = false;
+            resultSets = new List<ResultSet>();
+            resultMessages = new List<string>();
+        }
+
         #region Properties
         /// <summary>
         /// The text of batch that will be executed
@@ -39,30 +55,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasExecuted { get; set; }
 
         /// <summary>
-        /// Internal representation of the messages so we can modify internally
-        /// </summary>
-        private List<string> resultMessages;
-
-        /// <summary>
-        /// Messages that have come back from the server
-        /// </summary>
-        public IEnumerable<string> ResultMessages
-        {
-            get { return resultMessages; }
-        }
-
-        /// <summary>
         /// Internal representation of the result sets so we can modify internally
         /// </summary>
-        internal List<ResultSet> resultSets;
+        internal List<ResultSet> resultSets { get; private set; }
 
         /// <summary>
-        /// The result sets of the batch execution
+        /// Internal representation of the messages so we can modify internally
         /// </summary>
-        public IEnumerable<ResultSet> ResultSets
-        {
-            get { return resultSets; }
-        }
+        internal List<string> resultMessages { get; set; }
+
+        /// <summary>
+        /// The 0-indexed line number that this batch started on
+        /// </summary>
+        internal int StartLine { get; set; }
 
         /// <summary>
         /// Property for generating a set result set summaries from the result sets
@@ -71,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                return ResultSets.Select((set, index) => new ResultSetSummary()
+                return resultSets.Select((set, index) => new ResultSetSummary()
                 {
                     ColumnInfo = set.Columns,
                     Id = index,
@@ -80,28 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        /// <summary>
-        /// The 0-indexed line number that this batch started on
-        /// </summary>
-        internal int StartLine { get; set; }
-
         #endregion
-
-        public Batch(string batchText, int startLine)
-        {
-            // Sanity check for input
-            if (string.IsNullOrEmpty(batchText))
-            {
-                throw new ArgumentNullException(nameof(batchText), "Query text cannot be null");
-            }
-
-            // Initialize the internal state
-            BatchText = batchText;
-            StartLine = startLine - 1;  // -1 to make sure that the line number of the batch is 0-indexed, since SqlParser gives 1-indexed line numbers
-            HasExecuted = false;
-            resultSets = new List<ResultSet>();
-            resultMessages = new List<string>();
-        }
 
         /// <summary>
         /// Executes this batch and captures any server messages that are returned.
@@ -230,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Attempts to convert a <see cref="DbException"/> to a <see cref="SqlException"/> that
         /// contains much more info about Sql Server errors. The exception is then unwrapped and
-        /// messages are formatted and stored in <see cref="ResultMessages"/>. If the exception
+        /// messages are formatted and stored in <see cref="resultMessages"/>. If the exception
         /// cannot be converted to SqlException, the message is written to the messages list.
         /// </summary>
         /// <param name="dbe">The exception to unwrap</param>

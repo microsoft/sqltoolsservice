@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Id = index,
                     HasError = batch.HasError,
-                    Messages = batch.ResultMessages.ToArray(),
+                    Messages = batch.resultMessages.ToArray(),
                     ResultSetSummaries = batch.ResultSummaries
                 }).ToArray();
             }
