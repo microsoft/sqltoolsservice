@@ -18,6 +18,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
     public class ResultSet : IDisposable
     {
+        #region Constants
+
+        private const int DefaultMaxCharsToStore = 65535; // 64 KB - QE default
+
+        // xml is a special case so number of chars to store is usually greater than for other long types
+        private const int DefaultMaxXmlCharsToStore = 2097152; // 2 MB - QE default
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -59,12 +68,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Maximum number of characters to store for a field
         /// </summary>
-        public int MaxCharsToStore { get; set; }
+        public int MaxCharsToStore { get { return DefaultMaxCharsToStore; } }
 
         /// <summary>
         /// Maximum number of characters to store for an XML field
         /// </summary>
-        public int MaxXmlCharsToStore { get; set; }
+        public int MaxXmlCharsToStore { get { return DefaultMaxXmlCharsToStore; } }
 
         /// <summary>
         /// The number of rows for this result set

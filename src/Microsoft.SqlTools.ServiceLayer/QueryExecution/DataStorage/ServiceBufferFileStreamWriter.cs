@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public async Task<int> WriteRow(StorageDataReader reader)
         {
             // Determine if we have any long fields
-            bool hasLongFields = reader.Columns.Any(column => column.IsLong.HasValue && column.IsLong.Value);
+            bool hasLongFields = reader.Columns.Any(column => column.IsLong);
 
             object[] values = new object[reader.Columns.Length];
             int rowBytes = 0;
@@ -104,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
                     else
                     {
-                        if (ci.IsLongField)
+                        if (!ci.IsLong)
                         {
                             // not a long field 
                             values[i] = reader.GetValue(i);

@@ -300,57 +300,55 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 MaximumCapacity = capacity;
             }
 
-            public int MaximumCapacity { get; set; }
+            private int MaximumCapacity { get; set; }
 
             public override void Write(char value)
             {
-                if (!stopWriting)
+                if (stopWriting) { return; }
+                
+                if (CurrentLength < MaximumCapacity)
                 {
-                    if (CurrentLength < MaximumCapacity)
-                    {
-                        base.Write(value);
-                    }
-                    else
-                    {
-                        stopWriting = true;
-                    }
+                    base.Write(value);
+                }
+                else
+                {
+                    stopWriting = true;
                 }
             }
 
             public override void Write(char[] buffer, int index, int count)
             {
-                if (!stopWriting)
-                {
-                    int curLen = CurrentLength;
-                    if (curLen + (count - index) > MaximumCapacity)
-                    {
-                        stopWriting = true;
+                if (stopWriting) { return; }
 
-                        count = MaximumCapacity - curLen + index;
-                        if (count < 0)
-                        {
-                            count = 0;
-                        }
-                        base.Write(buffer, index, count);
+                int curLen = CurrentLength;
+                if (curLen + (count - index) > MaximumCapacity)
+                {
+                    stopWriting = true;
+
+                    count = MaximumCapacity - curLen + index;
+                    if (count < 0)
+                    {
+                        count = 0;
                     }
                 }
+                base.Write(buffer, index, count);
             }
 
             public override void Write(string value)
             {
-                if (!stopWriting)
+                if (stopWriting) { return; }
+                
+                int curLen = CurrentLength;
+                if (value.Length + curLen > MaximumCapacity)
                 {
-                    int curLen = CurrentLength;
-                    if (value.Length + curLen > MaximumCapacity)
-                    {
-                        stopWriting = true;
-                        base.Write(value.Substring(0, MaximumCapacity - curLen));
-                    }
-                    else
-                    {
-                        base.Write(value);
-                    }
+                    stopWriting = true;
+                    base.Write(value.Substring(0, MaximumCapacity - curLen));
                 }
+                else
+                {
+                    base.Write(value);
+                }
+                
             }
         }
 

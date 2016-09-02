@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Whether or not the column is a long type (eg, varchar(MAX))
         /// </summary>
-        public bool IsLongField { get; private set; }
+        public new bool IsLong { get; private set; }
         /// <summary>
         /// Whether or not the column is a character type
         /// </summary>
@@ -76,7 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public new bool? IsHidden { get { return InternalColumn.IsHidden; } }
         public new bool? IsIdentity { get { return InternalColumn.IsIdentity; } }
         public new bool? IsKey { get { return InternalColumn.IsKey; } }
-        public new bool? IsLong { get { return InternalColumn.IsLong; } }
         public new bool? IsReadOnly { get { return InternalColumn.IsReadOnly; } }
         public new bool? IsUnique { get { return InternalColumn.IsUnique; } }
         public new int? NumericPrecision { get { return InternalColumn.NumericPrecision; } }
@@ -90,13 +89,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// All types supported by the server, stored as a hash set to provide O(1) lookup
         /// </summary>
-        private static readonly HashSet<string> allServerDataTypes = new HashSet<string>
+        private static readonly HashSet<string> AllServerDataTypes = new HashSet<string>
         {
             "bigint",
             "binary",
             "bit",
             "char",
-            "datatime",
+            "datetime",
             "decimal",
             "float",
             "image",
@@ -154,22 +153,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                             // Note we leave chars type as well to use the right retrieval mechanism.
                             IsXml = true;
                         }
-                        IsLongField = true;
+                        IsLong = true;
                     }
                     break;
                 case "text":
                 case "ntext":
                     IsChars = true;
-                    IsLongField = true;
+                    IsLong = true;
                     break;
                 case "xml":
                     IsXml = true;
-                    IsLongField = true;
+                    IsLong = true;
                     break;
                 case "binary":
                 case "image":
                     IsBytes = true;
-                    IsLongField = true;
+                    IsLong = true;
                     break;
                 case "varbinary":
                 case "rowversion":
@@ -178,21 +177,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                     Debug.Assert(column.ColumnSize.HasValue);
                     if (column.ColumnSize.Value == int.MaxValue)
                     {
-                        IsLongField = true;
+                        IsLong = true;
                     }
                     break;
                 case "sql_variant":
                     IsSqlVariant = true;
                     break;
                 default:
-                    if (!allServerDataTypes.Contains(column.DataTypeName))
+                    if (!AllServerDataTypes.Contains(column.DataTypeName))
                     {
                         // treat all UDT's as long/bytes data types to prevent the CLR from attempting
                         // to load the UDT assembly into our process to call ToString() on the object.
 
                         IsUdt = true;
                         IsBytes = true;
-                        IsLongField = true;
+                        IsLong = true;
                     }
                     break;
             }
