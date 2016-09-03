@@ -241,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// </summary>
         [Theory]
         [InlineData("AuthenticationType", "Integrated", "Integrated Security")]
-        [InlineData("AuthenticationType", "SqlLogin", "Integrated Security")]
+        [InlineData("AuthenticationType", "SqlLogin", "")]
         [InlineData("Encrypt", true, "Encrypt")]
         [InlineData("Encrypt", false, "Encrypt")]
         [InlineData("TrustServerCertificate", true, "TrustServerCertificate")]
