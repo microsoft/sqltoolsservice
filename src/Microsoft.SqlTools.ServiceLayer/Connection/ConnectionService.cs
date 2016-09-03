@@ -5,8 +5,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -109,11 +112,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectResponse Connect(ConnectParams connectionParams)
         {
             // Validate parameters
-            if(connectionParams == null || !connectionParams.IsValid())
+            string paramValidationErrorMessage;
+            if (connectionParams == null)
             {
                 return new ConnectResponse()
                 {
-                    Messages = "Error: Invalid connection parameters provided."
+                    Messages = "Error: Connection parameters cannot be null."
+                };
+            }
+            else if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            {
+                return new ConnectResponse()
+                {
+                    Messages = paramValidationErrorMessage
                 };
             }
 
@@ -166,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool Disconnect(DisconnectParams disconnectParams)
         {
             // Validate parameters
-            if (disconnectParams == null || String.IsNullOrEmpty(disconnectParams.OwnerUri))
+            if (disconnectParams == null || string.IsNullOrEmpty(disconnectParams.OwnerUri))
             {
                 return false;
             }
@@ -194,11 +205,57 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return true;
         }
 
+        /// <summary>
+        /// List all databases on the server specified
+        /// </summary>
+        public ListDatabasesResponse ListDatabases(ListDatabasesParams listDatabasesParams)
+        {
+            // Verify parameters
+            var owner = listDatabasesParams.OwnerUri;
+            if (string.IsNullOrEmpty(owner))
+            {
+                throw new ArgumentException("OwnerUri cannot be null or empty");
+            }
+
+            // Use the existing connection as a base for the search
+            ConnectionInfo info;
+            if (!TryFindConnection(owner, out info))
+            {
+                throw new Exception("Specified OwnerUri \"" + owner + "\" does not have an existing connection");
+            }
+            ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
+
+            // Connect to master and query sys.databases
+            connectionDetails.DatabaseName = "master";
+            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
+            connection.Open();
+            
+            DbCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT name FROM sys.databases";
+            command.CommandTimeout = 15;
+            command.CommandType = CommandType.Text;
+            var reader = command.ExecuteReader();
+
+            List<string> results = new List<string>();
+            while (reader.Read())
+            {
+                results.Add(reader[0].ToString());
+            }
+
+            connection.Close();
+
+            ListDatabasesResponse response = new ListDatabasesResponse();
+            response.DatabaseNames = results.ToArray();
+
+            return response;
+        }
+
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
+            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
 
             // Register the configuration update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
@@ -265,6 +322,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
         }
+
+        /// <summary>
+        /// Handle requests to list databases on the current server
+        /// </summary>
+        protected async Task HandleListDatabasesRequest(
+            ListDatabasesParams listDatabasesParams,
+            RequestContext<ListDatabasesResponse> requestContext)
+        {
+            Logger.Write(LogLevel.Verbose, "ListDatabasesRequest");
+
+            try
+            {
+                ListDatabasesResponse result = ConnectionService.Instance.ListDatabases(listDatabasesParams);
+                await requestContext.SendResult(result);
+            }
+            catch(Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
         
         public Task HandleDidChangeConfigurationNotification(
             SqlToolsSettings newSettings, 
@@ -285,11 +362,125 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionBuilder["Integrated Security"] = false;
             connectionBuilder["User Id"] = connectionDetails.UserName;
             connectionBuilder["Password"] = connectionDetails.Password;
-            if( !String.IsNullOrEmpty(connectionDetails.DatabaseName) )
+
+            // Check for any optional parameters
+            if (!string.IsNullOrEmpty(connectionDetails.DatabaseName))
             {
                 connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
             }
+            if (!string.IsNullOrEmpty(connectionDetails.AuthenticationType))
+            {
+                switch(connectionDetails.AuthenticationType)
+                {
+                    case "Integrated":
+                        connectionBuilder.IntegratedSecurity = true;
+                        break;
+                    case "SqlLogin":
+                        connectionBuilder.IntegratedSecurity = false;
+                        break;
+                    default:
+                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for AuthenticationType. Valid values are \"Integrated\" and \"SqlLogin\".", connectionDetails.AuthenticationType));
+                }
+            }
+            if (connectionDetails.Encrypt.HasValue)
+            {
+                connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
+            }
+            if (connectionDetails.TrustServerCertificate.HasValue)
+            {
+                connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
+            }
+            if (connectionDetails.PersistSecurityInfo.HasValue)
+            {
+                connectionBuilder.PersistSecurityInfo = connectionDetails.PersistSecurityInfo.Value;
+            }
+            if (connectionDetails.ConnectTimeout.HasValue)
+            {
+                connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
+            }
+            if (connectionDetails.ConnectRetryCount.HasValue)
+            {
+                connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
+            }
+            if (connectionDetails.ConnectRetryInterval.HasValue)
+            {
+                connectionBuilder.ConnectRetryInterval = connectionDetails.ConnectRetryInterval.Value;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.ApplicationName))
+            {
+                connectionBuilder.ApplicationName = connectionDetails.ApplicationName;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.WorkstationId))
+            {
+                connectionBuilder.WorkstationID = connectionDetails.WorkstationId;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.ApplicationIntent))
+            {
+                ApplicationIntent intent;
+                switch (connectionDetails.ApplicationIntent)
+                {
+                    case "ReadOnly":
+                        intent = ApplicationIntent.ReadOnly;
+                        break;
+                    case "ReadWrite":
+                        intent = ApplicationIntent.ReadWrite;
+                        break;
+                    default:
+                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for ApplicationIntent. Valid values are \"ReadWrite\" and \"ReadOnly\".", connectionDetails.ApplicationIntent));
+                }
+                connectionBuilder.ApplicationIntent = intent;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.CurrentLanguage))
+            {
+                connectionBuilder.CurrentLanguage = connectionDetails.CurrentLanguage;
+            }
+            if (connectionDetails.Pooling.HasValue)
+            {
+                connectionBuilder.Pooling = connectionDetails.Pooling.Value;
+            }
+            if (connectionDetails.MaxPoolSize.HasValue)
+            {
+                connectionBuilder.MaxPoolSize = connectionDetails.MaxPoolSize.Value;
+            }
+            if (connectionDetails.MinPoolSize.HasValue)
+            {
+                connectionBuilder.MinPoolSize = connectionDetails.MinPoolSize.Value;
+            }
+            if (connectionDetails.LoadBalanceTimeout.HasValue)
+            {
+                connectionBuilder.LoadBalanceTimeout = connectionDetails.LoadBalanceTimeout.Value;
+            }
+            if (connectionDetails.Replication.HasValue)
+            {
+                connectionBuilder.Replication = connectionDetails.Replication.Value;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.AttachDbFilename))
+            {
+                connectionBuilder.AttachDBFilename = connectionDetails.AttachDbFilename;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.FailoverPartner))
+            {
+                connectionBuilder.FailoverPartner = connectionDetails.FailoverPartner;
+            }
+            if (connectionDetails.MultiSubnetFailover.HasValue)
+            {
+                connectionBuilder.MultiSubnetFailover = connectionDetails.MultiSubnetFailover.Value;
+            }
+            if (connectionDetails.MultipleActiveResultSets.HasValue)
+            {
+                connectionBuilder.MultipleActiveResultSets = connectionDetails.MultipleActiveResultSets.Value;
+            }
+            if (connectionDetails.PacketSize.HasValue)
+            {
+                connectionBuilder.PacketSize = connectionDetails.PacketSize.Value;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.TypeSystemVersion))
+            {
+                connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
+            }
+
             return connectionBuilder.ToString();
-        }
+        }      
+
     }
 }
