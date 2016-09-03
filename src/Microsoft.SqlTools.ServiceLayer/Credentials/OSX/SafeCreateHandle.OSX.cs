@@ -5,7 +5,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
+namespace Microsoft.SqlTools.ServiceLayer.Credentials
 
 {
     /// <summary>

@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 
@@ -23,17 +25,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
     /// </summary>
     internal class LinuxCredentialStore : ICredentialStore
     {
-        private string credentialFolder;
+        internal struct StoreConfig
+        {
+            public string CredentialFolder { get; set; }
+            public string CredentialFile { get; set; }
+            public bool IsRelativeToUserHomeDir { get; set; }
+        }
+
+        private string credentialFolderPath;
         private string credentialFileName;
         private FileTokenStorage storage;
 
-        public LinuxCredentialStore(string credentialFolder, string credentialFileName)
+        public LinuxCredentialStore(StoreConfig config)
         {
-            Validate.IsNotNullOrEmptyString("credentialFolder", credentialFolder);
-            Validate.IsNotNullOrEmptyString("credentialFileName", credentialFileName);
-            this.credentialFolder = credentialFolder;
-            this.credentialFileName = credentialFileName;
-            string combinedPath = Path.Combine(credentialFolder, credentialFileName);
+            Validate.IsNotNull("config", config);
+            Validate.IsNotNullOrEmptyString("credentialFolder", config.CredentialFolder);
+            Validate.IsNotNullOrEmptyString("credentialFileName", config.CredentialFile);
+            
+            this.credentialFolderPath = config.IsRelativeToUserHomeDir ? GetUserScopedDirectory(config.CredentialFolder) : config.CredentialFolder;
+            this.credentialFileName = config.CredentialFile;
+
+
+            string combinedPath = Path.Combine(this.credentialFolderPath, this.credentialFileName);
             storage = new FileTokenStorage(combinedPath);
         }
         
@@ -65,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
                     return false; // filter this out
                 }
                 return true;
-            });
+            }).ToList();    // Call ToList ensures Where clause is executed so didRemove can be evaluated
 
             return didRemove;
         }
@@ -100,6 +113,119 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
             storage.SaveEntries(creds.Append(credential));
             
             return true;
+        }
+
+
+        /// <summary>
+        /// Internal for testing purposes only
+        /// </summary>
+        internal string CredentialFolderPath
+        {
+            get { return this.credentialFolderPath; }
+        }
+
+        /// <summary>
+        /// Concatenates a directory to the user home directory's path
+        /// </summary>
+        internal static string GetUserScopedDirectory(string userPath)
+        {
+            string homeDir = GetHomeDirectory() ?? string.Empty;
+            return Path.Combine(homeDir, userPath);
+        }
+
+
+        /// <summary>Gets the current user's home directory.</summary>
+        /// <returns>The path to the home directory, or null if it could not be determined.</returns>
+        internal static string GetHomeDirectory()
+        {
+            // First try to get the user's home directory from the HOME environment variable.
+            // This should work in most cases.
+            string userHomeDirectory = Environment.GetEnvironmentVariable("HOME");
+            if (!string.IsNullOrEmpty(userHomeDirectory))
+            {
+                return userHomeDirectory;
+            }
+            
+            // In initialization conditions, however, the "HOME" environment variable may 
+            // not yet be set. For such cases, consult with the password entry.
+            
+            // First try with a buffer that should suffice for 99% of cases.
+            // Note that, theoretically, userHomeDirectory may be null in the success case 
+            // if we simply couldn't find a home directory for the current user.
+            // In that case, we pass back the null value and let the caller decide
+            // what to do.
+            return GetHomeDirectoryFromPw();
+        }
+
+        internal static string GetHomeDirectoryFromPw()
+        {
+            string userHomeDirectory = null;
+            const int BufLen = 1024;
+            if (TryGetHomeDirectoryFromPasswd(BufLen, out userHomeDirectory))
+            {
+                return userHomeDirectory;
+            }
+            // Fallback to heap allocations if necessary, growing the buffer until
+            // we succeed.  TryGetHomeDirectory will throw if there's an unexpected error.
+            int lastBufLen = BufLen;
+            while (true)
+            {
+                lastBufLen *= 2;
+                if (TryGetHomeDirectoryFromPasswd(lastBufLen, out userHomeDirectory))
+                {
+                    return userHomeDirectory;
+                }
+            }   
+        }
+
+        /// <summary>Wrapper for getpwuid_r.</summary>
+        /// <param name="bufLen">The length of the buffer to use when storing the password result.</param>
+        /// <param name="path">The resulting path; null if the user didn't have an entry.</param>
+        /// <returns>true if the call was successful (path may still be null); false is a larger buffer is needed.</returns>
+        private static bool TryGetHomeDirectoryFromPasswd(int bufLen, out string path)
+        {
+            // Call getpwuid_r to get the passwd struct
+            Interop.Sys.Passwd passwd;
+            IntPtr buffer = Marshal.AllocHGlobal(bufLen);
+            try
+            {
+                int error = Interop.Sys.GetPwUidR(Interop.Sys.GetEUid(), out passwd, buffer, bufLen);
+
+                // If the call succeeds, give back the home directory path retrieved
+                if (error == 0)
+                {
+                    Debug.Assert(passwd.HomeDirectory != IntPtr.Zero);
+                    path = Marshal.PtrToStringAnsi(passwd.HomeDirectory);
+                    return true;
+                }
+
+                // If the current user's entry could not be found, give back null
+                // path, but still return true as false indicates the buffer was
+                // too small.
+                if (error == -1)
+                {
+                    path = null;
+                    return true;
+                }
+
+                var errorInfo = new Interop.ErrorInfo(error);
+
+                // If the call failed because the buffer was too small, return false to 
+                // indicate the caller should try again with a larger buffer.
+                if (errorInfo.Error == Interop.Error.ERANGE)
+                {
+                    path = null;
+                    return false;
+                }
+
+                // Otherwise, fail.
+                throw new IOException(errorInfo.GetErrorMessage(), errorInfo.RawErrno);
+            }
+            finally
+            {
+                // Deallocate the buffer we created
+                Marshal.FreeHGlobal(buffer);
+            }
         }
     }
 }

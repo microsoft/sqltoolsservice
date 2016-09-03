@@ -21,8 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
     /// </summary>
     public class CredentialService
     {
-        private const string DefaultSecretsFolder = ".sqlsecrets";
-        private const string DefaultSecretsFile = "sqlsecrets.json";
+        internal static string DefaultSecretsFolder = ".sqlsecrets";
+        internal const string DefaultSecretsFile = "sqlsecrets.json";
+        
 
         /// <summary>
         /// Singleton service instance
@@ -47,22 +48,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         /// Default constructor is private since it's a singleton class
         /// </summary>
         private CredentialService()
+            : this(null, new LinuxCredentialStore.StoreConfig() 
+                { CredentialFolder = DefaultSecretsFolder, CredentialFile = DefaultSecretsFile, IsRelativeToUserHomeDir = true})
         {
-            this.credStore = GetStoreForOS();
         }
         
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
-        internal CredentialService(ICredentialStore store)
+        internal CredentialService(ICredentialStore store, LinuxCredentialStore.StoreConfig config)
         {
-            this.credStore = store;
+            this.credStore = store != null ? store : GetStoreForOS(config);
         }
 
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
-        internal static ICredentialStore GetStoreForOS()
+        internal static ICredentialStore GetStoreForOS(LinuxCredentialStore.StoreConfig config)
         {
             if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -74,9 +76,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return new LinuxCredentialStore(DefaultSecretsFolder, DefaultSecretsFile);
+                return new LinuxCredentialStore(config);
             }
-            // TODO add Linux and Mac support
             throw new InvalidOperationException("Platform not currently supported");
         }
 
@@ -145,5 +146,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
                 await requestContext.SendError(ex.ToString());
             }
         }
+
     }
 }

@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
     public class CredentialSetTests
     {
         [Fact]
-        public void CredentialSet_Create()
+        public void CredentialSetCreate()
         {
             RunIfWindows(() => 
             {
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         }
 
         [Fact]
-        public void CredentialSet_Create_WithTarget()
+        public void CredentialSetCreateWithTarget()
         {
             RunIfWindows(() => 
             {
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         }
 
         [Fact]
-        public void CredentialSet_ShouldBeIDisposable()
+        public void CredentialSetShouldBeIDisposable()
         {
             RunIfWindows(() => 
             {
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         }
 
         [Fact]
-        public void CredentialSet_Load()
+        public void CredentialSetLoad()
         {
             RunIfWindows(() => 
             {
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         }
 
         [Fact]
-        public void CredentialSet_Load_ShouldReturn_Self()
+        public void CredentialSetLoadShouldReturnSelf()
         {
             RunIfWindows(() => 
             {
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         }
 
         [Fact]
-        public void CredentialSet_Load_With_TargetFilter()
+        public void CredentialSetLoadWithTargetFilter()
         {
             RunIfWindows(() => 
             {

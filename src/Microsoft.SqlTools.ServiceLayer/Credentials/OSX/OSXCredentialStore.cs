@@ -5,7 +5,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 
@@ -48,11 +47,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
             IntPtr passwordPtr = Marshal.StringToCoTaskMemUni(credential.Password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
               IntPtr.Zero, 
-              GetLengthInBytes(credential.CredentialId), 
+              InteropUtils.GetLengthInBytes(credential.CredentialId), 
               credential.CredentialId,
               0, 
               null,
-              GetLengthInBytes(credential.Password),
+              InteropUtils.GetLengthInBytes(credential.Password),
               passwordPtr,
               IntPtr.Zero);
 
@@ -84,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
             IntPtr item;
             Interop.Security.OSStatus status = Interop.Security.SecKeychainFindGenericPassword(
                 IntPtr.Zero,
-                GetLengthInBytes(credentialId),
+                InteropUtils.GetLengthInBytes(credentialId),
                 credentialId,
                 0,
                 null,
@@ -113,12 +112,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
             }            
         }
 
-        private UInt32 GetLengthInBytes(string value)
-        {
-            
-            return Convert.ToUInt32( (value != null ? Encoding.Unicode.GetByteCount(value) : 0) );
-        }
-
         private class KeyChainItemHandle : SafeCreateHandle
         {
             private IntPtr passwordPtr;
@@ -144,13 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
             public string Password 
             { 
                 get {
-                    if (IsInvalid || passwordPtr == IntPtr.Zero || passwordLength == 0)
+                    if (IsInvalid)
                     {
                         return null;
                     }
-                    byte[] pwdBytes = new byte[passwordLength];
-                    Marshal.Copy(passwordPtr, pwdBytes, 0, (int)passwordLength);
-                    return Encoding.Unicode.GetString(pwdBytes, 0, (int)passwordLength);
+                    return InteropUtils.CopyToString(passwordPtr, passwordLength);
                 }
             }
             protected override bool ReleaseHandle()

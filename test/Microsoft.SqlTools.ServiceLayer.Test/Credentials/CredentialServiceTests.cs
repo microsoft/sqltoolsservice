@@ -4,9 +4,12 @@
 //
 
 using System;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Credentials.Linux;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
@@ -21,9 +24,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
     /// </summary>
     public class CredentialServiceTests : IDisposable
     {
+        private static readonly LinuxCredentialStore.StoreConfig config = new LinuxCredentialStore.StoreConfig()
+        {
+            CredentialFolder = ".testsecrets", 
+            CredentialFile = "sqltestsecrets.json", 
+            IsRelativeToUserHomeDir = true
+        };
+
         const string credentialId = "Microsoft_SqlToolsTest_TestId";
         const string password1 = "P@ssw0rd1";
         const string password2 = "2Pass2Furious";
+
+        const string otherCredId = credentialId + "2345";
+        const string otherPassword = credentialId + "2345";
 
         // Test-owned credential store used to clean up before/after tests to ensure code works as expected 
         // even if previous runs stopped midway through
@@ -34,8 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// </summary>
         public CredentialServiceTests()
         {
-            credStore = CredentialService.GetStoreForOS();
-            service = new CredentialService(credStore);
+            credStore = CredentialService.GetStoreForOS(config);
+            service = new CredentialService(credStore, config);
             DeleteDefaultCreds();
         }
         
@@ -47,10 +60,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         private void DeleteDefaultCreds()
         {
             credStore.DeletePassword(credentialId);
+            credStore.DeletePassword(otherCredId);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                string credsFolder = ((LinuxCredentialStore)credStore).CredentialFolderPath;
+                if (Directory.Exists(credsFolder))
+                {
+                    Directory.Delete(credsFolder, true);
+                }
+            }
         }
 
         [Fact]
-        public async Task SaveCredential_Should_Throw_If_CredentialId_Missing()
+        public async Task SaveCredentialThrowsIfCredentialIdMissing()
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling(obj => errorResponse = obj);
@@ -61,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public async Task SaveCredential_Should_Throw_If_Password_Missing()
+        public async Task SaveCredentialThrowsIfPasswordMissing()
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling(obj => errorResponse = obj);
@@ -72,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
         
         [Fact]
-        public async Task SaveCredential_Returns_True_When_Credential_And_Password_Defined()
+        public async Task SaveCredentialWorksForSingleCredential()
         {
             await RunAndVerify<bool>(
                 test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
@@ -80,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public async Task SaveCredential_Returns_True_When_Password_Saved_Twice()
+        public async Task SaveCredentialSupportsSavingCredentialMultipleTimes()
         {
             await RunAndVerify<bool>(
                 test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
@@ -92,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public async Task ReadCredential_Returns_Password_For_Credential()
+        public async Task ReadCredentialWorksForSingleCredential()
         {
             // Given we have saved the credential
             await RunAndVerify<bool>(
@@ -110,7 +132,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public async Task ReadCredential_Finds_Last_Saved_Password()
+        public async Task ReadCredentialWorksForMultipleCredentials()
+        {
+
+            // Given we have saved multiple credentials
+            await RunAndVerify<bool>(
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(credentialId, password1), requestContext),
+                verify: (actual => Assert.True(actual, "Expect Credential to be saved successfully")));
+            await RunAndVerify<bool>(
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(otherCredId, otherPassword), requestContext),
+                verify: (actual => Assert.True(actual, "Expect Credential to be saved successfully")));
+
+
+            // Expect read of the credentials to return the right password
+            await RunAndVerify<Credential>(
+                test: (requestContext) => service.HandleReadCredentialRequest(new Credential(credentialId, null), requestContext),
+                verify: (actual =>
+                {
+                    Assert.Equal(password1, actual.Password);
+                }));
+            await RunAndVerify<Credential>(
+                test: (requestContext) => service.HandleReadCredentialRequest(new Credential(otherCredId, null), requestContext),
+                verify: (actual =>
+                {
+                    Assert.Equal(otherPassword, actual.Password);
+                }));
+        }
+
+        [Fact]
+        public async Task ReadCredentialHandlesPasswordUpdate()
         {
             // Given we have saved twice with a different password
             await RunAndVerify<bool>(
@@ -132,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public async Task ReadCredential_Should_Throw_If_Credential_Is_Null()
+        public async Task ReadCredentialThrowsIfCredentialIsNull()
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<Credential>(null).AddErrorHandling(obj => errorResponse = obj);
@@ -144,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
         
         [Fact]
-        public async Task ReadCredential_Should_Throw_If_Id_Missing()
+        public async Task ReadCredentialThrowsIfIdMissing()
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<Credential>(null).AddErrorHandling(obj => errorResponse = obj);
@@ -156,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public async Task ReadCredential_Should_Allow_No_Password_Found()
+        public async Task ReadCredentialReturnsNullPasswordForMissingCredential()
         {
             // Given a credential whose password doesn't exist
             string credWithNoPassword = "Microsoft_SqlTools_CredThatDoesNotExist";
@@ -174,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
         
         [Fact]
-        public async Task DeleteCredential_Should_Throw_If_Id_Missing()
+        public async Task DeleteCredentialThrowsIfIdMissing()
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling(obj => errorResponse = obj);
@@ -186,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public async Task DeleteCredential_Returns_True_When_Password_Deleted()
+        public async Task DeleteCredentialReturnsTrueOnlyIfCredentialExisted()
         {
             // Save should be true
             await RunAndVerify<bool>(
