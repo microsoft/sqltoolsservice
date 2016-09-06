@@ -9,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Credentials;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -47,6 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             AutoCompleteService.Instance.InitializeService(serviceHost);
             LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
             ConnectionService.Instance.InitializeService(serviceHost);
+            CredentialService.Instance.InitializeService(serviceHost);
             QueryExecutionService.Instance.InitializeService(serviceHost);
 
             serviceHost.Initialize();
