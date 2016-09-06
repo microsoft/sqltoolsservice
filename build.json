@@ -1,0 +1,18 @@
+{
+  "UseSystemDotNetPath": "true",
+  "DotNetFolder": ".dotnet",
+  "DotNetInstallScriptURL": "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2/scripts/obtain",
+  "DotNetChannel": "preview",
+  "DotNetVersion": "1.0.0-preview2-003121",
+  "BuildToolsFolder": ".tools",
+  "ArtifactsFolder": "artifacts",
+  "TestProjects": {
+    "Microsoft.SqlTools.ServiceLayer.Test": [
+      "netcoreapp1.0"
+   ]
+  },
+  "Frameworks": [  
+    "netcoreapp1.0"
+  ],
+  "MainProject": "Microsoft.SqlTools.ServiceLayer"
+}
