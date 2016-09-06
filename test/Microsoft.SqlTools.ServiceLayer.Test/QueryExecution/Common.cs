@@ -7,16 +7,23 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.SmoMetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Moq.Protected;
 
@@ -35,6 +42,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public const int StandardRows = 5;
 
         public const int StandardColumns = 5;
+
+        public static string TestServer { get; set; }
+
+        public static string TestDatabase { get; set; }
+
+        static Common()
+        {
+            TestServer = "sqltools11";
+            TestDatabase = "master";
+        }
 
         public static Dictionary<string, string>[] StandardTestData
         {
@@ -122,8 +139,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             {
                 UserName = "sa",
                 Password = "Yukon900",
-                DatabaseName = "AdventureWorks2016CTP3_2",
-                ServerName = "sqltools11"
+                DatabaseName = Common.TestDatabase,
+                ServerName = Common.TestServer
             };
 
             return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, connDetails);
@@ -132,7 +149,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         #endregion
 
         #region Service Mocking
+        
+        public static void GetAutoCompleteTestObjects(
+            out TextDocumentPosition textDocument,
+            out ScriptFile scriptFile,
+            out ConnectionInfo connInfo
+        )
+        {
+            textDocument = new TextDocumentPosition();
+            textDocument.TextDocument = new TextDocumentIdentifier();
+            textDocument.TextDocument.Uri = Common.OwnerUri;
+            textDocument.Position = new Position();
+            textDocument.Position.Line = 0;
+            textDocument.Position.Character = 0;
 
+            connInfo = Common.CreateTestConnectionInfo(null, false);
+           
+            var srvConn = GetServerConnection(connInfo);
+            var displayInfoProvider = new MetadataDisplayInfoProvider();
+            var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
+            var binder = BinderProvider.CreateBinder(metadataProvider);
+
+            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,
+                new ScriptParseInfo()
+                {
+                    Binder = binder,
+                    MetadataProvider = metadataProvider,
+                    MetadataDisplayInfoProvider = displayInfoProvider
+                });
+
+            scriptFile = new ScriptFile();
+            scriptFile.ClientFilePath = textDocument.TextDocument.Uri;     
+        }
+
+        public static ServerConnection GetServerConnection(ConnectionInfo connection)
+        {
+            string connectionString = ConnectionService.BuildConnectionString(connection.ConnectionDetails);
+            var sqlConnection = new SqlConnection(connectionString);
+            return new ServerConnection(sqlConnection);
+        }
+        
         public static ConnectionDetails GetTestConnectionDetails()
         {
             return new ConnectionDetails
