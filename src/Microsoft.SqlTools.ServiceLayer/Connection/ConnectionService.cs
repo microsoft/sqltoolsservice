@@ -371,7 +371,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder();
             connectionBuilder["Data Source"] = connectionDetails.ServerName;
-            connectionBuilder["Integrated Security"] = false;
             connectionBuilder["User Id"] = connectionDetails.UserName;
             connectionBuilder["Password"] = connectionDetails.Password;
 
@@ -388,7 +387,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.IntegratedSecurity = true;
                         break;
                     case "SqlLogin":
-                        connectionBuilder.IntegratedSecurity = false;
                         break;
                     default:
                         throw new ArgumentException(string.Format("Invalid value \"{0}\" for AuthenticationType. Valid values are \"Integrated\" and \"SqlLogin\".", connectionDetails.AuthenticationType));
