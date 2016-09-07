@@ -32,12 +32,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
         {
         }
 
+        /// <summary>
+        /// Constructor used when only <paramref name="credentialId"/> is known
+        /// </summary>
+        /// <param name="credentialId"><see cref="CredentialId"/></param>
         public Credential(string credentialId)
             : this(credentialId, null)
         {
             
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="credentialId"><see cref="CredentialId"/></param>
+        /// <param name="password"><see cref="Password"/></param>
         public Credential(string credentialId, string password)
         {
             CredentialId = credentialId;
@@ -53,13 +62,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
             };
         }
 
+        /// <summary>
+        /// Validates the credential has all the properties needed to look up the password
+        /// </summary>
         public static void ValidateForLookup(Credential credential)
         {
             Validate.IsNotNull("credential", credential);
             Validate.IsNotNullOrEmptyString("credential.CredentialId", credential.CredentialId);
         }
-        
 
+
+        /// <summary>
+        /// Validates the credential has all the properties needed to save a password
+        /// </summary>
         public static void ValidateForSave(Credential credential)
         {
             ValidateForLookup(credential);
@@ -73,6 +88,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
     /// </summary>
     public class ReadCredentialRequest
     {
+        /// <summary>
+        /// Request definition
+        /// </summary>
         public static readonly
             RequestType<Credential, Credential> Type =
             RequestType<Credential, Credential>.Create("credential/read");
@@ -83,6 +101,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
     /// </summary>
     public class SaveCredentialRequest
     {
+        /// <summary>
+        /// Request definition
+        /// </summary>
         public static readonly
             RequestType<Credential, bool> Type =
             RequestType<Credential, bool>.Create("credential/save");
@@ -93,6 +114,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
     /// </summary>
     public class DeleteCredentialRequest
     {
+        /// <summary>
+        /// Request definition
+        /// </summary>
         public static readonly
             RequestType<Credential, bool> Type =
             RequestType<Credential, bool>.Create("credential/delete");

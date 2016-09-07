@@ -4,8 +4,8 @@
 //
 
 using System;
-using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Win32;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void CredentialSetCreate()
         {
-            RunIfWindows(() => 
+            TestUtils.RunIfWindows(() => 
             {
                 Assert.NotNull(new CredentialSet());
             });
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void CredentialSetCreateWithTarget()
         {
-            RunIfWindows(() => 
+            TestUtils.RunIfWindows(() => 
             {
                 Assert.NotNull(new CredentialSet("target"));
             });
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void CredentialSetShouldBeIDisposable()
         {
-            RunIfWindows(() => 
+            TestUtils.RunIfWindows(() => 
             {
                 Assert.True(new CredentialSet() is IDisposable, "CredentialSet needs to implement IDisposable Interface.");
             });
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void CredentialSetLoad()
         {
-            RunIfWindows(() => 
+            TestUtils.RunIfWindows(() => 
             {
                 Win32Credential credential = new Win32Credential
                                             {
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void CredentialSetLoadShouldReturnSelf()
         {
-            RunIfWindows(() => 
+            TestUtils.RunIfWindows(() => 
             {
                 CredentialSet set = new CredentialSet();
                 Assert.IsType<CredentialSet>(set.Load());
@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void CredentialSetLoadWithTargetFilter()
         {
-            RunIfWindows(() => 
+            TestUtils.RunIfWindows(() => 
             {
                 Win32Credential credential = new Win32Credential
                                             {
@@ -95,12 +95,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
             });
         }
 
-        private static void RunIfWindows(Action test)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                test();
-            }
-        }
     }
 }

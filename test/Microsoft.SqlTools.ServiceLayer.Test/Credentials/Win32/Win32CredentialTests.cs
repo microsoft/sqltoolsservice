@@ -4,8 +4,8 @@
 //
 
 using System;
-using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Win32;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Create_ShouldNotThrowNull()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Assert.NotNull(new Win32Credential());
             });
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Create_With_Username_ShouldNotThrowNull()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Assert.NotNull(new Win32Credential("username"));
             });
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Create_With_Username_And_Password_ShouldNotThrowNull()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Assert.NotNull(new Win32Credential("username", "password"));
             });
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Create_With_Username_Password_Target_ShouldNotThrowNull()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Assert.NotNull(new Win32Credential("username", "password", "target"));
             });
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_ShouldBe_IDisposable()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Assert.True(new Win32Credential() is IDisposable, "Credential should implement IDisposable Interface.");
             });
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Dispose_ShouldNotThrowException()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 new Win32Credential().Dispose();
             });
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_ShouldThrowObjectDisposedException()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Win32Credential disposed = new Win32Credential { Password = "password" };
                 disposed.Dispose();
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Save()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Win32Credential saved = new Win32Credential("username", "password", "target", CredentialType.Generic);
                 saved.PersistanceType = PersistanceType.LocalComputer;
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Delete()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 new Win32Credential("username", "password", "target").Save();
                 Assert.True(new Win32Credential("username", "password", "target").Delete());
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Delete_NullTerminator()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Win32Credential credential = new Win32Credential((string)null, (string)null, "\0", CredentialType.None);
                 credential.Description = (string)null;
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Load()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 Win32Credential setup = new Win32Credential("username", "password", "target", CredentialType.Generic);
                 setup.Save();
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void Credential_Exists_Target_ShouldNotBeNull()
         {
-            RunIfWindows(() =>
+            TestUtils.RunIfWindows(() =>
             {
                 new Win32Credential { Username = "username", Password = "password", Target = "target" }.Save();
 
@@ -140,14 +140,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
 
                 existingCred.Delete();
             });
-        }
-
-        private static void RunIfWindows(Action test)
-        {
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                test();
-            }
         }
     }
 }

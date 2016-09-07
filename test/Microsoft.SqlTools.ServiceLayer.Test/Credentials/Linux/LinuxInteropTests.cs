@@ -1,12 +1,11 @@
 ﻿//
-// Code originally from http://credentialmanagement.codeplex.com/, 
-// Licensed under the Apache License 2.0 
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Linux;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
@@ -14,33 +13,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
     public class LinuxInteropTests
     {
         [Fact]
-        public void GetEUidREturnsInt()
+        public void GetEUidReturnsInt()
         {
-            RunIfLinux(() =>
+            TestUtils.RunIfLinux(() =>
             {
                 Assert.NotNull(Interop.Sys.GetEUid());
             });
         }
 
         [Fact]
-        public void GetPwUidRFindsHomeDir()
+        public void GetHomeDirectoryFromPwFindsHomeDir()
         {
 
-            RunIfLinux(() =>
+            TestUtils.RunIfLinux(() =>
             {
                 string userDir = LinuxCredentialStore.GetHomeDirectoryFromPw();
                 Assert.StartsWith("/", userDir);
             });
         }
         
-
-        private static void RunIfLinux(Action test)
-        {
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                test();
-            }
-        }
     }
 }
 

@@ -32,9 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
             Credential.ValidateForSave(credential);
             bool result = false;
 
-            // TODO: Consider updating password properties. OSX blocks AddPassword if the credential 
+            // Note: OSX blocks AddPassword if the credential 
             // already exists, so for now we delete the password if already present since we're updating
-            // the value. In the future, we could consider updating.
+            // the value. In the future, we could consider updating but it's low value to solve this
             DeletePasswordImpl(credential.CredentialId);
 
             // Now add the password

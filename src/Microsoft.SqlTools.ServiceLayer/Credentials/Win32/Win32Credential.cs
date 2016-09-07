@@ -12,15 +12,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
 {
     public class Win32Credential: IDisposable
     {
-        bool _disposed;
+        bool disposed;
 
-        CredentialType _type;
-        string _target;
-        SecureString _password;
-        string _username;
-        string _description;
-        DateTime _lastWriteTime;
-        PersistanceType _persistanceType;
+        CredentialType type;
+        string target;
+        SecureString password;
+        string username;
+        string description;
+        DateTime lastWriteTime;
+        PersistanceType persistanceType;
         
         public Win32Credential()
             : this(null)
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             Target = target;
             Type = type;
             PersistanceType = PersistanceType.Session;
-            _lastWriteTime = DateTime.MinValue;
+            lastWriteTime = DateTime.MinValue;
         }
 
 
@@ -60,14 +60,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             // Prevent GC Collection since we have already disposed of this object
             GC.SuppressFinalize(this);
         }
-        ~Win32Credential()
-        {
-            Dispose(false);
-        }
 
         private void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (!disposed)
             {
                 if (disposing)
                 {
@@ -75,12 +71,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
                     SecurePassword.Dispose();
                 }
             }
-            _disposed = true;
+            disposed = true;
         }
 
         private void CheckNotDisposed()
         {
-            if (_disposed)
+            if (disposed)
             {
                 throw new ObjectDisposedException(CredentialResources.CredentialDisposed);
             }
@@ -91,12 +87,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             get
             {
                 CheckNotDisposed();
-                return _username;
+                return username;
             }
             set
             {
                 CheckNotDisposed();
-                _username = value;
+                username = value;
             }
         }
         public string Password
@@ -116,17 +112,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             get
             {
                 CheckNotDisposed();
-                return null == _password ? new SecureString() : _password.Copy();
+                return null == password ? new SecureString() : password.Copy();
             }
             set
             {
                 CheckNotDisposed();
-                if (null != _password)
+                if (null != password)
                 {
-                    _password.Clear();
-                    _password.Dispose();
+                    password.Clear();
+                    password.Dispose();
                 }
-                _password = null == value ? new SecureString() : value.Copy();
+                password = null == value ? new SecureString() : value.Copy();
             }
         }
         public string Target
@@ -134,12 +130,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             get
             {
                 CheckNotDisposed();
-                return _target;
+                return target;
             }
             set
             {
                 CheckNotDisposed();
-                _target = value;
+                target = value;
             }
         }
 
@@ -148,12 +144,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             get
             {
                 CheckNotDisposed();
-                return _description;
+                return description;
             }
             set
             {
                 CheckNotDisposed();
-                _description = value;
+                description = value;
             }
         }
 
@@ -169,9 +165,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             get
             {
                 CheckNotDisposed();
-                return _lastWriteTime;
+                return lastWriteTime;
             }
-            private set { _lastWriteTime = value; }
+            private set { lastWriteTime = value; }
         }
 
         public CredentialType Type
@@ -179,12 +175,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             get
             {
                 CheckNotDisposed();
-                return _type;
+                return type;
             }
             set
             {
                 CheckNotDisposed();
-                _type = value;
+                type = value;
             }
         }
 
@@ -193,12 +189,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             get
             {
                 CheckNotDisposed();
-                return _persistanceType;
+                return persistanceType;
             }
             set
             {
                 CheckNotDisposed();
-                _persistanceType = value;
+                persistanceType = value;
             }
         }
 
