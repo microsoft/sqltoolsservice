@@ -506,7 +506,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    info.SqlConnection.ChangeDatabase(newDatabaseName);
+                    if (info.SqlConnection.State == ConnectionState.Open)
+                    {
+                        info.SqlConnection.ChangeDatabase(newDatabaseName);
+                    }
                     info.ConnectionDetails.DatabaseName = newDatabaseName;
 
                     // Fire a connection changed event

@@ -21,6 +21,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
+        #region Constants
+        
+        /// <summary>
+        /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
+        /// </summary>
+        private const int DatabaseContextChangeErrorNumber = 5701;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -146,10 +155,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await conn.OpenAsync();
 
-                if (conn.GetType() == typeof(SqlConnection))
+                SqlConnection sqlConn = conn as SqlConnection;
+                if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
-                    SqlConnection sqlConn = conn as SqlConnection;
                     sqlConn.InfoMessage += OnInfoMessage;
                 }
 
@@ -160,11 +169,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
             }
         }
-
-        /// <summary>
-        /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
-        /// </summary>
-        private const int DatabaseContextChangeErrorNumber = 5701;
 
         /// <summary>
         /// Handler for database messages during query execution
