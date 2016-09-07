@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
         public override void ChangeDatabase(string databaseName)
         {
-            throw new NotImplementedException();
+            // No Op
         }
     }
 

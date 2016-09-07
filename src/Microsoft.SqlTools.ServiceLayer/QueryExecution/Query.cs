@@ -5,6 +5,7 @@
 
 using System;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +21,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
+        #region Constants
+        
+        /// <summary>
+        /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
+        /// </summary>
+        private const int DatabaseContextChangeErrorNumber = 5701;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -145,10 +155,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await conn.OpenAsync();
 
+                SqlConnection sqlConn = conn as SqlConnection;
+                if (sqlConn != null)
+                {
+                    // Subscribe to database informational messages
+                    sqlConn.InfoMessage += OnInfoMessage;
+                }
+
                 // We need these to execute synchronously, otherwise the user will be very unhappy
                 foreach (Batch b in Batches)
                 {
                     await b.Execute(conn, cancellationSource.Token);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handler for database messages during query execution
+        /// </summary>
+        private void OnInfoMessage(object sender, SqlInfoMessageEventArgs args)
+        {
+            SqlConnection conn = sender as SqlConnection;
+
+            foreach(SqlError error in args.Errors) 
+            {
+                // Did the database context change (error code 5701)?
+                if (error.Number == DatabaseContextChangeErrorNumber)
+                {
+                    ConnectionService.Instance.ChangeConnectionDatabaseContext(EditorConnection.OwnerUri, conn.Database);
                 }
             }
         }
