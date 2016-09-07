@@ -11,8 +11,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -241,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// </summary>
         [Theory]
         [InlineData("AuthenticationType", "Integrated", "Integrated Security")]
-        [InlineData("AuthenticationType", "SqlLogin", "Integrated Security")]
+        [InlineData("AuthenticationType", "SqlLogin", "")]
         [InlineData("Encrypt", true, "Encrypt")]
         [InlineData("Encrypt", false, "Encrypt")]
         [InlineData("TrustServerCertificate", true, "TrustServerCertificate")]
@@ -285,6 +286,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // Verify that the parameter is in the connection string
             Assert.True(connectionString.Contains(connectionStringMarker));
+        }
+
+        /// <summary>
+        /// Verify that a connection changed event is fired when the database context changes.
+        /// </summary>
+        [Fact]
+        public void ConnectionChangedEventIsFiredWhenDatabaseContextChanges()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = TestObjects.GetTestConnectionService();
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            string ownerUri = "file://my/sample/file.sql";
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+
+            // verify that a valid connection id was returned
+            Assert.NotEmpty(connectionResult.ConnectionId);
+
+            ConnectionInfo info;
+            Assert.True(connectionService.TryFindConnection(ownerUri, out info));
+
+            // Tell the connection manager that the database change ocurred
+            connectionService.ChangeConnectionDatabaseContext(ownerUri, "myOtherDb");
+
+            // Verify that the connection changed event was fired
+            serviceHostMock.Verify(x => x.SendEvent<ConnectionChangedParams>(ConnectionChangedNotification.Type, It.IsAny<ConnectionChangedParams>()), Times.Once());
         }
 
         /// <summary>
