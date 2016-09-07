@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -14,9 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     public interface IFileStreamWrapper : IDisposable
     {
         void Init(string fileName, int bufferSize, bool forReadingOnly);
-        Task<int> ReadData(byte[] buffer, int bytes);
-        Task<int> ReadData(byte[] buffer, int bytes, long fileOffset);
-        Task<int> WriteData(byte[] buffer, int bytes);
-        Task Flush();
+        int ReadData(byte[] buffer, int bytes);
+        int ReadData(byte[] buffer, int bytes, long fileOffset);
+        int WriteData(byte[] buffer, int bytes);
+        void Flush();
     }
 }

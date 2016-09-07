@@ -8,7 +8,6 @@ using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
@@ -75,9 +74,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes an entire row to the file stream
         /// </summary>
         /// <param name="reader">A primed reader</param>
-        /// <param name="columns">The columns to read into the file stream</param>
         /// <returns>Number of bytes used to write the row</returns>
-        public async Task<int> WriteRow(StorageDataReader reader)
+        public int WriteRow(StorageDataReader reader)
         {
             // Determine if we have any long fields
             bool hasLongFields = reader.Columns.Any(column => column.IsLong);
@@ -140,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 if (tVal == typeof(DBNull))
                 {
-                    rowBytes += await WriteNull();
+                    rowBytes += WriteNull();
                 }
                 else
                 {
@@ -148,14 +146,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     {
                         // serialize type information as a string before the value
                         string val = tVal.ToString();
-                        rowBytes += await WriteString(val);
+                        rowBytes += WriteString(val);
                     }
 
                     if (tVal == typeof(string))
                     {
                         // String - most frequently used data type
                         string val = (string)values[i];
-                        rowBytes += await WriteString(val);
+                        rowBytes += WriteString(val);
                     }
                     else if (tVal == typeof(SqlString))
                     {
@@ -163,18 +161,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlString val = (SqlString)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteString(val.Value);
+                            rowBytes += WriteString(val.Value);
                         }
                     }
                     else if (tVal == typeof(short))
                     {
                         // Int16
                         short val = (short)values[i];
-                        rowBytes += await WriteInt16(val);
+                        rowBytes += WriteInt16(val);
                     }
                     else if (tVal == typeof(SqlInt16))
                     {
@@ -182,18 +180,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlInt16 val = (SqlInt16)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteInt16(val.Value);
+                            rowBytes += WriteInt16(val.Value);
                         }
                     }
                     else if (tVal == typeof(int))
                     {
                         // Int32
                         int val = (int)values[i];
-                        rowBytes += await WriteInt32(val);
+                        rowBytes += WriteInt32(val);
                     }
                     else if (tVal == typeof(SqlInt32))
                     {
@@ -201,18 +199,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlInt32 val = (SqlInt32)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteInt32(val.Value);
+                            rowBytes += WriteInt32(val.Value);
                         }
                     }
                     else if (tVal == typeof(long))
                     {
                         // Int64
                         long val = (long)values[i];
-                        rowBytes += await WriteInt64(val);
+                        rowBytes += WriteInt64(val);
                     }
                     else if (tVal == typeof(SqlInt64))
                     {
@@ -220,18 +218,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlInt64 val = (SqlInt64)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteInt64(val.Value);
+                            rowBytes += WriteInt64(val.Value);
                         }
                     }
                     else if (tVal == typeof(byte))
                     {
                         // Byte
                         byte val = (byte)values[i];
-                        rowBytes += await WriteByte(val);
+                        rowBytes += WriteByte(val);
                     }
                     else if (tVal == typeof(SqlByte))
                     {
@@ -239,24 +237,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlByte val = (SqlByte)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteByte(val.Value);
+                            rowBytes += WriteByte(val.Value);
                         }
                     }
                     else if (tVal == typeof(char))
                     {
                         // Char
                         char val = (char)values[i];
-                        rowBytes += await WriteChar(val);
+                        rowBytes += WriteChar(val);
                     }
                     else if (tVal == typeof(bool))
                     {
                         // Boolean
                         bool val = (bool)values[i];
-                        rowBytes += await WriteBoolean(val);
+                        rowBytes += WriteBoolean(val);
                     }
                     else if (tVal == typeof(SqlBoolean))
                     {
@@ -264,18 +262,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlBoolean val = (SqlBoolean)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteBoolean(val.Value);
+                            rowBytes += WriteBoolean(val.Value);
                         }
                     }
                     else if (tVal == typeof(double))
                     {
                         // Double
                         double val = (double)values[i];
-                        rowBytes += await WriteDouble(val);
+                        rowBytes += WriteDouble(val);
                     }
                     else if (tVal == typeof(SqlDouble))
                     {
@@ -283,11 +281,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlDouble val = (SqlDouble)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteDouble(val.Value);
+                            rowBytes += WriteDouble(val.Value);
                         }
                     }
                     else if (tVal == typeof(SqlSingle))
@@ -296,18 +294,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlSingle val = (SqlSingle)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteSingle(val.Value);
+                            rowBytes += WriteSingle(val.Value);
                         }
                     }
                     else if (tVal == typeof(decimal))
                     {
                         // Decimal
                         decimal val = (decimal)values[i];
-                        rowBytes += await WriteDecimal(val);
+                        rowBytes += WriteDecimal(val);
                     }
                     else if (tVal == typeof(SqlDecimal))
                     {
@@ -315,24 +313,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlDecimal val = (SqlDecimal)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteSqlDecimal(val);
+                            rowBytes += WriteSqlDecimal(val);
                         }
                     }
                     else if (tVal == typeof(DateTime))
                     {
                         // DateTime
                         DateTime val = (DateTime)values[i];
-                        rowBytes += await WriteDateTime(val);
+                        rowBytes += WriteDateTime(val);
                     }
                     else if (tVal == typeof(DateTimeOffset))
                     {
                         // DateTimeOffset
                         DateTimeOffset val = (DateTimeOffset)values[i];
-                        rowBytes += await WriteDateTimeOffset(val);
+                        rowBytes += WriteDateTimeOffset(val);
                     }
                     else if (tVal == typeof(SqlDateTime))
                     {
@@ -340,24 +338,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlDateTime val = (SqlDateTime)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteDateTime(val.Value);
+                            rowBytes += WriteDateTime(val.Value);
                         }
                     }
                     else if (tVal == typeof(TimeSpan))
                     {
                         // TimeSpan
                         TimeSpan val = (TimeSpan)values[i];
-                        rowBytes += await WriteTimeSpan(val);
+                        rowBytes += WriteTimeSpan(val);
                     }
                     else if (tVal == typeof(byte[]))
                     {
                         // Bytes
                         byte[] val = (byte[])values[i];
-                        rowBytes += await WriteBytes(val, val.Length);
+                        rowBytes += WriteBytes(val, val.Length);
                     }
                     else if (tVal == typeof(SqlBytes))
                     {
@@ -365,11 +363,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlBytes val = (SqlBytes)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteBytes(val.Value, val.Value.Length);
+                            rowBytes += WriteBytes(val.Value, val.Value.Length);
                         }
                     }
                     else if (tVal == typeof(SqlBinary))
@@ -378,11 +376,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlBinary val = (SqlBinary)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteBytes(val.Value, val.Value.Length);
+                            rowBytes += WriteBytes(val.Value, val.Value.Length);
                         }
                     }
                     else if (tVal == typeof(SqlGuid))
@@ -391,12 +389,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlGuid val = (SqlGuid)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
                             byte[] bytesVal = val.ToByteArray();
-                            rowBytes += await WriteBytes(bytesVal, bytesVal.Length);
+                            rowBytes += WriteBytes(bytesVal, bytesVal.Length);
                         }
                     }
                     else if (tVal == typeof(SqlMoney))
@@ -405,24 +403,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         SqlMoney val = (SqlMoney)values[i];
                         if (val.IsNull)
                         {
-                            rowBytes += await WriteNull();
+                            rowBytes += WriteNull();
                         }
                         else
                         {
-                            rowBytes += await WriteDecimal(val.Value);
+                            rowBytes += WriteDecimal(val.Value);
                         }
                     }
                     else
                     {
                         // treat everything else as string
                         string val = values[i].ToString();
-                        rowBytes += await WriteString(val);
+                        rowBytes += WriteString(val);
                     }
                 }
             }
 
             // Flush the buffer after every row
-            await FlushBuffer();
+            FlushBuffer();
             return rowBytes;
         }
 
@@ -430,115 +428,115 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes null to the file as one 0x00 byte
         /// </summary>
         /// <returns>Number of bytes used to store the null</returns>
-        public async Task<int> WriteNull()
+        public int WriteNull()
         {
             byteBuffer[0] = 0x00;
-            return await FileStream.WriteData(byteBuffer, 1);
+            return FileStream.WriteData(byteBuffer, 1);
         }
 
         /// <summary>
         /// Writes a short to the file
         /// </summary>
         /// <returns>Number of bytes used to store the short</returns>
-        public async Task<int> WriteInt16(short val)
+        public int WriteInt16(short val)
         {
             byteBuffer[0] = 0x02; // length
             shortBuffer[0] = val;
             Buffer.BlockCopy(shortBuffer, 0, byteBuffer, 1, 2);
-            return await FileStream.WriteData(byteBuffer, 3);
+            return FileStream.WriteData(byteBuffer, 3);
         }
 
         /// <summary>
         /// Writes a int to the file
         /// </summary>
         /// <returns>Number of bytes used to store the int</returns>
-        public async Task<int> WriteInt32(int val)
+        public int WriteInt32(int val)
         {
             byteBuffer[0] = 0x04; // length
             intBuffer[0] = val;
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return await FileStream.WriteData(byteBuffer, 5);
+            return FileStream.WriteData(byteBuffer, 5);
         }
 
         /// <summary>
         /// Writes a long to the file
         /// </summary>
         /// <returns>Number of bytes used to store the long</returns>
-        public async Task<int> WriteInt64(long val)
+        public int WriteInt64(long val)
         {
             byteBuffer[0] = 0x08; // length
             longBuffer[0] = val;
             Buffer.BlockCopy(longBuffer, 0, byteBuffer, 1, 8);
-            return await FileStream.WriteData(byteBuffer, 9);
+            return FileStream.WriteData(byteBuffer, 9);
         }
 
         /// <summary>
         /// Writes a char to the file
         /// </summary>
         /// <returns>Number of bytes used to store the char</returns>
-        public async Task<int> WriteChar(char val)
+        public int WriteChar(char val)
         {
             byteBuffer[0] = 0x02; // length
             charBuffer[0] = val;
             Buffer.BlockCopy(charBuffer, 0, byteBuffer, 1, 2);
-            return await FileStream.WriteData(byteBuffer, 3);
+            return FileStream.WriteData(byteBuffer, 3);
         }
 
         /// <summary>
         /// Writes a bool to the file
         /// </summary>
         /// <returns>Number of bytes used to store the bool</returns>
-        public async Task<int> WriteBoolean(bool val)
+        public int WriteBoolean(bool val)
         {
             byteBuffer[0] = 0x01; // length
             byteBuffer[1] = (byte) (val ? 0x01 : 0x00);
-            return await FileStream.WriteData(byteBuffer, 2);
+            return FileStream.WriteData(byteBuffer, 2);
         }
 
         /// <summary>
         /// Writes a byte to the file
         /// </summary>
         /// <returns>Number of bytes used to store the byte</returns>
-        public async Task<int> WriteByte(byte val)
+        public int WriteByte(byte val)
         {
             byteBuffer[0] = 0x01; // length
             byteBuffer[1] = val;
-            return await FileStream.WriteData(byteBuffer, 2);
+            return FileStream.WriteData(byteBuffer, 2);
         }
 
         /// <summary>
         /// Writes a float to the file
         /// </summary>
         /// <returns>Number of bytes used to store the float</returns>
-        public async Task<int> WriteSingle(float val)
+        public int WriteSingle(float val)
         {
             byteBuffer[0] = 0x04; // length
             floatBuffer[0] = val;
             Buffer.BlockCopy(floatBuffer, 0, byteBuffer, 1, 4);
-            return await FileStream.WriteData(byteBuffer, 5);
+            return FileStream.WriteData(byteBuffer, 5);
         }
 
         /// <summary>
         /// Writes a double to the file
         /// </summary>
         /// <returns>Number of bytes used to store the double</returns>
-        public async Task<int> WriteDouble(double val)
+        public int WriteDouble(double val)
         {
             byteBuffer[0] = 0x08; // length
             doubleBuffer[0] = val;
             Buffer.BlockCopy(doubleBuffer, 0, byteBuffer, 1, 8);
-            return await FileStream.WriteData(byteBuffer, 9);
+            return FileStream.WriteData(byteBuffer, 9);
         }
 
         /// <summary>
         /// Writes a SqlDecimal to the file
         /// </summary>
         /// <returns>Number of bytes used to store the SqlDecimal</returns>
-        public async Task<int> WriteSqlDecimal(SqlDecimal val)
+        public int WriteSqlDecimal(SqlDecimal val)
         {
             int[] arrInt32 = val.Data;
             int iLen = 3 + (arrInt32.Length * 4);
-            int iTotalLen = await WriteLength(iLen); // length
+            int iTotalLen = WriteLength(iLen); // length
 
             // precision
             byteBuffer[0] = val.Precision;
@@ -551,7 +549,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // data value
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 3, iLen - 3);
-            iTotalLen += await FileStream.WriteData(byteBuffer, iLen);
+            iTotalLen += FileStream.WriteData(byteBuffer, iLen);
             return iTotalLen; // len+data
         }
 
@@ -559,15 +557,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a decimal to the file
         /// </summary>
         /// <returns>Number of bytes used to store the decimal</returns>
-        public async Task<int> WriteDecimal(decimal val)
+        public int WriteDecimal(decimal val)
         {
             int[] arrInt32 = decimal.GetBits(val);
 
             int iLen = arrInt32.Length * 4;
-            int iTotalLen = await WriteLength(iLen); // length
+            int iTotalLen = WriteLength(iLen); // length
 
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 0, iLen);
-            iTotalLen += await FileStream.WriteData(byteBuffer, iLen);
+            iTotalLen += FileStream.WriteData(byteBuffer, iLen);
 
             return iTotalLen; // len+data
         }
@@ -576,7 +574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a DateTime to the file
         /// </summary>
         /// <returns>Number of bytes used to store the DateTime</returns>
-        public Task<int> WriteDateTime(DateTime dtVal)
+        public int WriteDateTime(DateTime dtVal)
         {
             return WriteInt64(dtVal.Ticks);
         }
@@ -585,18 +583,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a DateTimeOffset to the file
         /// </summary>
         /// <returns>Number of bytes used to store the DateTimeOffset</returns>
-        public async Task<int> WriteDateTimeOffset(DateTimeOffset dtoVal)
+        public int WriteDateTimeOffset(DateTimeOffset dtoVal)
         {
             // DateTimeOffset gets written as a DateTime + TimeOffset
             // both represented as 'Ticks' written as Int64's
-            return (await WriteInt64(dtoVal.Ticks)) + (await WriteInt64(dtoVal.Offset.Ticks));
+            return WriteInt64(dtoVal.Ticks) + WriteInt64(dtoVal.Offset.Ticks);
         }
 
         /// <summary>
         /// Writes a TimeSpan to the file
         /// </summary>
         /// <returns>Number of bytes used to store the TimeSpan</returns>
-        public Task<int> WriteTimeSpan(TimeSpan timeSpan)
+        public int WriteTimeSpan(TimeSpan timeSpan)
         {
             return WriteInt64(timeSpan.Ticks);
         }
@@ -605,7 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a string to the file
         /// </summary>
         /// <returns>Number of bytes used to store the string</returns>
-        public async Task<int> WriteString(string sVal)
+        public int WriteString(string sVal)
         {
             if (sVal == null)
             {
@@ -624,7 +622,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byteBuffer[3] = 0x00;
                 byteBuffer[4] = 0x00;
 
-                iTotalLen = await FileStream.WriteData(byteBuffer, 5);
+                iTotalLen = FileStream.WriteData(byteBuffer, 5);
             }
             else
             {
@@ -632,8 +630,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byte[] bytes = Encoding.Unicode.GetBytes(sVal);
 
                 // convert char array into byte array and write it out							
-                iTotalLen = await WriteLength(bytes.Length);
-                iTotalLen += await FileStream.WriteData(bytes, bytes.Length);
+                iTotalLen = WriteLength(bytes.Length);
+                iTotalLen += FileStream.WriteData(bytes, bytes.Length);
             }
             return iTotalLen; // len+data
         }
@@ -642,7 +640,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a byte[] to the file
         /// </summary>
         /// <returns>Number of bytes used to store the byte[]</returns>
-        public async Task<int> WriteBytes(byte[] bytesVal, int iLen)
+        public int WriteBytes(byte[] bytesVal, int iLen)
         {
             if (bytesVal == null)
             {
@@ -661,12 +659,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byteBuffer[3] = 0x00;
                 byteBuffer[4] = 0x00;
 
-                iTotalLen = await FileStream.WriteData(byteBuffer, iLen);
+                iTotalLen = FileStream.WriteData(byteBuffer, iLen);
             }
             else
             {
-                iTotalLen = await WriteLength(iLen);
-                iTotalLen += await FileStream.WriteData(bytesVal, iLen);
+                iTotalLen = WriteLength(iLen);
+                iTotalLen += FileStream.WriteData(bytesVal, iLen);
             }
             return iTotalLen; // len+data
         }
@@ -676,7 +674,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// length is &lt;255, 5 if the length is &gt;=255)
         /// </summary>
         /// <returns>Number of bytes used to store the length</returns>
-        private async Task<int> WriteLength(int iLen)
+        private int WriteLength(int iLen)
         {
             if (iLen < 0xFF)
             {
@@ -684,7 +682,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 int iTmp = iLen & 0x000000FF;
 
                 byteBuffer[0] = Convert.ToByte(iTmp);
-                return await FileStream.WriteData(byteBuffer, 1);
+                return FileStream.WriteData(byteBuffer, 1);
             }
             // The length won't fit in 1 byte, so we need to use 1 byte to signify that the length
             // is a full 4 bytes.
@@ -693,15 +691,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // convert int32 into array of bytes
             intBuffer[0] = iLen;
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return await FileStream.WriteData(byteBuffer, 5);
+            return FileStream.WriteData(byteBuffer, 5);
         }
 
         /// <summary>
         /// Flushes the internal buffer to the file stream
         /// </summary>
-        public Task FlushBuffer()
+        public void FlushBuffer()
         {
-            return FileStream.Flush();
+            FileStream.Flush();
         }
 
         #endregion
@@ -733,7 +731,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             if (disposing)
             {
-                FileStream.Flush().Wait();
+                FileStream.Flush();
                 FileStream.Dispose();
             }
 

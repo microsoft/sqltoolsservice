@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="buf">The buffer to output the read data to</param>
         /// <param name="bytes">The number of bytes to read into the buffer</param>
         /// <returns>The number of bytes read</returns>
-        public Task<int> ReadData(byte[] buf, int bytes)
+        public int ReadData(byte[] buf, int bytes)
         {
             return ReadData(buf, bytes, currentOffset);
         }
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="bytes">The number of bytes to read into the buffer</param>
         /// <param name="offset">The offset into the file to start reading bytes from</param>
         /// <returns>The number of bytes read</returns>
-        public async Task<int> ReadData(byte[] buf, int bytes, long offset)
+        public int ReadData(byte[] buf, int bytes, long offset)
         {
             // Make sure that we're initialized before performing operations
             if (buffer == null)
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
             }
 
-            await MoveTo(offset);
+            MoveTo(offset);
 
             int bytesCopied = 0;
             while (bytesCopied < bytes)
@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     bufferDataSize == buffer.Length)   // since current data buffer is full we should continue reading the file
                 {
                     // move forward one full length of the buffer
-                    await MoveTo(startOffset + buffer.Length);
+                    MoveTo(startOffset + buffer.Length);
                 }
                 else
                 {
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="buf">The buffer of bytes to write to the filestream</param>
         /// <param name="bytes">The number of bytes to write</param>
         /// <returns>The number of bytes written</returns>
-        public async Task<int> WriteData(byte[] buf, int bytes)
+        public int WriteData(byte[] buf, int bytes)
         {
             // Make sure that we're initialized before performing operations
             if (buffer == null)
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {
                     Debug.Assert((int)(currentOffset - startOffset) == buffer.Length);
                     // flush buffer
-                    await Flush();
+                    Flush();
                 }
             }
             Debug.Assert(bytesCopied == bytes);
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Flushes the internal buffer to the filestream
         /// </summary>
-        public async Task Flush()
+        public void Flush()
         {
             // Make sure that we're initialized before performing operations
             if (buffer == null)
@@ -195,9 +195,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             Debug.Assert(fileStream.Position == startOffset);
 
             int bytesToWrite = (int)(currentOffset - startOffset);
-            await fileStream.WriteAsync(buffer, 0, bytesToWrite);
+            fileStream.Write(buffer, 0, bytesToWrite);
             startOffset += bytesToWrite;
-            await fileStream.FlushAsync();
+            fileStream.Flush();
 
             Debug.Assert(startOffset == currentOffset);
         }
@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Moves the internal buffer to the specified offset into the file
         /// </summary>
         /// <param name="offset">Offset into the file to move to</param>
-        private async Task MoveTo(long offset)
+        private void MoveTo(long offset)
         {
             if (buffer.Length > bufferDataSize ||         // buffer is not completely filled
                 offset < startOffset ||                   // before current buffer start
@@ -230,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 fileStream.Seek(startOffset, SeekOrigin.Begin);
 
                 // fill in the buffer
-                bufferDataSize = await fileStream.ReadAsync(buffer, 0, buffer.Length);
+                bufferDataSize = fileStream.Read(buffer, 0, buffer.Length);
             }
             // make sure to record where we are
             currentOffset = offset;
@@ -255,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             if (disposing && fileStream != null)
             {
-                if(!readingOnly) { Flush().Wait(); }
+                if(!readingOnly) { Flush(); }
                 fileStream.Dispose();
             }
 

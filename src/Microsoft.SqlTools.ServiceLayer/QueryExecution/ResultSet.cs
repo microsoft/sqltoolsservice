@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     RowCount++;
                     FileOffsets.Add(currentFileOffset);
-                    currentFileOffset += await fileWriter.WriteRow(DataReader);
+                    currentFileOffset += fileWriter.WriteRow(DataReader);
                 }
             }
 
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public async Task<ResultSetSubset> GetSubset(int startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(int startRow, int rowCount)
         {
             // Sanity check to make sure that the results have been read beforehand
             if (!HasBeenRead || fileStreamReader == null)
@@ -164,22 +164,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new ArgumentOutOfRangeException(nameof(rowCount), "Row count must be a positive integer");
             }
 
-            // Figure out which rows we need to read back
-            IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
-
-            // Iterate over the rows we need and process them into output
-            List<object[]> rows = new List<object[]>();
-            foreach (long rowOffset in rowOffsets)
+            return Task.Factory.StartNew(() =>
             {
-                rows.Add(await fileStreamReader.ReadRow(rowOffset, Columns));
-            }
+                // Figure out which rows we need to read back
+                IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
 
-            // Retrieve the subset of the results as per the request
-            return new ResultSetSubset
-            {
-                Rows = rows.ToArray(),
-                RowCount = rows.Count
-            };
+                // Iterate over the rows we need and process them into output
+                object[][] rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)).ToArray();
+
+                // Retrieve the subset of the results as per the request
+                return new ResultSetSubset
+                {
+                    Rows = rows,
+                    RowCount = rows.Length
+                };
+            });
         }
 
         #region IDisposable Implementation

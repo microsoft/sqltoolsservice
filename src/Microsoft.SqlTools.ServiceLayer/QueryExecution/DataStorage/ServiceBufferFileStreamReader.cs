@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
@@ -54,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="fileOffset">Offset into the file where the row starts</param>
         /// <param name="columns">The columns that were encoded</param>
         /// <returns>The objects from the row</returns>
-        public async Task<object[]> ReadRow(long fileOffset, IEnumerable<DbColumnWrapper> columns)
+        public object[] ReadRow(long fileOffset, IEnumerable<DbColumnWrapper> columns)
         {
             // Initialize for the loop
             long currentFileOffset = fileOffset;
@@ -68,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 if (column.IsSqlVariant)
                 {
                     // For SQL Variant columns, the type is written first in string format
-                    FileStreamReadResult<string> sqlVariantTypeResult = await ReadString(currentFileOffset);
+                    FileStreamReadResult<string> sqlVariantTypeResult = ReadString(currentFileOffset);
                     currentFileOffset += sqlVariantTypeResult.TotalLength;
 
                     // If the typename is null, then the whole value is null
@@ -96,21 +95,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 if (colType == typeof(string))
                 {
                     // String - most frequently used data type
-                    FileStreamReadResult<string> result = await ReadString(currentFileOffset);
+                    FileStreamReadResult<string> result = ReadString(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     results.Add(result.IsNull ? null : result.Value);
                 }
                 else if (colType == typeof(SqlString))
                 {
                     // SqlString
-                    FileStreamReadResult<string> result = await ReadString(currentFileOffset);
+                    FileStreamReadResult<string> result = ReadString(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     results.Add(result.IsNull ? null : (SqlString) result.Value);
                 }
                 else if (colType == typeof(short))
                 {
                     // Int16
-                    FileStreamReadResult<short> result = await ReadInt16(currentFileOffset);
+                    FileStreamReadResult<short> result = ReadInt16(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -124,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlInt16))
                 {
                     // SqlInt16
-                    FileStreamReadResult<short> result = await ReadInt16(currentFileOffset);
+                    FileStreamReadResult<short> result = ReadInt16(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -138,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(int))
                 {
                     // Int32
-                    FileStreamReadResult<int> result = await ReadInt32(currentFileOffset);
+                    FileStreamReadResult<int> result = ReadInt32(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -152,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlInt32))
                 {
                     // SqlInt32
-                    FileStreamReadResult<int> result = await ReadInt32(currentFileOffset);
+                    FileStreamReadResult<int> result = ReadInt32(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -166,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(long))
                 {
                     // Int64
-                    FileStreamReadResult<long> result = await ReadInt64(currentFileOffset);
+                    FileStreamReadResult<long> result = ReadInt64(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -180,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlInt64))
                 {
                     // SqlInt64
-                    FileStreamReadResult<long> result = await ReadInt64(currentFileOffset);
+                    FileStreamReadResult<long> result = ReadInt64(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -194,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(byte))
                 {
                     // byte
-                    FileStreamReadResult<byte> result = await ReadByte(currentFileOffset);
+                    FileStreamReadResult<byte> result = ReadByte(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -208,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlByte))
                 {
                     // SqlByte
-                    FileStreamReadResult<byte> result = await ReadByte(currentFileOffset);
+                    FileStreamReadResult<byte> result = ReadByte(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -222,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(char))
                 {
                     // Char
-                    FileStreamReadResult<char> result = await ReadChar(currentFileOffset);
+                    FileStreamReadResult<char> result = ReadChar(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -236,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(bool))
                 {
                     // Bool
-                    FileStreamReadResult<bool> result = await ReadBoolean(currentFileOffset);
+                    FileStreamReadResult<bool> result = ReadBoolean(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -250,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlBoolean))
                 {
                     // SqlBoolean
-                    FileStreamReadResult<bool> result = await ReadBoolean(currentFileOffset);
+                    FileStreamReadResult<bool> result = ReadBoolean(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -264,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(double))
                 {
                     // double
-                    FileStreamReadResult<double> result = await ReadDouble(currentFileOffset);
+                    FileStreamReadResult<double> result = ReadDouble(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -278,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlDouble))
                 {
                     // SqlByte
-                    FileStreamReadResult<double> result = await ReadDouble(currentFileOffset);
+                    FileStreamReadResult<double> result = ReadDouble(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -292,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(float))
                 {
                     // float
-                    FileStreamReadResult<float> result = await ReadSingle(currentFileOffset);
+                    FileStreamReadResult<float> result = ReadSingle(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -306,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlSingle))
                 {
                     // SqlSingle
-                    FileStreamReadResult<float> result = await ReadSingle(currentFileOffset);
+                    FileStreamReadResult<float> result = ReadSingle(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -320,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(decimal))
                 {
                     // Decimal
-                    FileStreamReadResult<decimal> result = await ReadDecimal(currentFileOffset);
+                    FileStreamReadResult<decimal> result = ReadDecimal(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -334,7 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlDecimal))
                 {
                     // SqlDecimal
-                    FileStreamReadResult<SqlDecimal> result = await ReadSqlDecimal(currentFileOffset);
+                    FileStreamReadResult<SqlDecimal> result = ReadSqlDecimal(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -348,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(DateTime))
                 {
                     // DateTime
-                    FileStreamReadResult<DateTime> result = await ReadDateTime(currentFileOffset);
+                    FileStreamReadResult<DateTime> result = ReadDateTime(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -362,7 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlDateTime))
                 {
                     // SqlDateTime
-                    FileStreamReadResult<DateTime> result = await ReadDateTime(currentFileOffset);
+                    FileStreamReadResult<DateTime> result = ReadDateTime(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -376,7 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(DateTimeOffset))
                 {
                     // DateTimeOffset
-                    FileStreamReadResult<DateTimeOffset> result = await ReadDateTimeOffset(currentFileOffset);
+                    FileStreamReadResult<DateTimeOffset> result = ReadDateTimeOffset(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -390,7 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(TimeSpan))
                 {
                     // TimeSpan
-                    FileStreamReadResult<TimeSpan> result = await ReadTimeSpan(currentFileOffset);
+                    FileStreamReadResult<TimeSpan> result = ReadTimeSpan(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -404,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(byte[]))
                 {
                     // Byte Array
-                    FileStreamReadResult<byte[]> result = await ReadBytes(currentFileOffset);
+                    FileStreamReadResult<byte[]> result = ReadBytes(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull || (column.IsUdt && result.Value.Length == 0))
                     {
@@ -418,21 +417,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlBytes))
                 {
                     // SqlBytes
-                    FileStreamReadResult<byte[]> result = await ReadBytes(currentFileOffset);
+                    FileStreamReadResult<byte[]> result = ReadBytes(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     results.Add(result.IsNull ? null : new SqlBytes(result.Value));
                 }
                 else if (colType == typeof(SqlBinary))
                 {
                     // SqlBinary
-                    FileStreamReadResult<byte[]> result = await ReadBytes(currentFileOffset);
+                    FileStreamReadResult<byte[]> result = ReadBytes(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     results.Add(result.IsNull ? null : new SqlBinary(result.Value));
                 }
                 else if (colType == typeof(SqlGuid))
                 {
                     // SqlGuid
-                    FileStreamReadResult<byte[]> result = await ReadBytes(currentFileOffset);
+                    FileStreamReadResult<byte[]> result = ReadBytes(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -446,7 +445,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else if (colType == typeof(SqlMoney))
                 {
                     // SqlMoney
-                    FileStreamReadResult<decimal> result = await ReadDecimal(currentFileOffset);
+                    FileStreamReadResult<decimal> result = ReadDecimal(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     if (result.IsNull)
                     {
@@ -460,7 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else
                 {
                     // Treat everything else as a string
-                    FileStreamReadResult<string> result = await ReadString(currentFileOffset);
+                    FileStreamReadResult<string> result = ReadString(currentFileOffset);
                     currentFileOffset += result.TotalLength;
                     results.Add(result.IsNull ? null : result.Value);
                 }
@@ -474,17 +473,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the short from</param>
         /// <returns>A short</returns>
-        public async Task<FileStreamReadResult<short>> ReadInt16(long fileOffset)
+        public FileStreamReadResult<short> ReadInt16(long fileOffset)
         {
 
-            LengthResult length = await ReadLength(fileOffset);
+            LengthResult length = ReadLength(fileOffset);
             Debug.Assert(length.ValueLength == 0 || length.ValueLength == 2, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             short val = default(short);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToInt16(buffer, 0);
             }
 
@@ -496,16 +495,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the int from</param>
         /// <returns>An int</returns>
-        public async Task<FileStreamReadResult<int>> ReadInt32(long fileOffset)
+        public FileStreamReadResult<int> ReadInt32(long fileOffset)
         {
-            LengthResult length = await ReadLength(fileOffset);
+            LengthResult length = ReadLength(fileOffset);
             Debug.Assert(length.ValueLength == 0 || length.ValueLength == 4, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             int val = default(int);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToInt32(buffer, 0);
             }
             return new FileStreamReadResult<int>(val, length.TotalLength, isNull);
@@ -516,16 +515,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the long from</param>
         /// <returns>A long</returns>
-        public async Task<FileStreamReadResult<long>> ReadInt64(long fileOffset)
+        public FileStreamReadResult<long> ReadInt64(long fileOffset)
         {
-            LengthResult length = await ReadLength(fileOffset);
+            LengthResult length = ReadLength(fileOffset);
             Debug.Assert(length.ValueLength == 0 || length.ValueLength == 8, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             long val = default(long);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToInt64(buffer, 0);
             }
             return new FileStreamReadResult<long>(val, length.TotalLength, isNull);
@@ -536,16 +535,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the byte from</param>
         /// <returns>A byte</returns>
-        public async Task<FileStreamReadResult<byte>> ReadByte(long fileOffset)
+        public FileStreamReadResult<byte> ReadByte(long fileOffset)
         {
-            LengthResult length = await ReadLength(fileOffset);
+            LengthResult length = ReadLength(fileOffset);
             Debug.Assert(length.ValueLength == 0 || length.ValueLength == 1, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             byte val = default(byte);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
                 val = buffer[0];
             }
             return new FileStreamReadResult<byte>(val, length.TotalLength, isNull);
@@ -556,16 +555,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the char from</param>
         /// <returns>A char</returns>
-        public async Task<FileStreamReadResult<char>> ReadChar(long fileOffset)
+        public FileStreamReadResult<char> ReadChar(long fileOffset)
         {
-            LengthResult length = await ReadLength(fileOffset);
+            LengthResult length = ReadLength(fileOffset);
             Debug.Assert(length.ValueLength == 0 || length.ValueLength == 2, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             char val = default(char);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToChar(buffer, 0);
             }
             return new FileStreamReadResult<char>(val, length.TotalLength, isNull);
@@ -576,16 +575,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the bool from</param>
         /// <returns>A bool</returns>
-        public async Task<FileStreamReadResult<bool>> ReadBoolean(long fileOffset)
+        public FileStreamReadResult<bool> ReadBoolean(long fileOffset)
         {
-            LengthResult length = await ReadLength(fileOffset);
+            LengthResult length = ReadLength(fileOffset);
             Debug.Assert(length.ValueLength == 0 || length.ValueLength == 1, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             bool val = default(bool);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
                 val = buffer[0] == 0x01;
             }
             return new FileStreamReadResult<bool>(val, length.TotalLength, isNull);
@@ -596,16 +595,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the single from</param>
         /// <returns>A single</returns>
-        public async Task<FileStreamReadResult<float>> ReadSingle(long fileOffset)
+        public FileStreamReadResult<float> ReadSingle(long fileOffset)
         {
-            LengthResult length = await ReadLength(fileOffset);
+            LengthResult length = ReadLength(fileOffset);
             Debug.Assert(length.ValueLength == 0 || length.ValueLength == 4, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             float val = default(float);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToSingle(buffer, 0);
             }
             return new FileStreamReadResult<float>(val, length.TotalLength, isNull);
@@ -616,16 +615,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the double from</param>
         /// <returns>A double</returns>
-        public async Task<FileStreamReadResult<double>> ReadDouble(long fileOffset)
+        public FileStreamReadResult<double> ReadDouble(long fileOffset)
         {
-            LengthResult length = await ReadLength(fileOffset);
+            LengthResult length = ReadLength(fileOffset);
             Debug.Assert(length.ValueLength == 0 || length.ValueLength == 8, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             double val = default(double);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToDouble(buffer, 0);
             }
             return new FileStreamReadResult<double>(val, length.TotalLength, isNull);
@@ -636,9 +635,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the SqlDecimal from</param>
         /// <returns>A SqlDecimal</returns>
-        public async Task<FileStreamReadResult<SqlDecimal>> ReadSqlDecimal(long offset)
+        public FileStreamReadResult<SqlDecimal> ReadSqlDecimal(long offset)
         {
-            LengthResult length = await ReadLength(offset);
+            LengthResult length = ReadLength(offset);
             Debug.Assert(length.ValueLength == 0 || (length.ValueLength - 3)%4 == 0,
                 string.Format("Invalid data length: {0}", length.ValueLength));
 
@@ -646,7 +645,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             SqlDecimal val = default(SqlDecimal);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
 
                 int[] arrInt32 = new int[(length.ValueLength - 3)/4];
                 Buffer.BlockCopy(buffer, 3, arrInt32, 0, length.ValueLength - 3);
@@ -660,16 +659,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the decimal from</param>
         /// <returns>A decimal</returns>
-        public async Task<FileStreamReadResult<decimal>> ReadDecimal(long offset)
+        public FileStreamReadResult<decimal> ReadDecimal(long offset)
         {
-            LengthResult length = await ReadLength(offset);
+            LengthResult length = ReadLength(offset);
             Debug.Assert(length.ValueLength%4 == 0, "Invalid data length");
 
             bool isNull = length.ValueLength == 0;
             decimal val = default(decimal);
             if (!isNull)
             {
-                await FileStream.ReadData(buffer, length.ValueLength);
+                FileStream.ReadData(buffer, length.ValueLength);
 
                 int[] arrInt32 = new int[length.ValueLength/4];
                 Buffer.BlockCopy(buffer, 0, arrInt32, 0, length.ValueLength);
@@ -683,9 +682,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the DateTime from</param>
         /// <returns>A DateTime</returns>
-        public async Task<FileStreamReadResult<DateTime>> ReadDateTime(long offset)
+        public FileStreamReadResult<DateTime> ReadDateTime(long offset)
         {
-            FileStreamReadResult<long> ticks = await ReadInt64(offset);
+            FileStreamReadResult<long> ticks = ReadInt64(offset);
             DateTime val = default(DateTime);
             if (!ticks.IsNull)
             {
@@ -699,20 +698,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the DateTimeOffset from</param>
         /// <returns>A DateTimeOffset</returns>
-        public async Task<FileStreamReadResult<DateTimeOffset>> ReadDateTimeOffset(long offset)
+        public FileStreamReadResult<DateTimeOffset> ReadDateTimeOffset(long offset)
         {
             // DateTimeOffset is represented by DateTime.Ticks followed by TimeSpan.Ticks
             // both as Int64 values
 
             // read the DateTime ticks
             DateTimeOffset val = default(DateTimeOffset);
-            FileStreamReadResult<long> dateTimeTicks = await ReadInt64(offset);
+            FileStreamReadResult<long> dateTimeTicks = ReadInt64(offset);
             int totalLength = dateTimeTicks.TotalLength;
             if (dateTimeTicks.TotalLength > 0 && !dateTimeTicks.IsNull)
             {
                 // read the TimeSpan ticks
-                FileStreamReadResult<long> timeSpanTicks =
-                    await ReadInt64(offset + dateTimeTicks.TotalLength);
+                FileStreamReadResult<long> timeSpanTicks = ReadInt64(offset + dateTimeTicks.TotalLength);
                 Debug.Assert(!timeSpanTicks.IsNull, "TimeSpan ticks cannot be null if DateTime ticks are not null!");
 
                 totalLength += timeSpanTicks.TotalLength;
@@ -728,9 +726,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the TimeSpan from</param>
         /// <returns>A TimeSpan</returns>
-        public async Task<FileStreamReadResult<TimeSpan>> ReadTimeSpan(long offset)
+        public FileStreamReadResult<TimeSpan> ReadTimeSpan(long offset)
         {
-            FileStreamReadResult<long> timeSpanTicks = await ReadInt64(offset);
+            FileStreamReadResult<long> timeSpanTicks = ReadInt64(offset);
             TimeSpan val = default(TimeSpan);
             if (!timeSpanTicks.IsNull)
             {
@@ -744,9 +742,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the string from</param>
         /// <returns>A string</returns>
-        public async Task<FileStreamReadResult<string>> ReadString(long offset)
+        public FileStreamReadResult<string> ReadString(long offset)
         {
-            LengthResult fieldLength = await ReadLength(offset);
+            LengthResult fieldLength = ReadLength(offset);
             Debug.Assert(fieldLength.ValueLength%2 == 0, "Invalid data length");
 
             if (fieldLength.ValueLength == 0) // there is no data
@@ -760,7 +758,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // positive length
             AssureBufferLength(fieldLength.ValueLength);
-            await FileStream.ReadData(buffer, fieldLength.ValueLength);
+            FileStream.ReadData(buffer, fieldLength.ValueLength);
             return new FileStreamReadResult<string>(Encoding.Unicode.GetString(buffer, 0, fieldLength.ValueLength), fieldLength.TotalLength, false);
         }
 
@@ -769,9 +767,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the bytes from</param>
         /// <returns>A byte array</returns>
-        public async Task<FileStreamReadResult<byte[]>> ReadBytes(long offset)
+        public FileStreamReadResult<byte[]> ReadBytes(long offset)
         {
-            LengthResult fieldLength = await ReadLength(offset);
+            LengthResult fieldLength = ReadLength(offset);
 
             if (fieldLength.ValueLength == 0)
             {
@@ -784,7 +782,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // positive length
             byte[] val = new byte[fieldLength.ValueLength];
-            await FileStream.ReadData(val, fieldLength.ValueLength);
+            FileStream.ReadData(val, fieldLength.ValueLength);
             return new FileStreamReadResult<byte[]>(val, fieldLength.TotalLength, false);
         }
 
@@ -793,11 +791,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the field length from</param>
         /// <returns>A LengthResult</returns>
-        internal async Task<LengthResult> ReadLength(long offset)
+        internal LengthResult ReadLength(long offset)
         {
             // read in length information
             int lengthValue;
-            int lengthLength = await FileStream.ReadData(buffer, 1, offset);
+            int lengthLength = FileStream.ReadData(buffer, 1, offset);
             if (buffer[0] != 0xFF)
             {
                 // one byte is enough
@@ -806,7 +804,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             else
             {
                 // read in next 4 bytes
-                lengthLength += await FileStream.ReadData(buffer, 4);
+                lengthLength += FileStream.ReadData(buffer, 4);
 
                 // reconstruct the length
                 lengthValue = BitConverter.ToInt32(buffer, 0);
