@@ -3,24 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -215,46 +210,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         #endregion
-
-        #region Request Mocking
-
-        public static Mock<RequestContext<QueryExecuteResult>> GetQueryExecuteResultContextMock(
-            Action<QueryExecuteResult> resultCallback,
-            Action<EventType<QueryExecuteCompleteParams>, QueryExecuteCompleteParams> eventCallback,
-            Action<object> errorCallback)
-        {
-            var requestContext = new Mock<RequestContext<QueryExecuteResult>>();
-
-            // Setup the mock for SendResult
-            var sendResultFlow = requestContext
-                .Setup(rc => rc.SendResult(It.IsAny<QueryExecuteResult>()))
-                .Returns(Task.FromResult(0));
-            if (resultCallback != null)
-            {
-                sendResultFlow.Callback(resultCallback);
-            }
-
-            // Setup the mock for SendEvent
-            var sendEventFlow = requestContext.Setup(rc => rc.SendEvent(
-                It.Is<EventType<QueryExecuteCompleteParams>>(m => m == QueryExecuteCompleteEvent.Type),
-                It.IsAny<QueryExecuteCompleteParams>()))
-                .Returns(Task.FromResult(0));
-            if (eventCallback != null)
-            {
-                sendEventFlow.Callback(eventCallback);
-            }
-
-            // Setup the mock for SendError
-            var sendErrorFlow = requestContext.Setup(rc => rc.SendError(It.IsAny<object>()))
-                .Returns(Task.FromResult(0));
-            if (errorCallback != null)
-            {
-                sendErrorFlow.Callback(errorCallback);
-            }
-
-            return requestContext;
-        }
-
-        #endregion
+        
     }
 }

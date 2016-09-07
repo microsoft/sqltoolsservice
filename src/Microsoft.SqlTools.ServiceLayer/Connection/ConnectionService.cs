@@ -9,7 +9,6 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
