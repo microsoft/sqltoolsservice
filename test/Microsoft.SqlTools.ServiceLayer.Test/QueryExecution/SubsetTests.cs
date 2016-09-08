@@ -9,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Xunit;
 
@@ -95,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryService =Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(new[] {Common.StandardTestData}, false), true);
             var executeParams = new QueryExecuteParams {QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri};
-            var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
+            var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
             // ... And I then ask for a valid set of results from it
@@ -141,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryService = Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true);
             var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
-            var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
+            var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;
 
@@ -168,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryService = Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(null, false), true);
             var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
-            var executeRequest = Common.GetQueryExecuteResultContextMock(null, null, null);
+            var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
             // ... And I then ask for a set of results from it

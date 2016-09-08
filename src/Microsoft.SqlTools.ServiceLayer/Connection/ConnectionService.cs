@@ -9,7 +9,6 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -46,6 +45,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ISqlConnectionFactory connectionFactory;
            
         private Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
+
+        /// <summary>
+        /// Service host object for sending/receiving requests/events.
+        /// Internal for testing purposes.
+        /// </summary>
+        internal IProtocolEndpoint ServiceHost
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Default constructor is private since it's a singleton class
@@ -252,6 +261,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
+            this.ServiceHost = serviceHost;
+
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
@@ -359,7 +370,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder();
             connectionBuilder["Data Source"] = connectionDetails.ServerName;
-            connectionBuilder["Integrated Security"] = false;
             connectionBuilder["User Id"] = connectionDetails.UserName;
             connectionBuilder["Password"] = connectionDetails.Password;
 
@@ -376,7 +386,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.IntegratedSecurity = true;
                         break;
                     case "SqlLogin":
-                        connectionBuilder.IntegratedSecurity = false;
                         break;
                     default:
                         throw new ArgumentException(string.Format("Invalid value \"{0}\" for AuthenticationType. Valid values are \"Integrated\" and \"SqlLogin\".", connectionDetails.AuthenticationType));
@@ -480,7 +489,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             return connectionBuilder.ToString();
-        }      
+        }
 
+        /// <summary>
+        /// Change the database context of a connection.
+        /// </summary>
+        /// <param name="ownerUri">URI of the owner of the connection</param>
+        /// <param name="newDatabaseName">Name of the database to change the connection to</param>
+        public void ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName)
+        {
+            ConnectionInfo info;
+            if (TryFindConnection(ownerUri, out info))
+            {
+                try
+                {
+                    if (info.SqlConnection.State == ConnectionState.Open)
+                    {
+                        info.SqlConnection.ChangeDatabase(newDatabaseName);
+                    }
+                    info.ConnectionDetails.DatabaseName = newDatabaseName;
+
+                    // Fire a connection changed event
+                    ConnectionChangedParams parameters = new ConnectionChangedParams();
+                    ConnectionSummary summary = (ConnectionSummary)(info.ConnectionDetails);
+                    parameters.Connection = summary.Clone();
+                    parameters.OwnerUri = ownerUri;
+                    ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                }
+                catch (Exception e)
+                {
+                    Logger.Write(
+                        LogLevel.Error, 
+                        string.Format(
+                            "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}", 
+                            newDatabaseName, 
+                            ownerUri, 
+                            e.ToString())
+                    );
+                }
+            }
+        }
     }
 }

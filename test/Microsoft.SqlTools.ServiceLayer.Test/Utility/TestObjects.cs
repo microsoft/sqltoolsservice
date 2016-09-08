@@ -6,20 +6,13 @@
 //#define USE_LIVE_CONNECTION
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Xunit;
 
 namespace Microsoft.SqlTools.Test.Utility
 {
@@ -194,7 +187,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
         public override void ChangeDatabase(string databaseName)
         {
-            throw new NotImplementedException();
+            // No Op
         }
     }
 
