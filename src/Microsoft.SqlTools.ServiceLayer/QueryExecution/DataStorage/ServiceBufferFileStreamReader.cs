@@ -17,16 +17,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     /// <remarks>
     /// Most of this code is based on code from the Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage
+    /// $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\FileStreamReader.cs
     /// </remarks>
     public class ServiceBufferFileStreamReader : IFileStreamReader
     {
-        #region Properties
-
         private const int DefaultBufferSize = 8192;
+
+        #region Member Variables
 
         private byte[] buffer;
 
-        private IFileStreamWrapper FileStream { get; set; }
+        private readonly IFileStreamWrapper fileStream;
 
         #endregion
 
@@ -38,8 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public ServiceBufferFileStreamReader(IFileStreamWrapper fileWrapper, string fileName)
         {
             // Open file for reading/writing
-            FileStream = fileWrapper;
-            FileStream.Init(fileName, DefaultBufferSize, true);
+            fileStream = fileWrapper;
+            fileStream.Init(fileName, DefaultBufferSize, true);
 
             // Create internal buffer
             buffer = new byte[DefaultBufferSize];
@@ -468,6 +469,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return results.ToArray();
         }
 
+        private FileStreamReadResult<T> ReadValue<T>(long fileOffset, Func<T> )
+
         /// <summary>
         /// Reads a short from the file at the offset provided
         /// </summary>
@@ -483,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             short val = default(short);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToInt16(buffer, 0);
             }
 
@@ -504,7 +507,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             int val = default(int);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToInt32(buffer, 0);
             }
             return new FileStreamReadResult<int>(val, length.TotalLength, isNull);
@@ -524,7 +527,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             long val = default(long);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToInt64(buffer, 0);
             }
             return new FileStreamReadResult<long>(val, length.TotalLength, isNull);
@@ -544,7 +547,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byte val = default(byte);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
                 val = buffer[0];
             }
             return new FileStreamReadResult<byte>(val, length.TotalLength, isNull);
@@ -564,7 +567,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             char val = default(char);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToChar(buffer, 0);
             }
             return new FileStreamReadResult<char>(val, length.TotalLength, isNull);
@@ -584,7 +587,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             bool val = default(bool);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
                 val = buffer[0] == 0x01;
             }
             return new FileStreamReadResult<bool>(val, length.TotalLength, isNull);
@@ -604,7 +607,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             float val = default(float);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToSingle(buffer, 0);
             }
             return new FileStreamReadResult<float>(val, length.TotalLength, isNull);
@@ -624,7 +627,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             double val = default(double);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
                 val = BitConverter.ToDouble(buffer, 0);
             }
             return new FileStreamReadResult<double>(val, length.TotalLength, isNull);
@@ -645,7 +648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             SqlDecimal val = default(SqlDecimal);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
 
                 int[] arrInt32 = new int[(length.ValueLength - 3)/4];
                 Buffer.BlockCopy(buffer, 3, arrInt32, 0, length.ValueLength - 3);
@@ -668,7 +671,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             decimal val = default(decimal);
             if (!isNull)
             {
-                FileStream.ReadData(buffer, length.ValueLength);
+                fileStream.ReadData(buffer, length.ValueLength);
 
                 int[] arrInt32 = new int[length.ValueLength/4];
                 Buffer.BlockCopy(buffer, 0, arrInt32, 0, length.ValueLength);
@@ -758,7 +761,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // positive length
             AssureBufferLength(fieldLength.ValueLength);
-            FileStream.ReadData(buffer, fieldLength.ValueLength);
+            fileStream.ReadData(buffer, fieldLength.ValueLength);
             return new FileStreamReadResult<string>(Encoding.Unicode.GetString(buffer, 0, fieldLength.ValueLength), fieldLength.TotalLength, false);
         }
 
@@ -782,7 +785,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // positive length
             byte[] val = new byte[fieldLength.ValueLength];
-            FileStream.ReadData(val, fieldLength.ValueLength);
+            fileStream.ReadData(val, fieldLength.ValueLength);
             return new FileStreamReadResult<byte[]>(val, fieldLength.TotalLength, false);
         }
 
@@ -795,7 +798,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // read in length information
             int lengthValue;
-            int lengthLength = FileStream.ReadData(buffer, 1, offset);
+            int lengthLength = fileStream.ReadData(buffer, 1, offset);
             if (buffer[0] != 0xFF)
             {
                 // one byte is enough
@@ -804,7 +807,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             else
             {
                 // read in next 4 bytes
-                lengthLength += FileStream.ReadData(buffer, 4);
+                lengthLength += fileStream.ReadData(buffer, 4);
 
                 // reconstruct the length
                 lengthValue = BitConverter.ToInt32(buffer, 0);
@@ -871,7 +874,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             if (disposing)
             {
-                FileStream.Dispose();
+                fileStream.Dispose();
             }
 
             disposed = true;

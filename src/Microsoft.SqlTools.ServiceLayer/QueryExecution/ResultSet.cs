@@ -1,4 +1,4 @@
-﻿//
+﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -27,27 +27,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        #region Properties
+        #region Member Variables
 
         /// <summary>
-        /// The name of the temporary file we're using to output these results in
+        /// For IDisposable pattern, whether or not object has been disposed
         /// </summary>
-        private readonly string outputFileName;
-
-        /// <summary>
-        /// The columns for this result set
-        /// </summary>
-        public DbColumnWrapper[] Columns { get; private set; }
-
-        /// <summary>
-        /// The reader to use for this resultset
-        /// </summary>
-        private StorageDataReader DataReader { get; set; }
-
-        /// <summary>
-        /// A list of offsets into the buffer file that correspond to where rows start
-        /// </summary>
-        private LongList<long> FileOffsets { get; set; }
+        private bool disposed;
 
         /// <summary>
         /// The factory to use to get reading/writing handlers
@@ -61,24 +46,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private IFileStreamReader fileStreamReader;
 
         /// <summary>
-        /// Whether or not the 
+        /// Whether or not the result set has been read in from the database
         /// </summary>
-        private bool HasBeenRead { get; set; }
+        private bool hasBeenRead;
 
         /// <summary>
-        /// Maximum number of characters to store for a field
+        /// The name of the temporary file we're using to output these results in
         /// </summary>
-        public int MaxCharsToStore { get { return DefaultMaxCharsToStore; } }
-
-        /// <summary>
-        /// Maximum number of characters to store for an XML field
-        /// </summary>
-        public int MaxXmlCharsToStore { get { return DefaultMaxXmlCharsToStore; } }
-
-        /// <summary>
-        /// The number of rows for this result set
-        /// </summary>
-        public long RowCount { get; private set; }
+        private readonly string outputFileName;
 
         #endregion
 
@@ -100,44 +75,50 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             outputFileName = Path.GetTempFileName();
             if (outputFileName.Length == 0)
             {
-                throw new FileNotFoundException("Failed to get output file name");
+                throw new FileNotFoundException("Failed to create a temporary file for buffering results");
             }
             FileOffsets = new LongList<long>();
 
             // Store the factory
             fileStreamFactory = factory;
-            HasBeenRead = false;
+            hasBeenRead = false;
         }
+
+        #region Properties
 
         /// <summary>
-        /// Reads from the reader until there are no more results to read
+        /// The columns for this result set
         /// </summary>
-        /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
-        public async Task ReadResultToEnd(CancellationToken cancellationToken)
-        {
-            // Open a writer for the file
-            using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
-            {
-                // If we can initialize the columns using the column schema, use that
-                if (!DataReader.DbDataReader.CanGetColumnSchema())
-                {
-                    throw new InvalidOperationException("Could not retrieve column schema for result set.");
-                }
-                Columns = DataReader.Columns;
-                long currentFileOffset = 0;
+        public DbColumnWrapper[] Columns { get; private set; }
 
-                while (await DataReader.ReadAsync(cancellationToken))
-                {
-                    RowCount++;
-                    FileOffsets.Add(currentFileOffset);
-                    currentFileOffset += fileWriter.WriteRow(DataReader);
-                }
-            }
+        /// <summary>
+        /// The reader to use for this resultset
+        /// </summary>
+        private StorageDataReader DataReader { get; set; }
 
-            // Mark that result has been read
-            HasBeenRead = true;
-            fileStreamReader = fileStreamFactory.GetReader(outputFileName);
-        }
+        /// <summary>
+        /// A list of offsets into the buffer file that correspond to where rows start
+        /// </summary>
+        private LongList<long> FileOffsets { get; set; }
+
+        /// <summary>
+        /// Maximum number of characters to store for a field
+        /// </summary>
+        public int MaxCharsToStore { get { return DefaultMaxCharsToStore; } }
+
+        /// <summary>
+        /// Maximum number of characters to store for an XML field
+        /// </summary>
+        public int MaxXmlCharsToStore { get { return DefaultMaxXmlCharsToStore; } }
+
+        /// <summary>
+        /// The number of rows for this result set
+        /// </summary>
+        public long RowCount { get; private set; }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Generates a subset of the rows from the result set
@@ -148,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Task<ResultSetSubset> GetSubset(int startRow, int rowCount)
         {
             // Sanity check to make sure that the results have been read beforehand
-            if (!HasBeenRead || fileStreamReader == null)
+            if (!hasBeenRead || fileStreamReader == null)
             {
                 throw new InvalidOperationException("Cannot read subset unless the results have been read from the server");
             }
@@ -181,9 +162,39 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             });
         }
 
-        #region IDisposable Implementation
+        /// <summary>
+        /// Reads from the reader until there are no more results to read
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
+        public async Task ReadResultToEnd(CancellationToken cancellationToken)
+        {
+            // Open a writer for the file
+            using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
+            {
+                // If we can initialize the columns using the column schema, use that
+                if (!DataReader.DbDataReader.CanGetColumnSchema())
+                {
+                    throw new InvalidOperationException("Could not retrieve column schema for result set.");
+                }
+                Columns = DataReader.Columns;
+                long currentFileOffset = 0;
 
-        private bool disposed;
+                while (await DataReader.ReadAsync(cancellationToken))
+                {
+                    RowCount++;
+                    FileOffsets.Add(currentFileOffset);
+                    currentFileOffset += fileWriter.WriteRow(DataReader);
+                }
+            }
+
+            // Mark that result has been read
+            hasBeenRead = true;
+            fileStreamReader = fileStreamFactory.GetReader(outputFileName);
+        }
+
+        #endregion
+
+        #region IDisposable Implementation
 
         public void Dispose()
         {
@@ -205,11 +216,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             disposed = true;
-        }
-
-        ~ResultSet()
-        {
-            Dispose(false);
         }
 
         #endregion

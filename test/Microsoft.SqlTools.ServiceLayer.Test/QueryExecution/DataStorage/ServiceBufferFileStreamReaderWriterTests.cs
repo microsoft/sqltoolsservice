@@ -1,7 +1,11 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
-using System.Linq;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Xunit;
@@ -10,6 +14,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
 {
     public class ReaderWriterPairTest
     {
+        private static void VerifyReadWrite<T>(int valueLength, T value, Func<ServiceBufferFileStreamWriter, T, int> writeFunc, Func<ServiceBufferFileStreamReader, FileStreamReadResult<T>> readFunc)
+        {
+            // Setup: Create a mock file stream wrapper
+            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
+            try
+            {
+                // If:
+                // ... I write a type T to the writer
+                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
+                {
+                    int writtenBytes = writeFunc(writer, value);
+                    Assert.Equal(valueLength, writtenBytes);
+                }
+
+                // ... And read the type T back
+                FileStreamReadResult<T> outValue;
+                using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
+                {
+                    outValue = readFunc(reader);
+                }
+
+                // Then:
+                Assert.Equal(value, outValue.Value);
+                Assert.Equal(valueLength, outValue.TotalLength);
+                Assert.False(outValue.IsNull);
+            }
+            finally
+            {
+                // Cleanup: Close the wrapper
+                mockWrapper.Close();
+            }
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(10)]
@@ -18,33 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(short.MinValue)]    // Negative two byte number
         public void Int16(short value)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            const int valueLength = sizeof(short) + 1;
-
-            // If:
-            // ... I write an int16 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int writtenBytes = writer.WriteInt16(value).Result;
-                Assert.Equal(valueLength, writtenBytes);
-            }
-
-            // ... And read the int16 back
-            FileStreamReadResult<short> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadInt16(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(short) + 1, value, (writer, val) => writer.WriteInt16(val), reader => reader.ReadInt16(0));
         }
 
         [Theory]
@@ -57,33 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(int.MinValue)]      // Negative four byte number
         public void Int32(int value)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            const int valueLength = sizeof(int) + 1;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteInt32(value).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<int> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadInt32(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(int) + 1, value, (writer, val) => writer.WriteInt32(val), reader => reader.ReadInt32(0));
         }
 
         [Theory]
@@ -98,33 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(long.MinValue)]     // Negative eight byte number
         public void Int64(long value)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            const int valueLength = sizeof(long) + 1;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteInt64(value).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<long> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadInt64(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteInt64(val), reader => reader.ReadInt64(0));
         }
 
         [Theory]
@@ -132,33 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(10)]
         public void Byte(byte value)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            const int valueLength = sizeof(byte) + 1;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteByte(value).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<byte> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadByte(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(byte) + 1, value, (writer, val) => writer.WriteByte(val), reader => reader.ReadByte(0));
         }
 
         [Theory]
@@ -167,33 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData((char)0x9152)]  // Test something in the UTF-16 space
         public void Char(char value)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            const int valueLength = sizeof(char) + 1;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteChar(value).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<char> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadChar(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(char) + 1, value, (writer, val) => writer.WriteChar(val), reader => reader.ReadChar(0));
         }
 
         [Theory]
@@ -201,33 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(false)]
         public void Boolean(bool value)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            const int valueLength = sizeof(bool) + 1;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteBoolean(value).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<bool> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadBoolean(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(bool) + 1, value, (writer, val) => writer.WriteBoolean(val), reader => reader.ReadBoolean(0));
         }
 
         [Theory]
@@ -240,33 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(float.NegativeInfinity)]
         public void Single(float value)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            const int valueLength = sizeof(float) + 1;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteSingle(value).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<float> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadSingle(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(float) + 1, value, (writer, val) => writer.WriteSingle(val), reader => reader.ReadSingle(0));
         }
 
         [Theory]
@@ -283,33 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(double.MaxValue)]
         public void Double(double value)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            const int valueLength = sizeof(double) + 1;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteDouble(value).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<double> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadDouble(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(double) + 1, value, (writer, val) => writer.WriteDouble(val), reader => reader.ReadDouble(0));
         }
 
         [Fact]
@@ -323,34 +152,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (SqlDecimal value in testValues)
             {
-
-                // Setup: Create a mock file stream wrapper
-                Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
                 int valueLength = 4 + value.BinData.Length;
-
-                // If:
-                // ... I write an int32 to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-                {
-                    int bytesWritten = writer.WriteSqlDecimal(value).Result;
-                    Assert.Equal(valueLength, bytesWritten);
-                }
-
-                // ... And read the int32 back
-                FileStreamReadResult<SqlDecimal> outValue;
-                using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-                {
-                    outValue = reader.ReadSqlDecimal(0).Result;
-                }
-
-                // Then:
-                // ... The values should be the same
-                Assert.Equal(value, outValue.Value);
-                Assert.Equal(valueLength, outValue.TotalLength);
-                Assert.False(outValue.IsNull);
-
-                // Cleanup: Close the wrapper
-                mockWrapper.Close();
+                VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteSqlDecimal(val), reader => reader.ReadSqlDecimal(0));
             }
         }
 
@@ -366,33 +169,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
 
             foreach (decimal value in testValues)
             {
-                // Setup: Create a mock file stream wrapper
-                Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
                 int valueLength = decimal.GetBits(value).Length*4 + 1;
-
-                // If:
-                // ... I write an int32 to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-                {
-                    int bytesWritten = writer.WriteDecimal(value).Result;
-                    Assert.Equal(valueLength, bytesWritten);
-                }
-
-                // ... And read the int32 back
-                FileStreamReadResult<decimal> outValue;
-                using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-                {
-                    outValue = reader.ReadDecimal(0).Result;
-                }
-
-                // Then:
-                // ... The values should be the same
-                Assert.Equal(value, outValue.Value);
-                Assert.Equal(valueLength, outValue.TotalLength);
-                Assert.False(outValue.IsNull);
-
-                // Cleanup: Close the wrapper
-                mockWrapper.Close();
+                VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteDecimal(val), reader => reader.ReadDecimal(0));
             }
         }
 
@@ -407,33 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (DateTime value in testValues)
             {
-                // Setup: Create a mock file stream wrapper
-                Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-                const int valueLength = sizeof(long) + 1;
-
-                // If:
-                // ... I write an int32 to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-                {
-                    int bytesWritten = writer.WriteDateTime(value).Result;
-                    Assert.Equal(valueLength, bytesWritten);
-                }
-
-                // ... And read the int32 back
-                FileStreamReadResult<DateTime> outValue;
-                using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-                {
-                    outValue = reader.ReadDateTime(0).Result;
-                }
-
-                // Then:
-                // ... The values should be the same
-                Assert.Equal(value, outValue.Value);
-                Assert.Equal(valueLength, outValue.TotalLength);
-                Assert.False(outValue.IsNull);
-
-                // Cleanup: Close the wrapper
-                mockWrapper.Close();
+                VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteDateTime(val), reader => reader.ReadDateTime(0));
             }
         }
 
@@ -448,33 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (DateTimeOffset value in testValues)
             {
-                // Setup: Create a mock file stream wrapper
-                Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-                const int valueLength = (sizeof(long) + 1)*2;
-
-                // If:
-                // ... I write an int32 to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-                {
-                    int bytesWritten = writer.WriteDateTimeOffset(value).Result;
-                    Assert.Equal(valueLength, bytesWritten);
-                }
-
-                // ... And read the int32 back
-                FileStreamReadResult<DateTimeOffset> outValue;
-                using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-                {
-                    outValue = reader.ReadDateTimeOffset(0).Result;
-                }
-
-                // Then:
-                // ... The values should be the same
-                Assert.Equal(value, outValue.Value);
-                Assert.Equal(valueLength, outValue.TotalLength);
-                Assert.False(outValue.IsNull);
-
-                // Cleanup: Close the wrapper
-                mockWrapper.Close();
+                VerifyReadWrite((sizeof(long) + 1)*2, value, (writer, val) => writer.WriteDateTimeOffset(val), reader => reader.ReadDateTimeOffset(0));
             }
         }
 
@@ -489,31 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (TimeSpan value in testValues)
             {
-                // Setup: Create a mock file stream wrapper
-                Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-
-                // If:
-                // ... I write an int32 to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-                {
-                    writer.WriteTimeSpan(value).Wait();
-                }
-
-                // ... And read the int32 back
-                FileStreamReadResult<TimeSpan> outValue;
-                using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-                {
-                    outValue = reader.ReadTimeSpan(0).Result;
-                }
-
-                // Then:
-                // ... The values should be the same
-                Assert.Equal(value, outValue.Value);
-                Assert.Equal(sizeof(long) + 1, outValue.TotalLength);
-                Assert.False(outValue.IsNull);
-
-                // Cleanup: Close the wrapper
-                mockWrapper.Close();
+                VerifyReadWrite(sizeof(long), value, (writer, val) => writer.WriteTimeSpan(val), reader => reader.ReadTimeSpan(0));
             }
         }
 
@@ -529,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             {
                 // Then:
                 // ... I should get an argument null exception
-                Assert.ThrowsAsync<ArgumentNullException>(() => writer.WriteString(null)).Wait();
+                Assert.Throws<ArgumentNullException>(() => writer.WriteString(null));
             }
         }
 
@@ -542,9 +244,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         public void StringTest(int length, char[] values)
         {
             // Setup: 
-            // ... Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-
             // ... Generate the test value
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < length; i++)
@@ -553,31 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             }
             string value = sb.ToString();
             int lengthLength = length == 0 || length > 255 ? 5 : 1;
-            int valueLength = sizeof(char)*length + lengthLength;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteString(value).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<string> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadString(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.Equal(value, outValue.Value);
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(sizeof(char)*length + lengthLength, value, (writer, val) => writer.WriteString(value), reader => reader.ReadString(0));
         }
 
         [Fact]
@@ -592,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             {
                 // Then:
                 // ... I should get an argument null exception
-                Assert.ThrowsAsync<ArgumentNullException>(() => writer.WriteBytes(null, 0)).Wait();
+                Assert.Throws<ArgumentNullException>(() => writer.WriteBytes(null, 0));
             }
         }
 
@@ -605,9 +280,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         public void Bytes(int length, byte[] values)
         {
             // Setup: 
-            // ... Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-
             // ... Generate the test value
             List<byte> sb = new List<byte>();
             for (int i = 0; i < length; i++)
@@ -617,30 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             byte[] value = sb.ToArray();
             int lengthLength = length == 0 || length > 255 ? 5 : 1;
             int valueLength = sizeof(byte)*length + lengthLength;
-
-            // If:
-            // ... I write an int32 to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-            {
-                int bytesWritten = writer.WriteBytes(value, length).Result;
-                Assert.Equal(valueLength, bytesWritten);
-            }
-
-            // ... And read the int32 back
-            FileStreamReadResult<byte[]> outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-            {
-                outValue = reader.ReadBytes(0).Result;
-            }
-
-            // Then:
-            // ... The values should be the same
-            Assert.True(value.SequenceEqual(outValue.Value));
-            Assert.Equal(valueLength, outValue.TotalLength);
-            Assert.False(outValue.IsNull);
-
-            // Cleanup: Close the wrapper
-            mockWrapper.Close();
+            VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteBytes(value, valueLength), reader => reader.ReadBytes(0));
         }
     }
 }

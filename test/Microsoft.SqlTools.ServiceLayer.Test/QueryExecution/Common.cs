@@ -126,29 +126,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 readingOnly = forReadingOnly;
             }
 
-            public Task<int> ReadData(byte[] buffer, int bytes)
+            public int ReadData(byte[] buffer, int bytes)
             {
                 return ReadData(buffer, bytes, memoryStream.Position);
             }
 
-            public Task<int> ReadData(byte[] buffer, int bytes, long fileOffset)
+            public int ReadData(byte[] buffer, int bytes, long fileOffset)
             {
                 memoryStream.Seek(fileOffset, SeekOrigin.Begin);
-                return memoryStream.ReadAsync(buffer, 0, bytes);
+                return memoryStream.Read(buffer, 0, bytes);
             }
 
-            public Task<int> WriteData(byte[] buffer, int bytes)
+            public int WriteData(byte[] buffer, int bytes)
             {
                 if (readingOnly) { throw new InvalidOperationException(); }
                 memoryStream.Write(buffer, 0, bytes);
                 memoryStream.Flush();
-                return Task.FromResult(bytes);
+                return bytes;
             }
 
-            public Task Flush()
+            public void Flush()
             {
                 if (readingOnly) { throw new InvalidOperationException(); }
-                return Task.FromResult(0);
             }
 
             public void Close()

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
@@ -23,30 +24,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// <remarks>
     /// This code is based on code from Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage, 
     /// StorageDataReader
+    /// $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\StorageDataReader.cs
     /// </remarks>
     public class StorageDataReader
     {
-        #region Properties
-
-        public DbColumnWrapper[] Columns { get; private set; }
-
-        /// <summary>
-        /// The <see cref="DbDataReader"/> that will be read from
-        /// </summary>
-        public DbDataReader DbDataReader { get; private set; }
+        #region Member Variables
 
         /// <summary>
         /// If the DbDataReader is a SqlDataReader, it will be set here
         /// </summary>
-        private SqlDataReader SqlDataReader { get; set; }
+        private readonly SqlDataReader sqlDataReader;
 
         /// <summary>
         /// Whether or not the data reader supports SqlXml types
         /// </summary>
-        private bool SupportSqlXml
-        {
-            get { return SqlDataReader != null; }
-        }
+        private readonly bool supportSqlXml;
 
         #endregion
 
@@ -57,18 +49,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public StorageDataReader(DbDataReader reader)
         {
             // Sanity check to make sure there is a data reader
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader), "Reader cannot be null.");
-            }
+            Validate.IsNotNull(nameof(reader), reader);
 
             // Attempt to use this reader as a SqlDataReader
-            SqlDataReader = reader as SqlDataReader;
+            sqlDataReader = reader as SqlDataReader;
+            supportSqlXml = sqlDataReader != null;
             DbDataReader = reader;
 
             // Read the columns into a set of wrappers
             Columns = DbDataReader.GetColumnSchema().Select(column => new DbColumnWrapper(column)).ToArray();
         }
+
+        #region Properties
+
+        /// <summary>
+        /// All the columns that this reader currently contains
+        /// </summary>
+        public DbColumnWrapper[] Columns { get; private set; }
+
+        /// <summary>
+        /// The <see cref="DbDataReader"/> that will be read from
+        /// </summary>
+        public DbDataReader DbDataReader { get; private set; }
+
+        #endregion
 
         #region DbDataReader Methods
 
@@ -89,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>The value of the given column</returns>
         public object GetValue(int i)
         {
-            return SqlDataReader == null ? DbDataReader.GetValue(i) : SqlDataReader.GetValue(i);
+            return sqlDataReader == null ? DbDataReader.GetValue(i) : sqlDataReader.GetValue(i);
         }
 
         /// <summary>
@@ -98,13 +102,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="values">Where to store the values from this row</param>
         public void GetValues(object[] values)
         {
-            if (SqlDataReader == null)
+            if (sqlDataReader == null)
             {
                 DbDataReader.GetValues(values);
             }
             else
             {
-                SqlDataReader.GetValues(values);
+                sqlDataReader.GetValues(values);
             }
         }
 
@@ -120,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #endregion
 
-        #region Custom Implementation
+        #region Public Methods
 
         /// <summary>
         /// Retrieves bytes with a maximum number of bytes to return
@@ -174,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             if (maxCharsToReturn <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxCharsToReturn), "Maximum number of bytes to return must be greater than zero");
+                throw new ArgumentOutOfRangeException(nameof(maxCharsToReturn), "Maximum number of chars to return must be greater than zero");
             }
 
             //first, ask provider how much data it has and calculate the final # of chars
@@ -218,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>String</returns>
         public string GetXmlWithMaxCapacity(int iCol, int maxCharsToReturn)
         {
-            if (SupportSqlXml)
+            if (supportSqlXml)
             {
                 SqlXml sm = GetSqlXml(iCol);
                 if (sm == null)
@@ -267,13 +271,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private SqlXml GetSqlXml(int i)
         {
-            if (SqlDataReader == null)
+            if (sqlDataReader == null)
             {
                 // We need a Sql data reader in order to retrieve sql xml
                 throw new InvalidOperationException("Cannot retrieve SqlXml without a SqlDataReader");
             }
 
-            return SqlDataReader.GetSqlXml(i);
+            return sqlDataReader.GetSqlXml(i);
         }
 
         #endregion
@@ -287,8 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </remarks>
         private class StringWriterWithMaxCapacity : StringWriter
         {
-            bool stopWriting;
-
+            private bool stopWriting;
 
             private int CurrentLength
             {
@@ -348,9 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {
                     base.Write(value);
                 }
-                
             }
         }
-
     }
 }

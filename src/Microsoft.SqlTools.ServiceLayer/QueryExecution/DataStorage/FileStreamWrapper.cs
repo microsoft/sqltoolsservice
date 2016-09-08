@@ -6,7 +6,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -21,7 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private byte[] buffer;
         private int bufferDataSize;
         private FileStream fileStream;
-        private bool readingOnly;
         private long startOffset;
         private long currentOffset;
 
@@ -46,13 +44,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileName">Name of the file to open/create</param>
         /// <param name="bufferLength">The length of the internal buffer</param>
-        /// <param name="forReadingOnly">
+        /// <param name="accessMethod">
         /// Whether or not the wrapper will be used for reading. If <c>true</c>, any calls to a
         /// method that writes will cause an InvalidOperationException
         /// </param>
-        public void Init(string fileName, int bufferLength, bool forReadingOnly)
+        public void Init(string fileName, int bufferLength, FileAccess accessMethod)
         {
-            // Sanity check for valid buffer length and filename
+            // Sanity check for valid buffer length, fileName, and accessMethod
             if (bufferLength <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(bufferLength), "Buffer length must be a positive value");
@@ -61,15 +59,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 throw new ArgumentNullException(nameof(fileName), "File name cannot be null or whitespace");
             }
+            if (accessMethod == FileAccess.Write)
+            {
+                throw new ArgumentException("Access method cannot be write-only", nameof(fileName));
+            }
 
             // Setup the buffer
             buffer = new byte[bufferLength];
 
             // Open the requested file for reading/writing, creating one if it doesn't exist
-            fileStream = new FileStream(fileName, FileMode.OpenOrCreate,
-                forReadingOnly ? FileAccess.Read : FileAccess.ReadWrite, FileShare.ReadWrite,
+            fileStream = new FileStream(fileName, FileMode.OpenOrCreate, accessMethod, FileShare.ReadWrite,
                 bufferLength, false /*don't use asyncio*/);
-            readingOnly = forReadingOnly;
 
             // make file hidden
             FileInfo fileInfo = new FileInfo(fileName);
@@ -107,12 +107,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             int bytesCopied = 0;
             while (bytesCopied < bytes)
             {
-                int bufferOffset = (int)(currentOffset - startOffset);
-                int bytesToCopy = (bytes - bytesCopied);
-                if (bytesToCopy > (bufferDataSize - bufferOffset))
-                {
-                    bytesToCopy = bufferDataSize - bufferOffset;
-                }
+                int bufferOffset, bytesToCopy;
+                GetByteCounts(bytes, bytesCopied, out bufferOffset, out bytesToCopy);
                 Buffer.BlockCopy(buffer, bufferOffset, buf, bytesCopied, bytesToCopy);
                 bytesCopied += bytesToCopy;
 
@@ -145,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
             }
-            if (readingOnly)
+            if (!fileStream.CanWrite)
             {
                 throw new InvalidOperationException("This FileStreamWrapper canot be used for writing");
             }
@@ -153,12 +149,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             int bytesCopied = 0;
             while (bytesCopied < bytes)
             {
-                int bufferOffset = (int)(currentOffset - startOffset);
-                int bytesToCopy = (bytes - bytesCopied);
-                if (bytesToCopy > (buffer.Length - bufferOffset))
-                {
-                    bytesToCopy = buffer.Length - bufferOffset;
-                }
+                int bufferOffset, bytesToCopy;
+                GetByteCounts(bytes, bytesCopied, out bufferOffset, out bytesToCopy);
                 Buffer.BlockCopy(buf, bytesCopied, buffer, bufferOffset, bytesToCopy);
                 bytesCopied += bytesToCopy;
 
@@ -186,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
             }
-            if (readingOnly)
+            if (!fileStream.CanWrite)
             {
                 throw new InvalidOperationException("This FileStreamWrapper cannot be used for writing");
             }
@@ -212,6 +204,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         #endregion
+
+        /// <summary>
+        /// Perform calculations to determine how many bytes to copy and what the new buffer offset
+        /// will be for copying.
+        /// </summary>
+        /// <param name="bytes">Number of bytes requested to copy</param>
+        /// <param name="bytesCopied">Number of bytes copied so far</param>
+        /// <param name="bufferOffset">New offset to start copying from/to</param>
+        /// <param name="bytesToCopy">Number of bytes to copy in this iteration</param>
+        private void GetByteCounts(int bytes, int bytesCopied, out int bufferOffset, out int bytesToCopy)
+        {
+            bufferOffset = (int) (currentOffset - startOffset);
+            bytesToCopy = bytes - bytesCopied;
+            if (bytesToCopy > buffer.Length - bufferOffset)
+            {
+                bytesToCopy = buffer.Length - bufferOffset;
+            }
+        }
 
         /// <summary>
         /// Moves the internal buffer to the specified offset into the file
@@ -255,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             if (disposing && fileStream != null)
             {
-                if(!readingOnly) { Flush(); }
+                if(fileStream.CanWrite) { Flush(); }
                 fileStream.Dispose();
             }
 

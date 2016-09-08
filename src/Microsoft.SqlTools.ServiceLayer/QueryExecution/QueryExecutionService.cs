@@ -25,6 +25,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private static readonly Lazy<QueryExecutionService> instance = new Lazy<QueryExecutionService>(() => new QueryExecutionService());
 
+        /// <summary>
+        /// Singleton instance of the query execution service
+        /// </summary>
         public static QueryExecutionService Instance
         {
             get { return instance.Value; }

@@ -1,8 +1,12 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Xunit;
 
@@ -14,27 +18,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(null)]
         [InlineData("")]
         [InlineData("    ")]
-        public void InitInsaneFilenameParameter(string fileName)
+        public void InitInvalidFilenameParameter(string fileName)
         {
             // If:
-            // ... I have a file stream wrapper that is initialized with insane fileName
+            // ... I have a file stream wrapper that is initialized with invalid fileName
             // Then:
             // ... It should throw an argument null exception
             using (FileStreamWrapper fsw = new FileStreamWrapper())
-                Assert.Throws<ArgumentNullException>(() => fsw.Init(fileName, 8192, true));
+            {
+                Assert.Throws<ArgumentNullException>(() => fsw.Init(fileName, 8192, FileAccess.Read));
+            }
         }
 
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
-        public void InitInsaneBufferLength(int bufferLength)
+        public void InitInvalidBufferLength(int bufferLength)
         {
             // If:
-            // ... I have a file stream wrapper that is initialized with an insane buffer length
+            // ... I have a file stream wrapper that is initialized with an invalid buffer length
             // Then:
             // ... I should throw an argument out of range exception
             using (FileStreamWrapper fsw = new FileStreamWrapper())
-                Assert.Throws<ArgumentOutOfRangeException>(() => fsw.Init("validFileName", bufferLength, true));
+            {
+                Assert.Throws<ArgumentOutOfRangeException>(() => fsw.Init("validFileName", bufferLength, FileAccess.Read));
+            }
+        }
+
+        [Fact]
+        public void InitInvalidFileAccessMode()
+        {
+            // If:
+            // ... I attempt to open a file stream wrapper that is initialized with an invalid file
+            //     access mode
+            // Then:
+            // ... I should get an invalid argument exception
+            using (FileStreamWrapper fsw = new FileStreamWrapper())
+            {
+                Assert.Throws<ArgumentException>(() => fsw.Init("validFileName", 8192, FileAccess.Write));
+            }
         }
 
         [Fact]
@@ -78,11 +100,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 // ... I have a file stream wrapper that hasn't been initialized
                 // Then:
                 // ... Attempting to perform any operation will result in an exception
-                Task.WaitAll(
-                    Assert.ThrowsAsync<InvalidOperationException>(() => fsw.ReadData(buf, 1)),
-                    Assert.ThrowsAsync<InvalidOperationException>(() => fsw.ReadData(buf, 1, 0)),
-                    Assert.ThrowsAsync<InvalidOperationException>(() => fsw.WriteData(buf, 1)),
-                    Assert.ThrowsAsync<InvalidOperationException>(() => fsw.Flush()));
+                Assert.Throws<InvalidOperationException>(() => fsw.ReadData(buf, 1));
+                Assert.Throws<InvalidOperationException>(() => fsw.ReadData(buf, 1, 0));
+                Assert.Throws<InvalidOperationException>(() => fsw.WriteData(buf, 1));
+                Assert.Throws<InvalidOperationException>(() => fsw.Flush());
             }
         }
 
@@ -97,9 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 // ... I have a readonly file stream wrapper
                 // Then:
                 // ... Attempting to perform any write operation should result in an exception
-                Task.WaitAll(
-                    Assert.ThrowsAsync<InvalidOperationException>(() => fsw.WriteData(buf, 1)),
-                    Assert.ThrowsAsync<InvalidOperationException>(() => fsw.Flush()));
+                Assert.Throws<InvalidOperationException>(() => fsw.WriteData(buf, 1));
+                Assert.Throws<InvalidOperationException>(() => fsw.Flush());
             }
         }
 
@@ -126,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 using (FileStreamWrapper fsw = new FileStreamWrapper())
                 {
                     fsw.Init(fileName, internalBufferLength, true);
-                    bytesRead = fsw.ReadData(buf, targetBytes.Length).Result;
+                    bytesRead = fsw.ReadData(buf, targetBytes.Length);
                 }
 
                 // Then:
@@ -159,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 using (FileStreamWrapper fsw = new FileStreamWrapper())
                 {
                     fsw.Init(fileName, internalBufferLength, false);
-                    int bytesWritten = fsw.WriteData(bytesToWrite, bytesToWrite.Length).Result;
+                    int bytesWritten = fsw.WriteData(bytesToWrite, bytesToWrite.Length);
 
                     Assert.Equal(bytesToWrite.Length, bytesWritten);
                 }

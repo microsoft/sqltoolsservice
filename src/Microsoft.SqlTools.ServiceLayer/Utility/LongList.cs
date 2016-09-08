@@ -1,21 +1,63 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
+    /// <summary>
+    /// Collection class that permits storage of over <c>int.MaxValue</c> items. This is performed
+    /// by using a 2D list of lists. The internal lists are only initialized as necessary. This
+    /// collection implements IEnumerable to make it easier to run LINQ queries against it.
+    /// </summary>
+    /// <remarks>
+    /// This class is based on code from $\Data Tools\SSMS_Main\sql\ssms\core\DataStorage\ArrayList64.cs
+    /// with additions to bring it up to .NET 4.5 standards
+    /// </remarks>
+    /// <typeparam name="T">Type of the values to store</typeparam>
     public class LongList<T> : IEnumerable<T>
     {
-        private readonly List<T> shortList;
-        public long Count { get; private set; }
-        private List<List<T>> expandedList;
+        #region Member Variables
 
+        private List<List<T>> expandedList;
+        private readonly List<T> shortList;
+
+        #endregion
+
+        /// <summary>
+        /// Creates a new long list
+        /// </summary>
         public LongList()
         {
             shortList = new List<T>();
             Count = 0;
         }
 
+        #region Properties
+
+        /// <summary>
+        /// The total number of elements in the array
+        /// </summary>
+        public long Count { get; private set; }
+
+        public T this[long index]
+        {
+            get { return GetItem(index); }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Adds the specified value to the end of the list
+        /// </summary>
+        /// <param name="val">Value to add to the list</param>
+        /// <returns>Index of the item that was just added</returns>
         public long Add(T val)
         {
             if (Count <= int.MaxValue)
@@ -48,6 +90,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             return (++Count);
         }
 
+        /// <summary>
+        /// Returns the item at the specified index
+        /// </summary>
+        /// <param name="index">Index of the item to return</param>
+        /// <returns>The item at the index specified</returns>
+        public T GetItem(long index)
+        {
+            T val = default(T);
+
+            if (Count <= int.MaxValue)
+            {
+                int i32Index = Convert.ToInt32(index);
+                val = shortList[i32Index];
+            }
+            else
+            {
+                int iArray32Index = (int) (Count/int.MaxValue);
+                if (expandedList.Count > iArray32Index)
+                {
+                    List<T> arr = expandedList[iArray32Index];
+
+                    int i32Index = (int) (Count%int.MaxValue);
+                    if (arr.Count > i32Index)
+                    {
+                        val = arr[i32Index];
+                    }
+                }
+            }
+            return val;
+        }
+
+        /// <summary>
+        /// Removes an item at the specified location and shifts all the items after the provided
+        /// index up by one.
+        /// </summary>
+        /// <param name="index">The index to remove from the list</param>
         public void RemoveAt(long index)
         {
             if (Count <= int.MaxValue)
@@ -79,44 +157,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             --Count;
         }
 
-        public T GetItem(long index)
-        {
-            T val = default(T);
-
-            if (Count <= int.MaxValue)
-            {
-                int i32Index = Convert.ToInt32(index);
-                val = shortList[i32Index];
-            }
-            else
-            {
-                int iArray32Index = (int) (Count/int.MaxValue);
-                if (expandedList.Count > iArray32Index)
-                {
-                    List<T> arr = expandedList[iArray32Index];
-
-                    int i32Index = (int) (Count%int.MaxValue);
-                    if (arr.Count > i32Index)
-                    {
-                        val = arr[i32Index];
-                    }
-                }
-            }
-            return val;
-        }
-
-        public T this[long index]
-        {
-            get { return GetItem(index); }
-        }
+        #endregion
 
         #region IEnumerable<object> Implementation
 
+        /// <summary>
+        /// Returns a generic enumerator for enumeration of this LongList
+        /// </summary>
+        /// <returns>Enumerator for LongList</returns>
         public IEnumerator<T> GetEnumerator()
         {
             return new LongListEnumerator<T>(this);
         }
 
+        /// <summary>
+        /// Returns an enumerator for enumeration of this LongList
+        /// </summary>
+        /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -126,56 +183,71 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         public class LongListEnumerator<TEt> : IEnumerator<TEt>
         {
-            #region Properties
-
-            /// <summary>
-            /// The current list that we're iterating over.
-            /// </summary>
-            private LongList<TEt> localList;
+            #region Member Variables
 
             /// <summary>
             /// The index into the list of the item that is the current item
             /// </summary>
             private long index;
 
-            private TEt current;
+            /// <summary>
+            /// The current list that we're iterating over.
+            /// </summary>
+            private readonly LongList<TEt> localList;
 
             #endregion
 
-            #region IEnumerator Implementation
-
+            /// <summary>
+            /// Constructs a new enumerator for a given LongList
+            /// </summary>
+            /// <param name="list">The list to enumerate</param>
             public LongListEnumerator(LongList<TEt> list)
             {
                 localList = list;
                 index = 0;
-                current = default(TEt);
+                Current = default(TEt);
             }
 
-            public bool MoveNext()
-            {
-                if (index < localList.Count)
-                {
-                    current = localList[index];
-                    index++;
-                    return true;
-                }
-                current = default(TEt);
-                return false;
-            }
+            #region IEnumerator Implementation
 
-            public void Reset()
-            {
-                index = 0;
-                current = default(TEt);
-            }
-
-            public TEt Current { get { return current; } }
+            /// <summary>
+            /// Returns the current item in the enumeration
+            /// </summary>
+            public TEt Current { get; private set; }
 
             object IEnumerator.Current
             {
                 get { return Current; }
             }
 
+            /// <summary>
+            /// Moves to the next item in the list we're iterating over
+            /// </summary>
+            /// <returns>Whether or not the move was successful</returns>
+            public bool MoveNext()
+            {
+                if (index < localList.Count)
+                {
+                    Current = localList[index];
+                    index++;
+                    return true;
+                }
+                Current = default(TEt);
+                return false;
+            }
+
+            /// <summary>
+            /// Resets the enumeration
+            /// </summary>
+            public void Reset()
+            {
+                index = 0;
+                Current = default(TEt);
+            }
+
+            /// <summary>
+            /// Disposal method. Does nothing.
+            /// </summary>
             public void Dispose()
             {
             }

@@ -1,7 +1,6 @@
-﻿//
+﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
 
 using System;
 using System.Data.Common;
@@ -21,34 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
-        #region Properties
-
-        /// <summary>
-        /// The batches underneath this query
-        /// </summary>
-        internal Batch[] Batches { get; set; }
-
-        /// <summary>
-        /// The summaries of the batches underneath this query
-        /// </summary>
-        public BatchSummary[] BatchSummaries
-        {
-            get
-            {
-                if (!HasExecuted)
-                {
-                    throw new InvalidOperationException("Query has not been executed.");
-                }
-
-                return Batches.Select((batch, index) => new BatchSummary
-                {
-                    Id = index,
-                    HasError = batch.HasError,
-                    Messages = batch.ResultMessages.ToArray(),
-                    ResultSetSummaries = batch.ResultSummaries
-                }).ToArray();
-            }
-        }
+        #region Member Variables
 
         /// <summary>
         /// Cancellation token source, used for cancelling async db actions
@@ -56,44 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly CancellationTokenSource cancellationSource;
 
         /// <summary>
-        /// The connection info associated with the file editor owner URI, used to create a new
-        /// connection upon execution of the query
+        /// For IDisposable implementation, whether or not this object has been disposed
         /// </summary>
-        private ConnectionInfo EditorConnection { get; set; }
-
-        /// <summary>
-        /// Whether or the execute method has been called for this query
-        /// </summary>
-        private bool HasExecuteBeenCalled { get; set; }
-
-        /// <summary>
-        /// Whether or not the query has completed executed, regardless of success or failure
-        /// </summary>
-        /// <remarks>
-        /// Don't touch the setter unless you're doing unit tests!
-        /// </remarks>
-        public bool HasExecuted
-        {
-            get { return Batches.Length == 0 ? HasExecuteBeenCalled : Batches.All(b => b.HasExecuted); }
-            internal set
-            {
-                HasExecuteBeenCalled = value;
-                foreach (var batch in Batches)
-                {
-                    batch.HasExecuted = value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// The factory to use for outputing the results of this query
-        /// </summary>
-        private IFileStreamFactory OutputFileFactory { get; set; }
-
-        /// <summary>
-        /// The text of the query to execute
-        /// </summary>
-        public string QueryText { get; set; }
+        private bool disposed;
 
         #endregion
 
@@ -140,6 +77,94 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber, OutputFileFactory)).ToArray();
         }
 
+        #region Properties
+
+        /// <summary>
+        /// The batches underneath this query
+        /// </summary>
+        internal Batch[] Batches { get; set; }
+
+        /// <summary>
+        /// The summaries of the batches underneath this query
+        /// </summary>
+        public BatchSummary[] BatchSummaries
+        {
+            get
+            {
+                if (!HasExecuted)
+                {
+                    throw new InvalidOperationException("Query has not been executed.");
+                }
+
+                return Batches.Select((batch, index) => new BatchSummary
+                {
+                    Id = index,
+                    HasError = batch.HasError,
+                    Messages = batch.ResultMessages.ToArray(),
+                    ResultSetSummaries = batch.ResultSummaries
+                }).ToArray();
+            }
+        }
+
+        /// <summary>
+        /// The connection info associated with the file editor owner URI, used to create a new
+        /// connection upon execution of the query
+        /// </summary>
+        private ConnectionInfo EditorConnection { get; set; }
+
+        /// <summary>
+        /// Whether or not the execute method has been called for this query
+        /// </summary>
+        private bool HasExecuteBeenCalled { get; set; }
+
+        /// <summary>
+        /// Whether or not the query has completed executed, regardless of success or failure
+        /// </summary>
+        /// <remarks>
+        /// Don't touch the setter unless you're doing unit tests!
+        /// </remarks>
+        public bool HasExecuted
+        {
+            get { return Batches.Length == 0 ? HasExecuteBeenCalled : Batches.All(b => b.HasExecuted); }
+            internal set
+            {
+                HasExecuteBeenCalled = value;
+                foreach (var batch in Batches)
+                {
+                    batch.HasExecuted = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The factory to use for outputting the results of this query
+        /// </summary>
+        private IFileStreamFactory OutputFileFactory { get; set; }
+
+        /// <summary>
+        /// The text of the query to execute
+        /// </summary>
+        public string QueryText { get; set; }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Cancels the query by issuing the cancellation token
+        /// </summary>
+        public void Cancel()
+        {
+            // Make sure that the query hasn't completed execution
+            if (HasExecuted)
+            {
+                throw new InvalidOperationException("The query has already completed, it cannot be cancelled.");
+            }
+
+            // Issue the cancellation token for the query
+            cancellationSource.Cancel();
+        }
+
         /// <summary>
         /// Executes this query asynchronously and collects all result sets
         /// </summary>
@@ -156,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Open up a connection for querying the database
             string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
-            // TODO: Don't create a new connection every time
+            // TODO: Don't create a new connection every time, see TFS #834978
             using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
             {
                 await conn.OpenAsync();
@@ -167,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await b.Execute(conn, cancellationSource.Token);
                 }
 
-                // TODO: Close connection
+                // TODO: Close connection after eliminating using statement for above TODO
             }
         }
 
@@ -197,24 +222,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
 
-        /// <summary>
-        /// Cancels the query by issuing the cancellation token
-        /// </summary>
-        public void Cancel()
-        {
-            // Make sure that the query hasn't completed execution
-            if (HasExecuted)
-            {
-                throw new InvalidOperationException("The query has already completed, it cannot be cancelled.");
-            }
-
-            // Issue the cancellation token for the query
-            cancellationSource.Cancel();
-        }
+        #endregion
 
         #region IDisposable Implementation
-
-        private bool disposed;
 
         public void Dispose()
         {
@@ -239,11 +249,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             disposed = true;
-        }
-
-        ~Query()
-        {
-            Dispose(false);
         }
 
         #endregion

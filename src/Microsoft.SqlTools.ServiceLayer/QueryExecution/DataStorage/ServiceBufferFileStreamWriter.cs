@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     /// <remarks>
     /// Most of this code is based on code from the Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage
+    /// $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\FileStreamWriter.cs
     /// </remarks>
     public class ServiceBufferFileStreamWriter : IFileStreamWriter
     {
