@@ -70,10 +70,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Open the requested file for reading/writing, creating one if it doesn't exist
             fileStream = new FileStream(fileName, FileMode.OpenOrCreate, accessMethod, FileShare.ReadWrite,
                 bufferLength, false /*don't use asyncio*/);
-
-            // make file hidden
-            FileInfo fileInfo = new FileInfo(fileName);
-            fileInfo.Attributes |= FileAttributes.Hidden;
         }
 
         /// <summary>

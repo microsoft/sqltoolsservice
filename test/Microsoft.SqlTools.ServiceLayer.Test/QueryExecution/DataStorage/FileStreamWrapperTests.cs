@@ -76,9 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                     // ... The file should exist
                     FileInfo fileInfo = new FileInfo(fileName);
                     Assert.True(fileInfo.Exists);
-
-                    // ... The file should be marked as hidden
-                    Assert.True((fileInfo.Attributes & FileAttributes.Hidden) != 0);
                 }
             }
             finally
