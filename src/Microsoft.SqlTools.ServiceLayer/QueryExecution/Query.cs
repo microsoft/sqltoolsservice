@@ -1,7 +1,6 @@
-﻿//
+﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
 
 using System;
 using System.Data;
@@ -13,6 +12,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
@@ -22,14 +22,83 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
-        #region Constants
-        
         /// <summary>
         /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
         /// </summary>
         private const int DatabaseContextChangeErrorNumber = 5701;
 
+        #region Member Variables
+
+        /// <summary>
+        /// Cancellation token source, used for cancelling async db actions
+        /// </summary>
+        private readonly CancellationTokenSource cancellationSource;
+
+        /// <summary>
+        /// For IDisposable implementation, whether or not this object has been disposed
+        /// </summary>
+        private bool disposed;
+
+        /// <summary>
+        /// The connection info associated with the file editor owner URI, used to create a new
+        /// connection upon execution of the query
+        /// </summary>
+        private readonly ConnectionInfo editorConnection;
+
+        /// <summary>
+        /// Whether or not the execute method has been called for this query
+        /// </summary>
+        private bool hasExecuteBeenCalled;
+
+        /// <summary>
+        /// The factory to use for outputting the results of this query
+        /// </summary>
+        private readonly IFileStreamFactory outputFileFactory;
+
         #endregion
+
+        /// <summary>
+        /// Constructor for a query
+        /// </summary>
+        /// <param name="queryText">The text of the query to execute</param>
+        /// <param name="connection">The information of the connection to use to execute the query</param>
+        /// <param name="settings">Settings for how to execute the query, from the user</param>
+        /// <param name="outputFactory">Factory for creating output files</param>
+        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory)
+        {
+            // Sanity check for input
+            if (string.IsNullOrEmpty(queryText))
+            {
+                throw new ArgumentNullException(nameof(queryText), "Query text cannot be null");
+            }
+            if (connection == null)
+            {
+                throw new ArgumentNullException(nameof(connection), "Connection cannot be null");
+            }
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings), "Settings cannot be null");
+            }
+            if (outputFactory == null)
+            {
+                throw new ArgumentNullException(nameof(outputFactory), "Output file factory cannot be null");
+            }
+
+            // Initialize the internal state
+            QueryText = queryText;
+            editorConnection = connection;
+            cancellationSource = new CancellationTokenSource();
+            outputFileFactory = outputFactory;
+
+            // Process the query into batches
+            ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
+            {
+                BatchSeparator = settings.BatchSeparator
+            });
+            // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
+            Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
+                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber, outputFileFactory)).ToArray();
+        }
 
         #region Properties
 
@@ -61,19 +130,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Cancellation token source, used for cancelling async db actions
-        /// </summary>
-        private readonly CancellationTokenSource cancellationSource;
-
-        /// <summary>
-        /// The connection info associated with the file editor owner URI, used to create a new
-        /// connection upon execution of the query
-        /// </summary>
-        private ConnectionInfo EditorConnection { get; set; }
-
-        private bool HasExecuteBeenCalled { get; set; }
-
-        /// <summary>
         /// Whether or not the query has completed executed, regardless of success or failure
         /// </summary>
         /// <remarks>
@@ -81,10 +137,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </remarks>
         public bool HasExecuted
         {
-            get { return Batches.Length == 0 ? HasExecuteBeenCalled : Batches.All(b => b.HasExecuted); }
+            get { return Batches.Length == 0 ? hasExecuteBeenCalled : Batches.All(b => b.HasExecuted); }
             internal set
             {
-                HasExecuteBeenCalled = value;
+                hasExecuteBeenCalled = value;
                 foreach (var batch in Batches)
                 {
                     batch.HasExecuted = value;
@@ -99,41 +155,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
+        #region Public Methods
+
         /// <summary>
-        /// Constructor for a query
+        /// Cancels the query by issuing the cancellation token
         /// </summary>
-        /// <param name="queryText">The text of the query to execute</param>
-        /// <param name="connection">The information of the connection to use to execute the query</param>
-        /// <param name="settings">Settings for how to execute the query, from the user</param>
-        public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings)
+        public void Cancel()
         {
-            // Sanity check for input
-            if (string.IsNullOrEmpty(queryText))
+            // Make sure that the query hasn't completed execution
+            if (HasExecuted)
             {
-                throw new ArgumentNullException(nameof(queryText), "Query text cannot be null");
-            }
-            if (connection == null)
-            {
-                throw new ArgumentNullException(nameof(connection), "Connection cannot be null");
-            }
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings), "Settings cannot be null");
+                throw new InvalidOperationException("The query has already completed, it cannot be cancelled.");
             }
 
-            // Initialize the internal state
-            QueryText = queryText;
-            EditorConnection = connection;
-            cancellationSource = new CancellationTokenSource();
-
-            // Process the query into batches
-            ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
-            {
-                BatchSeparator = settings.BatchSeparator
-            });
-            // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
-            Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
-                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber)).ToArray();
+            // Issue the cancellation token for the query
+            cancellationSource.Cancel();
         }
 
         /// <summary>
@@ -142,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task Execute()
         {
             // Mark that we've internally executed
-            HasExecuteBeenCalled = true;
+            hasExecuteBeenCalled = true;
 
             // Don't actually execute if there aren't any batches to execute
             if (Batches.Length == 0)
@@ -151,8 +187,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Open up a connection for querying the database
-            string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
-            using (IDbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
+            string connectionString = ConnectionService.BuildConnectionString(editorConnection.ConnectionDetails);
+            // TODO: Don't create a new connection every time, see TFS #834978
+            using (DbConnection conn = editorConnection.Factory.CreateSqlConnection(connectionString))
             {
                 await conn.OpenAsync();
 
@@ -168,6 +205,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await b.Execute(conn, cancellationSource.Token);
                 }
+
+                // TODO: Close connection after eliminating using statement for above TODO
             }
         }
 
@@ -177,13 +216,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private void OnInfoMessage(object sender, SqlInfoMessageEventArgs args)
         {
             SqlConnection conn = sender as SqlConnection;
+            if (conn == null)
+            {
+                throw new InvalidOperationException("Sender for OnInfoMessage event must be a SqlConnection");
+            }
 
             foreach(SqlError error in args.Errors) 
             {
                 // Did the database context change (error code 5701)?
                 if (error.Number == DatabaseContextChangeErrorNumber)
                 {
-                    ConnectionService.Instance.ChangeConnectionDatabaseContext(EditorConnection.OwnerUri, conn.Database);
+                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
                 }
             }
         }
@@ -196,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public ResultSetSubset GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check that the results are available
             if (!HasExecuted)
@@ -214,24 +257,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
 
-        /// <summary>
-        /// Cancels the query by issuing the cancellation token
-        /// </summary>
-        public void Cancel()
-        {
-            // Make sure that the query hasn't completed execution
-            if (HasExecuted)
-            {
-                throw new InvalidOperationException("The query has already completed, it cannot be cancelled.");
-            }
-
-            // Issue the cancellation token for the query
-            cancellationSource.Cancel();
-        }
+        #endregion
 
         #region IDisposable Implementation
-
-        private bool disposed;
 
         public void Dispose()
         {
@@ -249,14 +277,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (disposing)
             {
                 cancellationSource.Dispose();
+                foreach (Batch b in Batches)
+                {
+                    b.Dispose();
+                }
             }
 
             disposed = true;
-        }
-
-        ~Query()
-        {
-            Dispose(false);
         }
 
         #endregion

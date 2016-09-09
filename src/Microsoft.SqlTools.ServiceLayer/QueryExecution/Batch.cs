@@ -1,7 +1,6 @@
-﻿//
+﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
 
 using System;
 using System.Collections.Generic;
@@ -11,18 +10,60 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
     /// <summary>
     /// This class represents a batch within a query
     /// </summary>
-    public class Batch
+    public class Batch : IDisposable
     {
         private const string RowsAffectedFormat = "({0} row(s) affected)";
 
+        #region Member Variables
+
+        /// <summary>
+        /// For IDisposable implementation, whether or not this has been disposed
+        /// </summary>
+        private bool disposed;
+
+        /// <summary>
+        /// Factory for creating readers/writrs for the output of the batch
+        /// </summary>
+        private readonly IFileStreamFactory outputFileFactory;
+
+        /// <summary>
+        /// Internal representation of the messages so we can modify internally
+        /// </summary>
+        private readonly List<string> resultMessages;
+
+        /// <summary>
+        /// Internal representation of the result sets so we can modify internally
+        /// </summary>
+        private readonly List<ResultSet> resultSets;
+
+        #endregion
+
+        internal Batch(string batchText, int startLine, IFileStreamFactory outputFileFactory)
+        {
+            // Sanity check for input
+            Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
+            Validate.IsNotNull(nameof(outputFileFactory), outputFileFactory);
+
+            // Initialize the internal state
+            BatchText = batchText;
+            StartLine = startLine - 1;  // -1 to make sure that the line number of the batch is 0-indexed, since SqlParser gives 1-indexed line numbers
+            HasExecuted = false;
+            resultSets = new List<ResultSet>();
+            resultMessages = new List<string>();
+            this.outputFileFactory = outputFileFactory;
+        }
+
         #region Properties
+
         /// <summary>
         /// The text of batch that will be executed
         /// </summary>
@@ -39,22 +80,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasExecuted { get; set; }
 
         /// <summary>
-        /// Internal representation of the messages so we can modify internally
-        /// </summary>
-        private List<string> resultMessages;
-
-        /// <summary>
         /// Messages that have come back from the server
         /// </summary>
         public IEnumerable<string> ResultMessages
         {
             get { return resultMessages; }
         }
-
-        /// <summary>
-        /// Internal representation of the result sets so we can modify internally
-        /// </summary>
-        private List<ResultSet> resultSets;
 
         /// <summary>
         /// The result sets of the batch execution
@@ -75,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     ColumnInfo = set.Columns,
                     Id = index,
-                    RowCount = set.Rows.Count
+                    RowCount = set.RowCount
                 }).ToArray();
             }
         }
@@ -87,21 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        public Batch(string batchText, int startLine)
-        {
-            // Sanity check for input
-            if (string.IsNullOrEmpty(batchText))
-            {
-                throw new ArgumentNullException(nameof(batchText), "Query text cannot be null");
-            }
-
-            // Initialize the internal state
-            BatchText = batchText;
-            StartLine = startLine - 1;  // -1 to make sure that the line number of the batch is 0-indexed, since SqlParser gives 1-indexed line numbers
-            HasExecuted = false;
-            resultSets = new List<ResultSet>();
-            resultMessages = new List<string>();
-        }
+        #region Public Methods
 
         /// <summary>
         /// Executes this batch and captures any server messages that are returned.
@@ -148,23 +165,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // Read until we hit the end of the result set
-                            ResultSet resultSet = new ResultSet();
-                            while (await reader.ReadAsync(cancellationToken))
-                            {
-                                resultSet.AddRow(reader);
-                            }
-
-                            // Read off the column schema information
-                            if (reader.CanGetColumnSchema())
-                            {
-                                resultSet.Columns = reader.GetColumnSchema().ToArray();
-                            }
+                            ResultSet resultSet = new ResultSet(reader, outputFileFactory);
+                            await resultSet.ReadResultToEnd(cancellationToken);
 
                             // Add the result set to the results of the query
                             resultSets.Add(resultSet);
 
                             // Add a message for the number of rows the query returned
-                            resultMessages.Add(string.Format(RowsAffectedFormat, resultSet.Rows.Count));
+                            resultMessages.Add(string.Format(RowsAffectedFormat, resultSet.RowCount));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -200,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public ResultSetSubset GetSubset(int resultSetIndex, int startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check to make sure we have valid numbers
             if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
@@ -212,6 +220,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Retrieve the result set
             return resultSets[resultSetIndex].GetSubset(startRow, rowCount);
         }
+
+        #endregion
 
         #region Private Helpers
 
@@ -256,6 +266,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 resultMessages.Add(dbe.Message);
             }
+        }
+
+        #endregion
+
+        #region IDisposable Implementation
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                foreach (ResultSet r in ResultSets)
+                {
+                    r.Dispose();
+                }
+            }
+
+            disposed = true;
         }
 
         #endregion

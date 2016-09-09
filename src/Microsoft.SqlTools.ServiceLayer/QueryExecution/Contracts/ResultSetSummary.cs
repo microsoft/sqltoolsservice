@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Data.Common;
-
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
@@ -20,11 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// The number of rows that was returned with the resultset
         /// </summary>
-        public int RowCount { get; set; }
+        public long RowCount { get; set; }
 
         /// <summary>
         /// Details about the columns that are provided as solutions
         /// </summary>
-        public DbColumn[] ColumnInfo { get; set; }
+        public DbColumnWrapper[] ColumnInfo { get; set; }
     }
 }
