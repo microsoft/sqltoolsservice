@@ -93,9 +93,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             List<DbColumn> columns = new List<DbColumn>();
             for (int i = 0; i < ResultSet.Current[0].Count; i++)
             {
-                columns.Add(new Mock<DbColumn>().Object);
+                columns.Add(new TestDbColumn());
             }
             return new ReadOnlyCollection<DbColumn>(columns);
+        }
+
+        public override bool IsDBNull(int ordinal)
+        {
+            return this[ordinal] == null;
         }
 
         public override int FieldCount { get { return Rows?.Current.Count ?? 0; } }
@@ -194,11 +199,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
         }
 
         public override string GetString(int ordinal)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool IsDBNull(int ordinal)
         {
             throw new NotImplementedException();
         }

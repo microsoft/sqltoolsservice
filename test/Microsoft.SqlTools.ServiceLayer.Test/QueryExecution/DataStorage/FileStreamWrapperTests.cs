@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 {
                     // If:
                     // ... I have a file stream wrapper that is initialized with valid parameters
-                    fsw.Init(fileName, 8192, false);
+                    fsw.Init(fileName, 8192, FileAccess.ReadWrite);
 
                     // Then:
                     // ... The file should exist
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 byte[] buf = new byte[outBufferLength];
                 using (FileStreamWrapper fsw = new FileStreamWrapper())
                 {
-                    fsw.Init(fileName, internalBufferLength, true);
+                    fsw.Init(fileName, internalBufferLength, FileAccess.Read);
                     bytesRead = fsw.ReadData(buf, targetBytes.Length);
                 }
 
@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 // ... And I write some bytes to it
                 using (FileStreamWrapper fsw = new FileStreamWrapper())
                 {
-                    fsw.Init(fileName, internalBufferLength, false);
+                    fsw.Init(fileName, internalBufferLength, FileAccess.ReadWrite);
                     int bytesWritten = fsw.WriteData(bytesToWrite, bytesToWrite.Length);
 
                     Assert.Equal(bytesToWrite.Length, bytesWritten);

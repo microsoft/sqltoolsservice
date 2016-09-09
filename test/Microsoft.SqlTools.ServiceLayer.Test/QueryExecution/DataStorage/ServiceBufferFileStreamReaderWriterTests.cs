@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (TimeSpan value in testValues)
             {
-                VerifyReadWrite(sizeof(long), value, (writer, val) => writer.WriteTimeSpan(val), reader => reader.ReadTimeSpan(0));
+                VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteTimeSpan(val), reader => reader.ReadTimeSpan(0));
             }
         }
 
@@ -289,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             byte[] value = sb.ToArray();
             int lengthLength = length == 0 || length > 255 ? 5 : 1;
             int valueLength = sizeof(byte)*length + lengthLength;
-            VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteBytes(value, valueLength), reader => reader.ReadBytes(0));
+            VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteBytes(value, length), reader => reader.ReadBytes(0));
         }
     }
 }

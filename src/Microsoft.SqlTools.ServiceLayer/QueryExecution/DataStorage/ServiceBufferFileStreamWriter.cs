@@ -6,6 +6,7 @@
 using System;
 using System.Data.SqlTypes;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -50,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // open file for reading/writing
             FileStream = fileWrapper;
-            FileStream.Init(fileName, DefaultBufferLength, false);
+            FileStream.Init(fileName, DefaultBufferLength, FileAccess.ReadWrite);
 
             // create internal buffer
             byteBuffer = new byte[DefaultBufferLength];

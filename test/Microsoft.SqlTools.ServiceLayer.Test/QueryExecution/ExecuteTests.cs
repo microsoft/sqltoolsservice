@@ -205,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a batch that has an empty query
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new Batch(query, 1, Common.GetFileStreamFactory()));
+            Assert.Throws<ArgumentException>(() => new Batch(query, 1, Common.GetFileStreamFactory()));
         }
 
         [Fact]

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
@@ -40,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // Open file for reading/writing
             fileStream = fileWrapper;
-            fileStream.Init(fileName, DefaultBufferSize, true);
+            fileStream.Init(fileName, DefaultBufferSize, FileAccess.Read);
 
             // Create internal buffer
             buffer = new byte[DefaultBufferSize];
@@ -468,8 +469,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             return results.ToArray();
         }
-
-        private FileStreamReadResult<T> ReadValue<T>(long fileOffset, Func<T> )
 
         /// <summary>
         /// Reads a short from the file at the offset provided

@@ -95,8 +95,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns(new ServiceBufferFileStreamReader(new InMemoryWrapper(), It.IsAny<string>()));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(new ServiceBufferFileStreamWriter(new InMemoryWrapper(), It.IsAny<string>(), It.IsAny<int>(),
-                    It.IsAny<int>()));
+                .Returns(new ServiceBufferFileStreamWriter(new InMemoryWrapper(), It.IsAny<string>(), 1024,
+                    1024));
 
             return mock.Object;
         }
@@ -117,9 +117,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 // We'll dispose this via a special method
             }
 
-            public void Init(string fileName, int bufferSize, bool forReadingOnly)
+            public void Init(string fileName, int bufferSize, FileAccess fAccess)
             {
-                readingOnly = forReadingOnly;
+                readingOnly = fAccess == FileAccess.Read;
             }
 
             public int ReadData(byte[] buffer, int bytes)
