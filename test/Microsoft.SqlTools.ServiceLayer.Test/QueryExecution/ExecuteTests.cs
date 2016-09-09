@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void BatchCreationTest()
         {
             // If I create a new batch...
-            Batch batch = new Batch(Common.StandardQuery, 1);
+            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
 
             // Then: 
             // ... The text of the batch should be stored
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void BatchExecuteNoResultSets()
         {
             // If I execute a query that should get no result sets
-            Batch batch = new Batch(Common.StandardQuery, 1);
+            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None).Wait();
 
             // Then:
@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a query that should get one result set
-            Batch batch = new Batch(Common.StandardQuery, 1);
+            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -92,11 +92,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Equal(resultSets, batch.ResultSummaries.Length);
 
             // ... Inside the result set should be with 5 rows
-            Assert.Equal(Common.StandardRows, batch.ResultSets.First().Rows.Count);
+            Assert.Equal(Common.StandardRows, batch.ResultSets.First().RowCount);
             Assert.Equal(Common.StandardRows, batch.ResultSummaries[0].RowCount);
 
-            // ... Inside the result set should have 5 columns and 5 column definitions
-            Assert.Equal(Common.StandardColumns, batch.ResultSets.First().Rows[0].Length);
+            // ... Inside the result set should have 5 columns
             Assert.Equal(Common.StandardColumns, batch.ResultSets.First().Columns.Length);
             Assert.Equal(Common.StandardColumns, batch.ResultSummaries[0].ColumnInfo.Length);
 
@@ -112,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(dataset, false);
 
             // If I execute a query that should get two result sets
-            Batch batch = new Batch(Common.StandardQuery, 1);
+            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -126,10 +125,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             foreach (ResultSet rs in batch.ResultSets)
             {
                 // ... Each result set should have 5 rows
-                Assert.Equal(Common.StandardRows, rs.Rows.Count);
+                Assert.Equal(Common.StandardRows, rs.RowCount);
 
-                // ... Inside each result set should be 5 columns and 5 column definitions
-                Assert.Equal(Common.StandardColumns, rs.Rows[0].Length);
+                // ... Inside each result set should be 5 columns
                 Assert.Equal(Common.StandardColumns, rs.Columns.Length);
             }
 
@@ -155,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
 
             // If I execute a batch that is invalid
-            Batch batch = new Batch(Common.StandardQuery, 1);
+            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -177,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a batch
-            Batch batch = new Batch(Common.StandardQuery, 1);
+            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -207,7 +205,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a batch that has an empty query
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new Batch(query, 1));
+            Assert.Throws<ArgumentException>(() => new Batch(query, 1, Common.GetFileStreamFactory()));
+        }
+
+        [Fact]
+        public void BatchNoBufferFactory()
+        {
+            // If:
+            // ... I create a batch that has no file stream factory
+            // Then:
+            // ... It should throw an exception
+            Assert.Throws<ArgumentNullException>(() => new Batch("stuff", 1, null));
         }
 
         #endregion
@@ -222,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Then:
             // ... It should throw an exception
             Assert.Throws<ArgumentNullException>(() =>
-                new Query(null, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings()));
+                new Query(null, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings(), Common.GetFileStreamFactory()));
         }
 
         [Fact]
@@ -232,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a query that has a null connection info
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new Query("Some Query", null, new QueryExecutionSettings()));
+            Assert.Throws<ArgumentNullException>(() => new Query("Some Query", null, new QueryExecutionSettings(), Common.GetFileStreamFactory()));
         }
 
         [Fact]
@@ -243,7 +251,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Then:
             // ... It should throw an exception
             Assert.Throws<ArgumentNullException>(() =>
-                new Query("Some query", Common.CreateTestConnectionInfo(null, false), null));
+                new Query("Some query", Common.CreateTestConnectionInfo(null, false), null, Common.GetFileStreamFactory()));
+        }
+
+        [Fact]
+        public void QueryExecuteNoBufferFactory()
+        {
+            // If:
+            // ... I create a query that has a null file stream factory
+            // Then:
+            // ... It should throw an exception
+            Assert.Throws<ArgumentNullException>(() =>
+                new Query("Some query", Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings(),null));
         }
 
         [Fact]
@@ -252,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I create a query from a single batch (without separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
-            Query query = new Query(Common.StandardQuery, ci, new QueryExecutionSettings());
+            Query query = new Query(Common.StandardQuery, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
 
             // Then:
             // ... I should get a single batch to execute that hasn't been executed
@@ -279,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I create a query from a single batch that does nothing
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
-            Query query = new Query(Common.NoOpQuery, ci, new QueryExecutionSettings());
+            Query query = new Query(Common.NoOpQuery, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
 
             // Then:
             // ... I should get no batches back
@@ -305,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a query from two batches (with separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
             string queryText = string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery);
-            Query query = new Query(queryText, ci, new QueryExecutionSettings());
+            Query query = new Query(queryText, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
 
             // Then:
             // ... I should get back two batches to execute that haven't been executed
@@ -333,7 +352,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a query from a two batches (with separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
             string queryText = string.Format("{0}\r\nGO\r\n{1}", Common.StandardQuery, Common.NoOpQuery);
-            Query query = new Query(queryText, ci, new QueryExecutionSettings());
+            Query query = new Query(queryText, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
 
             // Then:
             // ... I should get back one batch to execute that hasn't been executed
@@ -359,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I create a query from an invalid batch
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
-            Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings());
+            Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
 
             // Then:
             // ... I should get back a query with one batch not executed

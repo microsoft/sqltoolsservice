@@ -3,9 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Data.SqlClient;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -16,6 +18,7 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -71,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(StandardQuery, 1);
+            Batch batch = new Batch(StandardQuery, 1, GetFileStreamFactory());
             batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
             return batch;
         }
@@ -79,10 +82,77 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public static Query GetBasicExecutedQuery()
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
-            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings());
+            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory());
             query.Execute().Wait();
             return query;
         }
+
+        #region FileStreamWriteMocking 
+
+        public static IFileStreamFactory GetFileStreamFactory()
+        {
+            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
+                .Returns(new ServiceBufferFileStreamReader(new InMemoryWrapper(), It.IsAny<string>()));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new ServiceBufferFileStreamWriter(new InMemoryWrapper(), It.IsAny<string>(), 1024,
+                    1024));
+
+            return mock.Object;
+        }
+
+        public class InMemoryWrapper : IFileStreamWrapper
+        {
+            private readonly byte[] storage = new byte[8192];
+            private readonly MemoryStream memoryStream;
+            private bool readingOnly;
+
+            public InMemoryWrapper()
+            {
+                memoryStream = new MemoryStream(storage);
+            }
+
+            public void Dispose()
+            {
+                // We'll dispose this via a special method
+            }
+
+            public void Init(string fileName, int bufferSize, FileAccess fAccess)
+            {
+                readingOnly = fAccess == FileAccess.Read;
+            }
+
+            public int ReadData(byte[] buffer, int bytes)
+            {
+                return ReadData(buffer, bytes, memoryStream.Position);
+            }
+
+            public int ReadData(byte[] buffer, int bytes, long fileOffset)
+            {
+                memoryStream.Seek(fileOffset, SeekOrigin.Begin);
+                return memoryStream.Read(buffer, 0, bytes);
+            }
+
+            public int WriteData(byte[] buffer, int bytes)
+            {
+                if (readingOnly) { throw new InvalidOperationException(); }
+                memoryStream.Write(buffer, 0, bytes);
+                memoryStream.Flush();
+                return bytes;
+            }
+
+            public void Flush()
+            {
+                if (readingOnly) { throw new InvalidOperationException(); }
+            }
+
+            public void Close()
+            {
+                memoryStream.Dispose();
+            }
+        }
+
+        #endregion
 
         #region DbConnection Mocking
 
@@ -151,12 +221,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             out ConnectionInfo connInfo
         )
         {
-            textDocument = new TextDocumentPosition();
-            textDocument.TextDocument = new TextDocumentIdentifier();
-            textDocument.TextDocument.Uri = Common.OwnerUri;
-            textDocument.Position = new Position();
-            textDocument.Position.Line = 0;
-            textDocument.Position.Character = 0;
+            textDocument = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier {Uri = OwnerUri},
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = 0
+                }
+            };
 
             connInfo = Common.CreateTestConnectionInfo(null, false);
            
@@ -166,15 +239,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var binder = BinderProvider.CreateBinder(metadataProvider);
 
             LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,
-                new ScriptParseInfo()
+                new ScriptParseInfo
                 {
                     Binder = binder,
                     MetadataProvider = metadataProvider,
                     MetadataDisplayInfoProvider = displayInfoProvider
                 });
 
-            scriptFile = new ScriptFile();
-            scriptFile.ClientFilePath = textDocument.TextDocument.Uri;     
+            scriptFile = new ScriptFile {ClientFilePath = textDocument.TextDocument.Uri};
+
         }
 
         public static ServerConnection GetServerConnection(ConnectionInfo connection)
@@ -206,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     OwnerUri = OwnerUri
                 });
             }
-            return new QueryExecutionService(connectionService);
+            return new QueryExecutionService(connectionService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 
         #endregion
