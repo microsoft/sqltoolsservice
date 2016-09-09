@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Data.Common;
+using System.Data;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -15,6 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        DbConnection CreateSqlConnection(string connectionString);
+        IDbConnection CreateSqlConnection(string connectionString);
     }
 }

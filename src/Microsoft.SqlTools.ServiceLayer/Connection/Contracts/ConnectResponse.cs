@@ -19,5 +19,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets any connection error messages
         /// </summary>
         public string Messages { get; set; }
+
+        /// <summary>
+        /// Information about the connected server.
+        /// </summary>
+        public ServerInfo Server { get; set; }
     }
 }

@@ -4,7 +4,7 @@
 //
 
 using System;
-using System.Data.Common;
+using System.Data;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -48,6 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// The connection to the SQL database that commands will be run against.
         /// </summary>
-        public DbConnection SqlConnection { get; set; }
+        public IDbConnection SqlConnection { get; set; }
     }
 }

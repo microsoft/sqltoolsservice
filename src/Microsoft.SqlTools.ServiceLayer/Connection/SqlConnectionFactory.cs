@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Data.Common;
-using System.Data.SqlClient;
+using System.Data;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -18,9 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Creates a new SqlConnection object
         /// </summary>
-        public DbConnection CreateSqlConnection(string connectionString)
+        public IDbConnection CreateSqlConnection(string connectionString)
         {
-            return new SqlConnection(connectionString);
+            RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultDataConnectionRetryPolicy();
+            RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultDataSqlCommandRetryPolicy();
+            return new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy);
         }
     }
 }

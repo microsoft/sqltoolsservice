@@ -6,11 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -175,6 +175,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 activity(connectionInfo);
             }
 
+            // try to get information about the connected SQL Server instance
+            try
+            {
+                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connectionInfo.SqlConnection);
+                response.Server = new Contracts.ServerInfo()
+                {
+                    ServerMajorVersion = serverInfo.ServerMajorVersion,
+                    ServerMinorVersion = serverInfo.ServerMinorVersion,
+                    ServerReleaseVersion = serverInfo.ServerReleaseVersion,
+                    EngineEditionId = serverInfo.EngineEditionId,
+                    ServerVersion = serverInfo.ServerVersion,
+                    ServerLevel = serverInfo.ServerLevel,
+                    ServerEdition = serverInfo.ServerEdition,
+                    IsCloud = serverInfo.IsCloud,
+                    AzureVersion = serverInfo.AzureVersion,
+                    OsVersion = serverInfo.OsVersion
+                };
+            }
+            catch(Exception ex)
+            {
+                response.Messages = ex.ToString();
+            }
+
             // return the connection result
             response.ConnectionId = connectionInfo.ConnectionId.ToString();
             return response;
@@ -239,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
             connection.Open();
             
-            DbCommand command = connection.CreateCommand();
+            IDbCommand command = connection.CreateCommand();
             command.CommandText = "SELECT name FROM sys.databases";
             command.CommandTimeout = 15;
             command.CommandType = CommandType.Text;

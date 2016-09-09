@@ -4,13 +4,14 @@
 //
 
 using System;
-using System.Data.Common;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
@@ -151,11 +152,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Open up a connection for querying the database
             string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
-            using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
+            using (IDbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
             {
                 await conn.OpenAsync();
 
-                SqlConnection sqlConn = conn as SqlConnection;
+                SqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
