@@ -7,7 +7,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
     /// Represents a value returned from a read from a file stream. This is used to eliminate ref
-    /// parameters used in the read methods of the SSMS code this was based on.
+    /// parameters used in the read methods.
     /// </summary>
     /// <typeparam name="T">The type of the value that was read</typeparam>
     public struct FileStreamReadResult<T>

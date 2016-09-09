@@ -16,12 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// <summary>
     /// Reader for SSMS formatted file streams
     /// </summary>
-    /// <remarks>
-    /// Most of this code is based on code from the Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage
-    /// $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\FileStreamReader.cs
-    /// </remarks>
     public class ServiceBufferFileStreamReader : IFileStreamReader
     {
+        // Most of this code is based on code from the Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage
+        // $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\FileStreamReader.cs
+
         private const int DefaultBufferSize = 8192;
 
         #region Member Variables
@@ -38,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="fileWrapper">The filestream wrapper to read from</param>
         /// <param name="fileName">The name of the file to read from</param>
         public ServiceBufferFileStreamReader(IFileStreamWrapper fileWrapper, string fileName)
-        {
+        {            
             // Open file for reading/writing
             fileStream = fileWrapper;
             fileStream.Init(fileName, DefaultBufferSize, FileAccess.Read);

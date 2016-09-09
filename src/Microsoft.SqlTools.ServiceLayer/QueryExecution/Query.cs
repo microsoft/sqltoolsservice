@@ -21,14 +21,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
-        #region Constants
-
         /// <summary>
         /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
         /// </summary>
         private const int DatabaseContextChangeErrorNumber = 5701;
-
-        #endregion
 
         #region Member Variables
 
@@ -41,6 +37,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// For IDisposable implementation, whether or not this object has been disposed
         /// </summary>
         private bool disposed;
+
+        /// <summary>
+        /// The connection info associated with the file editor owner URI, used to create a new
+        /// connection upon execution of the query
+        /// </summary>
+        private readonly ConnectionInfo editorConnection;
+
+        /// <summary>
+        /// Whether or not the execute method has been called for this query
+        /// </summary>
+        private bool hasExecuteBeenCalled;
+
+        /// <summary>
+        /// The factory to use for outputting the results of this query
+        /// </summary>
+        private readonly IFileStreamFactory outputFileFactory;
 
         #endregion
 
@@ -73,9 +85,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             QueryText = queryText;
-            EditorConnection = connection;
+            editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
-            OutputFileFactory = outputFactory;
+            outputFileFactory = outputFactory;
 
             // Process the query into batches
             ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
@@ -84,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             });
             // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
             Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
-                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber, OutputFileFactory)).ToArray();
+                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber, outputFileFactory)).ToArray();
         }
 
         #region Properties
@@ -117,17 +129,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// The connection info associated with the file editor owner URI, used to create a new
-        /// connection upon execution of the query
-        /// </summary>
-        private ConnectionInfo EditorConnection { get; set; }
-
-        /// <summary>
-        /// Whether or not the execute method has been called for this query
-        /// </summary>
-        private bool HasExecuteBeenCalled { get; set; }
-
-        /// <summary>
         /// Whether or not the query has completed executed, regardless of success or failure
         /// </summary>
         /// <remarks>
@@ -135,21 +136,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </remarks>
         public bool HasExecuted
         {
-            get { return Batches.Length == 0 ? HasExecuteBeenCalled : Batches.All(b => b.HasExecuted); }
+            get { return Batches.Length == 0 ? hasExecuteBeenCalled : Batches.All(b => b.HasExecuted); }
             internal set
             {
-                HasExecuteBeenCalled = value;
+                hasExecuteBeenCalled = value;
                 foreach (var batch in Batches)
                 {
                     batch.HasExecuted = value;
                 }
             }
         }
-
-        /// <summary>
-        /// The factory to use for outputting the results of this query
-        /// </summary>
-        private IFileStreamFactory OutputFileFactory { get; set; }
 
         /// <summary>
         /// The text of the query to execute
@@ -181,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task Execute()
         {
             // Mark that we've internally executed
-            HasExecuteBeenCalled = true;
+            hasExecuteBeenCalled = true;
 
             // Don't actually execute if there aren't any batches to execute
             if (Batches.Length == 0)
@@ -190,9 +186,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Open up a connection for querying the database
-            string connectionString = ConnectionService.BuildConnectionString(EditorConnection.ConnectionDetails);
+            string connectionString = ConnectionService.BuildConnectionString(editorConnection.ConnectionDetails);
             // TODO: Don't create a new connection every time, see TFS #834978
-            using (DbConnection conn = EditorConnection.Factory.CreateSqlConnection(connectionString))
+            using (DbConnection conn = editorConnection.Factory.CreateSqlConnection(connectionString))
             {
                 await conn.OpenAsync();
 
@@ -219,14 +215,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private void OnInfoMessage(object sender, SqlInfoMessageEventArgs args)
         {
             SqlConnection conn = sender as SqlConnection;
-            // TODO: Make sure that sender is a SqlConnection before continuing
+            if (conn == null)
+            {
+                throw new InvalidOperationException("Sender for OnInfoMessage event must be a SqlConnection");
+            }
 
             foreach(SqlError error in args.Errors) 
             {
                 // Did the database context change (error code 5701)?
                 if (error.Number == DatabaseContextChangeErrorNumber)
                 {
-                    ConnectionService.Instance.ChangeConnectionDatabaseContext(EditorConnection.OwnerUri, conn.Database);
+                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
                 }
             }
         }

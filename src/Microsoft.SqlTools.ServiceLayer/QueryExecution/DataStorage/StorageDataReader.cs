@@ -21,13 +21,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// <summary>
     /// Wrapper around a DbData reader to perform some special operations more simply
     /// </summary>
-    /// <remarks>
-    /// This code is based on code from Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage, 
-    /// StorageDataReader
-    /// $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\StorageDataReader.cs
-    /// </remarks>
     public class StorageDataReader
     {
+        // This code is based on code from Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage,
+        // StorageDataReader
+        // $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\StorageDataReader.cs
+
         #region Member Variables
 
         /// <summary>

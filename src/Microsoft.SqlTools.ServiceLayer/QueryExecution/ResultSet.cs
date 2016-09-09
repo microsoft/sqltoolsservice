@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,11 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             DataReader = new StorageDataReader(reader);
 
             // Initialize the storage
-            outputFileName = Path.GetTempFileName();
-            if (outputFileName.Length == 0)
-            {
-                throw new FileNotFoundException("Failed to create a temporary file for buffering results");
-            }
+            outputFileName = factory.CreateFile();
             FileOffsets = new LongList<long>();
 
             // Store the factory
