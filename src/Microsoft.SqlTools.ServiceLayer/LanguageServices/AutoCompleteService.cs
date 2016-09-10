@@ -6,10 +6,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -28,6 +31,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public class AutoCompleteService
     {
+        Object syncLock = new Object();
+
+        private ManualResetEvent metadataBuildingEvent = new ManualResetEvent(false);
+
+        /// <summary>
+        /// Event which tells if MetadataProvider is built fully or not
+        /// </summary>
+        public ManualResetEvent BuildEvent
+        {
+            get { return this.metadataBuildingEvent; }
+        }
+
+        private bool ShouldEnableAutocomplete()
+        {
+            return true;
+        }
+
         #region Singleton Instance Implementation
 
         /// <summary>
@@ -52,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Internal constructor for use in test cases only
         /// </summary>
         internal AutoCompleteService()
-        { 
+        {
         }
 
         #endregion
@@ -136,27 +156,50 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             await Task.Run( () => 
             {
-                if (!LanguageService.Instance.ScriptParseInfoMap.ContainsKey(info.OwnerUri))
+                if (ShouldEnableAutocomplete())
                 {
-                    var sqlConn = info.SqlConnection as SqlConnection;
-                    if (sqlConn != null)
+                    lock (this.syncLock)
                     {
-                        var srvConn = new ServerConnection(sqlConn);
-                        var displayInfoProvider = new MetadataDisplayInfoProvider();
-                        var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
-                        var binder = BinderProvider.CreateBinder(metadataProvider);
+                        try
+                        {
+                            this.BuildEvent.Reset();
 
-                        LanguageService.Instance.ScriptParseInfoMap.Add(info.OwnerUri,
-                            new ScriptParseInfo()
+                            if (!LanguageService.Instance.ScriptParseInfoMap.ContainsKey(info.OwnerUri))
                             {
-                                Binder = binder,
-                                MetadataProvider = metadataProvider,
-                                MetadataDisplayInfoProvider = displayInfoProvider
-                            });
+                                var sqlConn = info.SqlConnection as SqlConnection;
+                                if (sqlConn != null)
+                                {
+                                    var srvConn = new ServerConnection(sqlConn);
+                                    this.ServerVersion =srvConn.ServerVersion;
+                                    this.DatabaseEngineType = srvConn.DatabaseEngineType;
 
-                        var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);
-                        
-                        LanguageService.Instance.ParseAndBind(scriptFile, info);
+                                    var displayInfoProvider = new MetadataDisplayInfoProvider();
+                                    var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
+                                    var binder = BinderProvider.CreateBinder(metadataProvider);
+
+                                    LanguageService.Instance.ScriptParseInfoMap.Add(info.OwnerUri,
+                                        new ScriptParseInfo()
+                                        {
+                                            Binder = binder,
+                                            MetadataProvider = metadataProvider,
+                                            MetadataDisplayInfoProvider = displayInfoProvider
+                                        });
+
+                                    var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);
+                                    
+                                    LanguageService.Instance.ParseAndBind(scriptFile, info);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
+                        finally
+                        {
+                            // Set Metadata Build event to Signal state.
+                            // (Tell Language Service thread that I am ready with Metadata Provider Object)
+                            this.BuildEvent.Set();
+                        }
                     }
                 }
             });
@@ -218,10 +261,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Determines whether a reparse and bind is required to provide autocomplete
         /// </summary>
         /// <param name="info"></param>
-        /// <returns>TEMP: Currently hard-coded to false for perf</returns>
-        private bool RequiresReparse(ScriptParseInfo info)
+        private bool RequiresReparse(ScriptParseInfo info, ScriptFile scriptFile)
         {
-            return false;
+            string prevSqlText = info.ParseResult.Script.Sql;
+            string currentSqlText = scriptFile.Contents;
+
+            return prevSqlText.Length != currentSqlText.Length
+                || !string.Equals(prevSqlText, currentSqlText);
         }
 
         /// <summary>
@@ -292,7 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // reparse and bind the SQL statement if needed
             var scriptParseInfo = LanguageService.Instance.ScriptParseInfoMap[textDocumentPosition.TextDocument.Uri];
-            if (RequiresReparse(scriptParseInfo))
+            if (RequiresReparse(scriptParseInfo, scriptFile))
             {       
                 LanguageService.Instance.ParseAndBind(scriptFile, connInfo);
             }
@@ -319,5 +365,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     textDocumentPosition.Position.Character),
                 textDocumentPosition.Position.Character);
         }
+
+
+
+
     }
 }

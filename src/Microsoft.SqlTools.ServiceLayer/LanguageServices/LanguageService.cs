@@ -21,6 +21,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
+using Microsoft.SqlServer.Management.SqlParser.Common;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -136,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // parse current SQL file contents to retrieve a list of errors
-            ParseOptions parseOptions = new ParseOptions();
+            ParseOptions parseOptions = CreateParseOptions();
             ParseResult parseResult = Parser.IncrementalParse(
                 scriptFile.Contents,
                 parseInfo != null ? parseInfo.ParseResult : null,
@@ -170,6 +172,97 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return parseResult;
+        }
+
+
+        public ParseOptions CreateParseOptions(
+            TransactSqlVersion sqlVersion = TransactSqlVersion.Current, 
+            DatabaseCompatibilityLevel compatLevel = DatabaseCompatibilityLevel.Current)
+        {
+            // TransactSqlVersion sqlVersion = TransactSqlVersion.Current;
+            // DatabaseCompatibilityLevel compatLevel = DatabaseCompatibilityLevel.Current;
+            // use TryEnter, since we don't want to block the UI thread or Parse thread.  If we can't get the lock, we just use the defaults above.
+            //if (Monitor.TryEnter(_lock))
+            {
+                try
+                {
+                    {
+                        if (this.ServerVersion != null)
+                        {
+                            sqlVersion = GetTransactSqlVersion(this.ServerVersion);
+                            compatLevel = GetDatabaseCompatibilityLevel(this.ServerVersion);
+                        }
+                    }
+                }
+                finally
+                {
+                    //Monitor.Exit(_lock);
+                }
+            }
+            return new ParseOptions("GO", true, compatLevel, sqlVersion);
+        }        
+
+        
+        private ServerConnection ServerConnection { get; set; }
+        private ServerVersion ServerVersion { get; set; }
+        private DatabaseEngineType DatabaseEngineType { get; set; }
+
+        public bool IsCloudConnection
+        {
+            get
+            {
+                return (this.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase);
+            }
+        }
+
+        private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(ServerVersion serverVersion)
+        {
+            Debug.Assert(serverVersion != null, "LangSvc Assert", "serverVersion != null");
+
+            int versionMajor = Math.Max(serverVersion.Major, 8);
+
+            switch (versionMajor)
+            {
+                case 8:
+                    return DatabaseCompatibilityLevel.Version80;
+                case 9:
+                    return DatabaseCompatibilityLevel.Version90;
+                case 10:
+                    return DatabaseCompatibilityLevel.Version100;
+                case 11:
+                    return DatabaseCompatibilityLevel.Version110;
+                case 12:
+                    return DatabaseCompatibilityLevel.Version120;
+                case 13:
+                    return DatabaseCompatibilityLevel.Version130;
+                default:
+                    return DatabaseCompatibilityLevel.Current;
+            }
+        }
+
+        private static TransactSqlVersion GetTransactSqlVersion(ServerVersion serverVersion)
+        {
+            Debug.Assert(serverVersion != null, "LangSvc Assert", "serverVersion != null");
+
+            //int versionMajor = Math.Max(serverVersion.Major, Source.MinServerVersionSupported);
+            int versionMajor = Math.Max(serverVersion.Major, 9);
+
+            switch (versionMajor)
+            {
+                case 9:
+                case 10:
+                    // In case of 10.0 we still use Version 10.5 as it is the closest available.
+                    return TransactSqlVersion.Version105;
+                case 11:
+                    return TransactSqlVersion.Version110;
+                case 12:
+                    return TransactSqlVersion.Version120;
+                case 13:
+                    return TransactSqlVersion.Version130;
+                default:
+                    Debug.Assert(versionMajor > 13, "LangSvc Assert", "versionMajor > 13");
+                    return TransactSqlVersion.Current;
+            }
         }
 
         /// <summary>
