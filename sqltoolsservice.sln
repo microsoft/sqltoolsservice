@@ -1,0 +1,43 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2BBD7364-054F-4693-97CD-1C395E3E84A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{32DC973E-9EEA-4694-B1C2-B031167AB945}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		global.json = global.json
+		nuget.config = nuget.config
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer", "src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.xproj", "{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.Test", "test\Microsoft.SqlTools.ServiceLayer.Test\Microsoft.SqlTools.ServiceLayer.Test.xproj", "{2D771D16-9D85-4053-9F79-E2034737DEEF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
+		{2D771D16-9D85-4053-9F79-E2034737DEEF} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+	EndGlobalSection
+EndGlobal

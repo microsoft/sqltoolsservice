@@ -13,6 +13,7 @@ project.lock.json
 *.user
 *.userosscache
 *.sln.docstates
+*.exe
 
 # Build results
 [Dd]ebug/
@@ -29,7 +30,13 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 
-
+# code coverage artifacts
+coverage.xml
+node_modules
+packages
+reports
+opencovertests.xml
+sqltools.xml
 
 # Cross building rootfs
 cross/rootfs/
