@@ -47,6 +47,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
+        /// Service host object for sending/receiving requests/events.
+        /// Internal for testing purposes.
+        /// </summary>
+        internal IProtocolEndpoint ServiceHost
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Default constructor is private since it's a singleton class
         /// </summary>
         private ConnectionService()
@@ -111,11 +121,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectResponse Connect(ConnectParams connectionParams)
         {
             // Validate parameters
-            if(connectionParams == null || !connectionParams.IsValid())
+            string paramValidationErrorMessage;
+            if (connectionParams == null)
             {
                 return new ConnectResponse()
                 {
-                    Messages = "Error: Invalid connection parameters provided."
+                    Messages = "Error: Connection parameters cannot be null."
+                };
+            }
+            else if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            {
+                return new ConnectResponse()
+                {
+                    Messages = paramValidationErrorMessage
                 };
             }
 
@@ -168,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool Disconnect(DisconnectParams disconnectParams)
         {
             // Validate parameters
-            if (disconnectParams == null || String.IsNullOrEmpty(disconnectParams.OwnerUri))
+            if (disconnectParams == null || string.IsNullOrEmpty(disconnectParams.OwnerUri))
             {
                 return false;
             }
@@ -203,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             // Verify parameters
             var owner = listDatabasesParams.OwnerUri;
-            if (String.IsNullOrEmpty(owner))
+            if (string.IsNullOrEmpty(owner))
             {
                 throw new ArgumentException("OwnerUri cannot be null or empty");
             }
@@ -243,6 +261,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
+            this.ServiceHost = serviceHost;
+
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
@@ -350,14 +370,164 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder();
             connectionBuilder["Data Source"] = connectionDetails.ServerName;
-            connectionBuilder["Integrated Security"] = false;
             connectionBuilder["User Id"] = connectionDetails.UserName;
             connectionBuilder["Password"] = connectionDetails.Password;
-            if( !String.IsNullOrEmpty(connectionDetails.DatabaseName) )
+
+            // Check for any optional parameters
+            if (!string.IsNullOrEmpty(connectionDetails.DatabaseName))
             {
                 connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
             }
+            if (!string.IsNullOrEmpty(connectionDetails.AuthenticationType))
+            {
+                switch(connectionDetails.AuthenticationType)
+                {
+                    case "Integrated":
+                        connectionBuilder.IntegratedSecurity = true;
+                        break;
+                    case "SqlLogin":
+                        break;
+                    default:
+                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for AuthenticationType. Valid values are \"Integrated\" and \"SqlLogin\".", connectionDetails.AuthenticationType));
+                }
+            }
+            if (connectionDetails.Encrypt.HasValue)
+            {
+                connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
+            }
+            if (connectionDetails.TrustServerCertificate.HasValue)
+            {
+                connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
+            }
+            if (connectionDetails.PersistSecurityInfo.HasValue)
+            {
+                connectionBuilder.PersistSecurityInfo = connectionDetails.PersistSecurityInfo.Value;
+            }
+            if (connectionDetails.ConnectTimeout.HasValue)
+            {
+                connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
+            }
+            if (connectionDetails.ConnectRetryCount.HasValue)
+            {
+                connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
+            }
+            if (connectionDetails.ConnectRetryInterval.HasValue)
+            {
+                connectionBuilder.ConnectRetryInterval = connectionDetails.ConnectRetryInterval.Value;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.ApplicationName))
+            {
+                connectionBuilder.ApplicationName = connectionDetails.ApplicationName;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.WorkstationId))
+            {
+                connectionBuilder.WorkstationID = connectionDetails.WorkstationId;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.ApplicationIntent))
+            {
+                ApplicationIntent intent;
+                switch (connectionDetails.ApplicationIntent)
+                {
+                    case "ReadOnly":
+                        intent = ApplicationIntent.ReadOnly;
+                        break;
+                    case "ReadWrite":
+                        intent = ApplicationIntent.ReadWrite;
+                        break;
+                    default:
+                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for ApplicationIntent. Valid values are \"ReadWrite\" and \"ReadOnly\".", connectionDetails.ApplicationIntent));
+                }
+                connectionBuilder.ApplicationIntent = intent;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.CurrentLanguage))
+            {
+                connectionBuilder.CurrentLanguage = connectionDetails.CurrentLanguage;
+            }
+            if (connectionDetails.Pooling.HasValue)
+            {
+                connectionBuilder.Pooling = connectionDetails.Pooling.Value;
+            }
+            if (connectionDetails.MaxPoolSize.HasValue)
+            {
+                connectionBuilder.MaxPoolSize = connectionDetails.MaxPoolSize.Value;
+            }
+            if (connectionDetails.MinPoolSize.HasValue)
+            {
+                connectionBuilder.MinPoolSize = connectionDetails.MinPoolSize.Value;
+            }
+            if (connectionDetails.LoadBalanceTimeout.HasValue)
+            {
+                connectionBuilder.LoadBalanceTimeout = connectionDetails.LoadBalanceTimeout.Value;
+            }
+            if (connectionDetails.Replication.HasValue)
+            {
+                connectionBuilder.Replication = connectionDetails.Replication.Value;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.AttachDbFilename))
+            {
+                connectionBuilder.AttachDBFilename = connectionDetails.AttachDbFilename;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.FailoverPartner))
+            {
+                connectionBuilder.FailoverPartner = connectionDetails.FailoverPartner;
+            }
+            if (connectionDetails.MultiSubnetFailover.HasValue)
+            {
+                connectionBuilder.MultiSubnetFailover = connectionDetails.MultiSubnetFailover.Value;
+            }
+            if (connectionDetails.MultipleActiveResultSets.HasValue)
+            {
+                connectionBuilder.MultipleActiveResultSets = connectionDetails.MultipleActiveResultSets.Value;
+            }
+            if (connectionDetails.PacketSize.HasValue)
+            {
+                connectionBuilder.PacketSize = connectionDetails.PacketSize.Value;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.TypeSystemVersion))
+            {
+                connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
+            }
+
             return connectionBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Change the database context of a connection.
+        /// </summary>
+        /// <param name="ownerUri">URI of the owner of the connection</param>
+        /// <param name="newDatabaseName">Name of the database to change the connection to</param>
+        public void ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName)
+        {
+            ConnectionInfo info;
+            if (TryFindConnection(ownerUri, out info))
+            {
+                try
+                {
+                    if (info.SqlConnection.State == ConnectionState.Open)
+                    {
+                        info.SqlConnection.ChangeDatabase(newDatabaseName);
+                    }
+                    info.ConnectionDetails.DatabaseName = newDatabaseName;
+
+                    // Fire a connection changed event
+                    ConnectionChangedParams parameters = new ConnectionChangedParams();
+                    ConnectionSummary summary = (ConnectionSummary)(info.ConnectionDetails);
+                    parameters.Connection = summary.Clone();
+                    parameters.OwnerUri = ownerUri;
+                    ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                }
+                catch (Exception e)
+                {
+                    Logger.Write(
+                        LogLevel.Error, 
+                        string.Format(
+                            "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}", 
+                            newDatabaseName, 
+                            ownerUri, 
+                            e.ToString())
+                    );
+                }
+            }
         }
     }
 }

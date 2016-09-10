@@ -20,7 +20,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 ServerName = details.ServerName,
                 DatabaseName = details.DatabaseName,
                 UserName = details.UserName,
-                Password = details.Password
+                Password = details.Password,
+                AuthenticationType = details.AuthenticationType,
+                Encrypt = details.Encrypt,
+                TrustServerCertificate = details.TrustServerCertificate,
+                PersistSecurityInfo = details.PersistSecurityInfo,
+                ConnectTimeout = details.ConnectTimeout,
+                ConnectRetryCount = details.ConnectRetryCount,
+                ConnectRetryInterval = details.ConnectRetryInterval,
+                ApplicationName = details.ApplicationName,
+                WorkstationId = details.WorkstationId,
+                ApplicationIntent = details.ApplicationIntent,
+                CurrentLanguage = details.CurrentLanguage,
+                Pooling = details.Pooling,
+                MaxPoolSize = details.MaxPoolSize,
+                MinPoolSize = details.MinPoolSize,
+                LoadBalanceTimeout = details.LoadBalanceTimeout,
+                Replication = details.Replication,
+                AttachDbFilename = details.AttachDbFilename,
+                FailoverPartner = details.FailoverPartner,
+                MultiSubnetFailover = details.MultiSubnetFailover,
+                MultipleActiveResultSets = details.MultipleActiveResultSets,
+                PacketSize = details.PacketSize,
+                TypeSystemVersion = details.TypeSystemVersion
             };
         }
     }

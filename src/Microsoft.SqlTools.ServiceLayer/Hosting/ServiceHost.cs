@@ -138,8 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         ReferencesProvider = true,
                         DocumentHighlightProvider = true,
                         DocumentSymbolProvider = true,
-                        WorkspaceSymbolProvider = true,
-                        HoverProvider = true,
+                        WorkspaceSymbolProvider = true,                        
                         CompletionProvider = new CompletionOptions
                         {
                             ResolveProvider = true,

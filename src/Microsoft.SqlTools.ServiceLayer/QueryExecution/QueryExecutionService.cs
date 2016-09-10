@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
@@ -25,6 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private static readonly Lazy<QueryExecutionService> instance = new Lazy<QueryExecutionService>(() => new QueryExecutionService());
 
+        /// <summary>
+        /// Singleton instance of the query execution service
+        /// </summary>
         public static QueryExecutionService Instance
         {
             get { return instance.Value; }
@@ -43,6 +47,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// File factory to be used to create a buffer file for results.
+        /// </summary>
+        /// <remarks>
+        /// Made internal here to allow for overriding in unit testing
+        /// </remarks>
+        internal IFileStreamFactory BufferFileStreamFactory;
+
+        /// <summary>
+        /// File factory to be used to create a buffer file for results
+        /// </summary>
+        private IFileStreamFactory BufferFileFactory
+        {
+            get { return BufferFileStreamFactory ?? (BufferFileStreamFactory = new ServiceBufferFileStreamFactory()); }
+        }
 
         /// <summary>
         /// The collection of active queries
@@ -136,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 var result = new QueryExecuteSubsetResult
                 {
                     Message = null,
-                    ResultSubset = query.GetSubset(subsetParams.BatchIndex,
+                    ResultSubset = await query.GetSubset(subsetParams.BatchIndex,
                         subsetParams.ResultSetIndex, subsetParams.RowsStartIndex, subsetParams.RowsCount)
                 };
                 await requestContext.SendResult(result);
@@ -257,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = selectedBatch.resultSets[saveParams.ResultSetIndex] ;
+                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
                     if ( saveParams.IncludeHeaders) 
                     {
                         // write column names to csv
@@ -267,6 +287,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // write rows to csv
                     foreach( var row in selectedResultSet.Rows)
                     {
+                        foreach ( var obj in row)
+                        { 
+                            Console.WriteLine(obj.ToString());
+                        }
                         await csvFile.WriteLineAsync(string.Join( ",", row.Select( field => SaveResults.EncodeCsvField(field.ToString()) ?? string.Empty)));
                     }
                 }
@@ -315,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
 
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings);
+                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendResult(new QueryExecuteResult

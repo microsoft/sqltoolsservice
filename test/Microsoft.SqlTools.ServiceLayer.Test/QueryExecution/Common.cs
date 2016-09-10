@@ -7,16 +7,21 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.IO;
+using System.Data.SqlClient;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.SmoMetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Moq.Protected;
 
@@ -35,6 +40,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public const int StandardRows = 5;
 
         public const int StandardColumns = 5;
+
+        public static string TestServer { get; set; }
+
+        public static string TestDatabase { get; set; }
+
+        static Common()
+        {
+            TestServer = "sqltools11";
+            TestDatabase = "master";
+        }
 
         public static Dictionary<string, string>[] StandardTestData
         {
@@ -59,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(StandardQuery, 1);
+            Batch batch = new Batch(StandardQuery, 1, GetFileStreamFactory());
             batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
             return batch;
         }
@@ -67,10 +82,77 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public static Query GetBasicExecutedQuery()
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
-            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings());
+            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory());
             query.Execute().Wait();
             return query;
         }
+
+        #region FileStreamWriteMocking 
+
+        public static IFileStreamFactory GetFileStreamFactory()
+        {
+            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
+                .Returns(new ServiceBufferFileStreamReader(new InMemoryWrapper(), It.IsAny<string>()));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new ServiceBufferFileStreamWriter(new InMemoryWrapper(), It.IsAny<string>(), 1024,
+                    1024));
+
+            return mock.Object;
+        }
+
+        public class InMemoryWrapper : IFileStreamWrapper
+        {
+            private readonly byte[] storage = new byte[8192];
+            private readonly MemoryStream memoryStream;
+            private bool readingOnly;
+
+            public InMemoryWrapper()
+            {
+                memoryStream = new MemoryStream(storage);
+            }
+
+            public void Dispose()
+            {
+                // We'll dispose this via a special method
+            }
+
+            public void Init(string fileName, int bufferSize, FileAccess fAccess)
+            {
+                readingOnly = fAccess == FileAccess.Read;
+            }
+
+            public int ReadData(byte[] buffer, int bytes)
+            {
+                return ReadData(buffer, bytes, memoryStream.Position);
+            }
+
+            public int ReadData(byte[] buffer, int bytes, long fileOffset)
+            {
+                memoryStream.Seek(fileOffset, SeekOrigin.Begin);
+                return memoryStream.Read(buffer, 0, bytes);
+            }
+
+            public int WriteData(byte[] buffer, int bytes)
+            {
+                if (readingOnly) { throw new InvalidOperationException(); }
+                memoryStream.Write(buffer, 0, bytes);
+                memoryStream.Flush();
+                return bytes;
+            }
+
+            public void Flush()
+            {
+                if (readingOnly) { throw new InvalidOperationException(); }
+            }
+
+            public void Close()
+            {
+                memoryStream.Dispose();
+            }
+        }
+
+        #endregion
 
         #region DbConnection Mocking
 
@@ -122,8 +204,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             {
                 UserName = "sa",
                 Password = "Yukon900",
-                DatabaseName = "AdventureWorks2016CTP3_2",
-                ServerName = "sqltools11"
+                DatabaseName = Common.TestDatabase,
+                ServerName = Common.TestServer
             };
 
             return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, connDetails);
@@ -132,7 +214,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         #endregion
 
         #region Service Mocking
+        
+        public static void GetAutoCompleteTestObjects(
+            out TextDocumentPosition textDocument,
+            out ScriptFile scriptFile,
+            out ConnectionInfo connInfo
+        )
+        {
+            textDocument = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier {Uri = OwnerUri},
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = 0
+                }
+            };
 
+            connInfo = Common.CreateTestConnectionInfo(null, false);
+           
+            var srvConn = GetServerConnection(connInfo);
+            var displayInfoProvider = new MetadataDisplayInfoProvider();
+            var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
+            var binder = BinderProvider.CreateBinder(metadataProvider);
+
+            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,
+                new ScriptParseInfo
+                {
+                    Binder = binder,
+                    MetadataProvider = metadataProvider,
+                    MetadataDisplayInfoProvider = displayInfoProvider
+                });
+
+            scriptFile = new ScriptFile {ClientFilePath = textDocument.TextDocument.Uri};
+
+        }
+
+        public static ServerConnection GetServerConnection(ConnectionInfo connection)
+        {
+            string connectionString = ConnectionService.BuildConnectionString(connection.ConnectionDetails);
+            var sqlConnection = new SqlConnection(connectionString);
+            return new ServerConnection(sqlConnection);
+        }
+        
         public static ConnectionDetails GetTestConnectionDetails()
         {
             return new ConnectionDetails
@@ -155,50 +279,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     OwnerUri = OwnerUri
                 });
             }
-            return new QueryExecutionService(connectionService);
+            return new QueryExecutionService(connectionService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 
         #endregion
-
-        #region Request Mocking
-
-        public static Mock<RequestContext<QueryExecuteResult>> GetQueryExecuteResultContextMock(
-            Action<QueryExecuteResult> resultCallback,
-            Action<EventType<QueryExecuteCompleteParams>, QueryExecuteCompleteParams> eventCallback,
-            Action<object> errorCallback)
-        {
-            var requestContext = new Mock<RequestContext<QueryExecuteResult>>();
-
-            // Setup the mock for SendResult
-            var sendResultFlow = requestContext
-                .Setup(rc => rc.SendResult(It.IsAny<QueryExecuteResult>()))
-                .Returns(Task.FromResult(0));
-            if (resultCallback != null)
-            {
-                sendResultFlow.Callback(resultCallback);
-            }
-
-            // Setup the mock for SendEvent
-            var sendEventFlow = requestContext.Setup(rc => rc.SendEvent(
-                It.Is<EventType<QueryExecuteCompleteParams>>(m => m == QueryExecuteCompleteEvent.Type),
-                It.IsAny<QueryExecuteCompleteParams>()))
-                .Returns(Task.FromResult(0));
-            if (eventCallback != null)
-            {
-                sendEventFlow.Callback(eventCallback);
-            }
-
-            // Setup the mock for SendError
-            var sendErrorFlow = requestContext.Setup(rc => rc.SendError(It.IsAny<object>()))
-                .Returns(Task.FromResult(0));
-            if (errorCallback != null)
-            {
-                sendErrorFlow.Callback(errorCallback);
-            }
-
-            return requestContext;
-        }
-
-        #endregion
+        
     }
 }
