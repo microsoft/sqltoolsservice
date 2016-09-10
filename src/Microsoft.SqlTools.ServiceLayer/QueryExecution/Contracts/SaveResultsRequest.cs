@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Include headers of columns in CSV
         /// </summary>
-        public Boolean IncludeHeaders { get; set; }
+        public bool IncludeHeaders { get; set; }
 
         /// <summary>
         /// Index of the batch to get the results from
