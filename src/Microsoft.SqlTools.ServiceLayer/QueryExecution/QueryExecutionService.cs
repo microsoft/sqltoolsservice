@@ -287,10 +287,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // write rows to csv
                     foreach( var row in selectedResultSet.Rows)
                     {
-                        foreach ( var obj in row)
-                        { 
-                            Console.WriteLine(obj.ToString());
-                        }
                         await csvFile.WriteLineAsync(string.Join( ",", row.Select( field => SaveResults.EncodeCsvField(field.ToString()) ?? string.Empty)));
                     }
                 }
