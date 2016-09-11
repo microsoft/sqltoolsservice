@@ -5,24 +5,29 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using System.Linq;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
-using Microsoft.SqlServer.Management.SqlParser.Common;
-using System.Diagnostics;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlServer.Management.SmoMetadataProvider;
+
+using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Microsoft.SqlServer.Management.SqlParser.Metadata;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -32,6 +37,44 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public sealed class LanguageService
     {
+        private const int DiagnosticParseDelay = 750;
+
+        private const int FindCompletionsTimeout = 5000;
+
+        private const int FindCompletionStartTimeout = 50;
+
+        private const int OnConnectionWaitTimeout = 30000;
+
+        public const string DefaultBatchSeperator = "GO";
+
+        Object syncLock = new Object();
+
+        private bool ShouldEnableAutocomplete()
+        {
+            return true;
+        }
+
+        private ConnectionService connectionService = null;
+
+        /// <summary>
+        /// Internal for testing purposes only
+        /// </summary>
+        internal ConnectionService ConnectionServiceInstance
+        {
+            get
+            {
+                if(connectionService == null)
+                {
+                    connectionService = ConnectionService.Instance;
+                }
+                return connectionService;
+            }
+
+            set
+            {
+                connectionService = value;
+            }
+        }
 
         #region Singleton Instance Implementation
 
@@ -102,6 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(DocumentSymbolRequest.Type, HandleDocumentSymbolRequest);
             serviceHost.SetRequestHandler(WorkspaceSymbolRequest.Type, HandleWorkspaceSymbolRequest);
+            serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -117,194 +161,46 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocChangeCallback(HandleDidChangeTextDocumentNotification);
 
             // Register the file open update handler
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification); 
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
+
+            // Register a callback for when a connection is created
+            ConnectionServiceInstance.RegisterOnConnectionTask(UpdateLanguageServiceOnConnection);
+
+            // Register a callback for when a connection is closed
+            ConnectionServiceInstance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
 
             // Store the SqlToolsContext for future use
             Context = context;
         }
 
-        /// <summary>
-        /// Parses the SQL text and binds it to the SMO metadata provider if connected 
+        #endregion
+
+        #region Request Handlers
+
+         /// <summary>
+        /// Auto-complete completion provider request callback
         /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="sqlText"></param>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="requestContext"></param>
         /// <returns></returns>
-        public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
+        private static async Task HandleCompletionRequest(
+            TextDocumentPosition textDocumentPosition,
+            RequestContext<CompletionItem[]> requestContext)
         {
-            ScriptParseInfo parseInfo = null;
-            if (this.ScriptParseInfoMap.ContainsKey(scriptFile.ClientFilePath))
-            {
-                parseInfo = this.ScriptParseInfoMap[scriptFile.ClientFilePath];   
-            }
+            // get the current list of completion items and return to client 
+            var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                textDocumentPosition.TextDocument.Uri);
 
-            // parse current SQL file contents to retrieve a list of errors
-            ParseOptions parseOptions = CreateParseOptions();
-            ParseResult parseResult = Parser.IncrementalParse(
-                scriptFile.Contents,
-                parseInfo != null ? parseInfo.ParseResult : null,
-                parseOptions);
-
-            // save previous result for next incremental parse
-            if (parseInfo != null)
-            {
-                parseInfo.ParseResult = parseResult;
-            }
-
-            if (connInfo != null)
-            {
-                try
-                {
-                    List<ParseResult> parseResults = new List<ParseResult>();
-                    parseResults.Add(parseResult);
-                    parseInfo.Binder.Bind(
-                        parseResults, 
-                        connInfo.ConnectionDetails.DatabaseName, 
-                        BindMode.Batch);
-                }
-                catch (ConnectionException)
-                {
-                    Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
-                }
-                catch (SqlParserInternalBinderError)
-                {
-                    Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
-                }
-            }
-
-            return parseResult;
-        }
-
-
-        public ParseOptions CreateParseOptions(
-            TransactSqlVersion sqlVersion = TransactSqlVersion.Current, 
-            DatabaseCompatibilityLevel compatLevel = DatabaseCompatibilityLevel.Current)
-        {
-            // TransactSqlVersion sqlVersion = TransactSqlVersion.Current;
-            // DatabaseCompatibilityLevel compatLevel = DatabaseCompatibilityLevel.Current;
-            // use TryEnter, since we don't want to block the UI thread or Parse thread.  If we can't get the lock, we just use the defaults above.
-            //if (Monitor.TryEnter(_lock))
-            {
-                try
-                {
-                    {
-                        if (this.ServerVersion != null)
-                        {
-                            sqlVersion = GetTransactSqlVersion(this.ServerVersion);
-                            compatLevel = GetDatabaseCompatibilityLevel(this.ServerVersion);
-                        }
-                    }
-                }
-                finally
-                {
-                    //Monitor.Exit(_lock);
-                }
-            }
-            return new ParseOptions("GO", true, compatLevel, sqlVersion);
-        }        
-
-        
-        private ServerConnection ServerConnection { get; set; }
-        private ServerVersion ServerVersion { get; set; }
-        private DatabaseEngineType DatabaseEngineType { get; set; }
-
-        public bool IsCloudConnection
-        {
-            get
-            {
-                return (this.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase);
-            }
-        }
-
-        private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(ServerVersion serverVersion)
-        {
-            Debug.Assert(serverVersion != null, "LangSvc Assert", "serverVersion != null");
-
-            int versionMajor = Math.Max(serverVersion.Major, 8);
-
-            switch (versionMajor)
-            {
-                case 8:
-                    return DatabaseCompatibilityLevel.Version80;
-                case 9:
-                    return DatabaseCompatibilityLevel.Version90;
-                case 10:
-                    return DatabaseCompatibilityLevel.Version100;
-                case 11:
-                    return DatabaseCompatibilityLevel.Version110;
-                case 12:
-                    return DatabaseCompatibilityLevel.Version120;
-                case 13:
-                    return DatabaseCompatibilityLevel.Version130;
-                default:
-                    return DatabaseCompatibilityLevel.Current;
-            }
-        }
-
-        private static TransactSqlVersion GetTransactSqlVersion(ServerVersion serverVersion)
-        {
-            Debug.Assert(serverVersion != null, "LangSvc Assert", "serverVersion != null");
-
-            //int versionMajor = Math.Max(serverVersion.Major, Source.MinServerVersionSupported);
-            int versionMajor = Math.Max(serverVersion.Major, 9);
-
-            switch (versionMajor)
-            {
-                case 9:
-                case 10:
-                    // In case of 10.0 we still use Version 10.5 as it is the closest available.
-                    return TransactSqlVersion.Version105;
-                case 11:
-                    return TransactSqlVersion.Version110;
-                case 12:
-                    return TransactSqlVersion.Version120;
-                case 13:
-                    return TransactSqlVersion.Version130;
-                default:
-                    Debug.Assert(versionMajor > 13, "LangSvc Assert", "versionMajor > 13");
-                    return TransactSqlVersion.Current;
-            }
-        }
-
-        /// <summary>
-        /// Gets a list of semantic diagnostic marks for the provided script file
-        /// </summary>
-        /// <param name="scriptFile"></param>
-        public ScriptFileMarker[] GetSemanticMarkers(ScriptFile scriptFile)
-        {
             ConnectionInfo connInfo;
             ConnectionService.Instance.TryFindConnection(
                 scriptFile.ClientFilePath, 
                 out connInfo);
-    
-            var parseResult = ParseAndBind(scriptFile, connInfo);
 
-            // build a list of SQL script file markers from the errors
-            List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
-            foreach (var error in parseResult.Errors)
-            {
-                markers.Add(new ScriptFileMarker()
-                {
-                    Message = error.Message,
-                    Level = ScriptFileMarkerLevel.Error,
-                    ScriptRegion = new ScriptRegion()
-                    {
-                        File = scriptFile.FilePath,
-                        StartLineNumber = error.Start.LineNumber,
-                        StartColumnNumber = error.Start.ColumnNumber,
-                        StartOffset = 0,
-                        EndLineNumber = error.End.LineNumber,
-                        EndColumnNumber = error.End.ColumnNumber,
-                        EndOffset = 0
-                    }
-                });
-            }
+            var completionItems = Instance.GetCompletionItems(
+                textDocumentPosition, scriptFile, connInfo);
 
-            return markers.ToArray();
+            await requestContext.SendResult(completionItems); 
         }
-
-        #endregion
-
-        #region Request Handlers
 
         private static async Task HandleDefinitionRequest(
             TextDocumentPosition textDocumentPosition,
@@ -429,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     foreach (var scriptFile in WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetOpenedFiles())
                     {
-                        await PublishScriptDiagnostics(scriptFile, emptyAnalysisDiagnostics, eventContext);
+                        await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, emptyAnalysisDiagnostics, eventContext);
                     }
                 }
                 else
@@ -445,7 +341,272 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         
         #endregion
 
-        #region Private Helpers
+
+        #region "AutoComplete Provider methods"
+
+        /// <summary>
+        /// Remove a reference to an autocomplete cache from a URI. If
+        /// it is the last URI connected to a particular connection,
+        /// then remove the cache.
+        /// </summary>
+        public async Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary)
+        {
+            // currently this method is disabled, but we need to reimplement now that the 
+            // implementation of the 'cache' has changed.
+            await Task.FromResult(0);
+        }
+
+        /// <summary>
+        /// Parses the SQL text and binds it to the SMO metadata provider if connected 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="sqlText"></param>
+        /// <returns></returns>
+        public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
+        {
+            ScriptParseInfo parseInfo = null;
+            if (this.ScriptParseInfoMap.ContainsKey(scriptFile.ClientFilePath))
+            {
+                parseInfo = this.ScriptParseInfoMap[scriptFile.ClientFilePath];   
+            }
+            else
+            {
+                parseInfo = new ScriptParseInfo();
+                this.ScriptParseInfoMap.Add(scriptFile.ClientFilePath, parseInfo);
+            }
+
+            if (parseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionsTimeout))
+            {
+                try
+                {
+                    parseInfo.BuildingMetadataEvent.Reset();
+
+                    // parse current SQL file contents to retrieve a list of errors
+                    ParseResult parseResult = Parser.IncrementalParse(
+                        scriptFile.Contents,
+                        parseInfo.ParseResult,
+                        parseInfo.ParseOptions);
+
+                    parseInfo.ParseResult = parseResult;
+
+                    if (connInfo != null)
+                    {
+                        try
+                        {
+                            List<ParseResult> parseResults = new List<ParseResult>();
+                            parseResults.Add(parseResult);
+                            parseInfo.Binder.Bind(
+                                parseResults, 
+                                connInfo.ConnectionDetails.DatabaseName, 
+                                BindMode.Batch);
+                        }
+                        catch (ConnectionException)
+                        {
+                            Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
+                        }
+                        catch (SqlParserInternalBinderError)
+                        {
+                            Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
+                        }
+                    }
+                }
+                finally
+                {
+                    parseInfo.BuildingMetadataEvent.Set();
+                }
+            }
+    
+            return parseInfo.ParseResult;
+        }
+
+        /// <summary>
+        /// Update the cached autocomplete candidate list when the user connects to a database
+        /// </summary>
+        /// <param name="info"></param>
+        public async Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
+        {
+            await Task.Run( () => 
+            {
+                if (ShouldEnableAutocomplete())
+                {
+                    lock (this.syncLock)
+                    {
+                        ScriptParseInfo scriptInfo = 
+                                this.ScriptParseInfoMap.ContainsKey(info.OwnerUri)
+                                    ? this.ScriptParseInfoMap[info.OwnerUri]
+                                    : new ScriptParseInfo();
+
+                        try
+                        {
+                            scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout);
+                            scriptInfo.BuildingMetadataEvent.Reset();
+
+                            var sqlConn = info.SqlConnection as SqlConnection;
+                            if (sqlConn != null)
+                            {
+                                ServerConnection serverConn = new ServerConnection(sqlConn);
+                                scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                                scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
+                                scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
+                                scriptInfo.ServerConnection = new ServerConnection(sqlConn);
+                                this.ScriptParseInfoMap[info.OwnerUri] = scriptInfo;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            scriptInfo.IsConnected = false;
+                        }
+                        finally
+                        {
+                            // Set Metadata Build event to Signal state.
+                            // (Tell Language Service that I am ready with Metadata Provider Object)
+                            scriptInfo.BuildingMetadataEvent.Set();
+                        }
+
+                        if (scriptInfo.IsConnected)
+                        {
+                            var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);                                
+                            ParseAndBind(scriptFile, info);
+                        }
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// Determines whether a reparse and bind is required to provide autocomplete
+        /// </summary>
+        /// <param name="info"></param>
+        private bool RequiresReparse(ScriptParseInfo info, ScriptFile scriptFile)
+        {
+            if (info.ParseResult == null)
+            {
+                return true;
+            }
+
+            string prevSqlText = info.ParseResult.Script.Sql;
+            string currentSqlText = scriptFile.Contents;
+
+            return prevSqlText.Length != currentSqlText.Length
+                || !string.Equals(prevSqlText, currentSqlText);
+        }
+
+        /// <summary>
+        /// Return the completion item list for the current text position.
+        /// This method does not await cache builds since it expects to return quickly
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        public CompletionItem[] GetCompletionItems(
+            TextDocumentPosition textDocumentPosition,
+            ScriptFile scriptFile, 
+            ConnectionInfo connInfo)
+        {
+            string filePath = textDocumentPosition.TextDocument.Uri;
+            int startLine = textDocumentPosition.Position.Line;
+            int startColumn = TextUtilities.PositionOfPrevDelimeter(
+                                scriptFile.Contents, 
+                                textDocumentPosition.Position.Line,
+                                textDocumentPosition.Position.Character);
+            int endColumn = textDocumentPosition.Position.Character;
+
+            // Take a reference to the list at a point in time in case we update and replace the list
+            if (connInfo == null 
+                || !LanguageService.Instance.ScriptParseInfoMap.ContainsKey(textDocumentPosition.TextDocument.Uri))
+            {
+                return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn);
+            }
+
+            // reparse and bind the SQL statement if needed
+            var scriptParseInfo = ScriptParseInfoMap[textDocumentPosition.TextDocument.Uri];
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {       
+                ParseAndBind(scriptFile, connInfo);
+            }
+
+            if (scriptParseInfo.ParseResult == null)
+            {
+                return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn);
+            }
+
+            if (scriptParseInfo.IsConnected 
+                && scriptParseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionStartTimeout))
+            {
+                scriptParseInfo.BuildingMetadataEvent.Reset();
+                Task<CompletionItem[]> findCompletionsTask = Task.Run(() => {
+                    try
+                    {
+                        // get the completion list from SQL Parser
+                        var suggestions = Resolver.FindCompletions(
+                            scriptParseInfo.ParseResult, 
+                            textDocumentPosition.Position.Line + 1, 
+                            textDocumentPosition.Position.Character + 1, 
+                            scriptParseInfo.MetadataDisplayInfoProvider); 
+
+                        // convert the suggestion list to the VS Code format
+                        return AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
+                            suggestions, 
+                            startLine, 
+                            startColumn, 
+                            endColumn);
+                    }
+                    finally
+                    {
+                        scriptParseInfo.BuildingMetadataEvent.Set();
+                    }
+                });
+
+                findCompletionsTask.Wait(LanguageService.FindCompletionsTimeout);
+                if (findCompletionsTask.IsCompleted 
+                    && findCompletionsTask.Result != null
+                    && findCompletionsTask.Result.Length > 0)
+                {
+                    return findCompletionsTask.Result;
+                }
+            }
+            
+            return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn);
+        }
+
+        #endregion
+
+        #region Diagnostic Provider methods
+
+        /// <summary>
+        /// Gets a list of semantic diagnostic marks for the provided script file
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        internal ScriptFileMarker[] GetSemanticMarkers(ScriptFile scriptFile)
+        {
+            ConnectionInfo connInfo;
+            ConnectionService.Instance.TryFindConnection(
+                scriptFile.ClientFilePath, 
+                out connInfo);
+    
+            var parseResult = ParseAndBind(scriptFile, connInfo);
+
+            // build a list of SQL script file markers from the errors
+            List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
+            foreach (var error in parseResult.Errors)
+            {
+                markers.Add(new ScriptFileMarker()
+                {
+                    Message = error.Message,
+                    Level = ScriptFileMarkerLevel.Error,
+                    ScriptRegion = new ScriptRegion()
+                    {
+                        File = scriptFile.FilePath,
+                        StartLineNumber = error.Start.LineNumber,
+                        StartColumnNumber = error.Start.ColumnNumber,
+                        StartOffset = 0,
+                        EndLineNumber = error.End.LineNumber,
+                        EndColumnNumber = error.End.ColumnNumber,
+                        EndOffset = 0
+                    }
+                });
+            }
+
+            return markers.ToArray();
+        }
 
         /// <summary>
         /// Runs script diagnostics on changed files
@@ -494,7 +655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Task.Factory.StartNew(
                 () =>
                     DelayThenInvokeDiagnostics(
-                        750,
+                        LanguageService.DiagnosticParseDelay,
                         filesToAnalyze,
                         eventContext,
                         ExistingRequestCancellation.Token),
@@ -544,88 +705,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ScriptFileMarker[] semanticMarkers = GetSemanticMarkers(scriptFile);
                 Logger.Write(LogLevel.Verbose, "Analysis complete.");
 
-                await PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
+                await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
             }
         }
 
-        /// <summary>
-        /// Send the diagnostic results back to the host application
-        /// </summary>
-        /// <param name="scriptFile"></param>
-        /// <param name="semanticMarkers"></param>
-        /// <param name="eventContext"></param>
-        private static async Task PublishScriptDiagnostics(
-            ScriptFile scriptFile,
-            ScriptFileMarker[] semanticMarkers,
-            EventContext eventContext)
-        {
-            var allMarkers = scriptFile.SyntaxMarkers != null
-                    ? scriptFile.SyntaxMarkers.Concat(semanticMarkers)
-                    : semanticMarkers;
+        #endregion
+    }
 
-            // Always send syntax and semantic errors.  We want to 
-            // make sure no out-of-date markers are being displayed.
-            await eventContext.SendEvent(
-                PublishDiagnosticsNotification.Type,
-                new PublishDiagnosticsNotification
-                {
-                    Uri = scriptFile.ClientFilePath,
-                    Diagnostics =
-                       allMarkers
-                            .Select(GetDiagnosticFromMarker)
-                            .ToArray()
-                });
+    /// <summary>
+    /// A place holder no-op binder that is temporarely used if we failed to 
+    /// create a real binder.
+    /// </summary>
+    public class NoOpBinder : IBinder
+    {
+        public static readonly IBinder Instance = new NoOpBinder();
+
+        private NoOpBinder()
+        {
+            // only one instance
         }
 
-        /// <summary>
-        /// Convert a ScriptFileMarker to a Diagnostic that is Language Service compatible
-        /// </summary>
-        /// <param name="scriptFileMarker"></param>
-        /// <returns></returns>
-        private static Diagnostic GetDiagnosticFromMarker(ScriptFileMarker scriptFileMarker)
+        #region IBinder Members
+        public IServer Bind(IEnumerable<ParseResult> parseResults, string contextDatabaseName, BindMode bindMode)
         {
-            return new Diagnostic
-            {
-                Severity = MapDiagnosticSeverity(scriptFileMarker.Level),
-                Message = scriptFileMarker.Message,
-                Range = new Range
-                {
-                    Start = new Position
-                    {
-                        Line = scriptFileMarker.ScriptRegion.StartLineNumber - 1,
-                        Character = scriptFileMarker.ScriptRegion.StartColumnNumber - 1
-                    },
-                    End = new Position
-                    {
-                        Line = scriptFileMarker.ScriptRegion.EndLineNumber - 1,
-                        Character = scriptFileMarker.ScriptRegion.EndColumnNumber - 1
-                    }
-                }
-            };
+            // no-op
+            return null;
         }
-
-        /// <summary>
-        /// Map ScriptFileMarker severity to Diagnostic severity
-        /// </summary>
-        /// <param name="markerLevel"></param>        
-        private static DiagnosticSeverity MapDiagnosticSeverity(ScriptFileMarkerLevel markerLevel)
-        {
-            switch (markerLevel)
-            {
-                case ScriptFileMarkerLevel.Error:
-                    return DiagnosticSeverity.Error;
-
-                case ScriptFileMarkerLevel.Warning:
-                    return DiagnosticSeverity.Warning;
-
-                case ScriptFileMarkerLevel.Information:
-                    return DiagnosticSeverity.Information;
-
-                default:
-                    return DiagnosticSeverity.Error;
-            }
-        }
-
         #endregion
     }
 }
