@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -55,7 +56,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // Request to save the results as csv with incorrect filepath
             var saveParams = new SaveResultsRequestParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
-            saveParams.FilePath = "G:\\test.csv";
+            if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows))
+            {
+                saveParams.FilePath = "G:\\test.csv";
+            }
+            else 
+            {
+                saveParams.FilePath = "/test.csv";
+            }
             // SaveResultRequestResult result = null;
             String errMessage = null;
             var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (String) err);
