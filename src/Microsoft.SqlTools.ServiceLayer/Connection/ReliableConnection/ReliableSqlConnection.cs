@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
@@ -33,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
     /// Provides a reliable way of opening connections to and executing commands
     /// taking into account potential network unreliability and a requirement for connection retry.
     /// </summary>
-    internal sealed partial class ReliableSqlConnection : IDbConnection, IDisposable
+    internal sealed partial class ReliableSqlConnection : DbConnection, IDisposable
     {
         private const string QueryAzureSessionId = "SELECT CONVERT(NVARCHAR(36), CONTEXT_INFO())";
 
@@ -65,18 +66,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Performs application-defined tasks associated with freeing, releasing, or
         ///  resetting managed and unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or
-        ///  resetting managed and unmanaged resources.
-        /// </summary>
         /// <param name="disposing">A flag indicating that managed resources must be released.</param>
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
@@ -149,7 +140,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// <summary>
         /// Gets or sets the connection string for opening a connection to the SQL Azure database.
         /// </summary>
-        public string ConnectionString
+        public override string ConnectionString
         {
             get { return _underlyingConnection.ConnectionString; }
             set { _underlyingConnection.ConnectionString = value; }
@@ -188,7 +179,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// <summary>
         /// Gets the server name from the underlying connection.
         /// </summary>
-        public string DataSource
+        public override string DataSource
         {
             get { return _underlyingConnection.DataSource; }
         }
@@ -196,7 +187,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// <summary>
         /// Gets the server version from the underlying connection.
         /// </summary>
-        public string ServerVersion
+        public override string ServerVersion
         {
             get { return _underlyingConnection.ServerVersion; }
         }
@@ -217,25 +208,16 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// </summary>
         /// <param name="level">One of the System.Data.IsolationLevel values.</param>
         /// <returns>An object representing the new transaction.</returns>
-        public IDbTransaction BeginTransaction(IsolationLevel level)
+        protected override DbTransaction BeginDbTransaction(IsolationLevel level)
         {
             return _underlyingConnection.BeginTransaction(level);
-        }
-
-        /// <summary>
-        /// Begins a database transaction.
-        /// </summary>
-        /// <returns>An object representing the new transaction.</returns>
-        public IDbTransaction BeginTransaction()
-        {
-            return _underlyingConnection.BeginTransaction();
         }
 
         /// <summary>
         /// Changes the current database for an open Connection object.
         /// </summary>
         /// <param name="databaseName">The name of the database to use in place of the current database.</param>
-        public void ChangeDatabase(string databaseName)
+        public override void ChangeDatabase(string databaseName)
         {
             _underlyingConnection.ChangeDatabase(databaseName);
         }
@@ -244,7 +226,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// Opens a database connection with the settings specified by the ConnectionString
         /// property of the provider-specific Connection object.
         /// </summary>
-        public void Open()
+        public override void Open()
         {
             OpenConnection();
         }
@@ -252,7 +234,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// <summary>
         /// Closes the connection to the database.
         /// </summary>
-        public void Close()
+        public override void Close()
         {
             _underlyingConnection.Close();
         }
@@ -261,7 +243,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// Gets the time to wait while trying to establish a connection before terminating
         /// the attempt and generating an error.
         /// </summary>
-        public int ConnectionTimeout
+        public override int ConnectionTimeout
         {
             get { return _underlyingConnection.ConnectionTimeout; }
         }
@@ -271,7 +253,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// with the underlying SqlConnection.
         /// </summary>
         /// <returns>A <see cref="IDbCommand"/> object.</returns>
-        public IDbCommand CreateCommand()
+        protected override DbCommand CreateDbCommand()
         {
             return CreateReliableCommand();
         }
@@ -290,7 +272,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// Gets the name of the current database or the database to be used after a
         /// connection is opened.
         /// </summary>
-        public string Database
+        public override string Database
         {
             get { return _underlyingConnection.Database; }
         }
@@ -298,7 +280,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// <summary>
         /// Gets the current state of the connection.
         /// </summary>
-        public ConnectionState State
+        public override ConnectionState State
         {
             get { return _underlyingConnection.State; }
         }

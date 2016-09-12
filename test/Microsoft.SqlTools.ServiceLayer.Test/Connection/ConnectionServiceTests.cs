@@ -218,7 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             
             // check that the connection was successful
             Assert.NotEmpty(connectionResult.ConnectionId);
-            Assert.Null(connectionResult.Messages);
         }
 
         /// <summary>

@@ -20,6 +20,7 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Diagnostics.Contracts;
 
@@ -31,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
     /// </summary>
     internal sealed partial class ReliableSqlConnection
     {
-        internal class ReliableSqlCommand : IDbCommand
+        internal class ReliableSqlCommand : DbCommand
         {
             private const int Dummy = 0;
             private readonly SqlCommand _command;
@@ -63,16 +64,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 }
             }
 
-            public void Dispose()
+            protected override void Dispose(bool disposing)
             {
-                _command.Dispose();
+                if (disposing)
+                {
+                    _command.Dispose();
+                }
             }
 
             /// <summary>
             /// Gets or sets the text command to run against the data source.
             /// </summary>
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
-            public string CommandText
+            public override string CommandText
             {
                 get { return _command.CommandText; }
                 set { _command.CommandText = value; }
@@ -81,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// <summary>
             /// Gets or sets the wait time before terminating the attempt to execute a command and generating an error.
             /// </summary>
-            public int CommandTimeout
+            public override int CommandTimeout
             {
                 get { return _command.CommandTimeout; }
                 set { _command.CommandTimeout = value; }
@@ -90,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// <summary>
             /// Gets or sets a value that specifies how the <see cref="System.Data.Common.DbCommand.CommandText"/> property is interpreted.
             /// </summary>
-            public CommandType CommandType
+            public override CommandType CommandType
             {
                 get { return _command.CommandType; }
                 set { _command.CommandType = value; }
@@ -99,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// <summary>
             /// Gets or sets the <see cref="System.Data.Common.DbConnection"/> used by this <see cref="System.Data.Common.DbCommand"/>.
             /// </summary>
-            public IDbConnection Connection
+            protected override DbConnection DbConnection
             {
                 get
                 {
@@ -128,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// <summary>
             /// Gets the <see cref="System.Data.IDataParameterCollection"/>.
             /// </summary>
-            public IDataParameterCollection Parameters
+            protected override DbParameterCollection DbParameterCollection
             {
                 get { return _command.Parameters; }
             }
@@ -136,10 +140,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// <summary>
             /// Gets or sets the transaction within which the Command object of a .NET Framework data provider executes.
             /// </summary>
-            public IDbTransaction Transaction
+            protected override DbTransaction DbTransaction
             {
                 get { return _command.Transaction; }
                 set { _command.Transaction = value as SqlTransaction; }
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether the command object should be visible in a customized interface control.
+            /// </summary>
+            public override bool DesignTimeVisible
+            {
+                get { return _command.DesignTimeVisible; }
+                set { _command.DesignTimeVisible = value; }
             }
 
             /// <summary>
@@ -147,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// used by the System.Data.IDataAdapter.Update(System.Data.DataSet) method of
             /// a <see cref="System.Data.Common.DbDataAdapter"/>.
             /// </summary>
-            public UpdateRowSource UpdatedRowSource
+            public override UpdateRowSource UpdatedRowSource
             {
                 get { return _command.UpdatedRowSource; }
                 set { _command.UpdatedRowSource = value; }
@@ -156,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// <summary>
             /// Attempts to cancels the execution of an <see cref="System.Data.IDbCommand"/>.
             /// </summary>
-            public void Cancel()
+            public override void Cancel()
             {
                 _command.Cancel();
             }
@@ -165,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// Creates a new instance of an <see cref="System.Data.IDbDataParameter"/> object.
             /// </summary>
             /// <returns>An <see cref="IDbDataParameter"/> object.</returns>
-            public IDbDataParameter CreateParameter()
+            protected override DbParameter CreateDbParameter()
             {
                 return _command.CreateParameter();
             }
@@ -175,21 +188,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// data provider, and returns the number of rows affected.
             /// </summary>
             /// <returns>The number of rows affected.</returns>
-            public int ExecuteNonQuery()
+            public override int ExecuteNonQuery()
             {
                 ValidateConnectionIsSet();
                 return _connection.ExecuteNonQuery(_command);
-            }
-
-            /// <summary>
-            /// Executes the <see cref="System.Data.IDbCommand.CommandText"/> against the <see cref="System.Data.IDbCommand.Connection"/>
-            /// and builds an <see cref="System.Data.IDataReader"/>.
-            /// </summary>
-            /// <returns>An <see cref="System.Data.IDataReader"/> object.</returns>
-            public IDataReader ExecuteReader()
-            {
-                ValidateConnectionIsSet();
-                return _connection.ExecuteReader(_command, CommandBehavior.Default);
             }
 
             /// <summary>
@@ -198,10 +200,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// </summary>
             /// <param name="behavior">One of the <see cref="System.Data.CommandBehavior"/> values.</param>
             /// <returns>An <see cref="System.Data.IDataReader"/> object.</returns>
-            public IDataReader ExecuteReader(CommandBehavior behavior)
+            protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
             {
                 ValidateConnectionIsSet();
-                return _connection.ExecuteReader(_command, behavior);
+                return (DbDataReader)_connection.ExecuteReader(_command, behavior);
             }
 
             /// <summary>
@@ -209,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// resultset returned by the query. Extra columns or rows are ignored.
             /// </summary>
             /// <returns>The first column of the first row in the resultset.</returns>
-            public object ExecuteScalar()
+            public override object ExecuteScalar()
             {
                 ValidateConnectionIsSet();
                 return _connection.ExecuteScalar(_command);
@@ -218,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             /// <summary>
             /// Creates a prepared (or compiled) version of the command on the data source.
             /// </summary>
-            public void Prepare()
+            public override void Prepare()
             {
                 _command.Prepare();
             }

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -193,11 +193,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await conn.OpenAsync();
 
-                SqlConnection sqlConn = conn as ReliableSqlConnection;
+                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
-                    sqlConn.InfoMessage += OnInfoMessage;
+                    sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
                 }
 
                 // We need these to execute synchronously, otherwise the user will be very unhappy

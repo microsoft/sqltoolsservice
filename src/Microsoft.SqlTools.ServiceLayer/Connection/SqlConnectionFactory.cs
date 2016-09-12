@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Data;
+using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Creates a new SqlConnection object
         /// </summary>
-        public IDbConnection CreateSqlConnection(string connectionString)
+        public DbConnection CreateSqlConnection(string connectionString)
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultDataConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultDataSqlCommandRetryPolicy();
