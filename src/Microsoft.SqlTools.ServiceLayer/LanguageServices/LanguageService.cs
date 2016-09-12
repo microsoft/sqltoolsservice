@@ -37,17 +37,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public sealed class LanguageService
     {
+        public const string DefaultBatchSeperator = "GO";
+
         private const int DiagnosticParseDelay = 750;
 
-        private const int FindCompletionsTimeout = 5000;
+        private const int FindCompletionsTimeout = 3000;
 
         private const int FindCompletionStartTimeout = 50;
 
         private const int OnConnectionWaitTimeout = 30000;
-
-        public const string DefaultBatchSeperator = "GO";
-
-        Object syncLock = new Object();
 
         private bool ShouldEnableAutocomplete()
         {
@@ -143,8 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
             serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
-            serviceHost.SetRequestHandler(DocumentSymbolRequest.Type, HandleDocumentSymbolRequest);
-            serviceHost.SetRequestHandler(WorkspaceSymbolRequest.Type, HandleWorkspaceSymbolRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
 
             // Register a no-op shutdown task for validation of the shutdown logic
@@ -247,22 +243,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             RequestContext<Hover> requestContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleHoverRequest");
-            await Task.FromResult(true);
-        }
-
-        private static async Task HandleDocumentSymbolRequest(
-            DocumentSymbolParams documentSymbolParams,
-            RequestContext<SymbolInformation[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleDocumentSymbolRequest");
-            await Task.FromResult(true);
-        }
-
-        private static async Task HandleWorkspaceSymbolRequest(
-            WorkspaceSymbolParams workspaceSymbolParams,
-            RequestContext<SymbolInformation[]> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleWorkspaceSymbolRequest");
             await Task.FromResult(true);
         }
 
@@ -389,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     parseInfo.ParseResult = parseResult;
 
-                    if (connInfo != null)
+                    if (connInfo != null && parseInfo.IsConnected)
                     {
                         try
                         {
@@ -429,45 +409,42 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (ShouldEnableAutocomplete())
                 {
-                    lock (this.syncLock)
+                    ScriptParseInfo scriptInfo = 
+                            this.ScriptParseInfoMap.ContainsKey(info.OwnerUri)
+                                ? this.ScriptParseInfoMap[info.OwnerUri]
+                                : new ScriptParseInfo();
+
+                    try
                     {
-                        ScriptParseInfo scriptInfo = 
-                                this.ScriptParseInfoMap.ContainsKey(info.OwnerUri)
-                                    ? this.ScriptParseInfoMap[info.OwnerUri]
-                                    : new ScriptParseInfo();
+                        scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout);
+                        scriptInfo.BuildingMetadataEvent.Reset();
 
-                        try
+                        var sqlConn = info.SqlConnection as SqlConnection;
+                        if (sqlConn != null)
                         {
-                            scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout);
-                            scriptInfo.BuildingMetadataEvent.Reset();
+                            ServerConnection serverConn = new ServerConnection(sqlConn);
+                            scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                            scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
+                            scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
+                            scriptInfo.ServerConnection = new ServerConnection(sqlConn);
+                            this.ScriptParseInfoMap[info.OwnerUri] = scriptInfo;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        scriptInfo.IsConnected = false;
+                    }
+                    finally
+                    {
+                        // Set Metadata Build event to Signal state.
+                        // (Tell Language Service that I am ready with Metadata Provider Object)
+                        scriptInfo.BuildingMetadataEvent.Set();
+                    }
 
-                            var sqlConn = info.SqlConnection as SqlConnection;
-                            if (sqlConn != null)
-                            {
-                                ServerConnection serverConn = new ServerConnection(sqlConn);
-                                scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                                scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                                scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
-                                scriptInfo.ServerConnection = new ServerConnection(sqlConn);
-                                this.ScriptParseInfoMap[info.OwnerUri] = scriptInfo;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            scriptInfo.IsConnected = false;
-                        }
-                        finally
-                        {
-                            // Set Metadata Build event to Signal state.
-                            // (Tell Language Service that I am ready with Metadata Provider Object)
-                            scriptInfo.BuildingMetadataEvent.Set();
-                        }
-
-                        if (scriptInfo.IsConnected)
-                        {
-                            var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);                                
-                            ParseAndBind(scriptFile, info);
-                        }
+                    if (scriptInfo.IsConnected)
+                    {
+                        var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);                                
+                        ParseAndBind(scriptFile, info);
                     }
                 }
             });

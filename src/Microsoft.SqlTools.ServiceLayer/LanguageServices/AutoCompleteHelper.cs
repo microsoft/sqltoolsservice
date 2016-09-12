@@ -425,7 +425,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             for (int i = 0; i < DefaultCompletionText.Length; ++i)
             {
                 completionItems[i] = CreateDefaultCompletionItem(
-                    DefaultCompletionText[i],
+                    DefaultCompletionText[i].ToUpper(),
                     row, 
                     startColumn, 
                     endColumn);
@@ -443,7 +443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Label = label,
                 Kind = CompletionItemKind.Keyword,
-                Detail = label,
+                Detail = label + " keyword",
                 TextEdit = new TextEdit
                 {
                     NewText = label,
