@@ -1,4 +1,9 @@
-﻿// This code is copied from the source described in the comment below.
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+// This code is copied from the source described in the comment below.
 
 // =======================================================================================
 // Microsoft Windows Server AppFabric Customer Advisory Team (CAT) Best Practices Series
