@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -138,10 +139,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (!LanguageService.Instance.ScriptParseInfoMap.ContainsKey(info.OwnerUri))
                 {
-                    var sqlConn = info.SqlConnection as SqlConnection;
+                    var sqlConn = info.SqlConnection as ReliableSqlConnection;
                     if (sqlConn != null)
                     {
-                        var srvConn = new ServerConnection(sqlConn);
+                        var srvConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
                         var displayInfoProvider = new MetadataDisplayInfoProvider();
                         var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
                         var binder = BinderProvider.CreateBinder(metadataProvider);
