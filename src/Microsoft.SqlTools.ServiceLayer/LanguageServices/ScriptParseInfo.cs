@@ -4,13 +4,13 @@
 //
 
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlServer.Management.SmoMetadataProvider;
-using System.Threading;
-using Microsoft.SqlServer.Management.SqlParser.Common;
 using System;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -33,16 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             get { return this.buildingMetadataEvent; }
         }
 
-        /// <summary>
-        /// Gets a flag indicating if the user is connected to a Azure DB database
-        /// </summary>
-        public bool IsCloudConnection
-        {
-            get
-            {
-                return (this.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase);
-            }
-        }
 
         /// <summary>
         /// Gets or sets a flag determining is the LanguageService is connected
@@ -153,6 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
         
+        /// <summary>
+        /// Gets the database compatibility level from a server version
+        /// </summary>
+        /// <param name="serverVersion"></param>
         private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(ServerVersion serverVersion)
         {
             int versionMajor = Math.Max(serverVersion.Major, 8);
@@ -176,6 +170,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Gets the transaction sql version from a server version
+        /// </summary>
+        /// <param name="serverVersion"></param>
         private static TransactSqlVersion GetTransactSqlVersion(ServerVersion serverVersion)
         {
             int versionMajor = Math.Max(serverVersion.Major, 9);

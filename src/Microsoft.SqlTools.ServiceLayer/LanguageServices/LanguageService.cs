@@ -27,7 +27,6 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
-using Microsoft.SqlServer.Management.SqlParser.Metadata;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -686,28 +685,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        #endregion
-    }
-
-    /// <summary>
-    /// A place holder no-op binder that is temporarely used if we failed to 
-    /// create a real binder.
-    /// </summary>
-    public class NoOpBinder : IBinder
-    {
-        public static readonly IBinder Instance = new NoOpBinder();
-
-        private NoOpBinder()
-        {
-            // only one instance
-        }
-
-        #region IBinder Members
-        public IServer Bind(IEnumerable<ParseResult> parseResults, string contextDatabaseName, BindMode bindMode)
-        {
-            // no-op
-            return null;
-        }
         #endregion
     }
 }
