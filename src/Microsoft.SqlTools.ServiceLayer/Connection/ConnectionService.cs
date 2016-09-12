@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
@@ -262,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
             connection.Open();
             
-            IDbCommand command = connection.CreateCommand();
+            DbCommand command = connection.CreateCommand();
             command.CommandText = "SELECT name FROM sys.databases";
             command.CommandTimeout = 15;
             command.CommandType = CommandType.Text;
