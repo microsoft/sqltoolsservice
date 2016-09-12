@@ -258,6 +258,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Process request to save a resultSet to a file in CSV format
+        /// </summary>
         public async Task HandleSaveResultsAsCsvRequest( SaveResultsRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
@@ -287,16 +290,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // write rows to csv
                     foreach( var row in selectedResultSet.Rows)
                     {
-                        await csvFile.WriteLineAsync(string.Join( ",", row.Select( field => SaveResults.EncodeCsvField(field.ToString()) ?? string.Empty)));
+                        await csvFile.WriteLineAsync(string.Join( ",", row.Select( field => SaveResults.EncodeCsvField( (field != null) ? field.ToString(): string.Empty))));
                     }
                 }
             }
             catch(Exception ex)
             {
-                await requestContext.SendResult(new SaveResultRequestResult
-                {
-                    Messages = ex.Message
-                });
+                await requestContext.SendError(ex.Message);
                 return;
             }
             await requestContext.SendResult(new SaveResultRequestResult
