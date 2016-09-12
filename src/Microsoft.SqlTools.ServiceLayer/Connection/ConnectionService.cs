@@ -170,6 +170,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             ownerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
 
+            // Update with the actual database name in connectionInfo and result
+            // Doing this here as we know the connection is open - expect to do this only on connecting
+            connectionInfo.ConnectionDetails.DatabaseName = connectionInfo.SqlConnection.Database;
+            response.ConnectionSummary = new ConnectionSummary()
+            {
+                ServerName = connectionInfo.ConnectionDetails.ServerName,
+                DatabaseName = connectionInfo.ConnectionDetails.DatabaseName,
+                UserName = connectionInfo.ConnectionDetails.UserName,
+            };
+
             // invoke callback notifications
             foreach (var activity in this.onConnectionActivities)
             {

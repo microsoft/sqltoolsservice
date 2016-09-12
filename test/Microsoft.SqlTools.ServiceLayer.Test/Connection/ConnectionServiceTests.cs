@@ -52,6 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             return connectionMock.Object;
         }
 
+        /// <summary>
         /// Verify that we can connect to the default database when no database name is
         /// provided as a parameter.
         /// </summary>
@@ -73,6 +74,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             
             // check that a connection was created
             Assert.NotEmpty(connectionResult.ConnectionId);
+        }
+
+        /// <summary>
+        /// Verify that we can connect to the default database when no database name is
+        /// provided as a parameter.
+        /// </summary>
+        [Theory]
+        [InlineDataAttribute("master")]
+        [InlineDataAttribute("nonMasterDb")]
+        public void ConnectToDefaultDatabaseRespondsWithActualDbName(string expectedDbName)
+        {
+            // Given connecting with empty database name will return the expected DB name
+            var connectionMock = new Mock<DbConnection> { CallBase = true };
+            connectionMock.Setup(c => c.Database).Returns(expectedDbName);
+
+            var mockFactory = new Mock<ISqlConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
+                .Returns(connectionMock.Object);
+
+            var connectionService = new ConnectionService(mockFactory.Object);
+
+            // When I connect with an empty DB name
+            var connectionDetails = TestObjects.GetTestConnectionDetails();
+            connectionDetails.DatabaseName = string.Empty;
+
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = connectionDetails
+                });
+
+            // Then I expect connection to succeed and the Summary to include the correct DB name
+            Assert.NotEmpty(connectionResult.ConnectionId);
+            Assert.NotNull(connectionResult.ConnectionSummary);
+            Assert.Equal(expectedDbName, connectionResult.ConnectionSummary.DatabaseName);
         }
 
         /// <summary>

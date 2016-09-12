@@ -24,5 +24,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Information about the connected server.
         /// </summary>
         public ServerInfo Server { get; set; }
+
+        /// <summary>
+        /// Gets or sets the actual Connection established, including Database Name
+        /// </summary>
+        public ConnectionSummary ConnectionSummary { get; set; }
     }
 }
