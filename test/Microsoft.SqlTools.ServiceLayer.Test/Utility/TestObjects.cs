@@ -68,14 +68,6 @@ namespace Microsoft.SqlTools.Test.Utility
         }
 
         /// <summary>
-        /// Creates a test autocomplete service instance
-        /// </summary>
-        public static AutoCompleteService GetAutoCompleteService()
-        {
-            return AutoCompleteService.Instance;
-        }
-
-        /// <summary>
         /// Creates a test sql connection factory instance
         /// </summary>
         public static ISqlConnectionFactory GetTestSqlConnectionFactory()

@@ -136,13 +136,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         TextDocumentSync = TextDocumentSyncKind.Incremental,
                         DefinitionProvider = true,
                         ReferencesProvider = true,
-                        DocumentHighlightProvider = true,
-                        DocumentSymbolProvider = true,
-                        WorkspaceSymbolProvider = true,                        
+                        DocumentHighlightProvider = true,                      
                         CompletionProvider = new CompletionOptions
                         {
                             ResolveProvider = true,
-                            TriggerCharacters = new string[] { ".", "-", ":", "\\" }
+                            TriggerCharacters = new string[] { ".", "-", ":", "\\", ",", " " }
                         },
                         SignatureHelpProvider = new SignatureHelpOptions
                         {
