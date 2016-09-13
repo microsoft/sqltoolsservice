@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         #region Request Handlers
 
-         /// <summary>
+        /// <summary>
         /// Auto-complete completion provider request callback
         /// </summary>
         /// <param name="textDocumentPosition"></param>
