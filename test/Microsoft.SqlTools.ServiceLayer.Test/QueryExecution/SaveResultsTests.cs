@@ -14,8 +14,14 @@ using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
+    /// <summary>
+    /// Tests for saving a result set to a file
+    /// </summary>
     public class SaveResultsTests
     {
+        /// <summary>
+        /// Test save results to a file as CSV with correct parameters
+        /// </summary>
         [Fact]
         public void SaveResultsAsCsvSuccessTest()
         {
@@ -28,6 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Request to save the results as csv with correct parameters
             var saveParams = new SaveResultsRequestParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             saveParams.FilePath = "testwrite.csv";
+            saveParams.IncludeHeaders = true;
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
@@ -45,6 +52,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Test handling exception in saving results to file
+        /// </summary>
         [Fact]
         public void SaveResultsAsCsvExceptionTest()
         {
@@ -76,6 +86,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.False(File.Exists(saveParams.FilePath));
         }
 
+        /// <summary>
+        /// Test saving results to file when the requested result set is no longer active
+        /// </summary>
         [Fact]
         public void SaveResultsAsCsvQueryNotFoundTest()
         {
@@ -101,6 +114,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #region Mocking
 
+        /// <summary>
+        /// Mock the requestContext for saving a result set
+        /// </summary>
+        /// <param name="resultCallback"></param>
+        /// <param name="errorCallback"></param>
+        /// <returns></returns>
         private static Mock<RequestContext<SaveResultRequestResult>> GetSaveResultsContextMock(
             Action<SaveResultRequestResult> resultCallback,
             Action<object> errorCallback)
@@ -128,6 +147,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return requestContext;
         }
 
+        /// <summary>
+        /// Verify the call count for sendResult and error
+        /// </summary>
+        /// <param name="mock"></param>
+        /// <param name="sendResultCalls"></param>
+        /// <param name="sendErrorCalls"></param>
         private static void VerifySaveResultsCallCount(Mock<RequestContext<SaveResultRequestResult>> mock,
             Times sendResultCalls, Times sendErrorCalls)
         {
@@ -135,6 +160,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
         }
 
+        /// <summary>
+        /// Mock request context for executing a  query
+        /// </summary>
+        /// <param name="resultCallback"></param>
+        /// <param name="Action<EventType<QueryExecuteCompleteParams>"></param>
+        /// <param name="eventCallback"></param>
+        /// <param name="errorCallback"></param>
+        /// <returns></returns>
         public static Mock<RequestContext<QueryExecuteResult>> GetQueryExecuteResultContextMock(
             Action<QueryExecuteResult> resultCallback,
             Action<EventType<QueryExecuteCompleteParams>, QueryExecuteCompleteParams> eventCallback,
