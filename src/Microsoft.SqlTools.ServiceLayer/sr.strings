@@ -1,0 +1,47 @@
+﻿# String resource file 
+#
+# When processed by the String Resource Tool, this file generates
+# both a .CS and a .RESX file with the same name as the file.
+# The .CS file contains a class which can be used to access these 
+# string resources, including the ability to format in 
+# parameters, which are identified with the .NET {x} format
+# (see String.Format help).  
+#
+# Comments below assume the file name is SR.strings.
+#
+# Lines starting with a semicolon ";" are also treated as comments, but
+# in a future version they will be extracted and made available in LocStudio
+# Put your comments to localizers _before_ the string they apply to.
+#
+# SMO build specific comment
+# after generating the .resx file, run srgen on it and get the .resx file
+# please remember to also check that .resx in, along with the 
+# .strings and .cs files
+
+[strings]
+IncorrectSyntaxNear(string tokenNear) = Incorrect syntax near '{0}'.
+
+############################################################################
+# Connection Service
+
+ConnectionServiceConnectErrorNullParams = Connection parameters cannot be null
+
+CoonectionServiceListDbErrorNullOwnerUri = OwnerUri cannot be null or empty
+
+ConnectionServiceListDbErrorNotConnected = SpecifiedUri '{0}' does not have existing connection
+
+ConnectionServiceConnStringInvalidAuthType = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
+
+ConnectionServiceConnStringInvalidIntent = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
+
+######
+### Connection Params Validation Errors
+
+ConnectionParamsValidateNullOwnerUri = OwnerUri cannot be null or empty
+
+ConnectionParamsValidateNullConnection = Connection details object cannot be null
+
+ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
+
+ConnectionParamsValidateNullSqlAuth = {0} cannot be null or empty when using SqlLogin authentication
+

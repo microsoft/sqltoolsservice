@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -124,14 +125,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             string paramValidationErrorMessage;
             if (connectionParams == null)
             {
-                return new ConnectResponse()
+                return new ConnectResponse
                 {
-                    Messages = "Error: Connection parameters cannot be null."
+                    Messages = SR.ConnectionServiceErrorNullParams
                 };
             }
-            else if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            if (!connectionParams.IsValid(out paramValidationErrorMessage))
             {
-                return new ConnectResponse()
+                return new ConnectResponse
                 {
                     Messages = paramValidationErrorMessage
                 };
@@ -233,14 +234,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var owner = listDatabasesParams.OwnerUri;
             if (string.IsNullOrEmpty(owner))
             {
-                throw new ArgumentException("OwnerUri cannot be null or empty");
+                throw new ArgumentException(SR.ConnectionServiceListDbErrorNullOwnerUri);
             }
 
             // Use the existing connection as a base for the search
             ConnectionInfo info;
             if (!TryFindConnection(owner, out info))
             {
-                throw new Exception("Specified OwnerUri \"" + owner + "\" does not have an existing connection");
+                throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
             ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
 
@@ -398,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     case "SqlLogin":
                         break;
                     default:
-                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for AuthenticationType. Valid values are \"Integrated\" and \"SqlLogin\".", connectionDetails.AuthenticationType));
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
                 }
             }
             if (connectionDetails.Encrypt.HasValue)
@@ -445,7 +446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         intent = ApplicationIntent.ReadWrite;
                         break;
                     default:
-                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for ApplicationIntent. Valid values are \"ReadWrite\" and \"ReadOnly\".", connectionDetails.ApplicationIntent));
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidIntent(connectionDetails.ApplicationIntent));
                 }
                 connectionBuilder.ApplicationIntent = intent;
             }
@@ -529,7 +530,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 catch (Exception e)
                 {
                     Logger.Write(
-                        LogLevel.Error, 
+                        LogLevel.Error,
+                        // TODO: Do log messages need to localized?
                         string.Format(
                             "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}", 
                             newDatabaseName, 
