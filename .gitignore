@@ -36,6 +36,7 @@ node_modules
 packages
 reports
 opencovertests.xml
+outputCobertura.xml
 sqltools.xml
 
 # Cross building rootfs
