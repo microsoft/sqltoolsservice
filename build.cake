@@ -119,19 +119,19 @@ Task("InstallDotnet")
 {
 	// Determine if `dotnet` is installed
 	var dotnetInstalled = true;
-	try 
+	try
 	{
 		Run(dotnetcli, "--info");
 		Information("dotnet is already installed, will skip download/install");
 	}
-	catch(Win32Exception) 
+	catch(Win32Exception)
 	{
 		// If we get this exception, dotnet isn't installed
 		dotnetInstalled = false;
 	}
 
 	// Install dotnet if it isn't already installed
-	if(!dotnetInstalled) 
+	if (!dotnetInstalled)
 	{
 		var installScript = $"dotnet-install.{shellExtension}";
 		System.IO.Directory.CreateDirectory(dotnetFolder);
@@ -168,7 +168,7 @@ Task("InstallDotnet")
 /// <summary>
 /// Installs XUnit nuget package
 Task("InstallXUnit")
-	.Does(() => 
+	.Does(() =>
 {
 	// Install the tools
     var nugetPath = Environment.GetEnvironmentVariable("NUGET_EXE");
@@ -497,7 +497,7 @@ Task("SetPackageVersions")
 /// Executes SRGen to create a resx file and associated designer C# file
 /// </summary>
 Task("SRGen")
-	.Does(() => 
+	.Does(() =>
 {
 	var projects = System.IO.Directory.GetFiles(sourceFolder, "project.json", SearchOption.AllDirectories).ToList();
 	foreach(var project in projects) {
@@ -505,7 +505,7 @@ Task("SRGen")
 		var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
 		var projectStrings = System.IO.Path.Combine(projectDir, "sr.strings");
 
-		if(!System.IO.File.Exists(projectStrings)) 
+		if (!System.IO.File.Exists(projectStrings))
 		{
 			Information("Project {0} doesn't contain 'sr.strings' file", projectName);
 			continue;
@@ -516,17 +516,17 @@ Task("SRGen")
 		var outputCs = System.IO.Path.Combine(projectDir, "sr.cs");
 
 		// Delete preexisting resx and designer files
-		if(System.IO.File.Exists(outputResx))
+		if (System.IO.File.Exists(outputResx))
 		{
 			System.IO.File.Delete(outputResx);
 		}
-		if(System.IO.File.Exists(outputCs)) 
+		if (System.IO.File.Exists(outputCs))
 		{
 			System.IO.File.Delete(outputCs);
 		}
 
 		// Run SRGen
-		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS \"{5}\"", 
+		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS \"{5}\"",
 			srgenPath, outputResx, outputCs, projectName, projectName, projectStrings);
 		Information("{0}", dotnetArgs);
 		Run(dotnetcli, dotnetArgs);

@@ -2,19 +2,14 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using System;
-using System.Diagnostics;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider.Internals;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -55,38 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             ConnectionService.Instance.InitializeService(serviceHost);
             CredentialService.Instance.InitializeService(serviceHost);
             QueryExecutionService.Instance.InitializeService(serviceHost);
-
-            // TEST
-            
-            ConnectionService.Instance.Connect(new ConnectParams
-            {
-                Connection = new ConnectionDetails
-                {
-                    DatabaseName = "keep_AdventureworksDW2016CTP3", 
-                    Password = "Yukon900", 
-                    ServerName = "sqltools11", 
-                    UserName = "sa"
-                }, 
-                OwnerUri = "test"
-            });
-            ConnectionInfo ci;
-            ConnectionService.Instance.TryFindConnection("test", out ci);
-
-            using (
-                Query q =
-                    new Query("SELECT * FROM dbo.DatabaseLog AS a CROSS JOIN dbo.DatabaseLog AS d",
-                        ci,
-                        new QueryExecutionSettings(), new ServiceBufferFileStreamFactory()))
-            {
-                Stopwatch sw = Stopwatch.StartNew();
-                q.Execute().Wait();
-                sw.Stop();
-                Console.WriteLine(sw);
-                ResultSetSubset qqq = q.GetSubset(0, 0, 0, 10).Result;
-                Debugger.Break();
-            }
-
-            // END TEST
 
             serviceHost.Initialize();
             serviceHost.WaitForExit();
