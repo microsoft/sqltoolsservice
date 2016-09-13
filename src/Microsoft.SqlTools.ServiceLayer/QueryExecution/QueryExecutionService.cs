@@ -2,9 +2,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
 using System;
 using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -98,6 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecuteSubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
+            serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -256,6 +258,58 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Process request to save a resultSet to a file in CSV format
+        /// </summary>
+        public async Task HandleSaveResultsAsCsvRequest( SaveResultsRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // retrieve query for OwnerUri
+            Query result;
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            {
+                await requestContext.SendResult(new SaveResultRequestResult
+                {
+                    Messages = "Failed to save results, ID not found."
+                });
+                return;
+            }
+            try
+            {
+                using (StreamWriter csvFile = new StreamWriter(File.OpenWrite(saveParams.FilePath)))
+                {
+                    // get the requested resultSet from query
+                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
+                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+                    if ( saveParams.IncludeHeaders) 
+                    {
+                        // write column names to csv
+                        await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Select( column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
+                    }
+
+                    // write rows to csv
+                    foreach( var row in selectedResultSet.Rows)
+                    {
+                        await csvFile.WriteLineAsync(string.Join( ",", row.Select( field => SaveResults.EncodeCsvField( (field != null) ? field.ToString(): string.Empty))));
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                // Delete file when exception occurs
+                if(File.Exists(saveParams.FilePath))
+                {
+                    File.Delete(saveParams.FilePath);
+                }
+                await requestContext.SendError(ex.Message);
+                return;
+            }
+            await requestContext.SendResult(new SaveResultRequestResult
+            {
+                Messages = "Success"
+            });
+            return;
+        }
         #endregion
 
         #region Private Helpers
