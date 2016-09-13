@@ -296,6 +296,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch(Exception ex)
             {
+                // Delete file when exception occurs
+                if(File.Exists(saveParams.FilePath))
+                {
+                    File.Delete(saveParams.FilePath);
+                }
                 await requestContext.SendError(ex.Message);
                 return;
             }
