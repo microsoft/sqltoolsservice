@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         #region Service Intergration Tests
 
         [Fact]
-        public void SubsetServiceValidTest()
+        public async Task SubsetServiceValidTest()
         {
             // If:
             // ... I have a query that has results (doesn't matter what)
@@ -97,13 +97,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 Common.CreateMockFactory(new[] {Common.StandardTestData}, false), true);
             var executeParams = new QueryExecuteParams {QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new QueryExecuteSubsetParams {OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0};
             QueryExecuteSubsetResult result = null;
             var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
-            queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object).Wait();
+            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
 
             // Then:
             // ... I should have a successful result
