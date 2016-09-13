@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             try
             {
                 ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connectionInfo.SqlConnection);
-                response.Server = new Contracts.ServerInfo()
+                response.ServerInfo = new Contracts.ServerInfo()
                 {
                     ServerMajorVersion = serverInfo.ServerMajorVersion,
                     ServerMinorVersion = serverInfo.ServerMinorVersion,
