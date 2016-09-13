@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
         {
             if (string.IsNullOrEmpty(target))
             {
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
             }
             Target = target;
         }

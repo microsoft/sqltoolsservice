@@ -45,3 +45,15 @@ ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
 
 ConnectionParamsValidateNullSqlAuth = {0} cannot be null or empty when using SqlLogin authentication
 
+############################################################################
+# Credentials Service
+
+CredentialsServiceInvalidCriticalHandle = Invalid CriticalHandle!
+
+CredentialsServicePasswordLengthExceeded = The password has exceeded 512 bytes
+
+CredentialsServiceTargetForDelete = Target must be specified to delete a credential
+
+CredentialsServiceTargetForLookup = Target must be specified to check existance of a credential
+
+CredentialServiceWin32CredentialDisposed = Win32Credential object is already disposed
