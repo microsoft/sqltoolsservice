@@ -20,8 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         public DbConnection CreateSqlConnection(string connectionString)
         {
-            RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultDataConnectionRetryPolicy();
-            RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultDataSqlCommandRetryPolicy();
+            RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
+            RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             return new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy);
         }
     }

@@ -317,7 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Returns the default retry policy dedicated to handling exceptions with SQL connections
         /// </summary>
         /// <returns>The RetryPolicy policy</returns>
-        private static RetryPolicy CreateDefaultConnectionRetryPolicy()
+        public static RetryPolicy CreateDefaultConnectionRetryPolicy()
         {
             // Note: No longer use Ado.net Connection Pooling and hence do not need TimeBasedRetryPolicy to
             // conform to the backoff requirements in this case
