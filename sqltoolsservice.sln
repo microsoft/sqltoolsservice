@@ -9,6 +9,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{32DC973E-9EEA-4694-B1C2-B031167AB945}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		BUILD.md = BUILD.md
 		global.json = global.json
 		nuget.config = nuget.config
 		README.md = README.md
@@ -17,6 +18,25 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer", "src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.xproj", "{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.Test", "test\Microsoft.SqlTools.ServiceLayer.Test\Microsoft.SqlTools.ServiceLayer.Test.xproj", "{2D771D16-9D85-4053-9F79-E2034737DEEF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{B7D21727-2926-452B-9610-3ADB0BB6D789}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\archiving.cake = scripts\archiving.cake
+		scripts\artifacts.cake = scripts\artifacts.cake
+		scripts\cake-bootstrap.ps1 = scripts\cake-bootstrap.ps1
+		scripts\cake-bootstrap.sh = scripts\cake-bootstrap.sh
+		scripts\packages.config = scripts\packages.config
+		scripts\runhelpers.cake = scripts\runhelpers.cake
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F9978D78-78FE-4E92-A7D6-D436B7683EF6}"
+	ProjectSection(SolutionItems) = preProject
+		build.cake = build.cake
+		build.cmd = build.cmd
+		build.json = build.json
+		build.ps1 = build.ps1
+		build.sh = build.sh
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,5 +59,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{2D771D16-9D85-4053-9F79-E2034737DEEF} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+		{B7D21727-2926-452B-9610-3ADB0BB6D789} = {F9978D78-78FE-4E92-A7D6-D436B7683EF6}
 	EndGlobalSection
 EndGlobal

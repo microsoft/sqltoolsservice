@@ -15,13 +15,10 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
-    /// Writer for SSMS formatted file streams
+    /// Writer for service buffer formatted file streams
     /// </summary>
     public class ServiceBufferFileStreamWriter : IFileStreamWriter
     {
-        // Most of this code is based on code from the Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage
-        // $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\FileStreamWriter.cs
-
         #region Properties
 
         public const int DefaultBufferLength = 8192;

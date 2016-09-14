@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             }
             else
             {
-                DataType = DataType;
+                DataType = column.DataType;
             }
         }
 

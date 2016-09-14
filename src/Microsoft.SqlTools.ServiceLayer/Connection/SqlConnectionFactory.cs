@@ -4,7 +4,7 @@
 //
 
 using System.Data.Common;
-using System.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -20,7 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         public DbConnection CreateSqlConnection(string connectionString)
         {
-            return new SqlConnection(connectionString);
+            RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
+            RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
+            return new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy);
         }
     }
 }

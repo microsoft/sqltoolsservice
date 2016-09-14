@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// </exception>
         public ScriptFile GetFile(string filePath)
         {
-            Validate.IsNotNullOrEmptyString("filePath", filePath);
+            Validate.IsNotNullOrWhitespaceString("filePath", filePath);
 
             // Resolve the full file path 
             string resolvedFilePath = this.ResolveFilePath(filePath);
@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <returns></returns>
         public ScriptFile GetFileBuffer(string filePath, string initialBuffer)
         {
-            Validate.IsNotNullOrEmptyString("filePath", filePath);
+            Validate.IsNotNullOrWhitespaceString("filePath", filePath);
 
             // Resolve the full file path 
             string resolvedFilePath = this.ResolveFilePath(filePath);

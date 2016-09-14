@@ -45,7 +45,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             // Initialize the services that will be hosted here
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
-            AutoCompleteService.Instance.InitializeService(serviceHost);
             LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
             ConnectionService.Instance.InitializeService(serviceHost);
             CredentialService.Instance.InitializeService(serviceHost);

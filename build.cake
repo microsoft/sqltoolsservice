@@ -81,7 +81,8 @@ Task("Cleanup")
 ///  Pre-build setup tasks.
 /// </summary>
 Task("Setup")
-    .IsDependentOn("BuildEnvironment")
+	.IsDependentOn("InstallDotnet")
+	.IsDependentOn("InstallXUnit")
     .IsDependentOn("PopulateRuntimes")
     .Does(() =>
 {
@@ -92,7 +93,6 @@ Task("Setup")
 ///  Use default RID (+ win7-x86 on Windows) for now.
 /// </summary>
 Task("PopulateRuntimes")
-    .IsDependentOn("BuildEnvironment")
     .Does(() =>
 {
     buildPlan.Rids = new string[]
@@ -112,43 +112,65 @@ Task("PopulateRuntimes")
 });
 
 /// <summary>
-///  Install/update build environment.
+/// Install dotnet if it isn't already installed
 /// </summary>
-Task("BuildEnvironment")
+Task("InstallDotnet")
     .Does(() =>
 {
-    var installScript = $"dotnet-install.{shellExtension}";
-    System.IO.Directory.CreateDirectory(dotnetFolder);
-    var scriptPath = System.IO.Path.Combine(dotnetFolder, installScript);
-    using (WebClient client = new WebClient())
-    {
-        client.DownloadFile($"{buildPlan.DotNetInstallScriptURL}/{installScript}", scriptPath);
-    }
-    if (!IsRunningOnWindows())
-    {
-        Run("chmod", $"+x '{scriptPath}'");
-    }
-    var installArgs = $"-Channel {buildPlan.DotNetChannel}";
-    if (!String.IsNullOrEmpty(buildPlan.DotNetVersion))
-    {
-      installArgs = $"{installArgs} -Version {buildPlan.DotNetVersion}";
-    }
-    if (!buildPlan.UseSystemDotNetPath)
-    {
-        installArgs = $"{installArgs} -InstallDir {dotnetFolder}";
-    }
-    Run(shell, $"{shellArgument} {scriptPath} {installArgs}");
-    try
-    {
-        Run(dotnetcli, "--info");
-    }
-    catch (Win32Exception)
-    {
-        throw new Exception(".NET CLI binary cannot be found.");
-    }
+	// Determine if `dotnet` is installed
+	var dotnetInstalled = true;
+	try
+	{
+		Run(dotnetcli, "--info");
+		Information("dotnet is already installed, will skip download/install");
+	}
+	catch(Win32Exception)
+	{
+		// If we get this exception, dotnet isn't installed
+		dotnetInstalled = false;
+	}
 
-    System.IO.Directory.CreateDirectory(toolsFolder);
+	// Install dotnet if it isn't already installed
+	if (!dotnetInstalled)
+	{
+		var installScript = $"dotnet-install.{shellExtension}";
+		System.IO.Directory.CreateDirectory(dotnetFolder);
+		var scriptPath = System.IO.Path.Combine(dotnetFolder, installScript);
+		using (WebClient client = new WebClient())
+		{
+			client.DownloadFile($"{buildPlan.DotNetInstallScriptURL}/{installScript}", scriptPath);
+		}
+		if (!IsRunningOnWindows())
+		{
+			Run("chmod", $"+x '{scriptPath}'");
+		}
+		var installArgs = $"-Channel {buildPlan.DotNetChannel}";
+		if (!String.IsNullOrEmpty(buildPlan.DotNetVersion))
+		{
+		  installArgs = $"{installArgs} -Version {buildPlan.DotNetVersion}";
+		}
+		if (!buildPlan.UseSystemDotNetPath)
+		{
+			installArgs = $"{installArgs} -InstallDir {dotnetFolder}";
+		}
+		Run(shell, $"{shellArgument} {scriptPath} {installArgs}");
+		try
+		{
+			Run(dotnetcli, "--info");
+		}
+		catch (Win32Exception)
+		{
+			throw new Exception(".NET CLI failed to be installed");
+		}
+	}
+});
 
+/// <summary>
+/// Installs XUnit nuget package
+Task("InstallXUnit")
+	.Does(() =>
+{
+	// Install the tools
     var nugetPath = Environment.GetEnvironmentVariable("NUGET_EXE");
     var arguments = $"install xunit.runner.console -ExcludeVersion -NoCache -Prerelease -OutputDirectory \"{toolsFolder}\"";
     if (IsRunningOnWindows())
@@ -206,14 +228,6 @@ Task("BuildTest")
 Task("TestAll")
     .IsDependentOn("Test")
     .IsDependentOn("TestCore")
-    .Does(() =>{});
-
-/// <summary>
-///  Run all tests for Travis CI .NET Desktop and .NET Core
-/// </summary>
-Task("TravisTestAll")
-    .IsDependentOn("Cleanup")
-    .IsDependentOn("TestAll")
     .Does(() =>{});
 
 /// <summary>
@@ -345,6 +359,7 @@ Task("RestrictToLocalRuntime")
 /// </summary>
 Task("LocalPublish")
     .IsDependentOn("Restore")
+	.IsDependentOn("SrGen")
     .IsDependentOn("RestrictToLocalRuntime")
     .IsDependentOn("OnlyPublish")
     .Does(() =>
@@ -452,20 +467,6 @@ Task("Local")
 });
 
 /// <summary>
-///  Build centered around producing the final artifacts for Travis
-///
-///  The tests are run as a different task "TestAll"
-/// </summary>
-Task("Travis")
-    .IsDependentOn("Cleanup")
-    .IsDependentOn("Restore")
-    .IsDependentOn("AllPublish")
-   // .IsDependentOn("TestPublished")
-    .Does(() =>
-{
-});
-
-/// <summary>
 ///  Update the package versions within project.json files.
 ///  Uses depversion.json file as input.
 /// </summary>
@@ -490,6 +491,46 @@ Task("SetPackageVersions")
         }
         System.IO.File.WriteAllText(project, JsonConvert.SerializeObject(jProject, Formatting.Indented));
     }
+});
+
+/// <summary>
+/// Executes SRGen to create a resx file and associated designer C# file
+/// </summary>
+Task("SRGen")
+	.Does(() =>
+{
+	var projects = System.IO.Directory.GetFiles(sourceFolder, "project.json", SearchOption.AllDirectories).ToList();
+	foreach(var project in projects) {
+		var projectDir = System.IO.Path.GetDirectoryName(project);
+		var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
+		var projectStrings = System.IO.Path.Combine(projectDir, "sr.strings");
+
+		if (!System.IO.File.Exists(projectStrings))
+		{
+			Information("Project {0} doesn't contain 'sr.strings' file", projectName);
+			continue;
+		}
+
+		var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
+		var outputResx = System.IO.Path.Combine(projectDir, "sr.resx");
+		var outputCs = System.IO.Path.Combine(projectDir, "sr.cs");
+
+		// Delete preexisting resx and designer files
+		if (System.IO.File.Exists(outputResx))
+		{
+			System.IO.File.Delete(outputResx);
+		}
+		if (System.IO.File.Exists(outputCs))
+		{
+			System.IO.File.Delete(outputCs);
+		}
+
+		// Run SRGen
+		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS \"{5}\"",
+			srgenPath, outputResx, outputCs, projectName, projectName, projectStrings);
+		Information("{0}", dotnetArgs);
+		Run(dotnetcli, dotnetArgs);
+	}
 });
 
 /// <summary>

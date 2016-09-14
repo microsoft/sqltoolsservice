@@ -8,12 +8,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     /// </summary>
     public class SqlToolsSettings
     {
-        // TODO: Is this needed? I can't make sense of this comment.
-        // NOTE: This property is capitalized as 'SqlTools' because the
-        // mode name sent from the client is written as 'SqlTools' and
-        // JSON.net is using camelCasing.
-        //public ServiceHostSettings SqlTools { get; set; }
-
         public SqlToolsSettings()
         {
             this.ScriptAnalysis = new ScriptAnalysisSettings();

@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -135,10 +136,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 // Register the message listener to *this instance* of the batch
                 // Note: This is being done to associate messages with batches
-                SqlConnection sqlConn = conn as SqlConnection;
+                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
-                    sqlConn.InfoMessage += StoreDbMessage;
+                    sqlConn.GetUnderlyingConnection().InfoMessage += StoreDbMessage;
                 }
 
                 // Create a command that we'll use for executing the query
