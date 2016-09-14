@@ -349,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 return newQuery;
             }
-            catch (ArgumentNullException ane)
+            catch (ArgumentException ane)
             {
                 await requestContext.SendResult(new QueryExecuteResult { Messages = ane.Message });
                 return null;
