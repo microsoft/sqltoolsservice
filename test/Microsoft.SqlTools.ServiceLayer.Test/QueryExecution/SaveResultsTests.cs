@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
-            // Request to save the results as csv with correct parameters
+            // Request to save the results as json with correct parameters
             var saveParams = new SaveResultsAsJsonRequestParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             saveParams.FilePath = "testwrite.json";
             SaveResultRequestResult result = null;
