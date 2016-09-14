@@ -19,16 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string FilePath { get; set; }
 
         /// <summary>
-        /// The encoding of the file to save results in
-        /// </summary>
-        public string FileEncoding { get; set; }
-
-        /// <summary>
-        /// Include headers of columns in CSV
-        /// </summary>
-        public bool IncludeHeaders { get; set; }
-
-        /// <summary>
         /// Index of the batch to get the results from
         /// </summary>
         public int BatchIndex { get; set; }
@@ -38,15 +28,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         public int ResultSetIndex { get; set; }
 
+
+        /// <summary>
+        /// URI for the editor that called save results
+        /// </summary>
+        public string OwnerUri { get; set; }
+    }
+
+    public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams{
+        
         /// <summary>
         /// CSV - Write values in quotes 
         /// </summary>
         public Boolean ValueInQuotes { get; set; }
 
         /// <summary>
-        /// URI for the editor that called save results
+        /// The encoding of the file to save results in
         /// </summary>
-        public string OwnerUri { get; set; }
+        public string FileEncoding { get; set; }
+
+        /// <summary>
+        /// Include headers of columns in CSV
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+
+    }
+
+    public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams{
+        //TODO: define config for save as JSON
     }
 
     /// <summary>
@@ -63,8 +72,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class SaveResultsAsCsvRequest
     {
         public static readonly
-            RequestType<SaveResultsRequestParams, SaveResultRequestResult> Type =
-            RequestType<SaveResultsRequestParams, SaveResultRequestResult>.Create("query/save");
+            RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult> Type =
+            RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult>.Create("query/saveCsv");
+    }
+
+    public class SaveResultsAsJsonRequest
+    {
+        public static readonly
+            RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult> Type =
+            RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult>.Create("query/saveJson");
     }
 
 }
