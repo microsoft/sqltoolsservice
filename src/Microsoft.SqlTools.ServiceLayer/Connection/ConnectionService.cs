@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -183,6 +184,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             foreach (var activity in this.onConnectionActivities)
             {
                 activity(connectionInfo);
+            }
+
+            // try to get information about the connected SQL Server instance
+            try
+            {
+                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connectionInfo.SqlConnection);
+                response.ServerInfo = new Contracts.ServerInfo()
+                {
+                    ServerMajorVersion = serverInfo.ServerMajorVersion,
+                    ServerMinorVersion = serverInfo.ServerMinorVersion,
+                    ServerReleaseVersion = serverInfo.ServerReleaseVersion,
+                    EngineEditionId = serverInfo.EngineEditionId,
+                    ServerVersion = serverInfo.ServerVersion,
+                    ServerLevel = serverInfo.ServerLevel,
+                    ServerEdition = serverInfo.ServerEdition,
+                    IsCloud = serverInfo.IsCloud,
+                    AzureVersion = serverInfo.AzureVersion,
+                    OsVersion = serverInfo.OsVersion
+                };
+            }
+            catch(Exception ex)
+            {
+                response.Messages = ex.ToString();
             }
 
             // return the connection result

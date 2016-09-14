@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -192,11 +193,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await conn.OpenAsync();
 
-                SqlConnection sqlConn = conn as SqlConnection;
+                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
-                    sqlConn.InfoMessage += OnInfoMessage;
+                    sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
                 }
 
                 // We need these to execute synchronously, otherwise the user will be very unhappy

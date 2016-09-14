@@ -125,12 +125,27 @@ namespace Microsoft.SqlTools.EditorServices.Utility
         }
 
         /// <summary>
+        /// Throws ArgumentException if the value is null or an empty string.
+        /// </summary>
+        /// <param name="parameterName">The name of the parameter being validated.</param>
+        /// <param name="valueToCheck">The value of the parameter being validated.</param>
+        public static void IsNotNullOrEmptyString(string parameterName, string valueToCheck)
+        {
+            if (string.IsNullOrEmpty(valueToCheck))
+            {
+                throw new ArgumentException(
+                    "Parameter contains a null, empty, or whitespace string.",
+                    parameterName);
+            }
+        }
+        
+        /// <summary>
         /// Throws ArgumentException if the value is null, an empty string,
         /// or a string containing only whitespace.
         /// </summary>
         /// <param name="parameterName">The name of the parameter being validated.</param>
         /// <param name="valueToCheck">The value of the parameter being validated.</param>
-        public static void IsNotNullOrEmptyString(string parameterName, string valueToCheck)
+        public static void IsNotNullOrWhitespaceString(string parameterName, string valueToCheck)
         {
             if (string.IsNullOrWhiteSpace(valueToCheck))
             {

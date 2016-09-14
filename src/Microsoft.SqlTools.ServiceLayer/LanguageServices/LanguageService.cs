@@ -5,13 +5,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -418,14 +418,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout);
                         scriptInfo.BuildingMetadataEvent.Reset();
 
-                        var sqlConn = info.SqlConnection as SqlConnection;
+                        var sqlConn = info.SqlConnection as ReliableSqlConnection;
                         if (sqlConn != null)
                         {
-                            ServerConnection serverConn = new ServerConnection(sqlConn);
+                            ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
                             scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
                             scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
                             scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
-                            scriptInfo.ServerConnection = new ServerConnection(sqlConn);
+                            scriptInfo.ServerConnection = new ServerConnection(sqlConn.GetUnderlyingConnection());
                             this.ScriptParseInfoMap[info.OwnerUri] = scriptInfo;
                         }
                     }
