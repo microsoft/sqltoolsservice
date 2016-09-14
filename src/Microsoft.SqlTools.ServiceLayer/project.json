@@ -14,7 +14,7 @@
     "System.Security.SecureString": "4.0.0",
     "System.Collections.Specialized": "4.0.1",
     "System.ComponentModel.TypeConverter": "4.1.0",
-    "System.Diagnostics.Contracts": "4.0.0",    
+    "System.Diagnostics.Contracts": "4.0.1",    
     "System.Diagnostics.TraceSource": "4.0.0",
     "NETStandard.Library": "1.6.0",
     "Microsoft.NETCore.Runtime.CoreCLR": "1.0.2",
