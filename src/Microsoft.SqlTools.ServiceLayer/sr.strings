@@ -19,20 +19,19 @@
 # .strings and .cs files
 
 [strings]
-IncorrectSyntaxNear(string tokenNear) = Incorrect syntax near '{0}'.
 
 ############################################################################
 # Connection Service
 
 ConnectionServiceConnectErrorNullParams = Connection parameters cannot be null
 
-CoonectionServiceListDbErrorNullOwnerUri = OwnerUri cannot be null or empty
+ConnectionServiceListDbErrorNullOwnerUri = OwnerUri cannot be null or empty
 
-ConnectionServiceListDbErrorNotConnected = SpecifiedUri '{0}' does not have existing connection
+ConnectionServiceListDbErrorNotConnected(string uri) = SpecifiedUri '{0}' does not have existing connection
 
-ConnectionServiceConnStringInvalidAuthType = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
+ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
 
-ConnectionServiceConnStringInvalidIntent = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
+ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
 
 ######
 ### Connection Params Validation Errors
@@ -43,7 +42,7 @@ ConnectionParamsValidateNullConnection = Connection details object cannot be nul
 
 ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
 
-ConnectionParamsValidateNullSqlAuth = {0} cannot be null or empty when using SqlLogin authentication
+ConnectionParamsValidateNullSqlAuth(string component) = {0} cannot be null or empty when using SqlLogin authentication
 
 ############################################################################
 # Credentials Service
@@ -104,11 +103,11 @@ QueryServiceFileWrapperReadOnly = This FileStreamWrapper cannot be used for writ
 
 ### Query Request
 
-QueryServiceAffectedRows = ({0} row(s) affected)
+QueryServiceAffectedRows(int rows) = ({0} row(s) affected)
 
 QueryServiceCompletedSuccessfully = Command(s) copleted successfully.
 
-QueryServiceErrorFormat = Msg {0}, Level {1}, State {2}, Line {3}{4}{5}
+QueryServiceErrorFormat(int msg, int lvl, int state, int line, string newLine, string message) = Msg {0}, Level {1}, State {2}, Line {3}{4}{5}
 
 QueryServiceColumnNull = (No column name)
 
@@ -137,6 +136,6 @@ QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for resul
 
 WorkspaceServicePositionLineOutOfRange = Position is outside of file line range
 
-WorkspaceServicePositionColumnOutOfRange = Position is outside of column range for line {0}
+WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of column range for line {0}
 
-WorkspaceServiceBufferPositionOutOfOrder = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
+WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})

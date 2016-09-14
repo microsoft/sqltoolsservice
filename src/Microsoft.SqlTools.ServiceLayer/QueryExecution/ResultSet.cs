@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Sanity check to make sure that the results have been read beforehand
             if (!hasBeenRead || fileStreamReader == null)
             {
-                throw new InvalidOperationException(SR.QueryServiceResultsSetNotRead);
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
 
             // Sanity check to make sure that the row and the row count are within bounds
