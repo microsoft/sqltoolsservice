@@ -21,8 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Batch : IDisposable
     {
-        private const string RowsAffectedFormat = "({0} row(s) affected)";
-
         #region Member Variables
 
         /// <summary>
@@ -159,8 +157,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
                                 resultMessages.Add(reader.RecordsAffected >= 0
-                                    ? string.Format(RowsAffectedFormat, reader.RecordsAffected)
-                                    : "Command(s) completed successfully.");
+                                    ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
+                                    : SR.QueryServiceCompletedSuccessfully);
                                 continue;
                             }
 
@@ -172,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
 
                             // Add a message for the number of rows the query returned
-                            resultMessages.Add(string.Format(RowsAffectedFormat, resultSet.RowCount));
+                            resultMessages.Add(SR.QueryServiceAffectedRows(reader.RecordsAffected));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -213,8 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Sanity check to make sure we have valid numbers
             if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
             {
-                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), "Result set index cannot be less than 0" +
-                                                                             "or greater than the number of result sets");
+                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), SR.QueryServiceSubsetResultSetOutOfRange);
             }
 
             // Retrieve the result set
@@ -255,9 +252,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (sqlError != null)
                     {
                         int lineNumber = sqlError.LineNumber + StartLine;
-                        string message = String.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                            sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
-                            Environment.NewLine, sqlError.Message);
+                        string message = SR.QueryServiceErrorFormat(sqlError.Number, sqlError.Class, sqlError.State,
+                            lineNumber, Environment.NewLine, sqlError.Message);
                         resultMessages.Add(message);
                     }
                 }

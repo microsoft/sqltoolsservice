@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
@@ -606,10 +607,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Number of bytes used to store the string</returns>
         public int WriteString(string sVal)
         {
-            if (sVal == null)
-            {
-                throw new ArgumentNullException(nameof(sVal), "String to store must be non-null.");
-            }
+            Validate.IsNotNull(nameof(sVal), sVal);
 
             int iTotalLen;
             if (0 == sVal.Length) // special case of 0 length string
@@ -643,10 +641,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Number of bytes used to store the byte[]</returns>
         public int WriteBytes(byte[] bytesVal, int iLen)
         {
-            if (bytesVal == null)
-            {
-                throw new ArgumentNullException(nameof(bytesVal), "Byte array to store must be non-null.");
-            }
+            Validate.IsNotNull(nameof(bytesVal), bytesVal);
 
             int iTotalLen;
             if (0 == iLen) // special case of 0 length byte array "0x"

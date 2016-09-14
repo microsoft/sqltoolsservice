@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -51,17 +52,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public void Init(string fileName, int bufferLength, FileAccess accessMethod)
         {
             // Sanity check for valid buffer length, fileName, and accessMethod
-            if (bufferLength <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(bufferLength), "Buffer length must be a positive value");
-            }
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                throw new ArgumentNullException(nameof(fileName), "File name cannot be null or whitespace");
-            }
+            Validate.IsGreaterThan(nameof(bufferLength), bufferLength, 0);
+            Validate.IsNotNullOrEmptyString(nameof(fileName), fileName);
             if (accessMethod == FileAccess.Write)
             {
-                throw new ArgumentException("Access method cannot be write-only", nameof(fileName));
+                throw new ArgumentException(SR.QueryServiceFileWrapperWriteOnly, nameof(fileName));
             }
 
             // Setup the buffer
@@ -95,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Make sure that we're initialized before performing operations
             if (buffer == null)
             {
-                throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
+                throw new InvalidOperationException(SR.QueryServiceFileWrapperNotInitialized);
             }
 
             MoveTo(offset);
@@ -135,11 +130,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Make sure that we're initialized before performing operations
             if (buffer == null)
             {
-                throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
+                throw new InvalidOperationException(SR.QueryServiceFileWrapperNotInitialized);
             }
             if (!fileStream.CanWrite)
             {
-                throw new InvalidOperationException("This FileStreamWrapper canot be used for writing");
+                throw new InvalidOperationException(SR.QueryServiceFileWrapperReadOnly);
             }
 
             int bytesCopied = 0;
@@ -172,11 +167,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Make sure that we're initialized before performing operations
             if (buffer == null)
             {
-                throw new InvalidOperationException("FileStreamWrapper must be initialized before performing operations");
+                throw new InvalidOperationException(SR.QueryServiceFileWrapperNotInitialized);
             }
             if (!fileStream.CanWrite)
             {
-                throw new InvalidOperationException("This FileStreamWrapper cannot be used for writing");
+                throw new InvalidOperationException(SR.QueryServiceFileWrapperReadOnly);
             }
 
             // Make sure we are at the right place in the file

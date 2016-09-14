@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await requestContext.SendResult(new QueryExecuteSubsetResult
                     {
-                        Message = "The requested query does not exist."
+                        Message = SR.QueryServiceRequestsNoQuery
                     });
                     return;
                 }
@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await requestContext.SendResult(new QueryDisposeResult
                     {
-                        Messages = "Failed to dispose query, ID not found."
+                        Messages = SR.QueryServiceRequestsNoQuery
                     });
                     return;
                 }
@@ -223,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await requestContext.SendResult(new QueryCancelResult
                     {
-                        Messages = "Failed to cancel query, ID not found."
+                        Messages = SR.QueryServiceRequestsNoQuery
                     });
                     return;
                 }
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // It really shouldn't be possible to get to this scenario, but we'll cover it anyhow
                     await requestContext.SendResult(new QueryCancelResult
                     {
-                        Messages = "Query successfully cancelled, failed to dispose query. ID not found."
+                        Messages = SR.QueryServiceCancelDisposeFailed
                     });
                     return;
                 }
@@ -270,7 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await requestContext.SendResult(new SaveResultRequestResult
                 {
-                    Messages = "Failed to save results, ID not found."
+                    Messages = SR.QueryServiceRequestsNoQuery
                 });
                 return;
             }
@@ -293,6 +293,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         await csvFile.WriteLineAsync(string.Join( ",", row.Select( field => SaveResults.EncodeCsvField( (field != null) ? field.ToString(): string.Empty))));
                     }
                 }
+
+                // Successfully wrote file, send success result
+                await requestContext.SendResult(new SaveResultRequestResult { Messages = null });
             }
             catch(Exception ex)
             {
@@ -302,13 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     File.Delete(saveParams.FilePath);
                 }
                 await requestContext.SendError(ex.Message);
-                return;
             }
-            await requestContext.SendResult(new SaveResultRequestResult
-            {
-                Messages = "Success"
-            });
-            return;
         }
         #endregion
 
@@ -324,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await requestContext.SendResult(new QueryExecuteResult
                     {
-                        Messages = "This editor is not connected to a database."
+                        Messages = SR.QueryServiceQueryInvalidOwnerUri
                     });
                     return null;
                 }
@@ -345,8 +342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await requestContext.SendResult(new QueryExecuteResult
                     {
-                        Messages = "A query is already in progress for this editor session." +
-                                   "Please cancel this query or wait for its completion."
+                        Messages = SR.QueryServiceQueryInProgress
                     });
                     return null;
                 }

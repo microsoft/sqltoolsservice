@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
@@ -66,22 +67,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory)
         {
             // Sanity check for input
-            if (string.IsNullOrEmpty(queryText))
-            {
-                throw new ArgumentNullException(nameof(queryText), "Query text cannot be null");
-            }
-            if (connection == null)
-            {
-                throw new ArgumentNullException(nameof(connection), "Connection cannot be null");
-            }
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings), "Settings cannot be null");
-            }
-            if (outputFactory == null)
-            {
-                throw new ArgumentNullException(nameof(outputFactory), "Output file factory cannot be null");
-            }
+            Validate.IsNotNullOrEmptyString(nameof(queryText), queryText);
+            Validate.IsNotNull(nameof(connection), connection);
+            Validate.IsNotNull(nameof(settings), settings);
+            Validate.IsNotNull(nameof(outputFactory), outputFactory);
 
             // Initialize the internal state
             QueryText = queryText;
@@ -164,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Make sure that the query hasn't completed execution
             if (HasExecuted)
             {
-                throw new InvalidOperationException("The query has already completed, it cannot be cancelled.");
+                throw new InvalidOperationException(SR.QueryServiceCancelAlreadyCompleted);
             }
 
             // Issue the cancellation token for the query
@@ -217,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             SqlConnection conn = sender as SqlConnection;
             if (conn == null)
             {
-                throw new InvalidOperationException("Sender for OnInfoMessage event must be a SqlConnection");
+                throw new InvalidOperationException(SR.QueryServiceMessageSenderNotSql);
             }
 
             foreach(SqlError error in args.Errors) 
@@ -243,14 +232,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Sanity check that the results are available
             if (!HasExecuted)
             {
-                throw new InvalidOperationException("The query has not completed, yet.");
+                throw new InvalidOperationException(SR.QueryServiceSubsetNotCompleted);
             }
 
             // Sanity check to make sure that the batch is within bounds
             if (batchIndex < 0 || batchIndex >= Batches.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(batchIndex), "Result set index cannot be less than 0" +
-                                                                             "or greater than the number of result sets");
+                throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
             }
 
             return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);

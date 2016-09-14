@@ -195,8 +195,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         {
             get
             {
-                // TODO: Localize
-                return string.IsNullOrEmpty(internalColumn.ColumnName) ? "(No column name)" : internalColumn.ColumnName;
+                return string.IsNullOrEmpty(internalColumn.ColumnName)
+                    ? SR.QueryServiceColumnNull
+                    : internalColumn.ColumnName;
             }
         }
 

@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                     // Workaround .NET bug, see sqlbu# 440643 and vswhidbey# 599834
                     // TODO: Is this workaround necessary for .NET Core?
-                    if (colType == null && sqlVariantTypeResult.Value == "System.Data.SqlTypes.SqlSingle")
+                    if (colType == null && sqlVariantTypeResult.Value == @"System.Data.SqlTypes.SqlSingle")
                     {
                         colType = typeof(SqlSingle);
                     }
