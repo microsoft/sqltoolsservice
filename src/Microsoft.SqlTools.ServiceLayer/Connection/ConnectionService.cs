@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 return new ConnectResponse
                 {
-                    Messages = SR.ConnectionServiceErrorNullParams
+                    Messages = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
             if (!connectionParams.IsValid(out paramValidationErrorMessage))
