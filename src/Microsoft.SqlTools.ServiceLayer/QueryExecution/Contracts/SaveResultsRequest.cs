@@ -28,13 +28,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         public int ResultSetIndex { get; set; }
 
-
         /// <summary>
         /// URI for the editor that called save results
         /// </summary>
         public string OwnerUri { get; set; }
     }
 
+    /// <summary>
+    /// Parameters to save results as CSV
+    /// </summary>
     public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams{
         
         /// <summary>
@@ -51,9 +53,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Include headers of columns in CSV
         /// </summary>
         public bool IncludeHeaders { get; set; }
-
     }
 
+    /// <summary>
+    /// Parameters to save results as JSON
+    /// </summary>
     public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams{
         //TODO: define config for save as JSON
     }
@@ -69,6 +73,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string Messages { get; set; }
     }
 
+    /// <summary>
+    /// Request type to save results as CSV
+    /// </summary>
     public class SaveResultsAsCsvRequest
     {
         public static readonly
@@ -76,6 +83,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult>.Create("query/saveCsv");
     }
 
+    /// <summary>
+    /// Request type to save results as CSV
+    /// </summary>
     public class SaveResultsAsJsonRequest
     {
         public static readonly
