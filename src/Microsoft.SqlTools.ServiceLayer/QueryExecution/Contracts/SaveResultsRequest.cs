@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     }
 
     /// <summary>
-    /// Request type to save results as CSV
+    /// Request type to save results as JSON
     /// </summary>
     public class SaveResultsAsJsonRequest
     {

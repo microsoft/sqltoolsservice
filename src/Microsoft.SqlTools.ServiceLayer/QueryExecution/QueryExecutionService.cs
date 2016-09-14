@@ -283,23 +283,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
-                    if ( saveParams.IncludeHeaders) 
+                    if (saveParams.IncludeHeaders) 
                     {
                         // write column names to csv
                         await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Select( column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
                     }
 
                     // write rows to csv
-                    foreach( var row in selectedResultSet.Rows)
+                    foreach (var row in selectedResultSet.Rows)
                     {
-                        await csvFile.WriteLineAsync(string.Join( ",", row.Select( field => SaveResults.EncodeCsvField( (field != null) ? field.ToString(): string.Empty))));
+                        await csvFile.WriteLineAsync( string.Join( ",", row.Select( field => SaveResults.EncodeCsvField((field != null) ? field.ToString(): string.Empty))));
                     }
                 }
             }
             catch(Exception ex)
             {
                 // Delete file when exception occurs
-                if(File.Exists(saveParams.FilePath))
+                if (File.Exists(saveParams.FilePath))
                 {
                     File.Delete(saveParams.FilePath);
                 }
@@ -342,10 +342,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
 
                     // write each row to JSON
-                    foreach( var row in selectedResultSet.Rows)
+                    foreach (var row in selectedResultSet.Rows)
                     {
                         jsonWriter.WriteStartObject();
-                        foreach(var field in row.Select((value,i) => new {value, i}))
+                        foreach (var field in row.Select((value,i) => new {value, i}))
                         {
                             jsonWriter.WritePropertyName(selectedResultSet.Columns[field.i].ColumnName);
                             if (field.value != null) 
@@ -365,7 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             catch(Exception ex)
             {
                 // Delete file when exception occurs
-                if(File.Exists(saveParams.FilePath))
+                if (File.Exists(saveParams.FilePath))
                 {
                     File.Delete(saveParams.FilePath);
                 }
