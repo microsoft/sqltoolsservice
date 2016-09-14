@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace

@@ -131,3 +131,12 @@ QueryServiceResultSetStartRowOutOfRange = Start row cannot be less than 0 or gre
 QueryServiceResultSetRowCountOutOfRange = Row count must be a positive integer
 
 QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for result set
+
+############################################################################
+# Workspace Service
+
+WorkspaceServicePositionLineOutOfRange = Position is outside of file line range
+
+WorkspaceServicePositionColumnOutOfRange = Position is outside of column range for line {0}
+
+WorkspaceServiceBufferPositionOutOfOrder = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})

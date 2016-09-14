@@ -3,11 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.EditorServices.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
 {
@@ -230,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         {
             if (line < 1 || line > this.FileLines.Count + 1)
             {
-                throw new ArgumentOutOfRangeException("Position is outside of file line range.");
+                throw new ArgumentOutOfRangeException(nameof(line), SR.WorkspaceServicePositionLineOutOfRange);
             }
 
             // The maximum column is either one past the length of the string
@@ -240,10 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
 
             if (column < 1 || column > maxColumn)
             {
-                throw new ArgumentOutOfRangeException(
-                    string.Format(
-                        "Position is outside of column range for line {0}.",
-                        line));
+                throw new ArgumentOutOfRangeException(nameof(column), SR.WorkspaceServicePositionColumnOutOfRange(line));
             }
         }
 
