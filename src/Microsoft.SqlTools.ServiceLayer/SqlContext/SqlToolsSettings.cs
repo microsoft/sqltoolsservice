@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {

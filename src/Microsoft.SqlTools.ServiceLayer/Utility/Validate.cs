@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.EditorServices.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     /// <summary>
     /// Provides common validation methods to simplify method

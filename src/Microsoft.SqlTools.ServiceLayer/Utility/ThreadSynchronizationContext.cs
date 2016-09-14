@@ -7,7 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Microsoft.SqlTools.EditorServices.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     /// <summary>
     /// Provides a SynchronizationContext implementation that can be used

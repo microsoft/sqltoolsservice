@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.EditorServices.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     internal static class ObjectExtensions
     {

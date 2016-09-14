@@ -13,8 +13,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
