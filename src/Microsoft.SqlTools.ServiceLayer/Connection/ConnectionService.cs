@@ -554,7 +554,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     Logger.Write(
                         LogLevel.Error,
-                        // TODO: Do log messages need to localized?
                         string.Format(
                             "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}", 
                             newDatabaseName, 
