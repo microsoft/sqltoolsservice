@@ -14,13 +14,10 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
-    /// Reader for SSMS formatted file streams
+    /// Reader for service buffer formatted file streams
     /// </summary>
     public class ServiceBufferFileStreamReader : IFileStreamReader
     {
-        // Most of this code is based on code from the Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage
-        // $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\FileStreamReader.cs
-
         private const int DefaultBufferSize = 8192;
 
         #region Member Variables

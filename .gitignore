@@ -36,6 +36,7 @@ node_modules
 packages
 reports
 opencovertests.xml
+outputCobertura.xml
 sqltools.xml
 
 # Cross building rootfs
@@ -275,3 +276,7 @@ Session.vim
 
 # Visual Studio Code
 .vscode/
+
+# Stuff from cake
+/artifacts/
+/.tools/

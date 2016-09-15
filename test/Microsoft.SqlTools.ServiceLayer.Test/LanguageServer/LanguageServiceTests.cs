@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             textDocument.Position.Character = 7;
             scriptFile.Contents = "select ";
 
-            var autoCompleteService = AutoCompleteService.Instance;
+            var autoCompleteService = LanguageService.Instance;
             var completions = autoCompleteService.GetCompletionItems(
                 textDocument, 
                 scriptFile,

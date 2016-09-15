@@ -111,6 +111,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public long RowCount { get; private set; }
 
+        /// <summary>
+        /// The rows of this result set
+        /// </summary>
+        public IEnumerable<object[]> Rows
+        {
+            get { return FileOffsets.Select(offset => fileStreamReader.ReadRow(offset, Columns)); }
+        }
+
         #endregion
 
         #region Public Methods

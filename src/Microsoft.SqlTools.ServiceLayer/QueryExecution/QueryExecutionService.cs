@@ -2,9 +2,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
 using System;
 using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -13,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -98,6 +100,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecuteSubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
+            serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
+            serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -256,6 +260,124 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Process request to save a resultSet to a file in CSV format
+        /// </summary>
+        public async Task HandleSaveResultsAsCsvRequest( SaveResultsAsCsvRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // retrieve query for OwnerUri
+            Query result;
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            {
+                await requestContext.SendResult(new SaveResultRequestResult
+                {
+                    Messages = "Failed to save results, ID not found."
+                });
+                return;
+            }
+            try
+            {
+                using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
+                {
+                    // get the requested resultSet from query
+                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
+                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+                    if (saveParams.IncludeHeaders) 
+                    {
+                        // write column names to csv
+                        await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Select( column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
+                    }
+
+                    // write rows to csv
+                    foreach (var row in selectedResultSet.Rows)
+                    {
+                        await csvFile.WriteLineAsync( string.Join( ",", row.Select( field => SaveResults.EncodeCsvField((field != null) ? field.ToString(): string.Empty))));
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                // Delete file when exception occurs
+                if (File.Exists(saveParams.FilePath))
+                {
+                    File.Delete(saveParams.FilePath);
+                }
+                await requestContext.SendError(ex.Message);
+                return;
+            }
+            await requestContext.SendResult(new SaveResultRequestResult
+            {
+                Messages = "Success"
+            });
+            return;
+        }
+
+        /// <summary>
+        /// Process request to save a resultSet to a file in JSON format
+        /// </summary>
+        public async Task HandleSaveResultsAsJsonRequest( SaveResultsAsJsonRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // retrieve query for OwnerUri
+            Query result;
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            {
+                await requestContext.SendResult(new SaveResultRequestResult
+                {
+                    Messages = "Failed to save results, ID not found."
+                });
+                return;
+            }
+            try
+            {
+                using (StreamWriter jsonFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
+                using (JsonWriter jsonWriter = new JsonTextWriter(jsonFile) )
+                {
+                    jsonWriter.Formatting = Formatting.Indented;
+                    jsonWriter.WriteStartArray();
+                    
+                    // get the requested resultSet from query
+                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
+                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+
+                    // write each row to JSON
+                    foreach (var row in selectedResultSet.Rows)
+                    {
+                        jsonWriter.WriteStartObject();
+                        foreach (var field in row.Select((value,i) => new {value, i}))
+                        {
+                            jsonWriter.WritePropertyName(selectedResultSet.Columns[field.i].ColumnName);
+                            if (field.value != null) 
+                            {
+                                jsonWriter.WriteValue(field.value);
+                            } 
+                            else
+                            {
+                                jsonWriter.WriteNull();
+                            } 
+                        }
+                        jsonWriter.WriteEndObject();
+                    }
+                    jsonWriter.WriteEndArray();
+                }
+            }
+            catch(Exception ex)
+            {
+                // Delete file when exception occurs
+                if (File.Exists(saveParams.FilePath))
+                {
+                    File.Delete(saveParams.FilePath);
+                }
+                await requestContext.SendError(ex.Message);
+                return;
+            }
+            await requestContext.SendResult(new SaveResultRequestResult
+            {
+                Messages = "Success"
+            });
+            return;
+        }
         #endregion
 
         #region Private Helpers
