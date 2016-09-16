@@ -240,25 +240,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 return null;
             }
 
-            //this code is mostly copied from SqlClient implementation of returning value for XML data type
-            StringWriterWithMaxCapacity sw = new StringWriterWithMaxCapacity(null, maxCharsToReturn);
+            // Setup the writer so that we don't close the memory stream and can process fragments
+            // of XML
             XmlWriterSettings writerSettings = new XmlWriterSettings
             {
-                CloseOutput = false,
+                CloseOutput = false,    // don't close the memory stream
                 ConformanceLevel = ConformanceLevel.Fragment
             };
-            // don't close the memory stream
-            XmlWriter ww = XmlWriter.Create(sw, writerSettings);
 
-            XmlReader reader = sm.CreateReader();
-            reader.Read();
-
-            while (!reader.EOF)
+            using (StringWriterWithMaxCapacity sw = new StringWriterWithMaxCapacity(null, maxCharsToReturn))
+            using (XmlWriter ww = XmlWriter.Create(sw, writerSettings))
+            using (XmlReader reader = sm.CreateReader())
             {
-                ww.WriteNode(reader, true);
+                reader.Read();
+
+                while (!reader.EOF)
+                {
+                    ww.WriteNode(reader, true);
+                }
+
+                ww.Flush();
+                return sw.ToString();
             }
-            ww.Flush();
-            return sw.ToString();
         }
 
         #endregion
