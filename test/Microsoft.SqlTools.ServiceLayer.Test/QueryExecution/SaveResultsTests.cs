@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
             // Request to save the results as csv with correct parameters
-            var saveParams = new SaveResultsRequestParams
+            var saveParams = new SaveResultsAsCsvRequestParams
             {
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
@@ -51,14 +51,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
 
             // Delete temp file after test
-            if(File.Exists(saveParams.FilePath))
+            if (File.Exists(saveParams.FilePath))
             {
                 File.Delete(saveParams.FilePath);
             }
         }
 
         /// <summary>
-        /// Test handling exception in saving results to file
+        /// Test handling exception in saving results to CSV file
         /// </summary>
         [Fact]
         public void SaveResultsAsCsvExceptionTest()
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
             // Request to save the results as csv with incorrect filepath
-            var saveParams = new SaveResultsRequestParams
+            var saveParams = new SaveResultsAsCsvRequestParams
             {
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
@@ -78,8 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 FilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "G:\\test.csv" : "/test.csv"
             };
             // SaveResultRequestResult result = null;
-            String errMessage = null;
-            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (String) err);
+            string errMessage = null;
+            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
 
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         /// <summary>
-        /// Test saving results to file when the requested result set is no longer active
+        /// Test saving results to CSV file when the requested result set is no longer active
         /// </summary>
         [Fact]
         public void SaveResultsAsCsvQueryNotFoundTest()
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
             // Request to save the results as csv with query that is no longer active
-            var saveParams = new SaveResultsRequestParams
+            var saveParams = new SaveResultsAsCsvRequestParams
             {
                 OwnerUri = "falseuri",
                 ResultSetIndex = 0,
@@ -111,11 +111,109 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
-            // queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
 
             // Expect message that save failed
             Assert.NotNull(result.Messages);
+            Assert.False(File.Exists(saveParams.FilePath));
+            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+        }
+
+        /// <summary>
+        /// Test save results to a file as JSON with correct parameters
+        /// </summary>
+        [Fact]
+        public void SaveResultsAsJsonSuccessTest()
+        {
+            // Execute a query
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+
+            // Request to save the results as json with correct parameters
+            var saveParams = new SaveResultsAsJsonRequestParams
+            {
+                OwnerUri = Common.OwnerUri,
+                ResultSetIndex = 0,
+                BatchIndex = 0,
+                FilePath = "testwrite.json"
+            };
+            SaveResultRequestResult result = null;
+            var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
+            queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
+            queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object).Wait();
+
+            // Expect to see a file successfully created in filepath and a success message
+            Assert.Equal("Success", result.Messages);
+            Assert.True(File.Exists(saveParams.FilePath));
+            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+
+            // Delete temp file after test
+            if (File.Exists(saveParams.FilePath))
+            {
+                File.Delete(saveParams.FilePath);
+            }
+        }
+
+        /// <summary>
+        /// Test handling exception in saving results to JSON file
+        /// </summary>
+        [Fact]
+        public void SaveResultsAsJsonExceptionTest()
+        {
+            // Execute a query
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+
+            // Request to save the results as json with incorrect filepath
+            var saveParams = new SaveResultsAsJsonRequestParams
+            {
+                OwnerUri = Common.OwnerUri,
+                ResultSetIndex = 0,
+                BatchIndex = 0,
+                FilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "G:\\test.json" : "/test.json"
+            };
+            // SaveResultRequestResult result = null;
+            string errMessage = null;
+            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
+            queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
+            queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object).Wait();
+
+            // Expect to see error message
+            Assert.NotNull(errMessage);
+            VerifySaveResultsCallCount(saveRequest, Times.Never(), Times.Once());
+            Assert.False(File.Exists(saveParams.FilePath));
+        }
+
+        /// <summary>
+        /// Test saving results to JSON file when the requested result set is no longer active
+        /// </summary>
+        [Fact]
+        public void SaveResultsAsJsonQueryNotFoundTest()
+        {
+            // Execute a query
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+
+            // Request to save the results as json with query that is no longer active
+            var saveParams = new SaveResultsAsJsonRequestParams
+            {
+                OwnerUri = "falseuri",
+                ResultSetIndex = 0,
+                BatchIndex = 0,
+                FilePath = "testwrite.json"
+            };
+            SaveResultRequestResult result = null;
+            var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
+            queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object).Wait();
+
+            // Expect message that save failed
+            Assert.Equal("Failed to save results, ID not found.", result.Messages);
             Assert.False(File.Exists(saveParams.FilePath));
             VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
         }

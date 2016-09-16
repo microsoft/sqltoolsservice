@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -54,9 +55,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// Optional. Specifies the minimum log message level to write to the log file.
         /// </param>
         public static void Initialize(
-            string logFilePath = "SqlToolsService.log",
+            string logFilePath = "sqltools",
             LogLevel minimumLogLevel = LogLevel.Normal)
         {
+            // get a unique number to prevent conflicts of two process launching at the same time
+            int uniqueId;
+            try
+            {
+                uniqueId = Process.GetCurrentProcess().Id;
+            }
+            catch (Exception)
+            {
+                // if the pid look up fails for any reason, just use a random number
+                uniqueId =  new Random().Next(1000, 9999);
+            }
+
+            // make the log path unique
+            string fullFileName = string.Format(
+                "{0}_{1,4:D4}{2,2:D2}{3,2:D2}{4,2:D2}{5,2:D2}{6,2:D2}{7}.log", 
+                logFilePath,
+                DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
+                DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, 
+                uniqueId);
+
             if (logWriter != null)
             {
                 logWriter.Dispose();
@@ -66,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             logWriter = 
                 new LogWriter(
                     minimumLogLevel, 
-                    logFilePath,
+                    fullFileName,
                     true);
         }
 
