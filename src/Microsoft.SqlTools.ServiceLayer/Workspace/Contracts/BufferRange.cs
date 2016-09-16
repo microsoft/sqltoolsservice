@@ -57,11 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         {
             if (start > end)
             {
-                throw new ArgumentException(
-                    string.Format(
-                        "Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3}).",
-                        start.Line, start.Column,
-                        end.Line, end.Column));
+                throw new ArgumentException(SR.WorkspaceServiceBufferPositionOutOfOrder(start.Line, start.Column,
+                    end.Line, end.Column));
             }
 
             this.Start = start;

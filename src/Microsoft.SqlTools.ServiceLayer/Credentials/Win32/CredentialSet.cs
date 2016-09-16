@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
 {
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
         {
             if (string.IsNullOrEmpty(target))
             {
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
             }
             Target = target;
         }

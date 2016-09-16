@@ -526,7 +526,7 @@ Task("SRGen")
 		}
 
 		// Run SRGen
-		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS \"{5}\"",
+		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
 			srgenPath, outputResx, outputCs, projectName, projectName, projectStrings);
 		Information("{0}", dotnetArgs);
 		Run(dotnetcli, dotnetArgs);

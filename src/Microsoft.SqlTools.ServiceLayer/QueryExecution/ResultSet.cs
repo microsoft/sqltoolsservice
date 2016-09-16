@@ -64,10 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public ResultSet(DbDataReader reader, IFileStreamFactory factory)
         {
             // Sanity check to make sure we got a reader
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader), "Reader cannot be null");
-            }
+            Validate.IsNotNull(nameof(reader), SR.QueryServiceResultSetReaderNull);
+
             DataReader = new StorageDataReader(reader);
 
             // Initialize the storage
@@ -134,18 +132,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Sanity check to make sure that the results have been read beforehand
             if (!hasBeenRead || fileStreamReader == null)
             {
-                throw new InvalidOperationException("Cannot read subset unless the results have been read from the server");
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
 
             // Sanity check to make sure that the row and the row count are within bounds
             if (startRow < 0 || startRow >= RowCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(startRow), "Start row cannot be less than 0 " +
-                                                                        "or greater than the number of rows in the resultset");
+                throw new ArgumentOutOfRangeException(nameof(startRow), SR.QueryServiceResultSetStartRowOutOfRange);
             }
             if (rowCount <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(rowCount), "Row count must be a positive integer");
+                throw new ArgumentOutOfRangeException(nameof(rowCount), SR.QueryServiceResultSetRowCountOutOfRange);
             }
 
             return Task.Factory.StartNew(() =>
@@ -177,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // If we can initialize the columns using the column schema, use that
                 if (!DataReader.DbDataReader.CanGetColumnSchema())
                 {
-                    throw new InvalidOperationException("Could not retrieve column schema for result set.");
+                    throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
                 }
                 Columns = DataReader.Columns;
                 long currentFileOffset = 0;
