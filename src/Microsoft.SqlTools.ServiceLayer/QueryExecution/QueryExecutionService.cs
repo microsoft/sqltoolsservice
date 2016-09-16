@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
@@ -407,8 +408,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Retrieve the current settings for executing the query with
                 QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
 
+                // Get query text from the workspace.
+                ScriptFile QueryFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(executeParams.OwnerUri);
+
+                string QueryText;
+
+                if(executeParams.QuerySelection != null) {
+                    string[] QueryTextArray = QueryFile.GetLinesInRange(
+                        new BufferRange(
+                            new BufferPosition(
+                                executeParams.QuerySelection.StartLine + 1, 
+                                executeParams.QuerySelection.StartColumn + 1
+                            ), 
+                            new BufferPosition(
+                                executeParams.QuerySelection.EndLine + 1, 
+                                executeParams.QuerySelection.EndColumn + 1
+                            )
+                        )
+                    );
+                    QueryText = QueryTextArray.Aggregate((a, b) => a + '\r' + '\n' + b);
+                } else {
+                    QueryText = QueryFile.Contents;
+                }
+                
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings, BufferFileFactory);
+                Query newQuery = new Query(QueryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendResult(new QueryExecuteResult

@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        internal Batch(string batchText, int startLine, IFileStreamFactory outputFileFactory)
+        internal Batch(string batchText, int startLine, int startColumn, int endLine, int endColumn, IFileStreamFactory outputFileFactory)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             BatchText = batchText;
-            StartLine = startLine - 1;  // -1 to make sure that the line number of the batch is 0-indexed, since SqlParser gives 1-indexed line numbers
+            Selection = new SelectionData(startLine, startColumn, endLine, endColumn);
             HasExecuted = false;
             resultSets = new List<ResultSet>();
             resultMessages = new List<string>();
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The 0-indexed line number that this batch started on
         /// </summary>
-        internal int StartLine { get; set; }
+        internal SelectionData Selection { get; set; }
 
         #endregion
 
@@ -255,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     SqlError sqlError = error as SqlError;
                     if (sqlError != null)
                     {
-                        int lineNumber = sqlError.LineNumber + StartLine;
+                        int lineNumber = sqlError.LineNumber + Selection.StartLine;
                         string message = String.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
                             Environment.NewLine, sqlError.Message);
