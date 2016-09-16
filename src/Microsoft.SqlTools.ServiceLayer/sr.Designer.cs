@@ -134,9 +134,9 @@ namespace Microsoft.SqlTools.ServiceLayer {
         /// <summary>
         ///    Looks up a localized string similar to OwnerUri cannot be null or empty.
         /// </summary>
-        public static string CoonectionServiceListDbErrorNullOwnerUri {
+        public static string ConnectionServiceListDbErrorNullOwnerUri {
             get {
-                return ResourceManager.GetString("CoonectionServiceListDbErrorNullOwnerUri", resourceCulture);
+                return ResourceManager.GetString("ConnectionServiceListDbErrorNullOwnerUri", resourceCulture);
             }
         }
         
@@ -218,15 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer {
         public static string HostingUnexpectedEndOfStream {
             get {
                 return ResourceManager.GetString("HostingUnexpectedEndOfStream", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to Incorrect syntax near &apos;{0}&apos;..
-        /// </summary>
-        public static string IncorrectSyntaxNear {
-            get {
-                return ResourceManager.GetString("IncorrectSyntaxNear", resourceCulture);
             }
         }
         

@@ -307,13 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     File.Delete(saveParams.FilePath);
                 }
                 await requestContext.SendError(ex.Message);
-                return;
             }
-            await requestContext.SendResult(new SaveResultRequestResult
-            {
-                Messages = "Success"
-            });
-            return;
         }
 
         /// <summary>
@@ -364,6 +358,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                     jsonWriter.WriteEndArray();
                 }
+
+                await requestContext.SendResult(new SaveResultRequestResult { Messages = null });
             }
             catch(Exception ex)
             {

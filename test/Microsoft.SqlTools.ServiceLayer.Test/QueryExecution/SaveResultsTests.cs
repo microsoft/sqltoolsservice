@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
                 BatchIndex = 0,
-                FilePath = "testwrite.json"
+                FilePath = "testwrite_4.json"
             };
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object).Wait();
 
             // Expect to see a file successfully created in filepath and a success message
-            Assert.Equal("Success", result.Messages);
+            Assert.Null(result.Messages);
             Assert.True(File.Exists(saveParams.FilePath));
             VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
 
@@ -206,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 OwnerUri = "falseuri",
                 ResultSetIndex = 0,
                 BatchIndex = 0,
-                FilePath = "testwrite.json"
+                FilePath = "testwrite_6.json"
             };
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
