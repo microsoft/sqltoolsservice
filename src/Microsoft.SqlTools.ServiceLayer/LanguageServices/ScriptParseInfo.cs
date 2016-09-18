@@ -3,14 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using System;
-using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -32,7 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         { 
             get { return this.buildingMetadataEvent; }
         }
-
 
         /// <summary>
         /// Gets or sets a flag determining is the LanguageService is connected
@@ -56,7 +57,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     isQuotedIdentifierSet: true, 
                     compatibilityLevel: DatabaseCompatibilityLevel, 
                     transactSqlVersion: TransactSqlVersion);
-                this.IsConnected = true;
             }
         }
 
@@ -144,6 +144,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
         
         /// <summary>
+        /// Gets or sets the current autocomplete suggestion list
+        /// </summary>
+        public IEnumerable<Declaration> CurrentSuggestions { get; set; }
+
+        /// <summary>
         /// Gets the database compatibility level from a server version
         /// </summary>
         /// <param name="serverVersion"></param>
@@ -193,6 +198,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 default:
                     return TransactSqlVersion.Current;
             }
-        }
+        }        
     }
 }
