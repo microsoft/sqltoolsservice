@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
                      => fileName.Contains("sqltools_") 
                      && fileName.EndsWith(".log", StringComparison.OrdinalIgnoreCase))
                 .ToList()
-                .ForEach(fileName => File.Delete(fileName));
+                .ForEach(File.Delete);
 
             // initialize the logger
             Logger.Initialize(
@@ -40,9 +40,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
 
             // find the name of the new log file
             string logFileName = Directory.GetFiles(Directory.GetCurrentDirectory())
-                .Where(fileName 
-                     => fileName.Contains("sqltools_") 
-                     && fileName.EndsWith(".log", StringComparison.OrdinalIgnoreCase)).SingleOrDefault();
+                .SingleOrDefault(fileName =>
+                    fileName.Contains("sqltools_")
+                    && fileName.EndsWith(".log", StringComparison.OrdinalIgnoreCase));
                 
             // validate the log file was created with desired name 
             Assert.True(!string.IsNullOrWhiteSpace(logFileName));

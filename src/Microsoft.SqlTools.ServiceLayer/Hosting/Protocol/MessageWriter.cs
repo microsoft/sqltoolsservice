@@ -6,9 +6,9 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

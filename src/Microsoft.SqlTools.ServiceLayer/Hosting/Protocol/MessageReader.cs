@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
@@ -146,8 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 // ending suddenly).  For now, just terminate the language
                 // server immediately.
                 // TODO: Provide a more graceful shutdown path
-                throw new EndOfStreamException(
-                    "MessageReader's input stream ended unexpectedly, terminating.");
+                throw new EndOfStreamException(SR.HostingUnexpectedEndOfStream);
             }
 
             return true;
@@ -186,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                     int currentLength = header.IndexOf(':');
                     if (currentLength == -1)
                     {
-                        throw new ArgumentException("Message header must separate key and value using :");
+                        throw new ArgumentException(SR.HostingHeaderMissingColon);
                     }
 
                     var key = header.Substring(0, currentLength);
@@ -198,13 +197,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 string contentLengthString;
                 if (!this.messageHeaders.TryGetValue("Content-Length", out contentLengthString))
                 {
-                    throw new MessageParseException("", "Fatal error: Content-Length header must be provided.");
+                    throw new MessageParseException("", SR.HostingHeaderMissingContentLengthHeader);
                 }
 
                 // Parse the content length to an integer
                 if (!int.TryParse(contentLengthString, out this.expectedContentLength))
                 {
-                    throw new MessageParseException("", "Fatal error: Content-Length value is not an integer.");
+                    throw new MessageParseException("", SR.HostingHeaderMissingContentLengthValue);
                 }
             }
             catch (Exception)
