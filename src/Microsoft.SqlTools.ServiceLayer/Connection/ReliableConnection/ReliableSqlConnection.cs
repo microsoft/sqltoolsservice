@@ -31,7 +31,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {

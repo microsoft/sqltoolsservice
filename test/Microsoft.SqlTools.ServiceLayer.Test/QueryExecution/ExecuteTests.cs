@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a query that has a null query text
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 new Query(null, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings(), Common.GetFileStreamFactory()));
         }
 

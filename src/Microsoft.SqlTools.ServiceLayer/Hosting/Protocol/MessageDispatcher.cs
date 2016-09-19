@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
 {

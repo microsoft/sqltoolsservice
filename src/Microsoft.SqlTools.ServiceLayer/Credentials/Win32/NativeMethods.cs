@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
                 }
                 else
                 {
-                    throw new InvalidOperationException("Invalid CriticalHandle!");
+                    throw new InvalidOperationException(SR.CredentialsServiceInvalidCriticalHandle);
                 }
             }
 
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             // Often, you need to use Pinvoke to make a call into the Win32 API to release the 
             // handle. In this case, however, we can use the Marshal class to release the unmanaged memory.
 
-            override protected bool ReleaseHandle()
+            protected override bool ReleaseHandle()
             {
                 // If the handle was set, free it. Return success.
                 if (!IsInvalid)

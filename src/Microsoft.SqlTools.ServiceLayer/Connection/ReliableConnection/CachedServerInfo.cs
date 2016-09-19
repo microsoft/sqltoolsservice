@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.SqlTools.EditorServices.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {

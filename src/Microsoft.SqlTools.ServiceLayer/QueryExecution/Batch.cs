@@ -10,10 +10,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -22,8 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// </summary>
     public class Batch : IDisposable
     {
-        private const string RowsAffectedFormat = "({0} row(s) affected)";
-
         #region Member Variables
 
         /// <summary>
@@ -160,8 +158,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
                                 resultMessages.Add(reader.RecordsAffected >= 0
-                                    ? string.Format(RowsAffectedFormat, reader.RecordsAffected)
-                                    : "Command(s) completed successfully.");
+                                    ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
+                                    : SR.QueryServiceCompletedSuccessfully);
                                 continue;
                             }
 
@@ -173,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
 
                             // Add a message for the number of rows the query returned
-                            resultMessages.Add(string.Format(RowsAffectedFormat, resultSet.RowCount));
+                            resultMessages.Add(SR.QueryServiceAffectedRows(reader.RecordsAffected));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -214,8 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Sanity check to make sure we have valid numbers
             if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
             {
-                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), "Result set index cannot be less than 0" +
-                                                                             "or greater than the number of result sets");
+                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), SR.QueryServiceSubsetResultSetOutOfRange);
             }
 
             // Retrieve the result set

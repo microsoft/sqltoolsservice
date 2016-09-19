@@ -7,7 +7,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.EditorServices.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     /// <summary>
     /// Simplifies the setup of a SynchronizationContext for the use
