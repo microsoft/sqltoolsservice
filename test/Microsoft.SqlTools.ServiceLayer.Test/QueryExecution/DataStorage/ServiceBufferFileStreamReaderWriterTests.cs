@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
 {
     public class ReaderWriterPairTest
     {
-        private static void VerifyReadWrite<T>(int valueLength, T value, Func<ServiceBufferFileStreamWriter, T, int> writeFunc, Func<ServiceBufferFileStreamReader, FileStreamReadResult<T>> readFunc)
+        private static void VerifyReadWrite<T>(int valueLength, T value, Func<ServiceBufferFileStreamWriter, T, int> writeFunc, Func<ServiceBufferFileStreamReader, FileStreamReadResult> readFunc)
         {
             // Setup: Create a mock file stream wrapper
             Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
@@ -29,16 +29,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 }
 
                 // ... And read the type T back
-                FileStreamReadResult<T> outValue;
+                FileStreamReadResult outValue;
                 using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
                 {
                     outValue = readFunc(reader);
                 }
 
                 // Then:
-                Assert.Equal(value, outValue.Value);
+                Assert.Equal(value, outValue.Value.RawObject);
                 Assert.Equal(valueLength, outValue.TotalLength);
-                Assert.False(outValue.IsNull);
+                Assert.False(outValue.Value.IsNull);
             }
             finally
             {

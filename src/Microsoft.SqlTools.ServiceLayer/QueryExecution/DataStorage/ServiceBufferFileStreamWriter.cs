@@ -583,9 +583,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Number of bytes used to store the DateTimeOffset</returns>
         public int WriteDateTimeOffset(DateTimeOffset dtoVal)
         {
-            // DateTimeOffset gets written as a DateTime + TimeOffset
-            // both represented as 'Ticks' written as Int64's
-            return WriteInt64(dtoVal.Ticks) + WriteInt64(dtoVal.Offset.Ticks);
+            // Write the length, which is the 2*sizeof(long)
+            byteBuffer[0] = 0x10; // length (16)
+
+            // Write the two longs, the datetime and the offset
+            long[] longBufferOffset = new long[2];
+            longBuffer[0] = dtoVal.Ticks;
+            longBuffer[1] = dtoVal.Offset.Ticks;
+            Buffer.BlockCopy(longBuffer, 0, byteBuffer, 1, 16);
+            return FileStream.WriteData(byteBuffer, 17);
         }
 
         /// <summary>

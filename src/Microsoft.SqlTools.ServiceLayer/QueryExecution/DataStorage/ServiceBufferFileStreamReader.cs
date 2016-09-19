@@ -28,6 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private readonly IFileStreamWrapper fileStream;
 
+        private Dictionary<Type, Func<long, FileStreamReadResult>> readMethods;
+
         #endregion
 
         /// <summary>
@@ -79,9 +81,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             };
         }
 
-        private Dictionary<Type, Func<long, FileStreamReadResult>> readMethods;
-
-
         #region IFileStreamStorage Implementation
 
         /// <summary>
@@ -90,9 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="fileOffset">Offset into the file where the row starts</param>
         /// <param name="columns">The columns that were encoded</param>
         /// <returns>The objects from the row, ready for output to the client</returns>
-        public IEnumerable<DbCellValue> ReadRow(long fileOffset, IEnumerable<DbColumnWrapper> columns)
+        public DbCellValue[] ReadRow(long fileOffset, IEnumerable<DbColumnWrapper> columns)
         {
-            #region
             // Initialize for the loop
             long currentFileOffset = fileOffset;
             List<DbCellValue> results = new List<DbCellValue>();
@@ -143,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 results.Add(result.Value);
             }
 
-            return results;
+            return results.ToArray();
         }
 
         /// <summary>
@@ -213,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A single</returns>
         public FileStreamReadResult ReadSingle(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => BitConverter.ToSingle(buffer, 0);
+            return ReadBasicCell(fileOffset, length => BitConverter.ToSingle(buffer, 0));
         }
 
         /// <summary>
@@ -223,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A double</returns>
         public FileStreamReadResult ReadDouble(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => BitConverter.ToDouble(buffer, 0);
+            return ReadBasicCell(fileOffset, length => BitConverter.ToDouble(buffer, 0));
         }
 
         /// <summary>
@@ -279,23 +277,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // DateTimeOffset is represented by DateTime.Ticks followed by TimeSpan.Ticks
             // both as Int64 values
-
-            // read the DateTime ticks
-            DateTimeOffset val = default(DateTimeOffset);
-            FileStreamReadResult<long> dateTimeTicks = ReadInt64(offset);
-            int totalLength = dateTimeTicks.TotalLength;
-            if (dateTimeTicks.TotalLength > 0 && !dateTimeTicks.IsNull)
-            {
-                // read the TimeSpan ticks
-                FileStreamReadResult<long> timeSpanTicks = ReadInt64(offset + dateTimeTicks.TotalLength);
-                Debug.Assert(!timeSpanTicks.IsNull, "TimeSpan ticks cannot be null if DateTime ticks are not null!");
-
-                totalLength += timeSpanTicks.TotalLength;
-                
-                // build the DateTimeOffset
-                val = new DateTimeOffset(new DateTime(dateTimeTicks.Value), new TimeSpan(timeSpanTicks.Value));
-            }
-            return new FileStreamReadResult<DateTimeOffset>(val, totalLength, dateTimeTicks.IsNull);
+            return ReadBasicCell(offset, length => {
+                long dtTicks = BitConverter.ToInt64(buffer, 0);
+                long dtOffset = BitConverter.ToInt64(buffer, 8);
+                return new DateTimeOffset(new DateTime(dtTicks), new TimeSpan(dtOffset)); 
+            });
         }
 
         /// <summary>
