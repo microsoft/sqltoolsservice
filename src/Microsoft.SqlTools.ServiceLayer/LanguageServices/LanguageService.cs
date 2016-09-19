@@ -358,19 +358,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientFilePath, createIfNotExists: true);
 
-            // parse current SQL file contents to retrieve a list of errors
-            ParseResult parseResult = Parser.IncrementalParse(
-                scriptFile.Contents,
-                parseInfo.ParseResult,
-                parseInfo.ParseOptions);
-
-            parseInfo.ParseResult = parseResult;
-
             if (parseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionsTimeout))
             {
                 try
                 {
                     parseInfo.BuildingMetadataEvent.Reset();
+
+                    // parse current SQL file contents to retrieve a list of errors
+                    ParseResult parseResult = Parser.IncrementalParse(
+                        scriptFile.Contents,
+                        parseInfo.ParseResult,
+                        parseInfo.ParseOptions);
+
+                    parseInfo.ParseResult = parseResult;
 
                     if (connInfo != null && parseInfo.IsConnected)
                     {
@@ -427,7 +427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
                                 scriptInfo.ServerConnection = new ServerConnection(sqlConn.GetUnderlyingConnection());
                                 scriptInfo.IsConnected = true;
-                                AddOrUpdateScriptParseInfo(info.OwnerUri, scriptInfo);
+                                //AddOrUpdateScriptParseInfo(info.OwnerUri, scriptInfo);
                             }
                         }
                         catch (Exception)
