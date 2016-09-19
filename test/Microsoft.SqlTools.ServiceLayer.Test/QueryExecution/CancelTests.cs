@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I request a query (doesn't matter what kind) and execute it
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = 
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I request a query (doesn't matter what kind) and wait for execution
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams {QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri};
+            var executeParams = new QueryExecuteParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
             var executeRequest =
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();

@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I request a query (doesn't matter what kind)
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams {QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri};
+            var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 

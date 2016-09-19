@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that has results (doesn't matter what)
             var queryService =Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(new[] {Common.StandardTestData}, false), true);
-            var executeParams = new QueryExecuteParams {QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri};
+            var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
 
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that hasn't finished executing (doesn't matter what)
             var queryService = Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;
@@ -168,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that doesn't have any result sets
             var queryService = Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 

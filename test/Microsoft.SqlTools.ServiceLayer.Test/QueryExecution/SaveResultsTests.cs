@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // Execute a query
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // Execute a query
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // Execute a query
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
@@ -119,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // Execute a query
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // Execute a query
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
@@ -185,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // Execute a query
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
