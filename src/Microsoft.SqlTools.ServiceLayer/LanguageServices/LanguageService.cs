@@ -427,7 +427,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
                                 scriptInfo.ServerConnection = new ServerConnection(sqlConn.GetUnderlyingConnection());
                                 scriptInfo.IsConnected = true;
-                                //AddOrUpdateScriptParseInfo(info.OwnerUri, scriptInfo);
                             }
                         }
                         catch (Exception)

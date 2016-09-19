@@ -198,6 +198,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 default:
                     return TransactSqlVersion.Current;
             }
-        }        
+        }
     }
 }

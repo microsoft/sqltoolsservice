@@ -132,7 +132,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
     internal class LogWriter : IDisposable
     {
         private object logLock = new object();
-
         private TextWriter textWriter;
         private LogLevel minimumLogLevel = LogLevel.Verbose;
 
@@ -173,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 logLevel >= this.minimumLogLevel)
             {
                 // System.IO is not thread safe
-                lock (logLock)
+                lock (this.logLock)
                 {
                     // Print the timestamp and log level
                     this.textWriter.WriteLine(

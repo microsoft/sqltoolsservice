@@ -492,7 +492,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Label = autoCompleteItem.Title,
                     Kind = CompletionItemKind.Variable,
                     Detail = autoCompleteItem.Title,
-                   // Documentation = autoCompleteItem.Description,
                     TextEdit = new TextEdit
                     {
                         NewText = autoCompleteItem.Title,
