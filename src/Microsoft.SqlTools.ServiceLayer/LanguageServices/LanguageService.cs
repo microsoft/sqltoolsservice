@@ -269,9 +269,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile, 
             EventContext eventContext)
         {
-            await this.RunScriptDiagnostics( 
-                new ScriptFile[] { scriptFile },
-                eventContext); 
+            if (!IsPreviewWindow(scriptFile))
+            {
+                await RunScriptDiagnostics( 
+                    new ScriptFile[] { scriptFile },
+                    eventContext); 
+            }
 
             await Task.FromResult(true);             
         }
@@ -764,6 +767,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     return false;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Returns a flag indicating if the ScriptFile refers to the output window.
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        private bool IsPreviewWindow(ScriptFile scriptFile)
+        {
+            if (scriptFile != null && !string.IsNullOrWhiteSpace(scriptFile.ClientFilePath))
+            {
+                return scriptFile.ClientFilePath.StartsWith("tsqloutput:");
+            }
+            else
+            {
+                return false;
             }
         }
     }
