@@ -428,6 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query newQuery = new Query(QueryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
+
                     await requestContext.SendResult(new QueryExecuteResult
                     {
                         Messages = SR.QueryServiceQueryInProgress

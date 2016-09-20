@@ -23,6 +23,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using Moq.Protected;
 
@@ -32,6 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
     {
         public const SelectionData WholeDocument = null;
 
+        public static SelectionData SubSectionDocument() {
+            return new SelectionData(0, 0, 2, 2);
+        }
+        
         public const string StandardQuery = "SELECT * FROM sys.objects";
 
         public const string InvalidQuery = "SELECT *** FROM sys.objects";
@@ -271,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected)
+        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> service)
         {
             var connectionService = new ConnectionService(factory);
             if (isConnected)
@@ -282,6 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     OwnerUri = OwnerUri
                 });
             }
+            WorkspaceService<SqlToolsSettings>.Instance.SetWorkspaceSerivce(service);
             return new QueryExecutionService(connectionService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 

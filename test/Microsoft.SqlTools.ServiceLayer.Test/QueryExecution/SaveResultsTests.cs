@@ -9,6 +9,9 @@ using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Xunit;
 
@@ -25,8 +28,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void SaveResultsAsCsvSuccessTest()
         {
+
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
@@ -63,8 +74,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void SaveResultsAsCsvExceptionTest()
         {
+
+             // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+                
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
@@ -95,8 +115,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void SaveResultsAsCsvQueryNotFoundTest()
         {
+
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
@@ -125,8 +147,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void SaveResultsAsJsonSuccessTest()
         {
+
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
@@ -162,8 +192,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void SaveResultsAsJsonExceptionTest()
         {
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
@@ -194,8 +225,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void SaveResultsAsJsonQueryNotFoundTest()
         {
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();

@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Xunit;
 
@@ -412,9 +413,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... Default settings are stored in the workspace service
             WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
 
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request to execute a valid query with no results
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
 
             QueryExecuteResult result = null;
@@ -444,9 +452,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void QueryExecuteValidResultsTest()
         {
+            
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request to execute a valid query with results
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true,
+                workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             QueryExecuteResult result = null;
@@ -477,9 +494,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void QueryExecuteUnconnectedUriTest()
         {
+
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I request to execute a query using a file URI that isn't connected
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
             QueryExecuteResult result = null;
@@ -500,9 +519,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void QueryExecuteInProgressTest()
         {
+
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+
             // If:
             // ... I request to execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
@@ -529,9 +557,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void QueryExecuteCompletedTest()
         {
+            
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+                
             // If:
             // ... I request to execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
@@ -560,9 +597,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [InlineData(null)]
         public void QueryExecuteMissingSelectionTest(SelectionData selection)
         {
+
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns("");
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request to execute a query with a missing query string
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = selection };
 
             QueryExecuteResult result = null;
@@ -585,9 +630,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void QueryExecuteInvalidQueryTest()
         {
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request to execute a query that is invalid
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, true), true);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, true), true, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             QueryExecuteResult result = null;

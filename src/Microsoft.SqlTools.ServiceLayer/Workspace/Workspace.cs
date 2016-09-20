@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <exception cref="ArgumentException">
         /// <paramref name="filePath"/> contains a null or empty string.
         /// </exception>
-        public ScriptFile GetFile(string filePath)
+        public virtual ScriptFile GetFile(string filePath)
         {
             Validate.IsNotNullOrWhitespaceString("filePath", filePath);
 
