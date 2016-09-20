@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The rows of this result set
         /// </summary>
-        public IEnumerable<object[]> Rows
+        public IEnumerable<DbCellValue[]> Rows
         {
             get { return FileOffsets.Select(offset => fileStreamReader.ReadRow(offset, Columns)); }
         }
@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
 
                 // Iterate over the rows we need and process them into output
-                object[][] rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)).ToArray();
+                DbCellValue[][] rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)).ToArray();
 
                 // Retrieve the subset of the results as per the request
                 return new ResultSetSubset
