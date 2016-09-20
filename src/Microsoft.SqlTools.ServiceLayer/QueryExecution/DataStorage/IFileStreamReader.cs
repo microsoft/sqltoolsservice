@@ -30,5 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         FileStreamReadResult ReadString(long i64Offset);
         FileStreamReadResult ReadBytes(long i64Offset);
         FileStreamReadResult ReadDateTimeOffset(long i64Offset);
+        FileStreamReadResult ReadGuid(long offset);
+        FileStreamReadResult ReadMoney(long offset);
     }
 }

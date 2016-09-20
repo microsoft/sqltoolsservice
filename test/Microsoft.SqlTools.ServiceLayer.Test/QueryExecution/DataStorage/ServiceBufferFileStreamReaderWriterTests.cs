@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (DateTimeOffset value in testValues)
             {
-                VerifyReadWrite((sizeof(long) + 1)*2, value, (writer, val) => writer.WriteDateTimeOffset(val), reader => reader.ReadDateTimeOffset(0));
+                VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val), reader => reader.ReadDateTimeOffset(0));
             }
         }
 
@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             {
                 // Then:
                 // ... I should get an argument null exception
-                Assert.Throws<ArgumentNullException>(() => writer.WriteBytes(null, 0));
+                Assert.Throws<ArgumentNullException>(() => writer.WriteBytes(null));
             }
         }
 
@@ -289,7 +289,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             byte[] value = sb.ToArray();
             int lengthLength = length == 0 || length > 255 ? 5 : 1;
             int valueLength = sizeof(byte)*length + lengthLength;
-            VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteBytes(value, length), reader => reader.ReadBytes(0));
+            VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteBytes(value), reader => reader.ReadBytes(0));
+        }
+
+        [Fact]
+        public void GuidTest()
+        {
+            // Setup:
+            // ... Create some test values
+            // NOTE: We are doing these here instead of InlineData because Guid type can't be written as constant expressions
+            Guid[] guids =
+            {
+                Guid.Empty, Guid.NewGuid(), Guid.NewGuid()
+            };
+            foreach (Guid guid in guids)
+            {
+                VerifyReadWrite(guid.ToByteArray().Length + 1, new SqlGuid(guid), (writer, val) => writer.WriteGuid(guid), reader => reader.ReadGuid(0));
+            }
+        }
+
+        [Fact]
+        public void MoneyTest()
+        {
+            // Setup: Create some test values
+            // NOTE: We are doing these here instead of InlineData because SqlMoney can't be written as a constant expression
+            SqlMoney[] monies =
+            {
+                SqlMoney.Zero, SqlMoney.MinValue, SqlMoney.MaxValue, new SqlMoney(1.02)
+            };
+            foreach (SqlMoney money in monies)
+            {
+                VerifyReadWrite(sizeof(decimal) + 1, money, (writer, val) => writer.WriteMoney(money), reader => reader.ReadMoney(0));
+            }
         }
     }
 }

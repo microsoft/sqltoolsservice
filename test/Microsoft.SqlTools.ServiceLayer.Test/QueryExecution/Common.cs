@@ -184,6 +184,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             connectionMock.Protected()
                 .Setup<DbCommand>("CreateDbCommand")
                 .Returns(CreateTestCommand(data, throwOnRead));
+            connectionMock.Setup(dbc => dbc.Open())
+                .Callback(() => connectionMock.SetupGet(dbc => dbc.State).Returns(ConnectionState.Open));
+            connectionMock.Setup(dbc => dbc.Close())
+                .Callback(() => connectionMock.SetupGet(dbc => dbc.State).Returns(ConnectionState.Closed));
 
             return connectionMock.Object;
         }

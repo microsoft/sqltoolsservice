@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -151,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A short</returns>
         public FileStreamReadResult ReadInt16(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => BitConverter.ToInt16(buffer, 0));
+            return ReadCellHelper(fileOffset, length => BitConverter.ToInt16(buffer, 0));
         }
 
         /// <summary>
@@ -161,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>An int</returns>
         public FileStreamReadResult ReadInt32(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => BitConverter.ToInt32(buffer, 0));
+            return ReadCellHelper(fileOffset, length => BitConverter.ToInt32(buffer, 0));
         }
 
         /// <summary>
@@ -171,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A long</returns>
         public FileStreamReadResult ReadInt64(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => BitConverter.ToInt64(buffer, 0));
+            return ReadCellHelper(fileOffset, length => BitConverter.ToInt64(buffer, 0));
         }
 
         /// <summary>
@@ -181,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A byte</returns>
         public FileStreamReadResult ReadByte(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => buffer[0]);
+            return ReadCellHelper(fileOffset, length => buffer[0]);
         }
 
         /// <summary>
@@ -191,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A char</returns>
         public FileStreamReadResult ReadChar(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => BitConverter.ToChar(buffer, 0));
+            return ReadCellHelper(fileOffset, length => BitConverter.ToChar(buffer, 0));
         }
 
         /// <summary>
@@ -201,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A bool</returns>
         public FileStreamReadResult ReadBoolean(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => buffer[0] == 0x1);
+            return ReadCellHelper(fileOffset, length => buffer[0] == 0x1);
         }
 
         /// <summary>
@@ -211,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A single</returns>
         public FileStreamReadResult ReadSingle(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => BitConverter.ToSingle(buffer, 0));
+            return ReadCellHelper(fileOffset, length => BitConverter.ToSingle(buffer, 0));
         }
 
         /// <summary>
@@ -221,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A double</returns>
         public FileStreamReadResult ReadDouble(long fileOffset)
         {
-            return ReadBasicCell(fileOffset, length => BitConverter.ToDouble(buffer, 0));
+            return ReadCellHelper(fileOffset, length => BitConverter.ToDouble(buffer, 0));
         }
 
         /// <summary>
@@ -231,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A SqlDecimal</returns>
         public FileStreamReadResult ReadSqlDecimal(long offset)
         {
-            return ReadBasicCell(offset, length =>
+            return ReadCellHelper(offset, length =>
             {
                 int[] arrInt32 = new int[(length - 3) / 4];
                 Buffer.BlockCopy(buffer, 3, arrInt32, 0, length - 3);
@@ -246,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A decimal</returns>
         public FileStreamReadResult ReadDecimal(long offset)
         {
-            return ReadBasicCell(offset, length =>
+            return ReadCellHelper(offset, length =>
             {
                 int[] arrInt32 = new int[length / 4];
                 Buffer.BlockCopy(buffer, 0, arrInt32, 0, length);
@@ -261,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A DateTime</returns>
         public FileStreamReadResult ReadDateTime(long offset)
         {
-            return ReadBasicCell(offset, length =>
+            return ReadCellHelper(offset, length =>
             {
                 long ticks = BitConverter.ToInt64(buffer, 0);
                 return new DateTime(ticks);
@@ -277,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // DateTimeOffset is represented by DateTime.Ticks followed by TimeSpan.Ticks
             // both as Int64 values
-            return ReadBasicCell(offset, length => {
+            return ReadCellHelper(offset, length => {
                 long dtTicks = BitConverter.ToInt64(buffer, 0);
                 long dtOffset = BitConverter.ToInt64(buffer, 8);
                 return new DateTimeOffset(new DateTime(dtTicks), new TimeSpan(dtOffset)); 
@@ -291,7 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A TimeSpan</returns>
         public FileStreamReadResult ReadTimeSpan(long offset)
         {
-            return ReadBasicCell(offset, length =>
+            return ReadCellHelper(offset, length =>
             {
                 long ticks = BitConverter.ToInt64(buffer, 0);
                 return new TimeSpan(ticks);
@@ -305,12 +304,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A string</returns>
         public FileStreamReadResult ReadString(long offset)
         {
-            return ReadBasicCell(offset, length =>
-            {
-                return length > 0
-                ? Encoding.Unicode.GetString(buffer, 0, length)
-                : string.Empty;
-            }, totalLength => totalLength == 1);
+            return ReadCellHelper(offset, length =>
+                length > 0
+                    ? Encoding.Unicode.GetString(buffer, 0, length)
+                    : string.Empty, totalLength => totalLength == 1);
         }
 
         /// <summary>
@@ -320,7 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A byte array</returns>
         public FileStreamReadResult ReadBytes(long offset)
         {
-            return ReadBasicCell(offset, length =>
+            return ReadCellHelper(offset, length =>
             {
                 byte[] output = new byte[length];
                 Buffer.BlockCopy(buffer, 0, output, 0, length);
@@ -328,20 +325,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }, totalLength => totalLength == 1);
         }
 
+        /// <summary>
+        /// Reads the bytes that make up a GUID at the offset provided
+        /// </summary>
+        /// <param name="offset">Offset into the file to read the bytes from</param>
+        /// <returns>A guid type object</returns>
         public FileStreamReadResult ReadGuid(long offset)
         {
-            return ReadBasicCell(offset, length =>
+            return ReadCellHelper(offset, length =>
             {
-                // TODO: Do we need to copy this around?
                 byte[] output = new byte[length];
                 Buffer.BlockCopy(buffer, 0, output, 0, length);
                 return new SqlGuid(output);
             }, totalLength => totalLength == 1);
         }
 
+        /// <summary>
+        /// Reads a SqlMoney type from the offset provided
+        /// into a 
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns>A sql money type object</returns>
         public FileStreamReadResult ReadMoney(long offset)
         {
-            return ReadBasicCell(offset, length =>
+            return ReadCellHelper(offset, length =>
             {
                 int[] arrInt32 = new int[length / 4];
                 Buffer.BlockCopy(buffer, 0, arrInt32, 0, length);
@@ -376,15 +383,43 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return new LengthResult {LengthLength = lengthLength, ValueLength = lengthValue};
         }
 
-        private FileStreamReadResult ReadBasicCell(long offset, Func<int, object> convertFunc, Func<int, bool> isNullFunc = null)
+        #endregion
+
+        #region Private Helpers
+
+        /// <summary>
+        /// Creates a new buffer that is of the specified length if the buffer is not already
+        /// at least as long as specified.
+        /// </summary>
+        /// <param name="newBufferLength">The minimum buffer size</param>
+        private void AssureBufferLength(int newBufferLength)
+        {
+            if (buffer.Length < newBufferLength)
+            {
+                buffer = new byte[newBufferLength];
+            }
+        }
+
+        /// <summary>
+        /// Reads the value of a cell from the file wrapper, checks to see if it null using
+        /// <paramref name="isNullFunc"/>, and converts it to the proper output type using
+        /// <paramref name="convertFunc"/>.
+        /// </summary>
+        /// <param name="offset">Offset into the file to read from</param>
+        /// <param name="convertFunc">Function to use to convert the buffer to the target type</param>
+        /// <param name="isNullFunc">
+        /// If provided, this function will be used to determine if the value is null
+        /// </param>
+        /// <returns>The object, a display value, and the length of the value + its length</returns>
+        private FileStreamReadResult ReadCellHelper(long offset, Func<int, object> convertFunc, Func<int, bool> isNullFunc = null)
         {
             LengthResult length = ReadLength(offset);
             DbCellValue result = new DbCellValue
             {
                 IsNull = isNullFunc == null ? length.ValueLength == 0 : isNullFunc(length.TotalLength),
             };
-      
-            if(result.IsNull)
+
+            if (result.IsNull)
             {
                 result.RawObject = null;
                 result.DisplayValue = NullString;
@@ -423,19 +458,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             public int TotalLength
             {
                 get { return LengthLength + ValueLength; }
-            }
-        }
-
-        /// <summary>
-        /// Creates a new buffer that is of the specified length if the buffer is not already
-        /// at least as long as specified.
-        /// </summary>
-        /// <param name="newBufferLength">The minimum buffer size</param>
-        private void AssureBufferLength(int newBufferLength)
-        {
-            if (buffer.Length < newBufferLength)
-            {
-                buffer = new byte[newBufferLength];
             }
         }
 
