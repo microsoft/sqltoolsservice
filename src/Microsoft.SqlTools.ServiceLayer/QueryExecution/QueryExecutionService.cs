@@ -39,11 +39,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private QueryExecutionService()
         {
             ConnectionService = ConnectionService.Instance;
+            WorkspaceService = WorkspaceService<SqlToolsSettings>.Instance;
         }
 
-        internal QueryExecutionService(ConnectionService connService)
+        internal QueryExecutionService(ConnectionService connService, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             ConnectionService = connService;
+            WorkspaceService = workspaceService;
         }
 
         #endregion
@@ -79,6 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private ConnectionService ConnectionService { get; set; }
 
+        private WorkspaceService<SqlToolsSettings> WorkspaceService { get; set; }
+
         /// <summary>
         /// Internal storage of active queries, lazily constructed as a threadsafe dictionary
         /// </summary>
@@ -112,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             });
 
             // Register a handler for when the configuration changes
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((oldSettings, newSettings, eventContext) =>
+            WorkspaceService.RegisterConfigChangeCallback((oldSettings, newSettings, eventContext) =>
             {
                 Settings.QueryExecutionSettings.Update(newSettings.QueryExecutionSettings);
                 return Task.FromResult(0);
@@ -399,10 +403,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Retrieve the current settings for executing the query with
-                QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
+                QueryExecutionSettings settings = WorkspaceService.CurrentSettings.QueryExecutionSettings;
 
                 // Get query text from the workspace.
-                ScriptFile QueryFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(executeParams.OwnerUri);
+                ScriptFile QueryFile = WorkspaceService.Workspace.GetFile(executeParams.OwnerUri);
 
                 string QueryText;
 

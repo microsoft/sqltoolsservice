@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> service)
+        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             var connectionService = new ConnectionService(factory);
             if (isConnected)
@@ -287,8 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     OwnerUri = OwnerUri
                 });
             }
-            WorkspaceService<SqlToolsSettings>.Instance.SetWorkspaceSerivce(service);
-            return new QueryExecutionService(connectionService) {BufferFileStreamFactory = GetFileStreamFactory()};
+            return new QueryExecutionService(connectionService, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 
         #endregion
