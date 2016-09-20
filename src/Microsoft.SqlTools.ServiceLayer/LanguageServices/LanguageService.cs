@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        private bool ShouldEnableAutocomplete()
+        internal bool ShouldEnableAutocomplete()
         {
             return true;
         }
@@ -109,12 +109,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private static CancellationTokenSource ExistingRequestCancellation { get; set; }
 
-        private SqlToolsSettings CurrentSettings
+        internal SqlToolsSettings CurrentSettings
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
-        private Workspace.Workspace CurrentWorkspace
+        internal Workspace.Workspace CurrentWorkspace
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.Workspace; }
         }
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the current SQL Tools context
         /// </summary>
         /// <returns></returns>
-        private SqlToolsContext Context { get; set; }
+        internal SqlToolsContext Context { get; set; }
 
         #endregion
 
@@ -219,7 +219,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<Location[]> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDefinitionRequest");
             await Task.FromResult(true);
         }
 
@@ -227,7 +226,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ReferencesParams referencesParams,
             RequestContext<Location[]> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleReferencesRequest");
             await Task.FromResult(true);
         }
 
@@ -235,7 +233,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleSignatureHelpRequest");
             await Task.FromResult(true);
         }
 
@@ -243,7 +240,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<DocumentHighlight[]> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDocumentHighlightRequest");
             await Task.FromResult(true);
         }
 
@@ -251,7 +247,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleHoverRequest");
             await Task.FromResult(true);
         }
 

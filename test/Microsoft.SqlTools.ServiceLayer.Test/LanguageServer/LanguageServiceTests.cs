@@ -21,9 +21,13 @@ using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Moq;
@@ -144,6 +148,150 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.Equal(3, fileMarkers[1].ScriptRegion.StartLineNumber);
             Assert.Equal(10, fileMarkers[1].ScriptRegion.EndColumnNumber);
             Assert.Equal(3, fileMarkers[1].ScriptRegion.EndLineNumber);
+        }
+
+        #endregion
+
+        #region "General Language Service tests"
+
+        /// <summary>
+        /// Check that autocomplete is enabled by default
+        /// </summary>
+        [Fact]
+        public void CheckAutocompleteEnabledByDefault()
+        {
+            // get test service
+            LanguageService service = TestObjects.GetTestLanguageService();
+            Assert.True(service.ShouldEnableAutocomplete());
+        }
+
+        /// <summary>
+        /// Test the service initialization code path and verify nothing throws
+        /// </summary>
+        [Fact]
+        public void ServiceInitiailzation()
+        {
+            InitializeTestServices();
+
+            Assert.True(LanguageService.Instance.Context != null);
+            Assert.True(LanguageService.Instance.ConnectionServiceInstance != null);
+            Assert.True(LanguageService.Instance.CurrentSettings != null);
+            Assert.True(LanguageService.Instance.CurrentWorkspace != null);
+
+            LanguageService.Instance.ConnectionServiceInstance = null;
+            Assert.True(LanguageService.Instance.ConnectionServiceInstance == null);
+        }        
+        
+        /// <summary>
+        /// Test the service initialization code path and verify nothing throws
+        /// </summary>
+        [Fact]
+        public void UpdateLanguageServiceOnConnection()
+        {
+            string ownerUri = "file://my/sample/file.sql";
+            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+            
+            ConnectionInfo connInfo = null;
+            connectionService.TryFindConnection(ownerUri, out connInfo);
+            
+            var task = LanguageService.Instance.UpdateLanguageServiceOnConnection(connInfo);
+            task.Wait();
+        }
+
+        /// <summary>
+        /// Test the service initialization code path and verify nothing throws
+        /// </summary>
+        [Fact]
+        public void PrepopulateCommonMetadata()
+        {
+            InitializeTestServices();
+
+            string sqlFilePath = GetTestSqlFile();            
+            ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(sqlFilePath);
+
+            string ownerUri = scriptFile.ClientFilePath;
+            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails()
+                });
+            
+            ConnectionInfo connInfo = null;
+            connectionService.TryFindConnection(ownerUri, out connInfo);
+            
+            ScriptParseInfo scriptInfo = new ScriptParseInfo();
+            scriptInfo.IsConnected = true;
+
+            AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo);
+        }
+
+        private string GetTestSqlFile()
+        {
+            string filePath = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+                "sqltest.sql");
+            
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+
+            File.WriteAllText(filePath, "SELECT * FROM sys.objects\n");
+
+            return filePath;
+        }
+
+        private void InitializeTestServices()
+        {
+            const string hostName = "SQL Tools Service Host";
+            const string hostProfileId = "SQLToolsService";
+            Version hostVersion = new Version(1,0); 
+
+            // set up the host details and profile paths 
+            var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);     
+            var profilePaths = new ProfilePaths(hostProfileId, "baseAllUsersPath", "baseCurrentUserPath");
+            SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails, profilePaths);
+
+            // Grab the instance of the service host
+            Hosting.ServiceHost serviceHost = Hosting.ServiceHost.Instance;
+
+            // Start the service
+            serviceHost.Start().Wait();
+
+            // Initialize the services that will be hosted here
+            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
+            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
+            ConnectionService.Instance.InitializeService(serviceHost);
+            CredentialService.Instance.InitializeService(serviceHost);
+            QueryExecutionService.Instance.InitializeService(serviceHost);
+
+            serviceHost.Initialize();
+        }
+
+        private Hosting.ServiceHost GetTestServiceHost()
+        {
+            // set up the host details and profile paths 
+            var hostDetails = new HostDetails("Test Service Host", "SQLToolsService", new Version(1,0));     
+            var profilePaths = new ProfilePaths("SQLToolsService", "baseAllUsersPath", "baseCurrentUserPath");
+            SqlToolsContext context = new SqlToolsContext(hostDetails, profilePaths);
+
+            // Grab the instance of the service host
+            Hosting.ServiceHost host = Hosting.ServiceHost.Instance;
+
+            // Start the service
+            host.Start().Wait();
+
+            return host;
         }
 
         #endregion
