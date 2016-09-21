@@ -162,8 +162,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
                 connectionInfo.SqlConnection.Open();
             }
-            catch(Exception ex)
+            catch (SqlException ex)
             {
+                response.ErrorNumber = ex.Number;
+                response.ErrorMessage = ex.Message;
+                response.Messages = ex.ToString();
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMessage = ex.Message;
                 response.Messages = ex.ToString();
                 return response;
             }

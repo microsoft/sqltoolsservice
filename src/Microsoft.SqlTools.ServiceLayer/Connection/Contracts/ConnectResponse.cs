@@ -16,9 +16,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string ConnectionId { get; set; }
 
         /// <summary>
-        /// Gets or sets any connection error messages
+        /// Gets or sets any detailed connection error messages.
         /// </summary>
         public string Messages { get; set; }
+
+        /// <summary>
+        /// Error message returned from the engine for a connection failure reason, if any.
+        /// </summary>
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Error number returned from the engine for connection failure reason, if any.
+        /// </summary>
+        public int ErrorNumber { get; set; }
 
         /// <summary>
         /// Information about the connected server.
