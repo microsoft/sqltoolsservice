@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(DateTime), ReadDateTime},
                 {typeof(DateTimeOffset), ReadDateTimeOffset},
                 {typeof(TimeSpan), ReadTimeSpan},
-                {typeof(byte[]), ReadBytes},    // TODO: Figure out how to properly display byte[]
+                {typeof(byte[]), ReadBytes},
 
                 {typeof(SqlString), ReadString},
                 {typeof(SqlInt16), ReadInt16},
@@ -320,7 +320,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byte[] output = new byte[length];
                 Buffer.BlockCopy(buffer, 0, output, 0, length);
                 return output;
-            }, totalLength => totalLength == 1);
+            }, totalLength => totalLength == 1,
+            bytes =>
+            {
+                StringBuilder sb = new StringBuilder("0x");
+                foreach (byte b in bytes)
+                {
+                    sb.AppendFormat("{0:X2}", b);
+                }
+                return sb.ToString();
+            });
         }
 
         /// <summary>
@@ -408,8 +417,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="isNullFunc">
         /// If provided, this function will be used to determine if the value is null
         /// </param>
+        /// <param name="toStringFunc">Optional function to use to convert the object to a string.</param>
+        /// <typeparam name="T">The expected type of the cell. Used to keep the code honest</typeparam>
         /// <returns>The object, a display value, and the length of the value + its length</returns>
-        private FileStreamReadResult ReadCellHelper(long offset, Func<int, object> convertFunc, Func<int, bool> isNullFunc = null)
+        private FileStreamReadResult ReadCellHelper<T>(long offset, Func<int, T> convertFunc, Func<int, bool> isNullFunc = null, Func<T, string> toStringFunc = null)
         {
             LengthResult length = ReadLength(offset);
             DbCellValue result = new DbCellValue();
@@ -423,8 +434,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 AssureBufferLength(length.ValueLength);
                 fileStream.ReadData(buffer, length.ValueLength);
-                result.RawObject = convertFunc(length.ValueLength);
-                result.DisplayValue = result.RawObject.ToString();
+                T resultObject = convertFunc(length.ValueLength);
+                result.RawObject = resultObject;
+                result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);
             }
 
             return new FileStreamReadResult(result, length.TotalLength);

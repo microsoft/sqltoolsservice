@@ -57,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // Read the columns into a set of wrappers
             Columns = DbDataReader.GetColumnSchema().Select(column => new DbColumnWrapper(column)).ToArray();
+            HasLongColumns = Columns.Any(column => column.IsLong);
         }
 
         #region Properties
@@ -70,6 +71,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// The <see cref="DbDataReader"/> that will be read from
         /// </summary>
         public DbDataReader DbDataReader { get; private set; }
+
+        /// <summary>
+        /// Whether or not any of the columns of this reader are 'long', such as nvarchar(max)
+        /// </summary>
+        public bool HasLongColumns { get; private set; }
 
         #endregion
 
