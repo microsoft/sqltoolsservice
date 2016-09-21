@@ -4,8 +4,13 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -487,7 +492,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Label = autoCompleteItem.Title,
                     Kind = CompletionItemKind.Variable,
                     Detail = autoCompleteItem.Title,
-                    Documentation = autoCompleteItem.Description,
                     TextEdit = new TextEdit
                     {
                         NewText = autoCompleteItem.Title,
@@ -509,6 +513,77 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return completions.ToArray();
+        }
+
+        /// <summary>
+        /// Preinitialize the parser and binder with common metadata.
+        /// This should front load the long binding wait to the time the
+        /// connection is established.  Once this is completed other binding
+        /// requests should be faster.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="scriptInfo"></param>
+        internal static void PrepopulateCommonMetadata(ConnectionInfo info, ScriptParseInfo scriptInfo)
+        {
+            if (scriptInfo.IsConnected)
+            {
+                var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);                                
+                LanguageService.Instance.ParseAndBind(scriptFile, info);
+
+                if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
+                {
+                    try
+                    {
+                        scriptInfo.BuildingMetadataEvent.Reset();
+
+                        // parse a simple statement that returns common metadata
+                        ParseResult parseResult = Parser.Parse(
+                            "select ", 
+                            scriptInfo.ParseOptions);
+
+                        List<ParseResult> parseResults = new List<ParseResult>();
+                        parseResults.Add(parseResult);
+                        scriptInfo.Binder.Bind(
+                            parseResults, 
+                            info.ConnectionDetails.DatabaseName, 
+                            BindMode.Batch);
+
+                        // get the completion list from SQL Parser
+                        var suggestions = Resolver.FindCompletions(
+                            parseResult, 1, 8, 
+                            scriptInfo.MetadataDisplayInfoProvider); 
+
+                        // this forces lazy evaluation of the suggestion metadata
+                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
+
+                        parseResult = Parser.Parse(
+                            "exec ", 
+                            scriptInfo.ParseOptions);
+
+                        parseResults = new List<ParseResult>();
+                        parseResults.Add(parseResult);
+                        scriptInfo.Binder.Bind(
+                            parseResults, 
+                            info.ConnectionDetails.DatabaseName, 
+                            BindMode.Batch);
+
+                        // get the completion list from SQL Parser
+                        suggestions = Resolver.FindCompletions(
+                            parseResult, 1, 6, 
+                            scriptInfo.MetadataDisplayInfoProvider); 
+
+                        // this forces lazy evaluation of the suggestion metadata
+                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                    }
+                    catch
+                    {
+                    }
+                    finally
+                    {
+                        scriptInfo.BuildingMetadataEvent.Set();
+                    }
+                }
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.EditorServices.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     /// <summary>
     /// Provides a simple wrapper over a SemaphoreSlim to allow

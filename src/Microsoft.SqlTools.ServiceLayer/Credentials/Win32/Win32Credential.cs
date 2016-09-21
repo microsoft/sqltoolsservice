@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
         {
             if (disposed)
             {
-                throw new ObjectDisposedException(CredentialResources.CredentialDisposed);
+                throw new ObjectDisposedException(SR.CredentialServiceWin32CredentialDisposed);
             }
         }
 
@@ -205,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
             byte[] passwordBytes = Encoding.Unicode.GetBytes(Password);
             if (Password.Length > (512))
             {
-                throw new ArgumentOutOfRangeException(CredentialResources.PasswordLengthExceeded);
+                throw new ArgumentOutOfRangeException(SR.CredentialsServicePasswordLengthExceeded);
             }
 
             NativeMethods.CREDENTIAL credential = new NativeMethods.CREDENTIAL();
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
 
             if (string.IsNullOrEmpty(Target))
             {
-                throw new InvalidOperationException(CredentialResources.TargetRequiredForDelete);
+                throw new InvalidOperationException(SR.CredentialsServiceTargetForDelete);
             }
 
             StringBuilder target = string.IsNullOrEmpty(Target) ? new StringBuilder() : new StringBuilder(Target);
@@ -264,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
 
             if (string.IsNullOrEmpty(Target))
             {
-                throw new InvalidOperationException(CredentialResources.TargetRequiredForLookup);
+                throw new InvalidOperationException(SR.CredentialsServiceTargetForLookup);
             }
 
             using (Win32Credential existing = new Win32Credential { Target = Target, Type = Type })

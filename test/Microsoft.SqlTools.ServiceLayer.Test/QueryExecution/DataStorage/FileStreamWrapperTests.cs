@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             // ... It should throw an argument null exception
             using (FileStreamWrapper fsw = new FileStreamWrapper())
             {
-                Assert.Throws<ArgumentNullException>(() => fsw.Init(fileName, 8192, FileAccess.Read));
+                Assert.Throws<ArgumentException>(() => fsw.Init(fileName, 8192, FileAccess.Read));
             }
         }
 

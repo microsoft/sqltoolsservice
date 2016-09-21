@@ -9,11 +9,11 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         // Callback for ondisconnect handler
         /// </summary>
-        public delegate Task OnDisconnectHandler(ConnectionSummary summary);
+        public delegate Task OnDisconnectHandler(ConnectionSummary summary, string ownerUri);
 
         /// <summary>
         /// List of onconnection handlers
@@ -125,14 +125,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             string paramValidationErrorMessage;
             if (connectionParams == null)
             {
-                return new ConnectResponse()
+                return new ConnectResponse
                 {
-                    Messages = "Error: Connection parameters cannot be null."
+                    Messages = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
-            else if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            if (!connectionParams.IsValid(out paramValidationErrorMessage))
             {
-                return new ConnectResponse()
+                return new ConnectResponse
                 {
                     Messages = paramValidationErrorMessage
                 };
@@ -241,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Invoke callback notifications
             foreach (var activity in this.onDisconnectActivities)
             {
-                activity(info.ConnectionDetails);
+                activity(info.ConnectionDetails, disconnectParams.OwnerUri);
             }
 
             // Success
@@ -257,14 +257,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var owner = listDatabasesParams.OwnerUri;
             if (string.IsNullOrEmpty(owner))
             {
-                throw new ArgumentException("OwnerUri cannot be null or empty");
+                throw new ArgumentException(SR.ConnectionServiceListDbErrorNullOwnerUri);
             }
 
             // Use the existing connection as a base for the search
             ConnectionInfo info;
             if (!TryFindConnection(owner, out info))
             {
-                throw new Exception("Specified OwnerUri \"" + owner + "\" does not have an existing connection");
+                throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
             ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
 
@@ -422,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     case "SqlLogin":
                         break;
                     default:
-                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for AuthenticationType. Valid values are \"Integrated\" and \"SqlLogin\".", connectionDetails.AuthenticationType));
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
                 }
             }
             if (connectionDetails.Encrypt.HasValue)
@@ -469,7 +469,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         intent = ApplicationIntent.ReadWrite;
                         break;
                     default:
-                        throw new ArgumentException(string.Format("Invalid value \"{0}\" for ApplicationIntent. Valid values are \"ReadWrite\" and \"ReadOnly\".", connectionDetails.ApplicationIntent));
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidIntent(connectionDetails.ApplicationIntent));
                 }
                 connectionBuilder.ApplicationIntent = intent;
             }
@@ -553,7 +553,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 catch (Exception e)
                 {
                     Logger.Write(
-                        LogLevel.Error, 
+                        LogLevel.Error,
                         string.Format(
                             "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}", 
                             newDatabaseName, 

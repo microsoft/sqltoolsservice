@@ -13,8 +13,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.SqlTools.EditorServices.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             if (maxNumBytesToReturn <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxNumBytesToReturn), "Maximum number of bytes to return must be greater than zero.");
+                throw new ArgumentOutOfRangeException(nameof(maxNumBytesToReturn), SR.QueryServiceDataReaderByteCountInvalid);
             }
 
             //first, ask provider how much data it has and calculate the final # of bytes
@@ -177,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             if (maxCharsToReturn <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxCharsToReturn), "Maximum number of chars to return must be greater than zero");
+                throw new ArgumentOutOfRangeException(nameof(maxCharsToReturn), SR.QueryServiceDataReaderCharCountInvalid);
             }
 
             //first, ask provider how much data it has and calculate the final # of chars
@@ -221,37 +221,47 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>String</returns>
         public string GetXmlWithMaxCapacity(int iCol, int maxCharsToReturn)
         {
-            if (supportSqlXml)
+            if (maxCharsToReturn <= 0)
             {
-                SqlXml sm = GetSqlXml(iCol);
-                if (sm == null)
-                {
-                    return null;
-                }
+                throw new ArgumentOutOfRangeException(nameof(maxCharsToReturn), SR.QueryServiceDataReaderXmlCountInvalid);
+            }
 
-                //this code is mostly copied from SqlClient implementation of returning value for XML data type
-                StringWriterWithMaxCapacity sw = new StringWriterWithMaxCapacity(null, maxCharsToReturn);
-                XmlWriterSettings writerSettings = new XmlWriterSettings
-                {
-                    CloseOutput = false,
-                    ConformanceLevel = ConformanceLevel.Fragment
-                };
-                // don't close the memory stream
-                XmlWriter ww = XmlWriter.Create(sw, writerSettings);
+            // If we're not in SQL XML mode, just return the entire thing as a string
+            if (!supportSqlXml)
+            {
+                object o = GetValue(iCol);
+                return o?.ToString();
+            }
 
-                XmlReader reader = sm.CreateReader();
+            // We have SQL XML support, so write it properly
+            SqlXml sm = GetSqlXml(iCol);
+            if (sm == null)
+            {
+                return null;
+            }
+
+            // Setup the writer so that we don't close the memory stream and can process fragments
+            // of XML
+            XmlWriterSettings writerSettings = new XmlWriterSettings
+            {
+                CloseOutput = false,    // don't close the memory stream
+                ConformanceLevel = ConformanceLevel.Fragment
+            };
+
+            using (StringWriterWithMaxCapacity sw = new StringWriterWithMaxCapacity(null, maxCharsToReturn))
+            using (XmlWriter ww = XmlWriter.Create(sw, writerSettings))
+            using (XmlReader reader = sm.CreateReader())
+            {
                 reader.Read();
 
                 while (!reader.EOF)
                 {
                     ww.WriteNode(reader, true);
                 }
+
                 ww.Flush();
                 return sw.ToString();
             }
-
-            object o = GetValue(iCol);
-            return o?.ToString();
         }
 
         #endregion

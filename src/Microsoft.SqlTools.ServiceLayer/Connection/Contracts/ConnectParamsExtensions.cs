@@ -18,37 +18,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             errorMessage = string.Empty;
             if (string.IsNullOrEmpty(parameters.OwnerUri))
             {
-                errorMessage = "Error: OwnerUri cannot be null or empty."; 
+                errorMessage = SR.ConnectionParamsValidateNullOwnerUri; 
             }
             else if (parameters.Connection == null)
             {
-                errorMessage = "Error: Connection details object cannot be null.";
+                errorMessage = SR.ConnectionParamsValidateNullConnection;
             }
             else if (string.IsNullOrEmpty(parameters.Connection.ServerName))
             {
-                errorMessage = "Error: ServerName cannot be null or empty.";
+                errorMessage = SR.ConnectionParamsValidateNullServerName;
             }
             else if (string.IsNullOrEmpty(parameters.Connection.AuthenticationType) || parameters.Connection.AuthenticationType == "SqlLogin")
             {
                 // For SqlLogin, username/password cannot be empty
                 if (string.IsNullOrEmpty(parameters.Connection.UserName))
                 {
-                    errorMessage = "Error: UserName cannot be null or empty when using SqlLogin authentication.";
+                    errorMessage = SR.ConnectionParamsValidateNullSqlAuth("UserName");
                 }
                 else if( string.IsNullOrEmpty(parameters.Connection.Password))
                 {
-                    errorMessage = "Error: Password cannot be null or empty when using SqlLogin authentication.";
+                    errorMessage = SR.ConnectionParamsValidateNullSqlAuth("Password");
                 }
             }
 
-            if (string.IsNullOrEmpty(errorMessage))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return string.IsNullOrEmpty(errorMessage);
         }
     }
 }

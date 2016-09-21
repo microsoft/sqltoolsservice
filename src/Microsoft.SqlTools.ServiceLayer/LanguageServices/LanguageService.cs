@@ -8,16 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.EditorServices.Utility;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -25,28 +15,41 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
-
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
     /// <summary>
-    /// Main class for Language Service functionality including anything that reqires knowledge of
-    /// the language to perfom, such as definitions, intellisense, etc.
+    /// Main class for Language Service functionality including anything that requires knowledge of
+    /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
     public sealed class LanguageService
     {
-        public const string DefaultBatchSeperator = "GO";
+        internal const string DefaultBatchSeperator = "GO";
 
-        private const int DiagnosticParseDelay = 750;
+        internal const int DiagnosticParseDelay = 750;
 
-        private const int FindCompletionsTimeout = 3000;
+        internal const int FindCompletionsTimeout = 3000;
 
-        private const int FindCompletionStartTimeout = 50;
+        internal const int FindCompletionStartTimeout = 50;
 
-        private const int OnConnectionWaitTimeout = 30000;
+        internal const int OnConnectionWaitTimeout = 300000;
 
-        private bool ShouldEnableAutocomplete()
+        private object parseMapLock = new object();
+
+        private ScriptParseInfo currentCompletionParseInfo;
+
+        internal bool ShouldEnableAutocomplete()
         {
             return true;
         }
@@ -106,12 +109,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private static CancellationTokenSource ExistingRequestCancellation { get; set; }
 
-        private SqlToolsSettings CurrentSettings
+        internal SqlToolsSettings CurrentSettings
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
-        private Workspace.Workspace CurrentWorkspace
+        internal Workspace.Workspace CurrentWorkspace
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.Workspace; }
         }
@@ -120,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the current SQL Tools context
         /// </summary>
         /// <returns></returns>
-        private SqlToolsContext Context { get; set; }
+        internal SqlToolsContext Context { get; set; }
 
         #endregion
 
@@ -197,11 +200,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             await requestContext.SendResult(completionItems); 
         }
 
+        /// <summary>
+        /// Handle the resolve completion request event to provide additional
+        /// autocomplete metadata to the currently select completion item
+        /// </summary>
+        /// <param name="completionItem"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        private static async Task HandleCompletionResolveRequest(
+            CompletionItem completionItem,
+            RequestContext<CompletionItem> requestContext)
+        {
+            completionItem = LanguageService.Instance.ResolveCompletionItem(completionItem);
+            await requestContext.SendResult(completionItem); 
+        }
+
         private static async Task HandleDefinitionRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<Location[]> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDefinitionRequest");
             await Task.FromResult(true);
         }
 
@@ -209,15 +226,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ReferencesParams referencesParams,
             RequestContext<Location[]> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleReferencesRequest");
-            await Task.FromResult(true);
-        }
-
-        private static async Task HandleCompletionResolveRequest(
-            CompletionItem completionItem,
-            RequestContext<CompletionItem> requestContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleCompletionResolveRequest");
             await Task.FromResult(true);
         }
 
@@ -225,7 +233,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleSignatureHelpRequest");
             await Task.FromResult(true);
         }
 
@@ -233,7 +240,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<DocumentHighlight[]> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleDocumentHighlightRequest");
             await Task.FromResult(true);
         }
 
@@ -241,7 +247,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleHoverRequest");
             await Task.FromResult(true);
         }
 
@@ -259,9 +264,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile, 
             EventContext eventContext)
         {
-            await this.RunScriptDiagnostics( 
-                new ScriptFile[] { scriptFile },
-                eventContext); 
+            if (!IsPreviewWindow(scriptFile))
+            {
+                await RunScriptDiagnostics( 
+                    new ScriptFile[] { scriptFile },
+                    eventContext); 
+            }
 
             await Task.FromResult(true);             
         }
@@ -328,8 +336,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// it is the last URI connected to a particular connection,
         /// then remove the cache.
         /// </summary>
-        public async Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary)
+        public async Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary, string ownerUri)
         {
+            RemoveScriptParseInfo(ownerUri);
+
             // currently this method is disabled, but we need to reimplement now that the 
             // implementation of the 'cache' has changed.
             await Task.FromResult(0);
@@ -343,16 +353,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
         {
-            ScriptParseInfo parseInfo = null;
-            if (this.ScriptParseInfoMap.ContainsKey(scriptFile.ClientFilePath))
-            {
-                parseInfo = this.ScriptParseInfoMap[scriptFile.ClientFilePath];   
-            }
-            else
-            {
-                parseInfo = new ScriptParseInfo();
-                this.ScriptParseInfoMap.Add(scriptFile.ClientFilePath, parseInfo);
-            }
+            // get or create the current parse info object
+            ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientFilePath, createIfNotExists: true);
 
             if (parseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionsTimeout))
             {
@@ -399,7 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Update the cached autocomplete candidate list when the user connects to a database
+        /// Update the autocomplete metadata provider when the user connects to a database
         /// </summary>
         /// <param name="info"></param>
         public async Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
@@ -408,43 +410,37 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (ShouldEnableAutocomplete())
                 {
-                    ScriptParseInfo scriptInfo = 
-                            this.ScriptParseInfoMap.ContainsKey(info.OwnerUri)
-                                ? this.ScriptParseInfoMap[info.OwnerUri]
-                                : new ScriptParseInfo();
-
-                    try
+                    ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
+                    if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
                     {
-                        scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout);
-                        scriptInfo.BuildingMetadataEvent.Reset();
-
-                        var sqlConn = info.SqlConnection as ReliableSqlConnection;
-                        if (sqlConn != null)
+                        try
                         {
-                            ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
-                            scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                            scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                            scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
-                            scriptInfo.ServerConnection = new ServerConnection(sqlConn.GetUnderlyingConnection());
-                            this.ScriptParseInfoMap[info.OwnerUri] = scriptInfo;
+                            scriptInfo.BuildingMetadataEvent.Reset();
+                            var sqlConn = info.SqlConnection as ReliableSqlConnection;
+                            if (sqlConn != null)
+                            {
+                                ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
+                                scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                                scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
+                                scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
+                                scriptInfo.ServerConnection = new ServerConnection(sqlConn.GetUnderlyingConnection());
+                                scriptInfo.IsConnected = true;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            scriptInfo.IsConnected = false;
+                        }
+                        finally
+                        {
+                            // Set Metadata Build event to Signal state.
+                            // (Tell Language Service that I am ready with Metadata Provider Object)
+                            scriptInfo.BuildingMetadataEvent.Set();
                         }
                     }
-                    catch (Exception)
-                    {
-                        scriptInfo.IsConnected = false;
-                    }
-                    finally
-                    {
-                        // Set Metadata Build event to Signal state.
-                        // (Tell Language Service that I am ready with Metadata Provider Object)
-                        scriptInfo.BuildingMetadataEvent.Set();
-                    }
 
-                    if (scriptInfo.IsConnected)
-                    {
-                        var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);                                
-                        ParseAndBind(scriptFile, info);
-                    }
+                    // populate SMO metadata provider with most common info
+                    AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo);
                 }
             });
         }
@@ -468,6 +464,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Resolves the details and documentation for a completion item
+        /// </summary>
+        /// <param name="completionItem"></param>
+        internal CompletionItem ResolveCompletionItem(CompletionItem completionItem)
+        {
+            var scriptParseInfo = LanguageService.Instance.currentCompletionParseInfo;
+            if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
+            {
+                foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
+                {
+                    if (string.Equals(suggestion.Title, completionItem.Label))
+                    {
+                        completionItem.Detail = suggestion.DatabaseQualifiedName;
+                        completionItem.Documentation = suggestion.Description;
+                        break;
+                    }
+                }
+            }
+            return completionItem;
+        }
+
+        /// <summary>
         /// Return the completion item list for the current text position.
         /// This method does not await cache builds since it expects to return quickly
         /// </summary>
@@ -480,20 +498,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string filePath = textDocumentPosition.TextDocument.Uri;
             int startLine = textDocumentPosition.Position.Line;
             int startColumn = TextUtilities.PositionOfPrevDelimeter(
-                                scriptFile.Contents, 
+                                scriptFile.Contents,    
                                 textDocumentPosition.Position.Line,
                                 textDocumentPosition.Position.Character);
             int endColumn = textDocumentPosition.Position.Character;
 
+            this.currentCompletionParseInfo = null;
+
             // Take a reference to the list at a point in time in case we update and replace the list
-            if (connInfo == null 
-                || !LanguageService.Instance.ScriptParseInfoMap.ContainsKey(textDocumentPosition.TextDocument.Uri))
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            if (connInfo == null || scriptParseInfo == null)
             {
                 return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn);
             }
 
             // reparse and bind the SQL statement if needed
-            var scriptParseInfo = ScriptParseInfoMap[textDocumentPosition.TextDocument.Uri];
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {       
                 ParseAndBind(scriptFile, connInfo);
@@ -512,15 +532,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         // get the completion list from SQL Parser
-                        var suggestions = Resolver.FindCompletions(
+                        scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
                             scriptParseInfo.ParseResult, 
                             textDocumentPosition.Position.Line + 1, 
                             textDocumentPosition.Position.Character + 1, 
                             scriptParseInfo.MetadataDisplayInfoProvider); 
 
+                        // cache the current script parse info object to resolve completions later
+                        this.currentCompletionParseInfo = scriptParseInfo;
+
                         // convert the suggestion list to the VS Code format
                         return AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
-                            suggestions, 
+                            scriptParseInfo.CurrentSuggestions, 
                             startLine, 
                             startColumn, 
                             endColumn);
@@ -686,5 +709,76 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         #endregion
+
+        private void AddOrUpdateScriptParseInfo(string uri, ScriptParseInfo scriptInfo)
+        {
+            lock (this.parseMapLock)
+            {
+                if (this.ScriptParseInfoMap.ContainsKey(uri))
+                {
+                    this.ScriptParseInfoMap[uri] = scriptInfo;
+                }
+                else
+                {
+                    this.ScriptParseInfoMap.Add(uri, scriptInfo);
+                }
+
+            }
+        }
+
+        private ScriptParseInfo GetScriptParseInfo(string uri, bool createIfNotExists = false)
+        {
+            lock (this.parseMapLock)
+            {
+                if (this.ScriptParseInfoMap.ContainsKey(uri))
+                {
+                    return this.ScriptParseInfoMap[uri];
+                }
+                else if (createIfNotExists)
+                {
+                    ScriptParseInfo scriptInfo = new ScriptParseInfo();
+                    this.ScriptParseInfoMap.Add(uri, scriptInfo);
+                    return scriptInfo;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        private bool RemoveScriptParseInfo(string uri)
+        {
+            lock (this.parseMapLock)
+            {
+                if (this.ScriptParseInfoMap.ContainsKey(uri))
+                {
+                    var scriptInfo = this.ScriptParseInfoMap[uri];
+                    scriptInfo.ServerConnection.Disconnect();
+                    scriptInfo.ServerConnection = null;
+                    return this.ScriptParseInfoMap.Remove(uri);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a flag indicating if the ScriptFile refers to the output window.
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        private bool IsPreviewWindow(ScriptFile scriptFile)
+        {
+            if (scriptFile != null && !string.IsNullOrWhiteSpace(scriptFile.ClientFilePath))
+            {
+                return scriptFile.ClientFilePath.StartsWith("tsqloutput:");
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
