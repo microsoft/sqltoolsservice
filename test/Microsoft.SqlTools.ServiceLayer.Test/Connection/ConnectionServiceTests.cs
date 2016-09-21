@@ -138,8 +138,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // register disconnect callback
             connectionService.RegisterOnDisconnectTask(
-                (result) => { 
+                (result, uri) => { 
                     callbackInvoked = true;
+                    Assert.True(uri.Equals(ownerUri));
                     return Task.FromResult(true);
                 }
             );
@@ -433,8 +434,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // register disconnect callback
             connectionService.RegisterOnDisconnectTask(
-                (result) => { 
+                (result, uri) => { 
                     callbackInvoked = true;
+                    Assert.True(uri.Equals(ownerUri));
                     return Task.FromResult(true);
                 }
             );

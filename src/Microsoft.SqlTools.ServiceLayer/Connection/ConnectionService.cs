@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         // Callback for ondisconnect handler
         /// </summary>
-        public delegate Task OnDisconnectHandler(ConnectionSummary summary);
+        public delegate Task OnDisconnectHandler(ConnectionSummary summary, string ownerUri);
 
         /// <summary>
         /// List of onconnection handlers
@@ -241,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Invoke callback notifications
             foreach (var activity in this.onDisconnectActivities)
             {
-                activity(info.ConnectionDetails);
+                activity(info.ConnectionDetails, disconnectParams.OwnerUri);
             }
 
             // Success
