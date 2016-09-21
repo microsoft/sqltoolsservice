@@ -19,6 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// 2D array of the cell values requested from result set
         /// </summary>
-        public DbCellValue[][] Rows { get; set; }
+        public string[][] Rows { get; set; }
     }
 }

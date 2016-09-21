@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 // Then:
                 Assert.Equal(value, outValue.Value.RawObject);
                 Assert.Equal(valueLength, outValue.TotalLength);
-                Assert.False(outValue.Value.IsNull);
+                Assert.NotNull(outValue.Value);
             }
             finally
             {

@@ -294,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     foreach (var row in selectedResultSet.Rows)
                     {
                         await csvFile.WriteLineAsync(string.Join(",",
-                            row.Select(field => SaveResults.EncodeCsvField(field.IsNull ? string.Empty : field.DisplayValue))));
+                            row.Select(field => SaveResults.EncodeCsvField(field ?? string.Empty))));
                     }
                 }
 
@@ -347,16 +347,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         for (int i = 0; i < row.Length; i++)
                         {
                             DbColumnWrapper col = selectedResultSet.Columns[i];
-                            DbCellValue val = row[i];
+                            string val = row[i];
 
                             jsonWriter.WritePropertyName(col.ColumnName);
-                            if (val.IsNull)
+                            if (val == null)
                             {
                                 jsonWriter.WriteNull();
                             }
                             else
                             {
-                                jsonWriter.WriteValue(val.DisplayValue);
+                                jsonWriter.WriteValue(val);
                             }
                         }
                         jsonWriter.WriteEndObject();

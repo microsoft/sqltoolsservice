@@ -19,8 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     {
         private const int DefaultBufferSize = 8192;
 
-        private const string NullString = "null";
-
         #region Member Variables
 
         private byte[] buffer;
@@ -107,9 +105,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     string sqlVariantType = (string)sqlVariantTypeResult.Value.RawObject;
 
                     // If the typename is null, then the whole value is null
-                    if (sqlVariantTypeResult.Value.IsNull)
+                    if (sqlVariantTypeResult.Value == null)
                     {
-                        results.Add(null);
+                        results.Add(sqlVariantTypeResult.Value);
                         continue;
                     }
 
@@ -414,15 +412,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private FileStreamReadResult ReadCellHelper(long offset, Func<int, object> convertFunc, Func<int, bool> isNullFunc = null)
         {
             LengthResult length = ReadLength(offset);
-            DbCellValue result = new DbCellValue
-            {
-                IsNull = isNullFunc == null ? length.ValueLength == 0 : isNullFunc(length.TotalLength),
-            };
+            DbCellValue result = new DbCellValue();
 
-            if (result.IsNull)
+            if (isNullFunc == null ? length.ValueLength == 0 : isNullFunc(length.TotalLength))
             {
                 result.RawObject = null;
-                result.DisplayValue = NullString;
+                result.DisplayValue = null;
             }
             else
             {
