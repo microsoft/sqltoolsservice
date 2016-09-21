@@ -131,6 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
     internal class LogWriter : IDisposable
     {
+        private object logLock = new object();
         private TextWriter textWriter;
         private LogLevel minimumLogLevel = LogLevel.Verbose;
 
@@ -170,24 +171,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             if (this.textWriter != null &&
                 logLevel >= this.minimumLogLevel)
             {
-                // Print the timestamp and log level
-                this.textWriter.WriteLine(
-                    "{0} [{1}] - Method \"{2}\" at line {3} of {4}\r\n",
-                    DateTime.Now,
-                    logLevel.ToString().ToUpper(),
-                    callerName,
-                    callerLineNumber,
-                    callerSourceFile);
-
-                // Print out indented message lines
-                foreach (var messageLine in logMessage.Split('\n'))
+                // System.IO is not thread safe
+                lock (this.logLock)
                 {
-                    this.textWriter.WriteLine("    " + messageLine.TrimEnd());
-                }
+                    // Print the timestamp and log level
+                    this.textWriter.WriteLine(
+                        "{0} [{1}] - Method \"{2}\" at line {3} of {4}\r\n",
+                        DateTime.Now,
+                        logLevel.ToString().ToUpper(),
+                        callerName,
+                        callerLineNumber,
+                        callerSourceFile);
 
-                // Finish with a newline and flush the writer
-                this.textWriter.WriteLine();
-                this.textWriter.Flush();
+                    // Print out indented message lines
+                    foreach (var messageLine in logMessage.Split('\n'))
+                    {
+                        this.textWriter.WriteLine("    " + messageLine.TrimEnd());
+                    }
+
+                    // Finish with a newline and flush the writer
+                    this.textWriter.WriteLine();
+                    this.textWriter.Flush();
+                }
             }
         }
 
