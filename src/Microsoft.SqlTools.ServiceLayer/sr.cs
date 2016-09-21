@@ -345,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionParamsValidateNullSqlAuth, component);
         }
 
-        public static string QueryServiceAffectedRows(int rows)
+        public static string QueryServiceAffectedRows(long rows)
         {
             return Keys.GetString(Keys.QueryServiceAffectedRows, rows);
         }
