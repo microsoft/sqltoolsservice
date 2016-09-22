@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -17,6 +18,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class SubsetTests
     {
+        #region ResultSet Class Tests
+
+        [Theory]
+        [InlineData(0,2)]
+        [InlineData(0,20)]
+        [InlineData(1,2)]
+        public void ResultSetValidTest(int startRow, int rowCount)
+        {
+            // Setup:
+            // ... I have a batch that has been executed
+            Batch b = Common.GetBasicExecutedBatch();
+
+            // If:
+            // ... I have a result set and I ask for a subset with valid arguments
+            ResultSet rs = b.ResultSets.First();
+            ResultSetSubset subset = rs.GetSubset(startRow, rowCount).Result;
+
+            // Then:
+            // ... I should get the requested number of rows back
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.Rows.Length);
+        }
+
+        [Theory]
+        [InlineData(-1, 2)]  // Invalid start index, too low
+        [InlineData(10, 2)]  // Invalid start index, too high
+        [InlineData(0, -1)]  // Invalid row count, too low
+        [InlineData(0, 0)]   // Invalid row count, zero
+        public void ResultSetInvalidParmsTest(int rowStartIndex, int rowCount)
+        {
+            // If:
+            // I have an executed batch with a resultset in it and request invalid result set from it
+            Batch b = Common.GetBasicExecutedBatch();
+            ResultSet rs = b.ResultSets.First();
+
+            // Then:
+            // ... It should throw an exception
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => rs.GetSubset(rowStartIndex, rowCount)).Wait();
+        }
+
+        #endregion
+
         #region Batch Class Tests
 
         [Theory]
@@ -37,13 +80,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Theory]
-        [InlineData(-1, 0, 2)]  // Invalid result set, too low
-        [InlineData(2, 0, 2)]   // Invalid result set, too high
-        [InlineData(0, -1, 2)]  // Invalid start index, too low
-        [InlineData(0, 10, 2)]  // Invalid start index, too high
-        [InlineData(0, 0, -1)]  // Invalid row count, too low
-        [InlineData(0, 0, 0)]   // Invalid row count, zero
-        public void BatchSubsetInvalidParamsTest(int resultSetIndex, int rowStartInex, int rowCount)
+        [InlineData(-1)]  // Invalid result set, too low
+        [InlineData(2)]   // Invalid result set, too high
+        public void BatchSubsetInvalidParamsTest(int resultSetIndex)
         {
             // If I have an executed batch
             Batch b = Common.GetBasicExecutedBatch();
@@ -51,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, rowStartInex, rowCount)).Wait();
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, 0, 2)).Wait();
         }
 
         #endregion
@@ -95,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that has results (doesn't matter what)
             var queryService =Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(new[] {Common.StandardTestData}, false), true);
-            var executeParams = new QueryExecuteParams {QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri};
+            var executeParams = new QueryExecuteParams {QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
 
@@ -141,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that hasn't finished executing (doesn't matter what)
             var queryService = Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;
@@ -168,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that doesn't have any result sets
             var queryService = Common.GetPrimedExecutionService(
                 Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
@@ -191,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #region Mocking
 
-        private Mock<RequestContext<QueryExecuteSubsetResult>> GetQuerySubsetResultContextMock(
+        private static Mock<RequestContext<QueryExecuteSubsetResult>> GetQuerySubsetResultContextMock(
             Action<QueryExecuteSubsetResult> resultCallback,
             Action<object> errorCallback)
         {
@@ -218,7 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return requestContext;
         }
 
-        private void VerifyQuerySubsetCallCount(Mock<RequestContext<QueryExecuteSubsetResult>> mock, Times sendResultCalls,
+        private static void VerifyQuerySubsetCallCount(Mock<RequestContext<QueryExecuteSubsetResult>> mock, Times sendResultCalls,
             Times sendErrorCalls)
         {
             mock.Verify(rc => rc.SendResult(It.IsAny<QueryExecuteSubsetResult>()), sendResultCalls);

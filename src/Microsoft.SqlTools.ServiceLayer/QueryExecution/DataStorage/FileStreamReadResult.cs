@@ -3,25 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
     /// Represents a value returned from a read from a file stream. This is used to eliminate ref
     /// parameters used in the read methods.
     /// </summary>
-    /// <typeparam name="T">The type of the value that was read</typeparam>
-    public struct FileStreamReadResult<T>
+    public struct FileStreamReadResult
     {
-        /// <summary>
-        /// Whether or not the value of the field is null
-        /// </summary>
-        public bool IsNull { get; set; }
-
-        /// <summary>
-        /// The value of the field. If <see cref="IsNull"/> is true, this will be set to <c>default(T)</c>
-        /// </summary>
-        public T Value { get; set; }
-
         /// <summary>
         /// The total length in bytes of the value, (including the bytes used to store the length
         /// of the value)
@@ -35,16 +26,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public int TotalLength { get; set; }
 
         /// <summary>
+        /// Value of the cell
+        /// </summary>
+        public DbCellValue Value { get; set; }
+
+        /// <summary>
         /// Constructs a new FileStreamReadResult
         /// </summary>
-        /// <param name="value">The value of the result</param>
-        /// <param name="totalLength">The number of bytes for the used to store the value's length and value</param>
-        /// <param name="isNull">Whether or not the value is <c>null</c></param>
-        public FileStreamReadResult(T value, int totalLength, bool isNull)
+        /// <param name="value">The value of the result, ready for consumption by a client</param>
+        /// <param name="totalLength">The number of bytes for the used to store the value's length and value</param>s
+        public FileStreamReadResult(DbCellValue value, int totalLength)
         {
             Value = value;
             TotalLength = totalLength;
-            IsNull = isNull;
         }
     }
 }
