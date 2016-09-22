@@ -240,7 +240,7 @@
   <data name="QueryServiceAffectedRows" xml:space="preserve">
     <value>({0} row(s) affected)</value>
     <comment>.
- Parameters: 0 - rows (int) </comment>
+ Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>Command(s) copleted successfully.</value>
