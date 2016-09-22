@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="fileOffset">Offset into the file where the row starts</param>
         /// <param name="columns">The columns that were encoded</param>
         /// <returns>The objects from the row, ready for output to the client</returns>
-        public DbCellValue[] ReadRow(long fileOffset, IEnumerable<DbColumnWrapper> columns)
+        public IList<DbCellValue> ReadRow(long fileOffset, IEnumerable<DbColumnWrapper> columns)
         {
             // Initialize for the loop
             long currentFileOffset = fileOffset;
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 results.Add(result.Value);
             }
 
-            return results.ToArray();
+            return results;
         }
 
         /// <summary>

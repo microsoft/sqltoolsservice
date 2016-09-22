@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     {
         private const int DefaultBufferLength = 8192;
 
-        #region Member Varialbles
+        #region Member Variables
 
         private readonly IFileStreamWrapper fileStream;
         private readonly int maxCharsToStore;

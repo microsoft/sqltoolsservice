@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     public interface IFileStreamReader : IDisposable
     {
-        DbCellValue[] ReadRow(long offset, IEnumerable<DbColumnWrapper> columns);
+        IList<DbCellValue> ReadRow(long offset, IEnumerable<DbColumnWrapper> columns);
         FileStreamReadResult ReadInt16(long i64Offset);
         FileStreamReadResult ReadInt32(long i64Offset);
         FileStreamReadResult ReadInt64(long i64Offset);

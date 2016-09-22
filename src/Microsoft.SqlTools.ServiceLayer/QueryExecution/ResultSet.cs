@@ -114,7 +114,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public IEnumerable<string[]> Rows
         {
-            get { return FileOffsets.Select(offset => fileStreamReader.ReadRow(offset, Columns).Select(cell => cell.DisplayValue).ToArray()); }
+            get
+            {
+                return FileOffsets.Select(
+                    offset => fileStreamReader.ReadRow(offset, Columns).Select(cell => cell.DisplayValue).ToArray());
+            }
         }
 
         #endregion
