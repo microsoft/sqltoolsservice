@@ -384,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             {
                                 //get column name
                                 DbColumnWrapper col = selectedResultSet.Columns[i];
-                                string val = row[i].ToString();
+                                string val = row[i]?.ToString();
 
                                 jsonWriter.WritePropertyName(col.ColumnName);
                                 if (val == null)
@@ -409,7 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             {
                                 //get column name
                                 DbColumnWrapper col = selectedResultSet.Columns[i];
-                                string val = row[i].ToString();
+                                string val = row[i]?.ToString();
 
                                 jsonWriter.WritePropertyName(col.ColumnName);
                                 if (val == null)

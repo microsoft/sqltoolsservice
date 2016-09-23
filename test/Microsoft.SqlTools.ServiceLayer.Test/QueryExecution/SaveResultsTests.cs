@@ -58,6 +58,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         /// <summary>
+        /// Test save results to a file as CSV with a selection of cells and correct parameters
+        /// </summary>
+        [Fact]
+        public void SaveResultsAsCsvWithSelectionSuccessTest()
+        {
+            // Execute a query
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+
+            // Request to save the results as csv with correct parameters
+            var saveParams = new SaveResultsAsCsvRequestParams
+            {
+                OwnerUri = Common.OwnerUri,
+                ResultSetIndex = 0,
+                BatchIndex = 0,
+                FilePath = "testwrite_1.csv",
+                IncludeHeaders = true,
+                RowStartIndex = 0,
+                RowEndIndex = 0,
+                ColumnStartIndex = 0,
+                ColumnEndIndex = 0
+            };
+            SaveResultRequestResult result = null;
+            var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
+            queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
+            queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
+
+            // Expect to see a file successfully created in filepath and a success message
+            Assert.Null(result.Messages);
+            Assert.True(File.Exists(saveParams.FilePath));
+            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+
+            // Delete temp file after test
+            if (File.Exists(saveParams.FilePath))
+            {
+                File.Delete(saveParams.FilePath);
+            }
+        }
+
+        /// <summary>
         /// Test handling exception in saving results to CSV file
         /// </summary>
         [Fact]
@@ -137,18 +179,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
                 BatchIndex = 0,
-                FilePath = "testwrite_4.json"
+                FilePath = "testwrite_4.json",    
             };
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object).Wait();
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
             // Expect to see a file successfully created in filepath and a success message
-            // Assert.Equal(result.Messages, "this");
-            // Assert.Null(result.Messages);
-            // Assert.True(File.Exists(saveParams.FilePath));
-            // VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+            Assert.Null(result.Messages);
+            Assert.True(File.Exists(saveParams.FilePath));
+            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+
+            // Delete temp file after test
+            if (File.Exists(saveParams.FilePath))
+            {
+                File.Delete(saveParams.FilePath);
+            }
+        }
+
+        /// <summary>
+        /// Test save results to a file as JSON with a selection of cells and correct parameters
+        /// </summary>
+        [Fact]
+        public void SaveResultsAsJsonWithSelectionSuccessTest()
+        {
+            // Execute a query
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var executeRequest = GetQueryExecuteResultContextMock(null, null, null);
+            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+
+            // Request to save the results as json with correct parameters
+            var saveParams = new SaveResultsAsJsonRequestParams
+            {
+                OwnerUri = Common.OwnerUri,
+                ResultSetIndex = 0,
+                BatchIndex = 0,
+                FilePath = "testwrite_5.json",          
+                RowStartIndex = 0,
+                RowEndIndex = 0,
+                ColumnStartIndex = 0,
+                ColumnEndIndex = 0             
+            };
+            SaveResultRequestResult result = null;
+            var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
+            queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
+            queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object).Wait();
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+            // Expect to see a file successfully created in filepath and a success message
+            Assert.Null(result.Messages);
+            Assert.True(File.Exists(saveParams.FilePath));
+            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
 
             // Delete temp file after test
             if (File.Exists(saveParams.FilePath))
