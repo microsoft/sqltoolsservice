@@ -314,7 +314,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, saveParams.RowStartIndex.Value, noRows);
                         foreach (var row in resultSubset.Rows)
                         {
-                            //object[] row = resultSubset.Rows[i];
                             await csvFile.WriteLineAsync( string.Join( ",", row.Skip(saveParams.ColumnStartIndex.Value).Take(noColumns).Select( field => SaveResults.EncodeCsvField((field != null) ? field.ToString(): string.Empty))));
                         }
 

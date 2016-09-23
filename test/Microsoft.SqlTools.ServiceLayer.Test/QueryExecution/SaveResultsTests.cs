@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
                 BatchIndex = 0,
-                FilePath = "testwrite_4.json",    
+                FilePath = "testwrite_4.json"    
             };
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
