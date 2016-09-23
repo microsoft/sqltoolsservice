@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         do
                         {
-                            // Skip this result set if there aren't any rows
+                            // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
@@ -163,6 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 continue;
                             }
 
+                            // This resultset has results (ie, SELECT/etc queries)
                             // Read until we hit the end of the result set
                             ResultSet resultSet = new ResultSet(reader, outputFileFactory);
                             await resultSet.ReadResultToEnd(cancellationToken);
@@ -171,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
 
                             // Add a message for the number of rows the query returned
-                            resultMessages.Add(SR.QueryServiceAffectedRows(reader.RecordsAffected));
+                            resultMessages.Add(SR.QueryServiceAffectedRows(resultSet.RowCount));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }

@@ -29,7 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         int WriteDateTimeOffset(DateTimeOffset dtoVal);
         int WriteTimeSpan(TimeSpan val);
         int WriteString(string val);
-        int WriteBytes(byte[] bytes, int length);
+        int WriteBytes(byte[] bytes);
+        int WriteGuid(Guid val);
+        int WriteMoney(SqlMoney val);
         void FlushBuffer();
     }
 }

@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
@@ -15,21 +14,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     public interface IFileStreamReader : IDisposable
     {
-        object[] ReadRow(long offset, IEnumerable<DbColumnWrapper> columns);
-        FileStreamReadResult<short>  ReadInt16(long i64Offset);
-        FileStreamReadResult<int>  ReadInt32(long i64Offset);
-        FileStreamReadResult<long> ReadInt64(long i64Offset);
-        FileStreamReadResult<byte> ReadByte(long i64Offset);
-        FileStreamReadResult<char>  ReadChar(long i64Offset);
-        FileStreamReadResult<bool>  ReadBoolean(long i64Offset);
-        FileStreamReadResult<float>  ReadSingle(long i64Offset);
-        FileStreamReadResult<double>  ReadDouble(long i64Offset);
-        FileStreamReadResult<SqlDecimal>  ReadSqlDecimal(long i64Offset);
-        FileStreamReadResult<decimal>  ReadDecimal(long i64Offset);
-        FileStreamReadResult<DateTime>  ReadDateTime(long i64Offset);
-        FileStreamReadResult<TimeSpan>  ReadTimeSpan(long i64Offset);
-        FileStreamReadResult<string>  ReadString(long i64Offset);
-        FileStreamReadResult<byte[]>  ReadBytes(long i64Offset);
-        FileStreamReadResult<DateTimeOffset>  ReadDateTimeOffset(long i64Offset);
+        IList<DbCellValue> ReadRow(long offset, IEnumerable<DbColumnWrapper> columns);
+        FileStreamReadResult ReadInt16(long i64Offset);
+        FileStreamReadResult ReadInt32(long i64Offset);
+        FileStreamReadResult ReadInt64(long i64Offset);
+        FileStreamReadResult ReadByte(long i64Offset);
+        FileStreamReadResult ReadChar(long i64Offset);
+        FileStreamReadResult ReadBoolean(long i64Offset);
+        FileStreamReadResult ReadSingle(long i64Offset);
+        FileStreamReadResult ReadDouble(long i64Offset);
+        FileStreamReadResult ReadSqlDecimal(long i64Offset);
+        FileStreamReadResult ReadDecimal(long i64Offset);
+        FileStreamReadResult ReadDateTime(long i64Offset);
+        FileStreamReadResult ReadTimeSpan(long i64Offset);
+        FileStreamReadResult ReadString(long i64Offset);
+        FileStreamReadResult ReadBytes(long i64Offset);
+        FileStreamReadResult ReadDateTimeOffset(long i64Offset);
+        FileStreamReadResult ReadGuid(long offset);
+        FileStreamReadResult ReadMoney(long offset);
     }
 }

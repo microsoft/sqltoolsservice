@@ -112,9 +112,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The rows of this result set
         /// </summary>
-        public IEnumerable<object[]> Rows
+        public IEnumerable<string[]> Rows
         {
-            get { return FileOffsets.Select(offset => fileStreamReader.ReadRow(offset, Columns)); }
+            get
+            {
+                return FileOffsets.Select(
+                    offset => fileStreamReader.ReadRow(offset, Columns).Select(cell => cell.DisplayValue).ToArray());
+            }
         }
 
         #endregion
@@ -151,7 +155,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
 
                 // Iterate over the rows we need and process them into output
-                object[][] rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)).ToArray();
+                string[][] rows = rowOffsets.Select(rowOffset =>
+                    fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
+                    .ToArray();
 
                 // Retrieve the subset of the results as per the request
                 return new ResultSetSubset

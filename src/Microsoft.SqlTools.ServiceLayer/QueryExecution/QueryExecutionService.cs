@@ -287,17 +287,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+                    ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
                     if (saveParams.IncludeHeaders) 
                     {
                         // write column names to csv
-                        await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Select( column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
+                        await csvFile.WriteLineAsync(string.Join(",",
+                            selectedResultSet.Columns.Select(column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
                     }
 
                     // write rows to csv
                     foreach (var row in selectedResultSet.Rows)
                     {
-                        await csvFile.WriteLineAsync( string.Join( ",", row.Select( field => SaveResults.EncodeCsvField((field != null) ? field.ToString(): string.Empty))));
+                        await csvFile.WriteLineAsync(string.Join(",",
+                            row.Select(field => SaveResults.EncodeCsvField(field ?? string.Empty))));
                     }
                 }
 
@@ -341,23 +343,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+                    ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
 
                     // write each row to JSON
                     foreach (var row in selectedResultSet.Rows)
                     {
                         jsonWriter.WriteStartObject();
-                        foreach (var field in row.Select((value,i) => new {value, i}))
+                        for (int i = 0; i < row.Length; i++)
                         {
-                            jsonWriter.WritePropertyName(selectedResultSet.Columns[field.i].ColumnName);
-                            if (field.value != null) 
-                            {
-                                jsonWriter.WriteValue(field.value);
-                            } 
-                            else
+                            DbColumnWrapper col = selectedResultSet.Columns[i];
+                            string val = row[i];
+
+                            jsonWriter.WritePropertyName(col.ColumnName);
+                            if (val == null)
                             {
                                 jsonWriter.WriteNull();
-                            } 
+                            }
+                            else
+                            {
+                                jsonWriter.WriteValue(val);
+                            }
                         }
                         jsonWriter.WriteEndObject();
                     }

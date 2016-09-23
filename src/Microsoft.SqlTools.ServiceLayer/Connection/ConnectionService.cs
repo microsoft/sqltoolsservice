@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         // Callback for ondisconnect handler
         /// </summary>
-        public delegate Task OnDisconnectHandler(ConnectionSummary summary);
+        public delegate Task OnDisconnectHandler(ConnectionSummary summary, string ownerUri);
 
         /// <summary>
         /// List of onconnection handlers
@@ -162,8 +162,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
                 connectionInfo.SqlConnection.Open();
             }
-            catch(Exception ex)
+            catch (SqlException ex)
             {
+                response.ErrorNumber = ex.Number;
+                response.ErrorMessage = ex.Message;
+                response.Messages = ex.ToString();
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMessage = ex.Message;
                 response.Messages = ex.ToString();
                 return response;
             }
@@ -245,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Invoke callback notifications
             foreach (var activity in this.onDisconnectActivities)
             {
-                activity(info.ConnectionDetails);
+                activity(info.ConnectionDetails, disconnectParams.OwnerUri);
             }
 
             // Success

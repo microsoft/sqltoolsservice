@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // Sanity check for valid buffer length, fileName, and accessMethod
             Validate.IsGreaterThan(nameof(bufferLength), bufferLength, 0);
-            Validate.IsNotNullOrEmptyString(nameof(fileName), fileName);
+            Validate.IsNotNullOrWhitespaceString(nameof(fileName), fileName);
             if (accessMethod == FileAccess.Write)
             {
                 throw new ArgumentException(SR.QueryServiceFileWrapperWriteOnly, nameof(fileName));
