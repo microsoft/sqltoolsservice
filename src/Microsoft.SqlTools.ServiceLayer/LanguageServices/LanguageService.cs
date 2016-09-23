@@ -185,6 +185,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
+            // check if Intellisense suggestions are enabled
+            if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
+            {
+                await Task.FromResult(true);
+            }
+
             // get the current list of completion items and return to client 
             var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
                 textDocumentPosition.TextDocument.Uri);
@@ -211,6 +217,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
+            // check if Intellisense suggestions are enabled
+            if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
+            {
+                await Task.FromResult(true);
+            }
+
             completionItem = LanguageService.Instance.ResolveCompletionItem(completionItem);
             await requestContext.SendResult(completionItem); 
         }
@@ -264,7 +276,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile, 
             EventContext eventContext)
         {
-            if (!IsPreviewWindow(scriptFile))
+            // if not in the preview window and diagnostics are enabled the run diagnostics
+            if (!IsPreviewWindow(scriptFile)
+                && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
             {
                 await RunScriptDiagnostics( 
                     new ScriptFile[] { scriptFile },
@@ -278,13 +292,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Handles text document change events 
         /// </summary> 
         /// <param name="textChangeParams"></param> 
-        /// <param name="eventContext"></param> 
-        /// <returns></returns> 
+        /// <param name="eventContext"></param>
         public async Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles, EventContext eventContext) 
         { 
-            await this.RunScriptDiagnostics( 
-                changedFiles.ToArray(), 
-                eventContext); 
+            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
+            {
+                await this.RunScriptDiagnostics( 
+                    changedFiles.ToArray(), 
+                    eventContext); 
+            }
 
             await Task.FromResult(true); 
         }
@@ -301,12 +317,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             EventContext eventContext)
         {
             // If script analysis settings have changed we need to clear & possibly update the current diagnostic records.
-            bool oldScriptAnalysisEnabled = oldSettings.ScriptAnalysis.Enable.HasValue;
-            if ((oldScriptAnalysisEnabled != newSettings.ScriptAnalysis.Enable))
+            if (oldSettings.SqlTools.EnableIntellisense != newSettings.SqlTools.EnableIntellisense
+                || oldSettings.SqlTools.IntelliSense.EnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableDiagnostics)
             {
                 // If the user just turned off script analysis or changed the settings path, send a diagnostics
                 // event to clear the analysis markers that they already have.
-                if (!newSettings.ScriptAnalysis.Enable.Value)
+                if (!newSettings.IsDiagnositicsEnabled)
                 {
                     ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
 
@@ -322,8 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Update the settings in the current 
-            CurrentSettings.EnableProfileLoading = newSettings.EnableProfileLoading;
-            CurrentSettings.ScriptAnalysis.Update(newSettings.ScriptAnalysis, CurrentWorkspace.WorkspacePath);
+            CurrentSettings.Update(newSettings);
         }
         
         #endregion
@@ -614,7 +629,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext)
         {
-            if (!CurrentSettings.ScriptAnalysis.Enable.Value)
+            if (!CurrentSettings.SqlTools.EnableIntellisense
+                || !CurrentSettings.SqlTools.IntelliSense.EnableDiagnostics.Value)
             {
                 // If the user has disabled script analysis, skip it entirely
                 return Task.FromResult(true);
