@@ -160,7 +160,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+
+                // turning on MARS to avoid break in LanguageService with multiple editors
+                // we'll remove this once ConnectionService is refactored to not own the LanguageService connection
                 connectionInfo.ConnectionDetails.MultipleActiveResultSets = true;
+
                 connectionInfo.SqlConnection.Open();
             }
             catch (SqlException ex)

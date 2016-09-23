@@ -26,8 +26,6 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
-using System.Data.SqlClient;
-using System.Data.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -432,48 +430,39 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             await Task.Run( () => 
             {
-                if (ShouldEnableAutocomplete())
+                ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
+                if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
                 {
-                    ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
-                    if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
+                    try
                     {
-                        try
-                        {
-                            scriptInfo.BuildingMetadataEvent.Reset();
+                        scriptInfo.BuildingMetadataEvent.Reset();
 
-                            // Open up a connection for the SMO metadata provider
-                            //string connectionString = ConnectionService.BuildConnectionString(info.ConnectionDetails);
-                            //using (DbConnection metadataConn = info.Factory.CreateSqlConnection(connectionString))
-                            {
-                                //metadataConn.Open();
-
-                                ReliableSqlConnection sqlConn = info.SqlConnection as ReliableSqlConnection;
-                                if (sqlConn != null)
-                                {
-                                    ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
-                                    scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                                    scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                                    scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
-                                    scriptInfo.ServerConnection = serverConn;
-                                    scriptInfo.IsConnected = true;
-                                }
-                            }
-                        }
-                        catch (Exception)
+                        ReliableSqlConnection sqlConn = info.SqlConnection as ReliableSqlConnection;
+                        if (sqlConn != null)
                         {
-                            scriptInfo.IsConnected = false;
+                            ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
+                            scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                            scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
+                            scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
+                            scriptInfo.ServerConnection = serverConn;
+                            scriptInfo.IsConnected = true;
                         }
-                        finally
-                        {
-                            // Set Metadata Build event to Signal state.
-                            // (Tell Language Service that I am ready with Metadata Provider Object)
-                            scriptInfo.BuildingMetadataEvent.Set();
-                        }
+                        
                     }
-
-                    // populate SMO metadata provider with most common info
-                    AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo);
+                    catch (Exception)
+                    {
+                        scriptInfo.IsConnected = false;
+                    }
+                    finally
+                    {
+                        // Set Metadata Build event to Signal state.
+                        // (Tell Language Service that I am ready with Metadata Provider Object)
+                        scriptInfo.BuildingMetadataEvent.Set();
+                    }
                 }
+
+                // populate SMO metadata provider with most common info
+                AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo);
             });
         }
 
