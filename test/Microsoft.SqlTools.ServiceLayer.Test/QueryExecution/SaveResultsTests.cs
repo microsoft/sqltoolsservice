@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
                 BatchIndex = 0,
-                FilePath = "testwrite_1.csv",
+                FilePath = "testwrite_2.csv",
                 IncludeHeaders = true,
                 RowStartIndex = 0,
                 RowEndIndex = 0,
