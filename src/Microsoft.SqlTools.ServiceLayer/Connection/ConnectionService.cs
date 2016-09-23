@@ -160,6 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+                connectionInfo.ConnectionDetails.MultipleActiveResultSets = true;
                 connectionInfo.SqlConnection.Open();
             }
             catch (SqlException ex)

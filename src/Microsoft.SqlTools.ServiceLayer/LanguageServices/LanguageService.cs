@@ -26,6 +26,8 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using System.Data.SqlClient;
+using System.Data.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -190,20 +192,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await Task.FromResult(true);
             }
+            else
+            {
+                // get the current list of completion items and return to client 
+                var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
 
-            // get the current list of completion items and return to client 
-            var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
-                textDocumentPosition.TextDocument.Uri);
+                ConnectionInfo connInfo;
+                ConnectionService.Instance.TryFindConnection(
+                    scriptFile.ClientFilePath, 
+                    out connInfo);
 
-            ConnectionInfo connInfo;
-            ConnectionService.Instance.TryFindConnection(
-                scriptFile.ClientFilePath, 
-                out connInfo);
+                var completionItems = Instance.GetCompletionItems(
+                    textDocumentPosition, scriptFile, connInfo);
 
-            var completionItems = Instance.GetCompletionItems(
-                textDocumentPosition, scriptFile, connInfo);
-
-            await requestContext.SendResult(completionItems); 
+                await requestContext.SendResult(completionItems); 
+            }
         }
 
         /// <summary>
@@ -222,9 +226,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await Task.FromResult(true);
             }
-
-            completionItem = LanguageService.Instance.ResolveCompletionItem(completionItem);
-            await requestContext.SendResult(completionItem); 
+            else
+            {
+                completionItem = LanguageService.Instance.ResolveCompletionItem(completionItem);
+                await requestContext.SendResult(completionItem);
+            } 
         }
 
         private static async Task HandleDefinitionRequest(
@@ -316,9 +322,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             SqlToolsSettings oldSettings, 
             EventContext eventContext)
         {
+            bool oldEnableIntelliSense = oldSettings.SqlTools.EnableIntellisense;
+            bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableDiagnostics;
+
+            // Update the settings in the current 
+            CurrentSettings.Update(newSettings);
+
             // If script analysis settings have changed we need to clear & possibly update the current diagnostic records.
-            if (oldSettings.SqlTools.EnableIntellisense != newSettings.SqlTools.EnableIntellisense
-                || oldSettings.SqlTools.IntelliSense.EnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableDiagnostics)
+            if (oldEnableIntelliSense != newSettings.SqlTools.EnableIntellisense
+                || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableDiagnostics)
             {
                 // If the user just turned off script analysis or changed the settings path, send a diagnostics
                 // event to clear the analysis markers that they already have.
@@ -336,9 +348,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     await this.RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
                 }
             }
-
-            // Update the settings in the current 
-            CurrentSettings.Update(newSettings);
         }
         
         #endregion
@@ -431,15 +440,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         try
                         {
                             scriptInfo.BuildingMetadataEvent.Reset();
-                            var sqlConn = info.SqlConnection as ReliableSqlConnection;
-                            if (sqlConn != null)
+
+                            // Open up a connection for the SMO metadata provider
+                            //string connectionString = ConnectionService.BuildConnectionString(info.ConnectionDetails);
+                            //using (DbConnection metadataConn = info.Factory.CreateSqlConnection(connectionString))
                             {
-                                ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
-                                scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                                scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                                scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
-                                scriptInfo.ServerConnection = new ServerConnection(sqlConn.GetUnderlyingConnection());
-                                scriptInfo.IsConnected = true;
+                                //metadataConn.Open();
+
+                                ReliableSqlConnection sqlConn = info.SqlConnection as ReliableSqlConnection;
+                                if (sqlConn != null)
+                                {
+                                    ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
+                                    scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                                    scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
+                                    scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
+                                    scriptInfo.ServerConnection = serverConn;
+                                    scriptInfo.IsConnected = true;
+                                }
                             }
                         }
                         catch (Exception)
