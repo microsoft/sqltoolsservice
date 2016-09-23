@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
@@ -38,11 +39,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private QueryExecutionService()
         {
             ConnectionService = ConnectionService.Instance;
+            WorkspaceService = WorkspaceService<SqlToolsSettings>.Instance;
         }
 
-        internal QueryExecutionService(ConnectionService connService)
+        internal QueryExecutionService(ConnectionService connService, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             ConnectionService = connService;
+            WorkspaceService = workspaceService;
         }
 
         #endregion
@@ -78,6 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private ConnectionService ConnectionService { get; set; }
 
+        private WorkspaceService<SqlToolsSettings> WorkspaceService { get; set; }
+
         /// <summary>
         /// Internal storage of active queries, lazily constructed as a threadsafe dictionary
         /// </summary>
@@ -111,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             });
 
             // Register a handler for when the configuration changes
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((oldSettings, newSettings, eventContext) =>
+            WorkspaceService.RegisterConfigChangeCallback((oldSettings, newSettings, eventContext) =>
             {
                 Settings.QueryExecutionSettings.Update(newSettings.QueryExecutionSettings);
                 return Task.FromResult(0);
@@ -403,10 +408,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Retrieve the current settings for executing the query with
-                QueryExecutionSettings settings = WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings;
+                QueryExecutionSettings settings = WorkspaceService.CurrentSettings.QueryExecutionSettings;
 
+                // Get query text from the workspace.
+                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(executeParams.OwnerUri);
+
+                string queryText;
+
+                if (executeParams.QuerySelection != null) 
+                {
+                    string[] queryTextArray = queryFile.GetLinesInRange(
+                        new BufferRange(
+                            new BufferPosition(
+                                executeParams.QuerySelection.StartLine + 1, 
+                                executeParams.QuerySelection.StartColumn + 1
+                            ), 
+                            new BufferPosition(
+                                executeParams.QuerySelection.EndLine + 1, 
+                                executeParams.QuerySelection.EndColumn + 1
+                            )
+                        )
+                    );
+                    queryText = queryTextArray.Aggregate((a, b) => a + '\r' + '\n' + b);
+                } 
+                else 
+                {
+                    queryText = queryFile.Contents;
+                }
+                
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(executeParams.QueryText, connectionInfo, settings, BufferFileFactory);
+                Query newQuery = new Query(queryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendResult(new QueryExecuteResult

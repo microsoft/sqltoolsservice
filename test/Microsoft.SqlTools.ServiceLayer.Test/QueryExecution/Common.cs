@@ -18,9 +18,11 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Moq.Protected;
@@ -29,6 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class Common
     {
+        public const SelectionData WholeDocument = null;
+        
         public const string StandardQuery = "SELECT * FROM sys.objects";
 
         public const string InvalidQuery = "SELECT *** FROM sys.objects";
@@ -72,9 +76,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return output;
         }
 
+        public static SelectionData GetSubSectionDocument() 
+        {
+            return new SelectionData(0, 0, 2, 2);
+        }
+
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(StandardQuery, 1, GetFileStreamFactory());
+            Batch batch = new Batch(StandardQuery, 0, 0, 2, 2, GetFileStreamFactory());
             batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
             return batch;
         }
@@ -272,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected)
+        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             var connectionService = new ConnectionService(factory);
             if (isConnected)
@@ -283,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     OwnerUri = OwnerUri
                 });
             }
-            return new QueryExecutionService(connectionService) {BufferFileStreamFactory = GetFileStreamFactory()};
+            return new QueryExecutionService(connectionService, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 
         #endregion

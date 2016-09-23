@@ -86,7 +86,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             });
             // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
             Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
-                .Select(b => new Batch(b.Sql, b.StartLocation.LineNumber, outputFileFactory)).ToArray();
+                .Select(b => new Batch(b.Sql, 
+                                       b.StartLocation.LineNumber - 1, 
+                                       b.StartLocation.ColumnNumber - 1, 
+                                       b.EndLocation.LineNumber - 1, 
+                                       b.EndLocation.ColumnNumber - 1, 
+                                       outputFileFactory)).ToArray();
         }
 
         #region Properties
@@ -113,7 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = index,
                     HasError = batch.HasError,
                     Messages = batch.ResultMessages.ToArray(),
-                    ResultSetSummaries = batch.ResultSummaries
+                    ResultSetSummaries = batch.ResultSummaries,
+                    Selection = batch.Selection
                 }).ToArray();
             }
         }
