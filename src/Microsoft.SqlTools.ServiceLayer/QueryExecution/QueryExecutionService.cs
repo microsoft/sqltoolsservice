@@ -406,12 +406,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecutionSettings settings = WorkspaceService.CurrentSettings.QueryExecutionSettings;
 
                 // Get query text from the workspace.
-                ScriptFile QueryFile = WorkspaceService.Workspace.GetFile(executeParams.OwnerUri);
+                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(executeParams.OwnerUri);
 
-                string QueryText;
+                string queryText;
 
-                if(executeParams.QuerySelection != null) {
-                    string[] QueryTextArray = QueryFile.GetLinesInRange(
+                if (executeParams.QuerySelection != null) 
+                {
+                    string[] queryTextArray = queryFile.GetLinesInRange(
                         new BufferRange(
                             new BufferPosition(
                                 executeParams.QuerySelection.StartLine + 1, 
@@ -423,16 +424,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             )
                         )
                     );
-                    QueryText = QueryTextArray.Aggregate((a, b) => a + '\r' + '\n' + b);
-                } else {
-                    QueryText = QueryFile.Contents;
+                    queryText = queryTextArray.Aggregate((a, b) => a + '\r' + '\n' + b);
+                } 
+                else 
+                {
+                    queryText = queryFile.Contents;
                 }
                 
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(QueryText, connectionInfo, settings, BufferFileFactory);
+                Query newQuery = new Query(queryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
-
                     await requestContext.SendResult(new QueryExecuteResult
                     {
                         Messages = SR.QueryServiceQueryInProgress

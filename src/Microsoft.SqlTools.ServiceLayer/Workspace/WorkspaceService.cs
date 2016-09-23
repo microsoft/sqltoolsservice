@@ -52,8 +52,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         #region Properties
 
+        /// <summary>
+        /// Workspace object for the service. Virtual to allow for mocking
+        /// </summary>
         public virtual Workspace Workspace { get; private set; }
 
+        /// <summary>
+        /// Current settings for the workspace
+        /// </summary>
         public TConfig CurrentSettings { get; internal set; }
 
         /// <summary>

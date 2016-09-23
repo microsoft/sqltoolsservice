@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public int Id { get; set; }
 
         /// <summary>
-        /// The startline in the file of the batch
+        /// The selection from the file for this batch
         /// </summary>
         public SelectionData Selection { get; set; }
 

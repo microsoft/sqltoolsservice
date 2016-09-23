@@ -171,7 +171,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         }
 
         /// <summary>
-        /// Gets a range of lines from the file's contents.
+        /// Gets a range of lines from the file's contents. Virtual method to allow for
+        /// mocking.
         /// </summary>
         /// <param name="bufferRange">The buffer range from which lines will be extracted.</param>
         /// <returns>An array of strings from the specified range of the file.</returns>

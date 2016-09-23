@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// The 0-indexed line number that this batch started on
+        /// The range from the file that is this batch
         /// </summary>
         internal SelectionData Selection { get; set; }
 
@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (sqlError != null)
                     {
                         int lineNumber = sqlError.LineNumber + Selection.StartLine;
-                        string message = String.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
+                        string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
                             Environment.NewLine, sqlError.Message);
                         resultMessages.Add(message);
