@@ -11,11 +11,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     public class IntelliSenseSettings
     {
         /// <summary>
-        /// Initialize the IntelliSense settings
+        /// Initialize the IntelliSense settings defaults
         /// </summary>
         public IntelliSenseSettings()
         {
             this.EnableSuggestions = true;
+            this.LowerCaseSuggestions = false;
             this.EnableDiagnostics = true;
         }
 
@@ -24,6 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         /// <returns></returns>
         public bool? EnableSuggestions { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag determining if built-in suggestions should be lowercase
+        /// </summary>
+        public bool? LowerCaseSuggestions { get; set; }
 
         /// <summary>
         /// Gets or sets a flag determining if diagnostics are enabled
@@ -39,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             if (settings != null)
             {
                 this.EnableSuggestions = settings.EnableSuggestions;
+                this.LowerCaseSuggestions = settings.LowerCaseSuggestions;
                 this.EnableDiagnostics = settings.EnableDiagnostics;
             }
         }

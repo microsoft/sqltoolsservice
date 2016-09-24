@@ -533,6 +533,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 textDocumentPosition.Position.Line,
                                 textDocumentPosition.Position.Character);
             int endColumn = textDocumentPosition.Position.Character;
+            bool useLowerCaseSuggestions = this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
 
             this.currentCompletionParseInfo = null;
 
@@ -541,7 +542,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
             if (connInfo == null || scriptParseInfo == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn);
+                return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
             }
 
             // reparse and bind the SQL statement if needed
@@ -552,7 +553,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (scriptParseInfo.ParseResult == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn);
+                return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
             }
 
             if (scriptParseInfo.IsConnected 
@@ -594,7 +595,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
             
-            return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn);
+            return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
         }
 
         #endregion
