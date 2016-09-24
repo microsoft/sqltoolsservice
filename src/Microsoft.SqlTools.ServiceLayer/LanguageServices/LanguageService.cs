@@ -490,19 +490,29 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         internal CompletionItem ResolveCompletionItem(CompletionItem completionItem)
         {
-            var scriptParseInfo = LanguageService.Instance.currentCompletionParseInfo;
-            if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
+            try
             {
-                foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
+                var scriptParseInfo = LanguageService.Instance.currentCompletionParseInfo;
+                if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
                 {
-                    if (string.Equals(suggestion.Title, completionItem.Label))
+                    foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
                     {
-                        completionItem.Detail = suggestion.DatabaseQualifiedName;
-                        completionItem.Documentation = suggestion.Description;
-                        break;
+                        if (string.Equals(suggestion.Title, completionItem.Label))
+                        {
+                            completionItem.Detail = suggestion.DatabaseQualifiedName;
+                            completionItem.Documentation = suggestion.Description;
+                            break;
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                // if any exceptions are raised looking up extended completion metadata 
+                // then just return the original completion item
+                Logger.Write(LogLevel.Error, "Exeception in ResolveCompletionItem " + ex.ToString());
+            }
+
             return completionItem;
         }
 
