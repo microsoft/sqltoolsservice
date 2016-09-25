@@ -1,5 +1,7 @@
-﻿using System.IO;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
@@ -8,76 +10,102 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     /// </summary>
     public class SqlToolsSettings
     {
-        public SqlToolsSettings()
-        {
-            this.ScriptAnalysis = new ScriptAnalysisSettings();
-            this.QueryExecutionSettings = new QueryExecutionSettings();
-        }
+        private SqlToolsSettingsValues sqlTools = null; 
 
-        public bool EnableProfileLoading { get; set; }
-
-        public ScriptAnalysisSettings ScriptAnalysis { get; set; }
-
-        public void Update(SqlToolsSettings settings, string workspaceRootPath)
-        {
-            if (settings != null)
+        /// <summary>
+        /// Gets or sets the underlying settings value object
+        /// </summary>
+        public SqlToolsSettingsValues SqlTools 
+        { 
+            get
             {
-                this.EnableProfileLoading = settings.EnableProfileLoading;
-                this.ScriptAnalysis.Update(settings.ScriptAnalysis, workspaceRootPath);
+                if (this.sqlTools == null)
+                {
+                    this.sqlTools = new SqlToolsSettingsValues();
+                }
+                return this.sqlTools;
+            } 
+            set
+            {
+                this.sqlTools = value;
             }
         }
 
-        public QueryExecutionSettings QueryExecutionSettings { get; set; }
+        /// <summary>
+        /// Query excution settings forwarding property
+        /// </summary>
+        public QueryExecutionSettings QueryExecutionSettings 
+        { 
+            get { return this.SqlTools.QueryExecutionSettings; } 
+        }
+
+        /// <summary>
+        /// Updates the extension settings
+        /// </summary>
+        /// <param name="settings"></param>
+        public void Update(SqlToolsSettings settings)
+        {
+            if (settings != null)
+            {
+                this.SqlTools.EnableIntellisense = settings.SqlTools.EnableIntellisense;
+                this.SqlTools.IntelliSense.Update(settings.SqlTools.IntelliSense);
+            }
+        }
+
+        /// <summary>
+        /// Gets a flag determining if diagnostics are enabled
+        /// </summary>
+        public bool IsDiagnositicsEnabled
+        {
+            get
+            {
+                return this.SqlTools.EnableIntellisense
+                    && this.SqlTools.IntelliSense.EnableDiagnostics.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets a flag determining if suggestons are enabled
+        /// </summary>
+        public bool IsSuggestionsEnabled
+        {
+            get
+            {
+                return this.SqlTools.EnableIntellisense
+                    && this.SqlTools.IntelliSense.EnableSuggestions.Value;
+            }
+        }
     }
 
     /// <summary>
-    /// Sub class for serialization and deserialization of script analysis settings
+    /// Class that is used to serialize and deserialize SQL Tools settings
     /// </summary>
-    public class ScriptAnalysisSettings
+    public class SqlToolsSettingsValues
     {
-        public bool? Enable { get; set; }
-
-        public string SettingsPath { get; set; }
-
-        public ScriptAnalysisSettings()
+        /// <summary>
+        /// Initializes the Sql Tools settings values
+        /// </summary>
+        public SqlToolsSettingsValues()
         {
-            this.Enable = true;
+            this.EnableIntellisense = true;
+            this.IntelliSense = new IntelliSenseSettings();
+            this.QueryExecutionSettings = new QueryExecutionSettings();
         }
 
-        public void Update(ScriptAnalysisSettings settings, string workspaceRootPath)
-        {
-            if (settings != null)
-            {
-                this.Enable = settings.Enable;
+        /// <summary>
+        /// Gets or sets a flag determining if IntelliSense is enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool EnableIntellisense { get; set; }
 
-                string settingsPath = settings.SettingsPath;
+        /// <summary>
+        /// Gets or sets the detailed IntelliSense settings
+        /// </summary>
+        public IntelliSenseSettings IntelliSense { get; set; }
 
-                if (string.IsNullOrWhiteSpace(settingsPath))
-                {
-                    settingsPath = null;
-                }
-                else if (!Path.IsPathRooted(settingsPath))
-                {
-                    if (string.IsNullOrEmpty(workspaceRootPath))
-                    {
-                        // The workspace root path could be an empty string
-                        // when the user has opened a SqlTools script file
-                        // without opening an entire folder (workspace) first.
-                        // In this case we should just log an error and let
-                        // the specified settings path go through even though
-                        // it will fail to load.
-                        Logger.Write(
-                            LogLevel.Error,
-                            "Could not resolve Script Analyzer settings path due to null or empty workspaceRootPath.");
-                    }
-                    else
-                    {
-                        settingsPath = Path.GetFullPath(Path.Combine(workspaceRootPath, settingsPath));
-                    }
-                }
-
-                this.SettingsPath = settingsPath;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the query execution settings
+        /// </summary>
+        public QueryExecutionSettings QueryExecutionSettings { get; set; }
     }
 }
