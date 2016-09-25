@@ -49,11 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        internal bool ShouldEnableAutocomplete()
-        {
-            return true;
-        }
-
         private ConnectionService connectionService = null;
 
         /// <summary>
@@ -228,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 completionItem = LanguageService.Instance.ResolveCompletionItem(completionItem);
                 await requestContext.SendResult(completionItem);
-            } 
+            }
         }
 
         private static async Task HandleDefinitionRequest(
@@ -262,8 +257,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private static async Task HandleHoverRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
-        {
-            await Task.FromResult(true);
+        {            
+            // check if Intellisense suggestions are enabled
+            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
+            {        
+                var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
+
+                var hover = LanguageService.Instance.GetHoverItem(textDocumentPosition, scriptFile);
+                if (hover != null)
+                {
+                    await requestContext.SendResult(hover);
+                }
+            }
+
+            await Task.FromResult(new Hover()
+            {
+                Contents = new MarkedString[0]
+            });            
         }
 
         #endregion
@@ -280,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile, 
             EventContext eventContext)
         {
-            // if not in the preview window and diagnostics are enabled the run diagnostics
+            // if not in the preview window and diagnostics are enabled then run diagnostics
             if (!IsPreviewWindow(scriptFile)
                 && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
             {
@@ -323,15 +334,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool oldEnableIntelliSense = oldSettings.SqlTools.EnableIntellisense;
             bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableDiagnostics;
 
-            // Update the settings in the current 
+            // update the current settings to reflect any changes
             CurrentSettings.Update(newSettings);
 
-            // If script analysis settings have changed we need to clear & possibly update the current diagnostic records.
+            // if script analysis settings have changed we need to clear the current diagnostic markers
             if (oldEnableIntelliSense != newSettings.SqlTools.EnableIntellisense
                 || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableDiagnostics)
             {
-                // If the user just turned off script analysis or changed the settings path, send a diagnostics
-                // event to clear the analysis markers that they already have.
+                // if the user just turned off diagnostics then send an event to clear the error markers
                 if (!newSettings.IsDiagnositicsEnabled)
                 {
                     ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
@@ -341,6 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, emptyAnalysisDiagnostics, eventContext);
                     }
                 }
+                // otherwise rerun diagnostic analysis on all opened SQL files
                 else
                 {
                     await this.RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
@@ -441,7 +452,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (sqlConn != null)
                         {
                             ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
-                            scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+
+                            // TODO move this somewhere else before checking-in                            
+                            scriptInfo.MetadataDisplayInfoProvider.BuiltInCasing =
+                                this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                                    ? CasingStyle.Lowercase
+                                    : CasingStyle.Uppercase;
+
                             scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
                             scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
                             scriptInfo.ServerConnection = serverConn;
@@ -514,6 +531,67 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return completionItem;
+        }
+
+        internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        {
+            int startLine = textDocumentPosition.Position.Line;
+            int startColumn = TextUtilities.PositionOfPrevDelimeter(
+                                scriptFile.Contents,    
+                                textDocumentPosition.Position.Line,
+                                textDocumentPosition.Position.Character);
+            int endColumn = textDocumentPosition.Position.Character;          
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
+            {
+                if (scriptParseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionStartTimeout))
+                {
+                    scriptParseInfo.BuildingMetadataEvent.Reset();
+                    try
+                    {
+                        Babel.CodeObjectQuickInfo quickInfo = Resolver.GetQuickInfo(
+                            scriptParseInfo.ParseResult, 
+                            startLine + 1, 
+                            endColumn + 1, 
+                            scriptParseInfo.MetadataDisplayInfoProvider);
+
+                        var markedStrings = new MarkedString[1];
+                        if (quickInfo != null)
+                        {
+                            markedStrings[0] = new MarkedString()
+                            {
+                                Language = "SQL",
+                                Value = quickInfo.Text                                
+                            };
+
+                            return new Hover()
+                            {
+                                Contents = markedStrings,
+                                Range = new Range
+                                {
+                                    Start = new Position
+                                    {
+                                        Line = startLine,
+                                        Character = startColumn
+                                    },
+                                    End = new Position
+                                    {
+                                        Line = startLine,
+                                        Character = endColumn
+                                    }
+                                }
+                            };
+                        }
+                    }
+                    finally
+                    {
+                        scriptParseInfo.BuildingMetadataEvent.Set();
+                    }                
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -646,8 +724,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext)
         {
-            if (!CurrentSettings.SqlTools.EnableIntellisense
-                || !CurrentSettings.SqlTools.IntelliSense.EnableDiagnostics.Value)
+            if (!CurrentSettings.IsDiagnositicsEnabled)
             {
                 // If the user has disabled script analysis, skip it entirely
                 return Task.FromResult(true);

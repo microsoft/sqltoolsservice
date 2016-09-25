@@ -27,6 +27,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ServerConnection serverConnection;
 
+        private Lazy<MetadataDisplayInfoProvider> metadataDisplayInfoProvider = new Lazy<MetadataDisplayInfoProvider>(() => 
+        {
+            var infoProvider = new MetadataDisplayInfoProvider();
+            return infoProvider;
+        });
+
         /// <summary>
         /// Event which tells if MetadataProvider is built fully or not
         /// </summary>
@@ -141,7 +147,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets the SMO metadata display info provider
         /// </summary>
-        public MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
+        public MetadataDisplayInfoProvider MetadataDisplayInfoProvider 
+        { 
+            get
+            {
+                return this.metadataDisplayInfoProvider.Value; 
+            }
+        }
         
         /// <summary>
         /// Gets or sets the current autocomplete suggestion list

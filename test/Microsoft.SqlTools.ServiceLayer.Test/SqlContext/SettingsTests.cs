@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Validate that the IsDiagnositicsEnabled flag behavior
+        /// Validate that the IsSuggestionsEnabled flag behavior
         /// </summary>
         [Fact]
         public void ValidateIsSuggestionsEnabled()

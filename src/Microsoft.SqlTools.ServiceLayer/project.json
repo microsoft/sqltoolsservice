@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
-    "Microsoft.SqlServer.SqlParser": "140.1.5",
     "System.Data.Common": "4.1.0",
     "System.Data.SqlClient": "4.1.0",
     "Microsoft.SqlServer.Smo": "140.1.5",

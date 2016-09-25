@@ -119,8 +119,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// <returns></returns>
         private async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleInitializationRequest");
-
             // Call all tasks that registered on the initialize request
             var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
             await Task.WhenAll(initializeTasks);
@@ -136,7 +134,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         TextDocumentSync = TextDocumentSyncKind.Incremental,
                         DefinitionProvider = true,
                         ReferencesProvider = true,
-                        DocumentHighlightProvider = true,                      
+                        DocumentHighlightProvider = true,
+                        HoverProvider = true,             
                         CompletionProvider = new CompletionOptions
                         {
                             ResolveProvider = true,
@@ -144,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         },
                         SignatureHelpProvider = new SignatureHelpOptions
                         {
-                            TriggerCharacters = new string[] { " " } // TODO: Other characters here?
+                            TriggerCharacters = new string[] { " ", "," }
                         }
                     }
                 });
@@ -157,7 +156,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
           object versionRequestParams,
           RequestContext<string> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleVersionRequest");
             await requestContext.SendResult(serviceVersion.ToString());
         }
 
