@@ -35,6 +35,17 @@ namespace Microsoft.SqlTools.Test.Utility
 #endif
         }
 
+        /// <summary>
+        /// Creates a test connection info instance.
+        /// </summary>
+        public static ConnectionInfo GetTestConnectionInfo()
+        {
+            return new ConnectionInfo(
+                GetTestSqlConnectionFactory(),
+                "file://some/file.sql",
+                GetTestConnectionDetails());
+        }
+
         public static ConnectParams GetTestConnectionParams()
         {
             return new ConnectParams() 

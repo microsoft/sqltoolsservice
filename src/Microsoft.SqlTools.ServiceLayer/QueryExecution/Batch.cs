@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -134,16 +135,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             try
             {
+                DbCommand command = null;
+
                 // Register the message listener to *this instance* of the batch
                 // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
                     sqlConn.GetUnderlyingConnection().InfoMessage += StoreDbMessage;
+                    command = sqlConn.GetUnderlyingConnection().CreateCommand();
+                }
+                else
+                {
+                    command = conn.CreateCommand();
                 }
 
+                // Make sure we aren't using a ReliableCommad since we do not want automatic retry
+                Debug.Assert(!(command is ReliableSqlConnection.ReliableSqlCommand), "ReliableSqlCommand command should not be used to execute queries");
+
                 // Create a command that we'll use for executing the query
-                using (DbCommand command = conn.CreateCommand())
+                using (command)
                 {
                     command.CommandText = BatchText;
                     command.CommandType = CommandType.Text;
