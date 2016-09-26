@@ -201,10 +201,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             finally
             {
                 // Remove the message event handler from the connection
-                SqlConnection sqlConn = conn as SqlConnection;
+                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
-                    sqlConn.InfoMessage -= StoreDbMessage;
+                    sqlConn.GetUnderlyingConnection().InfoMessage -= StoreDbMessage;
                 }
 
                 // Mark that we have executed

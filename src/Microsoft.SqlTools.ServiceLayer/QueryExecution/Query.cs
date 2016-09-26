@@ -195,10 +195,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
                 }
 
-                // We need these to execute synchronously, otherwise the user will be very unhappy
-                foreach (Batch b in Batches)
+                try
                 {
-                    await b.Execute(conn, cancellationSource.Token);
+                    // We need these to execute synchronously, otherwise the user will be very unhappy
+                    foreach (Batch b in Batches)
+                    {
+                        await b.Execute(conn, cancellationSource.Token);
+                    }
+                }
+                finally
+                {
+                    if (sqlConn != null)
+                    {
+                        // Subscribe to database informational messages
+                        sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
+                    }
                 }
 
                 // TODO: Close connection after eliminating using statement for above TODO

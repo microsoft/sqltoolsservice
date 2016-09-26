@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public DbConnection CreateSqlConnection(string connectionString)
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
-            RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
+            RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultDataSqlCommandRetryPolicy();
             return new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy);
         }
     }
