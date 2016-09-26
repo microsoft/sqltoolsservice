@@ -284,6 +284,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
                     int columnCount = 0, rowCount = 0, columnStartIndex = 0, rowStartIndex = 0;
+
+                    // set column, row counts depending on whether save request is for entire result set or a subset
                     if (SaveResults.isSaveSelection(saveParams))
                     {   
                         columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
@@ -297,12 +299,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         rowCount = (int)selectedResultSet.RowCount;
                     }
 
+                    // write column names if include headers option is chosen
                     if (saveParams.IncludeHeaders)
                     {
                         await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Skip(columnStartIndex).Take(columnCount).Select( column =>
                                             SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
                     }
 
+                    // retrieve rows and write as csv
                     ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
                     foreach (var row in resultSubset.Rows)
                     {
@@ -354,6 +358,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
                     int rowCount = 0, rowStartIndex = 0, columnStartIndex = 0, columnEndIndex;
+
+                    // set column, row counts depending on whether save request is for entire result set or a subset
                     if (SaveResults.isSaveSelection(saveParams))
                     {
                        
@@ -367,6 +373,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         rowCount = (int)selectedResultSet.RowCount;
                         columnEndIndex = selectedResultSet.Columns.Length;
                     }
+
+                    // retrieve rows and write as json
                     ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
                     foreach (var row in resultSubset.Rows)
                     {
@@ -376,7 +384,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             //get column name
                             DbColumnWrapper col = selectedResultSet.Columns[i];
                             string val = row[i]?.ToString();
-
                             jsonWriter.WritePropertyName(col.ColumnName);
                             if (val == null)
                             {
