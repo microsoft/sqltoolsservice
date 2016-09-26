@@ -6,6 +6,28 @@
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
+    /// Result message object with timestamp and actual message
+    /// </summary>
+    public class ResultMessage
+    {
+        /// <summary>
+        /// Timestamp of the message
+        /// </summary>
+        public string Time { get; set; }
+
+        /// <summary>
+        /// Message contents
+        /// </summary>
+        public string Message { get; set; }
+
+        public ResultMessage(string timeStamp, string message)
+        {
+            Time = timeStamp;
+            Message = message;
+        }
+    }
+
+    /// <summary>
     /// Summary of a batch within a query
     /// </summary>
     public class BatchSummary
@@ -28,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Any messages that came back from the server during execution of the batch
         /// </summary>
-        public string[] Messages { get; set; }
+        public ResultMessage[] Messages { get; set; }
 
         /// <summary>
         /// The summaries of the result sets inside the batch
