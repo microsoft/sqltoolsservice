@@ -207,6 +207,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     return;
                 }
 
+                // Cleanup the query
+                result.Dispose();
+
                 // Success
                 await requestContext.SendResult(new QueryDisposeResult
                 {
@@ -237,6 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Cancel the query
                 result.Cancel();
+                result.Dispose();
 
                 // Attempt to dispose the query
                 if (!ActiveQueries.TryRemove(cancelParams.OwnerUri, out result))
@@ -268,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in CSV format
         /// </summary>
-        public async Task HandleSaveResultsAsCsvRequest( SaveResultsAsCsvRequestParams saveParams,
+        public async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -320,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in JSON format
         /// </summary>
-        public async Task HandleSaveResultsAsJsonRequest( SaveResultsAsJsonRequestParams saveParams,
+        public async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -381,6 +385,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(ex.Message);
             }
         }
+
         #endregion
 
         #region Private Helpers
@@ -404,6 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query oldQuery;
                 if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.HasExecuted)
                 {
+                    oldQuery.Dispose();
                     ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
                 }
 
