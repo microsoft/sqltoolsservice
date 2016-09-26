@@ -41,7 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public const string UdtQuery = "SELECT hierarchyid::Parse('/')";
 
-
         public const string OwnerUri = "testFile";
 
         public const int StandardRows = 5;
