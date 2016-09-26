@@ -7,7 +7,10 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Xunit;
 
@@ -18,10 +21,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void CancelInProgressQueryTest()
         {
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.Setup(file => file.GetLinesInRange(It.IsAny<BufferRange>()))
+                .Returns(new string[] { Common.StandardQuery });
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+
             // If:
             // ... I request a query (doesn't matter what kind) and execute it
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.GetSubSectionDocument(), OwnerUri = Common.OwnerUri };
             var executeRequest = 
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
@@ -45,10 +57,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void CancelExecutedQueryTest()
         {
+            
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request a query (doesn't matter what kind) and wait for execution
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams {QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri};
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var executeParams = new QueryExecuteParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
             var executeRequest =
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
@@ -71,9 +91,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void CancelNonExistantTest()
         {
+
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I request to cancel a query that doesn't exist
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
             var cancelParams = new QueryCancelParams {OwnerUri = "Doesn't Exist"};
             QueryCancelResult result = null;
             var cancelRequest = GetQueryCancelResultContextMock(qcr => result = qcr, null);

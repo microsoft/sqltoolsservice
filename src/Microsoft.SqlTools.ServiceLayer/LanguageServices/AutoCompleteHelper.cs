@@ -421,16 +421,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "zone"
         };
 
+        /// <summary>
+        /// Get the default completion list from hard-coded list
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="startColumn"></param>
+        /// <param name="endColumn"></param>
+        /// <param name="useLowerCase"></param>
         internal static CompletionItem[] GetDefaultCompletionItems(
             int row, 
             int startColumn, 
-            int endColumn)
+            int endColumn,
+            bool useLowerCase)
         {
             var completionItems = new CompletionItem[DefaultCompletionText.Length];
             for (int i = 0; i < DefaultCompletionText.Length; ++i)
             {
                 completionItems[i] = CreateDefaultCompletionItem(
-                    DefaultCompletionText[i].ToUpper(),
+                    useLowerCase ? DefaultCompletionText[i].ToLower() : DefaultCompletionText[i].ToUpper(),
                     row, 
                     startColumn, 
                     endColumn);
@@ -438,6 +446,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return completionItems;
         }
 
+        /// <summary>
+        /// Create a completion item from the default item text
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="row"></param>
+        /// <param name="startColumn"></param>
+        /// <param name="endColumn"></param>
         private static CompletionItem CreateDefaultCompletionItem(
             string label,
             int row, 

@@ -160,6 +160,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+
+                // turning on MARS to avoid break in LanguageService with multiple editors
+                // we'll remove this once ConnectionService is refactored to not own the LanguageService connection
+                connectionInfo.ConnectionDetails.MultipleActiveResultSets = true;
+
                 connectionInfo.SqlConnection.Open();
             }
             catch (SqlException ex)
@@ -197,20 +202,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // try to get information about the connected SQL Server instance
             try
             {
-                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connectionInfo.SqlConnection);
-                response.ServerInfo = new Contracts.ServerInfo()
+                var connection = connectionInfo.SqlConnection as ReliableSqlConnection;
+                if (connection != null)
                 {
-                    ServerMajorVersion = serverInfo.ServerMajorVersion,
-                    ServerMinorVersion = serverInfo.ServerMinorVersion,
-                    ServerReleaseVersion = serverInfo.ServerReleaseVersion,
-                    EngineEditionId = serverInfo.EngineEditionId,
-                    ServerVersion = serverInfo.ServerVersion,
-                    ServerLevel = serverInfo.ServerLevel,
-                    ServerEdition = serverInfo.ServerEdition,
-                    IsCloud = serverInfo.IsCloud,
-                    AzureVersion = serverInfo.AzureVersion,
-                    OsVersion = serverInfo.OsVersion
-                };
+                    ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection.GetUnderlyingConnection());
+                    response.ServerInfo = new Contracts.ServerInfo()
+                    {
+                        ServerMajorVersion = serverInfo.ServerMajorVersion,
+                        ServerMinorVersion = serverInfo.ServerMinorVersion,
+                        ServerReleaseVersion = serverInfo.ServerReleaseVersion,
+                        EngineEditionId = serverInfo.EngineEditionId,
+                        ServerVersion = serverInfo.ServerVersion,
+                        ServerLevel = serverInfo.ServerLevel,
+                        ServerEdition = serverInfo.ServerEdition,
+                        IsCloud = serverInfo.IsCloud,
+                        AzureVersion = serverInfo.AzureVersion,
+                        OsVersion = serverInfo.OsVersion
+                    };
+                }
             }
             catch(Exception ex)
             {

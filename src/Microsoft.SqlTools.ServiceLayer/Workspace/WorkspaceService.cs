@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         #region Singleton Instance Implementation
 
-        private static readonly Lazy<WorkspaceService<TConfig>> instance = new Lazy<WorkspaceService<TConfig>>(() => new WorkspaceService<TConfig>());
+        private static Lazy<WorkspaceService<TConfig>> instance = new Lazy<WorkspaceService<TConfig>>(() => new WorkspaceService<TConfig>());
 
         public static WorkspaceService<TConfig> Instance
         {
@@ -52,8 +52,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         #region Properties
 
-        public Workspace Workspace { get; private set; }
+        /// <summary>
+        /// Workspace object for the service. Virtual to allow for mocking
+        /// </summary>
+        public virtual Workspace Workspace { get; private set; }
 
+        /// <summary>
+        /// Current settings for the workspace
+        /// </summary>
         public TConfig CurrentSettings { get; internal set; }
 
         /// <summary>
