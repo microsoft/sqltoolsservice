@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         [Fact]
-        public void UpdateLanguageServiceOnConnection()
+        public async void UpdateLanguageServiceOnConnection()
         {
             string ownerUri = "file://my/sample/file.sql";
             var connectionService = TestObjects.GetTestConnectionService();
@@ -202,8 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
             
-            var task = LanguageService.Instance.UpdateLanguageServiceOnConnection(connInfo);
-            task.Wait();
+            await LanguageService.Instance.UpdateLanguageServiceOnConnection(connInfo);
         }
 
         /// <summary>
