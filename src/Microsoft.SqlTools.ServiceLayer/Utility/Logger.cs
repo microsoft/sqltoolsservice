@@ -45,6 +45,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
     {
         private static LogWriter logWriter;
 
+        private static bool isEnabled;
+
+        private static bool isInitialized = false;
+
         /// <summary>
         /// Initializes the Logger for the current session.
         /// </summary>
@@ -56,8 +60,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// </param>
         public static void Initialize(
             string logFilePath = "sqltools",
-            LogLevel minimumLogLevel = LogLevel.Normal)
+            LogLevel minimumLogLevel = LogLevel.Normal,
+            bool isEnabled = true)
         {
+            Logger.isEnabled = isEnabled;
+            
+            // return if the logger is not enabled or already initialized
+            if (!Logger.isEnabled || Logger.isInitialized)
+            {
+                return;
+            }
+
+            Logger.isInitialized = true;
+
             // get a unique number to prevent conflicts of two process launching at the same time
             int uniqueId;
             try
@@ -89,6 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     minimumLogLevel, 
                     fullFileName,
                     true);
+
+            Logger.Write(LogLevel.Normal, "Initializing SQL Tools Service Host logger");
         }
 
         /// <summary>
@@ -116,7 +133,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             [CallerMemberName] string callerName = null, 
             [CallerFilePath] string callerSourceFile = null,
             [CallerLineNumber] int callerLineNumber = 0)
-        {
+        {            
+            // return if the logger is not enabled or not initialized
+            if (!Logger.isEnabled || !Logger.isInitialized)
+            {
+                return;
+            }
+
             if (logWriter != null)
             {
                 logWriter.Write(

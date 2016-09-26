@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -159,6 +160,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the current autocomplete suggestion list
         /// </summary>
         public IEnumerable<Declaration> CurrentSuggestions { get; set; }
+
+        /// <summary>
+        /// Update parse settings if the current configuration has changed
+        /// </summary>
+        /// <param name="settings"></param>
+        public void OnSettingsChanged(SqlToolsSettings settings)
+        {
+            this.MetadataDisplayInfoProvider.BuiltInCasing =
+                settings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                    ? CasingStyle.Lowercase
+                    : CasingStyle.Uppercase;
+        }
 
         /// <summary>
         /// Gets the database compatibility level from a server version

@@ -16,12 +16,12 @@ namespace Microsoft.SqlTools.ServiceLayer
     /// <summary>
     /// Main application class for SQL Tools API Service Host executable
     /// </summary>
-    class Program
+    internal class Program
     {
         /// <summary>
         /// Main entry point into the SQL Tools API Service Host
         /// </summary>
-        static void Main(string[] args)
+        internal static void Main(string[] args)
         {
             // turn on Verbose logging during early development
             // we need to switch to Normal when preparing for public preview

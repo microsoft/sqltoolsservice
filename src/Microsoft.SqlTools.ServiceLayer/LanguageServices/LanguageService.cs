@@ -12,7 +12,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -78,6 +77,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private Lazy<Dictionary<string, ScriptParseInfo>> scriptParseInfoMap 
             = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
 
+        /// <summary>
+        /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
+        /// </summary>
         internal Dictionary<string, ScriptParseInfo> ScriptParseInfoMap 
         {
             get
@@ -86,6 +88,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Gets the singleton instance object
+        /// </summary>
         public static LanguageService Instance
         {
             get { return instance.Value; }
@@ -257,9 +262,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private static async Task HandleHoverRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
-        {            
-            // check if Intellisense suggestions are enabled
-            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
+        {                    
+            // check if Quick Info hover tooltips are enabled
+            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsQuickInfoEnabled)
             {        
                 var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
@@ -271,10 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
-            await Task.FromResult(new Hover()
-            {
-                Contents = new MarkedString[0]
-            });            
+            await requestContext.SendResult(new Hover());         
         }
 
         #endregion
@@ -336,6 +338,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // update the current settings to reflect any changes
             CurrentSettings.Update(newSettings);
+
+            // update the script parse info objects if the settings have changed
+            foreach (var scriptInfo in this.ScriptParseInfoMap.Values)
+            {
+                scriptInfo.OnSettingsChanged(newSettings);
+            }
 
             // if script analysis settings have changed we need to clear the current diagnostic markers
             if (oldEnableIntelliSense != newSettings.SqlTools.EnableIntellisense
@@ -451,14 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         ReliableSqlConnection sqlConn = info.SqlConnection as ReliableSqlConnection;
                         if (sqlConn != null)
                         {
-                            ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
-
-                            // TODO move this somewhere else before checking-in                            
-                            scriptInfo.MetadataDisplayInfoProvider.BuiltInCasing =
-                                this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
-                                    ? CasingStyle.Lowercase
-                                    : CasingStyle.Uppercase;
-
+                            ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());                            
                             scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
                             scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
                             scriptInfo.ServerConnection = serverConn;
@@ -533,6 +534,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return completionItem;
         }
 
+        /// <summary>
+        /// Get quick info hover tooltips for the current position
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="scriptFile"></param>
         internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             int startLine = textDocumentPosition.Position.Line;
@@ -550,12 +556,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     scriptParseInfo.BuildingMetadataEvent.Reset();
                     try
                     {
+                        // get the current quick info text
                         Babel.CodeObjectQuickInfo quickInfo = Resolver.GetQuickInfo(
                             scriptParseInfo.ParseResult, 
                             startLine + 1, 
                             endColumn + 1, 
                             scriptParseInfo.MetadataDisplayInfoProvider);
 
+                        // convert from the parser format to the VS Code wire format
                         var markedStrings = new MarkedString[1];
                         if (quickInfo != null)
                         {
@@ -591,6 +599,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
+            // return null if there isn't a tooltip for the current location
             return null;
         }
 
@@ -846,7 +855,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else if (createIfNotExists)
                 {
+                    // create a new script parse info object and initialize with the current settings
                     ScriptParseInfo scriptInfo = new ScriptParseInfo();
+                    scriptInfo.OnSettingsChanged(this.CurrentSettings);
                     this.ScriptParseInfoMap.Add(uri, scriptInfo);
                     return scriptInfo;
                 }

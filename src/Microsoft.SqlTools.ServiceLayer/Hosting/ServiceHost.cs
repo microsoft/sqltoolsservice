@@ -4,13 +4,13 @@
 //
 
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
-using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting
@@ -63,8 +63,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
         #region Member Variables
 
+        /// <summary>
+        /// Delegate definition for the host shutdown event
+        /// </summary>
+        /// <param name="shutdownParams"></param>
+        /// <param name="shutdownRequestContext"></param>
         public delegate Task ShutdownCallback(object shutdownParams, RequestContext<object> shutdownRequestContext);
 
+        /// <summary>
+        /// Delegate definition for the host initialization event
+        /// </summary>
+        /// <param name="startupParams"></param>
+        /// <param name="requestContext"></param>
         public delegate Task InitializeCallback(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
 
         private readonly List<ShutdownCallback> shutdownCallbacks;
