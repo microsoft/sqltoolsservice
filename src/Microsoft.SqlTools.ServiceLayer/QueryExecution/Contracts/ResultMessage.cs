@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         public ResultMessage(string message)
         {
-            Time = DateTime.UtcNow.ToString("o") + "Z";
+            Time = DateTime.UtcNow.ToString("o");
             Message = message;
         }
     }
