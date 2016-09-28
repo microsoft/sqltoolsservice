@@ -18,6 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             this.EnableSuggestions = true;
             this.LowerCaseSuggestions = false;
             this.EnableDiagnostics = true;
+            this.EnableQuickInfo = true;
         }
 
         /// <summary>
@@ -37,6 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         public bool? EnableDiagnostics { get; set; }
 
         /// <summary>
+        /// Gets or sets a flag determining if quick info is enabled
+        /// </summary>
+        public bool? EnableQuickInfo { get; set; }
+
+        /// <summary>
         /// Update the Intellisense settings
         /// </summary>
         /// <param name="settings"></param>
@@ -47,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                 this.EnableSuggestions = settings.EnableSuggestions;
                 this.LowerCaseSuggestions = settings.LowerCaseSuggestions;
                 this.EnableDiagnostics = settings.EnableDiagnostics;
+                this.EnableQuickInfo = settings.EnableQuickInfo;
             }
         }
     }

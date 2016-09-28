@@ -75,6 +75,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                     && this.SqlTools.IntelliSense.EnableSuggestions.Value;
             }
         }
+
+        /// <summary>
+        /// Gets a flag determining if quick info is enabled
+        /// </summary>
+        public bool IsQuickInfoEnabled
+        {
+            get
+            {
+                return this.SqlTools.EnableIntellisense
+                    && this.SqlTools.IntelliSense.EnableQuickInfo.Value;
+            }
+        }
     }
 
     /// <summary>

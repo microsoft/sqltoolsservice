@@ -12,7 +12,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -49,11 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        internal bool ShouldEnableAutocomplete()
-        {
-            return true;
-        }
-
         private ConnectionService connectionService = null;
 
         /// <summary>
@@ -83,6 +77,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private Lazy<Dictionary<string, ScriptParseInfo>> scriptParseInfoMap 
             = new Lazy<Dictionary<string, ScriptParseInfo>>(() => new Dictionary<string, ScriptParseInfo>());
 
+        /// <summary>
+        /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
+        /// </summary>
         internal Dictionary<string, ScriptParseInfo> ScriptParseInfoMap 
         {
             get
@@ -91,6 +88,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Gets the singleton instance object
+        /// </summary>
         public static LanguageService Instance
         {
             get { return instance.Value; }
@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 completionItem = LanguageService.Instance.ResolveCompletionItem(completionItem);
                 await requestContext.SendResult(completionItem);
-            } 
+            }
         }
 
         private static async Task HandleDefinitionRequest(
@@ -262,8 +262,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private static async Task HandleHoverRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
-        {
-            await Task.FromResult(true);
+        {                    
+            // check if Quick Info hover tooltips are enabled
+            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsQuickInfoEnabled)
+            {        
+                var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
+
+                var hover = LanguageService.Instance.GetHoverItem(textDocumentPosition, scriptFile);
+                if (hover != null)
+                {
+                    await requestContext.SendResult(hover);
+                }
+            }
+
+            await requestContext.SendResult(new Hover());         
         }
 
         #endregion
@@ -280,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile, 
             EventContext eventContext)
         {
-            // if not in the preview window and diagnostics are enabled the run diagnostics
+            // if not in the preview window and diagnostics are enabled then run diagnostics
             if (!IsPreviewWindow(scriptFile)
                 && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
             {
@@ -323,15 +336,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool oldEnableIntelliSense = oldSettings.SqlTools.EnableIntellisense;
             bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableDiagnostics;
 
-            // Update the settings in the current 
+            // update the current settings to reflect any changes
             CurrentSettings.Update(newSettings);
 
-            // If script analysis settings have changed we need to clear & possibly update the current diagnostic records.
+            // update the script parse info objects if the settings have changed
+            foreach (var scriptInfo in this.ScriptParseInfoMap.Values)
+            {
+                scriptInfo.OnSettingsChanged(newSettings);
+            }
+
+            // if script analysis settings have changed we need to clear the current diagnostic markers
             if (oldEnableIntelliSense != newSettings.SqlTools.EnableIntellisense
                 || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableDiagnostics)
             {
-                // If the user just turned off script analysis or changed the settings path, send a diagnostics
-                // event to clear the analysis markers that they already have.
+                // if the user just turned off diagnostics then send an event to clear the error markers
                 if (!newSettings.IsDiagnositicsEnabled)
                 {
                     ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
@@ -341,6 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, emptyAnalysisDiagnostics, eventContext);
                     }
                 }
+                // otherwise rerun diagnostic analysis on all opened SQL files
                 else
                 {
                     await this.RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
@@ -440,8 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         ReliableSqlConnection sqlConn = info.SqlConnection as ReliableSqlConnection;
                         if (sqlConn != null)
                         {
-                            ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());
-                            scriptInfo.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                            ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());                            
                             scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
                             scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
                             scriptInfo.ServerConnection = serverConn;
@@ -514,6 +532,75 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             return completionItem;
+        }
+
+        /// <summary>
+        /// Get quick info hover tooltips for the current position
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="scriptFile"></param>
+        internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        {
+            int startLine = textDocumentPosition.Position.Line;
+            int startColumn = TextUtilities.PositionOfPrevDelimeter(
+                                scriptFile.Contents,    
+                                textDocumentPosition.Position.Line,
+                                textDocumentPosition.Position.Character);
+            int endColumn = textDocumentPosition.Position.Character;          
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
+            {
+                if (scriptParseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionStartTimeout))
+                {
+                    scriptParseInfo.BuildingMetadataEvent.Reset();
+                    try
+                    {
+                        // get the current quick info text
+                        Babel.CodeObjectQuickInfo quickInfo = Resolver.GetQuickInfo(
+                            scriptParseInfo.ParseResult, 
+                            startLine + 1, 
+                            endColumn + 1, 
+                            scriptParseInfo.MetadataDisplayInfoProvider);
+
+                        // convert from the parser format to the VS Code wire format
+                        var markedStrings = new MarkedString[1];
+                        if (quickInfo != null)
+                        {
+                            markedStrings[0] = new MarkedString()
+                            {
+                                Language = "SQL",
+                                Value = quickInfo.Text                                
+                            };
+
+                            return new Hover()
+                            {
+                                Contents = markedStrings,
+                                Range = new Range
+                                {
+                                    Start = new Position
+                                    {
+                                        Line = startLine,
+                                        Character = startColumn
+                                    },
+                                    End = new Position
+                                    {
+                                        Line = startLine,
+                                        Character = endColumn
+                                    }
+                                }
+                            };
+                        }
+                    }
+                    finally
+                    {
+                        scriptParseInfo.BuildingMetadataEvent.Set();
+                    }                
+                }
+            }
+
+            // return null if there isn't a tooltip for the current location
+            return null;
         }
 
         /// <summary>
@@ -646,8 +733,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="eventContext"></param>
         private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext)
         {
-            if (!CurrentSettings.SqlTools.EnableIntellisense
-                || !CurrentSettings.SqlTools.IntelliSense.EnableDiagnostics.Value)
+            if (!CurrentSettings.IsDiagnositicsEnabled)
             {
                 // If the user has disabled script analysis, skip it entirely
                 return Task.FromResult(true);
@@ -769,7 +855,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else if (createIfNotExists)
                 {
+                    // create a new script parse info object and initialize with the current settings
                     ScriptParseInfo scriptInfo = new ScriptParseInfo();
+                    scriptInfo.OnSettingsChanged(this.CurrentSettings);
                     this.ScriptParseInfoMap.Add(uri, scriptInfo);
                     return scriptInfo;
                 }

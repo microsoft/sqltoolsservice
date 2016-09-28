@@ -257,8 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 new ScriptParseInfo
                 {
                     Binder = binder,
-                    MetadataProvider = metadataProvider,
-                    MetadataDisplayInfoProvider = displayInfoProvider
+                    MetadataProvider = metadataProvider
                 });
 
             scriptFile = new ScriptFile {ClientFilePath = textDocument.TextDocument.Uri};

@@ -16,26 +16,22 @@ namespace Microsoft.SqlTools.ServiceLayer
     /// <summary>
     /// Main application class for SQL Tools API Service Host executable
     /// </summary>
-    class Program
+    internal class Program
     {
         /// <summary>
         /// Main entry point into the SQL Tools API Service Host
         /// </summary>
-        static void Main(string[] args)
+        internal static void Main(string[] args)
         {
             // turn on Verbose logging during early development
             // we need to switch to Normal when preparing for public preview
             Logger.Initialize(minimumLogLevel: LogLevel.Verbose);
             Logger.Write(LogLevel.Normal, "Starting SQL Tools Service Host");
 
-            const string hostName = "SQL Tools Service Host";
-            const string hostProfileId = "SQLToolsService";
-            Version hostVersion = new Version(1,0); 
-
             // set up the host details and profile paths 
-            var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);     
-            var profilePaths = new ProfilePaths(hostProfileId, "baseAllUsersPath", "baseCurrentUserPath");
-            SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails, profilePaths);
+            var hostDetails = new HostDetails(version: new Version(1,0));
+
+            SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
 
             // Grab the instance of the service host
             ServiceHost serviceHost = ServiceHost.Instance;
