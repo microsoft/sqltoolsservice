@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
-                                resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o"),
+                                resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o") + "Z",
                                                                     reader.RecordsAffected >= 0
                                                                         ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
                                                                         : SR.QueryServiceCompletedSuccessfully));
@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="args">Arguments from the event</param>
         private void StoreDbMessage(object sender, SqlInfoMessageEventArgs args)
         {
-            resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o"), args.Message));
+            resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o") + "Z", args.Message));
         }
 
         /// <summary>
@@ -259,13 +259,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
                             Environment.NewLine, sqlError.Message);
-                        resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o"), message));
+                        resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o") + "Z", message));
                     }
                 }
             }
             else
             {
-                resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o"), dbe.Message));
+                resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o") + "Z", dbe.Message));
             }
         }
 
