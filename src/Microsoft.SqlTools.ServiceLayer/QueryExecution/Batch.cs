@@ -157,8 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
-                                resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o") + "Z",
-                                                                    reader.RecordsAffected >= 0
+                                resultMessages.Add(new ResultMessage(reader.RecordsAffected >= 0
                                                                         ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
                                                                         : SR.QueryServiceCompletedSuccessfully));
                                 continue;
@@ -173,8 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
 
                             // Add a message for the number of rows the query returned
-                            resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o"),
-                                                                 SR.QueryServiceAffectedRows(resultSet.RowCount)));
+                            resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -235,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="args">Arguments from the event</param>
         private void StoreDbMessage(object sender, SqlInfoMessageEventArgs args)
         {
-            resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o") + "Z", args.Message));
+            resultMessages.Add(new ResultMessage(args.Message));
         }
 
         /// <summary>
@@ -259,13 +257,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
                             Environment.NewLine, sqlError.Message);
-                        resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o") + "Z", message));
+                        resultMessages.Add(new ResultMessage(message));
                     }
                 }
             }
             else
             {
-                resultMessages.Add(new ResultMessage(DateTime.UtcNow.ToString("o") + "Z", dbe.Message));
+                resultMessages.Add(new ResultMessage(dbe.Message));
             }
         }
 
