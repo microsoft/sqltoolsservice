@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -35,7 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         ManualResetEvent BindingLocked { get; set; }
 
         int BindingTimeout { get; set; }
-
     }
 
     /// <summary>
@@ -72,7 +72,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             public string Key { get; set; }
 
-            public Func<IBindingContext, Task> BindOperation { get; set; }
+            public EventContext EventContext { get; set; }
+
+            public Func<IBindingContext, EventContext, CancellationToken, Task> BindOperation { get; set; }
+
+            public Func<IBindingContext, EventContext, Task> TimeoutOperation { get; set; }
         }
         
         private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
@@ -102,14 +106,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return this.queueProcessorTask.Wait(timeout);
         }
 
-        public void QueueBindingOperation(string key, Func<IBindingContext, Task> bindOperation)
+        public void QueueBindingOperation(
+            string key, 
+            EventContext eventContext,
+            Func<IBindingContext, EventContext, CancellationToken, Task> bindOperation,
+            Func<IBindingContext, EventContext, Task> timeoutOperation = null)
         {
             lock (this.bindingQueueLock)
             {
                 this.bindingQueue.AddLast(new QueueItem()
                 {
                     Key = key,
-                    BindOperation = bindOperation
+                    EventContext = eventContext,
+                    BindOperation = bindOperation,
+                    TimeoutOperation = timeoutOperation
                 });
             }
 
@@ -193,9 +203,41 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             continue;
                         }
+                    
+                        if (!bindingContext.BindingLocked.WaitOne(1000))
+                        {
+                            Task.Run(() => 
+                            {
+                                queueItem.TimeoutOperation(bindingContext, queueItem.EventContext);
+                            });
+                        }
 
-                        Task bindingTask = queueItem.BindOperation(bindingContext);
-                        bindingTask.Wait(bindingContext.BindingTimeout);
+                        CancellationTokenSource cancelToken = new CancellationTokenSource();
+                        Task bindingTask = queueItem.BindOperation(
+                                bindingContext,  
+                                queueItem.EventContext,
+                                cancelToken.Token)
+                            .ContinueWith((obj) => 
+                            {   
+                                bindingContext.BindingLocked.Set(); 
+                            });
+
+                        if (queueItem.TimeoutOperation != null)
+                        {
+                            Task.Run(() => 
+                            {
+                                if (!bindingTask.Wait(bindingContext.BindingTimeout))
+                                {
+                                    cancelToken.Cancel();
+                                    queueItem.TimeoutOperation(bindingContext, queueItem.EventContext);
+                                }
+                            });
+                        }
+
+                        if (token.IsCancellationRequested)
+                        {
+                            break;
+                        }
                     } 
                 }
                 finally
