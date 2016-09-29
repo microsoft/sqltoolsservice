@@ -4,10 +4,12 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -46,6 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ISqlConnectionFactory connectionFactory;
            
         private Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
+
+        private ConcurrentDictionary<string, CancellationTokenSource> ownerToCancellationTokenSourceMap = new ConcurrentDictionary<string, CancellationTokenSource>();
 
         /// <summary>
         /// Service host object for sending/receiving requests/events.
@@ -119,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Open a connection with the specified connection details
         /// </summary>
         /// <param name="connectionParams"></param>
-        public ConnectResponse Connect(ConnectParams connectionParams)
+        public async Task<ConnectResponse> Connect(ConnectParams connectionParams)
         {
             // Validate parameters
             string paramValidationErrorMessage;
@@ -153,6 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // try to connect
             var response = new ConnectResponse();
+            CancellationTokenSource source = null;
             try
             {
                 // build the connection string from the input parameters
@@ -165,7 +170,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // we'll remove this once ConnectionService is refactored to not own the LanguageService connection
                 connectionInfo.ConnectionDetails.MultipleActiveResultSets = true;
 
-                connectionInfo.SqlConnection.Open();
+                // Add a cancellation token source so that the connection OpenAsync() can be cancelled
+                using (source = new CancellationTokenSource())
+                {
+                    // Locking here to perform two operations as one atomic operation
+                    lock (ownerToCancellationTokenSourceMap)
+                    {
+                        // If the URI is currently connecting from a different request, cancel it before we try to connect
+                        CancellationTokenSource currentSource;
+                        if (ownerToCancellationTokenSourceMap.TryGetValue(connectionParams.OwnerUri, out currentSource))
+                        {
+                            currentSource.Cancel();
+                        }
+                        ownerToCancellationTokenSourceMap[connectionParams.OwnerUri] = source;
+                    }
+
+                    // Open the connection
+                    await connectionInfo.SqlConnection.OpenAsync(source.Token);
+                }
             }
             catch (SqlException ex)
             {
@@ -174,11 +196,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 response.Messages = ex.ToString();
                 return response;
             }
+            catch (OperationCanceledException)
+            {
+                // OpenAsync() was cancelled, no need to respond with an error
+                return response;
+            }
             catch (Exception ex)
             {
                 response.ErrorMessage = ex.Message;
                 response.Messages = ex.ToString();
                 return response;
+            }
+            finally
+            {
+                // Remove our cancellation token from the map since we're no longer connecting
+                // Using a lock here to perform two operations as one atomic operation
+                lock (ownerToCancellationTokenSourceMap)
+                {
+                    // Only remove the token from the map if it is the same one created by this request
+                    CancellationTokenSource sourceValue;
+                    if (ownerToCancellationTokenSourceMap.TryGetValue(connectionParams.OwnerUri, out sourceValue) && sourceValue == source)
+                    {
+                        ownerToCancellationTokenSourceMap.TryRemove(connectionParams.OwnerUri, out sourceValue);
+                    }
+                }
             }
 
             ownerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
@@ -196,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // invoke callback notifications
             foreach (var activity in this.onConnectionActivities)
             {
-                activity(connectionInfo);
+                await activity(connectionInfo);
             }
 
             // try to get information about the connected SQL Server instance
@@ -239,6 +280,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Validate parameters
             if (disconnectParams == null || string.IsNullOrEmpty(disconnectParams.OwnerUri))
             {
+                return false;
+            }
+
+            // Cancel any current connection attempts for this URI
+            CancellationTokenSource source;
+            if (ownerToCancellationTokenSourceMap.TryGetValue(disconnectParams.OwnerUri, out source))
+            {
+                source.Cancel();
                 return false;
             }
 
@@ -355,7 +404,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             try
             {
                 // open connection base on request details
-                ConnectResponse result = ConnectionService.Instance.Connect(connectParams);
+                ConnectResponse result = await ConnectionService.Instance.Connect(connectParams);
                 await requestContext.SendResult(result);
             }
             catch(Exception ex)

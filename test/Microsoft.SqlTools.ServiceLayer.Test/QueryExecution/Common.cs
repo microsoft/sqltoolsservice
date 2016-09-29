@@ -26,6 +26,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Moq.Protected;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
@@ -282,12 +283,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
+        public static async Task<QueryExecutionService> GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             var connectionService = new ConnectionService(factory);
             if (isConnected)
             {
-                connectionService.Connect(new ConnectParams
+                await connectionService.Connect(new ConnectParams
                 {
                     Connection = GetTestConnectionDetails(),
                     OwnerUri = OwnerUri
