@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -26,6 +27,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private ParseOptions parseOptions = new ParseOptions();
 
         private ServerConnection serverConnection;
+
+        private Lazy<MetadataDisplayInfoProvider> metadataDisplayInfoProvider = new Lazy<MetadataDisplayInfoProvider>(() => 
+        {
+            var infoProvider = new MetadataDisplayInfoProvider();
+            return infoProvider;
+        });
 
         /// <summary>
         /// Event which tells if MetadataProvider is built fully or not
@@ -141,12 +148,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets the SMO metadata display info provider
         /// </summary>
-        public MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
+        public MetadataDisplayInfoProvider MetadataDisplayInfoProvider 
+        { 
+            get
+            {
+                return this.metadataDisplayInfoProvider.Value; 
+            }
+        }
         
         /// <summary>
         /// Gets or sets the current autocomplete suggestion list
         /// </summary>
         public IEnumerable<Declaration> CurrentSuggestions { get; set; }
+
+        /// <summary>
+        /// Update parse settings if the current configuration has changed
+        /// </summary>
+        /// <param name="settings"></param>
+        public void OnSettingsChanged(SqlToolsSettings settings)
+        {
+            this.MetadataDisplayInfoProvider.BuiltInCasing =
+                settings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                    ? CasingStyle.Lowercase
+                    : CasingStyle.Uppercase;
+        }
 
         /// <summary>
         /// Gets the database compatibility level from a server version

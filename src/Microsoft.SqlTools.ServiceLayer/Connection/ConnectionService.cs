@@ -160,6 +160,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+
+                // turning on MARS to avoid break in LanguageService with multiple editors
+                // we'll remove this once ConnectionService is refactored to not own the LanguageService connection
+                connectionInfo.ConnectionDetails.MultipleActiveResultSets = true;
+
                 connectionInfo.SqlConnection.Open();
             }
             catch (SqlException ex)
@@ -197,24 +202,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // try to get information about the connected SQL Server instance
             try
             {
-                var connection = connectionInfo.SqlConnection as ReliableSqlConnection;
-                if (connection != null)
+                var reliableConnection = connectionInfo.SqlConnection as ReliableSqlConnection;
+                DbConnection connection = reliableConnection != null ? reliableConnection.GetUnderlyingConnection() : connectionInfo.SqlConnection;
+                
+                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+                response.ServerInfo = new Contracts.ServerInfo()
                 {
-                    ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection.GetUnderlyingConnection());
-                    response.ServerInfo = new Contracts.ServerInfo()
-                    {
-                        ServerMajorVersion = serverInfo.ServerMajorVersion,
-                        ServerMinorVersion = serverInfo.ServerMinorVersion,
-                        ServerReleaseVersion = serverInfo.ServerReleaseVersion,
-                        EngineEditionId = serverInfo.EngineEditionId,
-                        ServerVersion = serverInfo.ServerVersion,
-                        ServerLevel = serverInfo.ServerLevel,
-                        ServerEdition = serverInfo.ServerEdition,
-                        IsCloud = serverInfo.IsCloud,
-                        AzureVersion = serverInfo.AzureVersion,
-                        OsVersion = serverInfo.OsVersion
-                    };
-                }
+                    ServerMajorVersion = serverInfo.ServerMajorVersion,
+                    ServerMinorVersion = serverInfo.ServerMinorVersion,
+                    ServerReleaseVersion = serverInfo.ServerReleaseVersion,
+                    EngineEditionId = serverInfo.EngineEditionId,
+                    ServerVersion = serverInfo.ServerVersion,
+                    ServerLevel = serverInfo.ServerLevel,
+                    ServerEdition = serverInfo.ServerEdition,
+                    IsCloud = serverInfo.IsCloud,
+                    AzureVersion = serverInfo.AzureVersion,
+                    OsVersion = serverInfo.OsVersion
+                };
             }
             catch(Exception ex)
             {
@@ -286,7 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connection.Open();
             
             DbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT name FROM sys.databases";
+            command.CommandText = "SELECT name FROM sys.databases ORDER BY database_id ASC";
             command.CommandTimeout = 15;
             command.CommandType = CommandType.Text;
             var reader = command.ExecuteReader();

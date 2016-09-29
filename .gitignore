@@ -15,6 +15,9 @@ project.lock.json
 *.sln.docstates
 *.exe
 
+# mergetool conflict files
+*.orig
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

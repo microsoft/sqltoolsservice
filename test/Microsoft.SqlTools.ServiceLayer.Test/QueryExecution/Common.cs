@@ -39,6 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public const string NoOpQuery = "-- No ops here, just us chickens.";
 
+        public const string UdtQuery = "SELECT hierarchyid::Parse('/')";
+
         public const string OwnerUri = "testFile";
 
         public const int StandardRows = 5;
@@ -255,8 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 new ScriptParseInfo
                 {
                     Binder = binder,
-                    MetadataProvider = metadataProvider,
-                    MetadataDisplayInfoProvider = displayInfoProvider
+                    MetadataProvider = metadataProvider
                 });
 
             scriptFile = new ScriptFile {ClientFilePath = textDocument.TextDocument.Uri};

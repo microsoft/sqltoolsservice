@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     string sqlVariantType = (string)sqlVariantTypeResult.Value.RawObject;
 
                     // If the typename is null, then the whole value is null
-                    if (sqlVariantTypeResult.Value == null)
+                    if (sqlVariantTypeResult.Value == null || string.IsNullOrEmpty(sqlVariantType))
                     {
                         results.Add(sqlVariantTypeResult.Value);
                         continue;
