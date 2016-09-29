@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Newtonsoft.Json;
@@ -511,8 +512,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 foreach (var query in ActiveQueries)
                 {
+                    if (!query.Value.HasExecuted)
+                    {
+                        try
+                        {
+                            query.Value.Cancel();
+                        }
+                        catch (Exception e)
+                        {
+                            // We don't particularly care if we fail to cancel during shutdown
+                            string message = string.Format("Failed to cancel query {0} during query service disposal: {1}", query.Key, e);
+                            Logger.Write(LogLevel.Warning, message);
+                        }
+                    }
                     query.Value.Dispose();
                 }
+                ActiveQueries.Clear();
             }
 
             disposed = true;
