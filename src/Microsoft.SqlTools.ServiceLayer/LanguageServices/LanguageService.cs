@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                if(connectionService == null)
+                if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
                 }
@@ -391,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="sqlText"></param>
-        /// <returns></returns>
+        /// <returns>The ParseResult instance returned from SQL Parser</returns>
         public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // get or create the current parse info object
