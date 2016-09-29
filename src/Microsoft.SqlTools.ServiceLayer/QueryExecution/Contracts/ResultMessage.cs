@@ -14,6 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     {
         /// <summary>
         /// Timestamp of the message
+        /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
         /// </summary>
         public string Time { get; set; }
 
