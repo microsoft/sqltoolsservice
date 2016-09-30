@@ -83,8 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         internal static bool isSaveSelection(SaveResultsRequestParams saveParams)
         {
-            return ( (saveParams.ColumnStartIndex != null ) && (saveParams.ColumnEndIndex != null) 
-                && (saveParams.RowEndIndex != null) && (saveParams.RowEndIndex != null)  );
+            return (saveParams.ColumnStartIndex != null && saveParams.ColumnEndIndex != null
+                && saveParams.RowEndIndex != null && saveParams.RowEndIndex != null);
         }
     }
 

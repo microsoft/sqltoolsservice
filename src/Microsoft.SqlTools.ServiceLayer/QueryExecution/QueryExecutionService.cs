@@ -288,7 +288,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
-                    int columnCount = 0, rowCount = 0, columnStartIndex = 0, rowStartIndex = 0;
+                    int columnCount = 0;
+                    int rowCount = 0;
+                    int columnStartIndex = 0;
+                    int rowStartIndex = 0;
 
                     // set column, row counts depending on whether save request is for entire result set or a subset
                     if (SaveResults.isSaveSelection(saveParams))
@@ -362,7 +365,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
-                    int rowCount = 0, rowStartIndex = 0, columnStartIndex = 0, columnEndIndex;
+                    int rowCount = 0;
+                    int rowStartIndex = 0;
+                    int columnStartIndex = 0;
+                    int columnEndIndex = 0;
 
                     // set column, row counts depending on whether save request is for entire result set or a subset
                     if (SaveResults.isSaveSelection(saveParams))
@@ -400,7 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         jsonWriter.WriteEndObject();
-                    }       
+                    }
                     jsonWriter.WriteEndArray();
                 }
 
