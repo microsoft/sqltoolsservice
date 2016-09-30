@@ -4,6 +4,7 @@
 //
 using System;
 using System.Text;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -78,6 +79,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             return ret;
+        }
+
+        internal static bool isSaveSelection(SaveResultsRequestParams saveParams)
+        {
+            return (saveParams.ColumnStartIndex != null && saveParams.ColumnEndIndex != null
+                && saveParams.RowEndIndex != null && saveParams.RowEndIndex != null);
         }
     }
 

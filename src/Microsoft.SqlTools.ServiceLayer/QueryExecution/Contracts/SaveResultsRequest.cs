@@ -32,6 +32,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// URI for the editor that called save results
         /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Start index of the selected rows (inclusive)
+        /// </summary>
+        public int? RowStartIndex { get; set; }
+
+        /// <summary>
+        /// End index of the selected rows (inclusive)
+        /// </summary>
+        public int? RowEndIndex { get; set; }
+        
+        /// <summary>
+        /// Start index of the selected columns (inclusive)
+        /// </summary>
+        /// <returns></returns>
+        public int? ColumnStartIndex { get; set; }
+
+        /// <summary>
+        /// End index of the selected columns (inclusive)
+        /// </summary>
+        /// <returns></returns>
+        public int? ColumnEndIndex { get; set; }
     }
 
     /// <summary>
