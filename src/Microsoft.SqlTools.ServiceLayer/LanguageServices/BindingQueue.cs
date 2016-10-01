@@ -43,11 +43,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public class ConnectedBindingContext : IBindingContext
     { 
+        /// <summary>
+        /// Connected binding context constructor
+        /// </summary>
         public ConnectedBindingContext()
         {
-            this.BindingLocked = new ManualResetEvent(initialState: false);
+            this.BindingLocked = new ManualResetEvent(initialState: true);
         }
 
+        /// <summary>
+        /// Gets or sets a flag indicating if the binder is connected
+        /// </summary>
         public bool IsConnected { get; set; }
 
         public ServerConnection ServerConnection { get; set; }
@@ -216,6 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             {
                                 queueItem.TimeoutOperation(bindingContext, queueItem.EventContext);
                             });
+                            continue;
                         }
 
                         CancellationTokenSource cancelToken = new CancellationTokenSource();

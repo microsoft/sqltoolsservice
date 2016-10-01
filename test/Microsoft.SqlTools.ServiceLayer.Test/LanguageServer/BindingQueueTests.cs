@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     {
         public TestBindingContext()
         {
-            this.BindingLocked = new ManualResetEvent(initialState: false);
+            this.BindingLocked = new ManualResetEvent(initialState: true);
         }
 
         public bool IsConnected { get; set; }
@@ -42,8 +42,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     /// <summary>
     /// Tests for the ServiceHost Language Service tests
     /// </summary>
-    public class BindingQueuTests
+    public class BindingQueueTests
     {
+        private int bindCallCount = 0;
+        
+        private int timeoutCallCount = 0;
+
         private IBindingContext GetMockBindingContext()
         {
             return new TestBindingContext();
@@ -54,25 +58,72 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             EventContext eventContext, 
             CancellationToken cancelToken)
         {
-            return null;
+            ++this.bindCallCount;
+            return  Task.FromResult(0);
         }
 
-        //  Func<IBindingContext, EventContext, CancellationToken, Task> bindOperation,
-        //     Func<IBindingContext, EventContext, Task> timeoutOperation = null)
-
-        [Fact]
-        public void LatestSqlParserIsUsedByDefault()
+        private Task TestTimeoutOperation(
+            IBindingContext bindingContext, 
+            EventContext eventContext)
         {
+            ++this.timeoutCallCount;
+            return  Task.FromResult(0);
+        }
+
+     
+        [Fact]
+        public void QueueOneBindingOperationTest()
+        {
+            this.bindCallCount = 0;
+            this.timeoutCallCount = 0;
+
             var bindingContext = GetMockBindingContext();
             
             var bindingQueue = new BindingQueue<TestBindingContext>();
             bindingQueue.QueueBindingOperation(
                 key: "testkey",
                 eventContext: null,
-                bindOperation: null,
-                timeoutOperation: null);
+                bindOperation: TestBindOperation,
+                timeoutOperation: TestTimeoutOperation);
+
+            for (int i = 0; i < 60; ++i)
+            {
+                Thread.Sleep(50);
+            }
             
-            bindingQueue.StopQueueProcessor(15000);                
+            bindingQueue.StopQueueProcessor(15000);     
+
+            Assert.True(this.bindCallCount == 1);
+            Assert.False(this.timeoutCallCount == 0);       
+        }
+
+        [Fact]
+        public void Queue100BindingOperationTest()
+        {
+            this.bindCallCount = 0;
+            this.timeoutCallCount = 0;
+
+            var bindingContext = GetMockBindingContext();
+            
+            var bindingQueue = new BindingQueue<TestBindingContext>();
+
+            for (int i = 0; i < 100; ++i)
+            {
+                bindingQueue.QueueBindingOperation(
+                    key: "testkey",
+                    eventContext: null,
+                    bindOperation: TestBindOperation,
+                    timeoutOperation: TestTimeoutOperation);
+            }
+            for (int i = 0; i < 60; ++i)
+            {
+                Thread.Sleep(50);
+            }
+            
+            bindingQueue.StopQueueProcessor(15000);     
+
+            Assert.True(this.bindCallCount == 100);
+            Assert.False(this.timeoutCallCount == 0);       
         }
 
 
