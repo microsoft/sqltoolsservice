@@ -112,6 +112,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Func<IBindingContext, EventContext, CancellationToken, Task> bindOperation,
             Func<IBindingContext, EventContext, Task> timeoutOperation = null)
         {
+            // don't add null operations to the binding queue
+            if (bindOperation == null)
+            {
+                return;
+            }
+
             lock (this.bindingQueueLock)
             {
                 this.bindingQueue.AddLast(new QueueItem()
@@ -172,13 +178,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             return Task.Factory.StartNew(
                 ProcessQueue, 
-                TaskCreationOptions.LongRunning,
+                null,
                 this.processQueueCancelToken.Token);
         }
 
-        private void ProcessQueue(object canelToken)
+        private void ProcessQueue(object state)
         {
-            CancellationToken token = (CancellationToken)canelToken;
+            CancellationToken token = this.processQueueCancelToken.Token;
             WaitHandle[] waitHandles = new WaitHandle[2]
             {
                 this.itemQueuedEvent,

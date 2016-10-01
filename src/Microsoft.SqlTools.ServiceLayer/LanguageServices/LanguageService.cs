@@ -432,6 +432,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    // reset the parse result to do a full parse next time
+                    parseInfo.ParseResult = null;
+                    Logger.Write(LogLevel.Error, "Unknown exception during parsing " + ex.ToString());
+                }
                 finally
                 {
                     parseInfo.BuildingMetadataEvent.Set();
