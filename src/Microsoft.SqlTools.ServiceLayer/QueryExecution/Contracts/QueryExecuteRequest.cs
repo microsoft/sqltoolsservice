@@ -4,24 +4,10 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
-    /// <summary>
-    /// Container class for a selection range from file
-    /// </summary>
-    public class SelectionData {
-        public int StartLine { get; set; }
-        public int StartColumn { get; set; }
-        public int EndLine { get; set; }
-        public int EndColumn { get; set; }
-        public SelectionData(int startLine, int startColumn, int endLine, int endColumn) {
-            StartLine = startLine;
-            StartColumn = startColumn;
-            EndLine = endLine;
-            EndColumn = endColumn;
-        }
-    }
     /// <summary>
     /// Parameters for the query execute request
     /// </summary>
@@ -30,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// The selection from the document
         /// </summary>
-        public SelectionData QuerySelection { get; set; }
+        public BufferRange QuerySelection { get; set; }
 
         /// <summary>
         /// URI for the editor that is asking for the query execute

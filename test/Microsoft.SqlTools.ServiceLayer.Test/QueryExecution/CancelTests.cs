@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
             fileMock.Setup(file => file.GetLinesInRange(It.IsAny<BufferRange>()))
-                .Returns(new string[] { Common.StandardQuery });
+                .Returns(new[] { Common.StandardQuery });
             // Set up workspace mock
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I request a query (doesn't matter what kind) and execute it
             var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
-            var executeParams = new QueryExecuteParams { QuerySelection = Common.GetSubSectionDocument(), OwnerUri = Common.OwnerUri };
+            var executeParams = new QueryExecuteParams { QuerySelection = Common.SubsectionDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = 
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();

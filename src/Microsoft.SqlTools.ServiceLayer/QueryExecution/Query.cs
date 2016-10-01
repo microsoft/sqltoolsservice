@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -51,11 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private bool hasExecuteBeenCalled;
 
-        /// <summary>
-        /// The factory to use for outputting the results of this query
-        /// </summary>
-        private readonly IFileStreamFactory outputFileFactory;
-
         #endregion
 
         /// <summary>
@@ -77,7 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryText = queryText;
             editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
-            outputFileFactory = outputFactory;
 
             // Process the query into batches
             ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
@@ -85,13 +80,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BatchSeparator = settings.BatchSeparator
             });
             // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
-            Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
-                .Select(b => new Batch(b.Sql, 
-                                       b.StartLocation.LineNumber - 1, 
-                                       b.StartLocation.ColumnNumber - 1, 
-                                       b.EndLocation.LineNumber - 1, 
-                                       b.EndLocation.ColumnNumber - 1, 
-                                       outputFileFactory)).ToArray();
+            var batchSelection = from b in parseResult.Script.Batches
+                                 let start = new BufferPosition(b.StartLocation.LineNumber - 1, b.StartLocation.ColumnNumber - 1)
+                                 let end = new BufferPosition(b.EndLocation.LineNumber - 1, b.EndLocation.ColumnNumber - 1)
+                                 let selection = new BufferRange(start, end)
+                                 where b.Statements.Count > 0
+                                 select new Batch(b.Sql, selection, outputFactory);
+            Batches = batchSelection.ToArray();
         }
 
         #region Properties

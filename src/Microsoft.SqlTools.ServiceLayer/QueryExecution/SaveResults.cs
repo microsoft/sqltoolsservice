@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="field">The field to encode</param>
         /// <returns>The CSV encoded version of the original field</returns>
-        internal static String EncodeCsvField(String field)
+        internal static string EncodeCsvField(string field)
         {
             StringBuilder sbField = new StringBuilder(field);
             
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             //Replace all quotes in the original field with double quotes
             sbField.Replace("\"", "\"\"");
 
-            String ret = sbField.ToString();
+            string ret = sbField.ToString();
           
             if (embedInQuotes)
             {
@@ -81,10 +81,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return ret;
         }
 
-        internal static bool isSaveSelection(SaveResultsRequestParams saveParams)
+        internal static bool IsSaveSelection(SaveResultsRequestParams saveParams)
         {
             return (saveParams.ColumnStartIndex != null && saveParams.ColumnEndIndex != null
-                && saveParams.RowEndIndex != null && saveParams.RowEndIndex != null);
+                && saveParams.RowStartIndex != null && saveParams.RowEndIndex != null);
         }
     }
 

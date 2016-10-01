@@ -1,24 +1,21 @@
-﻿//
+﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
 
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.IO;
 using System.Data.SqlClient;
+using System.IO;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
@@ -31,35 +28,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class Common
     {
-        public const SelectionData WholeDocument = null;
-        
-        public const string StandardQuery = "SELECT * FROM sys.objects";
+        #region Constants
 
         public const string InvalidQuery = "SELECT *** FROM sys.objects";
 
         public const string NoOpQuery = "-- No ops here, just us chickens.";
 
-        public const string UdtQuery = "SELECT hierarchyid::Parse('/')";
-
         public const string OwnerUri = "testFile";
-
-        public const int StandardRows = 5;
 
         public const int StandardColumns = 5;
 
-        public static string TestServer { get; set; }
+        public const string StandardQuery = "SELECT * FROM sys.objects";
 
-        public static string TestDatabase { get; set; }
+        public const int StandardRows = 5;
 
-        static Common()
+        public const string UdtQuery = "SELECT hierarchyid::Parse('/')";
+        public const BufferRange WholeDocument = null;
+
+        public static readonly ConnectionDetails StandardConnectionDetails = new ConnectionDetails
         {
-            TestServer = "sqltools11";
-            TestDatabase = "master";
-        }
+            DatabaseName = "123",
+            Password = "456",
+            ServerName = "789",
+            UserName = "012"
+        };
+
+        public static readonly BufferRange SubsectionDocument = new BufferRange(0, 0, 2, 2);
+
+        #endregion
 
         public static Dictionary<string, string>[] StandardTestData
         {
             get { return GetTestData(StandardRows, StandardColumns); }
+        }
+
+        #region Public Methods
+
+        public static Batch GetBasicExecutedBatch()
+        {
+            Batch batch = new Batch(StandardQuery, SubsectionDocument, GetFileStreamFactory());
+            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
+            return batch;
+        }
+
+        public static Query GetBasicExecutedQuery()
+        {
+            ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
+            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory());
+            query.Execute().Wait();
+            return query;
         }
 
         public static Dictionary<string, string>[] GetTestData(int columns, int rows)
@@ -78,25 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return output;
         }
 
-        public static SelectionData GetSubSectionDocument() 
-        {
-            return new SelectionData(0, 0, 2, 2);
-        }
-
-        public static Batch GetBasicExecutedBatch()
-        {
-            Batch batch = new Batch(StandardQuery, 0, 0, 2, 2, GetFileStreamFactory());
-            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
-            return batch;
-        }
-
-        public static Query GetBasicExecutedQuery()
-        {
-            ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
-            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory());
-            query.Execute().Wait();
-            return query;
-        }
+        #endregion
 
         #region FileStreamWriteMocking 
 
@@ -114,18 +113,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public class InMemoryWrapper : IFileStreamWrapper
         {
-            private readonly byte[] storage = new byte[8192];
             private readonly MemoryStream memoryStream;
             private bool readingOnly;
+            private readonly byte[] storage = new byte[8192];
 
             public InMemoryWrapper()
             {
                 memoryStream = new MemoryStream(storage);
             }
 
+            public void Close()
+            {
+                memoryStream.Dispose();
+            }
+
             public void Dispose()
             {
                 // We'll dispose this via a special method
+            }
+
+            public void Flush()
+            {
+                if (readingOnly) { throw new InvalidOperationException(); }
             }
 
             public void Init(string fileName, int bufferSize, FileAccess fAccess)
@@ -150,16 +159,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 memoryStream.Write(buffer, 0, bytes);
                 memoryStream.Flush();
                 return bytes;
-            }
-
-            public void Flush()
-            {
-                if (readingOnly) { throw new InvalidOperationException(); }
-            }
-
-            public void Close()
-            {
-                memoryStream.Dispose();
             }
         }
 
@@ -214,27 +213,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static ConnectionInfo CreateTestConnectionInfo(Dictionary<string, string>[][] data, bool throwOnRead)
         {
-            // Create connection info
-            ConnectionDetails connDetails = new ConnectionDetails
-            {
-                UserName = "sa",
-                Password = "Yukon900",
-                DatabaseName = Common.TestDatabase,
-                ServerName = Common.TestServer
-            };
-
-            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, connDetails);
+            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, StandardConnectionDetails);
         }
 
         #endregion
 
         #region Service Mocking
-        
+
         public static void GetAutoCompleteTestObjects(
             out TextDocumentPosition textDocument,
             out ScriptFile scriptFile,
             out ConnectionInfo connInfo
-        )
+            )
         {
             textDocument = new TextDocumentPosition
             {
@@ -246,10 +236,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 }
             };
 
-            connInfo = Common.CreateTestConnectionInfo(null, false);
-           
+            connInfo = CreateTestConnectionInfo(null, false);
+
             var srvConn = GetServerConnection(connInfo);
-            var displayInfoProvider = new MetadataDisplayInfoProvider();
             var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
             var binder = BinderProvider.CreateBinder(metadataProvider);
 
@@ -270,17 +259,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var sqlConnection = new SqlConnection(connectionString);
             return new ServerConnection(sqlConnection);
         }
-        
-        public static ConnectionDetails GetTestConnectionDetails()
-        {
-            return new ConnectionDetails
-            {
-                DatabaseName = "123",
-                Password = "456",
-                ServerName = "789",
-                UserName = "012"
-            };
-        }
 
         public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
         {
@@ -289,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             {
                 connectionService.Connect(new ConnectParams
                 {
-                    Connection = GetTestConnectionDetails(),
+                    Connection = StandardConnectionDetails,
                     OwnerUri = OwnerUri
                 });
             }
@@ -297,6 +275,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         #endregion
-        
     }
 }

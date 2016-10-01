@@ -288,21 +288,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
-                    int columnCount = 0;
-                    int rowCount = 0;
-                    int columnStartIndex = 0;
-                    int rowStartIndex = 0;
 
                     // set column, row counts depending on whether save request is for entire result set or a subset
-                    if (SaveResults.isSaveSelection(saveParams))
+                    int columnStartIndex = 0;
+                    int rowStartIndex = 0;
+                    int columnCount;
+                    int rowCount;
+                    if (SaveResults.IsSaveSelection(saveParams))
                     {   
+                        // ReSharper disable PossibleInvalidOperationException  IsSaveSelection checks for nulls in the index values
+                        columnStartIndex = saveParams.ColumnStartIndex.Value;
+                        rowStartIndex = saveParams.RowStartIndex.Value;
                         columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
                         rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
-                        columnStartIndex = saveParams.ColumnStartIndex.Value;
-                        rowStartIndex =saveParams.RowStartIndex.Value;
+                        // ReSharper restore PossibleInvalidOperationException
                     }
                     else
-                    {                
+                    {
                         columnCount = selectedResultSet.Columns.Length;
                         rowCount = (int)selectedResultSet.RowCount;
                     }
@@ -310,16 +312,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // write column names if include headers option is chosen
                     if (saveParams.IncludeHeaders)
                     {
-                        await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Skip(columnStartIndex).Take(columnCount).Select( column =>
-                                            SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
+                        var columnNames = from column in selectedResultSet.Columns
+                                          select SaveResults.EncodeCsvField(column?.ColumnName ?? string.Empty);
+                        var selectedData = columnNames.Skip(columnStartIndex).Take(columnCount);
+                        await csvFile.WriteLineAsync(string.Join(",", selectedData));
                     }
 
                     // retrieve rows and write as csv
                     ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
                     foreach (var row in resultSubset.Rows)
                     {
-                        await csvFile.WriteLineAsync( string.Join( ",", row.Skip(columnStartIndex).Take(columnCount).Select( field => 
-                                            SaveResults.EncodeCsvField((field != null) ? field.ToString(): "NULL"))));
+                        var dataValues = from cell in row
+                                         select SaveResults.EncodeCsvField(cell ?? "NULL");
+                        var selectedCells = dataValues.Skip(columnStartIndex).Take(columnCount);
+                        await csvFile.WriteLineAsync(string.Join(",", selectedCells));
                     }
 
                 }
@@ -365,19 +371,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
-                    int rowCount = 0;
                     int rowStartIndex = 0;
                     int columnStartIndex = 0;
-                    int columnEndIndex = 0;
+                    int rowCount;
+                    int columnEndIndex;
 
                     // set column, row counts depending on whether save request is for entire result set or a subset
-                    if (SaveResults.isSaveSelection(saveParams))
+                    if (SaveResults.IsSaveSelection(saveParams))
                     {
-                       
+                        // ReSharper disable PossibleInvalidOperationException  IsSaveSelection checks for nulls in the index values
                         rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
                         rowStartIndex = saveParams.RowStartIndex.Value;
                         columnStartIndex = saveParams.ColumnStartIndex.Value;
                         columnEndIndex = saveParams.ColumnEndIndex.Value + 1 ; // include the last column
+                        // ReSharper restore PossibleInvalidOperationException
                     }
                     else 
                     {
@@ -394,7 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             //get column name
                             DbColumnWrapper col = selectedResultSet.Columns[i];
-                            string val = row[i]?.ToString();
+                            string val = row[i];
                             jsonWriter.WritePropertyName(col.ColumnName);
                             if (val == null)
                             {
@@ -461,12 +468,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     string[] queryTextArray = queryFile.GetLinesInRange(
                         new BufferRange(
                             new BufferPosition(
-                                executeParams.QuerySelection.StartLine + 1, 
-                                executeParams.QuerySelection.StartColumn + 1
+                                executeParams.QuerySelection.Start.Line + 1, 
+                                executeParams.QuerySelection.Start.Column + 1
                             ), 
                             new BufferPosition(
-                                executeParams.QuerySelection.EndLine + 1, 
-                                executeParams.QuerySelection.EndColumn + 1
+                                executeParams.QuerySelection.End.Line + 1, 
+                                executeParams.QuerySelection.End.Column + 1
                             )
                         )
                     );

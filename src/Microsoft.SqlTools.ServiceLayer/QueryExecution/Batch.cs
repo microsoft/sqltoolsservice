@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -47,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        internal Batch(string batchText, int startLine, int startColumn, int endLine, int endColumn, IFileStreamFactory outputFileFactory)
+        internal Batch(string batchText, BufferRange selection, IFileStreamFactory outputFileFactory)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -55,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             BatchText = batchText;
-            Selection = new SelectionData(startLine, startColumn, endLine, endColumn);
+            Selection = selection;
             HasExecuted = false;
             resultSets = new List<ResultSet>();
             resultMessages = new List<ResultMessage>();
@@ -114,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The range from the file that is this batch
         /// </summary>
-        internal SelectionData Selection { get; set; }
+        internal BufferRange Selection { get; set; }
 
         #endregion
 
@@ -264,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     SqlError sqlError = error as SqlError;
                     if (sqlError != null)
                     {
-                        int lineNumber = sqlError.LineNumber + Selection.StartLine;
+                        int lineNumber = sqlError.LineNumber + Selection.Start.Line;
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
                             Environment.NewLine, sqlError.Message);
