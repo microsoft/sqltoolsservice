@@ -11,17 +11,20 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 {
 
+    /// <summary>
+    /// Test class for the test binding context
+    /// </summary>
     public class TestBindingContext : IBindingContext
     {
         public TestBindingContext()
         {
             this.BindingLocked = new ManualResetEvent(initialState: true);
+            this.BindingTimeout = 3000;
         }
 
         public bool IsConnected { get; set; }
@@ -40,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     }
 
     /// <summary>
-    /// Tests for the ServiceHost Language Service tests
+    /// Tests for the Binding Queue
     /// </summary>
     public class BindingQueueTests
     {
@@ -48,20 +51,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         
         private int timeoutCallCount = 0;
 
+        private int bindCallbackDelay = 0;
+
+        private bool isCancelationRequested = false;
+
+        private IBindingContext bindingContext = null;
+
+        private BindingQueue<TestBindingContext> bindingQueue = null;
+
+        private void InitializeTestSettings()
+        {
+            this.bindCallCount = 0;
+            this.timeoutCallCount = 0;
+            this.bindCallbackDelay = 10;
+            this.isCancelationRequested = false;
+            this.bindingContext = GetMockBindingContext();
+            this.bindingQueue = new BindingQueue<TestBindingContext>();
+        }
+
         private IBindingContext GetMockBindingContext()
         {
             return new TestBindingContext();
         }
 
+        /// <summary>
+        /// Test bind operation callback
+        /// </summary>
+        /// <param name="bindContext"></param>
+        /// <param name="eventContext"></param>
+        /// <param name="cancelToken"></param>
+        /// <returns></returns>
         private Task TestBindOperation(
             IBindingContext bindContext, 
             EventContext eventContext, 
             CancellationToken cancelToken)
-        {
-            ++this.bindCallCount;
-            return  Task.FromResult(0);
+        {            
+            return  Task.Run(() => 
+            {
+                cancelToken.WaitHandle.WaitOne(this.bindCallbackDelay);
+                this.isCancelationRequested = cancelToken.IsCancellationRequested;
+                if (!this.isCancelationRequested)
+                {
+                    ++this.bindCallCount;
+                }
+            });
         }
 
+        /// <summary>
+        /// Test callback for the bind timeout operation
+        /// </summary>
+        /// <param name="bindingContext"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
         private Task TestTimeoutOperation(
             IBindingContext bindingContext, 
             EventContext eventContext)
@@ -70,62 +111,91 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             return  Task.FromResult(0);
         }
 
+        /// <summary>
+        /// Runs for a few seconds to allow the queue to pump any requests
+        /// </summary>
+        private void WaitForQueue(int delay = 5000)
+        {
+            int step = 50;
+            int steps = delay / step + 1;
+            for (int i = 0; i < steps; ++i)
+            {
+                Thread.Sleep(step);
+            }
+        }
      
+        /// <summary>
+        /// Queues a single task
+        /// </summary>
         [Fact]
         public void QueueOneBindingOperationTest()
         {
-            this.bindCallCount = 0;
-            this.timeoutCallCount = 0;
+            InitializeTestSettings();
 
-            var bindingContext = GetMockBindingContext();
-            
-            var bindingQueue = new BindingQueue<TestBindingContext>();
-            bindingQueue.QueueBindingOperation(
+            this.bindingQueue.QueueBindingOperation(
                 key: "testkey",
                 eventContext: null,
                 bindOperation: TestBindOperation,
-                timeoutOperation: TestTimeoutOperation);
+                timeoutOperation: TestTimeoutOperation);    
 
-            for (int i = 0; i < 60; ++i)
-            {
-                Thread.Sleep(50);
-            }
+            WaitForQueue();        
             
-            bindingQueue.StopQueueProcessor(15000);     
+            this.bindingQueue.StopQueueProcessor(15000);     
 
             Assert.True(this.bindCallCount == 1);
-            Assert.False(this.timeoutCallCount == 0);       
+            Assert.True(this.timeoutCallCount == 0);  
+            Assert.False(this.isCancelationRequested);
         }
 
+        /// <summary>
+        /// Queue a 100 short tasks
+        /// </summary>
         [Fact]
         public void Queue100BindingOperationTest()
         {
-            this.bindCallCount = 0;
-            this.timeoutCallCount = 0;
-
-            var bindingContext = GetMockBindingContext();
-            
-            var bindingQueue = new BindingQueue<TestBindingContext>();
+            InitializeTestSettings();
 
             for (int i = 0; i < 100; ++i)
             {
-                bindingQueue.QueueBindingOperation(
+                this.bindingQueue.QueueBindingOperation(
                     key: "testkey",
                     eventContext: null,
                     bindOperation: TestBindOperation,
                     timeoutOperation: TestTimeoutOperation);
             }
-            for (int i = 0; i < 60; ++i)
-            {
-                Thread.Sleep(50);
-            }
             
-            bindingQueue.StopQueueProcessor(15000);     
+            WaitForQueue();
+
+            this.bindingQueue.StopQueueProcessor(15000);     
 
             Assert.True(this.bindCallCount == 100);
-            Assert.False(this.timeoutCallCount == 0);       
+            Assert.True(this.timeoutCallCount == 0);
+            Assert.False(this.isCancelationRequested);
         }
 
+        /// <summary>
+        /// Queue an task with a long operation causing a timeout
+        /// </summary>
+        [Fact]
+        public void QueueWithTimeout()
+        {
+            InitializeTestSettings();
 
+            this.bindCallbackDelay = 10000;
+
+            this.bindingQueue.QueueBindingOperation(
+                key: "testkey",
+                eventContext: null,
+                bindOperation: TestBindOperation,
+                timeoutOperation: TestTimeoutOperation);
+
+            WaitForQueue(this.bindCallbackDelay + 2000);
+            
+            this.bindingQueue.StopQueueProcessor(15000);
+
+            Assert.True(this.bindCallCount == 0);
+            Assert.True(this.timeoutCallCount == 1);
+            Assert.True(this.isCancelationRequested);
+        }
     }
 }

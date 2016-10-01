@@ -25,6 +25,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -48,12 +49,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        private ConnectionService connectionService = null;
+        private static ConnectionService connectionService = null;
+
+        private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
-        internal ConnectionService ConnectionServiceInstance
+        internal static ConnectionService ConnectionServiceInstance
         {
             get
             {
@@ -109,14 +112,40 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private static CancellationTokenSource ExistingRequestCancellation { get; set; }
 
+        /// <summary>
+        /// Gets the current settings
+        /// </summary>
         internal SqlToolsSettings CurrentSettings
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets the current workspace service instance
+        /// Setter for internal testing purposes only
+        /// </summary>
+        internal static WorkspaceService<SqlToolsSettings> WorkspaceServiceInstance
+        {
+            get
+            {
+                if (LanguageService.workspaceServiceInstance == null)
+                {
+                    LanguageService.workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
+                }
+                return LanguageService.workspaceServiceInstance;
+            }
+            set
+            {
+                LanguageService.workspaceServiceInstance = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the current workspace instance
+        /// </summary>
         internal Workspace.Workspace CurrentWorkspace
         {
-            get { return WorkspaceService<SqlToolsSettings>.Instance.Workspace; }
+            get { return LanguageService.WorkspaceServiceInstance.Workspace; }
         }
 
         /// <summary>
@@ -181,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="textDocumentPosition"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        private static async Task HandleCompletionRequest(
+        internal static async Task HandleCompletionRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
@@ -193,11 +222,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             else
             {
                 // get the current list of completion items and return to client 
-                var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
 
                 ConnectionInfo connInfo;
-                ConnectionService.Instance.TryFindConnection(
+                LanguageService.ConnectionServiceInstance.TryFindConnection(
                     scriptFile.ClientFilePath, 
                     out connInfo);
 
@@ -461,11 +490,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {
                         scriptInfo.BuildingMetadataEvent.Reset();
-
-                        ReliableSqlConnection sqlConn = info.SqlConnection as ReliableSqlConnection;
-                        if (sqlConn != null)
+                        
+                        
+                        //info.SqlConnection.Open();
+                        //ReliableSqlConnection sqlConn = info.SqlConnection as ReliableSqlConnection;
+                        //if (sqlConn != null)
                         {
-                            ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());                            
+                            //ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());                            
+                            ServerConnection serverConn = new ServerConnection(info.SqlConnection as SqlConnection);
                             scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
                             scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
                             scriptInfo.ServerConnection = serverConn;
@@ -835,7 +867,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         #endregion
 
-        private void AddOrUpdateScriptParseInfo(string uri, ScriptParseInfo scriptInfo)
+        /// <summary>
+        /// Adds a new or updates an existing script parse info instance in local cache
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="scriptInfo"></param>
+        internal void AddOrUpdateScriptParseInfo(string uri, ScriptParseInfo scriptInfo)
         {
             lock (this.parseMapLock)
             {
@@ -851,7 +888,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private ScriptParseInfo GetScriptParseInfo(string uri, bool createIfNotExists = false)
+        /// <summary>
+        /// Gets a script parse info object for a file from the local cache
+        /// Internal for testing purposes only
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="createIfNotExists">Creates a new instance if one doesn't exist</param>        
+        internal ScriptParseInfo GetScriptParseInfo(string uri, bool createIfNotExists = false)
         {
             lock (this.parseMapLock)
             {

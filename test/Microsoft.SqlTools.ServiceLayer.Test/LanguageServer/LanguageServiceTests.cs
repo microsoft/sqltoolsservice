@@ -154,12 +154,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             InitializeTestServices();
 
             Assert.True(LanguageService.Instance.Context != null);
-            Assert.True(LanguageService.Instance.ConnectionServiceInstance != null);
+            Assert.True(LanguageService.ConnectionServiceInstance != null);
             Assert.True(LanguageService.Instance.CurrentSettings != null);
             Assert.True(LanguageService.Instance.CurrentWorkspace != null);
 
-            LanguageService.Instance.ConnectionServiceInstance = null;
-            Assert.True(LanguageService.Instance.ConnectionServiceInstance == null);
+            LanguageService.ConnectionServiceInstance = null;
+            Assert.True(LanguageService.ConnectionServiceInstance == null);
         }        
         
         /// <summary>
