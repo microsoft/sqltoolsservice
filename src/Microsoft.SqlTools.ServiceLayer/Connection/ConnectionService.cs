@@ -48,6 +48,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
+        /// Map from script URIs to ConnectionInfo objects
+        /// This is internal for testing access only
+        /// </summary>
+        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap
+        {
+            get
+            {
+                return this.ownerToConnectionMap;   
+            }
+        }
+
+        /// <summary>
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>

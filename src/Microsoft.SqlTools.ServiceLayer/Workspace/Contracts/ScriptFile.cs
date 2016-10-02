@@ -36,8 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <summary>
         /// Gets or sets the path which the editor client uses to identify this file.
         /// Setter for testing purposes only
+        /// virtual to allow mocking.
         /// </summary>
-        public string ClientFilePath { get; internal set; }
+        public virtual string ClientFilePath { get; internal set; }
 
         /// <summary>
         /// Gets or sets a boolean that determines whether

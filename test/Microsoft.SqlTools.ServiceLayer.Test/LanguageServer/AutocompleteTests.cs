@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     /// </summary>
     public class Autocomplete
     {
-        private string testScriptUri = "testfile.sql";
+        private string testScriptUri = TestObjects.ScriptUri;
 
 
         /// <summary>
@@ -49,7 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             // set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
             fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
-            
+            fileMock.SetupGet(file => file.ClientFilePath).Returns(this.testScriptUri);
+
             // set up workspace mock
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
@@ -57,7 +58,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         
             // inject mock instances into the Language Service
             LanguageService.WorkspaceServiceInstance = workspaceService.Object;         
-            LanguageService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();       
+            LanguageService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();     
+            ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo(); 
+            LanguageService.ConnectionServiceInstance.OwnerToConnectionMap.Add(this.testScriptUri, connectionInfo); 
 
             // setup the mock for SendResult
             var requestContext = new Mock<RequestContext<CompletionItem[]>>();            
