@@ -45,13 +45,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int OnConnectionWaitTimeout = 300000;
 
+        private static ConnectionService connectionService = null;
+
+        private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
+
         private object parseMapLock = new object();
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        private static ConnectionService connectionService = null;
+        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
 
-        private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
+
+        /// <summary>
+        /// Gets or sets the binding queue instance
+        /// Internal for testing purposes only
+        /// </summary>
+        internal ConnectedBindingQueue BindingQueue
+        {
+            get
+            {
+                return this.bindingQueue;
+            }
+            set
+            {
+                this.bindingQueue = value;
+            }
+        }
 
         /// <summary>
         /// Internal for testing purposes only
@@ -442,23 +461,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                     if (connInfo != null && parseInfo.IsConnected)
                     {
-                        try
-                        {
-                            List<ParseResult> parseResults = new List<ParseResult>();
-                            parseResults.Add(parseResult);
-                            parseInfo.Binder.Bind(
-                                parseResults, 
-                                connInfo.ConnectionDetails.DatabaseName, 
-                                BindMode.Batch);
-                        }
-                        catch (ConnectionException)
-                        {
-                            Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
-                        }
-                        catch (SqlParserInternalBinderError)
-                        {
-                            Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
-                        }
+                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                            key: parseInfo.ConnectionKey,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {                          
+                                try
+                                {
+                                    List<ParseResult> parseResults = new List<ParseResult>();
+                                    parseResults.Add(parseResult);
+                                    parseInfo.Binder.Bind(
+                                        parseResults, 
+                                        connInfo.ConnectionDetails.DatabaseName, 
+                                        BindMode.Batch);
+                                }
+                                catch (ConnectionException)
+                                {
+                                    Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
+                                }
+                                catch (SqlParserInternalBinderError)
+                                {
+                                    Logger.Write(LogLevel.Error, "Hit connection exception while binding - disposing binder object...");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Write(LogLevel.Error, "Unknown exception during parsing " + ex.ToString());
+                                }
+
+                                return Task.FromResult(null as object);
+                            });            
+
+                            queueItem.ItemProcessed.WaitOne();                      
                     }
                 }
                 catch (Exception ex)
@@ -501,6 +533,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
                             scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
                             scriptInfo.ServerConnection = serverConn;
+                            scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info);
+
                             scriptInfo.IsConnected = true;
                         }
                         
@@ -594,41 +628,51 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     scriptParseInfo.BuildingMetadataEvent.Reset();
                     try
                     {
-                        // get the current quick info text
-                        Babel.CodeObjectQuickInfo quickInfo = Resolver.GetQuickInfo(
-                            scriptParseInfo.ParseResult, 
-                            startLine + 1, 
-                            endColumn + 1, 
-                            scriptParseInfo.MetadataDisplayInfoProvider);
+                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                            key: scriptParseInfo.ConnectionKey,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {                          
+                                // get the current quick info text
+                                Babel.CodeObjectQuickInfo quickInfo = Resolver.GetQuickInfo(
+                                    scriptParseInfo.ParseResult, 
+                                    startLine + 1, 
+                                    endColumn + 1, 
+                                    scriptParseInfo.MetadataDisplayInfoProvider);
 
-                        // convert from the parser format to the VS Code wire format
-                        var markedStrings = new MarkedString[1];
-                        if (quickInfo != null)
-                        {
-                            markedStrings[0] = new MarkedString()
-                            {
-                                Language = "SQL",
-                                Value = quickInfo.Text                                
-                            };
-
-                            return new Hover()
-                            {
-                                Contents = markedStrings,
-                                Range = new Range
+                                // convert from the parser format to the VS Code wire format
+                                var markedStrings = new MarkedString[1];
+                                if (quickInfo != null)
                                 {
-                                    Start = new Position
+                                    markedStrings[0] = new MarkedString()
                                     {
-                                        Line = startLine,
-                                        Character = startColumn
-                                    },
-                                    End = new Position
+                                        Language = "SQL",
+                                        Value = quickInfo.Text                                
+                                    };
+
+                                    return Task.FromResult(new Hover()
                                     {
-                                        Line = startLine,
-                                        Character = endColumn
-                                    }
+                                        Contents = markedStrings,
+                                        Range = new Range
+                                        {
+                                            Start = new Position
+                                            {
+                                                Line = startLine,
+                                                Character = startColumn
+                                            },
+                                            End = new Position
+                                            {
+                                                Line = startLine,
+                                                Character = endColumn
+                                            }
+                                        }
+                                    } as object);
                                 }
-                            };
-                        }
+
+                                return Task.FromResult(null as object);
+                            });
+                                        
+                        queueItem.ItemProcessed.WaitOne();  
+                        return queueItem.GetResultAsT<Hover>();     
                     }
                     finally
                     {
@@ -684,43 +728,61 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (scriptParseInfo.IsConnected 
                 && scriptParseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionStartTimeout))
             {
-                scriptParseInfo.BuildingMetadataEvent.Reset();
-                Task<CompletionItem[]> findCompletionsTask = Task.Run(() => {
-                    try
+                scriptParseInfo.BuildingMetadataEvent.Reset();                
+                
+                QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                    key: scriptParseInfo.ConnectionKey,
+                    bindOperation: (bindingContext, cancelToken) =>
                     {
-                        // get the completion list from SQL Parser
-                        scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
-                            scriptParseInfo.ParseResult, 
-                            textDocumentPosition.Position.Line + 1, 
-                            textDocumentPosition.Position.Character + 1, 
-                            scriptParseInfo.MetadataDisplayInfoProvider); 
+                        CompletionItem[] completions = null;
+                        try
+                        {
+                            // get the completion list from SQL Parser
+                            scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
+                                scriptParseInfo.ParseResult, 
+                                textDocumentPosition.Position.Line + 1, 
+                                textDocumentPosition.Position.Character + 1, 
+                                scriptParseInfo.MetadataDisplayInfoProvider); 
 
-                        // cache the current script parse info object to resolve completions later
-                        this.currentCompletionParseInfo = scriptParseInfo;
+                            // cache the current script parse info object to resolve completions later
+                            this.currentCompletionParseInfo = scriptParseInfo;
 
-                        // convert the suggestion list to the VS Code format
-                        return AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
-                            scriptParseInfo.CurrentSuggestions, 
-                            startLine, 
-                            startColumn, 
-                            endColumn);
-                    }
-                    finally
+                            // convert the suggestion list to the VS Code format
+                            completions = AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
+                                scriptParseInfo.CurrentSuggestions, 
+                                startLine, 
+                                startColumn, 
+                                endColumn);
+                        }
+                        finally
+                        {
+                            scriptParseInfo.BuildingMetadataEvent.Set();
+                        }
+
+                        return Task.FromResult(completions as object);
+                    },
+                    timeoutOperation: (bindingContext) =>
                     {
-                        scriptParseInfo.BuildingMetadataEvent.Set();
-                    }
-                });
-
-                findCompletionsTask.Wait(LanguageService.FindCompletionsTimeout);
-                if (findCompletionsTask.IsCompleted 
-                    && findCompletionsTask.Result != null
-                    && findCompletionsTask.Result.Length > 0)
+                        return Task.FromResult(
+                            AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions) as object);
+                    });            
+                
+                queueItem.ItemProcessed.WaitOne();   
+                var completionItems = queueItem.GetResultAsT<CompletionItem[]>(); 
+                if (completionItems != null)
                 {
-                    return findCompletionsTask.Result;
+                    return completionItems;
                 }
             }
             
             return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
+        }
+
+        private T GetResultAsT<T>(Task<object> task) where T : class
+        {
+            return (task != null && task.IsCompleted && task.Result != null)
+                ? task.Result as T
+                : null;
         }
 
         #endregion

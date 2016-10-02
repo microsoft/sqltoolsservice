@@ -14,7 +14,6 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -70,21 +69,48 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     }
 
     /// <summary>
+    /// Class that stores the state of a binding queue request item
+    /// </summary>    
+    public class QueueItem
+    {
+        public QueueItem()
+        {
+                this.ItemProcessed = new ManualResetEvent(initialState: false);
+        }
+
+        /// <summary>
+        /// Gets or sets the queue item key
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Gets or sets the bind operation callback method
+        /// </summary>
+        public Func<IBindingContext, CancellationToken, Task<object>> BindOperation { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timeout operation to call if the bind operation doesn't finish within timeout period
+        /// </summary>
+        public Func<IBindingContext, Task<object>> TimeoutOperation { get; set; }
+
+        public ManualResetEvent ItemProcessed { get; set; } 
+
+        public Task<object> ResultsTask { get; set; }
+
+        public T GetResultAsT<T>() where T : class
+        {
+            var task = this.ResultsTask;
+            return (task != null && task.IsCompleted && task.Result != null)
+                ? task.Result as T
+                : null;
+        }
+    }
+
+    /// <summary>
     /// Main class for the Binding Queue
     /// </summary>
     public class BindingQueue<T> where T : IBindingContext, new()
-    {       
-        internal class QueueItem
-        {
-            public string Key { get; set; }
-
-            public EventContext EventContext { get; set; }
-
-            public Func<IBindingContext, EventContext, CancellationToken, Task> BindOperation { get; set; }
-
-            public Func<IBindingContext, EventContext, Task> TimeoutOperation { get; set; }
-        }
-        
+    {    
         private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
@@ -99,6 +125,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private Task queueProcessorTask;
 
+        /// <summary>
+        /// Constructor for a binding queue instance
+        /// </summary>
         public BindingQueue()
         {
             this.BindingContextMap = new Dictionary<string, IBindingContext>();
@@ -106,36 +135,45 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.queueProcessorTask = StartQueueProcessor();
         }
 
+        /// <summary>
+        /// Stops the binding queue by sending cancellation request
+        /// </summary>
+        /// <param name="timeout"></param>
         public bool StopQueueProcessor(int timeout)
         {
             this.processQueueCancelToken.Cancel();
             return this.queueProcessorTask.Wait(timeout);
         }
 
-        public void QueueBindingOperation(
-            string key, 
-            EventContext eventContext,
-            Func<IBindingContext, EventContext, CancellationToken, Task> bindOperation,
-            Func<IBindingContext, EventContext, Task> timeoutOperation = null)
+        /// <summary>
+        /// Queue a binding request item
+        /// </summary>
+        public QueueItem QueueBindingOperation(
+            string key,
+            Func<IBindingContext, CancellationToken, Task<object>> bindOperation,
+            Func<IBindingContext, Task<object>> timeoutOperation = null)
         {
             // don't add null operations to the binding queue
             if (bindOperation == null)
             {
-                return;
+                return null;
             }
+
+            QueueItem queueItem = new QueueItem()
+            {
+                Key = key,
+                BindOperation = bindOperation,
+                TimeoutOperation = timeoutOperation
+            };
 
             lock (this.bindingQueueLock)
             {
-                this.bindingQueue.AddLast(new QueueItem()
-                {
-                    Key = key,
-                    EventContext = eventContext,
-                    BindOperation = bindOperation,
-                    TimeoutOperation = timeoutOperation
-                });
+                this.bindingQueue.AddLast(queueItem);
             }
 
             this.itemQueuedEvent.Set();
+
+            return queueItem;
         }
 
         protected IBindingContext GetOrCreateBindingContext(string key)
@@ -211,40 +249,43 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = GetNextQueueItem();
                         IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
-                        if (bindingContext == null)
+                        if (bindingContext == null)                        
                         {
+                            queueItem.ItemProcessed.Set();
                             continue;
                         }
                     
                         if (!bindingContext.BindingLocked.WaitOne(1000))
                         {
-                            Task.Run(() => 
+                            queueItem.ResultsTask = Task.Run(() => 
                             {
-                                queueItem.TimeoutOperation(bindingContext, queueItem.EventContext);
-                            });
+                                var timeoutTask = queueItem.TimeoutOperation(bindingContext);
+                                queueItem.ItemProcessed.Set();
+                                return timeoutTask.Result;
+                            });    
+
                             continue;
                         }
 
                         CancellationTokenSource cancelToken = new CancellationTokenSource();
-                        Task bindingTask = queueItem.BindOperation(
-                                bindingContext,  
-                                queueItem.EventContext,
-                                cancelToken.Token)
-                            .ContinueWith((obj) => 
+                        queueItem.ResultsTask = queueItem.BindOperation(
+                                bindingContext,
+                                cancelToken.Token);
+
+                        queueItem.ResultsTask.ContinueWith((obj) => 
                             {   
-                                bindingContext.BindingLocked.Set(); 
+                                queueItem.ItemProcessed.Set();
+                                bindingContext.BindingLocked.Set();
                             });
 
-                        if (queueItem.TimeoutOperation != null)
+                        if (!queueItem.ResultsTask.Wait(bindingContext.BindingTimeout))
                         {
-                            Task.Run(() => 
-                            {
-                                if (!bindingTask.Wait(bindingContext.BindingTimeout))
-                                {
-                                    cancelToken.Cancel();
-                                    queueItem.TimeoutOperation(bindingContext, queueItem.EventContext);
-                                }
-                            });
+                            if (queueItem.TimeoutOperation != null)
+                            {                            
+                                cancelToken.Cancel();
+                                queueItem.ResultsTask = queueItem.TimeoutOperation(bindingContext);
+                                queueItem.ItemProcessed.Set();
+                            }
                         }
 
                         if (token.IsCancellationRequested)
@@ -274,13 +315,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             );
         }
 
-        public void AddConnectionContext(ConnectionInfo connInfo)
+        /// <summary>
+        /// Use a ConnectionInfo item to create a connected binding context
+        /// </summary>
+        /// <param name="connInfo"></param>
+        public virtual string AddConnectionContext(ConnectionInfo connInfo)
         {
             if (connInfo == null)
             {
-                return;
+                return string.Empty;
             }
 
+            string connectionKey = GetConnectionContextKey(connInfo);
             IBindingContext bindingContext = this.GetOrCreateBindingContext(
                 GetConnectionContextKey(connInfo));
 
@@ -308,8 +354,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             finally
             {
-                bindingContext.BindingLocked.Set();
+                bindingContext.BindingLocked.Set();                
             }
+
+            return connectionKey;
         }
     }
 }

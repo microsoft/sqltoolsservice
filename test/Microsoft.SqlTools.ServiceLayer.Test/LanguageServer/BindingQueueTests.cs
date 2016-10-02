@@ -11,6 +11,7 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
@@ -77,13 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// <summary>
         /// Test bind operation callback
         /// </summary>
-        /// <param name="bindContext"></param>
-        /// <param name="eventContext"></param>
-        /// <param name="cancelToken"></param>
-        /// <returns></returns>
-        private Task TestBindOperation(
+        private Task<object> TestBindOperation(
             IBindingContext bindContext, 
-            EventContext eventContext, 
             CancellationToken cancelToken)
         {            
             return  Task.Run(() => 
@@ -94,21 +90,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
                 {
                     ++this.bindCallCount;
                 }
+                return new CompletionItem[0] as object;
             });
         }
 
         /// <summary>
         /// Test callback for the bind timeout operation
         /// </summary>
-        /// <param name="bindingContext"></param>
-        /// <param name="eventContext"></param>
-        /// <returns></returns>
-        private Task TestTimeoutOperation(
-            IBindingContext bindingContext, 
-            EventContext eventContext)
+        private Task<object> TestTimeoutOperation(
+            IBindingContext bindingContext)
         {
             ++this.timeoutCallCount;
-            return  Task.FromResult(0);
+            return  Task.FromResult(new CompletionItem[0] as object);
         }
 
         /// <summary>
@@ -134,7 +127,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             this.bindingQueue.QueueBindingOperation(
                 key: "testkey",
-                eventContext: null,
                 bindOperation: TestBindOperation,
                 timeoutOperation: TestTimeoutOperation);    
 
@@ -159,7 +151,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             {
                 this.bindingQueue.QueueBindingOperation(
                     key: "testkey",
-                    eventContext: null,
                     bindOperation: TestBindOperation,
                     timeoutOperation: TestTimeoutOperation);
             }
@@ -185,7 +176,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             this.bindingQueue.QueueBindingOperation(
                 key: "testkey",
-                eventContext: null,
                 bindOperation: TestBindOperation,
                 timeoutOperation: TestTimeoutOperation);
 

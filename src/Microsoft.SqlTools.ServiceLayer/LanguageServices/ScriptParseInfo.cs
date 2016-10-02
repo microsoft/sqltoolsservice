@@ -48,6 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public bool IsConnected { get; set; }
 
         /// <summary>
+        /// Gets or sets the binding queue connection context key
+        /// </summary>
+        public string ConnectionKey { get; set; }
+
+        /// <summary>
         /// Gets or sets the LanguageService SMO ServerConnection
         /// </summary>
         public ServerConnection ServerConnection 

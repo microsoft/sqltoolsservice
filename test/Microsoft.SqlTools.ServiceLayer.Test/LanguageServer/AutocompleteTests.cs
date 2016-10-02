@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -19,21 +22,30 @@ using Xunit;
 namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 {
     /// <summary>
-    /// Tests for the ServiceHost Language Service tests
+    /// Tests for the language service autocomplete component
     /// </summary>
-    public class Autocomplete
+    public class AutocompleteTests
     {
-        private string testScriptUri = TestObjects.ScriptUri;
+        private const int TaskTimeout = 60000;
 
+        private readonly string testScriptUri = TestObjects.ScriptUri;
 
-        /// <summary>
-        /// Tests the primary completion list event handler
-        /// </summary>
-        [Fact]
-        public void GetCompletionsHandlerTest()
+        private readonly string testConnectionKey = "testdbcontextkey";
+
+        private Mock<ConnectedBindingQueue> bindingQueue;
+
+        private Mock<WorkspaceService<SqlToolsSettings>> workspaceService;
+
+        private Mock<RequestContext<CompletionItem[]>> requestContext;
+
+        private Mock<IBinder> binder; 
+
+        private TextDocumentPosition textDocument;
+
+        private void InitializeTestObjects()
         {
             // initial cursor position in the script file
-            TextDocumentPosition textDocument = new TextDocumentPosition
+            textDocument = new TextDocumentPosition
             {
                 TextDocument = new TextDocumentIdentifier {Uri = this.testScriptUri},
                 Position = new Position
@@ -52,31 +64,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             fileMock.SetupGet(file => file.ClientFilePath).Returns(this.testScriptUri);
 
             // set up workspace mock
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
                 .Returns(fileMock.Object);
         
+            // setup binding queue mock
+            bindingQueue = new Mock<ConnectedBindingQueue>();
+            bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>()))
+                .Returns(this.testConnectionKey);
+
             // inject mock instances into the Language Service
             LanguageService.WorkspaceServiceInstance = workspaceService.Object;         
             LanguageService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();     
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo(); 
             LanguageService.ConnectionServiceInstance.OwnerToConnectionMap.Add(this.testScriptUri, connectionInfo); 
+            LanguageService.Instance.BindingQueue = bindingQueue.Object;
 
             // setup the mock for SendResult
-            var requestContext = new Mock<RequestContext<CompletionItem[]>>();            
-            var sendResultFlow = requestContext
-                .Setup(rc => rc.SendResult(It.IsAny<CompletionItem[]>()))
+            requestContext = new Mock<RequestContext<CompletionItem[]>>();            
+            requestContext.Setup(rc => rc.SendResult(It.IsAny<CompletionItem[]>()))
                 .Returns(Task.FromResult(0));     
 
-            var testScriptParseInfo = new ScriptParseInfo();
-        
-            LanguageService.Instance.AddOrUpdateScriptParseInfo(this.testScriptUri, testScriptParseInfo);       
+            // setup the IBinder mock
+            binder = new Mock<IBinder>();
+            binder.Setup(b => b.Bind(
+                It.IsAny<IEnumerable<ParseResult>>(),
+                It.IsAny<string>(),
+                It.IsAny<BindMode>()));
+            
+            var testScriptParseInfo = new ScriptParseInfo();        
+            LanguageService.Instance.AddOrUpdateScriptParseInfo(this.testScriptUri, testScriptParseInfo);      
+            testScriptParseInfo.IsConnected = true;
+            testScriptParseInfo.Binder = binder.Object;
+            testScriptParseInfo.ConnectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(connectionInfo);
+        }
+
+        /// <summary>
+        /// Tests the primary completion list event handler
+        /// </summary>
+        [Fact]
+        public void GetCompletionsHandlerTest()
+        {
+            InitializeTestObjects();
 
             // request the completion list            
-            Task task = LanguageService.HandleCompletionRequest(textDocument, requestContext.Object);            
-
-            // wait with a timeout
-            task.Wait(60000);
+            Task handleCompletion = LanguageService.HandleCompletionRequest(textDocument, requestContext.Object);
+            handleCompletion.Wait(TaskTimeout);
 
             // verify that send result was called with a completion array
             requestContext.Verify(m => m.SendResult(It.IsAny<CompletionItem[]>()), Times.Once());
