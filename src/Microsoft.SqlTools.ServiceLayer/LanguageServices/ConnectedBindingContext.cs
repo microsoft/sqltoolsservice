@@ -15,7 +15,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
     /// <summary>
-    /// The state of a binding request
+    /// Class for the binding context for connected sessions
     /// </summary>
     public class ConnectedBindingContext : IBindingContext
     {
@@ -34,16 +34,34 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public bool IsConnected { get; set; }
 
+        /// <summary>
+        /// Gets or sets the binding server connection
+        /// </summary>
         public ServerConnection ServerConnection { get; set; }
 
+        /// <summary>
+        /// Gets or sets the metadata display info provider
+        /// </summary>
         public MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
 
+        /// <summary>
+        /// Gets or sets the SMO metadata provider
+        /// </summary>
         public SmoMetadataProvider SmoMetadataProvider { get; set; }
 
+        /// <summary>
+        /// Gets or sets the binder
+        /// </summary>
         public IBinder Binder { get; set; }
 
+        /// <summary>
+        /// Gets or sets an event to signal if a binding operation is in progress
+        /// </summary>
         public ManualResetEvent BindingLocked { get; set; } 
 
+        /// <summary>
+        /// Gets or sets the binding operation timeout in milliseconds
+        /// </summary>
         public int BindingTimeout { get; set; } 
 
         /// <summary>
