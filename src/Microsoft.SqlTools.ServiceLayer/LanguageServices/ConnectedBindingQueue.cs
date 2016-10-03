@@ -21,7 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>
     {
-        private const int DefaultBindingTimeout = 60000;
+        internal const int DefaultBindingTimeout = 60000;
+
+        internal const int DefaultMinimumConnectionTimeout = 30;
 
         /// <summary>
         /// Gets the current settings
@@ -64,11 +66,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             try
             {
-                // increase the connection timeout to at least 30 seconds and build connection string
+                // increase the connection timeout to at least 30 seconds and and build connection string
+                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
+                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
+                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(DefaultMinimumConnectionTimeout, originalTimeout ?? 0);
+                connInfo.ConnectionDetails.PersistSecurityInfo = true;
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                 connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
@@ -82,8 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
                     bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
                         this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
-                            ? CasingStyle.Lowercase
-                            : CasingStyle.Uppercase;
+                            ? CasingStyle.Lowercase : CasingStyle.Uppercase;
                     bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
                     bindingContext.ServerConnection = serverConn;
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;

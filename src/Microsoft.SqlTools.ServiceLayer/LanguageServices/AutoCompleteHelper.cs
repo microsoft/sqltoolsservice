@@ -612,5 +612,53 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
         }
+
+
+        /// <summary>
+        /// Converts a SQL Parser QuickInfo object into a VS Code Hover object
+        /// </summary>
+        /// <param name="quickInfo"></param>
+        /// <param name="row"></param>
+        /// <param name="startColumn"></param>
+        /// <param name="endColumn"></param>
+        internal static Hover ConvertQuickInfoToHover(
+            Babel.CodeObjectQuickInfo quickInfo,
+            int row,
+            int startColumn,
+            int endColumn)
+        {
+            // convert from the parser format to the VS Code wire format
+            var markedStrings = new MarkedString[1];
+            if (quickInfo != null)
+            {
+                markedStrings[0] = new MarkedString()
+                {
+                    Language = "SQL",
+                    Value = quickInfo.Text                                
+                };
+
+                return new Hover()
+                {
+                    Contents = markedStrings,
+                    Range = new Range
+                    {
+                        Start = new Position
+                        {
+                            Line = row,
+                            Character = startColumn
+                        },
+                        End = new Position
+                        {
+                            Line = row,
+                            Character = endColumn
+                        }
+                    }
+                };
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

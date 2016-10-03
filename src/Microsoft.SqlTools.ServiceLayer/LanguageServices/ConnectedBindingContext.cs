@@ -19,14 +19,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public class ConnectedBindingContext : IBindingContext
     {
-        private ParseOptions parseOptions = new ParseOptions();
+        private ParseOptions parseOptions;
+
+        private ServerConnection serverConnection;
 
         /// <summary>
         /// Connected binding context constructor
         /// </summary>
         public ConnectedBindingContext()
         {
-            this.BindingLocked = new ManualResetEvent(initialState: true);
+            this.BindingLocked = new ManualResetEvent(initialState: true);            
+            this.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
+            this.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
         }
 
         /// <summary>
@@ -37,7 +41,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets the binding server connection
         /// </summary>
-        public ServerConnection ServerConnection { get; set; }
+        public ServerConnection ServerConnection 
+        { 
+            get
+            {
+                return this.serverConnection;
+            }
+            set
+            {
+                this.serverConnection = value;
+
+                // reset the parse options so the get recreated for the current connection
+                this.parseOptions = null;
+            } 
+        }
 
         /// <summary>
         /// Gets or sets the metadata display info provider

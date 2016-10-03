@@ -59,7 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public QueueItem QueueBindingOperation(
             string key,
             Func<IBindingContext, CancellationToken, Task<object>> bindOperation,
-            Func<IBindingContext, Task<object>> timeoutOperation = null)
+            Func<IBindingContext, Task<object>> timeoutOperation = null,
+            int? bindingTimeout = null)
         {
             // don't add null operations to the binding queue
             if (bindOperation == null)
@@ -71,7 +72,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Key = key,
                 BindOperation = bindOperation,
-                TimeoutOperation = timeoutOperation
+                TimeoutOperation = timeoutOperation,
+                BindingTimeout = bindingTimeout
             };
 
             lock (this.bindingQueueLock)
@@ -90,6 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="key"></param>
         protected IBindingContext GetOrCreateBindingContext(string key)
         {
+            // use a default binding context for disconnected requests
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                key = "disconected_binding_context";
+            }
+
             if (!this.BindingContextMap.ContainsKey(key))
             {
                 lock (this.bindingContextLock)
@@ -179,8 +187,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             continue;
                         }
                     
+                        // prefer the queue item binding item, otherwise use the context default timeout
+                        int bindTimeout = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
+                        
                         // handle the case a previous binding operation is still running
-                        if (!bindingContext.BindingLocked.WaitOne(bindingContext.BindingTimeout))
+                        if (!bindingContext.BindingLocked.WaitOne(bindTimeout))
                         {
                             queueItem.ResultsTask = Task.Run(() => 
                             {
@@ -206,14 +217,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             });
 
                         // check if the binding tasks completed within the binding timeout
-                        if (!queueItem.ResultsTask.Wait(bindingContext.BindingTimeout))
+                        if (!queueItem.ResultsTask.Wait(bindTimeout))
                         {
                             // if the task didn't complete then call the timeout callback
                             if (queueItem.TimeoutOperation != null)
                             {                            
                                 cancelToken.Cancel();
                                 queueItem.ResultsTask = queueItem.TimeoutOperation(bindingContext);
-                                queueItem.ItemProcessed.Set();
+                                queueItem.ResultsTask.ContinueWith((obj) => queueItem.ItemProcessed.Set());
                             }
                         }
 

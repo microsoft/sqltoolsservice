@@ -49,6 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public Task<object> ResultsTask { get; set; }
 
         /// <summary>
+        /// Gets or sets the binding operation timeout in milliseconds
+        /// </summary>
+        public int? BindingTimeout { get; set; }
+
+        /// <summary>
         /// Converts the result of the execution task to type T
         /// </summary>
         public T GetResultAsT<T>() where T : class

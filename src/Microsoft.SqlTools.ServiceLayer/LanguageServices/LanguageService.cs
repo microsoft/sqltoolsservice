@@ -37,6 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int DiagnosticParseDelay = 750;
 
+        internal const int HoverTimeout = 3000;
+
         internal const int FindCompletionsTimeout = 3000;
 
         internal const int FindCompletionStartTimeout = 50;
@@ -631,6 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
+                            bindingTimeout: LanguageService.HoverTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {                          
                                 // get the current quick info text
@@ -639,37 +642,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     startLine + 1, 
                                     endColumn + 1, 
                                     bindingContext.MetadataDisplayInfoProvider);
-
+                                
                                 // convert from the parser format to the VS Code wire format
-                                var markedStrings = new MarkedString[1];
-                                if (quickInfo != null)
-                                {
-                                    markedStrings[0] = new MarkedString()
-                                    {
-                                        Language = "SQL",
-                                        Value = quickInfo.Text                                
-                                    };
-
-                                    return Task.FromResult(new Hover()
-                                    {
-                                        Contents = markedStrings,
-                                        Range = new Range
-                                        {
-                                            Start = new Position
-                                            {
-                                                Line = startLine,
-                                                Character = startColumn
-                                            },
-                                            End = new Position
-                                            {
-                                                Line = startLine,
-                                                Character = endColumn
-                                            }
-                                        }
-                                    } as object);
-                                }
-
-                                return Task.FromResult(null as object);
+                                return Task.FromResult(
+                                    AutoCompleteHelper.ConvertQuickInfoToHover(
+                                        quickInfo, 
+                                        startLine,
+                                        startColumn, 
+                                        endColumn
+                                    ) as object);
                             });
                                         
                         queueItem.ItemProcessed.WaitOne();  
@@ -770,7 +751,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 
                 queueItem.ItemProcessed.WaitOne();   
                 var completionItems = queueItem.GetResultAsT<CompletionItem[]>(); 
-                if (completionItems != null)
+                if (completionItems != null && completionItems.Length > 0)
                 {
                     return completionItems;
                 }

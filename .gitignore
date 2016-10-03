@@ -14,6 +14,7 @@ project.lock.json
 *.userosscache
 *.sln.docstates
 *.exe
+scratch.txt
 
 # mergetool conflict files
 *.orig
