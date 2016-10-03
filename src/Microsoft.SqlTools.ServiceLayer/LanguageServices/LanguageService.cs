@@ -11,12 +11,11 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -25,7 +24,6 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
-using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -55,6 +53,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
 
+        private ParseOptions defaultParseOptions =  new ParseOptions(
+            batchSeparator: LanguageService.DefaultBatchSeperator,
+            isQuotedIdentifierSet: true,  
+            compatibilityLevel: DatabaseCompatibilityLevel.Current, 
+            transactSqlVersion: TransactSqlVersion.Current);
 
         /// <summary>
         /// Gets or sets the binding queue instance
@@ -116,6 +119,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public static LanguageService Instance
         {
             get { return instance.Value; }
+        }
+
+        private ParseOptions DefaultParseOptions
+        {
+            get
+            {
+                return this.defaultParseOptions;
+            }
         }
 
         /// <summary>
@@ -451,15 +462,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     parseInfo.BuildingMetadataEvent.Reset();
 
-                    // parse current SQL file contents to retrieve a list of errors
-                    ParseResult parseResult = Parser.IncrementalParse(
-                        scriptFile.Contents,
-                        parseInfo.ParseResult,
-                        parseInfo.ParseOptions);
+                    if (connInfo == null || !parseInfo.IsConnected)
+                    {
+                        // parse current SQL file contents to retrieve a list of errors
+                        ParseResult parseResult = Parser.IncrementalParse(
+                            scriptFile.Contents,
+                            parseInfo.ParseResult,
+                            this.DefaultParseOptions);
 
-                    parseInfo.ParseResult = parseResult;
-
-                    if (connInfo != null && parseInfo.IsConnected)
+                        parseInfo.ParseResult = parseResult;
+                    }
+                    else
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: parseInfo.ConnectionKey,
@@ -467,9 +480,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             {                          
                                 try
                                 {
+                                    ParseResult parseResult = Parser.IncrementalParse(
+                                        scriptFile.Contents,
+                                        parseInfo.ParseResult,
+                                        bindingContext.ParseOptions);
+
+                                    parseInfo.ParseResult = parseResult;
+
                                     List<ParseResult> parseResults = new List<ParseResult>();
                                     parseResults.Add(parseResult);
-                                    parseInfo.Binder.Bind(
+                                    bindingContext.Binder.Bind(
                                         parseResults, 
                                         connInfo.ConnectionDetails.DatabaseName, 
                                         BindMode.Batch);
@@ -514,33 +534,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="info"></param>
         public async Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
         {
-            await Task.Run( () => 
+            await Task.Run(() => 
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
                 if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
-                        scriptInfo.BuildingMetadataEvent.Reset();
-                        
-                        
-                        //info.SqlConnection.Open();
-                        //ReliableSqlConnection sqlConn = info.SqlConnection as ReliableSqlConnection;
-                        //if (sqlConn != null)
-                        {
-                            //ServerConnection serverConn = new ServerConnection(sqlConn.GetUnderlyingConnection());                            
-                            ServerConnection serverConn = new ServerConnection(info.SqlConnection as SqlConnection);
-                            scriptInfo.MetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                            scriptInfo.Binder = BinderProvider.CreateBinder(scriptInfo.MetadataProvider);                           
-                            scriptInfo.ServerConnection = serverConn;
-                            scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info);
-
-                            scriptInfo.IsConnected = true;
-                        }
+                        scriptInfo.BuildingMetadataEvent.Reset();                                                                       
+                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info);
+                        scriptInfo.IsConnected = true;
                         
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Logger.Write(LogLevel.Error, "Unknown error in OnConnection " + ex.ToString());
                         scriptInfo.IsConnected = false;
                     }
                     finally
@@ -549,10 +557,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // (Tell Language Service that I am ready with Metadata Provider Object)
                         scriptInfo.BuildingMetadataEvent.Set();
                     }
-                }
+                }  
 
-                // populate SMO metadata provider with most common info
-                AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo);
+                AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);          
             });
         }
 
@@ -637,7 +644,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     scriptParseInfo.ParseResult, 
                                     startLine + 1, 
                                     endColumn + 1, 
-                                    scriptParseInfo.MetadataDisplayInfoProvider);
+                                    bindingContext.MetadataDisplayInfoProvider);
 
                                 // convert from the parser format to the VS Code wire format
                                 var markedStrings = new MarkedString[1];
@@ -742,7 +749,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 scriptParseInfo.ParseResult, 
                                 textDocumentPosition.Position.Line + 1, 
                                 textDocumentPosition.Position.Character + 1, 
-                                scriptParseInfo.MetadataDisplayInfoProvider); 
+                                bindingContext.MetadataDisplayInfoProvider); 
 
                             // cache the current script parse info object to resolve completions later
                             this.currentCompletionParseInfo = scriptParseInfo;
@@ -984,10 +991,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             lock (this.parseMapLock)
             {
                 if (this.ScriptParseInfoMap.ContainsKey(uri))
-                {
-                    var scriptInfo = this.ScriptParseInfoMap[uri];
-                    scriptInfo.ServerConnection.Disconnect();
-                    scriptInfo.ServerConnection = null;
+                {                                   
                     return this.ScriptParseInfoMap.Remove(uri);
                 }
                 else

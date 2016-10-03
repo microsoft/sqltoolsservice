@@ -5,112 +5,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SmoMetadataProvider;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
-{
-    /// <summary>
-    /// The state of a binding request
-    /// </summary>
-    public interface IBindingContext
-    {
-        bool IsConnected { get; set; }
-
-        ServerConnection ServerConnection { get; set; }
-
-        MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
-
-        SmoMetadataProvider SmoMetadataProvider { get; set; }
-
-        IBinder Binder { get; set; }
-
-        ManualResetEvent BindingLocked { get; set; }
-
-        int BindingTimeout { get; set; }
-    }
-
-    /// <summary>
-    /// The state of a binding request
-    /// </summary>
-    public class ConnectedBindingContext : IBindingContext
-    { 
-        /// <summary>
-        /// Connected binding context constructor
-        /// </summary>
-        public ConnectedBindingContext()
-        {
-            this.BindingLocked = new ManualResetEvent(initialState: true);
-        }
-
-        /// <summary>
-        /// Gets or sets a flag indicating if the binder is connected
-        /// </summary>
-        public bool IsConnected { get; set; }
-
-        public ServerConnection ServerConnection { get; set; }
-
-        public MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
-
-        public SmoMetadataProvider SmoMetadataProvider { get; set; }
-
-        public IBinder Binder { get; set; }
-
-        public ManualResetEvent BindingLocked { get; set; } 
-
-        public int BindingTimeout { get; set; } 
-    }
-
-    /// <summary>
-    /// Class that stores the state of a binding queue request item
-    /// </summary>    
-    public class QueueItem
-    {
-        public QueueItem()
-        {
-                this.ItemProcessed = new ManualResetEvent(initialState: false);
-        }
-
-        /// <summary>
-        /// Gets or sets the queue item key
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// Gets or sets the bind operation callback method
-        /// </summary>
-        public Func<IBindingContext, CancellationToken, Task<object>> BindOperation { get; set; }
-
-        /// <summary>
-        /// Gets or sets the timeout operation to call if the bind operation doesn't finish within timeout period
-        /// </summary>
-        public Func<IBindingContext, Task<object>> TimeoutOperation { get; set; }
-
-        public ManualResetEvent ItemProcessed { get; set; } 
-
-        public Task<object> ResultsTask { get; set; }
-
-        public T GetResultAsT<T>() where T : class
-        {
-            var task = this.ResultsTask;
-            return (task != null && task.IsCompleted && task.Result != null)
-                ? task.Result as T
-                : null;
-        }
-    }
-
+{    
     /// <summary>
     /// Main class for the Binding Queue
     /// </summary>
     public class BindingQueue<T> where T : IBindingContext, new()
-    {    
+    {             
         private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
@@ -121,9 +25,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private object bindingContextLock = new object();
 
-        private Dictionary<string, IBindingContext> BindingContextMap { get; set; }
-
         private Task queueProcessorTask;
+
+        /// <summary>
+        /// Map from context keys to binding context instances
+        /// Internal for testing purposes only
+        /// </summary>
+        internal Dictionary<string, IBindingContext> BindingContextMap { get; set; }
 
         /// <summary>
         /// Constructor for a binding queue instance
@@ -176,6 +84,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return queueItem;
         }
 
+        /// <summary>
+        /// Gets or creates a binding context for the provided context key
+        /// </summary>
+        /// <param name="key"></param>
         protected IBindingContext GetOrCreateBindingContext(string key)
         {
             if (!this.BindingContextMap.ContainsKey(key))
@@ -203,6 +115,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Gets the next pending queue item
+        /// </summary>
         private QueueItem GetNextQueueItem()
         {
             lock (this.bindingQueueLock)
@@ -218,6 +133,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Starts the queue processing thread
+        /// </summary>        
         private Task StartQueueProcessor()
         {
             return Task.Factory.StartNew(
@@ -226,6 +144,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 this.processQueueCancelToken.Token);
         }
 
+        /// <summary>
+        /// The core queue processing method
+        /// </summary>
+        /// <param name="state"></param>
         private void ProcessQueue(object state)
         {
             CancellationToken token = this.processQueueCancelToken.Token;
@@ -237,6 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     
             while (true)
             {
+                // wait for with an item to be queued or the a cancellation request
                 WaitHandle.WaitAny(waitHandles);
                 if (token.IsCancellationRequested)
                 {
@@ -245,8 +168,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 try
                 {
+                    // dispatch all pending queue items
                     while (this.HasPendingQueueItems)
-                    {
+                    {                    
                         QueueItem queueItem = GetNextQueueItem();
                         IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
                         if (bindingContext == null)                        
@@ -255,7 +179,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             continue;
                         }
                     
-                        if (!bindingContext.BindingLocked.WaitOne(1000))
+                        // handle the case a previous binding operation is still running
+                        if (!bindingContext.BindingLocked.WaitOne(bindingContext.BindingTimeout))
                         {
                             queueItem.ResultsTask = Task.Run(() => 
                             {
@@ -267,19 +192,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             continue;
                         }
 
+                        // execute the binding operation
                         CancellationTokenSource cancelToken = new CancellationTokenSource();
                         queueItem.ResultsTask = queueItem.BindOperation(
                                 bindingContext,
                                 cancelToken.Token);
 
+                        // set notification events once the binding operation task completes
                         queueItem.ResultsTask.ContinueWith((obj) => 
                             {   
                                 queueItem.ItemProcessed.Set();
                                 bindingContext.BindingLocked.Set();
                             });
 
+                        // check if the binding tasks completed within the binding timeout
                         if (!queueItem.ResultsTask.Wait(bindingContext.BindingTimeout))
                         {
+                            // if the task didn't complete then call the timeout callback
                             if (queueItem.TimeoutOperation != null)
                             {                            
                                 cancelToken.Cancel();
@@ -288,6 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             }
                         }
 
+                        // if a queue processing cancellation was requested then exit the loop
                         if (token.IsCancellationRequested)
                         {
                             break;
@@ -296,68 +226,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 finally
                 {
+                    // reset the item queued event since we've processed all the pending items
                     this.itemQueuedEvent.Reset();
                 }
             }
-        }
-    }
-
-    public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>
-    {
-        private string GetConnectionContextKey(ConnectionInfo connInfo)
-        {
-            ConnectionDetails details = connInfo.ConnectionDetails;
-            return string.Format("{0}_{1}_{2}",
-                details.ServerName ?? "NULL",
-                details.DatabaseName ?? "NULL",
-                details.UserName ?? "NULL",
-                details.AuthenticationType ?? "NULL"
-            );
-        }
-
-        /// <summary>
-        /// Use a ConnectionInfo item to create a connected binding context
-        /// </summary>
-        /// <param name="connInfo"></param>
-        public virtual string AddConnectionContext(ConnectionInfo connInfo)
-        {
-            if (connInfo == null)
-            {
-                return string.Empty;
-            }
-
-            string connectionKey = GetConnectionContextKey(connInfo);
-            IBindingContext bindingContext = this.GetOrCreateBindingContext(
-                GetConnectionContextKey(connInfo));
-
-            try
-            {
-                connInfo.ConnectionDetails.ConnectTimeout = 30;
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                SqlConnection sqlConn = new SqlConnection(connectionString);
-                if (sqlConn != null)
-                {
-                    sqlConn.Open();
-
-                    ServerConnection serverConn = new ServerConnection(sqlConn);                            
-                    bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                    bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                    bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
-                    bindingContext.ServerConnection = serverConn;
-                    bindingContext.BindingTimeout = 60000;
-                    bindingContext.IsConnected = true;
-                }
-            }
-            catch (Exception)
-            {
-                bindingContext.IsConnected = false;
-            }
-            finally
-            {
-                bindingContext.BindingLocked.Set();                
-            }
-
-            return connectionKey;
         }
     }
 }

@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -538,7 +539,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="info"></param>
         /// <param name="scriptInfo"></param>
-        internal static void PrepopulateCommonMetadata(ConnectionInfo info, ScriptParseInfo scriptInfo)
+        internal static void PrepopulateCommonMetadata(
+            ConnectionInfo info, 
+            ScriptParseInfo scriptInfo, 
+            ConnectedBindingQueue bindingQueue)
         {
             if (scriptInfo.IsConnected)
             {
@@ -551,44 +555,52 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         scriptInfo.BuildingMetadataEvent.Reset();
 
-                        // parse a simple statement that returns common metadata
-                        ParseResult parseResult = Parser.Parse(
-                            "select ", 
-                            scriptInfo.ParseOptions);
+                        QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                            key: scriptInfo.ConnectionKey ,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {
+                                // parse a simple statement that returns common metadata
+                                ParseResult parseResult = Parser.Parse(
+                                    "select ", 
+                                    bindingContext.ParseOptions);
 
-                        List<ParseResult> parseResults = new List<ParseResult>();
-                        parseResults.Add(parseResult);
-                        scriptInfo.Binder.Bind(
-                            parseResults, 
-                            info.ConnectionDetails.DatabaseName, 
-                            BindMode.Batch);
+                                List<ParseResult> parseResults = new List<ParseResult>();
+                                parseResults.Add(parseResult);
+                                bindingContext.Binder.Bind(
+                                    parseResults, 
+                                    info.ConnectionDetails.DatabaseName, 
+                                    BindMode.Batch);
 
-                        // get the completion list from SQL Parser
-                        var suggestions = Resolver.FindCompletions(
-                            parseResult, 1, 8, 
-                            scriptInfo.MetadataDisplayInfoProvider); 
+                                // get the completion list from SQL Parser
+                                var suggestions = Resolver.FindCompletions(
+                                    parseResult, 1, 8, 
+                                    bindingContext.MetadataDisplayInfoProvider); 
 
-                        // this forces lazy evaluation of the suggestion metadata
-                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
+                                // this forces lazy evaluation of the suggestion metadata
+                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
 
-                        parseResult = Parser.Parse(
-                            "exec ", 
-                            scriptInfo.ParseOptions);
+                                parseResult = Parser.Parse(
+                                    "exec ", 
+                                    bindingContext.ParseOptions);
 
-                        parseResults = new List<ParseResult>();
-                        parseResults.Add(parseResult);
-                        scriptInfo.Binder.Bind(
-                            parseResults, 
-                            info.ConnectionDetails.DatabaseName, 
-                            BindMode.Batch);
+                                parseResults = new List<ParseResult>();
+                                parseResults.Add(parseResult);
+                                bindingContext.Binder.Bind(
+                                    parseResults, 
+                                    info.ConnectionDetails.DatabaseName, 
+                                    BindMode.Batch);
 
-                        // get the completion list from SQL Parser
-                        suggestions = Resolver.FindCompletions(
-                            parseResult, 1, 6, 
-                            scriptInfo.MetadataDisplayInfoProvider); 
+                                // get the completion list from SQL Parser
+                                suggestions = Resolver.FindCompletions(
+                                    parseResult, 1, 6, 
+                                    bindingContext.MetadataDisplayInfoProvider); 
 
-                        // this forces lazy evaluation of the suggestion metadata
-                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                                // this forces lazy evaluation of the suggestion metadata
+                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6); 
+                                return Task.FromResult(null as object);
+                            });   
+                
+                        queueItem.ItemProcessed.WaitOne();                     
                     }
                     catch
                     {

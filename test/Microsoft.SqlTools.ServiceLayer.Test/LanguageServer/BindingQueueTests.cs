@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Xunit;
@@ -41,6 +42,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public ManualResetEvent BindingLocked { get; set; } 
 
         public int BindingTimeout { get; set; } 
+
+        public ParseOptions ParseOptions { get; }
+
+        public ServerVersion ServerVersion { get; }
+
+        public DatabaseEngineType DatabaseEngineType {  get; }
+
+        public TransactSqlVersion TransactSqlVersion { get; }
+
+        public DatabaseCompatibilityLevel DatabaseCompatibilityLevel { get; }  
     }
 
     /// <summary>

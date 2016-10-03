@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ScriptParseInfo scriptInfo = new ScriptParseInfo();
             scriptInfo.IsConnected = true;
 
-            AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo);
+            AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
         }
 
         private string GetTestSqlFile()

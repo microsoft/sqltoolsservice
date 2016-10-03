@@ -253,12 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
             var binder = BinderProvider.CreateBinder(metadataProvider);
 
-            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,
-                new ScriptParseInfo
-                {
-                    Binder = binder,
-                    MetadataProvider = metadataProvider
-                });
+            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,  new ScriptParseInfo());
 
             scriptFile = new ScriptFile {ClientFilePath = textDocument.TextDocument.Uri};
 

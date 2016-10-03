@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -94,9 +95,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             
             var testScriptParseInfo = new ScriptParseInfo();        
             LanguageService.Instance.AddOrUpdateScriptParseInfo(this.testScriptUri, testScriptParseInfo);      
-            testScriptParseInfo.IsConnected = true;
-            testScriptParseInfo.Binder = binder.Object;
+            testScriptParseInfo.IsConnected = true;            
             testScriptParseInfo.ConnectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(connectionInfo);
+
+            // setup the binding context object
+            ConnectedBindingContext bindingContext = new ConnectedBindingContext();
+            bindingContext.Binder = binder.Object;
+            bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+            LanguageService.Instance.BindingQueue.BindingContextMap.Add(testScriptParseInfo.ConnectionKey, bindingContext);                
         }
 
         /// <summary>
@@ -113,6 +119,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             // verify that send result was called with a completion array
             requestContext.Verify(m => m.SendResult(It.IsAny<CompletionItem[]>()), Times.Once());
-        }        
+        }
     }
 }
