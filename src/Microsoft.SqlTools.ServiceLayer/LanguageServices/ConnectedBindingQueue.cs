@@ -16,8 +16,12 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
+    /// <summary>
+    /// ConnectedBindingQueue class for processing online binding requests
+    /// </summary>
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>
     {
+        private const int DefaultBindingTimeout = 60000;
 
         /// <summary>
         /// Gets the current settings
@@ -27,10 +31,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
+        /// <summary>
+        /// Generate a unique key based on the ConnectionInfo object
+        /// </summary>
+        /// <param name="connInfo"></param>
         private string GetConnectionContextKey(ConnectionInfo connInfo)
         {
             ConnectionDetails details = connInfo.ConnectionDetails;
-            return string.Format("{0}_{1}_{2}",
+            return string.Format("{0}_{1}_{2}_{3}",
                 details.ServerName ?? "NULL",
                 details.DatabaseName ?? "NULL",
                 details.UserName ?? "NULL",
@@ -49,31 +57,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return string.Empty;
             }
 
+            // lookup the current binding context
             string connectionKey = GetConnectionContextKey(connInfo);
             IBindingContext bindingContext = this.GetOrCreateBindingContext(
                 GetConnectionContextKey(connInfo));
 
             try
             {
+                // increase the connection timeout to at least 30 seconds and build connection string
                 int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
                 connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                 connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+
+                // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
                 if (sqlConn != null)
                 {
                     sqlConn.Open();
 
+                    // populate the binding context to work with the SMO metadata provider
                     ServerConnection serverConn = new ServerConnection(sqlConn);                            
                     bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
                     bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
                     bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
-                    this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
-                        ? CasingStyle.Lowercase
-                        : CasingStyle.Uppercase;
+                        this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                            ? CasingStyle.Lowercase
+                            : CasingStyle.Uppercase;
                     bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
                     bindingContext.ServerConnection = serverConn;
-                    bindingContext.BindingTimeout = 60000;
+                    bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                 }
             }

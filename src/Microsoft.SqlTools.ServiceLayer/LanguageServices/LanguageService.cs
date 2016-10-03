@@ -398,12 +398,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // update the current settings to reflect any changes
             CurrentSettings.Update(newSettings);
 
-            // update the script parse info objects if the settings have changed
-            foreach (var scriptInfo in this.ScriptParseInfoMap.Values)
-            {
-                scriptInfo.OnSettingsChanged(newSettings);
-            }
-
             // if script analysis settings have changed we need to clear the current diagnostic markers
             if (oldEnableIntelliSense != newSettings.SqlTools.EnableIntellisense
                 || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableDiagnostics)
