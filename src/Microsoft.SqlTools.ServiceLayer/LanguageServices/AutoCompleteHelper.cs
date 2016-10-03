@@ -556,7 +556,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         scriptInfo.BuildingMetadataEvent.Reset();
 
                         QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                            key: scriptInfo.ConnectionKey ,
+                            key: scriptInfo.ConnectionKey,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 // parse a simple statement that returns common metadata

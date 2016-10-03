@@ -224,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             {                            
                                 cancelToken.Cancel();
                                 queueItem.ResultsTask = queueItem.TimeoutOperation(bindingContext);
-                                queueItem.ResultsTask.ContinueWith((obj) => queueItem.ItemProcessed.Set());
+                                queueItem.ResultsTask.ContinueWith((obj) => queueItem.ItemProcessed.Set());                                
                             }
                         }
 
