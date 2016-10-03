@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public QueueItem()
         {
-                this.ItemProcessed = new ManualResetEvent(initialState: false);
+            this.ItemProcessed = new ManualResetEvent(initialState: false);
         }
 
         /// <summary>

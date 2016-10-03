@@ -969,7 +969,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     // create a new script parse info object and initialize with the current settings
                     ScriptParseInfo scriptInfo = new ScriptParseInfo();
-                    scriptInfo.OnSettingsChanged(this.CurrentSettings);
                     this.ScriptParseInfoMap.Add(uri, scriptInfo);
                     return scriptInfo;
                 }
