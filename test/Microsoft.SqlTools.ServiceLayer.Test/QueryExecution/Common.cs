@@ -34,6 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public const string NoOpQuery = "-- No ops here, just us chickens.";
 
+        public const int Ordinal = 0;
+
         public const string OwnerUri = "testFile";
 
         public const int StandardColumns = 5;
@@ -66,8 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(StandardQuery, SubsectionDocument, GetFileStreamFactory());
-            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
+            Batch batch = new Batch(StandardQuery, SubsectionDocument, 1, GetFileStreamFactory());
+            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None, null).Wait();
             return batch;
         }
 
@@ -75,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
             Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory());
-            query.Execute().Wait();
+            query.Execute(null).Wait();
             return query;
         }
 

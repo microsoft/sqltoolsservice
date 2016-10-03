@@ -505,7 +505,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Any other exceptions will fall through here and be collected at the end
         }
 
-        private async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
+        private static async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
         {
             // Skip processing if the query is null
             if (query == null)
@@ -514,11 +514,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Launch the query and respond with successfully launching it
-            Task executeTask = query.Execute();
-            await requestContext.SendResult(new QueryExecuteResult
-            {
-                Messages = null
-            });
+            Task executeTask = query.Execute(batch => BatchComplete(requestContext, executeParams.OwnerUri, batch));
+            await requestContext.SendResult(new QueryExecuteResult { Messages = null });
 
             // Wait for query execution and then send back the results
             await Task.WhenAll(executeTask);
@@ -528,6 +525,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BatchSummaries = query.BatchSummaries
             };
             await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
+        }
+
+        private static async Task BatchComplete(RequestContext<QueryExecuteResult> requestContext, string ownerUri, BatchSummary batch)
+        {
+            // Fire off an event to notify the extension that we have completed a batch
+            QueryExecuteBatchCompleteParams eventParams = new QueryExecuteBatchCompleteParams
+            {
+                BatchSummary = batch,
+                OwnerUri = ownerUri
+            };
+            await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
         }
 
         #endregion

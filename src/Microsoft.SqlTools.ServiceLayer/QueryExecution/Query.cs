@@ -80,12 +80,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BatchSeparator = settings.BatchSeparator
             });
             // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
-            var batchSelection = from b in parseResult.Script.Batches
-                                 let start = new BufferPosition(b.StartLocation.LineNumber - 1, b.StartLocation.ColumnNumber - 1)
-                                 let end = new BufferPosition(b.EndLocation.LineNumber - 1, b.EndLocation.ColumnNumber - 1)
-                                 let selection = new BufferRange(start, end)
-                                 where b.Statements.Count > 0
-                                 select new Batch(b.Sql, selection, outputFactory);
+            var batchSelection = parseResult.Script.Batches
+                .Where(batch => batch.Statements.Count > 0)
+                .Select((batch, index) =>
+                    new Batch(batch.Sql,
+                        new BufferRange(batch.StartLocation.LineNumber - 1, batch.StartLocation.ColumnNumber - 1,
+                            batch.EndLocation.LineNumber - 1, batch.EndLocation.ColumnNumber - 1), index,
+                        outputFactory));
             Batches = batchSelection.ToArray();
         }
 
@@ -108,14 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     throw new InvalidOperationException("Query has not been executed.");
                 }
 
-                return Batches.Select((batch, index) => new BatchSummary
-                {
-                    Id = index,
-                    HasError = batch.HasError,
-                    Messages = batch.ResultMessages.ToArray(),
-                    ResultSetSummaries = batch.ResultSummaries,
-                    Selection = batch.Selection
-                }).ToArray();
+                return Batches.Select(b => b.ToSummary()).ToArray();
             }
         }
 
@@ -165,7 +159,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Executes this query asynchronously and collects all result sets
         /// </summary>
-        public async Task Execute()
+        /// <param name="batchCompletionCallback">Function to execute after a batch completes</param>
+        public async Task Execute(Batch.BatchCompletionFunc batchCompletionCallback)
         {
             // Mark that we've internally executed
             hasExecuteBeenCalled = true;
@@ -195,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // We need these to execute synchronously, otherwise the user will be very unhappy
                     foreach (Batch b in Batches)
                     {
-                        await b.Execute(conn, cancellationSource.Token);
+                        await b.Execute(conn, cancellationSource.Token, batchCompletionCallback);
                     }
                 }
                 finally

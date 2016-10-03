@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void BatchCreationTest()
         {
             // If I create a new batch...
-            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.GetFileStreamFactory());
+            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory());
 
             // Then: 
             // ... The text of the batch should be stored
@@ -49,14 +49,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... The start line of the batch should be 0
             Assert.Equal(0, batch.Selection.Start.Line);
+
+            // ... It's ordinal ID should be what I set it to
+            Assert.Equal(Common.Ordinal, batch.Id);
         }
 
         [Fact]
         public void BatchExecuteNoResultSets()
         {
+            // Setup: Create a callback for batch completion
+            BatchSummary batchSummaryFromCallback = null;
+            bool completionCallbackFired = false;
+            Batch.BatchCompletionFunc callback = summary =>
+            {
+                completionCallbackFired = true;
+                batchSummaryFromCallback = summary;
+                return Task.FromResult(0);
+            };
+
             // If I execute a query that should get no result sets
-            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None).Wait();
+            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory());
+            batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None, callback).Wait();
 
             // Then:
             // ... It should have executed without error
@@ -76,17 +89,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Contains("1 ", batch.ResultMessages.First().Message);
             // NOTE: 1 is expected because this test simulates a 'update' statement where 1 row was affected.
             // The 1 in quotes is to make sure the 1 isn't part of a larger number
+
+            // ... The callback for batch completion should have been fired
+            Assert.True(completionCallbackFired);
+            Assert.NotNull(batchSummaryFromCallback);
         }
 
         [Fact]
         public void BatchExecuteOneResultSet()
         {
-            int resultSets = 1;
+            const int resultSets = 1;
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
+            // Setup: Create a callback for batch completion
+            BatchSummary batchSummaryFromCallback = null;
+            bool completionCallbackFired = false;
+            Batch.BatchCompletionFunc callback = summary =>
+            {
+                completionCallbackFired = true;
+                batchSummaryFromCallback = summary;
+                return Task.FromResult(0);
+            };
+
             // If I execute a query that should get one result set
-            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
+            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory());
+            batch.Execute(GetConnection(ci), CancellationToken.None, callback).Wait();
 
             // Then:
             // ... It should have executed without error
@@ -108,6 +135,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... There should be a message for how many rows were affected
             Assert.Equal(resultSets, batch.ResultMessages.Count());
             Assert.Contains(Common.StandardRows.ToString(), batch.ResultMessages.First().Message);
+
+            // ... The callback for batch completion should have been fired
+            Assert.True(completionCallbackFired);
+            Assert.NotNull(batchSummaryFromCallback);
         }
 
         [Fact]
@@ -117,9 +148,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             int resultSets = dataset.Length;
             ConnectionInfo ci = Common.CreateTestConnectionInfo(dataset, false);
 
+            // Setup: Create a callback for batch completion
+            BatchSummary batchSummaryFromCallback = null;
+            bool completionCallbackFired = false;
+            Batch.BatchCompletionFunc callback = summary =>
+            {
+                completionCallbackFired = true;
+                batchSummaryFromCallback = summary;
+                return Task.FromResult(0);
+            };
+
             // If I execute a query that should get two result sets
-            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
+            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory());
+            batch.Execute(GetConnection(ci), CancellationToken.None, callback).Wait();
 
             // Then:
             // ... It should have executed without error
@@ -156,16 +197,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             {
                 Assert.Contains(Common.StandardRows.ToString(), rsm.Message);
             }
+
+            // ... The callback for batch completion should have been fired
+            Assert.True(completionCallbackFired);
+            Assert.NotNull(batchSummaryFromCallback);
         }
 
         [Fact]
         public void BatchExecuteInvalidQuery()
         {
+            // Setup: Create a callback for batch completion
+            BatchSummary batchSummaryFromCallback = null;
+            bool completionCallbackFired = false;
+            Batch.BatchCompletionFunc callback = summary =>
+            {
+                completionCallbackFired = true;
+                batchSummaryFromCallback = summary;
+                return Task.FromResult(0);
+            };
+
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
 
             // If I execute a batch that is invalid
-            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
+            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory());
+            batch.Execute(GetConnection(ci), CancellationToken.None, callback).Wait();
 
             // Then:
             // ... It should have executed with error
@@ -178,27 +233,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... There should be plenty of messages for the error
             Assert.NotEmpty(batch.ResultMessages);
+
+            // ... The callback for batch completion should have been fired
+            Assert.True(completionCallbackFired);
+            Assert.NotNull(batchSummaryFromCallback);
         }
 
         [Fact]
         public async Task BatchExecuteExecuted()
         {
+            // Setup: Create a callback for batch completion
+            BatchSummary batchSummaryFromCallback = null;
+            bool completionCallbackFired = false;
+            Batch.BatchCompletionFunc callback = summary =>
+            {
+                completionCallbackFired = true;
+                batchSummaryFromCallback = summary;
+                return Task.FromResult(0);
+            };
+
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a batch
-            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
+            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory());
+            batch.Execute(GetConnection(ci), CancellationToken.None, callback).Wait();
 
             // Then:
             // ... It should have executed without error
             Assert.True(batch.HasExecuted, "The batch should have been marked executed.");
             Assert.False(batch.HasError, "The batch should not have an error");
 
+            // ... The callback for batch completion should have been fired
+            Assert.True(completionCallbackFired);
+            Assert.NotNull(batchSummaryFromCallback);
+
             // If I execute it again
             // Then:
             // ... It should throw an invalid operation exception
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                batch.Execute(GetConnection(ci), CancellationToken.None));
+                batch.Execute(GetConnection(ci), CancellationToken.None, null));
 
             // ... The data should still be available without error
             Assert.False(batch.HasError, "The batch should not be in an error condition");
@@ -216,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a batch that has an empty query
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentException>(() => new Batch(query, Common.SubsectionDocument, Common.GetFileStreamFactory()));
+            Assert.Throws<ArgumentException>(() => new Batch(query, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory()));
         }
 
         [Fact]
@@ -226,7 +299,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a batch that has no file stream factory
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new Batch("stuff", Common.SubsectionDocument, null));
+            Assert.Throws<ArgumentNullException>(() => new Batch("stuff", Common.SubsectionDocument, Common.Ordinal, null));
+        }
+
+        [Fact]
+        public void BatchInvalidOrdinal()
+        {
+            // If:
+            // ... I create a batch has has an ordinal less than 0
+            // Then:
+            // ... It should throw an exception
+            Assert.Throws<ArgumentOutOfRangeException>(() => new Batch("stuff", Common.SubsectionDocument, -1, Common.GetFileStreamFactory()));
         }
 
         #endregion
@@ -279,6 +362,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void QueryExecuteSingleBatch()
         {
+            // Setup:
+            // ... Create a callback for batch completion
+            int batchCallbacksReceived = 0;
+            Batch.BatchCompletionFunc batchCallback = summary =>
+            {
+                batchCallbacksReceived++;
+                return Task.CompletedTask;
+            };
+
             // If:
             // ... I create a query from a single batch (without separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
@@ -294,18 +386,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I then execute the query
-            query.Execute().Wait();
+            query.Execute(batchCallback).Wait();
 
             // Then:
             // ... The query should have completed successfully with one batch summary returned
             Assert.True(query.HasExecuted);
             Assert.NotEmpty(query.BatchSummaries);
             Assert.Equal(1, query.BatchSummaries.Length);
+
+            // ... The batch callback should have been called precisely 1 time
+            Assert.Equal(1, batchCallbacksReceived);
         }
 
         [Fact]
         public void QueryExecuteNoOpBatch()
         {
+            // Setup:
+            // ... Create a callback for batch completion
+            Batch.BatchCompletionFunc batchCallback = summary =>
+            {
+                throw new Exception("Batch completion callback was called");
+            };
+
             // If:
             // ... I create a query from a single batch that does nothing
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
@@ -320,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I Then execute the query
-            query.Execute().Wait();
+            query.Execute(batchCallback).Wait();
 
             // Then:
             // ... The query should have completed successfully with no batch summaries returned
@@ -331,6 +433,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public void QueryExecuteMultipleBatches()
         {
+            // Setup:
+            // ... Create a callback for batch completion
+            int batchCallbacksReceived = 0;
+            Batch.BatchCompletionFunc batchCallback = summary =>
+            {
+                batchCallbacksReceived++;
+                return Task.CompletedTask;
+            };
+
             // If:
             // ... I create a query from two batches (with separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
@@ -347,18 +458,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I then execute the query
-            query.Execute().Wait();
+            query.Execute(batchCallback).Wait();
 
             // Then:
             // ... The query should have completed successfully with two batch summaries returned
             Assert.True(query.HasExecuted);
             Assert.NotEmpty(query.BatchSummaries);
             Assert.Equal(2, query.BatchSummaries.Length);
+
+            // ... The batch callback should have been called precisely 2 times
+            Assert.Equal(2, batchCallbacksReceived);
         }
 
         [Fact]
         public void QueryExecuteMultipleBatchesWithNoOp()
         {
+            // Setup:
+            // ... Create a callback for batch completion
+            int batchCallbacksReceived = 0;
+            Batch.BatchCompletionFunc batchCallback = summary =>
+            {
+                batchCallbacksReceived++;
+                return Task.CompletedTask;
+            };
+
             // If:
             // ... I create a query from a two batches (with separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
@@ -375,17 +498,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // .. I then execute the query
-            query.Execute().Wait();
+            query.Execute(batchCallback).Wait();
 
             // ... The query should have completed successfully with one batch summary returned
             Assert.True(query.HasExecuted);
             Assert.NotEmpty(query.BatchSummaries);
             Assert.Equal(1, query.BatchSummaries.Length);
+
+            // ... The batch callback should have been called precisely 1 time
+            Assert.Equal(1, batchCallbacksReceived);
         }
 
         [Fact]
         public void QueryExecuteInvalidBatch()
         {
+            // Setup:
+            // ... Create a callback for batch completion
+            int batchCallbacksReceived = 0;
+            Batch.BatchCompletionFunc batchCallback = summary =>
+            {
+                batchCallbacksReceived++;
+                return Task.CompletedTask;
+            };
+
             // If:
             // ... I create a query from an invalid batch
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
@@ -401,7 +536,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I then execute the query
-            query.Execute().Wait();
+            query.Execute(batchCallback).Wait();
 
             // Then:
             // ... There should be an error on the batch
@@ -410,6 +545,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Equal(1, query.BatchSummaries.Length);
             Assert.True(query.BatchSummaries[0].HasError);
             Assert.NotEmpty(query.BatchSummaries[0].Messages);
+
+            // ... The batch callback should have been called once
+            Assert.Equal(1, batchCallbacksReceived);
         }
 
         #endregion
@@ -437,23 +575,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
-            var requestContext = 
-                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(
-                    resultCallback: qer => result = qer,
-                    expectedEvent: QueryExecuteCompleteEvent.Type,
-                    eventCallback: (et, cp) => completeParams = cp,
-                    errorCallback: null);
+            QueryExecuteBatchCompleteParams batchCompleteParams = null;
+            var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
+                .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, p) => completeParams = p)
+                .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchCompleteParams = p);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
             // ... No Errors should have been sent
             // ... A successful result should have been sent with messages on the first batch
             // ... A completion event should have been fired with empty results
-            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            // ... A batch completion event should have been fired with empty results
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Once(), Times.Never());
             Assert.Null(result.Messages);
+
             Assert.Equal(1, completeParams.BatchSummaries.Length);
             Assert.Empty(completeParams.BatchSummaries[0].ResultSetSummaries);
             Assert.NotEmpty(completeParams.BatchSummaries[0].Messages);
+
+            Assert.NotNull(batchCompleteParams);
+            Assert.Empty(batchCompleteParams.BatchSummary.ResultSetSummaries);
+            Assert.NotEmpty(batchCompleteParams.BatchSummary.Messages);
+            Assert.Equal(completeParams.OwnerUri, batchCompleteParams.OwnerUri);
 
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -478,24 +621,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
-            var requestContext = 
-                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(
-                    resultCallback: qer => result = qer, 
-                    expectedEvent: QueryExecuteCompleteEvent.Type, 
-                    eventCallback: (et, cp) => completeParams = cp, 
-                    errorCallback: null);
+            QueryExecuteBatchCompleteParams batchCompleteParams = null;
+            var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
+                .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, p) => completeParams = p)
+                .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchCompleteParams = p);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
             // ... No errors should have been sent
             // ... A successful result should have been sent with messages
             // ... A completion event should have been fired with one result
-            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Once(), Times.Never());
             Assert.Null(result.Messages);
+
             Assert.Equal(1, completeParams.BatchSummaries.Length);
             Assert.NotEmpty(completeParams.BatchSummaries[0].ResultSetSummaries);
             Assert.NotEmpty(completeParams.BatchSummaries[0].Messages);
             Assert.False(completeParams.BatchSummaries[0].HasError);
+
+            Assert.NotNull(batchCompleteParams);
+            Assert.NotEmpty(batchCompleteParams.BatchSummary.ResultSetSummaries);
+            Assert.NotEmpty(batchCompleteParams.BatchSummary.Messages);
+            Assert.Equal(completeParams.OwnerUri, batchCompleteParams.OwnerUri);
 
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -512,7 +659,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
             QueryExecuteResult result = null;
-            var requestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
+            var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
@@ -520,7 +667,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... No completion event should have been fired
             // ... No error event should have been fired
             // ... There should be no active queries
-            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never(), Times.Never());
             Assert.NotNull(result.Messages);
             Assert.NotEmpty(result.Messages);
             Assert.Empty(queryService.ActiveQueries);
@@ -544,13 +691,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
-            var firstRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
+            var firstRequestContext = RequestContextMocks.Create<QueryExecuteResult>(null);
             queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
 
             // ... And then I request another query without waiting for the first to complete
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;   // Simulate query hasn't finished
             QueryExecuteResult result = null;
-            var secondRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
+            var secondRequestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer);
             queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
 
             // Then:
@@ -558,7 +705,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... A result should have been sent with an error message
             // ... No completion event should have been fired
             // ... There should only be one active query
-            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.AtMostOnce(), Times.Never());
+            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.AtMostOnce(), Times.AtMostOnce(), Times.Never());
             Assert.NotNull(result.Messages);
             Assert.NotEmpty(result.Messages);
             Assert.Equal(1, queryService.ActiveQueries.Count);
@@ -582,25 +729,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
-            var firstRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
+            var firstRequestContext = RequestContextMocks.Create<QueryExecuteResult>(null);
 
             queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
 
             // ... And then I request another query after waiting for the first to complete
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
-            var secondRequestContext =
-                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp, null);
+            QueryExecuteBatchCompleteParams batchComplete = null;
+            var secondRequestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
+                .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp)
+                .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchComplete = p);
             queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
 
             // Then:
             // ... No errors should have been sent
             // ... A result should have been sent with no errors
             // ... There should only be one active query
-            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.Once(), Times.Never());
+            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.Once(), Times.Once(), Times.Never());
             Assert.Null(result.Messages);
+
             Assert.False(complete.BatchSummaries.Any(b => b.HasError));
             Assert.Equal(1, queryService.ActiveQueries.Count);
+
+            Assert.NotNull(batchComplete);
+            Assert.False(batchComplete.BatchSummary.HasError);
+            Assert.Equal(complete.OwnerUri, batchComplete.OwnerUri);
         }
 
         [Fact]
@@ -620,15 +774,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = null };
 
             QueryExecuteResult result = null;
-            var requestContext =
-                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
+            var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
             // ... No errors should have been sent
             // ... A result should have been sent with an error message
             // ... No completion event should have been fired
-            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never(), Times.Never());
             Assert.NotNull(result.Messages);
             Assert.NotEmpty(result.Messages);
 
@@ -653,19 +806,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
-            var requestContext =
-                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp, null);
+            QueryExecuteBatchCompleteParams batchComplete = null;
+            var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
+                .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp)
+                .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchComplete = p);
             queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
             // ... No errors should have been sent
             // ... A result should have been sent with success (we successfully started the query)
             // ... A completion event should have been sent with error
-            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Never());
+            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Once(), Times.Once(), Times.Never());
             Assert.Null(result.Messages);
+
             Assert.Equal(1, complete.BatchSummaries.Length);
             Assert.True(complete.BatchSummaries[0].HasError);
             Assert.NotEmpty(complete.BatchSummaries[0].Messages);
+
+            Assert.NotNull(batchComplete);
+            Assert.True(batchComplete.BatchSummary.HasError);
+            Assert.NotEmpty(batchComplete.BatchSummary.Messages);
+            Assert.Equal(complete.OwnerUri, batchComplete.OwnerUri);
         }
 
 #if USE_LIVE_CONNECTION
@@ -696,18 +857,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 #endif
 
-#endregion
+        #endregion
 
-        private void VerifyQueryExecuteCallCount(Mock<RequestContext<QueryExecuteResult>> mock, Times sendResultCalls, Times sendEventCalls, Times sendErrorCalls)
+        private static void VerifyQueryExecuteCallCount(Mock<RequestContext<QueryExecuteResult>> mock, Times sendResultCalls, 
+            Times sendCompletionEventCalls, Times sendBatchCompletionEvent, Times sendErrorCalls)
         {
             mock.Verify(rc => rc.SendResult(It.IsAny<QueryExecuteResult>()), sendResultCalls);
             mock.Verify(rc => rc.SendEvent(
                 It.Is<EventType<QueryExecuteCompleteParams>>(m => m == QueryExecuteCompleteEvent.Type),
-                It.IsAny<QueryExecuteCompleteParams>()), sendEventCalls);
+                It.IsAny<QueryExecuteCompleteParams>()), sendCompletionEventCalls);
+            mock.Verify(rc => rc.SendEvent(
+                It.Is<EventType<QueryExecuteBatchCompleteParams>>(m => m == QueryExecuteBatchCompleteEvent.Type),
+                It.IsAny<QueryExecuteBatchCompleteParams>()), sendBatchCompletionEvent);
             mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
         }
 
-        private DbConnection GetConnection(ConnectionInfo info)
+        private static DbConnection GetConnection(ConnectionInfo info)
         {
             return info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
         }

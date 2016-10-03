@@ -48,22 +48,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        internal Batch(string batchText, BufferRange selection, IFileStreamFactory outputFileFactory)
+        internal Batch(string batchText, BufferRange selection, int ordinalId, IFileStreamFactory outputFileFactory)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
             Validate.IsNotNull(nameof(outputFileFactory), outputFileFactory);
+            Validate.IsGreaterThan(nameof(ordinalId), ordinalId, 0);
 
             // Initialize the internal state
             BatchText = batchText;
             Selection = selection;
             HasExecuted = false;
+            Id = ordinalId;
             resultSets = new List<ResultSet>();
             resultMessages = new List<ResultMessage>();
             this.outputFileFactory = outputFileFactory;
         }
 
         #region Properties
+
+        public delegate Task BatchCompletionFunc(BatchSummary summary);
 
         /// <summary>
         /// The text of batch that will be executed
@@ -79,6 +83,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Whether or not this batch has been executed, regardless of success or failure 
         /// </summary>
         public bool HasExecuted { get; set; }
+
+        /// <summary>
+        /// Ordinal of the batch in the query
+        /// </summary>
+        public int Id { get; private set; }
 
         /// <summary>
         /// Messages that have come back from the server
@@ -126,7 +135,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="conn">The connection to use to execute the batch</param>
         /// <param name="cancellationToken">Token for cancelling the execution</param>
-        public async Task Execute(DbConnection conn, CancellationToken cancellationToken)
+        /// <param name="batchCompletionCallback"> 
+        /// Function to be called upon completion of the batch
+        /// </param>
+        public async Task Execute(DbConnection conn, CancellationToken cancellationToken, BatchCompletionFunc batchCompletionCallback)
         {
             // Sanity check to make sure we haven't already run this batch
             if (HasExecuted)
@@ -210,6 +222,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Mark that we have executed
                 HasExecuted = true;
+
+                // Fire an event to signify that the batch has completed
+                if (batchCompletionCallback != null)
+                {
+                    await batchCompletionCallback(ToSummary());
+                }
             }
         }
 
@@ -230,6 +248,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Retrieve the result set
             return resultSets[resultSetIndex].GetSubset(startRow, rowCount);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="BatchSummary"/> based on the batch instance
+        /// </summary>
+        /// <returns><see cref="BatchSummary"/></returns>
+        public BatchSummary ToSummary()
+        {
+            return new BatchSummary
+            {
+                HasError = HasError,
+                Id = Id,
+                ResultSetSummaries = ResultSummaries,
+                Messages = ResultMessages.ToArray(),
+                Selection = Selection
+            };
         }
 
         #endregion
