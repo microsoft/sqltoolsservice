@@ -51,6 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         private ConcurrentDictionary<string, CancellationTokenSource> ownerToCancellationTokenSourceMap = new ConcurrentDictionary<string, CancellationTokenSource>();
 
+        private Object cancellationTokenSourceLock = new Object();
+
         /// <summary>
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
@@ -176,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 using (source = new CancellationTokenSource())
                 {
                     // Locking here to perform two operations as one atomic operation
-                    lock (ownerToCancellationTokenSourceMap)
+                    lock (cancellationTokenSourceLock)
                     {
                         // If the URI is currently connecting from a different request, cancel it before we try to connect
                         CancellationTokenSource currentSource;
@@ -226,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 // Remove our cancellation token from the map since we're no longer connecting
                 // Using a lock here to perform two operations as one atomic operation
-                lock (ownerToCancellationTokenSourceMap)
+                lock (cancellationTokenSourceLock)
                 {
                     // Only remove the token from the map if it is the same one created by this request
                     CancellationTokenSource sourceValue;
