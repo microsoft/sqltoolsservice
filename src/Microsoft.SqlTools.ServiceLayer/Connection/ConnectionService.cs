@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch (OperationCanceledException)
             {
                 // OpenAsync was cancelled
-                response.Messages = SR.ConnectionServiceConnectionCancelled;
+                response.Messages = SR.ConnectionServiceConnectionCanceled;
                 return response;
             }
             catch (Exception ex)

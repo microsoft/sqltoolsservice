@@ -45,11 +45,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ConnectionServiceConnectionCancelled
+        public static string ConnectionServiceConnectionCanceled
         {
             get
             {
-                return Keys.GetString(Keys.ConnectionServiceConnectionCancelled);
+                return Keys.GetString(Keys.ConnectionServiceConnectionCanceled);
             }
         }
 
@@ -396,7 +396,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
 
 
-            public const string ConnectionServiceConnectionCancelled = "ConnectionServiceConnectionCancelled";
+            public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
 
 
             public const string ConnectionParamsValidateNullOwnerUri = "ConnectionParamsValidateNullOwnerUri";

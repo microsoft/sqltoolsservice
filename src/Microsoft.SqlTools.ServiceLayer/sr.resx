@@ -140,8 +140,8 @@
     <comment>.
  Parameters: 0 - intent (string) </comment>
   </data>
-  <data name="ConnectionServiceConnectionCancelled" xml:space="preserve">
-    <value>Connect cancelled</value>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Connection canceled</value>
     <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
