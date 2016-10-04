@@ -45,6 +45,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionServiceConnectionCancelled
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnectionCancelled);
+            }
+        }
+
         public static string ConnectionParamsValidateNullOwnerUri
         {
             get
@@ -368,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.SR", typeof(SR).GetTypeInfo().Assembly);
+            static ResourceManager resourceManager = new ResourceManager(typeof(SR));
 
             static CultureInfo _culture = null;
 
@@ -386,6 +394,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
+
+
+            public const string ConnectionServiceConnectionCancelled = "ConnectionServiceConnectionCancelled";
 
 
             public const string ConnectionParamsValidateNullOwnerUri = "ConnectionParamsValidateNullOwnerUri";

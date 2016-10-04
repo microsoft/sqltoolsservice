@@ -54,6 +54,73 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
+        public void CanCancelConnectRequest()
+        {
+            var testFile = "file:///my/test/file.sql";
+
+            // Given a connection that times out and responds to cancellation
+            var mockConnection = new Mock<DbConnection> { CallBase = true };
+            CancellationToken token;
+            bool ready = false;
+            mockConnection.Setup(x => x.OpenAsync(Moq.It.IsAny<CancellationToken>()))
+                .Callback<CancellationToken>(t => 
+                {
+                    // Pass the token to the return handler and signal the main thread to cancel
+                    token = t;
+                    ready = true;
+                })
+                .Returns(() => 
+                {
+                    if (TestUtils.WaitFor(() => token.IsCancellationRequested))
+                    {
+                        throw new OperationCanceledException();
+                    }
+                    else
+                    {
+                        return Task.FromResult(true);
+                    }
+                });
+
+            var mockFactory = new Mock<ISqlConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
+                .Returns(mockConnection.Object);
+
+
+            var connectionService = new ConnectionService(mockFactory.Object);
+
+            // Connect the connection asynchronously in a background thread
+            var connectionDetails = TestObjects.GetTestConnectionDetails();
+            var connectTask = Task.Run(async () => 
+            {
+                return await connectionService
+                    .Connect(new ConnectParams()
+                    {
+                        OwnerUri = testFile,
+                        Connection = connectionDetails
+                    });
+            });
+
+            // Wait for the connection to call OpenAsync()
+            Assert.True(TestUtils.WaitFor(() => ready));
+
+            // Send a cancellation request
+            var cancelResult = connectionService
+                .CancelConnect(new CancelConnectParams()
+                {
+                    OwnerUri = testFile
+                });
+
+            // Wait for the connection task to finish
+            connectTask.Wait();
+            
+            // Verify that the connection was cancelled (no connection was created)
+            Assert.Null(connectTask.Result.ConnectionId);
+
+            // Verify that the cancel succeeded
+            Assert.True(cancelResult);
+        }
+
+        [Fact]
         public async void CanCancelConnectRequestByConnecting()
         {
             var testFile = "file:///my/test/file.sql";
@@ -721,7 +788,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
         [Fact]
-        public void OnConnectionCallbackHandlerTest()
+        public async void OnConnectionCallbackHandlerTest()
         {
             bool callbackInvoked = false;
 
@@ -735,7 +802,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             );
             
             // connect to a database instance 
-            var connectionResult = connectionService.Connect(TestObjects.GetTestConnectionParams());
+            var connectionResult = await connectionService.Connect(TestObjects.GetTestConnectionParams());
 
             // verify that a valid connection id was returned
             Assert.True(callbackInvoked);

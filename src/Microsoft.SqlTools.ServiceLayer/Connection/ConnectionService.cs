@@ -123,21 +123,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Open a connection with the specified connection details
         /// </summary>
         /// <param name="connectionParams"></param>
-        public async Task<ConnectResponse> Connect(ConnectParams connectionParams)
+        public async Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
         {
             // Validate parameters
             string paramValidationErrorMessage;
             if (connectionParams == null)
             {
-                return new ConnectResponse
+                return new ConnectionCompleteParams
                 {
                     Messages = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
             if (!connectionParams.IsValid(out paramValidationErrorMessage))
             {
-                return new ConnectResponse
+                return new ConnectionCompleteParams
                 {
+                    OwnerUri = connectionParams.OwnerUri,
                     Messages = paramValidationErrorMessage
                 };
             }
@@ -156,7 +157,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
 
             // try to connect
-            var response = new ConnectResponse();
+            var response = new ConnectionCompleteParams();
+            response.OwnerUri = connectionParams.OwnerUri;
             CancellationTokenSource source = null;
             try
             {
@@ -185,8 +187,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         ownerToCancellationTokenSourceMap[connectionParams.OwnerUri] = source;
                     }
 
+                    // Create a task to handle cancellation requests
+                    var cancellationTask = Task.Run(() =>
+                    {
+                        source.Token.WaitHandle.WaitOne();
+                        source.Token.ThrowIfCancellationRequested();
+                    });
+
+                    var openTask = Task.Run(async () => {
+                        await connectionInfo.SqlConnection.OpenAsync(source.Token);
+                    });
+                    
                     // Open the connection
-                    await connectionInfo.SqlConnection.OpenAsync(source.Token);
+                    await Task.WhenAny(openTask, cancellationTask).Unwrap();
+                    source.Cancel();
                 }
             }
             catch (SqlException ex)
@@ -198,7 +212,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch (OperationCanceledException)
             {
-                // OpenAsync() was cancelled, no need to respond with an error
+                // OpenAsync was cancelled
+                response.Messages = SR.ConnectionServiceConnectionCancelled;
                 return response;
             }
             catch (Exception ex)
@@ -273,6 +288,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
+        /// Cancel a connection that is in the process of opening.
+        /// </summary>
+        public bool CancelConnect(CancelConnectParams cancelParams)
+        {
+            // Validate parameters
+            if (cancelParams == null || string.IsNullOrEmpty(cancelParams.OwnerUri))
+            {
+                return false;
+            }
+
+            // Cancel any current connection attempts for this URI
+            CancellationTokenSource source;
+            if (ownerToCancellationTokenSourceMap.TryGetValue(cancelParams.OwnerUri, out source))
+            {
+                try
+                {
+                    source.Cancel();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Close a connection with the specified connection details.
         /// </summary>
         public bool Disconnect(DisconnectParams disconnectParams)
@@ -283,11 +329,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return false;
             }
 
-            // Cancel any current connection attempts for this URI
-            CancellationTokenSource source;
-            if (ownerToCancellationTokenSourceMap.TryGetValue(disconnectParams.OwnerUri, out source))
+            // Cancel if we are in the middle of connecting
+            if (CancelConnect(new CancelConnectParams() { OwnerUri = disconnectParams.OwnerUri }))
             {
-                source.Cancel();
                 return false;
             }
 
@@ -365,6 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
+            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
 
@@ -397,14 +442,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns></returns>
         protected async Task HandleConnectRequest(
             ConnectParams connectParams,
-            RequestContext<ConnectResponse> requestContext)
+            RequestContext<bool> requestContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleConnectRequest");
 
             try
             {
-                // open connection base on request details
-                ConnectResponse result = await ConnectionService.Instance.Connect(connectParams);
+                // create a task to connect asyncronously so that other requests are not blocked in the meantime
+                Task.Run(async () => 
+                {
+                    try
+                    {
+                        // open connection based on request details
+                        ConnectionCompleteParams result = await ConnectionService.Instance.Connect(connectParams);
+                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                    }
+                    catch (Exception ex)
+                    {
+                        ConnectionCompleteParams result = new ConnectionCompleteParams()
+                        {
+                            Messages = ex.ToString()
+                        };
+                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                    }
+                });
+                await requestContext.SendResult(true);
+            }
+            catch
+            {
+                await requestContext.SendResult(false);
+            }
+        }
+
+        /// <summary>
+        /// Handle cancel connect requests
+        /// </summary>
+        protected async Task HandleCancelConnectRequest(
+            CancelConnectParams cancelParams,
+            RequestContext<bool> requestContext)
+        {
+            Logger.Write(LogLevel.Verbose, "HandleCancelConnectRequest");
+
+            try
+            {
+                bool result = ConnectionService.Instance.CancelConnect(cancelParams);
                 await requestContext.SendResult(result);
             }
             catch(Exception ex)
