@@ -10,6 +10,7 @@ using System.Data.Common;
 using System.IO;
 using System.Data.SqlClient;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlServer.Management.Common;
@@ -26,7 +27,6 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Moq.Protected;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
