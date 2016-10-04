@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     {
         #region "Diagnostics tests"
 
+
         /// <summary>
         /// Verify that the latest SqlParser (2016 as of this writing) is used by default
         /// </summary>
@@ -167,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// </summary>
         [Fact]
         public async void UpdateLanguageServiceOnConnection()
-        {
+        {            
             string ownerUri = "file://my/sample/file.sql";
             var connectionService = TestObjects.GetTestConnectionService();
             var connectionResult =
@@ -177,7 +178,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
                     OwnerUri = ownerUri,
                     Connection = TestObjects.GetTestConnectionDetails()
                 });
-            
+
+            // set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            fileMock.SetupGet(file => file.ClientFilePath).Returns(ownerUri);
+
+            // set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+
+            AutoCompleteHelper.WorkspaceServiceInstance = workspaceService.Object;
+
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
             

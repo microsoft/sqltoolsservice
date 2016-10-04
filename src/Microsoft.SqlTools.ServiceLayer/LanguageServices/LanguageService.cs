@@ -760,13 +760,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
         }
 
-        private T GetResultAsT<T>(Task<object> task) where T : class
-        {
-            return (task != null && task.IsCompleted && task.Result != null)
-                ? task.Result as T
-                : null;
-        }
-
         #endregion
 
         #region Diagnostic Provider methods

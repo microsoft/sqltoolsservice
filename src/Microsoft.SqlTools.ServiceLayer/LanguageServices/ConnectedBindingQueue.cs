@@ -61,8 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // lookup the current binding context
             string connectionKey = GetConnectionContextKey(connInfo);
-            IBindingContext bindingContext = this.GetOrCreateBindingContext(
-                GetConnectionContextKey(connInfo));
+            IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
 
             try
             {

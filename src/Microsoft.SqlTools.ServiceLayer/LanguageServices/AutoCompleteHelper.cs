@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public static class AutoCompleteHelper
     {
+        private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
+
         private static readonly string[] DefaultCompletionText = new string[]
         {
             "absolute",
@@ -423,6 +425,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         };
 
         /// <summary>
+        /// Gets or sets the current workspace service instance
+        /// Setter for internal testing purposes only
+        /// </summary>
+        internal static WorkspaceService<SqlToolsSettings> WorkspaceServiceInstance
+        {
+            get
+            {
+                if (AutoCompleteHelper.workspaceServiceInstance == null)
+                {
+                    AutoCompleteHelper.workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
+                }
+                return AutoCompleteHelper.workspaceServiceInstance;
+            }
+            set
+            {
+                AutoCompleteHelper.workspaceServiceInstance = value;
+            }
+        }
+
+        /// <summary>
         /// Get the default completion list from hard-coded list
         /// </summary>
         /// <param name="row"></param>
@@ -546,7 +568,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (scriptInfo.IsConnected)
             {
-                var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);                                
+                var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);                                
                 LanguageService.Instance.ParseAndBind(scriptFile, info);
 
                 if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))

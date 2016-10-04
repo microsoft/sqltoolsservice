@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // use a default binding context for disconnected requests
             if (string.IsNullOrWhiteSpace(key))
             {
-                key = "disconected_binding_context";
+                key = "disconnected_binding_context";
             }
 
             if (!this.BindingContextMap.ContainsKey(key))
