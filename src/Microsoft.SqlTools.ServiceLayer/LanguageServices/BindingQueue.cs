@@ -97,19 +97,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 key = "disconnected_binding_context";
             }
-
-            if (!this.BindingContextMap.ContainsKey(key))
+  
+            lock (this.bindingContextLock)
             {
-                lock (this.bindingContextLock)
+                if (!this.BindingContextMap.ContainsKey(key))
                 {
-                    if (!this.BindingContextMap.ContainsKey(key))
-                    {
-                        this.BindingContextMap.Add(key, new T());
-                    }
+                    this.BindingContextMap.Add(key, new T());
                 }
-            }
 
-            return this.BindingContextMap[key];
+                return this.BindingContextMap[key];
+            }            
         }
 
         private bool HasPendingQueueItems
@@ -147,16 +144,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private Task StartQueueProcessor()
         {
             return Task.Factory.StartNew(
-                ProcessQueue, 
-                null,
-                this.processQueueCancelToken.Token);
+                ProcessQueue,                
+                this.processQueueCancelToken.Token,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
         }
 
         /// <summary>
         /// The core queue processing method
         /// </summary>
         /// <param name="state"></param>
-        private void ProcessQueue(object state)
+        private void ProcessQueue()
         {
             CancellationToken token = this.processQueueCancelToken.Token;
             WaitHandle[] waitHandles = new WaitHandle[2]
@@ -180,6 +178,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     while (this.HasPendingQueueItems)
                     {                    
                         QueueItem queueItem = GetNextQueueItem();
+                        if (queueItem == null)
+                        {
+                            continue;
+                        }
+
                         IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
                         if (bindingContext == null)                        
                         {
@@ -196,9 +199,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             queueItem.ResultsTask = Task.Run(() => 
                             {
                                 var timeoutTask = queueItem.TimeoutOperation(bindingContext);
-                                queueItem.ItemProcessed.Set();
+                                timeoutTask.ContinueWith((obj) => queueItem.ItemProcessed.Set());                                
                                 return timeoutTask.Result;
-                            });    
+                            });
 
                             continue;
                         }
