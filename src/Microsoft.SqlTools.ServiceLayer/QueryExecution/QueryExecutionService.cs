@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Newtonsoft.Json;
@@ -207,6 +208,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     return;
                 }
 
+                // Cleanup the query
+                result.Dispose();
+
                 // Success
                 await requestContext.SendResult(new QueryDisposeResult
                 {
@@ -237,6 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Cancel the query
                 result.Cancel();
+                result.Dispose();
 
                 // Attempt to dispose the query
                 if (!ActiveQueries.TryRemove(cancelParams.OwnerUri, out result))
@@ -268,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in CSV format
         /// </summary>
-        public async Task HandleSaveResultsAsCsvRequest( SaveResultsAsCsvRequestParams saveParams,
+        public async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -287,20 +292,41 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
-                    if (saveParams.IncludeHeaders) 
-                    {
-                        // write column names to csv
-                        await csvFile.WriteLineAsync(string.Join(",",
-                            selectedResultSet.Columns.Select(column => SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
+                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+                    int columnCount = 0;
+                    int rowCount = 0;
+                    int columnStartIndex = 0;
+                    int rowStartIndex = 0;
+
+                    // set column, row counts depending on whether save request is for entire result set or a subset
+                    if (SaveResults.isSaveSelection(saveParams))
+                    {   
+                        columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
+                        rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
+                        columnStartIndex = saveParams.ColumnStartIndex.Value;
+                        rowStartIndex =saveParams.RowStartIndex.Value;
+                    }
+                    else
+                    {                
+                        columnCount = selectedResultSet.Columns.Length;
+                        rowCount = (int)selectedResultSet.RowCount;
                     }
 
-                    // write rows to csv
-                    foreach (var row in selectedResultSet.Rows)
+                    // write column names if include headers option is chosen
+                    if (saveParams.IncludeHeaders)
                     {
-                        await csvFile.WriteLineAsync(string.Join(",",
-                            row.Select(field => SaveResults.EncodeCsvField(field ?? string.Empty))));
+                        await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Skip(columnStartIndex).Take(columnCount).Select( column =>
+                                            SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
                     }
+
+                    // retrieve rows and write as csv
+                    ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
+                    foreach (var row in resultSubset.Rows)
+                    {
+                        await csvFile.WriteLineAsync( string.Join( ",", row.Skip(columnStartIndex).Take(columnCount).Select( field => 
+                                            SaveResults.EncodeCsvField((field != null) ? field.ToString(): "NULL"))));
+                    }
+
                 }
 
                 // Successfully wrote file, send success result
@@ -320,7 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in JSON format
         /// </summary>
-        public async Task HandleSaveResultsAsJsonRequest( SaveResultsAsJsonRequestParams saveParams,
+        public async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -340,20 +366,40 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     jsonWriter.Formatting = Formatting.Indented;
                     jsonWriter.WriteStartArray();
-                    
+
                     // get the requested resultSet from query
                     Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
+                    int rowCount = 0;
+                    int rowStartIndex = 0;
+                    int columnStartIndex = 0;
+                    int columnEndIndex = 0;
 
-                    // write each row to JSON
-                    foreach (var row in selectedResultSet.Rows)
+                    // set column, row counts depending on whether save request is for entire result set or a subset
+                    if (SaveResults.isSaveSelection(saveParams))
+                    {
+                       
+                        rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
+                        rowStartIndex = saveParams.RowStartIndex.Value;
+                        columnStartIndex = saveParams.ColumnStartIndex.Value;
+                        columnEndIndex = saveParams.ColumnEndIndex.Value + 1 ; // include the last column
+                    }
+                    else 
+                    {
+                        rowCount = (int)selectedResultSet.RowCount;
+                        columnEndIndex = selectedResultSet.Columns.Length;
+                    }
+
+                    // retrieve rows and write as json
+                    ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
+                    foreach (var row in resultSubset.Rows)
                     {
                         jsonWriter.WriteStartObject();
-                        for (int i = 0; i < row.Length; i++)
+                        for (int i = columnStartIndex ; i < columnEndIndex; i++)
                         {
+                            //get column name
                             DbColumnWrapper col = selectedResultSet.Columns[i];
-                            string val = row[i];
-
+                            string val = row[i]?.ToString();
                             jsonWriter.WritePropertyName(col.ColumnName);
                             if (val == null)
                             {
@@ -381,6 +427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(ex.Message);
             }
         }
+
         #endregion
 
         #region Private Helpers
@@ -404,6 +451,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query oldQuery;
                 if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.HasExecuted)
                 {
+                    oldQuery.Dispose();
                     ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
                 }
 
@@ -505,8 +553,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 foreach (var query in ActiveQueries)
                 {
+                    if (!query.Value.HasExecuted)
+                    {
+                        try
+                        {
+                            query.Value.Cancel();
+                        }
+                        catch (Exception e)
+                        {
+                            // We don't particularly care if we fail to cancel during shutdown
+                            string message = string.Format("Failed to cancel query {0} during query service disposal: {1}", query.Key, e);
+                            Logger.Write(LogLevel.Warning, message);
+                        }
+                    }
                     query.Value.Dispose();
                 }
+                ActiveQueries.Clear();
             }
 
             disposed = true;

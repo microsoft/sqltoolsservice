@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... There should be a message for how many rows were affected
             Assert.Equal(1, batch.ResultMessages.Count());
-            Assert.Contains("1 ", batch.ResultMessages.First());
+            Assert.Contains("1 ", batch.ResultMessages.First().Message);
             // NOTE: 1 is expected because this test simulates a 'update' statement where 1 row was affected.
             // The 1 in quotes is to make sure the 1 isn't part of a larger number
         }
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... There should be a message for how many rows were affected
             Assert.Equal(resultSets, batch.ResultMessages.Count());
-            Assert.Contains(Common.StandardRows.ToString(), batch.ResultMessages.First());
+            Assert.Contains(Common.StandardRows.ToString(), batch.ResultMessages.First().Message);
         }
 
         [Fact]
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Equal(resultSets, batch.ResultMessages.Count());
             foreach (var rsm in batch.ResultMessages)
             {
-                Assert.Contains(Common.StandardRows.ToString(), rsm);
+                Assert.Contains(Common.StandardRows.ToString(), rsm.Message);
             }
         }
 
