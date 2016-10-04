@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             string ownerUri = "file://my/sample/file.sql";
             var connectionService = TestObjects.GetTestConnectionService();
             var connectionResult =
-                connectionService
+                await connectionService
                 .Connect(new ConnectParams()
                 {
                     OwnerUri = ownerUri,

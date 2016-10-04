@@ -3,13 +3,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
-    /// Message format for the connection result response
+    /// Parameters to be sent back with a connection complete event
     /// </summary>
-    public class ConnectResponse
+    public class ConnectionCompleteParams
     {
+        /// <summary>
+        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
+        /// or a virtual file representing an object in a database.         
+        /// </summary>
+        public string OwnerUri { get; set;  }
+
         /// <summary>
         /// A GUID representing a unique connection ID
         /// </summary>
@@ -39,5 +47,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the actual Connection established, including Database Name
         /// </summary>
         public ConnectionSummary ConnectionSummary { get; set; }
+    }
+
+    /// <summary>
+    /// ConnectionComplete notification mapping entry 
+    /// </summary>
+    public class ConnectionCompleteNotification
+    {
+        public static readonly 
+            EventType<ConnectionCompleteParams> Type =
+            EventType<ConnectionCompleteParams>.Create("connection/complete");
     }
 }

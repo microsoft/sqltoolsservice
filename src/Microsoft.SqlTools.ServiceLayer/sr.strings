@@ -33,6 +33,8 @@ ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}
 
 ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
 
+ConnectionServiceConnectionCanceled = Connection canceled
+
 ######
 ### Connection Params Validation Errors
 

@@ -10,6 +10,7 @@ using System.Data.Common;
 using System.IO;
 using System.Data.SqlClient;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlServer.Management.Common;
@@ -277,12 +278,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
+        public static async Task<QueryExecutionService> GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             var connectionService = new ConnectionService(factory);
             if (isConnected)
             {
-                connectionService.Connect(new ConnectParams
+                await connectionService.Connect(new ConnectParams
                 {
                     Connection = GetTestConnectionDetails(),
                     OwnerUri = OwnerUri
