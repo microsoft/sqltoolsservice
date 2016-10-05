@@ -182,7 +182,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Whether or not the column is XML
         /// </summary>
-        public bool IsXml { get; private set; }
+        public bool IsXml { get; set; }
+
+        /// <summary>
+        /// Whether or not the column is JSON
+        /// </summary>
+        public bool IsJson { get; set; }
 
         #endregion
 
