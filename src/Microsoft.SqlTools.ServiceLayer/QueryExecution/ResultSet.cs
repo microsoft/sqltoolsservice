@@ -245,12 +245,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (Columns?.Length == 1)
             {   
-                if (String.Compare(Columns[0].ColumnName, NameOfForXMLColumn, StringComparison.Ordinal) == 0)
+                if (Columns[0].ColumnName.Equals(NameOfForXMLColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsXml = true;
                 }
 
-                if (String.Compare(Columns[0].ColumnName, NameOfForJSONColumn, StringComparison.Ordinal) == 0)
+                if (Columns[0].ColumnName.Equals(NameOfForJSONColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsJson = true;
                 }                
