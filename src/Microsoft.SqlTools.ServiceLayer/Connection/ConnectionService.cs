@@ -458,32 +458,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                // create a task to connect asynchronously so that other requests are not blocked in the meantime
-                #pragma warning disable 4014
-                Task.Run(async () => 
-                {
-                    try
-                    {
-                        // open connection based on request details
-                        ConnectionCompleteParams result = await ConnectionService.Instance.Connect(connectParams);
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                    }
-                    catch (Exception ex)
-                    {
-                        ConnectionCompleteParams result = new ConnectionCompleteParams()
-                        {
-                            Messages = ex.ToString()
-                        };
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                    }
-                });
-                #pragma warning restore 4014
+                RunConnectRequestHandlerTask(connectParams, requestContext);
                 await requestContext.SendResult(true);
             }
             catch
             {
                 await requestContext.SendResult(false);
             }
+        }
+
+        private void RunConnectRequestHandlerTask(ConnectParams connectParams, RequestContext<bool> requestContext)
+        {
+            // create a task to connect asynchronously so that other requests are not blocked in the meantime
+            Task.Run(async () => 
+            {
+                try
+                {
+                    // open connection based on request details
+                    ConnectionCompleteParams result = await ConnectionService.Instance.Connect(connectParams);
+                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                }
+                catch (Exception ex)
+                {
+                    ConnectionCompleteParams result = new ConnectionCompleteParams()
+                    {
+                        Messages = ex.ToString()
+                    };
+                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                }
+            });
         }
 
         /// <summary>
