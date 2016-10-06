@@ -249,8 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Columns[0].IsXml = true;
                 }
-
-                if (Columns[0].ColumnName.Equals(NameOfForJSONColumn, StringComparison.Ordinal))
+                else if (Columns[0].ColumnName.Equals(NameOfForJSONColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsJson = true;
                 }                
