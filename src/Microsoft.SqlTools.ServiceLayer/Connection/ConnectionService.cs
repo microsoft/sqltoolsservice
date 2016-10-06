@@ -264,13 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             };
 
             // invoke callback notifications
-            foreach (var activity in this.onConnectionActivities)
-            {
-                // not awaiting here to allow handlers to run in the background
-                #pragma warning disable 4014
-                activity(connectionInfo);
-                #pragma warning restore 4014
-            }
+            invokeOnConnectionActivities(connectionInfo);
 
             // try to get information about the connected SQL Server instance
             try
@@ -464,7 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                // create a task to connect asyncronously so that other requests are not blocked in the meantime
+                // create a task to connect asynchronously so that other requests are not blocked in the meantime
                 #pragma warning disable 4014
                 Task.Run(async () => 
                 {
@@ -726,6 +720,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             e.ToString())
                     );
                 }
+            }
+        }
+
+        private void invokeOnConnectionActivities(ConnectionInfo connectionInfo)
+        {
+            foreach (var activity in this.onConnectionActivities)
+            {
+                // not awaiting here to allow handlers to run in the background
+                activity(connectionInfo);
             }
         }
     }
