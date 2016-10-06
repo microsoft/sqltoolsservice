@@ -36,8 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var executeParams = new QueryExecuteParams { QuerySelection = Common.GetSubSectionDocument(), OwnerUri = Common.OwnerUri };
             var executeRequest = 
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
-            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
+            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            queryService.ActiveQueries[Common.OwnerUri].Query.HasExecuted = false;    // Fake that it hasn't completed execution
 
             // ... And then I request to cancel the query
             var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
@@ -71,13 +72,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var executeParams = new QueryExecuteParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
             var executeRequest =
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
             // ... And then I request to cancel the query
             var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
             QueryCancelResult result = null;
             var cancelRequest = GetQueryCancelResultContextMock(qcr => result = qcr, null);
-            queryService.HandleCancelRequest(cancelParams, cancelRequest.Object).Wait();
+            await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
 
             // Then:
             // ... I should have seen a result event with an error message

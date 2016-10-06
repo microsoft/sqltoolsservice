@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The collection of active queries
         /// </summary>
-        internal ConcurrentDictionary<string, Query> ActiveQueries
+        internal ConcurrentDictionary<string, ActiveQuery> ActiveQueries
         {
             get { return queries.Value; }
         }
@@ -87,8 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Internal storage of active queries, lazily constructed as a threadsafe dictionary
         /// </summary>
-        private readonly Lazy<ConcurrentDictionary<string, Query>> queries =
-            new Lazy<ConcurrentDictionary<string, Query>>(() => new ConcurrentDictionary<string, Query>());
+        private readonly Lazy<ConcurrentDictionary<string, ActiveQuery>> queries =
+            new Lazy<ConcurrentDictionary<string, ActiveQuery>>(() => new ConcurrentDictionary<string, ActiveQuery>());
 
         private SqlToolsSettings Settings { get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; } }
 
@@ -129,19 +129,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task HandleExecuteRequest(QueryExecuteParams executeParams,
             RequestContext<QueryExecuteResult> requestContext)
         {
-            try
-            {
-                // Get a query new active query
-                Query newQuery = await CreateAndActivateNewQuery(executeParams, requestContext);
+            // Get a query new active query
+            ActiveQuery newQuery = await CreateAndActivateNewQuery(executeParams, requestContext);
 
-                // Execute the query
-                await ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
-            }
-            catch (Exception e)
-            {
-                // Dump any unexpected exceptions as errors
-                await requestContext.SendError(e.Message);
-            }
+            // Execute the query -- asynchronously
+            await ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
         }
 
         public async Task HandleResultSubsetRequest(QueryExecuteSubsetParams subsetParams,
@@ -150,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 // Attempt to load the query
-                Query query;
+                ActiveQuery query;
                 if (!ActiveQueries.TryGetValue(subsetParams.OwnerUri, out query))
                 {
                     await requestContext.SendResult(new QueryExecuteSubsetResult
@@ -164,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 var result = new QueryExecuteSubsetResult
                 {
                     Message = null,
-                    ResultSubset = await query.GetSubset(subsetParams.BatchIndex,
+                    ResultSubset = await query.Query.GetSubset(subsetParams.BatchIndex,
                         subsetParams.ResultSetIndex, subsetParams.RowsStartIndex, subsetParams.RowsCount)
                 };
                 await requestContext.SendResult(result);
@@ -198,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 // Attempt to remove the query for the owner uri
-                Query result;
+                ActiveQuery result;
                 if (!ActiveQueries.TryRemove(disposeParams.OwnerUri, out result))
                 {
                     await requestContext.SendResult(new QueryDisposeResult
@@ -209,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Cleanup the query
-                result.Dispose();
+                result.Query.Dispose();
 
                 // Success
                 await requestContext.SendResult(new QueryDisposeResult
@@ -229,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 // Attempt to find the query for the owner uri
-                Query result;
+                ActiveQuery result;
                 if (!ActiveQueries.TryGetValue(cancelParams.OwnerUri, out result))
                 {
                     await requestContext.SendResult(new QueryCancelResult
@@ -240,8 +232,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Cancel the query
-                result.Cancel();
-                result.Dispose();
+                result.Query.Cancel();
+                result.Query.Dispose();
 
                 // Attempt to dispose the query
                 if (!ActiveQueries.TryRemove(cancelParams.OwnerUri, out result))
@@ -277,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
-            Query result;
+            ActiveQuery result;
             if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
             {
                 await requestContext.SendResult(new SaveResultRequestResult
@@ -291,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
                 {
                     // get the requested resultSet from query
-                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
+                    Batch selectedBatch = result.Query.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
                     int columnCount = 0;
                     int rowCount = 0;
@@ -320,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
 
                     // retrieve rows and write as csv
-                    ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
+                    ResultSetSubset resultSubset = await result.Query.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
                     foreach (var row in resultSubset.Rows)
                     {
                         await csvFile.WriteLineAsync( string.Join( ",", row.Skip(columnStartIndex).Take(columnCount).Select( field => 
@@ -350,7 +342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
-            Query result;
+            ActiveQuery result;
             if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
             {
                 await requestContext.SendResult(new SaveResultRequestResult
@@ -368,7 +360,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     jsonWriter.WriteStartArray();
 
                     // get the requested resultSet from query
-                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
+                    Batch selectedBatch = result.Query.Batches[saveParams.BatchIndex];
                     ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
                     int rowCount = 0;
                     int rowStartIndex = 0;
@@ -391,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
 
                     // retrieve rows and write as json
-                    ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
+                    ResultSetSubset resultSubset = await result.Query.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
                     foreach (var row in resultSubset.Rows)
                     {
                         jsonWriter.WriteStartObject();
@@ -432,7 +424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
-        private async Task<Query> CreateAndActivateNewQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext)
+        private async Task<ActiveQuery> CreateAndActivateNewQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext)
         {
             try
             {
@@ -440,18 +432,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 ConnectionInfo connectionInfo;
                 if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
                 {
-                    await requestContext.SendResult(new QueryExecuteResult
-                    {
-                        Messages = SR.QueryServiceQueryInvalidOwnerUri
-                    });
+                    await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                     return null;
                 }
 
                 // Attempt to clean out any old query on the owner URI
-                Query oldQuery;
-                if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.HasExecuted)
+                ActiveQuery oldQuery;
+                if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.Query.HasExecuted)
                 {
-                    oldQuery.Dispose();
+                    oldQuery.Query.Dispose();
                     ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
                 }
 
@@ -486,26 +475,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 
                 // If we can't add the query now, it's assumed the query is in progress
                 Query newQuery = new Query(queryText, connectionInfo, settings, BufferFileFactory);
-                if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
+                ActiveQuery activeQuery = new ActiveQuery {Query = newQuery};
+                if (!ActiveQueries.TryAdd(executeParams.OwnerUri, activeQuery))
                 {
-                    await requestContext.SendResult(new QueryExecuteResult
-                    {
-                        Messages = SR.QueryServiceQueryInProgress
-                    });
+                    await requestContext.SendError(SR.QueryServiceQueryInProgress);
+                    activeQuery.Query.Dispose();
                     return null;
                 }
 
-                return newQuery;
+                return activeQuery;
             }
-            catch (ArgumentException ane)
+            catch (Exception e)
             {
-                await requestContext.SendResult(new QueryExecuteResult { Messages = ane.Message });
+                await requestContext.SendError(e.Message);
                 return null;
             }
             // Any other exceptions will fall through here and be collected at the end
         }
 
-        private async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
+        private static async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, ActiveQuery query)
         {
             // Skip processing if the query is null
             if (query == null)
@@ -513,21 +501,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Launch the query and respond with successfully launching it
-            Task executeTask = query.Execute();
+            // Launch this as an asynchronous task
+            query.ExecutionTask = Task.Factory.StartNew(async () =>
+            {
+                // Launch the query!
+                await query.Query.Execute();
+
+                // Send back the results
+                QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
+                {
+                    OwnerUri = executeParams.OwnerUri,
+                    BatchSummaries = query.Query.BatchSummaries
+                };
+                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
+            });
+
+            // Send back a result showing we were successful
             await requestContext.SendResult(new QueryExecuteResult
             {
                 Messages = null
             });
+        }
 
-            // Wait for query execution and then send back the results
-            await Task.WhenAll(executeTask);
-            QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
-            {
-                OwnerUri = executeParams.OwnerUri,
-                BatchSummaries = query.BatchSummaries
-            };
-            await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
+        #endregion
+
+        #region Nested Class
+
+        internal class ActiveQuery
+        {
+            public Task ExecutionTask { get; set; }
+            public Query Query { get; set; }
         }
 
         #endregion
@@ -553,11 +556,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 foreach (var query in ActiveQueries)
                 {
-                    if (!query.Value.HasExecuted)
+                    if (!query.Value.Query.HasExecuted)
                     {
                         try
                         {
-                            query.Value.Cancel();
+                            query.Value.Query.Cancel();
                         }
                         catch (Exception e)
                         {
@@ -566,7 +569,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             Logger.Write(LogLevel.Warning, message);
                         }
                     }
-                    query.Value.Dispose();
+                    query.Value.Query.Dispose();
                 }
                 ActiveQueries.Clear();
             }

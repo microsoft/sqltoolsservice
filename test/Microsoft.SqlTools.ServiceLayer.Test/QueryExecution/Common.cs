@@ -292,6 +292,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return new QueryExecutionService(connectionService, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 
+        public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService()
+        {
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(StandardQuery);
+           
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+
+            return workspaceService.Object;
+        }
+
         #endregion
         
     }

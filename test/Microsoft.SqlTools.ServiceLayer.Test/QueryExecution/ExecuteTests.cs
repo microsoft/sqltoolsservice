@@ -19,7 +19,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 
@@ -444,7 +443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     expectedEvent: QueryExecuteCompleteEvent.Type,
                     eventCallback: (et, cp) => completeParams = cp,
                     errorCallback: null);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            await AwaitExecution(queryService, queryParams, requestContext.Object);
 
             // Then:
             // ... No Errors should have been sent
@@ -485,7 +484,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     expectedEvent: QueryExecuteCompleteEvent.Type, 
                     eventCallback: (et, cp) => completeParams = cp, 
                     errorCallback: null);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            await AwaitExecution(queryService, queryParams, requestContext.Object);
 
             // Then:
             // ... No errors should have been sent
@@ -512,18 +511,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
-            QueryExecuteResult result = null;
-            var requestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            object error = null;
+            var requestContext = RequestContextMocks.Create<QueryExecuteResult>(null)
+                .AddErrorHandling(e => error = e);
+            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
 
             // Then:
-            // ... An error message should have been returned via the result
+            // ... An error should have been returned
+            // ... No result should have been returned
             // ... No completion event should have been fired
-            // ... No error event should have been fired
             // ... There should be no active queries
-            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
-            Assert.NotNull(result.Messages);
-            Assert.NotEmpty(result.Messages);
+            VerifyQueryExecuteCallCount(requestContext, Times.Never(), Times.Never(), Times.Once());
+            Assert.IsType<string>(error);
+            Assert.NotEmpty((string)error);
             Assert.Empty(queryService.ActiveQueries);
         }
 
@@ -545,24 +545,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
-            var firstRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
+            var firstRequestContext = RequestContextMocks.Create<QueryExecuteResult>(null);
+            await AwaitExecution(queryService, queryParams, firstRequestContext.Object);
 
             // ... And then I request another query without waiting for the first to complete
-            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;   // Simulate query hasn't finished
-            QueryExecuteResult result = null;
-            var secondRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
+            queryService.ActiveQueries[Common.OwnerUri].Query.HasExecuted = false;   // Simulate query hasn't finished
+            object error = null;
+            var secondRequestContext = RequestContextMocks.Create<QueryExecuteResult>(null)
+                .AddErrorHandling(e => error = e);
+            await AwaitExecution(queryService, queryParams, secondRequestContext.Object);
 
             // Then:
-            // ... No errors should have been sent
-            // ... A result should have been sent with an error message
+            // ... An error should have been sent
+            // ... A result should have not have been sent
             // ... No completion event should have been fired
-            // ... There should only be one active query
-            VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.AtMostOnce(), Times.Never());
-            Assert.NotNull(result.Messages);
-            Assert.NotEmpty(result.Messages);
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            // ... The original query should exist
+            VerifyQueryExecuteCallCount(secondRequestContext, Times.Never(), Times.Never(), Times.Once());
+            Assert.IsType<string>(error);
+            Assert.NotEmpty((string)error);
+            Assert.Contains(Common.OwnerUri, queryService.ActiveQueries.Keys);
         }
 
         [Fact]
@@ -584,15 +585,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-
-            queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
+            await AwaitExecution(queryService, queryParams, firstRequestContext.Object);
 
             // ... And then I request another query after waiting for the first to complete
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
             var secondRequestContext =
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp, null);
-            queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
+            await AwaitExecution(queryService, queryParams, secondRequestContext.Object);
 
             // Then:
             // ... No errors should have been sent
@@ -606,7 +606,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         [Theory]
         [InlineData(null)]
-        public async void QueryExecuteMissingSelectionTest(SelectionData selection)
+        public async Task QueryExecuteMissingSelectionTest(SelectionData selection)
         {
 
             // Set up file for returning the query
@@ -621,18 +621,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = selection };
 
-            QueryExecuteResult result = null;
-            var requestContext =
-                RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            object errorResult = null;
+            var requestContext = RequestContextMocks.Create<QueryExecuteResult>(null)
+                .AddErrorHandling(error => errorResult = error);
+            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
 
             // Then:
-            // ... No errors should have been sent
-            // ... A result should have been sent with an error message
+            // ... Am error should have been sent
+            // ... No result should have been sent
             // ... No completion event should have been fired
-            VerifyQueryExecuteCallCount(requestContext, Times.Once(), Times.Never(), Times.Never());
-            Assert.NotNull(result.Messages);
-            Assert.NotEmpty(result.Messages);
+            // ... An active query should not have been added
+            VerifyQueryExecuteCallCount(requestContext, Times.Never(), Times.Never(), Times.Once());
+            Assert.NotNull(errorResult);
+            Assert.IsType<string>(errorResult);
+            Assert.DoesNotContain(Common.OwnerUri, queryService.ActiveQueries.Keys);
 
             // ... There should not be an active query
             Assert.Empty(queryService.ActiveQueries);
@@ -657,7 +659,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             QueryExecuteCompleteParams complete = null;
             var requestContext =
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp, null);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            await AwaitExecution(queryService, queryParams, requestContext.Object);
 
             // Then:
             // ... No errors should have been sent
@@ -700,7 +702,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
 #endregion
 
-        private void VerifyQueryExecuteCallCount(Mock<RequestContext<QueryExecuteResult>> mock, Times sendResultCalls, Times sendEventCalls, Times sendErrorCalls)
+        private static void VerifyQueryExecuteCallCount(Mock<RequestContext<QueryExecuteResult>> mock, Times sendResultCalls, Times sendEventCalls, Times sendErrorCalls)
         {
             mock.Verify(rc => rc.SendResult(It.IsAny<QueryExecuteResult>()), sendResultCalls);
             mock.Verify(rc => rc.SendEvent(
@@ -709,9 +711,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
         }
 
-        private DbConnection GetConnection(ConnectionInfo info)
+        private static DbConnection GetConnection(ConnectionInfo info)
         {
             return info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
+        }
+
+        private static async Task AwaitExecution(QueryExecutionService service, QueryExecuteParams qeParams,
+            RequestContext<QueryExecuteResult> requestContext)
+        {
+            await service.HandleExecuteRequest(qeParams, requestContext);
+            await service.ActiveQueries[qeParams.OwnerUri].ExecutionTask;
         }
     }
 }
