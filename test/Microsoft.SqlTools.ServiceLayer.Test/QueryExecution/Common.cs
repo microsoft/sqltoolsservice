@@ -248,11 +248,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
 
             connInfo = Common.CreateTestConnectionInfo(null, false);
-           
-            var srvConn = GetServerConnection(connInfo);
-            var displayInfoProvider = new MetadataDisplayInfoProvider();
-            var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
-            var binder = BinderProvider.CreateBinder(metadataProvider);
 
             LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,  new ScriptParseInfo());
 
