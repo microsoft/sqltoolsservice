@@ -264,10 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             };
 
             // invoke callback notifications
-            foreach (var activity in this.onConnectionActivities)
-            {
-                await activity(connectionInfo);
-            }
+            invokeOnConnectionActivities(connectionInfo);
 
             // try to get information about the connected SQL Server instance
             try
@@ -461,30 +458,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                // create a task to connect asyncronously so that other requests are not blocked in the meantime
-                Task.Run(async () => 
-                {
-                    try
-                    {
-                        // open connection based on request details
-                        ConnectionCompleteParams result = await ConnectionService.Instance.Connect(connectParams);
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                    }
-                    catch (Exception ex)
-                    {
-                        ConnectionCompleteParams result = new ConnectionCompleteParams()
-                        {
-                            Messages = ex.ToString()
-                        };
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                    }
-                });
+                RunConnectRequestHandlerTask(connectParams, requestContext);
                 await requestContext.SendResult(true);
             }
             catch
             {
                 await requestContext.SendResult(false);
             }
+        }
+
+        private void RunConnectRequestHandlerTask(ConnectParams connectParams, RequestContext<bool> requestContext)
+        {
+            // create a task to connect asynchronously so that other requests are not blocked in the meantime
+            Task.Run(async () => 
+            {
+                try
+                {
+                    // open connection based on request details
+                    ConnectionCompleteParams result = await ConnectionService.Instance.Connect(connectParams);
+                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                }
+                catch (Exception ex)
+                {
+                    ConnectionCompleteParams result = new ConnectionCompleteParams()
+                    {
+                        Messages = ex.ToString()
+                    };
+                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                }
+            });
         }
 
         /// <summary>
@@ -721,6 +723,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             e.ToString())
                     );
                 }
+            }
+        }
+
+        private void invokeOnConnectionActivities(ConnectionInfo connectionInfo)
+        {
+            foreach (var activity in this.onConnectionActivities)
+            {
+                // not awaiting here to allow handlers to run in the background
+                activity(connectionInfo);
             }
         }
     }
