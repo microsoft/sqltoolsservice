@@ -162,40 +162,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             LanguageService.ConnectionServiceInstance = null;
             Assert.True(LanguageService.ConnectionServiceInstance == null);
         }        
-        
-        /// <summary>
-        /// Test the service initialization code path and verify nothing throws
-        /// </summary>
-        [Fact]
-        public async void UpdateLanguageServiceOnConnection()
-        {            
-            string ownerUri = "file://my/sample/file.sql";
-            var connectionService = TestObjects.GetTestConnectionService();
-            var connectionResult =
-                await connectionService
-                .Connect(new ConnectParams()
-                {
-                    OwnerUri = ownerUri,
-                    Connection = TestObjects.GetTestConnectionDetails()
-                });
-
-            // set up file for returning the query
-            var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
-            fileMock.SetupGet(file => file.ClientFilePath).Returns(ownerUri);
-
-            // set up workspace mock
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
-                .Returns(fileMock.Object);
-
-            AutoCompleteHelper.WorkspaceServiceInstance = workspaceService.Object;
-
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
-            
-            await LanguageService.Instance.UpdateLanguageServiceOnConnection(connInfo);
-        }
 
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
