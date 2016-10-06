@@ -158,6 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     command.CommandText = BatchText;
                     command.CommandType = CommandType.Text;
+                    command.CommandTimeout = 0;
 
                     // Execute the command to get back a reader
                     using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
