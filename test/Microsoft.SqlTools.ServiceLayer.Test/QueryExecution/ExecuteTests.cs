@@ -294,7 +294,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I then execute the query
-            query.Execute().Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
 
             // Then:
             // ... The query should have completed successfully with one batch summary returned
@@ -320,7 +321,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I Then execute the query
-            query.Execute().Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
 
             // Then:
             // ... The query should have completed successfully with no batch summaries returned
@@ -347,7 +349,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I then execute the query
-            query.Execute().Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
 
             // Then:
             // ... The query should have completed successfully with two batch summaries returned
@@ -375,7 +378,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // .. I then execute the query
-            query.Execute().Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
 
             // ... The query should have completed successfully with one batch summary returned
             Assert.True(query.HasExecuted);
@@ -401,7 +405,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I then execute the query
-            query.Execute().Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
 
             // Then:
             // ... There should be an error on the batch
@@ -549,7 +554,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             await AwaitExecution(queryService, queryParams, firstRequestContext.Object);
 
             // ... And then I request another query without waiting for the first to complete
-            queryService.ActiveQueries[Common.OwnerUri].Query.HasExecuted = false;   // Simulate query hasn't finished
+            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;   // Simulate query hasn't finished
             object error = null;
             var secondRequestContext = RequestContextMocks.Create<QueryExecuteResult>(null)
                 .AddErrorHandling(e => error = e);

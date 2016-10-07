@@ -96,6 +96,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Properties
 
+        public delegate Task QueryCompletionCallback(Query q);
+
+        public delegate Task QueryFailureCallback(Query q, Exception e);
+
+        public event QueryCompletionCallback QueryCompletionEvent;
+
+        public event QueryFailureCallback QueryFailureEvent;
+
         /// <summary>
         /// The batches underneath this query
         /// </summary>
@@ -123,6 +131,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }).ToArray();
             }
         }
+
+        internal Task ExecutionTask { get; private set; }
 
         /// <summary>
         /// Whether or not the query has completed executed, regardless of success or failure
@@ -167,10 +177,44 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             cancellationSource.Cancel();
         }
 
+        public void Execute()
+        {
+            ExecutionTask = Task.Run(ExecuteInternal);
+        }
+
+        /// <summary>
+        /// Retrieves a subset of the result sets
+        /// </summary>
+        /// <param name="batchIndex">The index for selecting the batch item</param>
+        /// <param name="resultSetIndex">The index for selecting the result set</param>
+        /// <param name="startRow">The starting row of the results</param>
+        /// <param name="rowCount">How many rows to retrieve</param>
+        /// <returns>A subset of results</returns>
+        public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
+        {
+            // Sanity check that the results are available
+            if (!HasExecuted)
+            {
+                throw new InvalidOperationException(SR.QueryServiceSubsetNotCompleted);
+            }
+
+            // Sanity check to make sure that the batch is within bounds
+            if (batchIndex < 0 || batchIndex >= Batches.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
+            }
+
+            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
+        }
+
+        #endregion
+
+        #region Private Helpers
+
         /// <summary>
         /// Executes this query asynchronously and collects all result sets
         /// </summary>
-        public async Task Execute()
+        private async Task ExecuteInternal()
         {
             // Mark that we've internally executed
             hasExecuteBeenCalled = true;
@@ -202,6 +246,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         await b.Execute(conn, cancellationSource.Token);
                     }
+
+                    // Call the query execution callback
+                    if (QueryCompletionEvent != null)
+                    {
+                        await QueryCompletionEvent(this);
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Call the query failure callback
+                    if (QueryFailureEvent != null)
+                    {
+                        await QueryFailureEvent(this, e);
+                    }
                 }
                 finally
                 {
@@ -227,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException(SR.QueryServiceMessageSenderNotSql);
             }
 
-            foreach(SqlError error in args.Errors) 
+            foreach (SqlError error in args.Errors)
             {
                 // Did the database context change (error code 5701)?
                 if (error.Number == DatabaseContextChangeErrorNumber)
@@ -235,31 +293,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
                 }
             }
-        }
-
-        /// <summary>
-        /// Retrieves a subset of the result sets
-        /// </summary>
-        /// <param name="batchIndex">The index for selecting the batch item</param>
-        /// <param name="resultSetIndex">The index for selecting the result set</param>
-        /// <param name="startRow">The starting row of the results</param>
-        /// <param name="rowCount">How many rows to retrieve</param>
-        /// <returns>A subset of results</returns>
-        public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
-        {
-            // Sanity check that the results are available
-            if (!HasExecuted)
-            {
-                throw new InvalidOperationException(SR.QueryServiceSubsetNotCompleted);
-            }
-
-            // Sanity check to make sure that the batch is within bounds
-            if (batchIndex < 0 || batchIndex >= Batches.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
-            }
-
-            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
 
         #endregion

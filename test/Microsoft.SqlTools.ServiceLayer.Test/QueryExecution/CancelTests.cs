@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
             fileMock.Setup(file => file.GetLinesInRange(It.IsAny<BufferRange>()))
-                .Returns(new string[] { Common.StandardQuery });
+                .Returns(new[] { Common.StandardQuery });
             // Set up workspace mock
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
-            queryService.ActiveQueries[Common.OwnerUri].Query.HasExecuted = false;    // Fake that it hasn't completed execution
+            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
             // ... And then I request to cancel the query
             var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};

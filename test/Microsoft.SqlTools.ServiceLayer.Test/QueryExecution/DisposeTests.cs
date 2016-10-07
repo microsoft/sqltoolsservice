@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;

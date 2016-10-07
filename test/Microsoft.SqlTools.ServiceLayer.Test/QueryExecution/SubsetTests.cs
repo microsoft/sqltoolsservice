@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
-            queryService.ActiveQueries[Common.OwnerUri].Query.HasExecuted = false;
+            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
