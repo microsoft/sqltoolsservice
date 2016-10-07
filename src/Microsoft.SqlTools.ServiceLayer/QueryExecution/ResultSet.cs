@@ -55,6 +55,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool hasBeenRead;
 
         /// <summary>
+        /// Whether resultSet is a 'for xml' or 'for json' result
+        /// </summary>
+        private bool isSingleColumnXmlJsonResultSet { get; set; }
+
+        /// <summary>
         /// The name of the temporary file we're using to output these results in
         /// </summary>
         private readonly string outputFileName;
@@ -156,13 +161,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             return Task.Factory.StartNew(() =>
             {
-                // Figure out which rows we need to read back
-                IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
 
-                // Iterate over the rows we need and process them into output
-                string[][] rows = rowOffsets.Select(rowOffset =>
-                    fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
-                    .ToArray();
+                string[][] rows;
+                if (isSingleColumnXmlJsonResultSet)
+                {
+                    // If result ser is 'for xml' or 'for json',
+                    // Concatenate all the rows together into one row
+                    List<List<string>> allRows = FileOffsets.Select(rowOffset =>
+                        fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToList()).ToList();
+                    string concatenatedRow = string.Empty;
+                    foreach (List<string> row in allRows)
+                    {
+                        concatenatedRow += string.Join(string.Empty, row);
+                    }
+                    rows = new[] { new[] { concatenatedRow } };
+
+                }
+                else
+                {
+                    // Figure out which rows we need to read back
+                    IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
+
+                    // Iterate over the rows we need and process them into output
+                    rows = rowOffsets.Select(rowOffset =>
+                        fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
+                        .ToArray();
+
+                }
 
                 // Retrieve the subset of the results as per the request
                 return new ResultSetSubset
@@ -243,15 +268,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private void SingleColumnXmlJsonResultSet() {
 
-            if (Columns?.Length == 1)
+            if (Columns?.Length == 1 && RowCount != 0)
             {   
                 if (Columns[0].ColumnName.Equals(NameOfForXMLColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsXml = true;
+                    isSingleColumnXmlJsonResultSet = true;
+                    RowCount = 1;
                 }
                 else if (Columns[0].ColumnName.Equals(NameOfForJSONColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsJson = true;
+                    isSingleColumnXmlJsonResultSet = true;
+                    RowCount = 1;
                 }                
             }
         }
