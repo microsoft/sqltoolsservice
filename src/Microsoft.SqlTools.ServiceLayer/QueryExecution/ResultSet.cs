@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -163,18 +164,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
 
                 string[][] rows;
+                // If result set is 'for xml' or 'for json',
+                // Concatenate all the rows together into one row
                 if (isSingleColumnXmlJsonResultSet)
                 {
-                    // If result ser is 'for xml' or 'for json',
-                    // Concatenate all the rows together into one row
-                    List<List<string>> allRows = FileOffsets.Select(rowOffset =>
-                        fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToList()).ToList();
-                    string concatenatedRow = string.Empty;
-                    foreach (List<string> row in allRows)
-                    {
-                        concatenatedRow += string.Join(string.Empty, row);
-                    }
-                    rows = new[] { new[] { concatenatedRow } };
+                    // Iterate over all the rows and process them into a list of string builders
+                    List<StringBuilder> sbRows = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)
+                        .Select(cell => cell.DisplayValue).Aggregate(new StringBuilder(), (sb, value) => sb.Append(value))).ToList();
+                    rows = new[] { new[] { string.Join(string.Empty, sbRows) } };
 
                 }
                 else
