@@ -165,6 +165,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceQueryCancelled
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceQueryCancelled);
+            }
+        }
+
         public static string QueryServiceSubsetNotCompleted
         {
             get
@@ -363,6 +371,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceErrorFormat, msg, lvl, state, line, newLine, message);
         }
 
+        public static string QueryServiceQueryFailed(string message)
+        {
+            return Keys.GetString(Keys.QueryServiceQueryFailed, message);
+        }
+
         public static string WorkspaceServicePositionColumnOutOfRange(int line)
         {
             return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
@@ -376,7 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager(typeof(SR));
+            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
 
@@ -444,6 +457,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceCancelDisposeFailed = "QueryServiceCancelDisposeFailed";
 
 
+            public const string QueryServiceQueryCancelled = "QueryServiceQueryCancelled";
+
+
             public const string QueryServiceSubsetNotCompleted = "QueryServiceSubsetNotCompleted";
 
 
@@ -478,6 +494,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceErrorFormat = "QueryServiceErrorFormat";
+
+
+            public const string QueryServiceQueryFailed = "QueryServiceQueryFailed";
 
 
             public const string QueryServiceColumnNull = "QueryServiceColumnNull";

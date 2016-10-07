@@ -98,11 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         public delegate Task QueryCompletionCallback(Query q);
 
-        public delegate Task QueryFailureCallback(Query q, Exception e);
-
         public event QueryCompletionCallback QueryCompletionEvent;
 
-        public event QueryFailureCallback QueryFailureEvent;
+        public event QueryCompletionCallback QueryFailureEvent;
 
         /// <summary>
         /// The batches underneath this query
@@ -253,12 +251,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         await QueryCompletionEvent(this);
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // Call the query failure callback
                     if (QueryFailureEvent != null)
                     {
-                        await QueryFailureEvent(this, e);
+                        await QueryFailureEvent(this);
                     }
                 }
                 finally

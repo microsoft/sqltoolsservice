@@ -151,7 +151,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Make sure we aren't using a ReliableCommad since we do not want automatic retry
-                Debug.Assert(!(command is ReliableSqlConnection.ReliableSqlCommand), "ReliableSqlCommand command should not be used to execute queries");
+                Debug.Assert(!(command is ReliableSqlConnection.ReliableSqlCommand),
+                    "ReliableSqlCommand command should not be used to execute queries");
 
                 // Create a command that we'll use for executing the query
                 using (command)
@@ -170,18 +171,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
                                 resultMessages.Add(new ResultMessage(reader.RecordsAffected >= 0
-                                                                        ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
-                                                                        : SR.QueryServiceCompletedSuccessfully));
+                                    ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
+                                    : SR.QueryServiceCompletedSuccessfully));
                                 continue;
                             }
 
                             // This resultset has results (ie, SELECT/etc queries)
-                            // Read until we hit the end of the result set
                             ResultSet resultSet = new ResultSet(reader, outputFileFactory);
-                            await resultSet.ReadResultToEnd(cancellationToken);
-
+                            
                             // Add the result set to the results of the query
                             resultSets.Add(resultSet);
+                            
+                            // Read until we hit the end of the result set
+                            await resultSet.ReadResultToEnd(cancellationToken);
 
                             // Add a message for the number of rows the query returned
                             resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
@@ -194,9 +196,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 HasError = true;
                 UnwrapDbException(dbe);
             }
-            catch (Exception)
+            catch (TaskCanceledException)
+            {
+                resultMessages.Add(new ResultMessage(SR.QueryServiceQueryCancelled));
+                throw;
+            }
+            catch (Exception e)
             {
                 HasError = true;
+                resultMessages.Add(new ResultMessage(SR.QueryServiceQueryFailed(e.Message)));
                 throw;
             }
             finally

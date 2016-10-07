@@ -500,8 +500,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Setup the query completion callback
-            query.QueryCompletionEvent += async q =>
+            // Setup the query completion/failure callbacks
+            Query.QueryCompletionCallback callback = async q =>
             {
                 // Send back the results
                 QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
@@ -512,16 +512,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
 
-            // Setup the query failure callback
-            query.QueryFailureEvent += async (q, e) =>
-            {
-                QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
-                {
-                    OwnerUri = executeParams.OwnerUri,
-                    BatchSummaries = null
-                };
-                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
-            };
+            query.QueryCompletionEvent += callback;
+            query.QueryFailureEvent += callback;
 
             // Launch this as an asynchronous task
             query.Execute();
