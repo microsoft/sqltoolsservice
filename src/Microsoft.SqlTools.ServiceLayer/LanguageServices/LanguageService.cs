@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int HoverTimeout = 3000;
 
-        internal const int FindCompletionsTimeout = 3000;
+        internal const int BindingTimeout = 3000;
 
         internal const int FindCompletionStartTimeout = 50;
 
@@ -452,7 +452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientFilePath, createIfNotExists: true);
 
-            if (parseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionsTimeout))
+            if (parseInfo.BuildingMetadataEvent.WaitOne(LanguageService.BindingTimeout))
             {
                 try
                 {
@@ -472,6 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: parseInfo.ConnectionKey,
+                            bindingTimeout: LanguageService.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {                          
                                 try
@@ -503,7 +504,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     Logger.Write(LogLevel.Error, "Unknown exception during parsing " + ex.ToString());
                                 }
 
-                                return Task.FromResult(null as object);
+                                return null;
                             });            
 
                             queueItem.ItemProcessed.WaitOne();                      
@@ -644,13 +645,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     bindingContext.MetadataDisplayInfoProvider);
                                 
                                 // convert from the parser format to the VS Code wire format
-                                return Task.FromResult(
-                                    AutoCompleteHelper.ConvertQuickInfoToHover(
+                                return AutoCompleteHelper.ConvertQuickInfoToHover(
                                         quickInfo, 
                                         startLine,
                                         startColumn, 
-                                        endColumn
-                                    ) as object);
+                                        endColumn);
                             });
                                         
                         queueItem.ItemProcessed.WaitOne();  
@@ -714,6 +713,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 
                 QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                     key: scriptParseInfo.ConnectionKey,
+                    bindingTimeout: LanguageService.BindingTimeout,
                     bindOperation: (bindingContext, cancelToken) =>
                     {
                         CompletionItem[] completions = null;
@@ -741,12 +741,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             scriptParseInfo.BuildingMetadataEvent.Set();
                         }
 
-                        return Task.FromResult(completions as object);
+                        return completions;
                     },
                     timeoutOperation: (bindingContext) =>
                     {
-                        return Task.FromResult(
-                            AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions) as object);
+                        return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
                     });            
                 
                 queueItem.ItemProcessed.WaitOne();   
