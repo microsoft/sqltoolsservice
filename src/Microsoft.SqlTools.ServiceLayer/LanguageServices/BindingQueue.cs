@@ -195,18 +195,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {                                                    
                             // prefer the queue item binding item, otherwise use the context default timeout
                             int bindTimeout = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
-                                                        
-                            // handle the case a previous binding operation is still running
-                            object result = null;
+
+                            // handle the case a previous binding operation is still running                            
                             if (!bindingContext.BindingLocked.WaitOne(bindTimeout))
                             {
-                                result = queueItem.TimeoutOperation(bindingContext);
+                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);
                                 queueItem.ItemProcessed.Set();
-                                queueItem.Result = result;    
                                 continue;
                             }
 
                             // execute the binding operation
+                            object result = null;
                             CancellationTokenSource cancelToken = new CancellationTokenSource();
                             var bindTask = Task.Run(() =>
                             {
