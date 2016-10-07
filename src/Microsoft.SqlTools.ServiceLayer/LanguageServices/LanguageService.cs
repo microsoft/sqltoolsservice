@@ -521,6 +521,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     parseInfo.BuildingMetadataEvent.Set();
                 }
             }
+            else
+            {
+               Logger.Write(LogLevel.Warning, "Binding metadata lock timeout in ParseAndBind"); 
+            }
     
             return parseInfo.ParseResult;
         }
