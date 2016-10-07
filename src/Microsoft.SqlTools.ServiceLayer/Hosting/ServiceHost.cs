@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
             // Call all the shutdown methods provided by the service components
             Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();
-            await Task.WhenAll(shutdownTasks);
+            await Task.WhenAll(shutdownTasks).ContinueWith(t => Environment.Exit(0));
         }
 
         /// <summary>
