@@ -20,9 +20,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             get; private set;
         }
 
-        public SqlToolsContext(HostDetails hostDetails, ProfilePaths profilePaths)
+        /// <summary>
+        /// Initalizes the SQL Tools context instance
+        /// </summary>
+        /// <param name="hostDetails"></param>
+        public SqlToolsContext(HostDetails hostDetails)
         {
-            
+            this.SqlToolsVersion = hostDetails.Version;
         }
     }
 }
+

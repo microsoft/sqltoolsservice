@@ -19,13 +19,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// The default host name for SqlTools Editor Services.  Used
         /// if no host name is specified by the host application.
         /// </summary>
-        public const string DefaultHostName = "SqlTools Editor Services Host";
+        public const string DefaultHostName = "SqlTools Service Host";
 
         /// <summary>
         /// The default host ID for SqlTools Editor Services.  Used
         /// for the host-specific profile path if no host ID is specified.
         /// </summary>
-        public const string DefaultHostProfileId = "Microsoft.SqlToolsEditorServices";
+        public const string DefaultHostProfileId = "Microsoft.SqlToolsServiceHost";
 
         /// <summary>
         /// The default host version for SqlTools Editor Services.  If
@@ -78,9 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </param>
         /// <param name="version">The host application's version.</param>
         public HostDetails(
-            string name,
-            string profileId,
-            Version version)
+            string name = null,
+            string profileId = null,
+            Version version = null)
         {
             this.Name = name ?? DefaultHostName;
             this.ProfileId = profileId ?? DefaultHostProfileId;

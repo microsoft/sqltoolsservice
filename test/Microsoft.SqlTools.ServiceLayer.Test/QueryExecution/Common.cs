@@ -10,6 +10,7 @@ using System.Data.Common;
 using System.IO;
 using System.Data.SqlClient;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlServer.Management.Common;
@@ -18,9 +19,11 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Moq.Protected;
@@ -29,11 +32,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class Common
     {
+        public const SelectionData WholeDocument = null;
+        
         public const string StandardQuery = "SELECT * FROM sys.objects";
 
         public const string InvalidQuery = "SELECT *** FROM sys.objects";
 
         public const string NoOpQuery = "-- No ops here, just us chickens.";
+
+        public const string UdtQuery = "SELECT hierarchyid::Parse('/')";
 
         public const string OwnerUri = "testFile";
 
@@ -72,9 +79,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return output;
         }
 
+        public static SelectionData GetSubSectionDocument() 
+        {
+            return new SelectionData(0, 0, 2, 2);
+        }
+
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(StandardQuery, 1, GetFileStreamFactory());
+            Batch batch = new Batch(StandardQuery, 0, 0, 2, 2, GetFileStreamFactory());
             batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
             return batch;
         }
@@ -184,6 +196,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             connectionMock.Protected()
                 .Setup<DbCommand>("CreateDbCommand")
                 .Returns(CreateTestCommand(data, throwOnRead));
+            connectionMock.Setup(dbc => dbc.Open())
+                .Callback(() => connectionMock.SetupGet(dbc => dbc.State).Returns(ConnectionState.Open));
+            connectionMock.Setup(dbc => dbc.Close())
+                .Callback(() => connectionMock.SetupGet(dbc => dbc.State).Returns(ConnectionState.Closed));
 
             return connectionMock.Object;
         }
@@ -232,19 +248,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
 
             connInfo = Common.CreateTestConnectionInfo(null, false);
-           
-            var srvConn = GetServerConnection(connInfo);
-            var displayInfoProvider = new MetadataDisplayInfoProvider();
-            var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
-            var binder = BinderProvider.CreateBinder(metadataProvider);
 
-            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,
-                new ScriptParseInfo
-                {
-                    Binder = binder,
-                    MetadataProvider = metadataProvider,
-                    MetadataDisplayInfoProvider = displayInfoProvider
-                });
+            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,  new ScriptParseInfo());
 
             scriptFile = new ScriptFile {ClientFilePath = textDocument.TextDocument.Uri};
 
@@ -268,18 +273,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected)
+        public static async Task<QueryExecutionService> GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             var connectionService = new ConnectionService(factory);
             if (isConnected)
             {
-                connectionService.Connect(new ConnectParams
+                await connectionService.Connect(new ConnectParams
                 {
                     Connection = GetTestConnectionDetails(),
                     OwnerUri = OwnerUri
                 });
             }
-            return new QueryExecutionService(connectionService) {BufferFileStreamFactory = GetFileStreamFactory()};
+            return new QueryExecutionService(connectionService, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 
         #endregion

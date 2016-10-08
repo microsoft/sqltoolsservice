@@ -4,12 +4,15 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Xunit;
 
@@ -17,6 +20,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class SubsetTests
     {
+        #region ResultSet Class Tests
+
+        [Theory]
+        [InlineData(0,2)]
+        [InlineData(0,20)]
+        [InlineData(1,2)]
+        public void ResultSetValidTest(int startRow, int rowCount)
+        {
+            // Setup:
+            // ... I have a batch that has been executed
+            Batch b = Common.GetBasicExecutedBatch();
+
+            // If:
+            // ... I have a result set and I ask for a subset with valid arguments
+            ResultSet rs = b.ResultSets.First();
+            ResultSetSubset subset = rs.GetSubset(startRow, rowCount).Result;
+
+            // Then:
+            // ... I should get the requested number of rows back
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.Rows.Length);
+        }
+
+        [Theory]
+        [InlineData(-1, 2)]  // Invalid start index, too low
+        [InlineData(10, 2)]  // Invalid start index, too high
+        [InlineData(0, -1)]  // Invalid row count, too low
+        [InlineData(0, 0)]   // Invalid row count, zero
+        public void ResultSetInvalidParmsTest(int rowStartIndex, int rowCount)
+        {
+            // If:
+            // I have an executed batch with a resultset in it and request invalid result set from it
+            Batch b = Common.GetBasicExecutedBatch();
+            ResultSet rs = b.ResultSets.First();
+
+            // Then:
+            // ... It should throw an exception
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => rs.GetSubset(rowStartIndex, rowCount)).Wait();
+        }
+
+        #endregion
+
         #region Batch Class Tests
 
         [Theory]
@@ -37,13 +82,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Theory]
-        [InlineData(-1, 0, 2)]  // Invalid result set, too low
-        [InlineData(2, 0, 2)]   // Invalid result set, too high
-        [InlineData(0, -1, 2)]  // Invalid start index, too low
-        [InlineData(0, 10, 2)]  // Invalid start index, too high
-        [InlineData(0, 0, -1)]  // Invalid row count, too low
-        [InlineData(0, 0, 0)]   // Invalid row count, zero
-        public void BatchSubsetInvalidParamsTest(int resultSetIndex, int rowStartInex, int rowCount)
+        [InlineData(-1)]  // Invalid result set, too low
+        [InlineData(2)]   // Invalid result set, too high
+        public void BatchSubsetInvalidParamsTest(int resultSetIndex)
         {
             // If I have an executed batch
             Batch b = Common.GetBasicExecutedBatch();
@@ -51,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, rowStartInex, rowCount)).Wait();
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, 0, 2)).Wait();
         }
 
         #endregion
@@ -91,11 +132,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public async Task SubsetServiceValidTest()
         {
+
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I have a query that has results (doesn't matter what)
-            var queryService =Common.GetPrimedExecutionService(
-                Common.CreateMockFactory(new[] {Common.StandardTestData}, false), true);
-            var executeParams = new QueryExecuteParams {QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri};
+            var queryService = await Common.GetPrimedExecutionService(
+                Common.CreateMockFactory(new[] {Common.StandardTestData}, false), true,
+                workspaceService.Object);
+            var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
 
@@ -115,11 +165,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void SubsetServiceMissingQueryTest()
+        public async void SubsetServiceMissingQueryTest()
         {
+
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I ask for a set of results for a file that hasn't executed a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             QueryExecuteSubsetResult result = null;
             var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
@@ -135,13 +187,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void SubsetServiceUnexecutedQueryTest()
+        public async void SubsetServiceUnexecutedQueryTest()
         {
+            
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
-            var queryService = Common.GetPrimedExecutionService(
-                Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
+            var queryService = await Common.GetPrimedExecutionService(
+                Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true,
+                workspaceService.Object);
+            var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;
@@ -162,13 +223,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void SubsetServiceOutOfRangeSubsetTest()
+        public async void SubsetServiceOutOfRangeSubsetTest()
         {
+
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I have a query that doesn't have any result sets
-            var queryService = Common.GetPrimedExecutionService(
-                Common.CreateMockFactory(null, false), true);
-            var executeParams = new QueryExecuteParams { QueryText = "Doesn'tMatter", OwnerUri = Common.OwnerUri };
+            var queryService = await Common.GetPrimedExecutionService(
+                Common.CreateMockFactory(null, false), true,
+                workspaceService.Object);
+            var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
 
@@ -191,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #region Mocking
 
-        private Mock<RequestContext<QueryExecuteSubsetResult>> GetQuerySubsetResultContextMock(
+        private static Mock<RequestContext<QueryExecuteSubsetResult>> GetQuerySubsetResultContextMock(
             Action<QueryExecuteSubsetResult> resultCallback,
             Action<object> errorCallback)
         {
@@ -218,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return requestContext;
         }
 
-        private void VerifyQuerySubsetCallCount(Mock<RequestContext<QueryExecuteSubsetResult>> mock, Times sendResultCalls,
+        private static void VerifyQuerySubsetCallCount(Mock<RequestContext<QueryExecuteSubsetResult>> mock, Times sendResultCalls,
             Times sendErrorCalls)
         {
             mock.Verify(rc => rc.SendResult(It.IsAny<QueryExecuteSubsetResult>()), sendResultCalls);

@@ -36,8 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <summary>
         /// Gets or sets the path which the editor client uses to identify this file.
         /// Setter for testing purposes only
+        /// virtual to allow mocking.
         /// </summary>
-        public string ClientFilePath { get; internal set; }
+        public virtual string ClientFilePath { get; internal set; }
 
         /// <summary>
         /// Gets or sets a boolean that determines whether
@@ -56,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// Gets or sets a string containing the full contents of the file.
         /// Setter for testing purposes only
         /// </summary>
-        public string Contents 
+        public virtual string Contents 
         {
             get
             {
@@ -109,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <summary>
         /// Add a default constructor for testing
         /// </summary>
-        internal ScriptFile()
+        public ScriptFile()
         {
             ClientFilePath = "test.sql";
         }
@@ -171,11 +172,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         }
 
         /// <summary>
-        /// Gets a range of lines from the file's contents.
+        /// Gets a range of lines from the file's contents. Virtual method to allow for
+        /// mocking.
         /// </summary>
         /// <param name="bufferRange">The buffer range from which lines will be extracted.</param>
         /// <returns>An array of strings from the specified range of the file.</returns>
-        public string[] GetLinesInRange(BufferRange bufferRange)
+        public virtual string[] GetLinesInRange(BufferRange bufferRange)
         {
             this.ValidatePosition(bufferRange.Start);
             this.ValidatePosition(bufferRange.End);

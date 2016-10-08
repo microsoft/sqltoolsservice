@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -37,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Internal representation of the messages so we can modify internally
         /// </summary>
-        private readonly List<string> resultMessages;
+        private readonly List<ResultMessage> resultMessages;
 
         /// <summary>
         /// Internal representation of the result sets so we can modify internally
@@ -46,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        internal Batch(string batchText, int startLine, IFileStreamFactory outputFileFactory)
+        internal Batch(string batchText, int startLine, int startColumn, int endLine, int endColumn, IFileStreamFactory outputFileFactory)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -54,10 +55,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             BatchText = batchText;
-            StartLine = startLine - 1;  // -1 to make sure that the line number of the batch is 0-indexed, since SqlParser gives 1-indexed line numbers
+            Selection = new SelectionData(startLine, startColumn, endLine, endColumn);
             HasExecuted = false;
             resultSets = new List<ResultSet>();
-            resultMessages = new List<string>();
+            resultMessages = new List<ResultMessage>();
             this.outputFileFactory = outputFileFactory;
         }
 
@@ -81,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Messages that have come back from the server
         /// </summary>
-        public IEnumerable<string> ResultMessages
+        public IEnumerable<ResultMessage> ResultMessages
         {
             get { return resultMessages; }
         }
@@ -111,9 +112,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// The 0-indexed line number that this batch started on
+        /// The range from the file that is this batch
         /// </summary>
-        internal int StartLine { get; set; }
+        internal SelectionData Selection { get; set; }
 
         #endregion
 
@@ -134,19 +135,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             try
             {
+                DbCommand command = null;
+
                 // Register the message listener to *this instance* of the batch
                 // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
                     sqlConn.GetUnderlyingConnection().InfoMessage += StoreDbMessage;
+                    command = sqlConn.GetUnderlyingConnection().CreateCommand();
+                }
+                else
+                {
+                    command = conn.CreateCommand();
                 }
 
+                // Make sure we aren't using a ReliableCommad since we do not want automatic retry
+                Debug.Assert(!(command is ReliableSqlConnection.ReliableSqlCommand), "ReliableSqlCommand command should not be used to execute queries");
+
                 // Create a command that we'll use for executing the query
-                using (DbCommand command = conn.CreateCommand())
+                using (command)
                 {
                     command.CommandText = BatchText;
                     command.CommandType = CommandType.Text;
+                    command.CommandTimeout = 0;
 
                     // Execute the command to get back a reader
                     using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
@@ -157,9 +169,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
-                                resultMessages.Add(reader.RecordsAffected >= 0
-                                    ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
-                                    : SR.QueryServiceCompletedSuccessfully);
+                                resultMessages.Add(new ResultMessage(reader.RecordsAffected >= 0
+                                                                        ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
+                                                                        : SR.QueryServiceCompletedSuccessfully));
                                 continue;
                             }
 
@@ -172,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
 
                             // Add a message for the number of rows the query returned
-                            resultMessages.Add(SR.QueryServiceAffectedRows(resultSet.RowCount));
+                            resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -190,10 +202,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             finally
             {
                 // Remove the message event handler from the connection
-                SqlConnection sqlConn = conn as SqlConnection;
+                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
-                    sqlConn.InfoMessage -= StoreDbMessage;
+                    sqlConn.GetUnderlyingConnection().InfoMessage -= StoreDbMessage;
                 }
 
                 // Mark that we have executed
@@ -233,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="args">Arguments from the event</param>
         private void StoreDbMessage(object sender, SqlInfoMessageEventArgs args)
         {
-            resultMessages.Add(args.Message);
+            resultMessages.Add(new ResultMessage(args.Message));
         }
 
         /// <summary>
@@ -253,16 +265,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     SqlError sqlError = error as SqlError;
                     if (sqlError != null)
                     {
-                        int lineNumber = sqlError.LineNumber + StartLine;
-                        string message = SR.QueryServiceErrorFormat(sqlError.Number, sqlError.Class, sqlError.State,
-                            lineNumber, Environment.NewLine, sqlError.Message);
-                        resultMessages.Add(message);
+                        int lineNumber = sqlError.LineNumber + Selection.StartLine;
+                        string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
+                            sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
+                            Environment.NewLine, sqlError.Message);
+                        resultMessages.Add(new ResultMessage(message));
                     }
                 }
             }
             else
             {
-                resultMessages.Add(dbe.Message);
+                resultMessages.Add(new ResultMessage(dbe.Message));
             }
         }
 

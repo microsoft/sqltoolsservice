@@ -8,12 +8,12 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
-    /// Connect request mapping entry 
+    /// Cancel connect request mapping entry 
     /// </summary>
-    public class ConnectionRequest
+    public class CancelConnectRequest
     {
         public static readonly
-            RequestType<ConnectParams, bool> Type =
-            RequestType<ConnectParams, bool>.Create("connection/connect");
+            RequestType<CancelConnectParams, bool> Type =
+            RequestType<CancelConnectParams, bool>.Create("connection/cancelconnect");
     }
 }

@@ -24,6 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // xml is a special case so number of chars to store is usually greater than for other long types
         private const int DefaultMaxXmlCharsToStore = 2097152; // 2 MB - QE default
 
+        // Column names of 'for xml' and 'for json' queries
+        private const string NameOfForXMLColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
+        private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
+
+
         #endregion
 
         #region Member Variables
@@ -112,9 +117,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The rows of this result set
         /// </summary>
-        public IEnumerable<object[]> Rows
+        public IEnumerable<string[]> Rows
         {
-            get { return FileOffsets.Select(offset => fileStreamReader.ReadRow(offset, Columns)); }
+            get
+            {
+                return FileOffsets.Select(
+                    offset => fileStreamReader.ReadRow(offset, Columns).Select(cell => cell.DisplayValue).ToArray());
+            }
         }
 
         #endregion
@@ -151,7 +160,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
 
                 // Iterate over the rows we need and process them into output
-                object[][] rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)).ToArray();
+                string[][] rows = rowOffsets.Select(rowOffset =>
+                    fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
+                    .ToArray();
 
                 // Retrieve the subset of the results as per the request
                 return new ResultSetSubset
@@ -186,6 +197,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     currentFileOffset += fileWriter.WriteRow(DataReader);
                 }
             }
+            // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
+            SingleColumnXmlJsonResultSet();
 
             // Mark that result has been read
             hasBeenRead = true;
@@ -216,6 +229,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             disposed = true;
+        }
+
+        #endregion
+
+        #region Private Helper Methods
+
+        /// <summary>
+        /// If the result set represented by this class corresponds to a single XML
+        /// column that contains results of "for xml" query, set isXml = true 
+        /// If the result set represented by this class corresponds to a single JSON
+        /// column that contains results of "for json" query, set isJson = true
+        /// </summary>
+        private void SingleColumnXmlJsonResultSet() {
+
+            if (Columns?.Length == 1)
+            {   
+                if (Columns[0].ColumnName.Equals(NameOfForXMLColumn, StringComparison.Ordinal))
+                {
+                    Columns[0].IsXml = true;
+                }
+                else if (Columns[0].ColumnName.Equals(NameOfForJSONColumn, StringComparison.Ordinal))
+                {
+                    Columns[0].IsJson = true;
+                }                
+            }
         }
 
         #endregion

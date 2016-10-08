@@ -50,7 +50,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         /// <summary>
         /// Gets an open file in the workspace.  If the file isn't open but
-        /// exists on the filesystem, load and return it.
+        /// exists on the filesystem, load and return it. Virtual method to
+        /// allow for mocking
         /// </summary>
         /// <param name="filePath">The file path at which the script resides.</param>
         /// <exception cref="FileNotFoundException">
@@ -59,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <exception cref="ArgumentException">
         /// <paramref name="filePath"/> contains a null or empty string.
         /// </exception>
-        public ScriptFile GetFile(string filePath)
+        public virtual ScriptFile GetFile(string filePath)
         {
             Validate.IsNotNullOrWhitespaceString("filePath", filePath);
 

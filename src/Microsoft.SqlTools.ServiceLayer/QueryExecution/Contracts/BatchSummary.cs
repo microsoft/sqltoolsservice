@@ -21,9 +21,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public int Id { get; set; }
 
         /// <summary>
+        /// The selection from the file for this batch
+        /// </summary>
+        public SelectionData Selection { get; set; }
+
+        /// <summary>
         /// Any messages that came back from the server during execution of the batch
         /// </summary>
-        public string[] Messages { get; set; }
+        public ResultMessage[] Messages { get; set; }
 
         /// <summary>
         /// The summaries of the result sets inside the batch

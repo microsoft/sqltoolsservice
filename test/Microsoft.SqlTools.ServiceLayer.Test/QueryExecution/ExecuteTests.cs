@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+//#define USE_LIVE_CONNECTION
+
 using System;
 using System.Data.Common;
 using System.Linq;
@@ -16,6 +18,8 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 
@@ -29,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public void BatchCreationTest()
         {
             // If I create a new batch...
-            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
+            Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
 
             // Then: 
             // ... The text of the batch should be stored
@@ -45,14 +49,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Empty(batch.ResultMessages);
 
             // ... The start line of the batch should be 0
-            Assert.Equal(0, batch.StartLine);
+            Assert.Equal(0, batch.Selection.StartLine);
         }
 
         [Fact]
         public void BatchExecuteNoResultSets()
         {
             // If I execute a query that should get no result sets
-            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
+            Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None).Wait();
 
             // Then:
@@ -70,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... There should be a message for how many rows were affected
             Assert.Equal(1, batch.ResultMessages.Count());
-            Assert.Contains("1 ", batch.ResultMessages.First());
+            Assert.Contains("1 ", batch.ResultMessages.First().Message);
             // NOTE: 1 is expected because this test simulates a 'update' statement where 1 row was affected.
             // The 1 in quotes is to make sure the 1 isn't part of a larger number
         }
@@ -82,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a query that should get one result set
-            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
+            Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -104,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... There should be a message for how many rows were affected
             Assert.Equal(resultSets, batch.ResultMessages.Count());
-            Assert.Contains(Common.StandardRows.ToString(), batch.ResultMessages.First());
+            Assert.Contains(Common.StandardRows.ToString(), batch.ResultMessages.First().Message);
         }
 
         [Fact]
@@ -115,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(dataset, false);
 
             // If I execute a query that should get two result sets
-            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
+            Batch batch = new Batch(Common.StandardQuery, 0, 0, 1, 1, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -151,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Equal(resultSets, batch.ResultMessages.Count());
             foreach (var rsm in batch.ResultMessages)
             {
-                Assert.Contains(Common.StandardRows.ToString(), rsm);
+                Assert.Contains(Common.StandardRows.ToString(), rsm.Message);
             }
         }
 
@@ -161,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
 
             // If I execute a batch that is invalid
-            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
+            Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -183,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
 
             // If I execute a batch
-            Batch batch = new Batch(Common.StandardQuery, 1, Common.GetFileStreamFactory());
+            Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -213,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a batch that has an empty query
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentException>(() => new Batch(query, 1, Common.GetFileStreamFactory()));
+            Assert.Throws<ArgumentException>(() => new Batch(query, 0, 0, 2, 2, Common.GetFileStreamFactory()));
         }
 
         [Fact]
@@ -223,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I create a batch that has no file stream factory
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new Batch("stuff", 1, null));
+            Assert.Throws<ArgumentNullException>(() => new Batch("stuff", 0, 0, 2, 2, null));
         }
 
         #endregion
@@ -414,16 +418,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         #region Service Tests
 
         [Fact]
-        public void QueryExecuteValidNoResultsTest()
+        public async void QueryExecuteValidNoResultsTest()
         {
             // Given:
             // ... Default settings are stored in the workspace service
             WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
 
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request to execute a valid query with no results
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var queryParams = new QueryExecuteParams { QueryText = Common.StandardQuery, OwnerUri = Common.OwnerUri };
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
@@ -450,12 +461,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void QueryExecuteValidResultsTest()
+        public async void QueryExecuteValidResultsTest()
         {
+            
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request to execute a valid query with results
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true,
+                workspaceService.Object);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
@@ -483,12 +503,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void QueryExecuteUnconnectedUriTest()
+        public async void QueryExecuteUnconnectedUriTest()
         {
+
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I request to execute a query using a file URI that isn't connected
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false);
-            var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QueryText = Common.StandardQuery };
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
+            var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
             QueryExecuteResult result = null;
             var requestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(qer => result = qer, QueryExecuteCompleteEvent.Type, null, null);
@@ -506,12 +528,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void QueryExecuteInProgressTest()
+        public async void QueryExecuteInProgressTest()
         {
+
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+
             // If:
             // ... I request to execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
@@ -535,12 +566,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void QueryExecuteCompletedTest()
+        public async void QueryExecuteCompletedTest()
         {
+            
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+                
             // If:
             // ... I request to execute a query
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
@@ -565,14 +605,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Theory]
-        [InlineData("")]
         [InlineData(null)]
-        public void QueryExecuteMissingQueryTest(string query)
+        public async void QueryExecuteMissingSelectionTest(SelectionData selection)
         {
+
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns("");
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request to execute a query with a missing query string
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = query };
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = selection };
 
             QueryExecuteResult result = null;
             var requestContext =
@@ -592,12 +639,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void QueryExecuteInvalidQueryTest()
+        public async void QueryExecuteInvalidQueryTest()
         {
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
             // If:
             // ... I request to execute a query that is invalid
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, true), true);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QueryText = Common.StandardQuery };
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, true), true, workspaceService.Object);
+            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
@@ -616,7 +670,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.NotEmpty(complete.BatchSummaries[0].Messages);
         }
 
-        #endregion
+#if USE_LIVE_CONNECTION
+        [Fact]
+        public void QueryUdtShouldNotRetry()
+        {
+            // If:
+            // ... I create a query with a udt column in the result set
+            ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
+            Query query = new Query(Common.UdtQuery, connectionInfo, new QueryExecutionSettings(), Common.GetFileStreamFactory());
+
+            // If:
+            // ... I then execute the query
+            DateTime startTime = DateTime.Now;
+            query.Execute().Wait();
+
+            // Then:
+            // ... The query should complete within 2 seconds since retry logic should not kick in
+            Assert.True(DateTime.Now.Subtract(startTime) < TimeSpan.FromSeconds(2), "Query completed slower than expected, did retry logic execute?");
+
+            // Then:
+            // ... There should be an error on the batch
+            Assert.True(query.HasExecuted);
+            Assert.NotEmpty(query.BatchSummaries);
+            Assert.Equal(1, query.BatchSummaries.Length);
+            Assert.True(query.BatchSummaries[0].HasError);
+            Assert.NotEmpty(query.BatchSummaries[0].Messages);
+        }
+#endif
+
+#endregion
 
         private void VerifyQueryExecuteCallCount(Mock<RequestContext<QueryExecuteResult>> mock, Times sendResultCalls, Times sendEventCalls, Times sendErrorCalls)
         {

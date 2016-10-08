@@ -4,13 +4,13 @@
 //
 
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
-using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting
@@ -22,6 +22,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
     /// </summary>
     public sealed class ServiceHost : ServiceHostBase
     {
+        /// <summary>
+        /// This timeout limits the amount of time that shutdown tasks can take to complete
+        /// prior to the process shutting down.
+        /// </summary>
+        private const int ShutdownTimeoutInSeconds = 120;
+
         #region Singleton Instance Code
 
         /// <summary>
@@ -63,8 +69,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
         #region Member Variables
 
+        /// <summary>
+        /// Delegate definition for the host shutdown event
+        /// </summary>
+        /// <param name="shutdownParams"></param>
+        /// <param name="shutdownRequestContext"></param>
         public delegate Task ShutdownCallback(object shutdownParams, RequestContext<object> shutdownRequestContext);
 
+        /// <summary>
+        /// Delegate definition for the host initialization event
+        /// </summary>
+        /// <param name="startupParams"></param>
+        /// <param name="requestContext"></param>
         public delegate Task InitializeCallback(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
 
         private readonly List<ShutdownCallback> shutdownCallbacks;
@@ -108,7 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
             // Call all the shutdown methods provided by the service components
             Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();
-            await Task.WhenAll(shutdownTasks);
+            TimeSpan shutdownTimeout = TimeSpan.FromSeconds(ShutdownTimeoutInSeconds);
+            // shut down once all tasks are completed, or after the timeout expires, whichever comes first.
+            await Task.WhenAny(Task.WhenAll(shutdownTasks), Task.Delay(shutdownTimeout)).ContinueWith(t => Environment.Exit(0));
         }
 
         /// <summary>
@@ -119,8 +137,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// <returns></returns>
         private async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleInitializationRequest");
-
             // Call all tasks that registered on the initialize request
             var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
             await Task.WhenAll(initializeTasks);
@@ -136,7 +152,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         TextDocumentSync = TextDocumentSyncKind.Incremental,
                         DefinitionProvider = true,
                         ReferencesProvider = true,
-                        DocumentHighlightProvider = true,                      
+                        DocumentHighlightProvider = true,
+                        HoverProvider = true,             
                         CompletionProvider = new CompletionOptions
                         {
                             ResolveProvider = true,
@@ -144,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         },
                         SignatureHelpProvider = new SignatureHelpOptions
                         {
-                            TriggerCharacters = new string[] { " " } // TODO: Other characters here?
+                            TriggerCharacters = new string[] { " ", "," }
                         }
                     }
                 });
@@ -157,7 +174,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
           object versionRequestParams,
           RequestContext<string> requestContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleVersionRequest");
             await requestContext.SendResult(serviceVersion.ToString());
         }
 

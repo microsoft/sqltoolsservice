@@ -4,10 +4,10 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -19,14 +19,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     public class ServiceBufferFileStreamWriter : IFileStreamWriter
     {
-        #region Properties
+        private const int DefaultBufferLength = 8192;
 
-        public const int DefaultBufferLength = 8192;
-        
-        private int MaxCharsToStore { get; set; }
-        private int MaxXmlCharsToStore { get; set; }
+        #region Member Variables
 
-        private IFileStreamWrapper FileStream { get; set; }
+        private readonly IFileStreamWrapper fileStream;
+        private readonly int maxCharsToStore;
+        private readonly int maxXmlCharsToStore;
+
         private byte[] byteBuffer;
         private readonly short[] shortBuffer;
         private readonly int[] intBuffer;
@@ -34,6 +34,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private readonly char[] charBuffer;
         private readonly double[] doubleBuffer;
         private readonly float[] floatBuffer;
+
+        /// <summary>
+        /// Functions to use for writing various types to a file
+        /// </summary>
+        private readonly Dictionary<Type, Func<object, int>> writeMethods;
 
         #endregion
 
@@ -47,8 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public ServiceBufferFileStreamWriter(IFileStreamWrapper fileWrapper, string fileName, int maxCharsToStore, int maxXmlCharsToStore)
         {
             // open file for reading/writing
-            FileStream = fileWrapper;
-            FileStream.Init(fileName, DefaultBufferLength, FileAccess.ReadWrite);
+            fileStream = fileWrapper;
+            fileStream.Init(fileName, DefaultBufferLength, FileAccess.ReadWrite);
 
             // create internal buffer
             byteBuffer = new byte[DefaultBufferLength];
@@ -63,8 +68,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             floatBuffer = new float[1];
 
             // Store max chars to store
-            MaxCharsToStore = maxCharsToStore;
-            MaxXmlCharsToStore = maxXmlCharsToStore;
+            this.maxCharsToStore = maxCharsToStore;
+            this.maxXmlCharsToStore = maxXmlCharsToStore;
+
+            // Define what methods to use to write a type to the file
+            writeMethods = new Dictionary<Type, Func<object, int>>
+            {
+                {typeof(string), val => WriteString((string) val)},
+                {typeof(short), val => WriteInt16((short) val)},
+                {typeof(int), val => WriteInt32((int) val)},
+                {typeof(long), val => WriteInt64((long) val)},
+                {typeof(byte), val => WriteByte((byte) val)},
+                {typeof(char), val => WriteChar((char) val)},
+                {typeof(bool), val => WriteBoolean((bool) val)},
+                {typeof(double), val => WriteDouble((double) val) },
+                {typeof(float), val => WriteSingle((float) val) },
+                {typeof(decimal), val => WriteDecimal((decimal) val) },
+                {typeof(DateTime), val => WriteDateTime((DateTime) val) },
+                {typeof(DateTimeOffset), val => WriteDateTimeOffset((DateTimeOffset) val) },
+                {typeof(TimeSpan), val => WriteTimeSpan((TimeSpan) val) },
+                {typeof(byte[]), val => WriteBytes((byte[]) val)},
+
+                {typeof(SqlString), val => WriteNullable((SqlString) val, obj => WriteString((string) obj))},
+                {typeof(SqlInt16), val => WriteNullable((SqlInt16) val, obj => WriteInt16((short) obj))},
+                {typeof(SqlInt32), val => WriteNullable((SqlInt32) val, obj => WriteInt32((int) obj))},
+                {typeof(SqlInt64), val => WriteNullable((SqlInt64) val, obj => WriteInt64((long) obj)) },
+                {typeof(SqlByte), val => WriteNullable((SqlByte) val, obj => WriteByte((byte) obj)) },
+                {typeof(SqlBoolean), val => WriteNullable((SqlBoolean) val, obj => WriteBoolean((bool) obj)) },
+                {typeof(SqlDouble), val => WriteNullable((SqlDouble) val, obj => WriteDouble((double) obj)) },
+                {typeof(SqlSingle), val => WriteNullable((SqlSingle) val, obj => WriteSingle((float) obj)) },
+                {typeof(SqlDecimal), val => WriteNullable((SqlDecimal) val, obj => WriteSqlDecimal((SqlDecimal) obj)) },
+                {typeof(SqlDateTime), val => WriteNullable((SqlDateTime) val, obj => WriteDateTime((DateTime) obj)) },
+                {typeof(SqlBytes), val => WriteNullable((SqlBytes) val, obj => WriteBytes((byte[]) obj)) },
+                {typeof(SqlBinary), val => WriteNullable((SqlBinary) val, obj => WriteBytes((byte[]) obj)) },
+                {typeof(SqlGuid), val => WriteNullable((SqlGuid) val, obj => WriteGuid((Guid) obj)) },
+                {typeof(SqlMoney), val => WriteNullable((SqlMoney) val, obj => WriteMoney((SqlMoney) obj)) }
+            };
         }
 
         #region IFileStreamWriter Implementation
@@ -76,22 +115,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Number of bytes used to write the row</returns>
         public int WriteRow(StorageDataReader reader)
         {
-            // Determine if we have any long fields
-            bool hasLongFields = reader.Columns.Any(column => column.IsLong);
-
+            // Read the values in from the db
             object[] values = new object[reader.Columns.Length];
-            int rowBytes = 0;
-            if (!hasLongFields)
+            if (!reader.HasLongColumns)
             {
                 // get all record values in one shot if there are no extra long fields
                 reader.GetValues(values);
             }
 
             // Loop over all the columns and write the values to the temp file
+            int rowBytes = 0;
             for (int i = 0; i < reader.Columns.Length; i++)
             {
                 DbColumnWrapper ci = reader.Columns[i];
-                if (hasLongFields)
+                if (reader.HasLongColumns)
                 {
                     if (reader.IsDBNull(i))
                     {
@@ -111,18 +148,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                             // this is a long field
                             if (ci.IsBytes)
                             {
-                                values[i] = reader.GetBytesWithMaxCapacity(i, MaxCharsToStore);
+                                values[i] = reader.GetBytesWithMaxCapacity(i, maxCharsToStore);
                             }
                             else if (ci.IsChars)
                             {
-                                Debug.Assert(MaxCharsToStore > 0);
+                                Debug.Assert(maxCharsToStore > 0);
                                 values[i] = reader.GetCharsWithMaxCapacity(i,
-                                    ci.IsXml ? MaxXmlCharsToStore : MaxCharsToStore);
+                                    ci.IsXml ? maxXmlCharsToStore : maxCharsToStore);
                             }
                             else if (ci.IsXml)
                             {
-                                Debug.Assert(MaxXmlCharsToStore > 0);
-                                values[i] = reader.GetXmlWithMaxCapacity(i, MaxXmlCharsToStore);
+                                Debug.Assert(maxXmlCharsToStore > 0);
+                                values[i] = reader.GetXmlWithMaxCapacity(i, maxXmlCharsToStore);
                             }
                             else
                             {
@@ -133,8 +170,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
                 }
 
-                Type tVal = values[i].GetType(); // get true type of the object
+                // Get true type of the object
+                Type tVal = values[i].GetType();
 
+                // Write the object to a file
                 if (tVal == typeof(DBNull))
                 {
                     rowBytes += WriteNull();
@@ -148,272 +187,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         rowBytes += WriteString(val);
                     }
 
-                    if (tVal == typeof(string))
+                    // Use the appropriate writing method for the type
+                    Func<object, int> writeMethod;
+                    if (writeMethods.TryGetValue(tVal, out writeMethod))
                     {
-                        // String - most frequently used data type
-                        string val = (string)values[i];
-                        rowBytes += WriteString(val);
-                    }
-                    else if (tVal == typeof(SqlString))
-                    {
-                        // SqlString
-                        SqlString val = (SqlString)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteString(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(short))
-                    {
-                        // Int16
-                        short val = (short)values[i];
-                        rowBytes += WriteInt16(val);
-                    }
-                    else if (tVal == typeof(SqlInt16))
-                    {
-                        // SqlInt16
-                        SqlInt16 val = (SqlInt16)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteInt16(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(int))
-                    {
-                        // Int32
-                        int val = (int)values[i];
-                        rowBytes += WriteInt32(val);
-                    }
-                    else if (tVal == typeof(SqlInt32))
-                    {
-                        // SqlInt32
-                        SqlInt32 val = (SqlInt32)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteInt32(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(long))
-                    {
-                        // Int64
-                        long val = (long)values[i];
-                        rowBytes += WriteInt64(val);
-                    }
-                    else if (tVal == typeof(SqlInt64))
-                    {
-                        // SqlInt64
-                        SqlInt64 val = (SqlInt64)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteInt64(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(byte))
-                    {
-                        // Byte
-                        byte val = (byte)values[i];
-                        rowBytes += WriteByte(val);
-                    }
-                    else if (tVal == typeof(SqlByte))
-                    {
-                        // SqlByte
-                        SqlByte val = (SqlByte)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteByte(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(char))
-                    {
-                        // Char
-                        char val = (char)values[i];
-                        rowBytes += WriteChar(val);
-                    }
-                    else if (tVal == typeof(bool))
-                    {
-                        // Boolean
-                        bool val = (bool)values[i];
-                        rowBytes += WriteBoolean(val);
-                    }
-                    else if (tVal == typeof(SqlBoolean))
-                    {
-                        // SqlBoolean
-                        SqlBoolean val = (SqlBoolean)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteBoolean(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(double))
-                    {
-                        // Double
-                        double val = (double)values[i];
-                        rowBytes += WriteDouble(val);
-                    }
-                    else if (tVal == typeof(SqlDouble))
-                    {
-                        // SqlDouble
-                        SqlDouble val = (SqlDouble)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteDouble(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(SqlSingle))
-                    {
-                        // SqlSingle
-                        SqlSingle val = (SqlSingle)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteSingle(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(decimal))
-                    {
-                        // Decimal
-                        decimal val = (decimal)values[i];
-                        rowBytes += WriteDecimal(val);
-                    }
-                    else if (tVal == typeof(SqlDecimal))
-                    {
-                        // SqlDecimal
-                        SqlDecimal val = (SqlDecimal)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteSqlDecimal(val);
-                        }
-                    }
-                    else if (tVal == typeof(DateTime))
-                    {
-                        // DateTime
-                        DateTime val = (DateTime)values[i];
-                        rowBytes += WriteDateTime(val);
-                    }
-                    else if (tVal == typeof(DateTimeOffset))
-                    {
-                        // DateTimeOffset
-                        DateTimeOffset val = (DateTimeOffset)values[i];
-                        rowBytes += WriteDateTimeOffset(val);
-                    }
-                    else if (tVal == typeof(SqlDateTime))
-                    {
-                        // SqlDateTime
-                        SqlDateTime val = (SqlDateTime)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteDateTime(val.Value);
-                        }
-                    }
-                    else if (tVal == typeof(TimeSpan))
-                    {
-                        // TimeSpan
-                        TimeSpan val = (TimeSpan)values[i];
-                        rowBytes += WriteTimeSpan(val);
-                    }
-                    else if (tVal == typeof(byte[]))
-                    {
-                        // Bytes
-                        byte[] val = (byte[])values[i];
-                        rowBytes += WriteBytes(val, val.Length);
-                    }
-                    else if (tVal == typeof(SqlBytes))
-                    {
-                        // SqlBytes
-                        SqlBytes val = (SqlBytes)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteBytes(val.Value, val.Value.Length);
-                        }
-                    }
-                    else if (tVal == typeof(SqlBinary))
-                    {
-                        // SqlBinary
-                        SqlBinary val = (SqlBinary)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteBytes(val.Value, val.Value.Length);
-                        }
-                    }
-                    else if (tVal == typeof(SqlGuid))
-                    {
-                        // SqlGuid
-                        SqlGuid val = (SqlGuid)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            byte[] bytesVal = val.ToByteArray();
-                            rowBytes += WriteBytes(bytesVal, bytesVal.Length);
-                        }
-                    }
-                    else if (tVal == typeof(SqlMoney))
-                    {
-                        // SqlMoney
-                        SqlMoney val = (SqlMoney)values[i];
-                        if (val.IsNull)
-                        {
-                            rowBytes += WriteNull();
-                        }
-                        else
-                        {
-                            rowBytes += WriteDecimal(val.Value);
-                        }
+                        rowBytes += writeMethod(values[i]);
                     }
                     else
                     {
-                        // treat everything else as string
-                        string val = values[i].ToString();
-                        rowBytes += WriteString(val);
+                        rowBytes += WriteString(values[i].ToString());
                     }
                 }
             }
@@ -430,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public int WriteNull()
         {
             byteBuffer[0] = 0x00;
-            return FileStream.WriteData(byteBuffer, 1);
+            return fileStream.WriteData(byteBuffer, 1);
         }
 
         /// <summary>
@@ -442,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x02; // length
             shortBuffer[0] = val;
             Buffer.BlockCopy(shortBuffer, 0, byteBuffer, 1, 2);
-            return FileStream.WriteData(byteBuffer, 3);
+            return fileStream.WriteData(byteBuffer, 3);
         }
 
         /// <summary>
@@ -454,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x04; // length
             intBuffer[0] = val;
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return FileStream.WriteData(byteBuffer, 5);
+            return fileStream.WriteData(byteBuffer, 5);
         }
 
         /// <summary>
@@ -466,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x08; // length
             longBuffer[0] = val;
             Buffer.BlockCopy(longBuffer, 0, byteBuffer, 1, 8);
-            return FileStream.WriteData(byteBuffer, 9);
+            return fileStream.WriteData(byteBuffer, 9);
         }
 
         /// <summary>
@@ -478,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x02; // length
             charBuffer[0] = val;
             Buffer.BlockCopy(charBuffer, 0, byteBuffer, 1, 2);
-            return FileStream.WriteData(byteBuffer, 3);
+            return fileStream.WriteData(byteBuffer, 3);
         }
 
         /// <summary>
@@ -489,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             byteBuffer[0] = 0x01; // length
             byteBuffer[1] = (byte) (val ? 0x01 : 0x00);
-            return FileStream.WriteData(byteBuffer, 2);
+            return fileStream.WriteData(byteBuffer, 2);
         }
 
         /// <summary>
@@ -500,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             byteBuffer[0] = 0x01; // length
             byteBuffer[1] = val;
-            return FileStream.WriteData(byteBuffer, 2);
+            return fileStream.WriteData(byteBuffer, 2);
         }
 
         /// <summary>
@@ -512,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x04; // length
             floatBuffer[0] = val;
             Buffer.BlockCopy(floatBuffer, 0, byteBuffer, 1, 4);
-            return FileStream.WriteData(byteBuffer, 5);
+            return fileStream.WriteData(byteBuffer, 5);
         }
 
         /// <summary>
@@ -524,7 +306,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x08; // length
             doubleBuffer[0] = val;
             Buffer.BlockCopy(doubleBuffer, 0, byteBuffer, 1, 8);
-            return FileStream.WriteData(byteBuffer, 9);
+            return fileStream.WriteData(byteBuffer, 9);
         }
 
         /// <summary>
@@ -548,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // data value
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 3, iLen - 3);
-            iTotalLen += FileStream.WriteData(byteBuffer, iLen);
+            iTotalLen += fileStream.WriteData(byteBuffer, iLen);
             return iTotalLen; // len+data
         }
 
@@ -564,7 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             int iTotalLen = WriteLength(iLen); // length
 
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 0, iLen);
-            iTotalLen += FileStream.WriteData(byteBuffer, iLen);
+            iTotalLen += fileStream.WriteData(byteBuffer, iLen);
 
             return iTotalLen; // len+data
         }
@@ -584,9 +366,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Number of bytes used to store the DateTimeOffset</returns>
         public int WriteDateTimeOffset(DateTimeOffset dtoVal)
         {
-            // DateTimeOffset gets written as a DateTime + TimeOffset
-            // both represented as 'Ticks' written as Int64's
-            return WriteInt64(dtoVal.Ticks) + WriteInt64(dtoVal.Offset.Ticks);
+            // Write the length, which is the 2*sizeof(long)
+            byteBuffer[0] = 0x10; // length (16)
+
+            // Write the two longs, the datetime and the offset
+            long[] longBufferOffset = new long[2];
+            longBufferOffset[0] = dtoVal.Ticks;
+            longBufferOffset[1] = dtoVal.Offset.Ticks;
+            Buffer.BlockCopy(longBufferOffset, 0, byteBuffer, 1, 16);
+            return fileStream.WriteData(byteBuffer, 17);
         }
 
         /// <summary>
@@ -618,7 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byteBuffer[3] = 0x00;
                 byteBuffer[4] = 0x00;
 
-                iTotalLen = FileStream.WriteData(byteBuffer, 5);
+                iTotalLen = fileStream.WriteData(byteBuffer, 5);
             }
             else
             {
@@ -627,7 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 // convert char array into byte array and write it out							
                 iTotalLen = WriteLength(bytes.Length);
-                iTotalLen += FileStream.WriteData(bytes, bytes.Length);
+                iTotalLen += fileStream.WriteData(bytes, bytes.Length);
             }
             return iTotalLen; // len+data
         }
@@ -636,30 +424,74 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a byte[] to the file
         /// </summary>
         /// <returns>Number of bytes used to store the byte[]</returns>
-        public int WriteBytes(byte[] bytesVal, int iLen)
+        public int WriteBytes(byte[] bytesVal)
         {
             Validate.IsNotNull(nameof(bytesVal), bytesVal);
 
             int iTotalLen;
-            if (0 == iLen) // special case of 0 length byte array "0x"
+            if (bytesVal.Length == 0) // special case of 0 length byte array "0x"
             {
-                iLen = 5;
-
-                AssureBufferLength(iLen);
+                AssureBufferLength(5);
                 byteBuffer[0] = 0xFF;
                 byteBuffer[1] = 0x00;
                 byteBuffer[2] = 0x00;
                 byteBuffer[3] = 0x00;
                 byteBuffer[4] = 0x00;
 
-                iTotalLen = FileStream.WriteData(byteBuffer, iLen);
+                iTotalLen = fileStream.WriteData(byteBuffer, 5);
             }
             else
             {
-                iTotalLen = WriteLength(iLen);
-                iTotalLen += FileStream.WriteData(bytesVal, iLen);
+                iTotalLen = WriteLength(bytesVal.Length);
+                iTotalLen += fileStream.WriteData(bytesVal, bytesVal.Length);
             }
             return iTotalLen; // len+data
+        }
+
+        /// <summary>
+        /// Stores a GUID value to the file by treating it as a byte array
+        /// </summary>
+        /// <param name="val">The GUID to write to the file</param>
+        /// <returns>Number of bytes written to the file</returns>
+        public int WriteGuid(Guid val)
+        {
+            byte[] guidBytes = val.ToByteArray();
+            return WriteBytes(guidBytes);
+        }
+
+        /// <summary>
+        /// Stores a SqlMoney value to the file by treating it as a decimal
+        /// </summary>
+        /// <param name="val">The SqlMoney value to write to the file</param>
+        /// <returns>Number of bytes written to the file</returns>
+        public int WriteMoney(SqlMoney val)
+        {
+            return WriteDecimal(val.Value);
+        }
+
+        /// <summary>
+        /// Flushes the internal buffer to the file stream
+        /// </summary>
+        public void FlushBuffer()
+        {
+            fileStream.Flush();
+        }
+
+        #endregion
+
+        #region Private Helpers
+
+        /// <summary>
+        /// Creates a new buffer that is of the specified length if the buffer is not already
+        /// at least as long as specified.
+        /// </summary>
+        /// <param name="newBufferLength">The minimum buffer size</param>
+        private void AssureBufferLength(int newBufferLength)
+        {
+            if (newBufferLength > byteBuffer.Length)
+            {
+                byteBuffer = new byte[byteBuffer.Length];
+            }
         }
 
         /// <summary>
@@ -675,7 +507,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 int iTmp = iLen & 0x000000FF;
 
                 byteBuffer[0] = Convert.ToByte(iTmp);
-                return FileStream.WriteData(byteBuffer, 1);
+                return fileStream.WriteData(byteBuffer, 1);
             }
             // The length won't fit in 1 byte, so we need to use 1 byte to signify that the length
             // is a full 4 bytes.
@@ -684,26 +516,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // convert int32 into array of bytes
             intBuffer[0] = iLen;
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return FileStream.WriteData(byteBuffer, 5);
+            return fileStream.WriteData(byteBuffer, 5);
         }
 
         /// <summary>
-        /// Flushes the internal buffer to the file stream
+        /// Writes a Nullable type (generally a Sql* type) to the file. The function provided by
+        /// <paramref name="valueWriteFunc"/> is used to write to the file if <paramref name="val"/>
+        /// is not null. <see cref="WriteNull"/> is used if <paramref name="val"/> is null.
         /// </summary>
-        public void FlushBuffer()
+        /// <param name="val">The value to write to the file</param>
+        /// <param name="valueWriteFunc">The function to use if val is not null</param>
+        /// <returns>Number of bytes used to write value to the file</returns>
+        private int WriteNullable(INullable val, Func<object, int> valueWriteFunc)
         {
-            FileStream.Flush();
+            return val.IsNull ? WriteNull() : valueWriteFunc(val);
         }
 
         #endregion
-
-        private void AssureBufferLength(int newBufferLength)
-        {
-            if (newBufferLength > byteBuffer.Length)
-            {
-                byteBuffer = new byte[byteBuffer.Length];
-            }
-        }
 
         #region IDisposable Implementation
 
@@ -724,8 +553,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             if (disposing)
             {
-                FileStream.Flush();
-                FileStream.Dispose();
+                fileStream.Flush();
+                fileStream.Dispose();
             }
 
             disposed = true;

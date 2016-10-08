@@ -140,6 +140,10 @@
     <comment>.
  Parameters: 0 - intent (string) </comment>
   </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Connection canceled</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
     <value>OwnerUri cannot be null or empty</value>
     <comment></comment>
@@ -240,7 +244,7 @@
   <data name="QueryServiceAffectedRows" xml:space="preserve">
     <value>({0} row(s) affected)</value>
     <comment>.
- Parameters: 0 - rows (int) </comment>
+ Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>Command(s) copleted successfully.</value>

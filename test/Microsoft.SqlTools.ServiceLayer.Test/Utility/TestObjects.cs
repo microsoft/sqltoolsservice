@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.Test.Utility
     /// </summary>
     public class TestObjects
     {
+        public const string ScriptUri = "file://some/file.sql";
+
         /// <summary>
         /// Creates a test connection service
         /// </summary>
@@ -35,11 +37,22 @@ namespace Microsoft.SqlTools.Test.Utility
 #endif
         }
 
+        /// <summary>
+        /// Creates a test connection info instance.
+        /// </summary>
+        public static ConnectionInfo GetTestConnectionInfo()
+        {
+            return new ConnectionInfo(
+                GetTestSqlConnectionFactory(),
+                ScriptUri,
+                GetTestConnectionDetails());
+        }
+
         public static ConnectParams GetTestConnectionParams()
         {
             return new ConnectParams() 
             {
-                OwnerUri = "file://some/file.sql",
+                OwnerUri = ScriptUri,
                 Connection = GetTestConnectionDetails()
             };
         }
