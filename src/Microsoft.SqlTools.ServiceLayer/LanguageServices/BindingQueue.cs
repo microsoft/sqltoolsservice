@@ -59,8 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public QueueItem QueueBindingOperation(
             string key,
-            Func<IBindingContext, CancellationToken, Task<object>> bindOperation,
-            Func<IBindingContext, Task<object>> timeoutOperation = null,
+            Func<IBindingContext, CancellationToken, object> bindOperation,
+            Func<IBindingContext, object> timeoutOperation = null,
             int? bindingTimeout = null)
         {
             // don't add null operations to the binding queue
@@ -184,53 +184,48 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             continue;
                         }
 
-                        try
+                        IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
+                        if (bindingContext == null)                        
                         {
-                            IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
-                            if (bindingContext == null)                        
-                            {
-                                queueItem.ItemProcessed.Set();
-                                continue;
-                            }
-                        
+                            queueItem.ItemProcessed.Set();
+                            continue;
+                        }
+
+                        try
+                        {                                                    
                             // prefer the queue item binding item, otherwise use the context default timeout
                             int bindTimeout = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
-                            
-                            // handle the case a previous binding operation is still running
+
+                            // handle the case a previous binding operation is still running                            
                             if (!bindingContext.BindingLocked.WaitOne(bindTimeout))
                             {
-                                queueItem.ResultsTask = Task.Run(() => 
-                                {                                
-                                    var timeoutTask = queueItem.TimeoutOperation(bindingContext);
-                                    timeoutTask.ContinueWith((obj) => queueItem.ItemProcessed.Set());                                
-                                    return timeoutTask.Result;
-                                });
-
+                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);
+                                queueItem.ItemProcessed.Set();
                                 continue;
                             }
 
                             // execute the binding operation
-                            CancellationTokenSource cancelToken = new CancellationTokenSource();                        
-                            queueItem.ResultsTask = queueItem.BindOperation(
-                                    bindingContext,
-                                    cancelToken.Token);                            
-
-                            // set notification events once the binding operation task completes
-                            queueItem.ResultsTask.ContinueWith((obj) => 
-                                {   
-                                    queueItem.ItemProcessed.Set();
-                                    bindingContext.BindingLocked.Set();
-                                });
+                            object result = null;
+                            CancellationTokenSource cancelToken = new CancellationTokenSource();
+                            var bindTask = Task.Run(() =>
+                            {
+                                result = queueItem.BindOperation(
+                                     bindingContext,
+                                     cancelToken.Token);  
+                            });
 
                             // check if the binding tasks completed within the binding timeout
-                            if (!queueItem.ResultsTask.Wait(bindTimeout))
+                            if (bindTask.Wait(bindTimeout))
                             {
+                                queueItem.Result = result;
+                            }
+                            else
+                            {                                
                                 // if the task didn't complete then call the timeout callback
                                 if (queueItem.TimeoutOperation != null)
                                 {                            
                                     cancelToken.Cancel();
-                                    queueItem.ResultsTask = queueItem.TimeoutOperation(bindingContext);
-                                    queueItem.ResultsTask.ContinueWith((obj) => queueItem.ItemProcessed.Set());                                
+                                    queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
                                 }
                             }                            
                         }                        
@@ -238,7 +233,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             // catch and log any exceptions raised in the binding calls
                             // set item processed to avoid deadlocks 
-                            Logger.Write(LogLevel.Error, "Binding queue threw exception " + ex.ToString());
+                            Logger.Write(LogLevel.Error, "Binding queue threw exception " + ex.ToString());                            
+                        }
+                        finally
+                        {
+                            bindingContext.BindingLocked.Set();
                             queueItem.ItemProcessed.Set();
                         }
 

@@ -4,7 +4,6 @@
 //
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -22,6 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public static class AutoCompleteHelper
     {
+        private const int PrepopulateBindTimeout = 60000;
+
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
         private static readonly string[] DefaultCompletionText = new string[]
@@ -579,6 +580,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                         QueueItem queueItem = bindingQueue.QueueBindingOperation(
                             key: scriptInfo.ConnectionKey,
+                            bindingTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 // parse a simple statement that returns common metadata
@@ -619,7 +621,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                 // this forces lazy evaluation of the suggestion metadata
                                 AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6); 
-                                return Task.FromResult(null as object);
+                                return null;
                             });   
                 
                         queueItem.ItemProcessed.WaitOne();                     
