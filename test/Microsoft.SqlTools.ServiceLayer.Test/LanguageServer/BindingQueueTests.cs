@@ -89,45 +89,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// <summary>
         /// Test bind operation callback
         /// </summary>
-        private Task<object> TestBindOperation(
+        private object TestBindOperation(
             IBindingContext bindContext, 
             CancellationToken cancelToken)
-        {            
-            return  Task.Run(() => 
+        {
+            cancelToken.WaitHandle.WaitOne(this.bindCallbackDelay);
+            this.isCancelationRequested = cancelToken.IsCancellationRequested;
+            if (!this.isCancelationRequested)
             {
-                cancelToken.WaitHandle.WaitOne(this.bindCallbackDelay);
-                this.isCancelationRequested = cancelToken.IsCancellationRequested;
-                if (!this.isCancelationRequested)
-                {
-                    ++this.bindCallCount;
-                }
-                return new CompletionItem[0] as object;
-            });
+                ++this.bindCallCount;
+            }
+            return new CompletionItem[0];
         }
 
         /// <summary>
         /// Test callback for the bind timeout operation
         /// </summary>
-        private Task<object> TestTimeoutOperation(
+        private object TestTimeoutOperation(
             IBindingContext bindingContext)
         {
             ++this.timeoutCallCount;
-            return  Task.FromResult(new CompletionItem[0] as object);
+            return new CompletionItem[0];
         }
 
-        /// <summary>
-        /// Runs for a few seconds to allow the queue to pump any requests
-        /// </summary>
-        private void WaitForQueue(int delay = 5000)
-        {
-            int step = 50;
-            int steps = delay / step + 1;
-            for (int i = 0; i < steps; ++i)
-            {
-                Thread.Sleep(step);
-            }
-        }
-     
         /// <summary>
         /// Queues a single task
         /// </summary>
@@ -141,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
                 bindOperation: TestBindOperation,
                 timeoutOperation: TestTimeoutOperation);    
 
-            WaitForQueue();        
+            Thread.Sleep(1000);      
             
             this.bindingQueue.StopQueueProcessor(15000);     
 
@@ -166,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
                     timeoutOperation: TestTimeoutOperation);
             }
             
-            WaitForQueue();
+            Thread.Sleep(2000);
 
             this.bindingQueue.StopQueueProcessor(15000);     
 
@@ -183,14 +167,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             InitializeTestSettings();
 
-            this.bindCallbackDelay = 10000;
+            this.bindCallbackDelay = 1000;
 
             this.bindingQueue.QueueBindingOperation(
                 key: "testkey",
+                bindingTimeout: bindCallbackDelay / 2,
                 bindOperation: TestBindOperation,
                 timeoutOperation: TestTimeoutOperation);
 
-            WaitForQueue(this.bindCallbackDelay + 2000);
+            Thread.Sleep(this.bindCallbackDelay + 100);
             
             this.bindingQueue.StopQueueProcessor(15000);
 
