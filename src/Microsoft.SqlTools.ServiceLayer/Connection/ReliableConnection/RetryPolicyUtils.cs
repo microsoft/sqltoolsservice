@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
@@ -216,7 +217,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public static bool IsRetryableNetworkConnectivityError(int errorNumber)
         {
             // .NET core has a bug on OSX that makes this error number always zero (issue 12472)
-            return errorNumber != 0 && _retryableNetworkConnectivityErrors.Contains(errorNumber);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return errorNumber != 0 && _retryableNetworkConnectivityErrors.Contains(errorNumber);
+            }
+            return _retryableNetworkConnectivityErrors.Contains(errorNumber);
         }
 
         public static bool IsRetryableAzureError(int errorNumber)
