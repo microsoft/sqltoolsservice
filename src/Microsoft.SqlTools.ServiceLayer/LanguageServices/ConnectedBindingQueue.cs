@@ -63,44 +63,43 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string connectionKey = GetConnectionContextKey(connInfo);
             IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
 
-            try
+            lock (bindingContext.BindingLock)
             {
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(DefaultMinimumConnectionTimeout, originalTimeout ?? 0);
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-
-                // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString);
-                if (sqlConn != null)
+                try
                 {
-                    sqlConn.Open();
+                    // increase the connection timeout to at least 30 seconds and and build connection string
+                    // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
+                    int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
+                    bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
+                    connInfo.ConnectionDetails.ConnectTimeout = Math.Max(DefaultMinimumConnectionTimeout, originalTimeout ?? 0);
+                    connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                    connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+                    connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
 
-                    // populate the binding context to work with the SMO metadata provider
-                    ServerConnection serverConn = new ServerConnection(sqlConn);                            
-                    bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                    bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                    bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
-                        this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
-                            ? CasingStyle.Lowercase : CasingStyle.Uppercase;
-                    bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
-                    bindingContext.ServerConnection = serverConn;
-                    bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
-                    bindingContext.IsConnected = true;
+                    // open a dedicated binding server connection
+                    SqlConnection sqlConn = new SqlConnection(connectionString);
+                    if (sqlConn != null)
+                    {
+                        sqlConn.Open();
+
+                        // populate the binding context to work with the SMO metadata provider
+                        ServerConnection serverConn = new ServerConnection(sqlConn);                            
+                        bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
+                        bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                        bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
+                            this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                                ? CasingStyle.Lowercase : CasingStyle.Uppercase;
+                        bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
+                        bindingContext.ServerConnection = serverConn;
+                        bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
+                        bindingContext.IsConnected = true;
+                    }
                 }
-            }
-            catch (Exception)
-            {
-                bindingContext.IsConnected = false;
-            }
-            finally
-            {
-                bindingContext.BindingLocked.Set();                
+                catch (Exception)
+                {
+                    bindingContext.IsConnected = false;
+                }                
             }
 
             return connectionKey;

@@ -452,12 +452,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientFilePath, createIfNotExists: true);
 
-            if (parseInfo.BuildingMetadataEvent.WaitOne(LanguageService.BindingTimeout))
+            if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
             {
                 try
                 {
-                    parseInfo.BuildingMetadataEvent.Reset();
-
                     if (connInfo == null || !parseInfo.IsConnected)
                     {
                         // parse current SQL file contents to retrieve a list of errors
@@ -518,7 +516,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 finally
                 {
-                    parseInfo.BuildingMetadataEvent.Set();
+                    Monitor.Exit(parseInfo.BuildingMetadataLock);
                 }
             }
             else
@@ -538,11 +536,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             await Task.Run(() => 
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
-                if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                 {
                     try
-                    {
-                        scriptInfo.BuildingMetadataEvent.Reset();                                                                       
+                    {                                                                      
                         scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info);
                         scriptInfo.IsConnected = true;
                         
@@ -556,7 +553,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         // Set Metadata Build event to Signal state.
                         // (Tell Language Service that I am ready with Metadata Provider Object)
-                        scriptInfo.BuildingMetadataEvent.Set();
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }  
 
@@ -631,9 +628,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
             {
-                if (scriptParseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionStartTimeout))
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, LanguageService.FindCompletionStartTimeout))
                 {
-                    scriptParseInfo.BuildingMetadataEvent.Reset();
                     try
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
@@ -661,8 +657,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataEvent.Set();
-                    }                
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                    }               
                 }
             }
 
@@ -691,8 +687,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             this.currentCompletionParseInfo = null;
 
-            // Take a reference to the list at a point in time in case we update and replace the list
-
+            // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
             if (connInfo == null || scriptParseInfo == null)
             {
@@ -711,18 +706,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             if (scriptParseInfo.IsConnected 
-                && scriptParseInfo.BuildingMetadataEvent.WaitOne(LanguageService.FindCompletionStartTimeout))
-            {
-                scriptParseInfo.BuildingMetadataEvent.Reset();                
-                
-                QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
-                    key: scriptParseInfo.ConnectionKey,
-                    bindingTimeout: LanguageService.BindingTimeout,
-                    bindOperation: (bindingContext, cancelToken) =>
-                    {
-                        CompletionItem[] completions = null;
-                        try
+                && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, LanguageService.FindCompletionStartTimeout))
+            {        
+                try
+                {    
+                    // queue the completion task with the binding queue    
+                    QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        key: scriptParseInfo.ConnectionKey,
+                        bindingTimeout: LanguageService.BindingTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
                         {
+                            CompletionItem[] completions = null;
+            
                             // get the completion list from SQL Parser
                             scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
                                 scriptParseInfo.ParseResult, 
@@ -738,26 +733,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 scriptParseInfo.CurrentSuggestions, 
                                 startLine, 
                                 startColumn, 
-                                endColumn);
-                        }
-                        finally
-                        {
-                            scriptParseInfo.BuildingMetadataEvent.Set();
-                        }
+                                endColumn);                        
 
-                        return completions;
-                    },
-                    timeoutOperation: (bindingContext) =>
+                            return completions;
+                        },
+                        timeoutOperation: (bindingContext) =>
+                        {
+                            return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
+                        });
+
+                    queueItem.ItemProcessed.WaitOne();
+
+                    var completionItems = queueItem.GetResultAsT<CompletionItem[]>(); 
+                    if (completionItems != null && completionItems.Length > 0)
                     {
-                        return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
-                    });            
-                
-                queueItem.ItemProcessed.WaitOne();   
-                var completionItems = queueItem.GetResultAsT<CompletionItem[]>(); 
-                if (completionItems != null && completionItems.Length > 0)
-                {
-                    return completionItems;
+                        return completionItems;
+                    }          
                 }
+                finally
+                {                    
+                    Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                }                
             }
             
             return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
