@@ -322,7 +322,13 @@ Task("OnlyPublish")
             publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
             Run(dotnetcli, publishArguments)
                 .ExceptionOnError($"Failed to publish {project} / {framework}");
-
+            //Setting the rpath for System.Security.Cryptography.Native.dylib library
+            //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
+            //If that's not the case user has to run the command manually
+            if (runtime.Contains("osx"))
+            {    
+                Run("install_name_tool",  "-add_rpath /usr/local/opt/openssl/lib " + outputFolder + "/System.Security.Cryptography.Native.dylib");
+            }
             if (requireArchive)
             {
                 Package(runtime, framework, outputFolder, packageFolder, buildPlan.MainProject.ToLower());
