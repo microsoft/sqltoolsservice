@@ -182,10 +182,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
 
-                // turning on MARS to avoid break in LanguageService with multiple editors
-                // we'll remove this once ConnectionService is refactored to not own the LanguageService connection
-                connectionInfo.ConnectionDetails.MultipleActiveResultSets = true;
-
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
                 using (source = new CancellationTokenSource())
                 {
@@ -397,12 +393,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             command.CommandText = "SELECT name FROM sys.databases ORDER BY database_id ASC";
             command.CommandTimeout = 15;
             command.CommandType = CommandType.Text;
-            var reader = command.ExecuteReader();
 
             List<string> results = new List<string>();
-            while (reader.Read())
+            using (var reader = command.ExecuteReader())
             {
-                results.Add(reader[0].ToString());
+                while (reader.Read())
+                {
+                    results.Add(reader[0].ToString());
+                }
             }
 
             connection.Close();
