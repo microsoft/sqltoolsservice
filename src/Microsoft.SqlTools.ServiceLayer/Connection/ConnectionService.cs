@@ -389,17 +389,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
             connection.Open();
             
-            DbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT name FROM sys.databases ORDER BY database_id ASC";
-            command.CommandTimeout = 15;
-            command.CommandType = CommandType.Text;
-
             List<string> results = new List<string>();
-            using (var reader = command.ExecuteReader())
+            using (DbCommand command = connection.CreateCommand())
             {
-                while (reader.Read())
+                command.CommandText = "SELECT name FROM sys.databases ORDER BY database_id ASC";
+                command.CommandTimeout = 15;
+                command.CommandType = CommandType.Text;
+
+                using (var reader = command.ExecuteReader())
                 {
-                    results.Add(reader[0].ToString());
+                    while (reader.Read())
+                    {
+                        results.Add(reader[0].ToString());
+                    }
                 }
             }
 
