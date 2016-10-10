@@ -179,30 +179,35 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
         public async Task ReadResultToEnd(CancellationToken cancellationToken)
         {
-            // Open a writer for the file
-            using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
+            try
             {
-                // If we can initialize the columns using the column schema, use that
-                if (!DataReader.DbDataReader.CanGetColumnSchema())
+                // Open a writer for the file
+                using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
                 {
-                    throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
-                }
-                Columns = DataReader.Columns;
-                long currentFileOffset = 0;
+                    // If we can initialize the columns using the column schema, use that
+                    if (!DataReader.DbDataReader.CanGetColumnSchema())
+                    {
+                        throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
+                    }
+                    Columns = DataReader.Columns;
+                    long currentFileOffset = 0;
 
-                while (await DataReader.ReadAsync(cancellationToken))
-                {
-                    RowCount++;
-                    FileOffsets.Add(currentFileOffset);
-                    currentFileOffset += fileWriter.WriteRow(DataReader);
+                    while (await DataReader.ReadAsync(cancellationToken))
+                    {
+                        RowCount++;
+                        FileOffsets.Add(currentFileOffset);
+                        currentFileOffset += fileWriter.WriteRow(DataReader);
+                    }
                 }
+                // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
+                SingleColumnXmlJsonResultSet();
             }
-            // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
-            SingleColumnXmlJsonResultSet();
-
-            // Mark that result has been read
-            hasBeenRead = true;
-            fileStreamReader = fileStreamFactory.GetReader(outputFileName);
+            finally
+            {
+                // Mark that result has been read
+                hasBeenRead = true;
+                fileStreamReader = fileStreamFactory.GetReader(outputFileName);
+            }
         }
 
         #endregion
