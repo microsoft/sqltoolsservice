@@ -216,8 +216,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public static bool IsRetryableNetworkConnectivityError(int errorNumber)
         {
-            // .NET core has a bug on OSX that makes this error number always zero (issue 12472)
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            // .NET core has a bug on OSX/Linux that makes this error number always zero (issue 12472)
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return errorNumber != 0 && _retryableNetworkConnectivityErrors.Contains(errorNumber);
             }
