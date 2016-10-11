@@ -365,7 +365,6 @@ Task("RestrictToLocalRuntime")
 /// </summary>
 Task("LocalPublish")
     .IsDependentOn("Restore")
-	.IsDependentOn("SrGen")
     .IsDependentOn("RestrictToLocalRuntime")
     .IsDependentOn("OnlyPublish")
     .Does(() =>
