@@ -201,7 +201,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     var cancellationTask = Task.Run(() =>
                     {
                         source.Token.WaitHandle.WaitOne();
-                        source.Token.ThrowIfCancellationRequested();
+                        try
+                        {
+                            source.Token.ThrowIfCancellationRequested();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            // Ignore
+                        }
                     });
 
                     var openTask = Task.Run(async () => {
