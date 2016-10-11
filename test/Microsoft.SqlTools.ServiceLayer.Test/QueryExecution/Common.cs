@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -238,18 +239,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 }
             };
 
+
             connInfo = CreateTestConnectionInfo(null, false);
 
             var srvConn = GetServerConnection(connInfo);
             var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
             var binder = BinderProvider.CreateBinder(metadataProvider);
+            connInfo = Common.CreateTestConnectionInfo(null, false);
 
-            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,
-                new ScriptParseInfo
-                {
-                    Binder = binder,
-                    MetadataProvider = metadataProvider
-                });
+            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,  new ScriptParseInfo());
 
             scriptFile = new ScriptFile {ClientFilePath = textDocument.TextDocument.Uri};
 
@@ -262,18 +260,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return new ServerConnection(sqlConnection);
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
+        public static async Task<QueryExecutionService> GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             var connectionService = new ConnectionService(factory);
             if (isConnected)
             {
-                connectionService.Connect(new ConnectParams
+                await connectionService.Connect(new ConnectParams
                 {
                     Connection = StandardConnectionDetails,
                     OwnerUri = OwnerUri
                 });
             }
             return new QueryExecutionService(connectionService, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
+        }
+
+        public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService()
+        {
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(StandardQuery);
+           
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+
+            return workspaceService.Object;
         }
 
         #endregion

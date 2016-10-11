@@ -33,6 +33,8 @@ ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}
 
 ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
 
+ConnectionServiceConnectionCanceled = Connection canceled
+
 ######
 ### Connection Params Validation Errors
 
@@ -77,6 +79,8 @@ QueryServiceCancelAlreadyCompleted = The query has already completed, it cannot 
 
 QueryServiceCancelDisposeFailed = Query successfully cancelled, failed to dispose query. Owner URI not found.
 
+QueryServiceQueryCancelled = Query was canceled by user
+
 ### Subset Request
 
 QueryServiceSubsetNotCompleted = The query has not completed, yet
@@ -108,6 +112,8 @@ QueryServiceAffectedRows(long rows) = ({0} row(s) affected)
 QueryServiceCompletedSuccessfully = Command(s) copleted successfully.
 
 QueryServiceErrorFormat(int msg, int lvl, int state, int line, string newLine, string message) = Msg {0}, Level {1}, State {2}, Line {3}{4}{5}
+
+QueryServiceQueryFailed(string message) = Query failed: {0}
 
 QueryServiceColumnNull = (No column name)
 

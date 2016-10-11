@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     {
         #region "Diagnostics tests"
 
+
         /// <summary>
         /// Verify that the latest SqlParser (2016 as of this writing) is used by default
         /// </summary>
@@ -154,35 +155,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             InitializeTestServices();
 
             Assert.True(LanguageService.Instance.Context != null);
-            Assert.True(LanguageService.Instance.ConnectionServiceInstance != null);
+            Assert.True(LanguageService.ConnectionServiceInstance != null);
             Assert.True(LanguageService.Instance.CurrentSettings != null);
             Assert.True(LanguageService.Instance.CurrentWorkspace != null);
 
-            LanguageService.Instance.ConnectionServiceInstance = null;
-            Assert.True(LanguageService.Instance.ConnectionServiceInstance == null);
+            LanguageService.ConnectionServiceInstance = null;
+            Assert.True(LanguageService.ConnectionServiceInstance == null);
         }        
-        
-        /// <summary>
-        /// Test the service initialization code path and verify nothing throws
-        /// </summary>
-        [Fact]
-        public async void UpdateLanguageServiceOnConnection()
-        {
-            string ownerUri = "file://my/sample/file.sql";
-            var connectionService = TestObjects.GetTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams()
-                {
-                    OwnerUri = ownerUri,
-                    Connection = TestObjects.GetTestConnectionDetails()
-                });
-            
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
-            
-            await LanguageService.Instance.UpdateLanguageServiceOnConnection(connInfo);
-        }
 
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
@@ -212,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ScriptParseInfo scriptInfo = new ScriptParseInfo();
             scriptInfo.IsConnected = true;
 
-            AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo);
+            AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
         }
 
         private string GetTestSqlFile()

@@ -45,6 +45,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionServiceConnectionCanceled
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnectionCanceled);
+            }
+        }
+
         public static string ConnectionParamsValidateNullOwnerUri
         {
             get
@@ -154,6 +162,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.QueryServiceCancelDisposeFailed);
+            }
+        }
+
+        public static string QueryServiceQueryCancelled
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceQueryCancelled);
             }
         }
 
@@ -355,6 +371,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceErrorFormat, msg, lvl, state, line, newLine, message);
         }
 
+        public static string QueryServiceQueryFailed(string message)
+        {
+            return Keys.GetString(Keys.QueryServiceQueryFailed, message);
+        }
+
         public static string WorkspaceServicePositionColumnOutOfRange(int line)
         {
             return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
@@ -386,6 +407,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
+
+
+            public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
 
 
             public const string ConnectionParamsValidateNullOwnerUri = "ConnectionParamsValidateNullOwnerUri";
@@ -433,6 +457,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceCancelDisposeFailed = "QueryServiceCancelDisposeFailed";
 
 
+            public const string QueryServiceQueryCancelled = "QueryServiceQueryCancelled";
+
+
             public const string QueryServiceSubsetNotCompleted = "QueryServiceSubsetNotCompleted";
 
 
@@ -467,6 +494,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceErrorFormat = "QueryServiceErrorFormat";
+
+
+            public const string QueryServiceQueryFailed = "QueryServiceQueryFailed";
 
 
             public const string QueryServiceColumnNull = "QueryServiceColumnNull";

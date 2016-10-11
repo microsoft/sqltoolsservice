@@ -140,6 +140,10 @@
     <comment>.
  Parameters: 0 - intent (string) </comment>
   </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Connection canceled</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
     <value>OwnerUri cannot be null or empty</value>
     <comment></comment>
@@ -201,6 +205,10 @@
     <value>Query successfully cancelled, failed to dispose query. Owner URI not found.</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>Query was canceled by user</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceSubsetNotCompleted" xml:space="preserve">
     <value>The query has not completed, yet</value>
     <comment></comment>
@@ -250,6 +258,11 @@
     <value>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</value>
     <comment>.
  Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </comment>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>Query failed: {0}</value>
+    <comment>.
+ Parameters: 0 - message (string) </comment>
   </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
     <value>(No column name)</value>

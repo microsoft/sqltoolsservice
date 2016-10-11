@@ -21,6 +21,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public static class AutoCompleteHelper
     {
+        private const int PrepopulateBindTimeout = 60000;
+
+        private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
+
         private static readonly string[] DefaultCompletionText = new string[]
         {
             "absolute",
@@ -422,6 +426,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         };
 
         /// <summary>
+        /// Gets or sets the current workspace service instance
+        /// Setter for internal testing purposes only
+        /// </summary>
+        internal static WorkspaceService<SqlToolsSettings> WorkspaceServiceInstance
+        {
+            get
+            {
+                if (AutoCompleteHelper.workspaceServiceInstance == null)
+                {
+                    AutoCompleteHelper.workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
+                }
+                return AutoCompleteHelper.workspaceServiceInstance;
+            }
+            set
+            {
+                AutoCompleteHelper.workspaceServiceInstance = value;
+            }
+        }
+
+        /// <summary>
         /// Get the default completion list from hard-coded list
         /// </summary>
         /// <param name="row"></param>
@@ -538,11 +562,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="info"></param>
         /// <param name="scriptInfo"></param>
-        internal static void PrepopulateCommonMetadata(ConnectionInfo info, ScriptParseInfo scriptInfo)
+        internal static void PrepopulateCommonMetadata(
+            ConnectionInfo info, 
+            ScriptParseInfo scriptInfo, 
+            ConnectedBindingQueue bindingQueue)
         {
             if (scriptInfo.IsConnected)
             {
-                var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(info.OwnerUri);                                
+                var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);                                
                 LanguageService.Instance.ParseAndBind(scriptFile, info);
 
                 if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
@@ -551,44 +578,53 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         scriptInfo.BuildingMetadataEvent.Reset();
 
-                        // parse a simple statement that returns common metadata
-                        ParseResult parseResult = Parser.Parse(
-                            "select ", 
-                            scriptInfo.ParseOptions);
+                        QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                            key: scriptInfo.ConnectionKey,
+                            bindingTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {
+                                // parse a simple statement that returns common metadata
+                                ParseResult parseResult = Parser.Parse(
+                                    "select ", 
+                                    bindingContext.ParseOptions);
 
-                        List<ParseResult> parseResults = new List<ParseResult>();
-                        parseResults.Add(parseResult);
-                        scriptInfo.Binder.Bind(
-                            parseResults, 
-                            info.ConnectionDetails.DatabaseName, 
-                            BindMode.Batch);
+                                List<ParseResult> parseResults = new List<ParseResult>();
+                                parseResults.Add(parseResult);
+                                bindingContext.Binder.Bind(
+                                    parseResults, 
+                                    info.ConnectionDetails.DatabaseName, 
+                                    BindMode.Batch);
 
-                        // get the completion list from SQL Parser
-                        var suggestions = Resolver.FindCompletions(
-                            parseResult, 1, 8, 
-                            scriptInfo.MetadataDisplayInfoProvider); 
+                                // get the completion list from SQL Parser
+                                var suggestions = Resolver.FindCompletions(
+                                    parseResult, 1, 8, 
+                                    bindingContext.MetadataDisplayInfoProvider); 
 
-                        // this forces lazy evaluation of the suggestion metadata
-                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
+                                // this forces lazy evaluation of the suggestion metadata
+                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
 
-                        parseResult = Parser.Parse(
-                            "exec ", 
-                            scriptInfo.ParseOptions);
+                                parseResult = Parser.Parse(
+                                    "exec ", 
+                                    bindingContext.ParseOptions);
 
-                        parseResults = new List<ParseResult>();
-                        parseResults.Add(parseResult);
-                        scriptInfo.Binder.Bind(
-                            parseResults, 
-                            info.ConnectionDetails.DatabaseName, 
-                            BindMode.Batch);
+                                parseResults = new List<ParseResult>();
+                                parseResults.Add(parseResult);
+                                bindingContext.Binder.Bind(
+                                    parseResults, 
+                                    info.ConnectionDetails.DatabaseName, 
+                                    BindMode.Batch);
 
-                        // get the completion list from SQL Parser
-                        suggestions = Resolver.FindCompletions(
-                            parseResult, 1, 6, 
-                            scriptInfo.MetadataDisplayInfoProvider); 
+                                // get the completion list from SQL Parser
+                                suggestions = Resolver.FindCompletions(
+                                    parseResult, 1, 6, 
+                                    bindingContext.MetadataDisplayInfoProvider); 
 
-                        // this forces lazy evaluation of the suggestion metadata
-                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                                // this forces lazy evaluation of the suggestion metadata
+                                AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6); 
+                                return null;
+                            });   
+                
+                        queueItem.ItemProcessed.WaitOne();                     
                     }
                     catch
                     {
@@ -598,6 +634,54 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         scriptInfo.BuildingMetadataEvent.Set();
                     }
                 }
+            }
+        }
+
+
+        /// <summary>
+        /// Converts a SQL Parser QuickInfo object into a VS Code Hover object
+        /// </summary>
+        /// <param name="quickInfo"></param>
+        /// <param name="row"></param>
+        /// <param name="startColumn"></param>
+        /// <param name="endColumn"></param>
+        internal static Hover ConvertQuickInfoToHover(
+            Babel.CodeObjectQuickInfo quickInfo,
+            int row,
+            int startColumn,
+            int endColumn)
+        {
+            // convert from the parser format to the VS Code wire format
+            var markedStrings = new MarkedString[1];
+            if (quickInfo != null)
+            {
+                markedStrings[0] = new MarkedString()
+                {
+                    Language = "SQL",
+                    Value = quickInfo.Text                                
+                };
+
+                return new Hover()
+                {
+                    Contents = markedStrings,
+                    Range = new Range
+                    {
+                        Start = new Position
+                        {
+                            Line = row,
+                            Character = startColumn
+                        },
+                        End = new Position
+                        {
+                            Line = row,
+                            Character = endColumn
+                        }
+                    }
+                };
+            }
+            else
+            {
+                return null;
             }
         }
     }

@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
     public class CancelTests
     {
         [Fact]
-        public void CancelInProgressQueryTest()
+        public async void CancelInProgressQueryTest()
         {
             // Set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
@@ -32,11 +32,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I request a query (doesn't matter what kind) and execute it
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.SubsectionDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = 
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
             // ... And then I request to cancel the query
@@ -55,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void CancelExecutedQueryTest()
+        public async void CancelExecutedQueryTest()
         {
             
             // Set up file for returning the query
@@ -67,17 +68,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 .Returns(fileMock.Object);
             // If:
             // ... I request a query (doesn't matter what kind) and wait for execution
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
             var executeRequest =
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
             // ... And then I request to cancel the query
             var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
             QueryCancelResult result = null;
             var cancelRequest = GetQueryCancelResultContextMock(qcr => result = qcr, null);
-            queryService.HandleCancelRequest(cancelParams, cancelRequest.Object).Wait();
+            await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
 
             // Then:
             // ... I should have seen a result event with an error message
@@ -89,13 +91,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void CancelNonExistantTest()
+        public async void CancelNonExistantTest()
         {
 
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I request to cancel a query that doesn't exist
-            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
+            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
             var cancelParams = new QueryCancelParams {OwnerUri = "Doesn't Exist"};
             QueryCancelResult result = null;
             var cancelRequest = GetQueryCancelResultContextMock(qcr => result = qcr, null);
