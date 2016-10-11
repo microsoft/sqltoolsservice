@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -51,7 +50,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
             // ... And then I dispose of the query
             var disposeParams = new QueryDisposeParams {OwnerUri = Common.OwnerUri};
@@ -107,6 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
+            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
             // ... And it sticks around as an active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
