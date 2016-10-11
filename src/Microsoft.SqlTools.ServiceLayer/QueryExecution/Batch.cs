@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
                             
                             // Read until we hit the end of the result set
-                            await resultSet.ReadResultToEnd(cancellationToken);
+                            await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
                             // Add a message for the number of rows the query returned
                             resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
@@ -193,7 +193,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (DbException dbe)
             {
-
                 HasError = true;
                 UnwrapDbException(dbe);
             }
