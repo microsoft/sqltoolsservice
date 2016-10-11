@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool disposed;
 
         /// <summary>
-        /// Factory for creating readers/writrs for the output of the batch
+        /// Factory for creating readers/writers for the output of the batch
         /// </summary>
         private readonly IFileStreamFactory outputFileFactory;
 

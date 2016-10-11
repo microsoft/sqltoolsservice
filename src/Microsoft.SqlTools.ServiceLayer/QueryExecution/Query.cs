@@ -96,11 +96,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Properties
 
-        public delegate Task QueryCompletionCallback(Query q);
+        /// <summary>
+        /// Delegate type for callback when a query completes or fails
+        /// </summary>
+        /// <param name="q">The query that completed</param>
+        public delegate Task QueryAsyncEventHandler(Query q);
 
-        public event QueryCompletionCallback QueryCompletionEvent;
+        /// <summary>
+        /// Callback for when the query has completed successfully
+        /// </summary>
+        public event QueryAsyncEventHandler QueryCompleted;
 
-        public event QueryCompletionCallback QueryFailureEvent;
+        /// <summary>
+        /// Callback for when the query has failed
+        /// </summary>
+        public event QueryAsyncEventHandler QueryFailed;
 
         /// <summary>
         /// The batches underneath this query
@@ -246,17 +256,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
 
                     // Call the query execution callback
-                    if (QueryCompletionEvent != null)
+                    if (QueryCompleted != null)
                     {
-                        await QueryCompletionEvent(this);
+                        await QueryCompleted(this);
                     }
                 }
                 catch (Exception)
                 {
                     // Call the query failure callback
-                    if (QueryFailureEvent != null)
+                    if (QueryFailed != null)
                     {
-                        await QueryFailureEvent(this);
+                        await QueryFailed(this);
                     }
                 }
                 finally

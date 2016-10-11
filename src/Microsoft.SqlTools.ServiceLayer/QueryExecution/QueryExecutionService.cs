@@ -501,7 +501,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Setup the query completion/failure callbacks
-            Query.QueryCompletionCallback callback = async q =>
+            Query.QueryAsyncEventHandler callback = async q =>
             {
                 // Send back the results
                 QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
@@ -512,8 +512,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
 
-            query.QueryCompletionEvent += callback;
-            query.QueryFailureEvent += callback;
+            query.QueryCompleted += callback;
+            query.QueryFailed += callback;
 
             // Launch this as an asynchronous task
             query.Execute();
