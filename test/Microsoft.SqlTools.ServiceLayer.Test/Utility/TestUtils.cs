@@ -14,6 +14,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
                 test();
             }
         }
+
+        public static void RunIfLinuxOrOSX(Action test)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                test();
+            }
+        }
         
         public static void RunIfWindows(Action test)
         {
