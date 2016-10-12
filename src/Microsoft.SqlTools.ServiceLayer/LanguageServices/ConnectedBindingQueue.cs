@@ -78,23 +78,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
 
                     // open a dedicated binding server connection
-                    SqlConnection sqlConn = new SqlConnection(connectionString);
-                    if (sqlConn != null)
-                    {
-                        sqlConn.Open();
+                    SqlConnection sqlConn = new SqlConnection(connectionString);                    
+                    sqlConn.Open();
 
-                        // populate the binding context to work with the SMO metadata provider
-                        ServerConnection serverConn = new ServerConnection(sqlConn);                            
-                        bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
-                        bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                        bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
-                            this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
-                                ? CasingStyle.Lowercase : CasingStyle.Uppercase;
-                        bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
-                        bindingContext.ServerConnection = serverConn;
-                        bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
-                        bindingContext.IsConnected = true;
-                    }
+                    // populate the binding context to work with the SMO metadata provider
+                    ServerConnection serverConn = new ServerConnection(sqlConn);                            
+                    bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(serverConn);
+                    bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                    bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
+                        this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
+                            ? CasingStyle.Lowercase : CasingStyle.Uppercase;
+                    bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);                           
+                    bindingContext.ServerConnection = serverConn;
+                    bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
+                    bindingContext.IsConnected = true;                    
                 }
                 catch (Exception)
                 {
