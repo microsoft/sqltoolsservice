@@ -4,7 +4,6 @@
 //
 
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -25,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     {
         public TestBindingContext()
         {
-            this.BindingLocked = new ManualResetEvent(initialState: true);
+            this.BindingLock = new object();
             this.BindingTimeout = 3000;
         }
 
@@ -39,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
         public IBinder Binder { get; set; }
 
-        public ManualResetEvent BindingLocked { get; set; } 
+        public object BindingLock { get; set; } 
 
         public int BindingTimeout { get; set; } 
 
