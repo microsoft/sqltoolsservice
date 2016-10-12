@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -829,6 +830,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // verify that the (URI -> connection) mapping was created
             ConnectionInfo info;
             Assert.True(service.TryFindConnection(connectParams.OwnerUri, out info));
+        }
+
+        /// <summary>
+        /// Verify that Linux/OSX SqlExceptions thrown do not contain an error code.
+        /// This is a bug in .NET core (see https://github.com/dotnet/corefx/issues/12472).
+        /// If this test ever fails, it means that this bug has been fixed. When this is
+        /// the case, look at RetryPolicyUtils.cs in IsRetryableNetworkConnectivityError(),
+        /// and remove the code block specific to Linux/OSX.
+        [Fact]
+        public void TestThatLinuxAndOSXSqlExceptionHasNoErrorCode()
+        {
+            TestUtils.RunIfLinuxOrOSX(() => {
+                
+                try
+                {
+                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+                    builder.DataSource = "bad-server-name";
+                    builder.UserID = "sa";
+                    builder.Password = "bad password";
+
+                    SqlConnection connection = new SqlConnection(builder.ConnectionString);
+                    connection.Open(); // This should fail
+                }
+                catch (SqlException ex)
+                {
+                    // Error code should be 0 due to bug
+                    Assert.Equal(ex.Number, 0);
+                }
+            });
         }
     }
 }
