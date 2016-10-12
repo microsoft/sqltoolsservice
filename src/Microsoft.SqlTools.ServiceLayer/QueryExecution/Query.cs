@@ -191,12 +191,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
         {
-            // Sanity check that the results are available
-            if (!HasExecuted)
-            {
-                throw new InvalidOperationException(SR.QueryServiceSubsetNotCompleted);
-            }
-
             // Sanity check to make sure that the batch is within bounds
             if (batchIndex < 0 || batchIndex >= Batches.Length)
             {
