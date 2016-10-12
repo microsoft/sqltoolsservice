@@ -838,6 +838,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// If this test ever fails, it means that this bug has been fixed. When this is
         /// the case, look at RetryPolicyUtils.cs in IsRetryableNetworkConnectivityError(),
         /// and remove the code block specific to Linux/OSX.
+        /// </summary>
         [Fact]
         public void TestThatLinuxAndOSXSqlExceptionHasNoErrorCode()
         {
