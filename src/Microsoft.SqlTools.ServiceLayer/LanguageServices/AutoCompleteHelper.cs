@@ -4,7 +4,7 @@
 //
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public static class AutoCompleteHelper
     {
+        private const int PrepopulateBindTimeout = 60000;
+
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
         private static readonly string[] DefaultCompletionText = new string[]
@@ -571,14 +573,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);                                
                 LanguageService.Instance.ParseAndBind(scriptFile, info);
 
-                if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
-                        scriptInfo.BuildingMetadataEvent.Reset();
-
                         QueueItem queueItem = bindingQueue.QueueBindingOperation(
                             key: scriptInfo.ConnectionKey,
+                            bindingTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 // parse a simple statement that returns common metadata
@@ -619,7 +620,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                                 // this forces lazy evaluation of the suggestion metadata
                                 AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6); 
-                                return Task.FromResult(null as object);
+                                return null;
                             });   
                 
                         queueItem.ItemProcessed.WaitOne();                     
@@ -629,7 +630,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     finally
                     {
-                        scriptInfo.BuildingMetadataEvent.Set();
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
             }

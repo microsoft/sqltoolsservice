@@ -22,6 +22,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
     /// </summary>
     public sealed class ServiceHost : ServiceHostBase
     {
+        /// <summary>
+        /// This timeout limits the amount of time that shutdown tasks can take to complete
+        /// prior to the process shutting down.
+        /// </summary>
+        private const int ShutdownTimeoutInSeconds = 120;
+
         #region Singleton Instance Code
 
         /// <summary>
@@ -118,7 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
             // Call all the shutdown methods provided by the service components
             Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();
-            await Task.WhenAll(shutdownTasks);
+            TimeSpan shutdownTimeout = TimeSpan.FromSeconds(ShutdownTimeoutInSeconds);
+            // shut down once all tasks are completed, or after the timeout expires, whichever comes first.
+            await Task.WhenAny(Task.WhenAll(shutdownTasks), Task.Delay(shutdownTimeout)).ContinueWith(t => Environment.Exit(0));
         }
 
         /// <summary>

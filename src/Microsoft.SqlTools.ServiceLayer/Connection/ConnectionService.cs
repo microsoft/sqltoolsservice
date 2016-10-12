@@ -182,10 +182,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
 
-                // turning on MARS to avoid break in LanguageService with multiple editors
-                // we'll remove this once ConnectionService is refactored to not own the LanguageService connection
-                connectionInfo.ConnectionDetails.MultipleActiveResultSets = true;
-
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
                 using (source = new CancellationTokenSource())
                 {
@@ -205,7 +201,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     var cancellationTask = Task.Run(() =>
                     {
                         source.Token.WaitHandle.WaitOne();
-                        source.Token.ThrowIfCancellationRequested();
+                        try
+                        {
+                            source.Token.ThrowIfCancellationRequested();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            // Ignore
+                        }
                     });
 
                     var openTask = Task.Run(async () => {
@@ -393,16 +396,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
             connection.Open();
             
-            DbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT name FROM sys.databases ORDER BY database_id ASC";
-            command.CommandTimeout = 15;
-            command.CommandType = CommandType.Text;
-            var reader = command.ExecuteReader();
-
             List<string> results = new List<string>();
-            while (reader.Read())
+            using (DbCommand command = connection.CreateCommand())
             {
-                results.Add(reader[0].ToString());
+                command.CommandText = "SELECT name FROM sys.databases ORDER BY database_id ASC";
+                command.CommandTimeout = 15;
+                command.CommandType = CommandType.Text;
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        results.Add(reader[0].ToString());
+                    }
+                }
             }
 
             connection.Close();

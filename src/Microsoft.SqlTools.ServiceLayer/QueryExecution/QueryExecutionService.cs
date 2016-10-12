@@ -129,19 +129,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task HandleExecuteRequest(QueryExecuteParams executeParams,
             RequestContext<QueryExecuteResult> requestContext)
         {
-            try
-            {
-                // Get a query new active query
-                Query newQuery = await CreateAndActivateNewQuery(executeParams, requestContext);
+            // Get a query new active query
+            Query newQuery = await CreateAndActivateNewQuery(executeParams, requestContext);
 
-                // Execute the query
-                await ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
-            }
-            catch (Exception e)
-            {
-                // Dump any unexpected exceptions as errors
-                await requestContext.SendError(e.Message);
-            }
+            // Execute the query -- asynchronously
+            await ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
         }
 
         public async Task HandleResultSubsetRequest(QueryExecuteSubsetParams subsetParams,
@@ -399,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             //get column name
                             DbColumnWrapper col = selectedResultSet.Columns[i];
-                            string val = row[i]?.ToString();
+                            string val = row[i];
                             jsonWriter.WritePropertyName(col.ColumnName);
                             if (val == null)
                             {
@@ -440,10 +432,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 ConnectionInfo connectionInfo;
                 if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
                 {
-                    await requestContext.SendResult(new QueryExecuteResult
-                    {
-                        Messages = SR.QueryServiceQueryInvalidOwnerUri
-                    });
+                    await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                     return null;
                 }
 
@@ -488,24 +477,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query newQuery = new Query(queryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
-                    await requestContext.SendResult(new QueryExecuteResult
-                    {
-                        Messages = SR.QueryServiceQueryInProgress
-                    });
+                    await requestContext.SendError(SR.QueryServiceQueryInProgress);
+                    newQuery.Dispose();
                     return null;
                 }
 
                 return newQuery;
             }
-            catch (ArgumentException ane)
+            catch (Exception e)
             {
-                await requestContext.SendResult(new QueryExecuteResult { Messages = ane.Message });
+                await requestContext.SendError(e.Message);
                 return null;
             }
             // Any other exceptions will fall through here and be collected at the end
         }
 
-        private async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
+        private static async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
         {
             // Skip processing if the query is null
             if (query == null)
@@ -513,21 +500,29 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Launch the query and respond with successfully launching it
-            Task executeTask = query.Execute();
+            // Setup the query completion/failure callbacks
+            Query.QueryAsyncEventHandler callback = async q =>
+            {
+                // Send back the results
+                QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
+                {
+                    OwnerUri = executeParams.OwnerUri,
+                    BatchSummaries = q.BatchSummaries
+                };
+                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
+            };
+
+            query.QueryCompleted += callback;
+            query.QueryFailed += callback;
+
+            // Launch this as an asynchronous task
+            query.Execute();
+
+            // Send back a result showing we were successful
             await requestContext.SendResult(new QueryExecuteResult
             {
                 Messages = null
             });
-
-            // Wait for query execution and then send back the results
-            await Task.WhenAll(executeTask);
-            QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
-            {
-                OwnerUri = executeParams.OwnerUri,
-                BatchSummaries = query.BatchSummaries
-            };
-            await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
         }
 
         #endregion

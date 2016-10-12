@@ -14,9 +14,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SmoMetadataProvider;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -95,7 +92,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
             Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory());
-            query.Execute().Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
             return query;
         }
 
@@ -285,6 +283,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 });
             }
             return new QueryExecutionService(connectionService, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
+        }
+
+        public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService()
+        {
+            // Set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(StandardQuery);
+           
+            // Set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+
+            return workspaceService.Object;
         }
 
         #endregion
