@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public static Batch GetBasicExecutedBatch()
         {
             Batch batch = new Batch(StandardQuery, SubsectionDocument, 1, GetFileStreamFactory());
-            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None, null).Wait();
+            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
             return batch;
         }
 
@@ -78,7 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
             Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory());
-            query.Execute(null).Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
             return query;
         }
 

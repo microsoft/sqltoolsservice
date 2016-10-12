@@ -67,7 +67,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Properties
 
-        public delegate Task BatchCompletionFunc(BatchSummary summary);
+        public delegate Task BatchAsyncEventHandler(Batch summary);
+
+        public event BatchAsyncEventHandler BatchCompletion;
 
         /// <summary>
         /// The text of batch that will be executed
@@ -122,6 +124,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// Creates a <see cref="BatchSummary"/> based on the batch instance
+        /// </summary>
+        public BatchSummary Summary
+        {
+            get
+            {
+                return new BatchSummary
+                {
+                    HasError = HasError,
+                    Id = Id,
+                    ResultSetSummaries = ResultSummaries,
+                    Messages = ResultMessages.ToArray(),
+                    Selection = Selection
+                };
+            }
+        }
+
+        /// <summary>
         /// The range from the file that is this batch
         /// </summary>
         internal BufferRange Selection { get; set; }
@@ -138,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="batchCompletionCallback"> 
         /// Function to be called upon completion of the batch
         /// </param>
-        public async Task Execute(DbConnection conn, CancellationToken cancellationToken, BatchCompletionFunc batchCompletionCallback)
+        public async Task Execute(DbConnection conn, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we haven't already run this batch
             if (HasExecuted)
@@ -233,9 +253,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 HasExecuted = true;
 
                 // Fire an event to signify that the batch has completed
-                if (batchCompletionCallback != null)
+                if (BatchCompletion != null)
                 {
-                    await batchCompletionCallback(ToSummary());
+                    await BatchCompletion(this);
                 }
             }
         }
@@ -257,22 +277,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Retrieve the result set
             return resultSets[resultSetIndex].GetSubset(startRow, rowCount);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="BatchSummary"/> based on the batch instance
-        /// </summary>
-        /// <returns><see cref="BatchSummary"/></returns>
-        public BatchSummary ToSummary()
-        {
-            return new BatchSummary
-            {
-                HasError = HasError,
-                Id = Id,
-                ResultSetSummaries = ResultSummaries,
-                Messages = ResultMessages.ToArray(),
-                Selection = Selection
-            };
         }
 
         #endregion

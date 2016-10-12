@@ -518,19 +518,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
+            query.QueryCompleted += callback;
+            query.QueryFailed += callback;
 
-            Batch.BatchCompletionFunc batchCallback = async q =>
+            // Setup the batch completion callback
+            Batch.BatchAsyncEventHandler batchCallback = async b =>
             {
                 QueryExecuteBatchCompleteParams eventParams = new QueryExecuteBatchCompleteParams
                 {
-                    BatchSummary = q,
+                    BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
                 await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
             };
-
-            query.QueryCompleted += callback;
-            query.QueryFailed += callback;
+            query.BatchCompleted += batchCallback;
 
             // Launch this as an asynchronous task
             query.Execute();

@@ -98,6 +98,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="q">The query that completed</param>
         public delegate Task QueryAsyncEventHandler(Query q);
 
+        public event Batch.BatchAsyncEventHandler BatchCompleted;
+
         /// <summary>
         /// Callback for when the query has completed successfully
         /// </summary>
@@ -125,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     throw new InvalidOperationException("Query has not been executed.");
                 }
 
-                return Batches.Select(b => b.ToSummary()).ToArray();
+                return Batches.Select(b => b.Summary).ToArray();
             }
         }
 
@@ -174,9 +176,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             cancellationSource.Cancel();
         }
 
-        public void Execute(Batch.BatchCompletionFunc batchCompletionCallback)
+        public void Execute()
         {
-            ExecutionTask = Task.Run(() => ExecuteInternal(batchCompletionCallback));
+            ExecutionTask = Task.Run(ExecuteInternal);
         }
 
         /// <summary>
@@ -212,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Executes this query asynchronously and collects all result sets
         /// </summary>
         /// <param name="batchCompletionCallback">Function to execute after a batch completes</param>
-        private async void ExecuteInternal(Batch.BatchCompletionFunc batchCompletionCallback)
+        private async Task ExecuteInternal()
         {
             // Mark that we've internally executed
             hasExecuteBeenCalled = true;
@@ -242,7 +244,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // We need these to execute synchronously, otherwise the user will be very unhappy
                     foreach (Batch b in Batches)
                     {
-                        await b.Execute(conn, cancellationSource.Token, batchCompletionCallback);
+                        b.BatchCompletion += BatchCompleted;
+                        await b.Execute(conn, cancellationSource.Token);
                     }
 
                     // Call the query execution callback
