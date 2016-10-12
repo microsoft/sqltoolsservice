@@ -841,8 +841,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Fact]
         public void TestThatLinuxAndOSXSqlExceptionHasNoErrorCode()
         {
-            TestUtils.RunIfLinuxOrOSX(() => {
-                
+            TestUtils.RunIfLinuxOrOSX(() => 
+            {    
                 try
                 {
                     SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
