@@ -78,7 +78,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Properties
 
-        public delegate Task BatchAsyncEventHandler(Batch summary);
+        /// <summary>
+        /// Asynchronous handler for when batches are completed
+        /// </summary>
+        /// <param name="batch">The batch that completed</param>
+        public delegate Task BatchAsyncEventHandler(Batch batch);
 
         public event BatchAsyncEventHandler BatchCompletion;
 
@@ -193,9 +197,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="conn">The connection to use to execute the batch</param>
         /// <param name="cancellationToken">Token for cancelling the execution</param>
-        /// <param name="batchCompletionCallback"> 
-        /// Function to be called upon completion of the batch
-        /// </param>
         public async Task Execute(DbConnection conn, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we haven't already run this batch
@@ -206,11 +207,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             try
             {
-                DbCommand command = null;
-
                 // Register the message listener to *this instance* of the batch
                 // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+                DbCommand command;
                 if (sqlConn != null)
                 {
                     sqlConn.GetUnderlyingConnection().InfoMessage += StoreDbMessage;

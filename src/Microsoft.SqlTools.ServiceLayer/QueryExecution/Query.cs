@@ -98,6 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="q">The query that completed</param>
         public delegate Task QueryAsyncEventHandler(Query q);
 
+        /// <summary>
+        /// Event to be called when a batch is completed.
+        /// </summary>
         public event Batch.BatchAsyncEventHandler BatchCompleted;
 
         /// <summary>
