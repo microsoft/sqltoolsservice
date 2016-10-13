@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class CancelTests
     {
-        [Fact]
+        //[Fact]
         public async void CancelInProgressQueryTest()
         {
             // Set up file for returning the query
