@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Threading;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -21,6 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         private ParseOptions parseOptions;
 
+        private object bindingLock;
+
         private ServerConnection serverConnection;
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public ConnectedBindingContext()
         {
-            this.BindingLocked = new ManualResetEvent(initialState: true);            
+            this.bindingLock = new object();            
             this.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
             this.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
         }
@@ -72,9 +73,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public IBinder Binder { get; set; }
 
         /// <summary>
-        /// Gets or sets an event to signal if a binding operation is in progress
+        /// Gets the binding lock object
         /// </summary>
-        public ManualResetEvent BindingLocked { get; set; } 
+        public object BindingLock 
+        { 
+            get
+            {
+                return this.bindingLock;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the binding operation timeout in milliseconds

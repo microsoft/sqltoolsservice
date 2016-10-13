@@ -4,7 +4,6 @@
 //
 
 using System.Collections.Generic;
-using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 
@@ -15,14 +14,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     internal class ScriptParseInfo
     {
-        private ManualResetEvent buildingMetadataEvent = new ManualResetEvent(initialState: true);
+        private object buildingMetadataLock = new object();
 
         /// <summary>
         /// Event which tells if MetadataProvider is built fully or not
         /// </summary>
-        public ManualResetEvent BuildingMetadataEvent 
+        public object BuildingMetadataLock
         { 
-            get { return this.buildingMetadataEvent; }
+            get { return this.buildingMetadataLock; }
         }
 
         /// <summary>

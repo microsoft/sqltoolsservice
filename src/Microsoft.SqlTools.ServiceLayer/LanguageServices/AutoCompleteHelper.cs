@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -572,12 +573,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);                                
                 LanguageService.Instance.ParseAndBind(scriptFile, info);
 
-                if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
-                        scriptInfo.BuildingMetadataEvent.Reset();
-
                         QueueItem queueItem = bindingQueue.QueueBindingOperation(
                             key: scriptInfo.ConnectionKey,
                             bindingTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
@@ -631,7 +630,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     finally
                     {
-                        scriptInfo.BuildingMetadataEvent.Set();
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
             }

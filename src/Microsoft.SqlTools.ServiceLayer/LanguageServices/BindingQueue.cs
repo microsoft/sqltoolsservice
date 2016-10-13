@@ -191,18 +191,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             continue;
                         }
 
+                        bool lockTaken = false;
                         try
                         {                                                    
                             // prefer the queue item binding item, otherwise use the context default timeout
                             int bindTimeout = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
 
                             // handle the case a previous binding operation is still running                            
-                            if (!bindingContext.BindingLocked.WaitOne(bindTimeout))
+                            if (!Monitor.TryEnter(bindingContext.BindingLock, bindTimeout))
                             {
                                 queueItem.Result = queueItem.TimeoutOperation(bindingContext);
                                 queueItem.ItemProcessed.Set();
                                 continue;
                             }
+
+                            lockTaken = true;
 
                             // execute the binding operation
                             object result = null;
@@ -237,7 +240,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                         finally
                         {
-                            bindingContext.BindingLocked.Set();
+                            if (lockTaken)
+                            {
+                                Monitor.Exit(bindingContext.BindingLock);
+                            }
+
                             queueItem.ItemProcessed.Set();
                         }
 

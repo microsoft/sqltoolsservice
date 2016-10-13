@@ -32,6 +32,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool disposed;
 
         /// <summary>
+        /// Local time when the execution and retrieval of files is finished
+        /// </summary>
+        private DateTime executionEndTime;
+
+        /// <summary>
+        /// Local time when the execution starts, specifically when the object is created
+        /// </summary>
+        private readonly DateTime executionStartTime;
+
+        /// <summary>
         /// Factory for creating readers/writers for the output of the batch
         /// </summary>
         private readonly IFileStreamFactory outputFileFactory;
@@ -58,6 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Initialize the internal state
             BatchText = batchText;
             Selection = selection;
+            executionStartTime = DateTime.Now;
             HasExecuted = false;
             Id = ordinalId;
             resultSets = new List<ResultSet>();
@@ -75,6 +86,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The text of batch that will be executed
         /// </summary>
         public string BatchText { get; set; }
+
+        /// <summary>
+        /// Localized timestamp for when the execution completed.
+        /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
+        /// </summary>
+        public string ExecutionEndTimeStamp { get { return executionEndTime.ToString("o"); } }
+
+        /// <summary>
+        /// Localized timestamp for how long it took for the execution to complete
+        /// </summary>
+        public string ExecutionElapsedTime
+        {
+            get
+            {
+                TimeSpan elapsedTime = executionEndTime - executionStartTime;
+                return elapsedTime.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Localized timestamp for when the execution began.
+        /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
+        /// </summary>
+        public string ExecutionStartTimeStamp { get { return executionStartTime.ToString("o"); } }
 
         /// <summary>
         /// Whether or not this batch has an error
@@ -136,7 +171,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     ResultSetSummaries = ResultSummaries,
                     Messages = ResultMessages.ToArray(),
-                    Selection = Selection
+                    Selection = Selection,
+                    ExecutionElapsed = ExecutionElapsedTime,
+                    ExecutionStart = ExecutionStartTimeStamp,
+                    ExecutionEnd = ExecutionEndTimeStamp
                 };
             }
         }
@@ -216,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
                             
                             // Read until we hit the end of the result set
-                            await resultSet.ReadResultToEnd(cancellationToken);
+                            await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
                             // Add a message for the number of rows the query returned
                             resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
@@ -251,6 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Mark that we have executed
                 HasExecuted = true;
+                executionEndTime = DateTime.Now;
 
                 // Fire an event to signify that the batch has completed
                 if (BatchCompletion != null)
@@ -313,15 +352,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             SqlException se = dbe as SqlException;
             if (se != null)
             {
-                foreach (var error in se.Errors)
+                var errors = se.Errors.Cast<SqlError>().ToList();
+                // Detect user cancellation errors
+                if (errors.Any(error => error.Class == 11 && error.Number == 0))
                 {
-                    SqlError sqlError = error as SqlError;
-                    if (sqlError != null)
+                    // User cancellation error, add the single message
+                    HasError = false;
+                    resultMessages.Add(new ResultMessage(SR.QueryServiceQueryCancelled));
+                }
+                else
+                {
+                    // Not a user cancellation error, add all 
+                    foreach (var error in errors)
                     {
-                        int lineNumber = sqlError.LineNumber + Selection.Start.Line;
+                        int lineNumber = error.LineNumber + Selection.Start.Line;
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                            sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
-                            Environment.NewLine, sqlError.Message);
+                            error.Number, error.Class, error.State, lineNumber,
+                            Environment.NewLine, error.Message);
                         resultMessages.Add(new ResultMessage(message));
                     }
                 }

@@ -126,7 +126,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     throw new InvalidOperationException("Query has not been executed.");
                 }
-
                 return Batches.Select(b => b.Summary).ToArray();
             }
         }
@@ -207,7 +206,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Executes this query asynchronously and collects all result sets
         /// </summary>
-        /// <param name="batchCompletionCallback">Function to execute after a batch completes</param>
         private async Task ExecuteInternal()
         {
             // Mark that we've internally executed

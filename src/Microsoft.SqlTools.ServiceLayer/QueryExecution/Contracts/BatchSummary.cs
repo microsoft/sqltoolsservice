@@ -13,6 +13,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class BatchSummary
     {
         /// <summary>
+        /// Localized timestamp for how long it took for the execution to complete
+        /// </summary>
+        public string ExecutionElapsed { get; set; }
+
+        /// <summary>
+        /// Localized timestamp for when the execution completed.
+        /// </summary>
+        public string ExecutionEnd { get; set; }
+
+        /// <summary>
+        /// Localized timestamp for when the execution started.
+        /// </summary>
+        public string ExecutionStart { get; set; }
+
+        /// <summary>
         /// Whether or not the batch was successful. True indicates errors, false indicates success
         /// </summary>
         public bool HasError { get; set; }
