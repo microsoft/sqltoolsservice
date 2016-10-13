@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Whether resultSet is a 'for xml' or 'for json' result
         /// </summary>
-        private bool isSingleColumnXmlJsonResultSet { get; set; }
+        private bool isSingleColumnXmlJsonResultSet;
 
         /// <summary>
         /// The name of the temporary file we're using to output these results in
