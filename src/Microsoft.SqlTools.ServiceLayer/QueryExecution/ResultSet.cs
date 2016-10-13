@@ -201,6 +201,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
         public async Task ReadResultToEnd(CancellationToken cancellationToken)
         {
+            // Mark that result has been read
+            hasBeenRead = true;
+            fileStreamReader = fileStreamFactory.GetReader(outputFileName);
+
             // Open a writer for the file
             using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
             {
@@ -221,10 +225,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
             SingleColumnXmlJsonResultSet();
-
-            // Mark that result has been read
-            hasBeenRead = true;
-            fileStreamReader = fileStreamFactory.GetReader(outputFileName);
         }
 
         #endregion

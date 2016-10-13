@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
                             
                             // Read until we hit the end of the result set
-                            await resultSet.ReadResultToEnd(cancellationToken);
+                            await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
                             // Add a message for the number of rows the query returned
                             resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
@@ -268,15 +268,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             SqlException se = dbe as SqlException;
             if (se != null)
             {
-                foreach (var error in se.Errors)
+                var errors = se.Errors.Cast<SqlError>().ToList();
+                // Detect user cancellation errors
+                if (errors.Any(error => error.Class == 11 && error.Number == 0))
                 {
-                    SqlError sqlError = error as SqlError;
-                    if (sqlError != null)
+                    // User cancellation error, add the single message
+                    HasError = false;
+                    resultMessages.Add(new ResultMessage(SR.QueryServiceQueryCancelled));
+                }
+                else
+                {
+                    // Not a user cancellation error, add all 
+                    foreach (var error in errors)
                     {
-                        int lineNumber = sqlError.LineNumber + Selection.StartLine;
+                        int lineNumber = error.LineNumber + Selection.StartLine;
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                            sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
-                            Environment.NewLine, sqlError.Message);
+                            error.Number, error.Class, error.State, lineNumber,
+                            Environment.NewLine, error.Message);
                         resultMessages.Add(new ResultMessage(message));
                     }
                 }
