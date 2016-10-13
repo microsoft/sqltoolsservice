@@ -257,6 +257,7 @@ Task("TestCore")
 /// </summary>
 Task("Test")
     .IsDependentOn("Setup")
+	.IsDependentOn("SRGen")
     .IsDependentOn("BuildTest")
     .Does(() =>
 {
@@ -304,6 +305,7 @@ Task("Test")
 /// </summary>
 Task("OnlyPublish")
     .IsDependentOn("Setup")
+	.IsDependentOn("SRGen")
     .Does(() =>
 {
     var project = buildPlan.MainProject;
@@ -534,7 +536,8 @@ Task("SRGen")
 		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
 			srgenPath, outputResx, outputCs, projectName, projectName, projectStrings);
 		Information("{0}", dotnetArgs);
-		Run(dotnetcli, dotnetArgs);
+		Run(dotnetcli, dotnetArgs)
+			.ExceptionOnError("Failed to run SRGen.");
 	}
 });
 
