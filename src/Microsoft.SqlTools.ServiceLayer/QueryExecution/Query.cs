@@ -132,6 +132,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return Batches.Select((batch, index) => new BatchSummary
                 {
                     Id = index,
+                    ExecutionStart = batch.ExecutionStartTimeStamp,
+                    ExecutionEnd = batch.ExecutionEndTimeStamp,
+                    ExecutionElapsed = batch.ExecutionElapsedTime,
                     HasError = batch.HasError,
                     Messages = batch.ResultMessages.ToArray(),
                     ResultSetSummaries = batch.ResultSummaries,

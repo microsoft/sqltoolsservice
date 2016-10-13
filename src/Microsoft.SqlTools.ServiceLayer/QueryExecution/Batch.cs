@@ -31,6 +31,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool disposed;
 
         /// <summary>
+        /// Local time when the execution and retrieval of files is finished
+        /// </summary>
+        private DateTime executionEndTime;
+
+        /// <summary>
+        /// Local time when the execution starts, specifically when the object is created
+        /// </summary>
+        private readonly DateTime executionStartTime;
+
+        /// <summary>
         /// Factory for creating readers/writers for the output of the batch
         /// </summary>
         private readonly IFileStreamFactory outputFileFactory;
@@ -55,6 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             BatchText = batchText;
+            executionStartTime = DateTime.Now;
             Selection = new SelectionData(startLine, startColumn, endLine, endColumn);
             HasExecuted = false;
             resultSets = new List<ResultSet>();
@@ -68,6 +79,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The text of batch that will be executed
         /// </summary>
         public string BatchText { get; set; }
+
+        /// <summary>
+        /// Localized timestamp for when the execution completed.
+        /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
+        /// </summary>
+        public string ExecutionEndTimeStamp { get { return executionEndTime.ToString("o"); } }
+
+        /// <summary>
+        /// Localized timestamp for how long it took for the execution to complete
+        /// </summary>
+        public string ExecutionElapsedTime
+        {
+            get
+            {
+                TimeSpan elapsedTime = executionEndTime - executionStartTime;
+                return elapsedTime.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Localized timestamp for when the execution began.
+        /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
+        /// </summary>
+        public string ExecutionStartTimeStamp { get { return executionStartTime.ToString("o"); } }
 
         /// <summary>
         /// Whether or not this batch has an error
@@ -218,6 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Mark that we have executed
                 HasExecuted = true;
+                executionEndTime = DateTime.Now;
             }
         }
 
