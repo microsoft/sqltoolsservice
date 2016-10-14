@@ -264,7 +264,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 });
                 return;
             }
-            await SaveResults.SaveResultsAsCsv(saveParams, requestContext, result);
+            SaveResults saveAsCsv = new SaveResults();
+            await saveAsCsv.SaveResultsAsCsv(saveParams, requestContext, result);
         }
 
         /// <summary>
@@ -283,7 +284,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 });
                 return;
             }
-            await SaveResults.SaveResultsAsJson(saveParams, requestContext, result);
+            SaveResults saveAsJson = new SaveResults();
+            await saveAsJson.SaveResultsAsJson(saveParams, requestContext, result);
         }
 
         #endregion

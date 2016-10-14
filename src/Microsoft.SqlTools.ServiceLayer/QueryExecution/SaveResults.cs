@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="requestContext"> Request context for save results </param>
         /// <param name="result"> Result query object </param>
         /// <returns></returns>
-        internal static Task SaveResultsAsJson(SaveResultsAsJsonRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
+        internal Task SaveResultsAsJson(SaveResultsAsJsonRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
         {
             return Task.Run(async () =>
             {
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="requestContext">  Request context for save results </param>
         /// <param name="result"> Result query object </param>
         /// <returns></returns>
-        internal static Task SaveResultsAsCsv(SaveResultsAsCsvRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
+        internal Task SaveResultsAsCsv(SaveResultsAsCsvRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
         {
             return Task.Run(async () =>
             {
