@@ -171,14 +171,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 DbCommand command = null;
-
-                // Register the message listener to *this instance* of the batch
-                // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
+                    // Register the message listener to *this instance* of the batch
+                    // Note: This is being done to associate messages with batches
                     sqlConn.GetUnderlyingConnection().InfoMessage += StoreDbMessage;
                     command = sqlConn.GetUnderlyingConnection().CreateCommand();
+
+                    // Add a handler for when the command completes
+                    SqlCommand sqlCommand = (SqlCommand) command;
+                    sqlCommand.StatementCompleted += StatementCompletedHandler;
                 }
                 else
                 {
@@ -204,10 +207,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
-                                // Create a message with the number of affected rows -- IF the query affects rows
-                                resultMessages.Add(new ResultMessage(reader.RecordsAffected >= 0
-                                    ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
-                                    : SR.QueryServiceCompletedSuccessfully));
                                 continue;
                             }
 
@@ -220,9 +219,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // Read until we hit the end of the result set
                             await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
-                            // Add a message for the number of rows the query returned
-                            resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
+                            
                         } while (await reader.NextResultAsync(cancellationToken));
+
+                        // If there were no messages, for whatever reason (NO COUNT set, messages 
+                        // were emitted, records returned), output a "successful" message
+                        if (resultMessages.Count == 0)
+                        {
+                            resultMessages.Add(new ResultMessage(SR.QueryServiceCompletedSuccessfully));
+                        }
                     }
                 }
             }
@@ -279,6 +284,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Private Helpers
+
+        private void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
+        {
+            // Add a message for the number of rows the query returned
+            resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(args.RecordCount)));
+        }
 
         /// <summary>
         /// Delegate handler for storing messages that are returned from the server
