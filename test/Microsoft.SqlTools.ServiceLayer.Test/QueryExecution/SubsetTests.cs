@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // If:
             // ... I have a batch that hasn't completed execution
-            Batch b = new Batch(Common.StandardQuery, BufferRange.None, Common.Ordinal, Common.GetFileStreamFactory());
+            Batch b = new Batch(Common.StandardQuery, Common.WholeDocument, Common.Ordinal, Common.GetFileStreamFactory());
             Assert.False(b.HasExecuted);
 
             // ... And I ask for a subset

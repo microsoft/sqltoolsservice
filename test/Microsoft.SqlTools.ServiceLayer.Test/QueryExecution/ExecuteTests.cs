@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.Empty(batch.ResultMessages);
 
             // ... The start line of the batch should be 0
-            Assert.Equal(0, batch.Selection.Start.Line);
+            Assert.Equal(0, batch.Selection.StartLine);
 
             // ... It's ordinal ID should be what I set it to
             Assert.Equal(Common.Ordinal, batch.Id);

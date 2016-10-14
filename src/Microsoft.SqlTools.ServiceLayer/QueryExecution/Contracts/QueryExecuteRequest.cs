@@ -4,7 +4,6 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
@@ -16,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// The selection from the document
         /// </summary>
-        public BufferRange QuerySelection { get; set; }
+        public SelectionData QuerySelection { get; set; }
 
         /// <summary>
         /// URI for the editor that is asking for the query execute

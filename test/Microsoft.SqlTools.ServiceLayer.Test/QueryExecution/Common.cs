@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
@@ -46,7 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public const int StandardRows = 5;
 
         public const string UdtQuery = "SELECT hierarchyid::Parse('/')";
-        public const BufferRange WholeDocument = null;
+
+        public const SelectionData WholeDocument = null;
 
         public static readonly ConnectionDetails StandardConnectionDetails = new ConnectionDetails
         {
@@ -56,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             UserName = "012"
         };
 
-        public static readonly BufferRange SubsectionDocument = new BufferRange(0, 0, 2, 2);
+        public static readonly SelectionData SubsectionDocument = new SelectionData(0, 0, 2, 2);
 
         #endregion
 

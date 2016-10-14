@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
@@ -40,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// The selection from the file for this batch
         /// </summary>
-        public BufferRange Selection { get; set; }
+        public SelectionData Selection { get; set; }
 
         /// <summary>
         /// Any messages that came back from the server during execution of the batch

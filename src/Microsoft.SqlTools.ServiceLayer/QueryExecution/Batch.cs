@@ -15,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -58,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        internal Batch(string batchText, BufferRange selection, int ordinalId, IFileStreamFactory outputFileFactory)
+        internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -186,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The range from the file that is this batch
         /// </summary>
-        internal BufferRange Selection { get; set; }
+        internal SelectionData Selection { get; set; }
 
         #endregion
 
@@ -365,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Not a user cancellation error, add all 
                     foreach (var error in errors)
                     {
-                        int lineNumber = error.LineNumber + Selection.Start.Line;
+                        int lineNumber = error.LineNumber + Selection.StartLine;
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             error.Number, error.Class, error.State, lineNumber,
                             Environment.NewLine, error.Message);

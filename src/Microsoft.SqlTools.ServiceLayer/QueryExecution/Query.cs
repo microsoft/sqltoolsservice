@@ -84,9 +84,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 .Where(batch => batch.Statements.Count > 0)
                 .Select((batch, index) =>
                     new Batch(batch.Sql,
-                        new BufferRange(batch.StartLocation.LineNumber - 1, batch.StartLocation.ColumnNumber - 1,
-                            batch.EndLocation.LineNumber - 1, batch.EndLocation.ColumnNumber - 1), index,
-                        outputFactory));
+                        new SelectionData(
+                            batch.StartLocation.LineNumber - 1,
+                            batch.StartLocation.ColumnNumber - 1,
+                            batch.EndLocation.LineNumber - 1,
+                            batch.EndLocation.ColumnNumber - 1),
+                        index, outputFactory));
             Batches = batchSelection.ToArray();
         }
 

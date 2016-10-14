@@ -451,12 +451,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     string[] queryTextArray = queryFile.GetLinesInRange(
                         new BufferRange(
                             new BufferPosition(
-                                executeParams.QuerySelection.Start.Line + 1, 
-                                executeParams.QuerySelection.Start.Column + 1
+                                executeParams.QuerySelection.StartLine + 1, 
+                                executeParams.QuerySelection.StartColumn + 1
                             ), 
                             new BufferPosition(
-                                executeParams.QuerySelection.End.Line + 1, 
-                                executeParams.QuerySelection.End.Column + 1
+                                executeParams.QuerySelection.EndLine + 1, 
+                                executeParams.QuerySelection.EndColumn + 1
                             )
                         )
                     );
