@@ -285,6 +285,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
+        /// <summary>
+        /// Handler for when the StatementCompleted event is fired for this batch's command. This
+        /// will be executed ONLY when there is a rowcount to report. If this event is not fired
+        /// either NOCOUNT has been set or the command doesn't affect records.
+        /// </summary>
+        /// <param name="sender">Sender of the event</param>
+        /// <param name="args">Arguments for the event</param>
         private void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
         {
             // Add a message for the number of rows the query returned
