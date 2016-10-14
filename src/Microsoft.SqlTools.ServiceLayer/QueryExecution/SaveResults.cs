@@ -13,7 +13,8 @@ using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
-    internal class SaveResults{
+    internal class SaveResults
+    {
 
         /// Method ported from SSMS
 
@@ -37,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal static String EncodeCsvField(String field)
         {
             StringBuilder sbField = new StringBuilder(field);
-            
+
             //Whether this field has special characters which require it to be embedded in quotes
             bool embedInQuotes = false;
 
@@ -72,12 +73,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
             }
-            
+
             //Replace all quotes in the original field with double quotes
             sbField.Replace("\"", "\"\"");
 
             String ret = sbField.ToString();
-          
+
             if (embedInQuotes)
             {
                 ret = "\"" + ret + "\"";
@@ -106,11 +107,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns></returns>
         internal static Task SaveResultsAsJson(SaveResultsAsJsonRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
         {
-            return Task.Run(async() =>
+            return Task.Run(async () =>
             {
-            try
+                try
                 {
-                    using (StreamWriter jsonFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
+                    using (StreamWriter jsonFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read)))
                     using (JsonWriter jsonWriter = new JsonTextWriter(jsonFile))
                     {
                         jsonWriter.Formatting = Formatting.Indented;
@@ -187,11 +188,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns></returns>
         internal static Task SaveResultsAsCsv(SaveResultsAsCsvRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
         {
-            return Task.Run(async() =>
+            return Task.Run(async () =>
             {
                 try
                 {
-                    using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
+                    using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read)))
                     {
                         // get the requested resultSet from query
                         Batch selectedBatch = result.Batches[saveParams.BatchIndex];
@@ -207,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
                             rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
                             columnStartIndex = saveParams.ColumnStartIndex.Value;
-                            rowStartIndex =saveParams.RowStartIndex.Value;
+                            rowStartIndex = saveParams.RowStartIndex.Value;
                         }
                         else
                         {
@@ -218,16 +219,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // write column names if include headers option is chosen
                         if (saveParams.IncludeHeaders)
                         {
-                            await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Skip(columnStartIndex).Take(columnCount).Select( column =>
-                                                EncodeCsvField(column.ColumnName) ?? string.Empty)));
+                            await csvFile.WriteLineAsync(string.Join(",", selectedResultSet.Columns.Skip(columnStartIndex).Take(columnCount).Select(column =>
+                                             EncodeCsvField(column.ColumnName) ?? string.Empty)));
                         }
 
                         // retrieve rows and write as csv
                         ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
                         foreach (var row in resultSubset.Rows)
                         {
-                            await csvFile.WriteLineAsync( string.Join( ",", row.Skip(columnStartIndex).Take(columnCount).Select( field =>
-                                                EncodeCsvField((field != null) ? field.ToString(): "NULL"))));
+                            await csvFile.WriteLineAsync(string.Join(",", row.Skip(columnStartIndex).Take(columnCount).Select(field =>
+                                             EncodeCsvField((field != null) ? field.ToString() : "NULL"))));
                         }
 
                     }
@@ -235,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Successfully wrote file, send success result
                     await requestContext.SendResult(new SaveResultRequestResult { Messages = null });
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // Delete file when exception occurs
                     if (File.Exists(saveParams.FilePath))
