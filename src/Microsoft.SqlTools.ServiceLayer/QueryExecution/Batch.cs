@@ -170,9 +170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
                                 // Create a message with the number of affected rows -- IF the query affects rows
-                                resultMessages.Add(new ResultMessage(reader.RecordsAffected >= 0
-                                    ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
-                                    : SR.QueryServiceCompletedSuccessfully));
+                                string message = GetRowsAffectedMessage(reader.RecordsAffected);
+                                resultMessages.Add(new ResultMessage(message));
                                 continue;
                             }
 
@@ -186,7 +185,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             await resultSet.ReadResultToEnd(cancellationToken);
 
                             // Add a message for the number of rows the query returned
-                            resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
+                            string resultMessage = GetRowsAffectedMessage(resultSet.RowCount);
+                            resultMessages.Add(new ResultMessage(resultMessage));
                         } while (await reader.NextResultAsync(cancellationToken));
                     }
                 }
@@ -219,6 +219,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Mark that we have executed
                 HasExecuted = true;
             }
+        }
+
+        /// <summary>
+        /// Gets a message like "5 rows affected" or "1 row affected".
+        /// </summary>
+        private static string GetRowsAffectedMessage(long affectedRows)
+        {
+            // Create a message with the number of affected rows -- IF the query affects rows
+            string message;
+            if (affectedRows < 0)
+            {
+                message = SR.QueryServiceCompletedSuccessfully;
+            }
+            else if (affectedRows == 1)
+            {
+                message = SR.QueryServiceAffectedOneRow;
+            }
+            else
+            {
+                message = SR.QueryServiceAffectedRows(affectedRows);
+            }
+            return message;
         }
 
         /// <summary>
