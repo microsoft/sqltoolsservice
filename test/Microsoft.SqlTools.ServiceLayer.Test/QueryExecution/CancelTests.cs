@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
     public class CancelTests
     {
-        //[Fact]
+        [Fact]
         public async void CancelInProgressQueryTest()
         {
             // Set up file for returning the query
@@ -51,8 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             VerifyQueryCancelCallCount(cancelRequest, Times.Once(), Times.Never());
             Assert.Null(result.Messages);
             
-            // ... The query should have been disposed as well
-            Assert.Empty(queryService.ActiveQueries);
+            // ... The query should not have been disposed
+            Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
         [Fact]
