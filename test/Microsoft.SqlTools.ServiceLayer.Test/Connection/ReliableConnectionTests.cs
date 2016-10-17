@@ -54,7 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Fact]
         public void TestGetDefaultDatabaseFilePath()
         {
-            TestUtils.RunIfWindows(() => {
+            TestUtils.RunIfWindows(() =>
+            {
                 var connectionBuilder = CreateTestConnectionStringBuilder();
                 Assert.NotNull(connectionBuilder);
 
@@ -82,7 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Fact]
         public void TestGetServerVersion()
         {
-            TestUtils.RunIfWindows(() => {
+            TestUtils.RunIfWindows(() => 
+            {
                 using (var connection = CreateTestConnection())
                 {
                     Assert.NotNull(connection);
