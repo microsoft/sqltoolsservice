@@ -109,7 +109,7 @@ QueryServiceFileWrapperReadOnly = This FileStreamWrapper cannot be used for writ
 
 QueryServiceAffectedRows(long rows) = ({0} row(s) affected)
 
-QueryServiceCompletedSuccessfully = Command(s) copleted successfully.
+QueryServiceCompletedSuccessfully = Command(s) completed successfully.
 
 QueryServiceErrorFormat(int msg, int lvl, int state, int line, string newLine, string message) = Msg {0}, Level {1}, State {2}, Line {3}{4}{5}
 
