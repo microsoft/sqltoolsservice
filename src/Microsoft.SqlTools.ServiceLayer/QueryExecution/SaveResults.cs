@@ -15,9 +15,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
     internal class SaveResults
     {
+        // Number of rows being read from the ResultSubset in one read
+        private const int batchSize = 1;
 
         /// Method ported from SSMS
-
         /// <summary>
         /// Encodes a single field for inserting into a CSV record. The following rules are applied:
         /// <list type="bullet">
@@ -144,31 +145,40 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                     columnEndIndex = selectedResultSet.Columns.Length;
                             }
                         }
-                        // retrieve rows and write as json
-                        ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
-
-                        lock(selectedResultSet) lock(resultSubset)
+                        for (int count = 0; count < (rowCount / batchSize) + 1; count++)
                         {
-                            foreach (var row in resultSubset.Rows)
+                            int numberOfRows = (count < rowCount / batchSize) ? batchSize : (rowCount % batchSize);
+                            if (numberOfRows == 0)
                             {
-                                jsonWriter.WriteStartObject();
-                                for (int i = columnStartIndex; i < columnEndIndex; i++)
+                                break;
+                            }
+
+                            // retrieve rows and write as json
+                            ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex + count * batchSize, numberOfRows);
+
+                            lock (selectedResultSet) lock (resultSubset)
                                 {
-                                    //get column name
-                                    DbColumnWrapper col = selectedResultSet.Columns[i];
-                                    string val = row[i]?.ToString();
-                                    jsonWriter.WritePropertyName(col.ColumnName);
-                                    if (val == null)
+                                    foreach (var row in resultSubset.Rows)
                                     {
-                                        jsonWriter.WriteNull();
-                                    }
-                                    else
-                                    {
-                                        jsonWriter.WriteValue(val);
+                                        jsonWriter.WriteStartObject();
+                                        for (int i = columnStartIndex; i < columnEndIndex; i++)
+                                        {
+                                            //get column name
+                                            DbColumnWrapper col = selectedResultSet.Columns[i];
+                                            string val = row[i]?.ToString();
+                                            jsonWriter.WritePropertyName(col.ColumnName);
+                                            if (val == null)
+                                            {
+                                                jsonWriter.WriteNull();
+                                            }
+                                            else
+                                            {
+                                                jsonWriter.WriteValue(val);
+                                            }
+                                        }
+                                        jsonWriter.WriteEndObject();
                                     }
                                 }
-                                jsonWriter.WriteEndObject();
-                            }
                         }
                         jsonWriter.WriteEndArray();
                     }
@@ -203,6 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read)))
                     {
                         ResultSet selectedResultSet;
+                        ResultSetSubset resultSubset;
                         int columnCount = 0;
                         int rowCount = 0;
                         int columnStartIndex = 0;
@@ -237,17 +248,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                                 EncodeCsvField(column.ColumnName) ?? string.Empty)));
                             }
                         }
-                        // retrieve rows and write as csv
-                        ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
-                        lock(resultSubset)
+
+                        for (int i = 0; i < (rowCount/batchSize) + 1; i++)
                         {
-                            foreach (var row in resultSubset.Rows)
+                            int numberOfRows = (i < rowCount/batchSize)? batchSize: (rowCount % batchSize);
+                            if (numberOfRows == 0)
                             {
-                                csvFile.WriteLine(string.Join(",", row.Skip(columnStartIndex).Take(columnCount).Select(field =>
-                                                EncodeCsvField((field != null) ? field.ToString() : "NULL"))));
+                                break;
+                            }
+                            // retrieve rows and write as csv
+                            resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex + i * batchSize, numberOfRows);
+                            lock(resultSubset)
+                            {
+                                foreach (var row in resultSubset.Rows)
+                                {
+                                    csvFile.WriteLine(string.Join(",", row.Skip(columnStartIndex).Take(columnCount).Select(field =>
+                                                    EncodeCsvField((field != null) ? field.ToString() : "NULL"))));
+                                }
                             }
                         }
-
                     }
 
                     // Successfully wrote file, send success result
