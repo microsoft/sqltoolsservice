@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#define USE_LIVE_CONNECTION
+#if LIVE_CONNECTION_TESTS
 
 using System;
 using System.Data;
@@ -21,21 +21,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
     /// </summary>
     public class ReliableConnectionTests
     {
-#if USE_LIVE_CONNECTION
         /// <summary>
-        /// Helper method to create a local integrated auth connection builder for testing.
+        /// Environment variable that stores the name of the test server hosting the SQL Server instance.
+        /// </summary>
+        public static string TestServerEnvironmentVariable
+        {
+            get { return "TEST_SERVER"; }
+        }
+
+        private static Lazy<string> testServerName = new Lazy<string>(() => Environment.GetEnvironmentVariable(TestServerEnvironmentVariable));
+
+        /// <summary>
+        /// Name of the test server hosting the SQL Server instance.
+        /// </summary>
+        public static string TestServerName
+        {
+            get { return testServerName.Value; }
+        }
+
+        /// <summary>
+        /// Helper method to create an integrated auth connection builder for testing.
         /// </summary>
         private SqlConnectionStringBuilder CreateTestConnectionStringBuilder()
         {
             SqlConnectionStringBuilder csb = new SqlConnectionStringBuilder();
-            csb.DataSource = "localhost";
+            csb.DataSource = TestServerName;
             csb.IntegratedSecurity = true;
 
             return csb;
         }
 
         /// <summary>
-        /// Helper method to create a local integrated auth reliable connection for testing.
+        /// Helper method to create an integrated auth reliable connection for testing.
         /// </summary>
         private DbConnection CreateTestConnection()
         {
@@ -321,7 +338,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 Assert.NotEmpty(info.ServerVersion);
             });
         }
-
-#endif // USE_LIVE_CONNECTION
     }
 }
+#endif // LIVE_CONNECTION_TESTS

@@ -4,6 +4,15 @@
   "buildOptions": {
     "debugType": "portable"
   },
+  "configurations": {
+    "Integration": {
+      "buildOptions": {
+        "define": [
+          "LIVE_CONNECTION_TESTS"
+        ]
+      }
+    }
+  },
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
     "System.Runtime.Serialization.Primitives": "4.1.1",
