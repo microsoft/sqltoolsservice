@@ -370,7 +370,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Success
             return true;
         }
-
+        
         /// <summary>
         /// List all databases on the server specified
         /// </summary>
