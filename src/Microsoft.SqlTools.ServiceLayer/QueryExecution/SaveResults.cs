@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     internal class SaveResults
     {
         // Number of rows being read from the ResultSubset in one read
-        private const int batchSize = 1;
+        private const int batchSize = 1000;
 
         /// Method ported from SSMS
         /// <summary>
