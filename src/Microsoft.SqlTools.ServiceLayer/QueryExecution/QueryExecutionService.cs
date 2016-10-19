@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -265,61 +264,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 });
                 return;
             }
-            try
-            {
-                using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
-                {
-                    // get the requested resultSet from query
-                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
-                    int columnCount = 0;
-                    int rowCount = 0;
-                    int columnStartIndex = 0;
-                    int rowStartIndex = 0;
-
-                    // set column, row counts depending on whether save request is for entire result set or a subset
-                    if (SaveResults.isSaveSelection(saveParams))
-                    {   
-                        columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
-                        rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
-                        columnStartIndex = saveParams.ColumnStartIndex.Value;
-                        rowStartIndex =saveParams.RowStartIndex.Value;
-                    }
-                    else
-                    {                
-                        columnCount = selectedResultSet.Columns.Length;
-                        rowCount = (int)selectedResultSet.RowCount;
-                    }
-
-                    // write column names if include headers option is chosen
-                    if (saveParams.IncludeHeaders)
-                    {
-                        await csvFile.WriteLineAsync( string.Join( ",", selectedResultSet.Columns.Skip(columnStartIndex).Take(columnCount).Select( column =>
-                                            SaveResults.EncodeCsvField(column.ColumnName) ?? string.Empty)));
-                    }
-
-                    // retrieve rows and write as csv
-                    ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
-                    foreach (var row in resultSubset.Rows)
-                    {
-                        await csvFile.WriteLineAsync( string.Join( ",", row.Skip(columnStartIndex).Take(columnCount).Select( field => 
-                                            SaveResults.EncodeCsvField((field != null) ? field.ToString(): "NULL"))));
-                    }
-
-                }
-
-                // Successfully wrote file, send success result
-                await requestContext.SendResult(new SaveResultRequestResult { Messages = null });
-            }
-            catch(Exception ex)
-            {
-                // Delete file when exception occurs
-                if (File.Exists(saveParams.FilePath))
-                {
-                    File.Delete(saveParams.FilePath);
-                }
-                await requestContext.SendError(ex.Message);
-            }
+            SaveResults saveAsCsv = new SaveResults();
+            await saveAsCsv.SaveResultsAsCsv(saveParams, requestContext, result);
         }
 
         /// <summary>
@@ -338,73 +284,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 });
                 return;
             }
-            try
-            {
-                using (StreamWriter jsonFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
-                using (JsonWriter jsonWriter = new JsonTextWriter(jsonFile) )
-                {
-                    jsonWriter.Formatting = Formatting.Indented;
-                    jsonWriter.WriteStartArray();
-
-                    // get the requested resultSet from query
-                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
-                    int rowCount = 0;
-                    int rowStartIndex = 0;
-                    int columnStartIndex = 0;
-                    int columnEndIndex = 0;
-
-                    // set column, row counts depending on whether save request is for entire result set or a subset
-                    if (SaveResults.isSaveSelection(saveParams))
-                    {
-                       
-                        rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
-                        rowStartIndex = saveParams.RowStartIndex.Value;
-                        columnStartIndex = saveParams.ColumnStartIndex.Value;
-                        columnEndIndex = saveParams.ColumnEndIndex.Value + 1 ; // include the last column
-                    }
-                    else 
-                    {
-                        rowCount = (int)selectedResultSet.RowCount;
-                        columnEndIndex = selectedResultSet.Columns.Length;
-                    }
-
-                    // retrieve rows and write as json
-                    ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
-                    foreach (var row in resultSubset.Rows)
-                    {
-                        jsonWriter.WriteStartObject();
-                        for (int i = columnStartIndex ; i < columnEndIndex; i++)
-                        {
-                            //get column name
-                            DbColumnWrapper col = selectedResultSet.Columns[i];
-                            string val = row[i];
-                            jsonWriter.WritePropertyName(col.ColumnName);
-                            if (val == null)
-                            {
-                                jsonWriter.WriteNull();
-                            }
-                            else
-                            {
-                                jsonWriter.WriteValue(val);
-                            }
-                        }
-                        jsonWriter.WriteEndObject();
-                    }
-                    jsonWriter.WriteEndArray();
-                }
-
-                await requestContext.SendResult(new SaveResultRequestResult { Messages = null });
-            }
-            catch(Exception ex)
-            {
-                // Delete file when exception occurs
-                if (File.Exists(saveParams.FilePath))
-                {
-                    File.Delete(saveParams.FilePath);
-                }
-                await requestContext.SendError(ex.Message);
-            }
+            SaveResults saveAsJson = new SaveResults();
+            await saveAsJson.SaveResultsAsJson(saveParams, requestContext, result);
         }
 
         #endregion
