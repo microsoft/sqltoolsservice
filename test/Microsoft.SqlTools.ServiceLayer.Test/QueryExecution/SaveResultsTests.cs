@@ -223,9 +223,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 BatchIndex = 0,
                 FilePath = "testwrite_5.json",          
                 RowStartIndex = 0,
-                RowEndIndex = 0,
+                RowEndIndex = 1,
                 ColumnStartIndex = 0,
-                ColumnEndIndex = 0             
+                ColumnEndIndex = 1             
             };
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
