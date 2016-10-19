@@ -285,3 +285,4 @@ Session.vim
 # Stuff from cake
 /artifacts/
 /.tools/
+/.dotnet/
