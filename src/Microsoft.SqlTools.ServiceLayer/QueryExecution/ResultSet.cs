@@ -45,12 +45,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly IFileStreamFactory fileStreamFactory;
 
         /// <summary>
-        /// File stream reader that will be reused to make rapid-fire retrieval of result subsets
-        /// quick and low perf impact.
-        /// </summary>
-        private IFileStreamReader fileStreamReader;
-
-        /// <summary>
         /// Whether or not the result set has been read in from the database
         /// </summary>
         private bool hasBeenRead;
@@ -120,18 +114,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public long RowCount { get; private set; }
 
-        /// <summary>
-        /// The rows of this result set
-        /// </summary>
-        public IEnumerable<string[]> Rows
-        {
-            get
-            {
-                return FileOffsets.Select(
-                    offset => fileStreamReader.ReadRow(offset, Columns).Select(cell => cell.DisplayValue).ToArray());
-            }
-        }
-
         #endregion
 
         #region Public Methods
@@ -145,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Task<ResultSetSubset> GetSubset(int startRow, int rowCount)
         {
             // Sanity check to make sure that the results have been read beforehand
-            if (!hasBeenRead || fileStreamReader == null)
+            if (!hasBeenRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
@@ -165,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 string[][] rows;
 
-                using (fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
                 {
                     // If result set is 'for xml' or 'for json',
                     // Concatenate all the rows together into one row
@@ -206,7 +188,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             // Mark that result has been read
             hasBeenRead = true;
-            fileStreamReader = fileStreamFactory.GetReader(outputFileName);
 
             // Open a writer for the file
             using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
@@ -249,7 +230,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (disposing)
             {
-                fileStreamReader?.Dispose();
                 fileStreamFactory.DisposeFile(outputFileName);
             }
 
