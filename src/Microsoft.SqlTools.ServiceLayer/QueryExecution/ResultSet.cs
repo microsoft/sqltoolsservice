@@ -164,28 +164,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
 
                 string[][] rows;
-                // If result set is 'for xml' or 'for json',
-                // Concatenate all the rows together into one row
-                if (isSingleColumnXmlJsonResultSet)
+
+                using (fileStreamReader = fileStreamFactory.GetReader(outputFileName))
                 {
-                    // Iterate over all the rows and process them into a list of string builders
-                    IEnumerable<StringBuilder> sbRows = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)
-                        .Select(cell => cell.DisplayValue).Aggregate(new StringBuilder(), (sb, value) => sb.Append(value)));
-                    rows = new[] { new[] { string.Join(string.Empty, sbRows) } };
+                    // If result set is 'for xml' or 'for json',
+                    // Concatenate all the rows together into one row
+                    if (isSingleColumnXmlJsonResultSet)
+                    {
+                        // Iterate over all the rows and process them into a list of string builders
+                        IEnumerable<StringBuilder> sbRows = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)
+                            .Select(cell => cell.DisplayValue).Aggregate(new StringBuilder(), (sb, value) => sb.Append(value)));
+                        rows = new[] { new[] { string.Join(string.Empty, sbRows) } };
 
+                    }
+                    else
+                    {
+                        // Figure out which rows we need to read back
+                        IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
+
+                        // Iterate over the rows we need and process them into output
+                        rows = rowOffsets.Select(rowOffset =>
+                            fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
+                            .ToArray();
+
+                    }
                 }
-                else
-                {
-                    // Figure out which rows we need to read back
-                    IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
-
-                    // Iterate over the rows we need and process them into output
-                    rows = rowOffsets.Select(rowOffset =>
-                        fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
-                        .ToArray();
-
-                }
-
                 // Retrieve the subset of the results as per the request
                 return new ResultSetSubset
                 {

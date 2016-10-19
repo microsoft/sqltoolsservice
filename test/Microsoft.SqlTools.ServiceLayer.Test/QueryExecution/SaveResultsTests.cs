@@ -46,7 +46,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
+            // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
+            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
+            await queryService.saveResults.saveTask;
 
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -89,7 +91,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
+            // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
+            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
+            await queryService.saveResults.saveTask;
 
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -128,7 +132,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             string errMessage = null;
             var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
+            // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
+            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
+            await queryService.saveResults.saveTask;
 
             // Expect to see error message
             Assert.NotNull(errMessage);

@@ -265,7 +265,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
             SaveResults saveAsCsv = new SaveResults();
-            await saveAsCsv.SaveResultsAsCsv(saveParams, requestContext, result);
+            SaveResults.SaveEventHandler successCallback = async message =>
+            {
+                await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
+            };
+            saveAsCsv.SaveCompleted += successCallback;
+
+            SaveResults.SaveEventHandler errorCallback = async message =>
+            {
+                await requestContext.SendError(message);
+            };
+            saveAsCsv.SaveFailed += errorCallback;
+
+            saveAsCsv.SaveResultSet(saveParams, requestContext, result);
+            // await saveAsCsv.SaveResultsAsCsv(saveParams, requestContext, result);
         }
 
         /// <summary>

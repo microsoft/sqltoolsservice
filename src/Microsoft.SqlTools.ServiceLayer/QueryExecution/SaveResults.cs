@@ -6,9 +6,11 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
@@ -17,6 +19,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     {
         // Number of rows being read from the ResultSubset in one read
         private const int batchSize = 1000;
+        static SemaphoreSlim semaphore = new SemaphoreSlim(1,1);
+
+        internal Task saveTask { get; private set; }
+        internal delegate Task SaveEventHandler(string message);
+        internal event SaveEventHandler SaveCompleted;
+        internal event SaveEventHandler SaveFailed;
 
         /// Method ported from SSMS
         /// <summary>
@@ -282,6 +290,97 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await requestContext.SendError(ex.Message);
                 }
             });
+        }
+
+        internal void SaveResultSet(SaveResultsAsCsvRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
+        {
+            saveTask = Task.Run(() => SaveResultsAsCsvAsync(saveParams, requestContext, result));
+        }
+
+        internal async Task SaveResultsAsCsvAsync(SaveResultsAsCsvRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
+        {
+                try
+                {
+                    using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read)))
+                    {
+                        ResultSet selectedResultSet;
+                        ResultSetSubset resultSubset;
+                        int columnCount = 0;
+                        int rowCount = 0;
+                        int columnStartIndex = 0;
+                        int rowStartIndex = 0;
+
+                        lock(result)
+                        {
+                            // get the requested resultSet from query
+                            Batch selectedBatch = result.Batches[saveParams.BatchIndex];
+                            selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+                        }
+                        lock(selectedResultSet)
+                        {
+                            // set column, row counts depending on whether save request is for entire result set or a subset
+                            if (IsSaveSelection(saveParams))
+                            {
+                                columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
+                                rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
+                                columnStartIndex = saveParams.ColumnStartIndex.Value;
+                                rowStartIndex = saveParams.RowStartIndex.Value;
+                            }
+                            else
+                            {
+                                columnCount = selectedResultSet.Columns.Length;
+                                rowCount = (int)selectedResultSet.RowCount;
+                            }
+
+                            // write column names if include headers option is chosen
+                            if (saveParams.IncludeHeaders)
+                            {
+                                csvFile.WriteLine(string.Join(",", selectedResultSet.Columns.Skip(columnStartIndex).Take(columnCount).Select(column =>
+                                                EncodeCsvField(column.ColumnName) ?? string.Empty)));
+                            }
+                        }
+                        for (int i = 0; i < (rowCount/batchSize) + 1; i++)
+                        {
+                            int numberOfRows = (i < rowCount/batchSize)? batchSize: (rowCount % batchSize);
+                            if (numberOfRows == 0)
+                            {
+                                break;
+                            }
+                            // retrieve rows and write as csv
+                            resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex + i * batchSize, numberOfRows);
+                            lock(resultSubset)
+                            {
+                                foreach (var row in resultSubset.Rows)
+                                {
+                                    csvFile.WriteLine(string.Join(",", row.Skip(columnStartIndex).Take(columnCount).Select(field =>
+                                                    EncodeCsvField((field != null) ? field.ToString() : "NULL"))));
+                                }
+                            }
+                        }
+
+                    }
+
+                    // Successfully wrote file, send success result
+                    if (SaveCompleted != null)
+                    {
+                        await SaveCompleted(null);
+                    }
+                    // await requestContext.SendResult(new SaveResultRequestResult { Messages = null });
+                }
+                catch (Exception ex)
+                {
+                    // Delete file when exception occurs
+                    if (File.Exists(saveParams.FilePath))
+                    {
+                        File.Delete(saveParams.FilePath);
+                    }
+                    
+                    if(SaveFailed != null)
+                    {
+                        await SaveFailed(ex.Message);
+                    }
+                    // await requestContext.SendError(ex.Message);
+                }
         }
     }
 
