@@ -251,7 +251,7 @@
  Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
-    <value>Command(s) copleted successfully.</value>
+    <value>Command(s) completed successfully.</value>
     <comment></comment>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
