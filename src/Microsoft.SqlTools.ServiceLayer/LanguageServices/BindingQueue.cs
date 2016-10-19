@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,14 +32,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Map from context keys to binding context instances
         /// Internal for testing purposes only
         /// </summary>
-        internal ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
+        internal Dictionary<string, IBindingContext> BindingContextMap { get; set; }
 
         /// <summary>
         /// Constructor for a binding queue instance
         /// </summary>
         public BindingQueue()
         {
-            this.BindingContextMap = new ConcurrentDictionary<string, IBindingContext>();
+            this.BindingContextMap = new Dictionary<string, IBindingContext>();
 
             this.queueProcessorTask = StartQueueProcessor();
         }
@@ -99,13 +98,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 key = "disconnected_binding_context";
             }
-  
-            if (!this.BindingContextMap.ContainsKey(key))
+                        
+            lock (this.bindingContextLock)
             {
-                this.BindingContextMap.TryAdd(key, new T());
-            }
+                if (!this.BindingContextMap.ContainsKey(key))
+                {
+                    this.BindingContextMap.Add(key, new T());
+                }
 
-            return this.BindingContextMap[key];            
+                return this.BindingContextMap[key];
+            }      
         }
 
         private bool HasPendingQueueItems
