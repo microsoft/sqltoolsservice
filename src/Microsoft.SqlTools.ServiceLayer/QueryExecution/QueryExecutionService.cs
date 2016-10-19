@@ -231,21 +231,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     return;
                 }
 
-                // Cancel the query
+                // Cancel the query and send a success message
                 result.Cancel();
-                result.Dispose();
-
-                // Attempt to dispose the query
-                if (!ActiveQueries.TryRemove(cancelParams.OwnerUri, out result))
-                {
-                    // It really shouldn't be possible to get to this scenario, but we'll cover it anyhow
-                    await requestContext.SendResult(new QueryCancelResult
-                    {
-                        Messages = SR.QueryServiceCancelDisposeFailed
-                    });
-                    return;
-                }
-
                 await requestContext.SendResult(new QueryCancelResult());
             }
             catch (InvalidOperationException e)

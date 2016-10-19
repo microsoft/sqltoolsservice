@@ -31,6 +31,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool disposed;
 
         /// <summary>
+        /// Local time when the execution and retrieval of files is finished
+        /// </summary>
+        private DateTime executionEndTime;
+
+        /// <summary>
+        /// Local time when the execution starts, specifically when the object is created
+        /// </summary>
+        private readonly DateTime executionStartTime;
+
+        /// <summary>
         /// Factory for creating readers/writers for the output of the batch
         /// </summary>
         private readonly IFileStreamFactory outputFileFactory;
@@ -55,6 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             BatchText = batchText;
+            executionStartTime = DateTime.Now;
             Selection = new SelectionData(startLine, startColumn, endLine, endColumn);
             HasExecuted = false;
             resultSets = new List<ResultSet>();
@@ -68,6 +79,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The text of batch that will be executed
         /// </summary>
         public string BatchText { get; set; }
+
+        /// <summary>
+        /// Localized timestamp for when the execution completed.
+        /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
+        /// </summary>
+        public string ExecutionEndTimeStamp { get { return executionEndTime.ToString("o"); } }
+
+        /// <summary>
+        /// Localized timestamp for how long it took for the execution to complete
+        /// </summary>
+        public string ExecutionElapsedTime
+        {
+            get
+            {
+                TimeSpan elapsedTime = executionEndTime - executionStartTime;
+                return elapsedTime.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Localized timestamp for when the execution began.
+        /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
+        /// </summary>
+        public string ExecutionStartTimeStamp { get { return executionStartTime.ToString("o"); } }
 
         /// <summary>
         /// Whether or not this batch has an error
@@ -136,14 +171,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 DbCommand command = null;
-
-                // Register the message listener to *this instance* of the batch
-                // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
+                    // Register the message listener to *this instance* of the batch
+                    // Note: This is being done to associate messages with batches
                     sqlConn.GetUnderlyingConnection().InfoMessage += StoreDbMessage;
                     command = sqlConn.GetUnderlyingConnection().CreateCommand();
+
+                    // Add a handler for when the command completes
+                    SqlCommand sqlCommand = (SqlCommand) command;
+                    sqlCommand.StatementCompleted += StatementCompletedHandler;
                 }
                 else
                 {
@@ -169,9 +207,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
-                                // Create a message with the number of affected rows -- IF the query affects rows
-                                string message = GetRowsAffectedMessage(reader.RecordsAffected);
-                                resultMessages.Add(new ResultMessage(message));
                                 continue;
                             }
 
@@ -182,12 +217,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSets.Add(resultSet);
                             
                             // Read until we hit the end of the result set
-                            await resultSet.ReadResultToEnd(cancellationToken);
+                            await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
-                            // Add a message for the number of rows the query returned
-                            string resultMessage = GetRowsAffectedMessage(resultSet.RowCount);
-                            resultMessages.Add(new ResultMessage(resultMessage));
                         } while (await reader.NextResultAsync(cancellationToken));
+
+                        // If there were no messages, for whatever reason (NO COUNT set, messages 
+                        // were emitted, records returned), output a "successful" message
+                        if (resultMessages.Count == 0)
+                        {
+                            resultMessages.Add(new ResultMessage(SR.QueryServiceCompletedSuccessfully));
+                        }
                     }
                 }
             }
@@ -218,6 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Mark that we have executed
                 HasExecuted = true;
+                executionEndTime = DateTime.Now;
             }
         }
 
@@ -267,6 +307,29 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Private Helpers
 
         /// <summary>
+        /// Handler for when the StatementCompleted event is fired for this batch's command. This
+        /// will be executed ONLY when there is a rowcount to report. If this event is not fired
+        /// either NOCOUNT has been set or the command doesn't affect records.
+        /// </summary>
+        /// <param name="sender">Sender of the event</param>
+        /// <param name="args">Arguments for the event</param>
+        private void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
+        {
+            // Add a message for the number of rows the query returned
+            string message;
+            if (args.RecordCount == 1)
+            {
+                message = SR.QueryServiceAffectedOneRow;
+            }
+            else
+            {
+                message = SR.QueryServiceAffectedRows(args.RecordCount);
+            }
+
+            resultMessages.Add(new ResultMessage(message));
+        }
+
+        /// <summary>
         /// Delegate handler for storing messages that are returned from the server
         /// NOTE: Only messages that are below a certain severity will be returned via this
         /// mechanism. Anything above that level will trigger an exception.
@@ -290,15 +353,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             SqlException se = dbe as SqlException;
             if (se != null)
             {
-                foreach (var error in se.Errors)
+                var errors = se.Errors.Cast<SqlError>().ToList();
+                // Detect user cancellation errors
+                if (errors.Any(error => error.Class == 11 && error.Number == 0))
                 {
-                    SqlError sqlError = error as SqlError;
-                    if (sqlError != null)
+                    // User cancellation error, add the single message
+                    HasError = false;
+                    resultMessages.Add(new ResultMessage(SR.QueryServiceQueryCancelled));
+                }
+                else
+                {
+                    // Not a user cancellation error, add all 
+                    foreach (var error in errors)
                     {
-                        int lineNumber = sqlError.LineNumber + Selection.StartLine;
+                        int lineNumber = error.LineNumber + Selection.StartLine;
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
-                            sqlError.Number, sqlError.Class, sqlError.State, lineNumber,
-                            Environment.NewLine, sqlError.Message);
+                            error.Number, error.Class, error.State, lineNumber,
+                            Environment.NewLine, error.Message);
                         resultMessages.Add(new ResultMessage(message));
                     }
                 }
