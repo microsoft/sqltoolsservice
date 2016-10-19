@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.True(options.EnableLogging);
+            Assert.False(options.ShouldExit);
         }
 
         [Fact]
@@ -31,6 +32,38 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.False(options.EnableLogging);
+            Assert.False(options.ShouldExit);
+        }
+
+        [Fact]
+        public void UsageIsShownWhenHelpFlagProvided()
+        {
+            var args = new string[] {"--help"};
+            CommandOptions options = new CommandOptions(args);
+            Assert.NotNull(options);
+
+            Assert.True(options.ShouldExit);
+        }
+
+        [Fact]
+        public void UsageIsShownWhenBadArgumentsProvided()
+        {
+            var args = new string[] {"--unknown-argument", "/bad-argument"};
+            CommandOptions options = new CommandOptions(args);
+            Assert.NotNull(options);
+
+            Assert.True(options.ShouldExit);
+        }
+
+        [Fact]
+        public void DefaultValuesAreUsedWhenNoArgumentsAreProvided()
+        {
+            var args = new string[] {};
+            CommandOptions options = new CommandOptions(args);
+            Assert.NotNull(options);
+
+            Assert.False(options.EnableLogging);
+            Assert.False(options.ShouldExit);
         }
     }
 }

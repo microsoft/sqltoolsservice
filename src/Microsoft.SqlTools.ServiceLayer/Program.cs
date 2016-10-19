@@ -25,6 +25,10 @@ namespace Microsoft.SqlTools.ServiceLayer
         {
             // read command-line arguments
             CommandOptions commandOptions = new CommandOptions(args);
+            if (commandOptions.ShouldExit)
+            {
+                return;
+            }
 
             // turn on Verbose logging during early development
             // we need to switch to Normal when preparing for public preview

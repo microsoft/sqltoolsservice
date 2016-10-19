@@ -25,61 +25,68 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 for (int i = 0; i < args.Length; ++i)
                 {
                     string arg = args[i];
-                    if (arg[0] == '-' || arg[0] == '/')
+                    if (arg.Length > 2 && arg[0] == '-' && arg[1] == '-')
                     {
-                        arg = arg.Substring(1).ToLowerInvariant();
+                        arg = arg.Substring(2).ToLowerInvariant();
                         switch (arg)
                         {
-                            case "-enable-logging":
+                            case "enable-logging":
                                 EnableLogging = true;
                                 break;
+                            case "h":
+                            case "help":
+                                ShouldExit = true;
+                                return;
                             default:
-                                ErrorMessage += String.Format("Unknown argument \"{0}\"\r\n", arg);
+                                ErrorMessage += String.Format("Unknown argument \"{0}\"" + Environment.NewLine, arg);
                                 break;
                         }
                     }
                 }
-                PrintOptionValues();
             }
             catch (Exception ex)
             {
                 ErrorMessage += ex.ToString();
                 return;
             }
+            finally
+            {
+                if (!string.IsNullOrEmpty(ErrorMessage) || ShouldExit)
+                {
+                    Console.WriteLine(Usage);
+                    ShouldExit = true;
+                }
+            }
         }
 
-        /// <summary>
-        /// Print all command-line option values
-        /// </summary>
-        public void PrintOptionValues()
-        {
-            Console.WriteLine("EnableLogging: " + this.EnableLogging);
-        }
+        internal string ErrorMessage { get; private set; }
 
-        /// <summary>
-        /// Get the usage string describing command-line arguments for the program
-        /// </summary>
-        public string Usage()
-        {
-            var str = string.Format("{0}\r\n" +
-                "Microsoft.SqlTools.ServiceLayer.exe \r\n" +
-                "   Options:\r\n" +
-                "        [--enable-logging]\r\n",
-                ErrorMessage);
-            return str;
-        }
-
-        private bool enableLogging = false;
 
         /// <summary>
         /// Whether diagnostic logging is enabled
         /// </summary>
-        public bool EnableLogging
-        {
-            get { return enableLogging; }
-            private set { enableLogging = value; }
-        }
+        public bool EnableLogging { get; private set; } = false;
 
-        internal string ErrorMessage { get; private set; }
+        /// <summary>
+        /// Whether the program should exit immediately. Set to true when the usage is printed.
+        /// </summary>
+        public bool ShouldExit { get; private set; } = false;
+
+        /// <summary>
+        /// Get the usage string describing command-line arguments for the program
+        /// </summary>
+        public string Usage
+        {
+            get
+            {
+                var str = string.Format("{0}" + Environment.NewLine +
+                    "Microsoft.SqlTools.ServiceLayer.exe " + Environment.NewLine +
+                    "   Options:" + Environment.NewLine +
+                    "        [--enable-logging]" + Environment.NewLine +
+                    "        [--help]" + Environment.NewLine,
+                    ErrorMessage);
+                return str;
+            }
+        }
     }
 }
