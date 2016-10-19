@@ -262,28 +262,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Gets a message like "5 rows affected" or "1 row affected".
-        /// </summary>
-        private static string GetRowsAffectedMessage(long affectedRows)
-        {
-            // Create a message with the number of affected rows -- IF the query affects rows
-            string message;
-            if (affectedRows < 0)
-            {
-                message = SR.QueryServiceCompletedSuccessfully;
-            }
-            else if (affectedRows == 1)
-            {
-                message = SR.QueryServiceAffectedOneRow;
-            }
-            else
-            {
-                message = SR.QueryServiceAffectedRows(affectedRows);
-            }
-            return message;
-        }
-
-        /// <summary>
         /// Generates a subset of the rows from a result set of the batch
         /// </summary>
         /// <param name="resultSetIndex">The index for selecting the result set</param>
