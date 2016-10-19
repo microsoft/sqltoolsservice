@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,14 +33,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Map from context keys to binding context instances
         /// Internal for testing purposes only
         /// </summary>
-        internal Dictionary<string, IBindingContext> BindingContextMap { get; set; }
+        internal ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
 
         /// <summary>
         /// Constructor for a binding queue instance
         /// </summary>
         public BindingQueue()
         {
-            this.BindingContextMap = new Dictionary<string, IBindingContext>();
+            this.BindingContextMap = new ConcurrentDictionary<string, IBindingContext>();
 
             this.queueProcessorTask = StartQueueProcessor();
         }
@@ -99,15 +100,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 key = "disconnected_binding_context";
             }
   
-            lock (this.bindingContextLock)
+            if (!this.BindingContextMap.ContainsKey(key))
             {
-                if (!this.BindingContextMap.ContainsKey(key))
-                {
-                    this.BindingContextMap.Add(key, new T());
-                }
+                this.BindingContextMap.TryAdd(key, new T());
+            }
 
-                return this.BindingContextMap[key];
-            }            
+            return this.BindingContextMap[key];            
         }
 
         private bool HasPendingQueueItems
@@ -223,13 +221,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 queueItem.Result = result;
                             }
                             else
-                            {                                
+                            {       
+                                cancelToken.Cancel();
+
                                 // if the task didn't complete then call the timeout callback
                                 if (queueItem.TimeoutOperation != null)
-                                {                            
-                                    cancelToken.Cancel();
+                                {                                    
                                     queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
                                 }
+
+                                // we'll need to wait for the task to finsh canceling otherwise future binding will fail
+                                bindTask.Wait();
                             }                            
                         }                        
                         catch (Exception ex)
