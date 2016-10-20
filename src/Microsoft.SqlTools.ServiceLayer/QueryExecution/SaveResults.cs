@@ -22,11 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private const int BatchSize = 1000;
 
         /// <summary>
-        /// ResultSet to be saved
-        /// </summary>
-        internal ResultSet SelectedResultSet;
-
-        /// <summary>
         /// Save Task that asynchronously writes ResultSet to file
         /// </summary>
         internal Task SaveTask { get; set; }
@@ -36,17 +31,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="message"> Message to be returned to client</param>
         /// <returns></returns>
-        internal delegate Task SaveEventHandler(string message);
+        internal delegate Task AsyncSaveEventHandler(string message);
 
         /// <summary>
         /// A successful save event
         /// </summary>
-        internal event SaveEventHandler SaveCompleted;
+        internal event AsyncSaveEventHandler SaveCompleted;
 
         /// <summary>
         /// A failed save event
         /// </summary>
-        internal event SaveEventHandler SaveFailed;
+        internal event AsyncSaveEventHandler SaveFailed;
 
         /// Method ported from SSMS
         /// <summary>
@@ -157,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Get the requested resultSet from query
                         Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                        SelectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
+                        ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
 
                         // Set column, row counts depending on whether save request is for entire result set or a subset
                         if (IsSaveSelection(saveParams))
@@ -170,8 +165,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         }
                         else
                         {
-                            rowCount = (int)SelectedResultSet.RowCount;
-                            columnEndIndex = SelectedResultSet.Columns.Length;
+                            rowCount = (int)selectedResultSet.RowCount;
+                            columnEndIndex = selectedResultSet.Columns.Length;
                         }
 
                         // Split rows into batches
@@ -191,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 for (int i = columnStartIndex; i < columnEndIndex; i++)
                                 {
                                     // Write columnName, value pair
-                                    DbColumnWrapper col = SelectedResultSet.Columns[i];
+                                    DbColumnWrapper col = selectedResultSet.Columns[i];
                                     string val = row[i]?.ToString();
                                     jsonWriter.WritePropertyName(col.ColumnName);
                                     if (val == null)
@@ -249,7 +244,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read)))
                     {
-                        ResultSet selectedResultSet;
                         ResultSetSubset resultSubset;
                         int columnCount = 0;
                         int rowCount = 0;
@@ -258,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Get the requested resultSet from query
                         Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                        selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+                        ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
                         // Set column, row counts depending on whether save request is for entire result set or a subset
                         if (IsSaveSelection(saveParams))
                         {

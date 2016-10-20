@@ -264,23 +264,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return null;
             }
 
-            // Create SaveResults object and add success and error callbacks to respective events
+            // Create SaveResults object and add success and error handlers to respective events
             SaveResults saveAsCsv = new SaveResults();
             ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
-            SaveResults.SaveEventHandler successCallback = async message =>
+            SaveResults.AsyncSaveEventHandler successHandler = async message =>
             {  
                 Task completedTask;
                 selectedResultSet.SaveTasks.TryRemove(saveParams.OwnerUri + "_" + saveParams.FilePath, out completedTask);
                 await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
             };
-            saveAsCsv.SaveCompleted += successCallback;
-            SaveResults.SaveEventHandler errorCallback = async message =>
+            saveAsCsv.SaveCompleted += successHandler;
+            SaveResults.AsyncSaveEventHandler errorHandler = async message =>
             {
                 Task completedTask;
                 selectedResultSet.SaveTasks.TryRemove(saveParams.OwnerUri + "_" + saveParams.FilePath, out completedTask);
                 await requestContext.SendError(message);
             };
-            saveAsCsv.SaveFailed += errorCallback;
+            saveAsCsv.SaveFailed += errorHandler;
 
             saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
 
@@ -306,23 +306,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return null;
             }
 
-            // Create SaveResults object and add success and error callbacks to respective events
+            // Create SaveResults object and add success and error handlers to respective events
             SaveResults saveAsJson = new SaveResults();
             ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
-            SaveResults.SaveEventHandler successCallback = async message =>
+            SaveResults.AsyncSaveEventHandler successHandler = async message =>
             {
                 Task completedTask;
                 selectedResultSet.SaveTasks.TryRemove(saveParams.OwnerUri + "_" + saveParams.FilePath, out completedTask);
                 await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
             };
-            saveAsJson.SaveCompleted += successCallback;
-            SaveResults.SaveEventHandler errorCallback = async message =>
+            saveAsJson.SaveCompleted += successHandler;
+            SaveResults.AsyncSaveEventHandler errorHandler = async message =>
             {
                 Task completedTask;
                 selectedResultSet.SaveTasks.TryRemove(saveParams.OwnerUri + "_" + saveParams.FilePath, out completedTask);
                 await requestContext.SendError(message);
             };
-            saveAsJson.SaveFailed += errorCallback;
+            saveAsJson.SaveFailed += errorHandler;
 
             saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
 

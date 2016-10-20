@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// All save tasks currently saving this ResultSet
         /// </summary>
-        internal ConcurrentDictionary<string, Task> SaveTasks;
+        internal ConcurrentDictionary<string, Task> SaveTasks { get; set; }
 
         #endregion
 
