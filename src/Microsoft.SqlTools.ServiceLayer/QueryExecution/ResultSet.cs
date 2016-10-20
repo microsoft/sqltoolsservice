@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// All save tasks currently saving this ResultSet
         /// </summary>
-        internal ConcurrentBag<Task> saveTasks;
+        internal ConcurrentDictionary<string, Task> SaveTasks;
 
         #endregion
 
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Store the factory
             fileStreamFactory = factory;
             hasBeenRead = false;
-            saveTasks = new ConcurrentBag<Task>();
+            SaveTasks = new ConcurrentDictionary<string, Task>();
         }
 
         #region Properties
@@ -236,10 +236,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Check if saveTasks are running for this ResultSet
-            if (!saveTasks.IsEmpty)
+            if (!SaveTasks.IsEmpty)
             {
                 // Wait for tasks to finish before disposing ResultSet
-                Task.WhenAll(saveTasks.ToArray()).ContinueWith((antecedent) =>
+                Task.WhenAll(SaveTasks.Values.ToArray()).ContinueWith((antecedent) =>
                 {
                     if (disposing)
                     {

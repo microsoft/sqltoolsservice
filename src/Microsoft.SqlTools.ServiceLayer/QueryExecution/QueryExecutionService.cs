@@ -268,14 +268,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             SaveResults saveAsCsv = new SaveResults();
             ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
             SaveResults.SaveEventHandler successCallback = async message =>
-            {   
-                selectedResultSet.saveTasks.TryTake(out saveAsCsv.saveTask);
+            {  
+                Task completedTask;
+                selectedResultSet.SaveTasks.TryRemove(saveParams.OwnerUri + "_" + saveParams.FilePath, out completedTask);
                 await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
             };
             saveAsCsv.SaveCompleted += successCallback;
             SaveResults.SaveEventHandler errorCallback = async message =>
             {
-                selectedResultSet.saveTasks.TryTake(out saveAsCsv.saveTask);
+                Task completedTask;
+                selectedResultSet.SaveTasks.TryRemove(saveParams.OwnerUri + "_" + saveParams.FilePath, out completedTask);
                 await requestContext.SendError(message);
             };
             saveAsCsv.SaveFailed += errorCallback;
@@ -283,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
 
             // Associate the ResultSet with the save task
-            selectedResultSet.saveTasks.Add(saveAsCsv.saveTask);
+            selectedResultSet.SaveTasks.TryAdd(saveParams.OwnerUri + "_" + saveParams.FilePath ,saveAsCsv.SaveTask);
             return saveAsCsv;
         }
 
@@ -309,13 +311,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
             SaveResults.SaveEventHandler successCallback = async message =>
             {
-                selectedResultSet.saveTasks.TryTake(out saveAsJson.saveTask);
+                Task completedTask;
+                selectedResultSet.SaveTasks.TryRemove(saveParams.OwnerUri + "_" + saveParams.FilePath, out completedTask);
                 await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
             };
             saveAsJson.SaveCompleted += successCallback;
             SaveResults.SaveEventHandler errorCallback = async message =>
             {
-                selectedResultSet.saveTasks.TryTake(out saveAsJson.saveTask);
+                Task completedTask;
+                selectedResultSet.SaveTasks.TryRemove(saveParams.OwnerUri + "_" + saveParams.FilePath, out completedTask);
                 await requestContext.SendError(message);
             };
             saveAsJson.SaveFailed += errorCallback;
@@ -323,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
 
             // Associate the ResultSet with the save task
-            selectedResultSet.saveTasks.Add(saveAsJson.saveTask);
+            selectedResultSet.SaveTasks.TryAdd(saveParams.OwnerUri + "_" + saveParams.FilePath ,saveAsJson.SaveTask);
             return saveAsJson;
         }
 

@@ -19,17 +19,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Number of rows being read from the ResultSubset in one read
         /// </summary>
-        private const int batchSize = 1000;
+        private const int BatchSize = 1000;
 
         /// <summary>
         /// ResultSet to be saved
         /// </summary>
-        internal ResultSet selectedResultSet;
+        internal ResultSet SelectedResultSet;
 
         /// <summary>
         /// Save Task that asynchronously writes ResultSet to file
         /// </summary>
-        internal Task saveTask ;
+        internal Task SaveTask { get; set; }
 
         /// <summary>
         /// Event Handler for save events
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal void SaveResultSetAsJson(SaveResultsAsJsonRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
         {
             // Run in a separate thread
-            saveTask = Task.Run(async () =>
+            SaveTask = Task.Run(async () =>
             {
                 try
                 {
@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Get the requested resultSet from query
                         Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                        selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
+                        SelectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
 
                         // Set column, row counts depending on whether save request is for entire result set or a subset
                         if (IsSaveSelection(saveParams))
@@ -170,28 +170,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         }
                         else
                         {
-                            rowCount = (int)selectedResultSet.RowCount;
-                            columnEndIndex = selectedResultSet.Columns.Length;
+                            rowCount = (int)SelectedResultSet.RowCount;
+                            columnEndIndex = SelectedResultSet.Columns.Length;
                         }
 
                         // Split rows into batches
-                        for (int count = 0; count < (rowCount / batchSize) + 1; count++)
+                        for (int count = 0; count < (rowCount / BatchSize) + 1; count++)
                         {
-                            int numberOfRows = (count < rowCount / batchSize) ? batchSize : (rowCount % batchSize);
+                            int numberOfRows = (count < rowCount / BatchSize) ? BatchSize : (rowCount % BatchSize);
                             if (numberOfRows == 0)
                             {
                                 break;
                             }
 
                             // Retrieve rows and write as json
-                            ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex + count * batchSize, numberOfRows);
+                            ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex + count * BatchSize, numberOfRows);
                             foreach (var row in resultSubset.Rows)
                             {
                                 jsonWriter.WriteStartObject();
                                 for (int i = columnStartIndex; i < columnEndIndex; i++)
                                 {
                                     // Write columnName, value pair
-                                    DbColumnWrapper col = selectedResultSet.Columns[i];
+                                    DbColumnWrapper col = SelectedResultSet.Columns[i];
                                     string val = row[i]?.ToString();
                                     jsonWriter.WritePropertyName(col.ColumnName);
                                     if (val == null)
@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                     if (SaveFailed != null)
                     {
-                        await SaveFailed(ex.Message);
+                        await SaveFailed(ex.ToString());
                     }
                 }
             });
@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal void SaveResultSetAsCsv(SaveResultsAsCsvRequestParams saveParams, RequestContext<SaveResultRequestResult> requestContext, Query result)
         {
             // Run in a separate thread
-            saveTask = Task.Run(async () =>
+            SaveTask = Task.Run(async () =>
             {
                 try
                 {
@@ -280,15 +280,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                             EncodeCsvField(column.ColumnName) ?? string.Empty)));
                         }
 
-                        for (int i = 0; i < (rowCount / batchSize) + 1; i++)
+                        for (int i = 0; i < (rowCount / BatchSize) + 1; i++)
                         {
-                            int numberOfRows = (i < rowCount / batchSize) ? batchSize : (rowCount % batchSize);
+                            int numberOfRows = (i < rowCount / BatchSize) ? BatchSize : (rowCount % BatchSize);
                             if (numberOfRows == 0)
                             {
                                 break;
                             }
                             // Retrieve rows and write as csv
-                            resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex + i * batchSize, numberOfRows);
+                            resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex + i * BatchSize, numberOfRows);
 
                             foreach (var row in resultSubset.Rows)
                             {

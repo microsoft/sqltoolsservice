@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
             SaveResults saveResults = await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
-            await saveResults.saveTask;
+            await saveResults.SaveTask;
 
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
             SaveResults saveResults = await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
-            await saveResults.saveTask;
+            await saveResults.SaveTask;
 
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
             SaveResults saveResults = await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
-            await saveResults.saveTask;
+            await saveResults.SaveTask;
 
             // Expect to see error message
             Assert.NotNull(errMessage);
@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             SaveResults saveResults = await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            await saveResults.saveTask;
+            await saveResults.SaveTask;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             SaveResults saveResults = await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            await saveResults.saveTask;
+            await saveResults.SaveTask;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -279,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             SaveResults saveResults = await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            await saveResults.saveTask;
+            await saveResults.SaveTask;
 
             // Expect to see error message
             Assert.NotNull(errMessage);
