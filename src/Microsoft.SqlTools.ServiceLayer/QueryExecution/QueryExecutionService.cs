@@ -4,7 +4,6 @@
 //
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -251,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in CSV format
         /// </summary>
-        public async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
+        internal async Task<SaveResults> HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -262,29 +261,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Messages = SR.QueryServiceRequestsNoQuery
                 });
-                return;
+                return null;
             }
+
+            // Create SaveResults object and add success and error callbacks to respective events
             SaveResults saveAsCsv = new SaveResults();
+            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
             SaveResults.SaveEventHandler successCallback = async message =>
-            {
+            {   
+                selectedResultSet.saveTasks.TryTake(out saveAsCsv.saveTask);
                 await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
             };
             saveAsCsv.SaveCompleted += successCallback;
-
             SaveResults.SaveEventHandler errorCallback = async message =>
             {
+                selectedResultSet.saveTasks.TryTake(out saveAsCsv.saveTask);
                 await requestContext.SendError(message);
             };
             saveAsCsv.SaveFailed += errorCallback;
 
-            saveAsCsv.SaveResultSet(saveParams, requestContext, result);
-            // await saveAsCsv.SaveResultsAsCsv(saveParams, requestContext, result);
+            saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
+
+            // Associate the ResultSet with the save task
+            selectedResultSet.saveTasks.Add(saveAsCsv.saveTask);
+            return saveAsCsv;
         }
 
         /// <summary>
         /// Process request to save a resultSet to a file in JSON format
         /// </summary>
-        public async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
+        internal async Task<SaveResults> HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -295,10 +301,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Messages = "Failed to save results, ID not found."
                 });
-                return;
+                return null;
             }
+
+            // Create SaveResults object and add success and error callbacks to respective events
             SaveResults saveAsJson = new SaveResults();
-            await saveAsJson.SaveResultsAsJson(saveParams, requestContext, result);
+            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            SaveResults.SaveEventHandler successCallback = async message =>
+            {
+                selectedResultSet.saveTasks.TryTake(out saveAsJson.saveTask);
+                await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
+            };
+            saveAsJson.SaveCompleted += successCallback;
+            SaveResults.SaveEventHandler errorCallback = async message =>
+            {
+                selectedResultSet.saveTasks.TryTake(out saveAsJson.saveTask);
+                await requestContext.SendError(message);
+            };
+            saveAsJson.SaveFailed += errorCallback;
+
+            saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
+
+            // Associate the ResultSet with the save task
+            selectedResultSet.saveTasks.Add(saveAsJson.saveTask);
+            return saveAsJson;
         }
 
         #endregion

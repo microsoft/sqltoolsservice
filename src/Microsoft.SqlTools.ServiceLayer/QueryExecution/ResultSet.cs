@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -59,6 +60,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly string outputFileName;
 
+        /// <summary>
+        /// All save tasks currently saving this ResultSet
+        /// </summary>
+        internal ConcurrentBag<Task> saveTasks;
+
         #endregion
 
         /// <summary>
@@ -80,6 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Store the factory
             fileStreamFactory = factory;
             hasBeenRead = false;
+            saveTasks = new ConcurrentBag<Task>();
         }
 
         #region Properties
@@ -228,12 +235,29 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            if (disposing)
+            // Check if saveTasks are running for this ResultSet
+            if (!saveTasks.IsEmpty)
             {
-                fileStreamFactory.DisposeFile(outputFileName);
-            }
+                // Wait for tasks to finish before disposing ResultSet
+                Task.WhenAll(saveTasks.ToArray()).ContinueWith((antecedent) =>
+                {
+                    if (disposing)
+                    {
+                        fileStreamFactory.DisposeFile(outputFileName);
+                    }
+                    disposed = true;
 
-            disposed = true;
+                });
+            }
+            else
+            {
+                // If saveTasks is empty, continue with dispose
+                if (disposing)
+                {
+                    fileStreamFactory.DisposeFile(outputFileName);
+                }
+                disposed = true;
+            }
         }
 
         #endregion
