@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>
     {
-        internal const int DefaultBindingTimeout = 60000;
+        internal const int DefaultBindingTimeout = 500;
 
         internal const int DefaultMinimumConnectionTimeout = 30;
 
@@ -63,10 +63,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string connectionKey = GetConnectionContextKey(connInfo);
             IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
 
-            lock (bindingContext.BindingLock)
+            if (bindingContext.BindingLock.WaitOne())
             {
                 try
                 {
+                    bindingContext.BindingLock.Reset();
+
                     // increase the connection timeout to at least 30 seconds and and build connection string
                     // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                     int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
@@ -96,7 +98,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 catch (Exception)
                 {
                     bindingContext.IsConnected = false;
-                }                
+                }       
+                finally
+                {
+                    bindingContext.BindingLock.Set();
+                }         
             }
 
             return connectionKey;

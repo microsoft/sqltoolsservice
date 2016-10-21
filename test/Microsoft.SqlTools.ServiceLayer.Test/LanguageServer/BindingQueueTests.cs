@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     {
         public TestBindingContext()
         {
-            this.BindingLock = new object();
+            this.BindingLock = new ManualResetEvent(true);
             this.BindingTimeout = 3000;
         }
 
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
         public IBinder Binder { get; set; }
 
-        public object BindingLock { get; set; } 
+        public ManualResetEvent BindingLock { get; set; } 
 
         public int BindingTimeout { get; set; } 
 

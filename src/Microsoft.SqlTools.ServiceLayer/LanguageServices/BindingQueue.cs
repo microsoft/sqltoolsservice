@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Main class for the Binding Queue
     /// </summary>
     public class BindingQueue<T> where T : IBindingContext, new()
-    {             
+    {
         private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
@@ -197,13 +197,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // prefer the queue item binding item, otherwise use the context default timeout
                             int bindTimeout = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
 
-                            // handle the case a previous binding operation is still running                            
-                            if (!Monitor.TryEnter(bindingContext.BindingLock, bindTimeout))
+                            // handle the case a previous binding operation is still running                                                 
+                            if (!bindingContext.BindingLock.WaitOne(0))
                             {
-                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);
-                                queueItem.ItemProcessed.Set();
+                                queueItem.Result = queueItem.TimeoutOperation != null
+                                    ? queueItem.TimeoutOperation(bindingContext)
+                                    : null;
+
                                 continue;
                             }
+
+                            bindingContext.BindingLock.Reset();
 
                             lockTaken = true;
 
@@ -231,9 +235,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 {                                    
                                     queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
                                 }
+                                
+                                lockTaken = false;
 
-                                // we'll need to wait for the task to finsh canceling otherwise future binding will fail
-                                bindTask.Wait();
+                                bindTask.ContinueWith((a) => bindingContext.BindingLock.Set());
                             }                            
                         }                        
                         catch (Exception ex)
@@ -246,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             if (lockTaken)
                             {
-                                Monitor.Exit(bindingContext.BindingLock);
+                                bindingContext.BindingLock.Set();
                             }
 
                             queueItem.ItemProcessed.Set();

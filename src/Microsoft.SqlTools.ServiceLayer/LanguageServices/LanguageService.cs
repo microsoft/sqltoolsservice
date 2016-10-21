@@ -37,11 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int DiagnosticParseDelay = 750;
 
-        internal const int HoverTimeout = 3000;
+        internal const int HoverTimeout = 500;
 
-        internal const int BindingTimeout = 3000;
-
-        internal const int FindCompletionStartTimeout = 50;
+        internal const int BindingTimeout = 500;
 
         internal const int OnConnectionWaitTimeout = 300000;
 
@@ -252,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await Task.FromResult(true);
             }
             else
-            {
+            {                
                 // get the current list of completion items and return to client 
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
@@ -628,7 +626,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
             {
-                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, LanguageService.FindCompletionStartTimeout))
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
                     try
                     {
@@ -711,8 +709,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             Token token = GetToken(scriptParseInfo, line, column);
 
-            if (scriptParseInfo.IsConnected 
-                && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, LanguageService.FindCompletionStartTimeout))
+            if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
             {        
                 try
                 {    
