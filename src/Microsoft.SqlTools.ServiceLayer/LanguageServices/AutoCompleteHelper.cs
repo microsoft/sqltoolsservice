@@ -4,6 +4,9 @@
 //
 
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -25,6 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private const int PrepopulateBindTimeout = 60000;
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
+
+        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_][\p{L}\p{N}@$#_]{0,127}$");
 
         private static readonly string[] DefaultCompletionText = new string[]
         {
@@ -484,14 +489,44 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startColumn, 
             int endColumn)
         {
-            return new CompletionItem()
+            return CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
+        }
+
+        internal static CompletionItem[] AddTokenToItems(CompletionItem[] currentList, Token token, int row,
+            int startColumn,
+            int endColumn)
+        {
+            if (currentList != null &&
+                token != null && !string.IsNullOrWhiteSpace(token.Text) &&
+                token.Text.All(ch => char.IsLetter(ch)) &&
+                currentList.All(x => string.Compare(x.Label, token.Text, true) != 0
+                ))
+            {
+                var list = currentList.ToList();
+                list.Insert(0, CreateCompletionItem(token.Text, token.Text, token.Text, CompletionItemKind.Text, row, startColumn, endColumn));
+                return list.ToArray();
+            }
+            return currentList;
+        }
+
+        private static CompletionItem CreateCompletionItem(
+            string label, 
+            string detail,
+            string insertText,
+            CompletionItemKind kind,
+            int row,
+            int startColumn,
+            int endColumn)
+        {
+            CompletionItem item = new CompletionItem()
             {
                 Label = label,
-                Kind = CompletionItemKind.Keyword,
-                Detail = label + " keyword",
+                Kind = kind,
+                Detail = detail,
+                InsertText = insertText,
                 TextEdit = new TextEdit
                 {
-                    NewText = label,
+                    NewText = insertText,
                     Range = new Range
                     {
                         Start = new Position
@@ -507,6 +542,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             };
+
+            return item;
         }
 
         /// <summary>
@@ -523,36 +560,54 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startColumn,
             int endColumn)
         {
+           
             List<CompletionItem> completions = new List<CompletionItem>();
+
             foreach (var autoCompleteItem in suggestions)
             {
-                // convert the completion item candidates into CompletionItems
-                completions.Add(new CompletionItem()
+                string  insertText = GetCompletionItemInsertName(autoCompleteItem);
+                CompletionItemKind kind = CompletionItemKind.Variable;
+                switch (autoCompleteItem.Type)
                 {
-                    Label = autoCompleteItem.Title,
-                    Kind = CompletionItemKind.Variable,
-                    Detail = autoCompleteItem.Title,
-                    TextEdit = new TextEdit
-                    {
-                        NewText = autoCompleteItem.Title,
-                        Range = new Range
-                        {
-                            Start = new Position
-                            {
-                                Line = row,
-                                Character = startColumn
-                            },
-                            End = new Position
-                            {
-                                Line = row,
-                                Character = endColumn
-                            }
-                        }
-                    }
-                });
+                    case DeclarationType.Schema:
+                        kind = CompletionItemKind.Module;
+                        break;
+                    case DeclarationType.Column:
+                        kind = CompletionItemKind.Field;
+                        break;
+                    case DeclarationType.Table:
+                        kind = CompletionItemKind.Method;
+                        break;
+                    case DeclarationType.Database:
+                        kind = CompletionItemKind.File;
+                        break;
+                    case DeclarationType.Server:
+                        kind = CompletionItemKind.Value;
+                        break;
+                    default:
+                        kind = CompletionItemKind.Variable;
+                        break;
+                }
+
+               
+
+                // convert the completion item candidates into CompletionItems
+                completions.Add(CreateCompletionItem(autoCompleteItem.Title, autoCompleteItem.Title, insertText, kind, row, startColumn, endColumn));
             }
 
+            
+
             return completions.ToArray();
+        }
+
+        private static string GetCompletionItemInsertName(Declaration autoCompleteItem)
+        {
+            string insertText = autoCompleteItem.Title;
+            if (!string.IsNullOrEmpty(autoCompleteItem.Title) && !ValidSqlNameRegex.IsMatch(autoCompleteItem.Title))
+            {
+                insertText = string.Format(CultureInfo.InvariantCulture, "[{0}]", autoCompleteItem.Title);
+            }
+            return insertText;
         }
 
         /// <summary>

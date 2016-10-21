@@ -264,10 +264,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 var completionItems = Instance.GetCompletionItems(
                     textDocumentPosition, scriptFile, connInfo);
-
-                await requestContext.SendResult(completionItems); 
+               
+                   await requestContext.SendResult(completionItems);
+                }  
             }
-        }
 
         /// <summary>
         /// Handle the resolve completion request event to provide additional
@@ -686,12 +686,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool useLowerCaseSuggestions = this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
 
             this.currentCompletionParseInfo = null;
+            CompletionItem[] defaultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
+            CompletionItem[] resultCompletionItems = defaultCompletionItems;
+            CompletionItem[] emptyCompletionItems = new CompletionItem[0];
+            int line = textDocumentPosition.Position.Line + 1;
+            int column = textDocumentPosition.Position.Character + 1;
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
             if (connInfo == null || scriptParseInfo == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
+                return defaultCompletionItems;
             }
 
             // reparse and bind the SQL statement if needed
@@ -702,8 +707,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (scriptParseInfo.ParseResult == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
+                return defaultCompletionItems;
             }
+            Token token = GetToken(scriptParseInfo, line, column);
 
             if (scriptParseInfo.IsConnected 
                 && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, LanguageService.FindCompletionStartTimeout))
@@ -721,42 +727,76 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // get the completion list from SQL Parser
                             scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
                                 scriptParseInfo.ParseResult, 
-                                textDocumentPosition.Position.Line + 1, 
-                                textDocumentPosition.Position.Character + 1, 
+                                line, 
+                                column, 
                                 bindingContext.MetadataDisplayInfoProvider); 
 
                             // cache the current script parse info object to resolve completions later
                             this.currentCompletionParseInfo = scriptParseInfo;
-
+                            
                             // convert the suggestion list to the VS Code format
                             completions = AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
                                 scriptParseInfo.CurrentSuggestions, 
                                 startLine, 
                                 startColumn, 
-                                endColumn);                        
+                                endColumn
+                               );
 
                             return completions;
                         },
                         timeoutOperation: (bindingContext) =>
                         {
-                            return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
+                            return defaultCompletionItems;
                         });
 
                     queueItem.ItemProcessed.WaitOne();
 
-                    var completionItems = queueItem.GetResultAsT<CompletionItem[]>(); 
+                    var completionItems = queueItem.GetResultAsT<CompletionItem[]>();
                     if (completionItems != null && completionItems.Length > 0)
                     {
-                        return completionItems;
-                    }          
+                        resultCompletionItems = completionItems;
+                    }
+                    else if (!ShouldShowCompletionList(token))
+                    {
+                        resultCompletionItems = emptyCompletionItems;
+                    }
                 }
                 finally
-                {                    
+                {
                     Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
-                }                
+                }
             }
-            
-            return AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
+            //resultCompletionItems = AutoCompleteHelper.AddTokenToItems(resultCompletionItems, token, startLine, startColumn, endColumn);
+            return resultCompletionItems;
+        }
+
+        private static Token GetToken(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
+        {
+            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
+            {
+                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
+                if (tokenIndex >= 0)
+                {
+                    return scriptParseInfo.ParseResult.Script.Tokens.ToList()[tokenIndex];
+                }
+            }
+            return null;
+        }
+
+        private static bool ShouldShowCompletionList(Token token)
+        {
+            bool result = true;
+            if (token != null)
+            {
+                switch (token.Id)
+                {
+                    case (int)Tokens.LEX_MULTILINE_COMMENT:
+                    case (int)Tokens.LEX_END_OF_LINE_COMMENT:
+                        result = false;
+                        break;
+                }
+            }
+            return result;
         }
 
         #endregion
