@@ -163,9 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (isSingleColumnXmlJsonResultSet)
                     {
                         // Iterate over all the rows and process them into a list of string builders
-                        IEnumerable<StringBuilder> sbRows = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)
-                            .Select(cell => cell.DisplayValue).Aggregate(new StringBuilder(), (sb, value) => sb.Append(value)));
-                        rows = new[] { new[] { string.Join(string.Empty, sbRows) } };
+                        IEnumerable<string> rowValues = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
+                        rows = new[] { new[] { string.Join(string.Empty, rowValues) } };
 
                     }
                     else
