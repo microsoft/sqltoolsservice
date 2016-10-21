@@ -562,7 +562,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
            
             List<CompletionItem> completions = new List<CompletionItem>();
-           
+
             foreach (var autoCompleteItem in suggestions)
             {
                 string  insertText = GetCompletionItemInsertName(autoCompleteItem);
@@ -570,13 +570,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 switch (autoCompleteItem.Type)
                 {
                     case DeclarationType.Schema:
+                        kind = CompletionItemKind.Module;
+                        break;
+                    case DeclarationType.Column:
+                        kind = CompletionItemKind.Field;
+                        break;
+                    case DeclarationType.Table:
+                        kind = CompletionItemKind.Method;
+                        break;
+                    case DeclarationType.Database:
+                        kind = CompletionItemKind.File;
+                        break;
+                    case DeclarationType.Server:
                         kind = CompletionItemKind.Value;
                         break;
                     default:
                         kind = CompletionItemKind.Variable;
                         break;
-
                 }
+
+               
 
                 // convert the completion item candidates into CompletionItems
                 completions.Add(CreateCompletionItem(autoCompleteItem.Title, autoCompleteItem.Title, insertText, kind, row, startColumn, endColumn));

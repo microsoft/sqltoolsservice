@@ -265,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var completionItems = Instance.GetCompletionItems(
                     textDocumentPosition, scriptFile, connInfo);
                
-                    await requestContext.SendResult(completionItems);
+                   await requestContext.SendResult(completionItems);
                 }  
             }
 
@@ -766,7 +766,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                 }
             }
-            resultCompletionItems = AutoCompleteHelper.AddTokenToItems(resultCompletionItems, token, startLine, startColumn, endColumn);
+            //resultCompletionItems = AutoCompleteHelper.AddTokenToItems(resultCompletionItems, token, startLine, startColumn, endColumn);
             return resultCompletionItems;
         }
 
