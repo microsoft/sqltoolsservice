@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Task saveTask;
             await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
             ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.FilePath, out saveTask);         
             await saveTask;
 
             // Expect to see a file successfully created in filepath and a success message
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Task saveTask;
             await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
             ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.FilePath, out saveTask);         
             await saveTask;
 
             // Expect to see a file successfully created in filepath and a success message
@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Task saveTask;
             await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);           
             ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.FilePath, out saveTask);         
             await saveTask;
 
             // Expect to see error message
@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Task saveTask;
             await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
             ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.FilePath, out saveTask);         
             await saveTask;
 
 
@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Task saveTask;
             await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
             ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.FilePath, out saveTask);         
             await saveTask;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
             // Expect to see a file successfully created in filepath and a success message
@@ -309,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Task saveTask;
             await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
             ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.FilePath, out saveTask);         
             await saveTask;
 
             // Expect to see error message

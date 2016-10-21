@@ -65,6 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         internal ConcurrentDictionary<string, Task> SaveTasks { get; set; }
 
+        internal bool IsBeingDisposed { get; set; } 
+
         #endregion
 
         /// <summary>
@@ -235,6 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
+            IsBeingDisposed = true;
             // Check if saveTasks are running for this ResultSet
             if (!SaveTasks.IsEmpty)
             {
@@ -246,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         fileStreamFactory.DisposeFile(outputFileName);
                     }
                     disposed = true;
-
+                    IsBeingDisposed = false;
                 });
             }
             else
@@ -257,6 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     fileStreamFactory.DisposeFile(outputFileName);
                 }
                 disposed = true;
+                IsBeingDisposed = false;
             }
         }
 
