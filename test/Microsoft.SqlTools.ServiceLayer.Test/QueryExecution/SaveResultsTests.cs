@@ -304,6 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             string errMessage = null;
             var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
+            
             // Call save results and wait on the save task
             Task saveTask;
             await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);

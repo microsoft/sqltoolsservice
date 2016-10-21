@@ -216,9 +216,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 catch (Exception ex)
                 {
                     // Delete file when exception occurs
-                    if (File.Exists(saveParams.FilePath))
+                    if (FileUtils.SafeFileExists(saveParams.FilePath))
                     {
-                        File.Delete(saveParams.FilePath);
+                        FileUtils.SafeFileDelete(saveParams.FilePath);
                     }
                     if (SaveFailed != null)
                     {
@@ -301,9 +301,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 catch (Exception ex)
                 {
                     // Delete file when exception occurs
-                    if (File.Exists(saveParams.FilePath))
+                    if (FileUtils.SafeFileExists(saveParams.FilePath))
                     {
-                        File.Delete(saveParams.FilePath);
+                        FileUtils.SafeFileDelete(saveParams.FilePath);
                     }
 
                     if (SaveFailed != null)
@@ -313,6 +313,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
             });
         }
+
+
     }
 
 }
