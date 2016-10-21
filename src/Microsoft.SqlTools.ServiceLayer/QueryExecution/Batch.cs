@@ -219,7 +219,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // Read until we hit the end of the result set
                             await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
-                            
                         } while (await reader.NextResultAsync(cancellationToken));
 
                         // If there were no messages, for whatever reason (NO COUNT set, messages 
@@ -295,7 +294,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
         {
             // Add a message for the number of rows the query returned
-            resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(args.RecordCount)));
+            string message;
+            if (args.RecordCount == 1)
+            {
+                message = SR.QueryServiceAffectedOneRow;
+            }
+            else
+            {
+                message = SR.QueryServiceAffectedRows(args.RecordCount);
+            }
+
+            resultMessages.Add(new ResultMessage(message));
         }
 
         /// <summary>

@@ -245,13 +245,17 @@
     <value>This FileStreamWrapper cannot be used for writing</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 row affected)</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>({0} row(s) affected)</value>
+    <value>({0} rows affected)</value>
     <comment>.
  Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
-    <value>Command(s) copleted successfully.</value>
+    <value>Commands completed successfully.</value>
     <comment></comment>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
