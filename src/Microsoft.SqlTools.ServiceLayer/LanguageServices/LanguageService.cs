@@ -688,7 +688,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.currentCompletionParseInfo = null;
             CompletionItem[] defaultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
             CompletionItem[] resultCompletionItems = defaultCompletionItems;
-            CompletionItem[] emptytCompletionItems = new CompletionItem[0];
+            CompletionItem[] emptyCompletionItems = new CompletionItem[0];
             int line = textDocumentPosition.Position.Line + 1;
             int column = textDocumentPosition.Position.Character + 1;
 
@@ -758,7 +758,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     else if (!ShouldShowCompletionList(token))
                     {
-                        resultCompletionItems = emptytCompletionItems;
+                        resultCompletionItems = emptyCompletionItems;
                     }
                 }
                 finally
