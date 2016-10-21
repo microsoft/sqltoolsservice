@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in CSV format
         /// </summary>
-        internal async Task<SaveResults> HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
+        internal async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Messages = SR.QueryServiceRequestsNoQuery
                 });
-                return null;
+                return;
             }
 
             // Create SaveResults object and add success and error handlers to respective events
@@ -286,13 +286,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Associate the ResultSet with the save task
             selectedResultSet.SaveTasks.TryAdd(saveParams.OwnerUri + "_" + saveParams.FilePath ,saveAsCsv.SaveTask);
-            return saveAsCsv;
         }
 
         /// <summary>
         /// Process request to save a resultSet to a file in JSON format
         /// </summary>
-        internal async Task<SaveResults> HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
+        internal async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -303,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Messages = "Failed to save results, ID not found."
                 });
-                return null;
+                return;
             }
 
             // Create SaveResults object and add success and error handlers to respective events
@@ -328,7 +327,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Associate the ResultSet with the save task
             selectedResultSet.SaveTasks.TryAdd(saveParams.OwnerUri + "_" + saveParams.FilePath ,saveAsJson.SaveTask);
-            return saveAsJson;
         }
 
         #endregion

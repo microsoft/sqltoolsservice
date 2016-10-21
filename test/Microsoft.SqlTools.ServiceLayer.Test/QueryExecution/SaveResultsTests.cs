@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
@@ -47,9 +48,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
-            SaveResults saveResults = await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
-            await saveResults.SaveTask;
+
+            // Call save results and wait on the save task
+            Task saveTask;
+            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
+            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            await saveTask;
 
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -92,9 +97,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
-            SaveResults saveResults = await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
-            await saveResults.SaveTask;
+
+            // Call save results and wait on the save task
+            Task saveTask;
+            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
+            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            await saveTask;
 
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -133,9 +142,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             string errMessage = null;
             var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            // queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object).Wait();
-            SaveResults saveResults = await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
-            await saveResults.SaveTask;
+
+            // Call save results and wait on the save task
+            Task saveTask;
+            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);           
+            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            await saveTask;
 
             // Expect to see error message
             Assert.NotNull(errMessage);
@@ -195,8 +208,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            SaveResults saveResults = await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            await saveResults.SaveTask;
+            
+            // Call save results and wait on the save task
+            Task saveTask;
+            await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
+            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            await saveTask;
+
+
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -238,8 +258,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             SaveResultRequestResult result = null;
             var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            SaveResults saveResults = await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            await saveResults.SaveTask;
+
+            // Call save results and wait on the save task
+            Task saveTask;
+            await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
+            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            await saveTask;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
             // Expect to see a file successfully created in filepath and a success message
             Assert.Null(result.Messages);
@@ -274,12 +299,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 BatchIndex = 0,
                 FilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "G:\\test.json" : "/test.json"
             };
-            // SaveResultRequestResult result = null;
+
+
             string errMessage = null;
             var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
-            SaveResults saveResults = await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            await saveResults.SaveTask;
+            // Call save results and wait on the save task
+            Task saveTask;
+            await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
+            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            selectedResultSet.SaveTasks.TryGetValue(saveParams.OwnerUri + "_" + saveParams.FilePath, out saveTask);         
+            await saveTask;
 
             // Expect to see error message
             Assert.NotNull(errMessage);
