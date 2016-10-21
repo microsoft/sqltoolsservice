@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets the binding lock object
         /// </summary>
-        object BindingLock { get; }
+        ManualResetEvent BindingLock { get; }
 
         /// <summary>
         /// Gets or sets the binding operation timeout in milliseconds
