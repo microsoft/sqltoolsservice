@@ -264,30 +264,35 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Create SaveResults object and add success and error handlers to respective events
-            SaveResults saveAsCsv = new SaveResults();
+
             ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            SaveResults.AsyncSaveEventHandler successHandler = async message =>
-            {  
-                Task completedTask;
-                selectedResultSet.SaveTasks.TryRemove(saveParams.FilePath, out completedTask);
-                await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
-            };
-            saveAsCsv.SaveCompleted += successHandler;
-            SaveResults.AsyncSaveEventHandler errorHandler = async message =>
-            {
-                Task completedTask;
-                selectedResultSet.SaveTasks.TryRemove(saveParams.FilePath, out completedTask);
-                await requestContext.SendError(message);
-            };
-            saveAsCsv.SaveFailed += errorHandler;
-
-            saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
-
-            // Associate the ResultSet with the save task
             if (!selectedResultSet.IsBeingDisposed)
             {
-                selectedResultSet.SaveTasks.TryAdd(saveParams.FilePath, saveAsCsv.SaveTask);
+                // Create SaveResults object and add success and error handlers to respective events
+                SaveResults saveAsCsv = new SaveResults();
+
+                SaveResults.AsyncSaveEventHandler successHandler = async message =>
+                {
+                    Task completedTask;
+                    selectedResultSet.SaveTasks.TryRemove(saveParams.FilePath, out completedTask);
+                    await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
+                };
+                saveAsCsv.SaveCompleted += successHandler;
+                SaveResults.AsyncSaveEventHandler errorHandler = async message =>
+                {
+                    Task completedTask;
+                    selectedResultSet.SaveTasks.TryRemove(saveParams.FilePath, out completedTask);
+                    await requestContext.SendError(message);
+                };
+                saveAsCsv.SaveFailed += errorHandler;
+
+                saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
+
+                // Associate the ResultSet with the save task
+                if (!selectedResultSet.IsBeingDisposed)
+                {
+                    selectedResultSet.SaveTasks.TryAdd(saveParams.FilePath, saveAsCsv.SaveTask);
+                }
             }
         }
 
@@ -308,32 +313,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Create SaveResults object and add success and error handlers to respective events
-            SaveResults saveAsJson = new SaveResults();
             ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            SaveResults.AsyncSaveEventHandler successHandler = async message =>
-            {
-                Task completedTask;
-                selectedResultSet.SaveTasks.TryRemove(saveParams.FilePath, out completedTask);
-                await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
-            };
-            saveAsJson.SaveCompleted += successHandler;
-            SaveResults.AsyncSaveEventHandler errorHandler = async message =>
-            {
-                Task completedTask;
-                selectedResultSet.SaveTasks.TryRemove(saveParams.FilePath, out completedTask);
-                await requestContext.SendError(message);
-            };
-            saveAsJson.SaveFailed += errorHandler;
-
-            saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
-
-            // Associate the ResultSet with the save task
             if (!selectedResultSet.IsBeingDisposed)
             {
-                selectedResultSet.SaveTasks.TryAdd(saveParams.FilePath ,saveAsJson.SaveTask);
+                // Create SaveResults object and add success and error handlers to respective events
+                SaveResults saveAsJson = new SaveResults();
+                SaveResults.AsyncSaveEventHandler successHandler = async message =>
+                {
+                    Task completedTask;
+                    selectedResultSet.SaveTasks.TryRemove(saveParams.FilePath, out completedTask);
+                    await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
+                };
+                saveAsJson.SaveCompleted += successHandler;
+                SaveResults.AsyncSaveEventHandler errorHandler = async message =>
+                {
+                    Task completedTask;
+                    selectedResultSet.SaveTasks.TryRemove(saveParams.FilePath, out completedTask);
+                    await requestContext.SendError(message);
+                };
+                saveAsJson.SaveFailed += errorHandler;
+
+                saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
+
+                // Associate the ResultSet with the save task
+
+                selectedResultSet.SaveTasks.TryAdd(saveParams.FilePath, saveAsJson.SaveTask);
             }
-            
+
         }
 
         #endregion
@@ -368,27 +374,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 string queryText;
 
-                if (executeParams.QuerySelection != null) 
+                if (executeParams.QuerySelection != null)
                 {
                     string[] queryTextArray = queryFile.GetLinesInRange(
                         new BufferRange(
                             new BufferPosition(
-                                executeParams.QuerySelection.StartLine + 1, 
+                                executeParams.QuerySelection.StartLine + 1,
                                 executeParams.QuerySelection.StartColumn + 1
-                            ), 
+                            ),
                             new BufferPosition(
-                                executeParams.QuerySelection.EndLine + 1, 
+                                executeParams.QuerySelection.EndLine + 1,
                                 executeParams.QuerySelection.EndColumn + 1
                             )
                         )
                     );
                     queryText = queryTextArray.Aggregate((a, b) => a + '\r' + '\n' + b);
-                } 
-                else 
+                }
+                else
                 {
                     queryText = queryFile.Contents;
                 }
-                
+
                 // If we can't add the query now, it's assumed the query is in progress
                 Query newQuery = new Query(queryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
