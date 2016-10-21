@@ -266,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Create SaveResults object and add success and error handlers to respective events
             SaveResults saveAsCsv = new SaveResults();
-            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
             SaveResults.AsyncSaveEventHandler successHandler = async message =>
             {  
                 Task completedTask;
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Create SaveResults object and add success and error handlers to respective events
             SaveResults saveAsJson = new SaveResults();
-            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets.ToList()[saveParams.ResultSetIndex];
+            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
             SaveResults.AsyncSaveEventHandler successHandler = async message =>
             {
                 Task completedTask;

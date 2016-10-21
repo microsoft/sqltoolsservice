@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Get the requested resultSet from query
                         Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                        ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
+                        ResultSet selectedResultSet = selectedBatch.ResultSets[saveParams.ResultSetIndex];
 
                         // Set column, row counts depending on whether save request is for entire result set or a subset
                         if (IsSaveSelection(saveParams))
@@ -252,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Get the requested resultSet from query
                         Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                        ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
+                        ResultSet selectedResultSet = (selectedBatch.ResultSets)[saveParams.ResultSetIndex];
                         // Set column, row counts depending on whether save request is for entire result set or a subset
                         if (IsSaveSelection(saveParams))
                         {
