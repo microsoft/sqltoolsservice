@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
@@ -25,16 +24,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 for (int i = 0; i < args.Length; ++i)
                 {
                     string arg = args[i];
-                    if (arg.Length > 2 && arg[0] == '-' && arg[1] == '-')
+                    if (arg.StartsWith("--") || arg.StartsWith("-"))
                     {
-                        arg = arg.Substring(2).ToLowerInvariant();
+                        arg = arg.Substring(1).ToLowerInvariant();
                         switch (arg)
                         {
-                            case "enable-logging":
+                            case "-enable-logging":
                                 EnableLogging = true;
                                 break;
                             case "h":
-                            case "help":
+                            case "-help":
                                 ShouldExit = true;
                                 return;
                             default:
@@ -65,12 +64,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <summary>
         /// Whether diagnostic logging is enabled
         /// </summary>
-        public bool EnableLogging { get; private set; } = false;
+        public bool EnableLogging { get; private set; }
 
         /// <summary>
         /// Whether the program should exit immediately. Set to true when the usage is printed.
         /// </summary>
-        public bool ShouldExit { get; private set; } = false;
+        public bool ShouldExit { get; private set; }
 
         /// <summary>
         /// Get the usage string describing command-line arguments for the program
