@@ -289,10 +289,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
 
                 // Associate the ResultSet with the save task
-                if (!selectedResultSet.IsBeingDisposed)
-                {
-                    selectedResultSet.SaveTasks.TryAdd(saveParams.FilePath, saveAsCsv.SaveTask);
-                }
+                selectedResultSet.SaveTasks.TryAdd(saveParams.FilePath, saveAsCsv.SaveTask);
+
             }
         }
 
@@ -336,7 +334,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
 
                 // Associate the ResultSet with the save task
-
                 selectedResultSet.SaveTasks.TryAdd(saveParams.FilePath, saveAsJson.SaveTask);
             }
 
