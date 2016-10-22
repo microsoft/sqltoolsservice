@@ -61,11 +61,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly string outputFileName;
 
         /// <summary>
+        /// Whether the resultSet is in the process of being disposed
+        /// </summary>
+        private bool isBeingDisposed;
+
+        /// <summary>
         /// All save tasks currently saving this ResultSet
         /// </summary>
-        internal ConcurrentDictionary<string, Task> SaveTasks { get; set; }
-
-        internal bool IsBeingDisposed { get; set; } 
+        private ConcurrentDictionary<string, Task> saveTasks;
 
         #endregion
 
@@ -88,10 +91,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Store the factory
             fileStreamFactory = factory;
             hasBeenRead = false;
-            SaveTasks = new ConcurrentDictionary<string, Task>();
+            saveTasks = new ConcurrentDictionary<string, Task>();
         }
 
         #region Properties
+
+        /// <summary>
+        /// Whether the resultSet is in the process of being disposed
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsBeingDisposed
+        {
+            get
+            {
+                return isBeingDisposed;
+            }
+        }
 
         /// <summary>
         /// The columns for this result set
@@ -236,19 +251,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            IsBeingDisposed = true;
+            isBeingDisposed = true;
             // Check if saveTasks are running for this ResultSet
-            if (!SaveTasks.IsEmpty)
+            if (!saveTasks.IsEmpty)
             {
                 // Wait for tasks to finish before disposing ResultSet
-                Task.WhenAll(SaveTasks.Values.ToArray()).ContinueWith((antecedent) =>
+                Task.WhenAll(saveTasks.Values.ToArray()).ContinueWith((antecedent) =>
                 {
                     if (disposing)
                     {
                         fileStreamFactory.DisposeFile(outputFileName);
                     }
                     disposed = true;
-                    IsBeingDisposed = false;
+                    isBeingDisposed = false;
                 });
             }
             else
@@ -259,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     fileStreamFactory.DisposeFile(outputFileName);
                 }
                 disposed = true;
-                IsBeingDisposed = false;
+                isBeingDisposed = false;
             }
         }
 
@@ -292,6 +307,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        #endregion
+
+        #region Internal Methods to Add and Remove save tasks
+        internal void AddSaveTask(string key, Task saveTask)
+        {
+            saveTasks.TryAdd(key, saveTask);
+        }
+
+        internal void RemoveSaveTask(string key)
+        {
+            Task completedTask;
+            saveTasks.TryRemove(key, out completedTask);
+        }
+
+        internal Task GetSaveTask(string key)
+        {
+            Task completedTask;
+            saveTasks.TryRemove(key, out completedTask);
+            return completedTask;
+        }
         #endregion
     }
 }
