@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_][\p{L}\p{N}@$#_]{0,127}$");
 
+        private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
+
         private static readonly string[] DefaultCompletionText = new string[]
         {
             //"absolute",
@@ -47,6 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             //"allow_row_locks",
             //"allow_snapshot_isolation",
             "alter",
+            "apply",
             //"always",
             //"ansi_null_default",
             //"ansi_nulls",
@@ -112,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             //"containstable",
             "continue",
             "create",
-            "cross apply",
+            "cross",
             //"cube",
             //"current",
             "current_date",
@@ -192,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "go",
             "goto",
             "grant",
-            "group by",
+            "group",
             "hash",
             "hashed",
             "having",
@@ -209,16 +213,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "immediate",
             "include",
             "index",
+            "inner",
             //"inflectional",
             //"insensitive",
             "insert",
             "instead",
             "int",
             "integer",
-            "integrated",
+            //"integrated",
             "intersect",
             "into",
             "isolation",
+            "join",
             "json",
             "key",
             //"kill",
@@ -233,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "location",
             "login",
             "masked",
-            "master",
+            //"master",
             "maxdop",
             //"memory_optimized",
             "merge",
@@ -268,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "openrowset",
             "openxml",
             "option",
-            "order by",
+            "order",
             "out",
             "output",
             "over",
@@ -320,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "relative",
             "remove",
             "reorganize",
-            "replication",
+            //"replication",
             "required",
             "restart",
             "restore",
@@ -330,7 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "returns",
             "revert",
             "revoke",
-            "role",
+            //"role",
             "rollback",
             "rollup",
             "row",
@@ -404,6 +410,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "try",
             "tsql",
             "type",
+            "uncommitted",
             "union",
             "unique",
             "uniqueidentifier",
@@ -464,17 +471,45 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int row, 
             int startColumn, 
             int endColumn,
-            bool useLowerCase)
+            bool useLowerCase,
+            string tokenText = null)
         {
-            var completionItems = new CompletionItem[DefaultCompletionText.Length];
-            for (int i = 0; i < DefaultCompletionText.Length; ++i)
+            // determine how many default completion items there will be 
+            int listSize = DefaultCompletionText.Length;
+            if (!string.IsNullOrWhiteSpace(tokenText))
             {
-                completionItems[i] = CreateDefaultCompletionItem(
-                    useLowerCase ? DefaultCompletionText[i].ToLower() : DefaultCompletionText[i].ToUpper(),
-                    row, 
-                    startColumn, 
-                    endColumn);
+                listSize = 0;
+                foreach (var completionText in DefaultCompletionText)
+                {
+                    if (completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ++listSize;
+                    }
+                }
             }
+
+            // special case empty list to avoid unneed array allocations
+            if (listSize == 0)
+            {
+                return emptyCompletionList;
+            }
+
+            // build the default completion list
+            var completionItems = new CompletionItem[listSize];
+            int completionItemIndex = 0;
+            foreach (var completionText in DefaultCompletionText)
+            {
+                if (string.IsNullOrWhiteSpace(tokenText) || completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
+                {
+                    completionItems[completionItemIndex] = CreateDefaultCompletionItem(
+                        useLowerCase ? completionText.ToLower() : completionText.ToUpper(),
+                        row, 
+                        startColumn, 
+                        endColumn);
+                    ++completionItemIndex;
+                }
+            }
+
             return completionItems;
         }
 
@@ -638,6 +673,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         QueueItem queueItem = bindingQueue.QueueBindingOperation(
                             key: scriptInfo.ConnectionKey,
                             bindingTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
+                            waitForLockTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 // parse a simple statement that returns common metadata

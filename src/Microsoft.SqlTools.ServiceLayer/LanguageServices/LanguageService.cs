@@ -687,6 +687,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile, 
             ConnectionInfo connInfo)
         {
+            this.currentCompletionParseInfo = null;
+            CompletionItem[] resultCompletionItems = null;
             string filePath = textDocumentPosition.TextDocument.Uri;
             int startLine = textDocumentPosition.Position.Line;
             int startColumn = TextUtilities.PositionOfPrevDelimeter(
@@ -696,18 +698,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int endColumn = textDocumentPosition.Position.Character;
             bool useLowerCaseSuggestions = this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
 
-            this.currentCompletionParseInfo = null;
-            CompletionItem[] defaultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
-            CompletionItem[] resultCompletionItems = defaultCompletionItems;
-            CompletionItem[] emptyCompletionItems = new CompletionItem[0];
-            int line = textDocumentPosition.Position.Line + 1;
-            int column = textDocumentPosition.Position.Character + 1;
-
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
-            if (connInfo == null || scriptParseInfo == null)
+            if (scriptParseInfo == null)
             {
-                return defaultCompletionItems;
+                return AutoCompleteHelper.GetDefaultCompletionItems(
+                    startLine, 
+                    startColumn, 
+                    endColumn, 
+                    useLowerCaseSuggestions);
             }
 
             // reparse and bind the SQL statement if needed
@@ -718,12 +717,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (scriptParseInfo.ParseResult == null)
             {
-                return defaultCompletionItems;
+                return AutoCompleteHelper.GetDefaultCompletionItems(
+                    startLine, 
+                    startColumn, 
+                    endColumn, 
+                    useLowerCaseSuggestions);
             }
-            Token token = GetToken(scriptParseInfo, line, column);
+            
+            // need to adjust line & column for base-1 parser indices
+            Token token = GetToken(scriptParseInfo, startLine + 1, endColumn + 1);
+            string tokenText = token != null ? token.Text : null;
 
             if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
-            {        
+            {         
                 try
                 {    
                     // queue the completion task with the binding queue    
@@ -737,8 +743,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // get the completion list from SQL Parser
                             scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
                                 scriptParseInfo.ParseResult, 
-                                line, 
-                                column, 
+                                startLine + 1, 
+                                endColumn + 1, 
                                 bindingContext.MetadataDisplayInfoProvider); 
 
                             // cache the current script parse info object to resolve completions later
@@ -749,14 +755,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 scriptParseInfo.CurrentSuggestions, 
                                 startLine, 
                                 startColumn, 
-                                endColumn
-                               );
+                                endColumn);
 
                             return completions;
                         },
                         timeoutOperation: (bindingContext) =>
                         {
-                            return defaultCompletionItems;
+                            return AutoCompleteHelper.GetDefaultCompletionItems(
+                                startLine, 
+                                startColumn, 
+                                endColumn, 
+                                useLowerCaseSuggestions,
+                                tokenText);
                         });
 
                     queueItem.ItemProcessed.WaitOne();
@@ -768,7 +778,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     else if (!ShouldShowCompletionList(token))
                     {
-                        resultCompletionItems = emptyCompletionItems;
+                        resultCompletionItems = new CompletionItem[0];
                     }
                 }
                 finally
@@ -776,7 +786,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                 }
             }
-            //resultCompletionItems = AutoCompleteHelper.AddTokenToItems(resultCompletionItems, token, startLine, startColumn, endColumn);
+            
+            if (resultCompletionItems == null)
+            {
+                resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(
+                    startLine, 
+                    startColumn, 
+                    endColumn, 
+                    useLowerCaseSuggestions,
+                    tokenText);
+            }
+
             return resultCompletionItems;
         }
 
@@ -787,7 +807,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
                 if (tokenIndex >= 0)
                 {
-                    return scriptParseInfo.ParseResult.Script.Tokens.ToList()[tokenIndex];
+                    // return the current token
+                    int currentIndex = 0;
+                    foreach (var token in scriptParseInfo.ParseResult.Script.Tokens)
+                    {
+                        if (currentIndex == tokenIndex)
+                        {
+                            return token;
+                        }
+                        ++currentIndex;
+                    }
                 }
             }
             return null;

@@ -52,6 +52,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public int? BindingTimeout { get; set; }
 
         /// <summary>
+        /// Gets or sets the timeout for how long to wait for the binding lock
+        /// </summary>
+        public int? WaitForLockTimeout { get; set; }
+
+        /// <summary>
         /// Converts the result of the execution to type T
         /// </summary>
         public T GetResultAsT<T>() where T : class

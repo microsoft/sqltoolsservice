@@ -61,7 +61,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,
             Func<IBindingContext, object> timeoutOperation = null,
-            int? bindingTimeout = null)
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null)
         {
             // don't add null operations to the binding queue
             if (bindOperation == null)
@@ -74,7 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Key = key,
                 BindOperation = bindOperation,
                 TimeoutOperation = timeoutOperation,
-                BindingTimeout = bindingTimeout
+                BindingTimeout = bindingTimeout,
+                WaitForLockTimeout = waitForLockTimeout
             };
 
             lock (this.bindingQueueLock)
@@ -198,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             int bindTimeout = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
 
                             // handle the case a previous binding operation is still running                                                 
-                            if (!bindingContext.BindingLock.WaitOne(0))
+                            if (!bindingContext.BindingLock.WaitOne(queueItem.WaitForLockTimeout ?? 0))
                             {
                                 queueItem.Result = queueItem.TimeoutOperation != null
                                     ? queueItem.TimeoutOperation(bindingContext)
