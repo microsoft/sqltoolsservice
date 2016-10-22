@@ -1,0 +1,29 @@
+{
+  "name": "Microsoft.SqlTools.ServiceLayer.TestDriver",
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable",
+    "emitEntryPoint": true
+  },
+  "dependencies": {
+    "Microsoft.SqlTools.ServiceLayer": {
+      "target": "project"
+    }
+  },
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0"
+        }
+      },
+      "imports": [
+        "dotnet5.4",
+        "portable-net451+win8"
+      ],
+    }
+  },
+  "runtimes": {
+    "win7-x64": {}
+  }
+}
