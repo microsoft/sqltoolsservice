@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The result sets of the batch execution
         /// </summary>
-        public IEnumerable<ResultSet> ResultSets
+        public IList<ResultSet> ResultSets
         {
             get { return resultSets; }
         }
