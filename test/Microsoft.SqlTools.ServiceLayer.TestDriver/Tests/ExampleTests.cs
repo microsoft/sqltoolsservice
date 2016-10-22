@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Example test that performs a connect, then disconnect.
         /// All tests must have the same signature of returning an async Task
-        /// and taking in a ServiceHostDriver as a parameter.
+        /// and taking in a ServiceTestDriver as a parameter.
         /// </summary>
         public async Task ConnectDisconnectTest(ServiceTestDriver driver)
         {
