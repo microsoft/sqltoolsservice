@@ -266,8 +266,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 finally
                 {
-                    // reset the item queued event since we've processed all the pending items
-                    this.itemQueuedEvent.Reset();
+                    lock (this.bindingQueueLock)
+                    {
+                        // verify the binding queue is still empty
+                        if (this.bindingQueue.Count == 0)
+                        {
+                            // reset the item queued event since we've processed all the pending items
+                            this.itemQueuedEvent.Reset();
+                        }
+                    }
                 }
             }
         }

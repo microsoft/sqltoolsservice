@@ -583,28 +583,41 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         internal CompletionItem ResolveCompletionItem(CompletionItem completionItem)
         {
-            try
+            var scriptParseInfo = LanguageService.Instance.currentCompletionParseInfo;
+            if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
             {
-                var scriptParseInfo = LanguageService.Instance.currentCompletionParseInfo;
-                if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
-                    foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
+                    try
                     {
-                        if (string.Equals(suggestion.Title, completionItem.Label))
-                        {
-                            completionItem.Detail = suggestion.DatabaseQualifiedName;
-                            completionItem.Documentation = suggestion.Description;
-                            break;
-                        }
+                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                            key: scriptParseInfo.ConnectionKey,
+                            bindingTimeout: LanguageService.BindingTimeout,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {                                                          
+                                foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
+                                {
+                                    if (string.Equals(suggestion.Title, completionItem.Label))
+                                    {
+                                        completionItem.Detail = suggestion.DatabaseQualifiedName;
+                                        completionItem.Documentation = suggestion.Description;
+                                        break;
+                                    }
+                                }  
+                                return completionItem;                             
+                            });
+
+                        queueItem.ItemProcessed.WaitOne();  
                     }
+                    catch (Exception ex)
+                    {
+                        // if any exceptions are raised looking up extended completion metadata 
+                        // then just return the original completion item
+                        Logger.Write(LogLevel.Error, "Exeception in ResolveCompletionItem " + ex.ToString());
+                    }           
                 }
             }
-            catch (Exception ex)
-            {
-                // if any exceptions are raised looking up extended completion metadata 
-                // then just return the original completion item
-                Logger.Write(LogLevel.Error, "Exeception in ResolveCompletionItem " + ex.ToString());
-            }
+                
 
             return completionItem;
         }
