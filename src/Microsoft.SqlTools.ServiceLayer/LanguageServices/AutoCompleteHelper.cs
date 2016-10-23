@@ -48,8 +48,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             //"algorithm",
             //"allow_page_locks",
             //"allow_row_locks",
-            //"allow_snapshot_isolation",
+            //"allow_snapshot_isolation",            
+            "all",
             "alter",
+            "and",
             "apply",
             //"always",
             //"ansi_null_default",
@@ -231,6 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "language",
             "last",
             //"legacy_cardinality_estimation",
+            "left",
             "level",
             "lineno",
             "load",
@@ -274,6 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "openrowset",
             "openxml",
             "option",
+            "or",
             "order",
             "out",
             "output",
@@ -441,6 +445,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         };
 
         /// <summary>
+        /// Gets a static instance of an empty completion list to avoid
+        // unneeded memory allocations
+        /// </summary>
+        internal static CompletionItem[] EmptyCompletionList
+        {
+            get
+            {
+                return AutoCompleteHelper.emptyCompletionList;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the current workspace service instance
         /// Setter for internal testing purposes only
         /// </summary>
@@ -458,7 +474,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 AutoCompleteHelper.workspaceServiceInstance = value;
             }
-        }
+        }        
 
         /// <summary>
         /// Get the default completion list from hard-coded list
@@ -596,8 +612,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int row,
             int startColumn,
             int endColumn)
-        {
-           
+        {           
             List<CompletionItem> completions = new List<CompletionItem>();
     
             foreach (var autoCompleteItem in suggestions)
@@ -632,8 +647,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // convert the completion item candidates into CompletionItems
                 completions.Add(CreateCompletionItem(autoCompleteItem.Title, autoCompleteItem.Title, insertText, kind, row, startColumn, endColumn));
             }
-
-            
 
             return completions.ToArray();
         }

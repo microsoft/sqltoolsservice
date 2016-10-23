@@ -691,6 +691,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile, 
             ConnectionInfo connInfo)
         {
+            // initialize some state to parse and bind the current script file
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
             string filePath = textDocumentPosition.TextDocument.Uri;
@@ -719,6 +720,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ParseAndBind(scriptFile, connInfo);
             }
 
+            // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
                 return AutoCompleteHelper.GetDefaultCompletionItems(
@@ -732,6 +734,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Token token = GetToken(scriptParseInfo, startLine + 1, endColumn + 1);
             string tokenText = token != null ? token.Text : null;
 
+            // check if the file is connected and the file lock is available
             if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
             {         
                 try
@@ -742,8 +745,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         bindingTimeout: LanguageService.BindingTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
-                            CompletionItem[] completions = null;
-            
                             // get the completion list from SQL Parser
                             scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
                                 scriptParseInfo.ParseResult, 
@@ -755,16 +756,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             this.currentCompletionParseInfo = scriptParseInfo;
                             
                             // convert the suggestion list to the VS Code format
-                            completions = AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
+                            return AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
                                 scriptParseInfo.CurrentSuggestions, 
                                 startLine, 
                                 startColumn, 
                                 endColumn);
-
-                            return completions;
                         },
                         timeoutOperation: (bindingContext) =>
                         {
+                            // return the default list if the connected bind fails
                             return AutoCompleteHelper.GetDefaultCompletionItems(
                                 startLine, 
                                 startColumn, 
@@ -773,6 +773,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 tokenText);
                         });
 
+                    // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
 
                     var completionItems = queueItem.GetResultAsT<CompletionItem[]>();
@@ -782,7 +783,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     else if (!ShouldShowCompletionList(token))
                     {
-                        resultCompletionItems = new CompletionItem[0];
+                        resultCompletionItems = AutoCompleteHelper.EmptyCompletionList;
                     }
                 }
                 finally
@@ -791,6 +792,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
             
+            // if there are no completions then provide the default list
             if (resultCompletionItems == null)
             {
                 resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(
