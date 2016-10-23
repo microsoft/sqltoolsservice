@@ -614,7 +614,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // if any exceptions are raised looking up extended completion metadata 
                         // then just return the original completion item
                         Logger.Write(LogLevel.Error, "Exeception in ResolveCompletionItem " + ex.ToString());
-                    }           
+                    } 
+                    finally
+                    {
+                       Monitor.Exit(scriptParseInfo.BuildingMetadataLock); 
+                    }      
                 }
             }
                 
