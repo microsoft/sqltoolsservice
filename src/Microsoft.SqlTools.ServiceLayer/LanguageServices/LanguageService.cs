@@ -583,28 +583,45 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         internal CompletionItem ResolveCompletionItem(CompletionItem completionItem)
         {
-            try
+            var scriptParseInfo = LanguageService.Instance.currentCompletionParseInfo;
+            if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
             {
-                var scriptParseInfo = LanguageService.Instance.currentCompletionParseInfo;
-                if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
-                    foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
+                    try
                     {
-                        if (string.Equals(suggestion.Title, completionItem.Label))
-                        {
-                            completionItem.Detail = suggestion.DatabaseQualifiedName;
-                            completionItem.Documentation = suggestion.Description;
-                            break;
-                        }
+                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                            key: scriptParseInfo.ConnectionKey,
+                            bindingTimeout: LanguageService.BindingTimeout,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {                                                          
+                                foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
+                                {
+                                    if (string.Equals(suggestion.Title, completionItem.Label))
+                                    {
+                                        completionItem.Detail = suggestion.DatabaseQualifiedName;
+                                        completionItem.Documentation = suggestion.Description;
+                                        break;
+                                    }
+                                }  
+                                return completionItem;                             
+                            });
+
+                        queueItem.ItemProcessed.WaitOne();  
                     }
+                    catch (Exception ex)
+                    {
+                        // if any exceptions are raised looking up extended completion metadata 
+                        // then just return the original completion item
+                        Logger.Write(LogLevel.Error, "Exeception in ResolveCompletionItem " + ex.ToString());
+                    } 
+                    finally
+                    {
+                       Monitor.Exit(scriptParseInfo.BuildingMetadataLock); 
+                    }      
                 }
             }
-            catch (Exception ex)
-            {
-                // if any exceptions are raised looking up extended completion metadata 
-                // then just return the original completion item
-                Logger.Write(LogLevel.Error, "Exeception in ResolveCompletionItem " + ex.ToString());
-            }
+                
 
             return completionItem;
         }
@@ -674,27 +691,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptFile scriptFile, 
             ConnectionInfo connInfo)
         {
+            // initialize some state to parse and bind the current script file
+            this.currentCompletionParseInfo = null;
+            CompletionItem[] resultCompletionItems = null;
             string filePath = textDocumentPosition.TextDocument.Uri;
             int startLine = textDocumentPosition.Position.Line;
+            int parserLine = textDocumentPosition.Position.Line + 1;
             int startColumn = TextUtilities.PositionOfPrevDelimeter(
                                 scriptFile.Contents,    
                                 textDocumentPosition.Position.Line,
                                 textDocumentPosition.Position.Character);
-            int endColumn = textDocumentPosition.Position.Character;
+            int endColumn = TextUtilities.PositionOfNextDelimeter(
+                                scriptFile.Contents,    
+                                textDocumentPosition.Position.Line,
+                                textDocumentPosition.Position.Character);
+            int parserColumn = textDocumentPosition.Position.Character + 1;
             bool useLowerCaseSuggestions = this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
-
-            this.currentCompletionParseInfo = null;
-            CompletionItem[] defaultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(startLine, startColumn, endColumn, useLowerCaseSuggestions);
-            CompletionItem[] resultCompletionItems = defaultCompletionItems;
-            CompletionItem[] emptyCompletionItems = new CompletionItem[0];
-            int line = textDocumentPosition.Position.Line + 1;
-            int column = textDocumentPosition.Position.Character + 1;
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
-            if (connInfo == null || scriptParseInfo == null)
+            if (scriptParseInfo == null)
             {
-                return defaultCompletionItems;
+                return AutoCompleteHelper.GetDefaultCompletionItems(
+                    startLine, 
+                    startColumn, 
+                    endColumn, 
+                    useLowerCaseSuggestions);
             }
 
             // reparse and bind the SQL statement if needed
@@ -703,14 +725,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ParseAndBind(scriptFile, connInfo);
             }
 
+            // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
-                return defaultCompletionItems;
+                return AutoCompleteHelper.GetDefaultCompletionItems(
+                    startLine, 
+                    startColumn, 
+                    endColumn, 
+                    useLowerCaseSuggestions);
             }
-            Token token = GetToken(scriptParseInfo, line, column);
+            
+            // need to adjust line & column for base-1 parser indices
+            Token token = GetToken(scriptParseInfo, parserLine, parserColumn);
+            string tokenText = token != null ? token.Text : null;
 
+            // check if the file is connected and the file lock is available
             if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
-            {        
+            {         
                 try
                 {    
                     // queue the completion task with the binding queue    
@@ -719,33 +750,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         bindingTimeout: LanguageService.BindingTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
-                            CompletionItem[] completions = null;
-            
                             // get the completion list from SQL Parser
                             scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
                                 scriptParseInfo.ParseResult, 
-                                line, 
-                                column, 
+                                parserLine, 
+                                parserColumn, 
                                 bindingContext.MetadataDisplayInfoProvider); 
 
                             // cache the current script parse info object to resolve completions later
                             this.currentCompletionParseInfo = scriptParseInfo;
                             
                             // convert the suggestion list to the VS Code format
-                            completions = AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
+                            return AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
                                 scriptParseInfo.CurrentSuggestions, 
                                 startLine, 
                                 startColumn, 
-                                endColumn
-                               );
-
-                            return completions;
+                                endColumn);
                         },
                         timeoutOperation: (bindingContext) =>
                         {
-                            return defaultCompletionItems;
+                            // return the default list if the connected bind fails
+                            return AutoCompleteHelper.GetDefaultCompletionItems(
+                                startLine, 
+                                startColumn, 
+                                endColumn, 
+                                useLowerCaseSuggestions,
+                                tokenText);
                         });
 
+                    // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
 
                     var completionItems = queueItem.GetResultAsT<CompletionItem[]>();
@@ -755,7 +788,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     else if (!ShouldShowCompletionList(token))
                     {
-                        resultCompletionItems = emptyCompletionItems;
+                        resultCompletionItems = AutoCompleteHelper.EmptyCompletionList;
                     }
                 }
                 finally
@@ -763,7 +796,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                 }
             }
-            //resultCompletionItems = AutoCompleteHelper.AddTokenToItems(resultCompletionItems, token, startLine, startColumn, endColumn);
+            
+            // if there are no completions then provide the default list
+            if (resultCompletionItems == null)
+            {
+                resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(
+                    startLine, 
+                    startColumn, 
+                    endColumn, 
+                    useLowerCaseSuggestions,
+                    tokenText);
+            }
+
             return resultCompletionItems;
         }
 
@@ -774,7 +818,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
                 if (tokenIndex >= 0)
                 {
-                    return scriptParseInfo.ParseResult.Script.Tokens.ToList()[tokenIndex];
+                    // return the current token
+                    int currentIndex = 0;
+                    foreach (var token in scriptParseInfo.ParseResult.Script.Tokens)
+                    {
+                        if (currentIndex == tokenIndex)
+                        {
+                            return token;
+                        }
+                        ++currentIndex;
+                    }
                 }
             }
             return null;
@@ -930,6 +983,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Get the requested files
             foreach (ScriptFile scriptFile in filesToAnalyze)
             {
+                if (IsPreviewWindow(scriptFile))
+                {
+                    continue;
+                }
+
                 Logger.Write(LogLevel.Verbose, "Analyzing script file: " + scriptFile.FilePath);
                 ScriptFileMarker[] semanticMarkers = GetSemanticMarkers(scriptFile);
                 Logger.Write(LogLevel.Verbose, "Analysis complete.");
