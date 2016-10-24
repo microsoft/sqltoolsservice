@@ -400,6 +400,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int completionItemIndex = 0;
             foreach (var completionText in DefaultCompletionText)
             {
+                // add item to list if the tokenText is null (meaning return whole list) 
+                // or if the completion item begins with the tokenText
                 if (string.IsNullOrWhiteSpace(tokenText) || completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
                 {
                     completionItems[completionItemIndex] = CreateDefaultCompletionItem(
