@@ -34,21 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             return startColumn + prevNewLine;
         }
 
-        //public static int GetTokenText(strign sql, int startRow, int startColumn, )
-
-        /// <summary>
-        /// Find the position of the previous delimeter for autocomplete token replacement.
-        /// SQL Parser may have similar functionality in which case we'll delete this method.
-        /// </summary>
-        /// <param name="sql"></param>
-        /// <param name="startRow"></param>
-        /// <param name="startColumn"></param>
-        public static int PositionOfPrevDelimeter(string sql, int startRow, int startColumn)
-        { 
-            string tokenText;
-            return PositionOfPrevDelimeter(sql, startRow, startColumn, out tokenText); 
-        }
-
         /// <summary>
         /// Find the position of the previous delimeter for autocomplete token replacement.
         /// SQL Parser may have similar functionality in which case we'll delete this method.
@@ -57,41 +42,69 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="startRow"></param>
         /// <param name="startColumn"></param>
         /// <param name="tokenText"></param>
-        public static int PositionOfPrevDelimeter(string sql, int startRow, int startColumn, out string tokenText)
+        public static int PositionOfPrevDelimeter(string sql, int startRow, int startColumn)
         {            
-            tokenText = null;                  
-
             int prevNewLine;
-            int cursorPos = PositionOfCursor(sql, startRow, startColumn, out prevNewLine);
-            int delimeterPos = cursorPos;
-            
-            startColumn = cursorPos;
-            if (startColumn - 1 < sql.Length)
+            int delimeterPos = PositionOfCursor(sql, startRow, startColumn, out prevNewLine);
+
+            if (delimeterPos - 1 < sql.Length)
             {
-                while (--startColumn >= prevNewLine)
+                while (--delimeterPos >= prevNewLine)
                 {
-                    if (sql[startColumn] == ' ' 
-                        || sql[startColumn] == '\t'
-                        || sql[startColumn] == '\n'
-                        || sql[startColumn] == '.'
-                        || sql[startColumn] == '+'
-                        || sql[startColumn] == '-'
-                        || sql[startColumn] == '*'
-                        || sql[startColumn] == '>'
-                        || sql[startColumn] == '<'
-                        || sql[startColumn] == '='
-                        || sql[startColumn] == '/'
-                        || sql[startColumn] == '%')
+                    if (IsCharacterDelimeter(sql[delimeterPos]))
                     {
                         break;
                     }
                 }
 
-                delimeterPos =  startColumn + 1 - prevNewLine;
-                tokenText = sql.Substring(delimeterPos, cursorPos - delimeterPos);
+                delimeterPos = delimeterPos + 1 - prevNewLine;
             }
 
             return delimeterPos;
+        }
+
+        /// <summary>
+        /// Find the position of the next delimeter for autocomplete token replacement.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="startRow"></param>
+        /// <param name="startColumn"></param>
+        public static int PositionOfNextDelimeter(string sql, int startRow, int startColumn)
+        {            
+            int prevNewLine;
+            int delimeterPos = PositionOfCursor(sql, startRow, startColumn, out prevNewLine);
+           
+            while (delimeterPos < sql.Length)
+            {
+                if (IsCharacterDelimeter(sql[delimeterPos]))
+                {
+                    break;
+                }
+                ++delimeterPos;              
+            }
+
+            return delimeterPos - prevNewLine;
+        }
+
+        /// <summary>
+        /// Determine if the character is a SQL token delimiter
+        /// </summary>
+        /// <param name="ch"></param>
+        private static bool IsCharacterDelimeter(char ch)
+        {
+            return ch == ' ' 
+                || ch == '\t'
+                || ch == '\n'
+                || ch == '.'
+                || ch == '+'
+                || ch == '-'
+                || ch == '*'
+                || ch == '>'
+                || ch == '<'
+                || ch == '='
+                || ch == '/'
+                || ch == '%'
+                || ch == ',';
         }
     }
 }

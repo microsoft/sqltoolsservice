@@ -696,11 +696,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CompletionItem[] resultCompletionItems = null;
             string filePath = textDocumentPosition.TextDocument.Uri;
             int startLine = textDocumentPosition.Position.Line;
+            int parserLine = textDocumentPosition.Position.Line + 1;
             int startColumn = TextUtilities.PositionOfPrevDelimeter(
                                 scriptFile.Contents,    
                                 textDocumentPosition.Position.Line,
                                 textDocumentPosition.Position.Character);
-            int endColumn = textDocumentPosition.Position.Character;
+            int endColumn = TextUtilities.PositionOfNextDelimeter(
+                                scriptFile.Contents,    
+                                textDocumentPosition.Position.Line,
+                                textDocumentPosition.Position.Character);
+            int parserColumn = textDocumentPosition.Position.Character + 1;
             bool useLowerCaseSuggestions = this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
 
             // get the current script parse info object
@@ -731,7 +736,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             
             // need to adjust line & column for base-1 parser indices
-            Token token = GetToken(scriptParseInfo, startLine + 1, endColumn + 1);
+            Token token = GetToken(scriptParseInfo, parserLine, parserColumn);
             string tokenText = token != null ? token.Text : null;
 
             // check if the file is connected and the file lock is available
@@ -748,8 +753,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // get the completion list from SQL Parser
                             scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
                                 scriptParseInfo.ParseResult, 
-                                startLine + 1, 
-                                endColumn + 1, 
+                                parserLine, 
+                                parserColumn, 
                                 bindingContext.MetadataDisplayInfoProvider); 
 
                             // cache the current script parse info object to resolve completions later
@@ -978,6 +983,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Get the requested files
             foreach (ScriptFile scriptFile in filesToAnalyze)
             {
+                if (IsPreviewWindow(scriptFile))
+                {
+                    continue;
+                }
+
                 Logger.Write(LogLevel.Verbose, "Analyzing script file: " + scriptFile.FilePath);
                 ScriptFileMarker[] semanticMarkers = GetSemanticMarkers(scriptFile);
                 Logger.Write(LogLevel.Verbose, "Analysis complete.");
