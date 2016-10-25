@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
-        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_][\p{L}\p{N}@$#_]{0,127}$");
+        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
 
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
@@ -103,6 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "end-exec",
             "exec",
             "execute",
+            "exists",
             "exit",
             "external",
             "fast_forward",
@@ -177,6 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "nonclustered",
             "none",
             "norecompute",
+            "not",
             "now",
             "null",
             "numeric",
@@ -193,6 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "or",
             "order",
             "out",
+            "outer",
             "output",
             "over",
             "owner",
