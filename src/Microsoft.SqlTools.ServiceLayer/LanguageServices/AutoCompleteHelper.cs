@@ -177,6 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "nonclustered",
             "none",
             "norecompute",
+            "not",
             "now",
             "null",
             "numeric",
