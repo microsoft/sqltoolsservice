@@ -103,6 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "end-exec",
             "exec",
             "execute",
+            "exists",
             "exit",
             "external",
             "fast_forward",
