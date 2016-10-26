@@ -8,9 +8,12 @@
 // License: https://github.com/PowerShell/PowerShellEditorServices/blob/develop/LICENSE
 //
 
+using System;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
 {
@@ -19,18 +22,38 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
     /// </summary>
     public class ServiceTestDriver : TestDriverBase
     {
-        public ServiceTestDriver(string serviceHostExecutable)
+        /// <summary>
+        /// Environment variable that stores the path to the service host executable.
+        /// </summary>
+        public static string ServiceHostEnvironmentVariable
         {
-            var clientChannel = new StdioClientChannel(serviceHostExecutable);
+            get { return "SQLTOOLSSERVICE_EXE"; }
+        }
+
+        public ServiceTestDriver()
+        {
+            string serviceHostExecutable = Environment.GetEnvironmentVariable(ServiceHostEnvironmentVariable);
+
+            var clientChannel = new StdioClientChannel(serviceHostExecutable, "--enable-logging");
             this.protocolClient = new ProtocolEndpoint(clientChannel, MessageProtocolType.LanguageServer);
         }
 
+        /// <summary>
+        /// Start the test driver, and launch the sqltoolsservice executable
+        /// </summary>
         public async Task Start()
         {
             await this.protocolClient.Start();
             await Task.Delay(1000); // Wait for the service host to start
+
+            // Setup events to queue for testing
+            this.QueueEventsForType(ConnectionCompleteNotification.Type);
+            this.QueueEventsForType(QueryExecuteCompleteEvent.Type);
         }
 
+        /// <summary>
+        /// Stop the test driver, and shutdown the sqltoolsservice executable
+        /// </summary>
         public async Task Stop()
         {
             await this.protocolClient.Stop();
