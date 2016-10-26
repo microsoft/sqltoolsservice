@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Local time when the execution starts, specifically when the object is created
         /// </summary>
-        private readonly DateTime executionStartTime;
+        private DateTime executionStartTime;
 
         /// <summary>
         /// Factory for creating readers/writers for the output of the batch
@@ -65,7 +65,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Initialize the internal state
             BatchText = batchText;
-            executionStartTime = DateTime.Now;
             Selection = new SelectionData(startLine, startColumn, endLine, endColumn);
             HasExecuted = false;
             resultSets = new List<ResultSet>();
@@ -198,6 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     command.CommandText = BatchText;
                     command.CommandType = CommandType.Text;
                     command.CommandTimeout = 0;
+                    executionStartTime = DateTime.Now;
 
                     // Execute the command to get back a reader
                     using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
