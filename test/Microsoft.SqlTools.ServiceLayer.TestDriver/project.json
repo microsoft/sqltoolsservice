@@ -6,10 +6,13 @@
     "emitEntryPoint": true
   },
   "dependencies": {
+    "xunit": "2.1.0",
+    "dotnet-test-xunit": "1.0.0-rc2-192208-24",
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
     }
   },
+  "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {
