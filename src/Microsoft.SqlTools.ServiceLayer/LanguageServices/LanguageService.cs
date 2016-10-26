@@ -392,15 +392,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             SqlToolsSettings oldSettings, 
             EventContext eventContext)
         {
-            bool oldEnableIntelliSense = oldSettings.SqlTools.EnableIntellisense;
-            bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableDiagnostics;
+            bool oldEnableIntelliSense = oldSettings.SqlTools.IntelliSense.EnableIntellisense;
+            bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableErrorChecking;
 
             // update the current settings to reflect any changes
             CurrentSettings.Update(newSettings);
 
             // if script analysis settings have changed we need to clear the current diagnostic markers
-            if (oldEnableIntelliSense != newSettings.SqlTools.EnableIntellisense
-                || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableDiagnostics)
+            if (oldEnableIntelliSense != newSettings.SqlTools.IntelliSense.EnableIntellisense
+                || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking)
             {
                 // if the user just turned off diagnostics then send an event to clear the error markers
                 if (!newSettings.IsDiagnositicsEnabled)
