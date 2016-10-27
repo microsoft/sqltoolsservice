@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-//#define USE_LIVE_CONNECTION
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -28,13 +26,14 @@ namespace Microsoft.SqlTools.Test.Utility
         /// </summary>
         public static ConnectionService GetTestConnectionService()
         {
-#if !USE_LIVE_CONNECTION
             // use mock database connection
             return new ConnectionService(new TestSqlConnectionFactory());
-#else
+        }
+
+        public static ConnectionService GetLiveTestConnectionService()
+        {
             // connect to a real server instance
             return ConnectionService.Instance;
-#endif
         }
 
         /// <summary>
@@ -65,9 +64,19 @@ namespace Microsoft.SqlTools.Test.Utility
             return new ConnectionDetails()
             {
                 UserName = "sa",
-                Password = "Yukon900",
-                DatabaseName = "AdventureWorks2016CTP3_2",
-                ServerName = "sqltools11"
+                Password = "...",
+                DatabaseName = "master",
+                ServerName = "localhost"
+            };
+        }
+
+         public static ConnectionDetails GetIntegratedTestConnectionDetails()
+        {
+            return new ConnectionDetails()
+            {
+                DatabaseName = "master",
+                ServerName = "localhost",
+                AuthenticationType = "Integrated"
             };
         }
 
@@ -85,14 +94,17 @@ namespace Microsoft.SqlTools.Test.Utility
         /// </summary>
         public static ISqlConnectionFactory GetTestSqlConnectionFactory()
         {
-#if !USE_LIVE_CONNECTION
             // use mock database connection
             return new TestSqlConnectionFactory();
-#else
+        }
+
+         /// <summary>
+        /// Creates a test sql connection factory instance
+        /// </summary>
+        public static ISqlConnectionFactory GetLiveTestSqlConnectionFactory()
+        {
             // connect to a real server instance
-            return ConnectionService.Instance.ConnectionFactory;
-#endif
-            
+            return ConnectionService.Instance.ConnectionFactory; 
         }
     }
 

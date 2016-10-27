@@ -154,15 +154,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void ServiceInitiailzation()
         {
-            InitializeTestServices();
+            try
+            {
+                InitializeTestServices();
+            }
+            catch (System.ArgumentException)
+            {
 
+            }
             Assert.True(LanguageService.Instance.Context != null);
             Assert.True(LanguageService.ConnectionServiceInstance != null);
             Assert.True(LanguageService.Instance.CurrentSettings != null);
             Assert.True(LanguageService.Instance.CurrentWorkspace != null);
-
-            LanguageService.ConnectionServiceInstance = null;
-            Assert.True(LanguageService.ConnectionServiceInstance == null);
         }        
 
         /// <summary>
@@ -178,15 +181,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(sqlFilePath);
 
             string ownerUri = scriptFile.ClientFilePath;
-            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionService = TestObjects.GetLiveTestConnectionService();
             var connectionResult =
                 connectionService
                 .Connect(new ConnectParams()
                 {
                     OwnerUri = ownerUri,
-                    Connection = TestObjects.GetTestConnectionDetails()
+                    Connection = TestObjects.GetIntegratedTestConnectionDetails()
                 });
             
+            connectionResult.Wait();
+
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
             
