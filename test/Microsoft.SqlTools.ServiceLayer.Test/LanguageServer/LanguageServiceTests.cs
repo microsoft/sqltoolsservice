@@ -145,11 +145,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
         #region "General Language Service tests"
 
+
+#if LIVE_CONNECTION_TESTS
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         // Test is causing failures in build lab..investigating to reenable
-        //[Fact]
+        [Fact]
         public void ServiceInitiailzation()
         {
             InitializeTestServices();
@@ -167,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         // Test is causing failures in build lab..investigating to reenable
-        //[Fact]
+        [Fact]
         public void PrepopulateCommonMetadata()
         {
             InitializeTestServices();
@@ -193,6 +195,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
         }
+
+        // This test currently requires a live database connection to initialize 
+        // SMO connected metadata provider.  Since we don't want a live DB dependency
+        // in the CI unit tests this scenario is currently disabled.
+        [Fact]
+        public void AutoCompleteFindCompletions()
+        {
+            TextDocumentPosition textDocument;
+            ConnectionInfo connInfo;
+            ScriptFile scriptFile;
+            Common.GetAutoCompleteTestObjects(out textDocument, out scriptFile, out connInfo);
+
+            textDocument.Position.Character = 7;
+            scriptFile.Contents = "select ";
+
+            var autoCompleteService = LanguageService.Instance;
+            var completions = autoCompleteService.GetCompletionItems(
+                textDocument, 
+                scriptFile,
+                connInfo);
+
+            Assert.True(completions.Length > 0);
+        }
+
+#endif
 
         private string GetTestSqlFile()
         {
@@ -254,29 +281,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         #endregion
 
         #region "Autocomplete Tests"
-
-        // This test currently requires a live database connection to initialize 
-        // SMO connected metadata provider.  Since we don't want a live DB dependency
-        // in the CI unit tests this scenario is currently disabled.
-        //[Fact]
-        public void AutoCompleteFindCompletions()
-        {
-            TextDocumentPosition textDocument;
-            ConnectionInfo connInfo;
-            ScriptFile scriptFile;
-            Common.GetAutoCompleteTestObjects(out textDocument, out scriptFile, out connInfo);
-
-            textDocument.Position.Character = 7;
-            scriptFile.Contents = "select ";
-
-            var autoCompleteService = LanguageService.Instance;
-            var completions = autoCompleteService.GetCompletionItems(
-                textDocument, 
-                scriptFile,
-                connInfo);
-
-            Assert.True(completions.Length > 0);
-        }
 
         /// <summary>
         /// Creates a mock db command that returns a predefined result set
