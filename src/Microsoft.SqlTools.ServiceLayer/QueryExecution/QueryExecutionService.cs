@@ -280,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 SaveResults.AsyncSaveEventHandler errorHandler = async message =>
                 {
                     selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendError(message);
+                    await requestContext.SendError(new SaveResultRequestError { message = message });
                 };
                 saveAsCsv.SaveFailed += errorHandler;
 
@@ -323,7 +323,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 SaveResults.AsyncSaveEventHandler errorHandler = async message =>
                 {
                     selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendError(message);
+                    await requestContext.SendError(new SaveResultRequestError { message = message });
                 };
                 saveAsJson.SaveFailed += errorHandler;
 
