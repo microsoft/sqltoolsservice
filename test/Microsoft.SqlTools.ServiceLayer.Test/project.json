@@ -8,7 +8,8 @@
     "Integration": {
       "buildOptions": {
         "define": [
-          "LIVE_CONNECTION_TESTS"
+          "LIVE_CONNECTION_TESTS",
+          "WINDOWS_ONLY_BUILD"
         ]
       }
     }
@@ -25,6 +26,9 @@
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",
     "Microsoft.SqlTools.ServiceLayer": {
+      "target": "project"
+    },
+    "Microsoft.SqlTools.ServiceLayer.TestDriver": {
       "target": "project"
     },
     "Moq": "4.6.36-alpha"
