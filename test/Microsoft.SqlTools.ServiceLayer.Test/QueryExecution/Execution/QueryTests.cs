@@ -9,7 +9,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
     public class QueryTests
     {
 
-
         [Fact]
         public void QueryExecuteNoQueryText()
         {

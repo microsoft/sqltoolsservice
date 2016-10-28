@@ -19,8 +19,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
     public class ExecuteTests
     {
 
-        #region Service Tests
-
 #if USE_LIVE_CONNECTION
         [Fact]
         public void QueryUdtShouldNotRetry()
@@ -48,8 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.NotEmpty(query.BatchSummaries[0].Messages);
         }
 #endif
-
-#endregion
 
         private static void VerifyQueryExecuteCallCount(Mock<RequestContext<QueryExecuteResult>> mock, Times sendResultCalls, Times sendEventCalls, Times sendErrorCalls)
         {

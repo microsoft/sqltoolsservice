@@ -8,7 +8,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -36,9 +35,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Member Variables
 
         /// <summary>
+        /// The reader to use for this resultset
+        /// </summary>
+        private readonly StorageDataReader dataReader;
+
+        /// <summary>
         /// For IDisposable pattern, whether or not object has been disposed
         /// </summary>
         private bool disposed;
+
+        /// <summary>
+        /// A list of offsets into the buffer file that correspond to where rows start
+        /// </summary>
+        private readonly LongList<long> fileOffsets;
 
         /// <summary>
         /// The factory to use to get reading/writing handlers
@@ -63,12 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Whether the resultSet is in the process of being disposed
         /// </summary>
-        private bool isBeingDisposed;
-
-        /// <summary>
-        /// All save tasks currently saving this ResultSet
-        /// </summary>
-        private ConcurrentDictionary<string, Task> saveTasks;
+        private readonly ConcurrentDictionary<string, Task> saveTasks;
 
         #endregion
 
@@ -82,11 +86,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Sanity check to make sure we got a reader
             Validate.IsNotNull(nameof(reader), SR.QueryServiceResultSetReaderNull);
 
-            DataReader = new StorageDataReader(reader);
+            dataReader = new StorageDataReader(reader);
 
             // Initialize the storage
             outputFileName = factory.CreateFile();
-            FileOffsets = new LongList<long>();
+            fileOffsets = new LongList<long>();
 
             // Store the factory
             fileStreamFactory = factory;
@@ -100,28 +104,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Whether the resultSet is in the process of being disposed
         /// </summary>
         /// <returns></returns>
-        internal bool IsBeingDisposed
-        {
-            get
-            {
-                return isBeingDisposed;
-            }
-        }
+        internal bool IsBeingDisposed { get; private set; }
 
         /// <summary>
         /// The columns for this result set
         /// </summary>
         public DbColumnWrapper[] Columns { get; private set; }
-
-        /// <summary>
-        /// The reader to use for this resultset
-        /// </summary>
-        private StorageDataReader DataReader { get; set; }
-
-        /// <summary>
-        /// A list of offsets into the buffer file that correspond to where rows start
-        /// </summary>
-        private LongList<long> FileOffsets { get; set; }
 
         /// <summary>
         /// Maximum number of characters to store for a field
@@ -178,14 +166,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (isSingleColumnXmlJsonResultSet)
                     {
                         // Iterate over all the rows and process them into a list of string builders
-                        IEnumerable<string> rowValues = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
+                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
                         rows = new[] { new[] { string.Join(string.Empty, rowValues) } };
 
                     }
                     else
                     {
                         // Figure out which rows we need to read back
-                        IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
+                        IEnumerable<long> rowOffsets = fileOffsets.Skip(startRow).Take(rowCount);
 
                         // Iterate over the rows we need and process them into output
                         rows = rowOffsets.Select(rowOffset =>
@@ -216,18 +204,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
             {
                 // If we can initialize the columns using the column schema, use that
-                if (!DataReader.DbDataReader.CanGetColumnSchema())
+                if (!dataReader.DbDataReader.CanGetColumnSchema())
                 {
                     throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
                 }
-                Columns = DataReader.Columns;
-                long currentFileOffset = 0;
+                Columns = dataReader.Columns;
 
-                while (await DataReader.ReadAsync(cancellationToken))
+                long currentFileOffset = 0;
+                while (await dataReader.ReadAsync(cancellationToken))
                 {
+                    // Store the beginning of the row
+                    long rowStart = currentFileOffset;
+                    currentFileOffset += fileWriter.WriteRow(dataReader);
+
+                    // Add the row to the list of rows we have only if the row was successfully written
                     RowCount++;
-                    FileOffsets.Add(currentFileOffset);
-                    currentFileOffset += fileWriter.WriteRow(DataReader);
+                    fileOffsets.Add(rowStart);
                 }
             }
             // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
@@ -251,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            isBeingDisposed = true;
+            IsBeingDisposed = true;
             // Check if saveTasks are running for this ResultSet
             if (!saveTasks.IsEmpty)
             {
@@ -263,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         fileStreamFactory.DisposeFile(outputFileName);
                     }
                     disposed = true;
-                    isBeingDisposed = false;
+                    IsBeingDisposed = false;
                 });
             }
             else
@@ -274,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     fileStreamFactory.DisposeFile(outputFileName);
                 }
                 disposed = true;
-                isBeingDisposed = false;
+                IsBeingDisposed = false;
             }
         }
 

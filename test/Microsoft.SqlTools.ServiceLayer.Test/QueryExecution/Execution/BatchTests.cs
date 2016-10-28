@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             // If I execute a query that should get no result sets
             Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), null, CancellationToken.None).Wait();
+            batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None).Wait();
 
             // Then:
             // ... It should have executed without error
@@ -57,9 +57,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // ... There should be a message for how many rows were affected
             Assert.Equal(1, batch.ResultMessages.Count());
-            Assert.Contains("1 ", batch.ResultMessages.First().Message);
-            // NOTE: 1 is expected because this test simulates a 'update' statement where 1 row was affected.
-            // The 1 in quotes is to make sure the 1 isn't part of a larger number
         }
 
         [Fact]
@@ -70,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // If I execute a query that should get one result set
             Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(ci), null, CancellationToken.None).Wait();
+            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
             // ... It should have executed without error
@@ -91,7 +88,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // ... There should be a message for how many rows were affected
             Assert.Equal(resultSets, batch.ResultMessages.Count());
-            Assert.Contains(Common.StandardRows.ToString(), batch.ResultMessages.First().Message);
         }
 
         [Fact]
@@ -103,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // If I execute a query that should get two result sets
             Batch batch = new Batch(Common.StandardQuery, 0, 0, 1, 1, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(ci), null, CancellationToken.None).Wait();
+            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
             // ... It should have executed without error
@@ -133,13 +129,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 // ... Inside each result summary, there should be 5 column definitions
                 Assert.Equal(Common.StandardColumns, rs.ColumnInfo.Length);
             }
-
-            // ... There should be a message for how many rows were affected
-            Assert.Equal(resultSets, batch.ResultMessages.Count());
-            foreach (var rsm in batch.ResultMessages)
-            {
-                Assert.Contains(Common.StandardRows.ToString(), rsm.Message);
-            }
         }
 
         [Fact]
@@ -149,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // If I execute a batch that is invalid
             Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(ci), null, CancellationToken.None).Wait();
+            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
             // ... It should have executed with error
@@ -171,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // If I execute a batch
             Batch batch = new Batch(Common.StandardQuery, 0, 0, 2, 2, Common.GetFileStreamFactory());
-            batch.Execute(GetConnection(ci), null, CancellationToken.None).Wait();
+            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
             // ... It should have executed without error
@@ -182,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // Then:
             // ... It should throw an invalid operation exception
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                batch.Execute(GetConnection(ci), null, CancellationToken.None));
+                batch.Execute(GetConnection(ci), CancellationToken.None));
 
             // ... The data should still be available without error
             Assert.False(batch.HasError, "The batch should not be in an error condition");
