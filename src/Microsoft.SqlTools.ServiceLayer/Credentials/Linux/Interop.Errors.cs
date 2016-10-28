@@ -8,6 +8,9 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Credentials
 {
+
+#if !WINDOWS_ONLY_BUILD
+
     internal static partial class Interop
     {
         /// <summary>Common Unix errno error codes.</summary>
@@ -217,5 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
             return new Interop.ErrorInfo(error);
         }
     }
+
+#endif
 
 }

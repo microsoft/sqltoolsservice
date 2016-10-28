@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -18,15 +19,37 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// </summary>
     public class TestBase : IDisposable
     {
+        private bool isRunning = false;
+
         public TestBase()
         {
             Driver = new ServiceTestDriver();
             Driver.Start().Wait();
+            this.isRunning = true;
         }
 
         public void Dispose()
         {
-            Driver.Stop().Wait();
+            if (this.isRunning)
+            {
+                WaitForExit();
+            }
+        }
+
+        public void WaitForExit()
+        {
+            this.isRunning = false;            
+
+            if (!Driver.IsCoverageRun)
+            {
+                Driver.Stop().Wait();
+            }
+            else
+            {
+                var p = Process.Start("taskkill", "/IM Microsoft.SqlTools.ServiceLayer.exe /F");
+                p.WaitForExit();    
+                Driver.ServiceProcess?.WaitForExit();
+            }
         }
 
         /// <summary>
@@ -43,9 +66,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a new connection to be created
         /// </summary>
-        /// <returns>True if the connection completed successfully</returns>
+        /// <returns>True if the connection completed successfully</returns>        
         protected async Task<bool> Connect(string ownerUri, ConnectParams connectParams)
-        {
+        { 
             connectParams.OwnerUri = ownerUri;
             var connectResult = await Driver.SendRequest(ConnectionRequest.Type, connectParams);
             if (connectResult)

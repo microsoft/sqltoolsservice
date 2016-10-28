@@ -9,6 +9,7 @@
 //
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -22,19 +23,55 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
     /// </summary>
     public class ServiceTestDriver : TestDriverBase
     {
+
+        public const string ServiceCodeCoverageEnvironmentVariable = "SERVICECODECOVERAGE";
+
+        public const string CodeCoverageToolEnvironmentVariable = "CODECOVERAGETOOL";
+
+        public const string CodeCoverageOutputEnvironmentVariable = "CODECOVERAGEOUTPUT";        
+
         /// <summary>
         /// Environment variable that stores the path to the service host executable.
         /// </summary>
         public static string ServiceHostEnvironmentVariable
         {
             get { return "SQLTOOLSSERVICE_EXE"; }
-        }
+        }       
+
+        public bool IsCoverageRun { get; set; } 
 
         public ServiceTestDriver()
         {
             string serviceHostExecutable = Environment.GetEnvironmentVariable(ServiceHostEnvironmentVariable);
+            string serviceHostArguments = "--enable-logging";
 
-            var clientChannel = new StdioClientChannel(serviceHostExecutable, "--enable-logging");
+            //setup the service host for code coverage if the envvar is enabled
+            if (Environment.GetEnvironmentVariable(ServiceCodeCoverageEnvironmentVariable) == "True")
+            {
+                string coverageToolPath = Environment.GetEnvironmentVariable(CodeCoverageToolEnvironmentVariable);
+                if (!string.IsNullOrWhiteSpace(coverageToolPath))
+                {
+                    string serviceHostDirectory = Path.GetDirectoryName(serviceHostExecutable);
+                    if (string.IsNullOrWhiteSpace(serviceHostDirectory))
+                    {
+                        serviceHostDirectory = ".";
+                    }
+
+                    string coverageOutput = Environment.GetEnvironmentVariable(CodeCoverageOutputEnvironmentVariable);
+                    if (string.IsNullOrWhiteSpace(coverageOutput))
+                    {
+                        coverageOutput = "coverage.xml";
+                    }
+               
+                    serviceHostArguments = "-target:" + serviceHostExecutable + " -targetargs:" + serviceHostArguments 
+                        + " -register:user -oldstyle -filter:\"+[Microsoft.SqlTools.*]* -[xunit*]*\" -output:" + coverageOutput + " -searchdirs:" + serviceHostDirectory;
+                    serviceHostExecutable = coverageToolPath;
+
+                    this.IsCoverageRun = true;
+                }               
+            }
+
+            this.clientChannel = new StdioClientChannel(serviceHostExecutable, serviceHostArguments);
             this.protocolClient = new ProtocolEndpoint(clientChannel, MessageProtocolType.LanguageServer);
         }
 
