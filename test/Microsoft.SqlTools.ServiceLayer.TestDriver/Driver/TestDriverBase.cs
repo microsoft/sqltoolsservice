@@ -10,8 +10,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -24,11 +26,28 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
     {
         protected ProtocolEndpoint protocolClient;
 
+        protected StdioClientChannel clientChannel;
+
         private ConcurrentDictionary<string, AsyncQueue<object>> eventQueuePerType =
             new ConcurrentDictionary<string, AsyncQueue<object>>();
 
         private ConcurrentDictionary<string, AsyncQueue<object>> requestQueuePerType =
             new ConcurrentDictionary<string, AsyncQueue<object>>();
+
+        public Process ServiceProcess
+        {
+            get
+            {
+                try
+                {
+                    return Process.GetProcessById(clientChannel.ProcessId);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
 
         public Task<TResult> SendRequest<TParams, TResult>(
             RequestType<TParams, TResult> requestType, 

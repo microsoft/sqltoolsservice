@@ -10,6 +10,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
 {
+
+#if !WINDOWS_ONLY_BUILD
+
     /// <summary>
     /// OSX implementation of the credential store
     /// </summary>
@@ -155,4 +158,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
             }
         }
     }
+
+#endif
+
 }
+

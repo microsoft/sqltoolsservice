@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             string settingsFileContents = File.ReadAllText(settingsFilename);
 
             JObject root = JObject.Parse(settingsFileContents);
-            JArray connections = (JArray)root["vscode-mssql.connections"];
+            JArray connections = (JArray)root["mssql.connections"];
 
             var connectionObject = connections.Where(x => x["server"].ToString() == serverName).First();
 

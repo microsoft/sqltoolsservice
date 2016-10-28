@@ -8,6 +8,9 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Credentials
 {
+
+#if !WINDOWS_ONLY_BUILD
+
     internal static partial class Interop
     {
         internal static partial class Sys
@@ -37,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
                 internal const string SystemNative = "System.Native";
             }
         }
-        
     }
+
+#endif
+
 }
