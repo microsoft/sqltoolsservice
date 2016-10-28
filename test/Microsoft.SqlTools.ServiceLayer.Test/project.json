@@ -28,9 +28,6 @@
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
     },
-    "Microsoft.SqlTools.ServiceLayer.TestDriver": {
-      "target": "project"
-    },
     "Moq": "4.6.36-alpha"
   },
   "testRunner": "xunit",
