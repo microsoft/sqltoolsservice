@@ -155,7 +155,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 string query = "SELECT *** FROM sys.objects";
 
-
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification()
                 {
                     TextDocument = new TextDocumentItem()
@@ -168,7 +167,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 await RequestOpenDocumentNotification(openParams);
-
               
                 Thread.Sleep(5000);
 
