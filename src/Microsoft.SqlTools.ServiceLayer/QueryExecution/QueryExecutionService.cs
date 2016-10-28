@@ -427,8 +427,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
 
+            Query.QueryAsyncErrorEventHandler errorCallback = async errorMessage =>
+            {
+                // Send back the error message
+                QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
+                {
+                    OwnerUri = executeParams.OwnerUri,
+                    Message = errorMessage              
+                };
+                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
+            };
+
             query.QueryCompleted += callback;
             query.QueryFailed += callback;
+            query.QueryConnectionException += errorCallback;
 
             // Launch this as an asynchronous task
             query.Execute();

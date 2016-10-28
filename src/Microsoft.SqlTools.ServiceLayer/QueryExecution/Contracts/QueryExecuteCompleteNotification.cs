@@ -21,6 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Summaries of the result sets that were returned with the query
         /// </summary>
         public BatchSummary[] BatchSummaries { get; set; }
+
+        /// <summary>
+        /// Error message, if any
+        /// </summary>
+        public string Message { get; set; }
     }
 
     public class QueryExecuteCompleteEvent
