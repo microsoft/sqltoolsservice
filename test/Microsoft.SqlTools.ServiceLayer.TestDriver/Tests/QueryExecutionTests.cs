@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
     public class QueryExecutionTests : TestBase
     {
-        [Fact]
+        //[Fact]
         public async Task TestQueryingAfterCompletionRequests()
         {
             try

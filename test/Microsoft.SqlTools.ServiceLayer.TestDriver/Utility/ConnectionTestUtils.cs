@@ -25,6 +25,40 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             get { return azureTestServerConnection.Value; }
         }
 
+        public static ConnectParams LocalhostConnection
+        {
+            get
+            {
+                return new ConnectParams()
+                {
+                    Connection = new ConnectionDetails()
+                    {
+                        DatabaseName = "master",
+                        ServerName = "localhost",
+                        AuthenticationType = "Integrated"
+                    }
+                };
+            }
+        }
+
+        public static ConnectParams InvalidConnection
+        {
+            get
+            {
+                return new ConnectParams()
+                {
+                    Connection = new ConnectionDetails()
+                    {
+                        DatabaseName = "master",
+                        ServerName = "localhost",
+                        AuthenticationType = "SqlLogin",
+                        UserName = "invalid",
+                        Password = ".."
+                    }
+                };
+            }
+        }
+
         private static readonly Lazy<ConnectParams> sqlDataToolsAzureConnection =
             new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("ssdtprod.database.windows.net"));
 
