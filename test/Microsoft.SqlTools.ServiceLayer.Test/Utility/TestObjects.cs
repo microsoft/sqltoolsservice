@@ -70,7 +70,10 @@ namespace Microsoft.SqlTools.Test.Utility
             };
         }
 
-         public static ConnectionDetails GetIntegratedTestConnectionDetails()
+        /// <summary>
+        /// Gets a ConnectionDetails for connecting to localhost with integrated auth
+        /// </summary>
+        public static ConnectionDetails GetIntegratedTestConnectionDetails()
         {
             return new ConnectionDetails()
             {
