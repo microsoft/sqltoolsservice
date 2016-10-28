@@ -38,17 +38,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
         public void WaitForExit()
         {
-            this.isRunning = false;            
+            try
+            {
+                this.isRunning = false;            
 
-            if (!Driver.IsCoverageRun)
-            {
-                Driver.Stop().Wait();
+                if (!Driver.IsCoverageRun)
+                {
+                    Driver.Stop().Wait();
+                }
+                else
+                {
+                    var p = Process.Start("taskkill", "/IM Microsoft.SqlTools.ServiceLayer.exe /F");
+                    p.WaitForExit();    
+                    Driver.ServiceProcess?.WaitForExit();
+                }
             }
-            else
-            {
-                var p = Process.Start("taskkill", "/IM Microsoft.SqlTools.ServiceLayer.exe /F");
-                p.WaitForExit();    
-                Driver.ServiceProcess?.WaitForExit();
+            catch
+            {                
             }
         }
 
@@ -95,6 +101,31 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         /// <summary>
+        /// Request the active SQL script is parsed for errors
+        /// </summary>
+        protected async Task RequestOpenDocumentNotification(DidOpenTextDocumentNotification openParams)
+        {
+            await Driver.SendEvent(DidOpenTextDocumentNotification.Type, openParams);
+        }
+
+        /// <summary>
+        /// /// Request the active SQL script is parsed for errors
+        /// </summary>
+        protected async Task RequestChangeTextDocumentNotification(DidChangeTextDocumentParams changeParams)
+        {
+            await Driver.SendEvent(DidChangeTextDocumentNotification.Type, changeParams);
+        }
+        
+        /// <summary>
+        /// Request completion item resolve to look-up additional info
+        /// </summary>
+        protected async Task<CompletionItem> RequestResolveCompletion(CompletionItem item)
+        {
+            var result = await Driver.SendRequest(CompletionResolveRequest.Type, item);
+            return result;
+        }
+        
+        /// <summary>
         /// Request a list of completion items for a position in a block of text
         /// </summary>
         protected async Task<CompletionItem[]> RequestCompletion(string ownerUri, string text, int line, int character)
@@ -113,6 +144,28 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             completionParams.Position.Character = character;
 
             var result = await Driver.SendRequest(CompletionRequest.Type, completionParams);
+            return result;
+        }
+
+        /// <summary>
+        /// Request a a hover tooltop
+        /// </summary>
+        protected async Task<Hover> RequestHover(string ownerUri, string text, int line, int character)
+        {
+            // Write the text to a backing file
+            lock (fileLock)
+            {
+                System.IO.File.WriteAllText(ownerUri, text);
+            }
+
+            var completionParams = new TextDocumentPosition();
+            completionParams.TextDocument = new TextDocumentIdentifier();
+            completionParams.TextDocument.Uri = ownerUri;
+            completionParams.Position = new Position();
+            completionParams.Position.Line = line;
+            completionParams.Position.Character = character;
+
+            var result = await Driver.SendRequest(HoverRequest.Type, completionParams);
             return result;
         }
 
