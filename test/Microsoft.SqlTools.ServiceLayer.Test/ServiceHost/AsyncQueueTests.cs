@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
-namespace Microsoft.PowerShell.EditorServices.Test.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
 {
     public class AsyncQueueTests
     {
