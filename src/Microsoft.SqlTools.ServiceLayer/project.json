@@ -10,7 +10,8 @@
       "buildOptions": {
         "define": [
           "WINDOWS_ONLY_BUILD"
-        ]
+        ],
+        "emitEntryPoint": true
       }
     }
   },

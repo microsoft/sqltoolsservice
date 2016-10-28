@@ -18,7 +18,7 @@ dotnet build %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json
 REM run the tests through OpenCover and generate a report
 dotnet build %WORKINGDIR%..\..\test\Microsoft.SqlTools.ServiceLayer.Test\project.json %DOTNETCONFIG% 
 
-SET SQLTOOLSSERVICE_EXE=%WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\bin\Debug\netcoreapp1.0\win7-x64\Microsoft.SqlTools.ServiceLayer.exe
+SET SQLTOOLSSERVICE_EXE=%WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp1.0\win7-x64\Microsoft.SqlTools.ServiceLayer.exe
 SET SERVICECODECOVERAGE=TRUE
 SET CODECOVERAGETOOL="%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe"
 SET CODECOVERAGEOUTPUT=coverage.xml
