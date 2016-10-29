@@ -214,10 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         protected async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query)
         {
             // Write the query text to a backing file
-            lock (fileLock)
-            {
-                System.IO.File.WriteAllText(ownerUri, query);
-            }
+            WriteToFile(ownerUri, query);
 
             var queryParams = new QueryExecuteParams();
             queryParams.OwnerUri = ownerUri;
@@ -232,6 +229,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             else
             {
                 return null;
+            }
+        }
+
+        protected void WriteToFile(string ownerUri, string query)
+        {
+            lock (fileLock)
+            {
+                System.IO.File.WriteAllText(ownerUri, query);
             }
         }
     }

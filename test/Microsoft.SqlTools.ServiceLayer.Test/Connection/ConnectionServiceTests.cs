@@ -810,6 +810,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         /// <summary>
+        /// Test ConnectionSummaryComparer 
+        /// </summary>
+        [Fact]
+        public void TestConnectionSummaryComparer()
+        {
+            var summary1 = new ConnectionSummary()
+            {
+                ServerName = "localhost",
+                DatabaseName = "master",
+                UserName = "user"
+            };
+
+            var summary2 = new ConnectionSummary()
+            {
+                ServerName = "localhost",
+                DatabaseName = "master",
+                UserName = "user"
+            };
+
+            var comparer = new ConnectionSummaryComparer();
+            Assert.True(comparer.Equals(summary1, summary2));
+
+            summary2.DatabaseName = "tempdb";
+            Assert.False(comparer.Equals(summary1, summary2));
+        } 
+
+        /// <summary>
         /// Verify when a connection is created that the URI -> Connection mapping is created in the connection service.
         /// </summary>
         [Fact]
