@@ -30,14 +30,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task HoverTest()
         {
             try
-            {            
+            {
                 string ownerUri = System.IO.Path.GetTempFileName();
-                bool connected = await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
-                Assert.True(connected, "Connection is successful");
-
-                Thread.Sleep(500);
-
                 string query = "SELECT * FROM sys.objects";
+
+                WriteToFile(ownerUri, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification()
                 {
@@ -51,7 +48,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 await RequestOpenDocumentNotification(openParams);
-                
+                  
+                Thread.Sleep(500);
+
+                bool connected = await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+                Assert.True(connected, "Connection is successful");
+
+                Thread.Sleep(10000);
+
                 Hover hover = await RequestHover(ownerUri, query, 0, 15);
 
                 Assert.True(hover != null, "Hover tooltop is not null");
@@ -71,14 +75,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task CompletionTest()
         {
             try
-            {            
+            {      
                 string ownerUri = System.IO.Path.GetTempFileName();
-                bool connected = await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
-                Assert.True(connected, "Connection is successful");
-
-                Thread.Sleep(500);
-
                 string query = "SELECT * FROM sys.objects";
+
+                WriteToFile(ownerUri, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification()
                 {
@@ -92,42 +93,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 await RequestOpenDocumentNotification(openParams);
+                  
+                Thread.Sleep(500);
 
-                var contentChanges = new TextDocumentChangeEvent[1];
-                contentChanges[0] = new TextDocumentChangeEvent()
-                {
-                    Range = new Range()
-                    {
-                        Start = new Position()
-                        {
-                            Line = 0,
-                            Character = 5
-                        },
-                        End = new Position()
-                        {
-                            Line = 0,
-                            Character = 6
-                        }
-                    },
-                    RangeLength = 1,
-                    Text = "z"
-                };
+                bool connected = await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+                Assert.True(connected, "Connection is successful");
 
-                DidChangeTextDocumentParams changeParams = new DidChangeTextDocumentParams()
-                {
-                    ContentChanges = contentChanges,
-                    TextDocument = new VersionedTextDocumentIdentifier()
-                    {
-                        Version = 2,
-                        Uri = ownerUri
-                    }
-                };
+                Thread.Sleep(10000);
 
-                await RequestChangeTextDocumentNotification(changeParams);
-   
                 CompletionItem[] completions = await RequestCompletion(ownerUri, query, 0, 15);
 
                 Assert.True(completions != null && completions.Length > 0, "Completion items list is not null and not empty");
+
+                Thread.Sleep(50);
 
                 CompletionItem item = await RequestResolveCompletion(completions[0]);
 

@@ -526,8 +526,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Dictionary<string, object> settings = new Dictionary<string, object>();
             settings.Add("LockTimeoutMilliSeconds", 10000);
             data.PopulateSettings(settings);
+            settings["LockTimeoutMilliSeconds"] = 15000;
+            data.PopulateSettings(settings);
             data.TraceSettings();
+        }
+
+        [Fact]
+        public void RetryPolicyFactoryTest()
+        {
+            Assert.NotNull(RetryPolicyFactory.NoRetryPolicy);
+            Assert.NotNull(RetryPolicyFactory.PrimaryKeyViolationRetryPolicy);
+
+            RetryPolicy noRetyPolicy = RetryPolicyFactory.CreateDefaultSchemaCommandRetryPolicy(useRetry: false);
+
+            var retryState = new RetryStateEx();
+            retryState.LastError = new Exception();
+            RetryPolicyFactory.DataConnectionFailureRetry(retryState);
+            RetryPolicyFactory.CommandFailureRetry(retryState, "command");
+            RetryPolicyFactory.CommandFailureIgnore(retryState, "command");
+            RetryPolicyFactory.ElementCommandFailureIgnore(retryState);
+            RetryPolicyFactory.ElementCommandFailureRetry(retryState);
+            RetryPolicyFactory.CreateDatabaseCommandFailureIgnore(retryState);
+            RetryPolicyFactory.CreateDatabaseCommandFailureRetry(retryState);  
+            RetryPolicyFactory.CommandFailureIgnore(retryState);
+            RetryPolicyFactory.CommandFailureRetry(retryState);
+
+            var transientPolicy = new RetryPolicyFactory.TransientErrorIgnoreStrategy();
+            Assert.False(transientPolicy.CanRetry(new Exception()));
+            Assert.False(transientPolicy.ShouldIgnoreError(new Exception()));
         }
     }
 }
+
 #endif // LIVE_CONNECTION_TESTS

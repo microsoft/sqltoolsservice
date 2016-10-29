@@ -390,7 +390,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             return retryPolicy;
         }
 
-        private static void DataConnectionFailureRetry(RetryState retryState)
+        internal static void DataConnectionFailureRetry(RetryState retryState)
         {
             Logger.Write(LogLevel.Normal, string.Format(CultureInfo.InvariantCulture,
                 "Connection retry number {0}. Delaying {1} ms before retry. Exception: {2}",
@@ -401,7 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             RetryPolicyUtils.RaiseAmbientRetryMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.ConnectionRetry);
         }
 
-        private static void CommandFailureRetry(RetryState retryState, string commandKeyword)
+        internal static void CommandFailureRetry(RetryState retryState, string commandKeyword)
         {
             Logger.Write(LogLevel.Normal, string.Format(
                 CultureInfo.InvariantCulture,
@@ -414,7 +414,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             RetryPolicyUtils.RaiseAmbientRetryMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.CommandRetry);
         }
 
-        private static void CommandFailureIgnore(RetryState retryState, string commandKeyword)
+        internal static void CommandFailureIgnore(RetryState retryState, string commandKeyword)
         {
             Logger.Write(LogLevel.Normal, string.Format(
                 CultureInfo.InvariantCulture,
@@ -426,32 +426,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             RetryPolicyUtils.RaiseAmbientIgnoreMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.CommandRetry);
         }
 
-        private static void CommandFailureRetry(RetryState retryState)
+        internal static void CommandFailureRetry(RetryState retryState)
         {
             CommandFailureRetry(retryState, "Command");
         }
 
-        private static void CommandFailureIgnore(RetryState retryState)
+        internal static void CommandFailureIgnore(RetryState retryState)
         {
             CommandFailureIgnore(retryState, "Command");
         }
 
-        private static void CreateDatabaseCommandFailureRetry(RetryState retryState)
+        internal static void CreateDatabaseCommandFailureRetry(RetryState retryState)
         {
             CommandFailureRetry(retryState, "Database Command");
         }
 
-        private static void CreateDatabaseCommandFailureIgnore(RetryState retryState)
+        internal static void CreateDatabaseCommandFailureIgnore(RetryState retryState)
         {
             CommandFailureIgnore(retryState, "Database Command");
         }
 
-        private static void ElementCommandFailureRetry(RetryState retryState)
+        internal static void ElementCommandFailureRetry(RetryState retryState)
         {
             CommandFailureRetry(retryState, "Element Command");
         }
 
-        private static void ElementCommandFailureIgnore(RetryState retryState)
+        internal static void ElementCommandFailureIgnore(RetryState retryState)
         {
             CommandFailureIgnore(retryState, "Element Command");
         }
