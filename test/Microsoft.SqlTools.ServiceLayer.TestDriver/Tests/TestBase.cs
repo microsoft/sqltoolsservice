@@ -73,13 +73,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// Request a new connection to be created
         /// </summary>
         /// <returns>True if the connection completed successfully</returns>        
-        protected async Task<bool> Connect(string ownerUri, ConnectParams connectParams)
+        protected async Task<bool> Connect(string ownerUri, ConnectParams connectParams, int timeout = 15000)
         { 
             connectParams.OwnerUri = ownerUri;
             var connectResult = await Driver.SendRequest(ConnectionRequest.Type, connectParams);
             if (connectResult)
             {
-                var completeEvent = await Driver.WaitForEvent(ConnectionCompleteNotification.Type);
+                var completeEvent = await Driver.WaitForEvent(ConnectionCompleteNotification.Type, timeout);
                 return !string.IsNullOrEmpty(completeEvent.ConnectionId);
             }
             else

@@ -24,16 +24,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Try to connect with invalid credentials
         /// </summary>
-        //[Fact]
+        [Fact]
         public async Task InvalidConnection()
         {
             try
             {            
                 string ownerUri = System.IO.Path.GetTempFileName();
-                bool connected = await Connect(ownerUri, ConnectionTestUtils.InvalidConnection);
+                bool connected = await Connect(ownerUri, ConnectionTestUtils.InvalidConnection, 300000);
                 Assert.False(connected, "Invalid connection is failed to connect");
 
                 await Disconnect(ownerUri);
+            }
+            catch
+            {
             }
             finally
             {
