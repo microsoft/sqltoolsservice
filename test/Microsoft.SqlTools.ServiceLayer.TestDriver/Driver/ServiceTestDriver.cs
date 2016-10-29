@@ -62,8 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
                     {
                         coverageOutput = "coverage.xml";
                     }
-               
-                    serviceHostArguments = "-target:" + serviceHostExecutable + " -targetargs:" + serviceHostArguments 
+
+                    serviceHostArguments = "-mergeoutput -target:" + serviceHostExecutable + " -targetargs:" + serviceHostArguments 
                         + " -register:user -oldstyle -filter:\"+[Microsoft.SqlTools.*]* -[xunit*]*\" -output:" + coverageOutput + " -searchdirs:" + serviceHostDirectory;
                     serviceHostExecutable = coverageToolPath;
 
