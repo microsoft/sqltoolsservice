@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
@@ -21,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// </summary>
     public class LanguageServiceTests : TestBase
     {
+
         /// <summary>
         /// Validate hover tooltip scenarios
         /// </summary>
@@ -177,5 +179,37 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 WaitForExit();
             }
         }
+
+        /// <summary>
+        /// Validate the configuration change event
+        /// </summary>
+        [Fact]
+        public async Task HandleDidChangeConfigurationNotificationTest()
+        {
+            try
+            {            
+                string ownerUri = System.IO.Path.GetTempFileName();
+                bool connected = await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+                Assert.True(connected, "Connection is successful");
+
+                Thread.Sleep(500);             
+
+                DidChangeConfigurationParams<SqlToolsSettings> configParams = new DidChangeConfigurationParams<SqlToolsSettings>()
+                {
+                    Settings = new SqlToolsSettings()
+                };
+
+                await RequestChangeConfigurationNotification(configParams);
+
+                Thread.Sleep(5000);
+
+                await Disconnect(ownerUri);
+            }
+            finally
+            {
+                WaitForExit();
+            }
+        }
+
     }
 }

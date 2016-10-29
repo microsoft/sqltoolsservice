@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -101,11 +102,49 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         /// <summary>
+        /// Request a cancel connect
+        /// </summary>
+        protected async Task<bool> CancelConnect(string ownerUri)
+        {
+            var cancelParams = new CancelConnectParams();
+            cancelParams.OwnerUri = ownerUri;
+
+            return await Driver.SendRequest(CancelConnectRequest.Type, cancelParams);
+        }
+
+        /// <summary>
+        /// Request a cancel connect
+        /// </summary>
+        protected async Task<ListDatabasesResponse> ListDatabases(string ownerUri)
+        {
+            var listParams = new ListDatabasesParams();
+            listParams.OwnerUri = ownerUri;
+
+            return await Driver.SendRequest(ListDatabasesRequest.Type, listParams);
+        }
+
+        /// <summary>
+        /// Request the active SQL script is parsed for errors
+        /// </summary>
+        protected async Task<QueryExecuteSubsetResult> RequestQueryExecuteSubset(QueryExecuteSubsetParams subsetParams)
+        {
+            return await Driver.SendRequest(QueryExecuteSubsetRequest.Type, subsetParams);
+        }
+
+        /// <summary>
         /// Request the active SQL script is parsed for errors
         /// </summary>
         protected async Task RequestOpenDocumentNotification(DidOpenTextDocumentNotification openParams)
         {
             await Driver.SendEvent(DidOpenTextDocumentNotification.Type, openParams);
+        }
+
+        /// <summary>
+        /// Request a configuration change notification
+        /// </summary>
+        protected async Task RequestChangeConfigurationNotification(DidChangeConfigurationParams<SqlToolsSettings> configParams)
+        {
+            await Driver.SendEvent(DidChangeConfigurationNotification<SqlToolsSettings>.Type, configParams);
         }
 
         /// <summary>

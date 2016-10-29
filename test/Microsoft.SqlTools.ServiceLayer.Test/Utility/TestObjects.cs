@@ -7,10 +7,18 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.IO;
+using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Credentials;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.Test.Utility
 {
@@ -19,6 +27,7 @@ namespace Microsoft.SqlTools.Test.Utility
     /// </summary>
     public class TestObjects
     {
+        private static bool hasInitServices = false;
         public const string ScriptUri = "file://some/file.sql";
 
         /// <summary>
@@ -108,6 +117,79 @@ namespace Microsoft.SqlTools.Test.Utility
         {
             // connect to a real server instance
             return ConnectionService.Instance.ConnectionFactory; 
+        }
+
+        public static void InitializeTestServices()
+        {
+            if (TestObjects.hasInitServices)
+            {
+                return;
+            }
+
+            TestObjects.hasInitServices = true;
+
+            const string hostName = "SQ Tools Test Service Host";
+            const string hostProfileId = "SQLToolsTestService";
+            Version hostVersion = new Version(1,0); 
+
+            // set up the host details and profile paths 
+            var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);     
+            SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
+
+            // Grab the instance of the service host
+            ServiceHost serviceHost = ServiceHost.Instance;
+
+            // Start the service
+            serviceHost.Start().Wait();
+
+            // Initialize the services that will be hosted here
+            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
+            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
+            ConnectionService.Instance.InitializeService(serviceHost);
+            CredentialService.Instance.InitializeService(serviceHost);
+            QueryExecutionService.Instance.InitializeService(serviceHost);
+
+            serviceHost.Initialize();
+        }
+
+        public static string GetTestSqlFile()
+        {
+            string filePath = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+                "sqltest.sql");
+            
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+
+            File.WriteAllText(filePath, "SELECT * FROM sys.objects\n");
+
+            return filePath;
+        }
+
+        public static ConnectionInfo InitLiveConnectionInfo(out ScriptFile scriptFile)
+        {
+            TestObjects.InitializeTestServices();
+
+            string sqlFilePath = GetTestSqlFile();            
+            scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(sqlFilePath);
+
+            string ownerUri = scriptFile.ClientFilePath;
+            var connectionService = TestObjects.GetLiveTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetIntegratedTestConnectionDetails()
+                });
+            
+            connectionResult.Wait();
+
+            ConnectionInfo connInfo = null;
+            connectionService.TryFindConnection(ownerUri, out connInfo);
+            return connInfo;
         }
     }
 

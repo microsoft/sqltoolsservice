@@ -196,11 +196,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
         {
             // Register the requests that this service will handle
-            serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
-            serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
+
+            // turn off until needed (10/28/2016)
+            // serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
+            // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
+            // serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
+            // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
+
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
-            serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
-            serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
 
@@ -290,6 +293,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+// turn off this code until needed (10/28/2016)
+#if false
         private static async Task HandleDefinitionRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<Location[]> requestContext)
@@ -317,6 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             await Task.FromResult(true);
         }
+#endif
 
         private static async Task HandleHoverRequest(
             TextDocumentPosition textDocumentPosition,
@@ -361,7 +367,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     eventContext); 
             }
 
-            await Task.FromResult(true);             
+            await Task.FromResult(true);
         }
         
         /// <summary> 
