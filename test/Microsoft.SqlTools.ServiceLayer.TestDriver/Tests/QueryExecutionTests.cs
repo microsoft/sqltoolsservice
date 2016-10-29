@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 Thread.Sleep(500);
 
-                string query = "SELECT * FROM sys.objects";
+                string query = "SELECT * FROM sys.all_columns c";
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification()
                 {
@@ -47,6 +48,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 Assert.NotNull(queryResult);
                 Assert.NotNull(queryResult.BatchSummaries);
+
+                foreach (var batchSummary in queryResult.BatchSummaries)
+                {
+                    foreach (var resultSetSummary in batchSummary.ResultSetSummaries)
+                    {
+                        Assert.True(resultSetSummary.RowCount > 0);
+                    }
+                }
+
+                var subsetRequest = new QueryExecuteSubsetParams()
+                {
+                    OwnerUri = ownerUri,
+                    BatchIndex = 0,
+                    ResultSetIndex = 0,
+                    RowsStartIndex = 0,
+                    RowsCount = 100,
+                };
+                
+                var querySubset = await RequestQueryExecuteSubset(subsetRequest);
+                Assert.NotNull(querySubset);
+                Assert.True(querySubset.ResultSubset.RowCount == 100);
 
                 await Disconnect(ownerUri);
             }

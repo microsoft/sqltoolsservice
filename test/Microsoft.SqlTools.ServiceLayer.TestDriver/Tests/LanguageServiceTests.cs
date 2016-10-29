@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
@@ -21,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// </summary>
     public class LanguageServiceTests : TestBase
     {
+
         /// <summary>
         /// Validate hover tooltip scenarios
         /// </summary>
@@ -168,7 +170,74 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 await RequestOpenDocumentNotification(openParams);
               
-                Thread.Sleep(5000);
+                Thread.Sleep(100);
+
+                var contentChanges = new TextDocumentChangeEvent[1];
+                contentChanges[0] = new TextDocumentChangeEvent()
+                {
+                    Range = new Range()
+                    {
+                        Start = new Position()
+                        {
+                            Line = 0,
+                            Character = 5
+                        },
+                        End = new Position()
+                        {
+                            Line = 0,
+                            Character = 6
+                        }
+                    },
+                    RangeLength = 1,
+                    Text = "z"
+                };
+
+                DidChangeTextDocumentParams changeParams = new DidChangeTextDocumentParams()
+                {
+                    ContentChanges = contentChanges,
+                    TextDocument = new VersionedTextDocumentIdentifier()
+                    {
+                        Version = 2,
+                        Uri = ownerUri
+                    }
+                };
+
+                await RequestChangeTextDocumentNotification(changeParams);
+
+                Thread.Sleep(100);
+        
+                contentChanges[0] = new TextDocumentChangeEvent()
+                {
+                    Range = new Range()
+                    {
+                        Start = new Position()
+                        {
+                            Line = 0,
+                            Character = 5
+                        },
+                        End = new Position()
+                        {
+                            Line = 0,
+                            Character = 6
+                        }
+                    },
+                    RangeLength = 1,
+                    Text = "t"
+                };
+
+                changeParams = new DidChangeTextDocumentParams()
+                {
+                    ContentChanges = contentChanges,
+                    TextDocument = new VersionedTextDocumentIdentifier()
+                    {
+                        Version = 3,
+                        Uri = ownerUri
+                    }
+                };
+
+                await RequestChangeTextDocumentNotification(changeParams);
+
+                Thread.Sleep(2500);
 
                 await Disconnect(ownerUri);
             }
@@ -177,5 +246,39 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 WaitForExit();
             }
         }
+
+        /// <summary>
+        /// Validate the configuration change event
+        /// </summary>
+        [Fact]
+        public async Task ChangeConfigurationTest()
+        {
+            try
+            {            
+                string ownerUri = System.IO.Path.GetTempFileName();
+                bool connected = await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+                Assert.True(connected, "Connection is successful");
+
+                Thread.Sleep(500);             
+
+                var settings = new SqlToolsSettings();
+                settings.SqlTools.IntelliSense.EnableIntellisense = false;
+                DidChangeConfigurationParams<SqlToolsSettings> configParams = new DidChangeConfigurationParams<SqlToolsSettings>()
+                {
+                    Settings = settings
+                };
+
+                await RequestChangeConfigurationNotification(configParams);
+
+                Thread.Sleep(2000);
+
+                await Disconnect(ownerUri);
+            }
+            finally
+            {
+                WaitForExit();
+            }
+        }
+
     }
 }
