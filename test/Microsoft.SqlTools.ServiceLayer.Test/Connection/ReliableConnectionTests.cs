@@ -10,9 +10,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Test.Utility;
 using Xunit;
+using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.ReliableConnectionHelper;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy.TimeBasedRetryPolicy;
 
@@ -554,6 +558,103 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             var transientPolicy = new RetryPolicyFactory.TransientErrorIgnoreStrategy();
             Assert.False(transientPolicy.CanRetry(new Exception()));
             Assert.False(transientPolicy.ShouldIgnoreError(new Exception()));
+        }
+
+        [Fact]
+        public void ReliableConnectionHelperTest()
+        {
+            ScriptFile scriptFile;
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+
+            Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(connInfo.SqlConnection));
+
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+            Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(builder));
+            ReliableConnectionHelper.TryAddAlwaysOnConnectionProperties(builder, new SqlConnectionStringBuilder());
+
+            Assert.NotNull(ReliableConnectionHelper.GetServerName(connInfo.SqlConnection));
+            Assert.NotNull(ReliableConnectionHelper.ReadServerVersion(connInfo.SqlConnection));
+            
+            Assert.NotNull(ReliableConnectionHelper.GetAsSqlConnection(connInfo.SqlConnection));
+
+            ServerInfo info = ReliableConnectionHelper.GetServerVersion(connInfo.SqlConnection);
+            Assert.NotNull(ReliableConnectionHelper.IsVersionGreaterThan2012RTM(info));
+        }
+
+        [Fact]
+        public void DataSchemaErrorTests()
+        {
+            var error = new DataSchemaError();
+            Assert.NotNull(error);
+            var isOnDisplay = error.IsOnDisplay;
+            var isBuildErrorCodeDefined = error.IsBuildErrorCodeDefined;
+            var buildErrorCode = error.BuildErrorCode;
+            var isPriorityEditable = error.IsPriorityEditable; 
+            var message = error.Message;
+            var exception = error.Exception; 
+            var prefix = error.Prefix;
+            var column = error.Column;
+            var line =error.Line;
+            var errorCode =error.ErrorCode; 
+            var severity = error.Severity;
+            var document = error.Document;
+
+            Assert.NotNull(error.ToString());
+            Assert.NotNull(DataSchemaError.FormatErrorCode("ex", 1));
+        }
+
+        [Fact]
+        public void InitReliableSqlConnectionTest()
+        {
+            ScriptFile scriptFile;
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+
+            var connection = connInfo.SqlConnection as ReliableSqlConnection;
+            var command = new ReliableSqlConnection.ReliableSqlCommand(connection);
+            Assert.NotNull(command.Connection);
+
+        }
+        
+        [Fact]
+        public void ThrottlingReasonTests()
+        { 
+            var reason = RetryPolicy.ThrottlingReason.Unknown;
+            Assert.NotNull(reason.ThrottlingMode);
+            Assert.NotNull(reason.ThrottledResources);
+
+            try
+            {
+                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+                builder.InitialCatalog = "master";
+                builder.IntegratedSecurity = false;
+                builder.DataSource = "localhost";
+                builder.UserID = "invalid";
+                builder.Password = "..";
+                SqlConnection conn = new SqlConnection(builder.ToString());
+                conn.Open();
+            }
+            catch (SqlException sqlException)
+            {
+                var exceptionReason = RetryPolicy.ThrottlingReason.FromException(sqlException);
+                Assert.NotNull(exceptionReason);
+
+                var errorReason = RetryPolicy.ThrottlingReason.FromError(sqlException.Errors[0]);
+                Assert.NotNull(errorReason);
+            }
+
+            var unknownCodeReason = RetryPolicy.ThrottlingReason.FromReasonCode(-1);
+            var codeReason = RetryPolicy.ThrottlingReason.FromReasonCode(2601);
+            Assert.NotNull(codeReason);
+
+            Assert.NotNull(codeReason.IsThrottledOnDataSpace);
+            Assert.NotNull(codeReason.IsThrottledOnLogSpace);
+            Assert.NotNull(codeReason.IsThrottledOnLogWrite);
+            Assert.NotNull(codeReason.IsThrottledOnDataRead);
+            Assert.NotNull(codeReason.IsThrottledOnCPU);
+            Assert.NotNull(codeReason.IsThrottledOnDatabaseSize);
+            Assert.NotNull(codeReason.IsThrottledOnWorkerThreads);
+            Assert.NotNull(codeReason.IsUnknown);
+            Assert.NotNull(codeReason.ToString());
         }
     }
 }
