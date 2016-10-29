@@ -6,12 +6,15 @@
 #if LIVE_CONNECTION_TESTS
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Xunit;
+using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy;
+using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy.TimeBasedRetryPolicy;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 {
@@ -21,6 +24,109 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
     /// </summary>
     public class ReliableConnectionTests
     {
+        internal class TestFixedDelayPolicy : FixedDelayPolicy
+        {
+            public TestFixedDelayPolicy(
+                IErrorDetectionStrategy strategy, 
+                int maxRetryCount, 
+                TimeSpan intervalBetweenRetries)
+                : base(strategy, 
+                    maxRetryCount, 
+                    intervalBetweenRetries)
+            {
+            }
+
+            public bool InvokeShouldRetryImpl(RetryState retryStateObj)
+            {
+                return ShouldRetryImpl(retryStateObj);
+            }
+        }
+
+        internal class TestProgressiveRetryPolicy : ProgressiveRetryPolicy
+        {
+            public TestProgressiveRetryPolicy(
+                IErrorDetectionStrategy strategy, 
+                int maxRetryCount, 
+                TimeSpan initialInterval, 
+                TimeSpan increment)
+                : base(strategy, 
+                    maxRetryCount, 
+                    initialInterval, 
+                    increment)
+            {         
+            }
+
+            public bool InvokeShouldRetryImpl(RetryState retryStateObj)
+            {
+                return ShouldRetryImpl(retryStateObj);
+            }
+        }
+
+        internal class TestTimeBasedRetryPolicy : TimeBasedRetryPolicy
+        {
+            public TestTimeBasedRetryPolicy(
+                IErrorDetectionStrategy strategy,
+                TimeSpan minTotalRetryTimeLimit,
+                TimeSpan maxTotalRetryTimeLimit,
+                double totalRetryTimeLimitRate,
+                TimeSpan minInterval,
+                TimeSpan maxInterval,
+                double intervalFactor) 
+                : base(
+                    strategy,
+                    minTotalRetryTimeLimit,
+                    maxTotalRetryTimeLimit,
+                    totalRetryTimeLimitRate,
+                    minInterval,
+                    maxInterval,
+                    intervalFactor)
+            {
+            }
+
+            public bool InvokeShouldRetryImpl(RetryState retryStateObj)
+            {
+                return ShouldRetryImpl(retryStateObj);
+            }
+        }
+
+        [Fact]
+        public void FixedDelayPolicyTest()
+        {
+            TestFixedDelayPolicy policy = new TestFixedDelayPolicy(
+                strategy: new NetworkConnectivityErrorDetectionStrategy(),
+                maxRetryCount: 3, 
+                intervalBetweenRetries: TimeSpan.FromMilliseconds(100));
+            bool shouldRety = policy.InvokeShouldRetryImpl(new RetryStateEx());
+            Assert.True(shouldRety);
+        }
+
+        [Fact]
+        public void ProgressiveRetryPolicyTest()
+        {
+            TestProgressiveRetryPolicy policy = new TestProgressiveRetryPolicy(
+                strategy: new NetworkConnectivityErrorDetectionStrategy(),
+                maxRetryCount: 3, 
+                initialInterval: TimeSpan.FromMilliseconds(100), 
+                increment: TimeSpan.FromMilliseconds(100));
+            bool shouldRety = policy.InvokeShouldRetryImpl(new RetryStateEx());
+            Assert.True(shouldRety);
+        }
+        
+        [Fact]
+        public void TimeBasedRetryPolicyTest()
+        {
+            TestTimeBasedRetryPolicy policy = new TestTimeBasedRetryPolicy(
+                strategy: new NetworkConnectivityErrorDetectionStrategy(),
+                minTotalRetryTimeLimit: TimeSpan.FromMilliseconds(100),
+                maxTotalRetryTimeLimit: TimeSpan.FromMilliseconds(100),
+                totalRetryTimeLimitRate: 100,
+                minInterval: TimeSpan.FromMilliseconds(100),
+                maxInterval: TimeSpan.FromMilliseconds(100),
+                intervalFactor: 1);
+            bool shouldRety = policy.InvokeShouldRetryImpl(new RetryStateEx());
+            Assert.True(shouldRety);
+        }
+
         /// <summary>
         /// Environment variable that stores the name of the test server hosting the SQL Server instance.
         /// </summary>
@@ -337,6 +443,90 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 Assert.NotNull(info.ServerVersion);
                 Assert.NotEmpty(info.ServerVersion);
             });
+        }
+
+
+        /// <summary>
+        /// Validate ambient static settings
+        /// </summary>
+        [Fact]
+        public void AmbientSettingsStaticPropertiesTest()
+        {
+            var defaultSettings = AmbientSettings.DefaultSettings;
+            Assert.NotNull(defaultSettings);
+            var masterReferenceFilePath = AmbientSettings.MasterReferenceFilePath;
+            var maxDataReaderDegreeOfParallelism = AmbientSettings.MaxDataReaderDegreeOfParallelism;
+            var tableProgressUpdateInterval = AmbientSettings.TableProgressUpdateInterval;
+            var traceRowCountFailure = AmbientSettings.TraceRowCountFailure;
+            var useOfflineDataReader = AmbientSettings.UseOfflineDataReader;
+            var streamBackingStoreForOfflineDataReading = AmbientSettings.StreamBackingStoreForOfflineDataReading;
+            var disableIndexesForDataPhase = AmbientSettings.DisableIndexesForDataPhase;
+            var reliableDdlEnabled = AmbientSettings.ReliableDdlEnabled;
+            var importModelDatabase = AmbientSettings.ImportModelDatabase;
+            var supportAlwaysEncrypted = AmbientSettings.SupportAlwaysEncrypted;
+            var alwaysEncryptedWizardMigration = AmbientSettings.AlwaysEncryptedWizardMigration;
+            var skipObjectTypeBlocking =AmbientSettings.SkipObjectTypeBlocking;
+            var doNotSerializeQueryStoreSettings = AmbientSettings.DoNotSerializeQueryStoreSettings;
+            var lockTimeoutMilliSeconds = AmbientSettings.LockTimeoutMilliSeconds;
+            var queryTimeoutSeconds = AmbientSettings.QueryTimeoutSeconds;
+            var longRunningQueryTimeoutSeconds = AmbientSettings.LongRunningQueryTimeoutSeconds;
+            var alwaysRetryOnTransientFailure = AmbientSettings.AlwaysRetryOnTransientFailure;
+            var connectionRetryMessageHandler = AmbientSettings.ConnectionRetryMessageHandler;
+                        
+            using (var settingsContext = AmbientSettings.CreateSettingsContext())
+            {
+                var settings = settingsContext.Settings;
+                Assert.NotNull(settings);
+            }
+        }
+        
+        /// <summary>
+        /// Validate ambient settings populate
+        /// </summary>
+        [Fact]
+        public void AmbientSettingsPopulateTest()
+        {
+            var data = new AmbientSettings.AmbientData();
+
+            var masterReferenceFilePath = data.MasterReferenceFilePath;
+            data.MasterReferenceFilePath = masterReferenceFilePath;
+            var lockTimeoutMilliSeconds = data.LockTimeoutMilliSeconds;
+            data.LockTimeoutMilliSeconds = lockTimeoutMilliSeconds;
+            var queryTimeoutSeconds = data.QueryTimeoutSeconds;
+            data.QueryTimeoutSeconds = queryTimeoutSeconds;
+            var longRunningQueryTimeoutSeconds = data.LongRunningQueryTimeoutSeconds;
+            data.LongRunningQueryTimeoutSeconds = longRunningQueryTimeoutSeconds;
+            var alwaysRetryOnTransientFailure = data.AlwaysRetryOnTransientFailure;
+            data.AlwaysRetryOnTransientFailure = alwaysRetryOnTransientFailure;
+            var connectionRetryMessageHandler = data.ConnectionRetryMessageHandler;
+            data.ConnectionRetryMessageHandler = connectionRetryMessageHandler;
+            var traceRowCountFailure = data.TraceRowCountFailure;
+            data.TraceRowCountFailure = traceRowCountFailure;
+            var tableProgressUpdateInterval = data.TableProgressUpdateInterval;
+            data.TableProgressUpdateInterval = tableProgressUpdateInterval;
+            var useOfflineDataReader = data.UseOfflineDataReader;
+            data.UseOfflineDataReader = useOfflineDataReader;
+            var streamBackingStoreForOfflineDataReading = data.StreamBackingStoreForOfflineDataReading;
+            data.StreamBackingStoreForOfflineDataReading = streamBackingStoreForOfflineDataReading;
+            var disableIndexesForDataPhase = data.DisableIndexesForDataPhase;
+            data.DisableIndexesForDataPhase = disableIndexesForDataPhase;
+            var reliableDdlEnabled = data.ReliableDdlEnabled;
+            data.ReliableDdlEnabled = reliableDdlEnabled;
+            var importModelDatabase = data.ImportModelDatabase;
+            data.ImportModelDatabase = importModelDatabase;
+            var supportAlwaysEncrypted = data.SupportAlwaysEncrypted;
+            data.SupportAlwaysEncrypted = supportAlwaysEncrypted;
+            var alwaysEncryptedWizardMigration = data.AlwaysEncryptedWizardMigration;
+            data.AlwaysEncryptedWizardMigration = alwaysEncryptedWizardMigration;
+            var skipObjectTypeBlocking = data.SkipObjectTypeBlocking;
+            data.SkipObjectTypeBlocking = skipObjectTypeBlocking;
+            var doNotSerializeQueryStoreSettings = data.DoNotSerializeQueryStoreSettings;
+            data.DoNotSerializeQueryStoreSettings = doNotSerializeQueryStoreSettings;
+
+            Dictionary<string, object> settings = new Dictionary<string, object>();
+            settings.Add("LockTimeoutMilliSeconds", 10000);
+            data.PopulateSettings(settings);
+            data.TraceSettings();
         }
     }
 }
