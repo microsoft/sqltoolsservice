@@ -304,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// This code is take almost verbatim from Microsoft.SqlServer.Management.UI.Grid, SSMS 
         /// DataStorage, StorageDataReader class.
         /// </remarks>
-        private class StringWriterWithMaxCapacity : StringWriter
+        internal class StringWriterWithMaxCapacity : StringWriter
         {
             private bool stopWriting;
 

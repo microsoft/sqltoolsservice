@@ -834,7 +834,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             summary2.DatabaseName = "tempdb";
             Assert.False(comparer.Equals(summary1, summary2));
-        } 
+            Assert.False(comparer.Equals(null, summary2));
+
+            Assert.False(summary1.GetHashCode() == summary2.GetHashCode());
+        }
 
         /// <summary>
         /// Verify when a connection is created that the URI -> Connection mapping is created in the connection service.
