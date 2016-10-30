@@ -19,6 +19,7 @@ using Xunit;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.ReliableConnectionHelper;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy.TimeBasedRetryPolicy;
+using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.SqlSchemaModelErrorCodes;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 {
@@ -28,6 +29,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
     /// </summary>
     public class ReliableConnectionTests
     {
+        internal class TestDataTransferErrorDetectionStrategy : DataTransferErrorDetectionStrategy
+        {
+            public bool InvokeCanRetrySqlException(SqlException exception)
+            {
+                return CanRetrySqlException(exception);
+            }
+        }
+        internal class TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy : SqlAzureTemporaryAndIgnorableErrorDetectionStrategy
+        {
+            public TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy()
+                : base (new int[] { 100 })
+            {
+            }
+
+            public bool InvokeCanRetrySqlException(SqlException exception)
+            {
+                return CanRetrySqlException(exception);
+            }
+
+            public bool InvokeShouldIgnoreSqlException(SqlException exception)
+            {
+                return ShouldIgnoreSqlException(exception);
+            }
+        }
+
         internal class TestFixedDelayPolicy : FixedDelayPolicy
         {
             public TestFixedDelayPolicy(
@@ -613,6 +639,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             var command = new ReliableSqlConnection.ReliableSqlCommand(connection);
             Assert.NotNull(command.Connection);
 
+            var retryPolicy = connection.CommandRetryPolicy;
+            connection.CommandRetryPolicy = retryPolicy;
+            Assert.True(connection.CommandRetryPolicy == retryPolicy);
+            connection.ChangeDatabase("master");
+            Assert.True(connection.ConnectionTimeout > 0);
+            connection.ClearPool();
         }
         
         [Fact]
@@ -640,6 +672,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
                 var errorReason = RetryPolicy.ThrottlingReason.FromError(sqlException.Errors[0]);
                 Assert.NotNull(errorReason);
+
+                var detectionStrategy = new TestDataTransferErrorDetectionStrategy();
+                Assert.True(detectionStrategy.InvokeCanRetrySqlException(sqlException));
+                Assert.True(detectionStrategy.CanRetry(new InvalidOperationException()));
+                Assert.False(detectionStrategy.ShouldIgnoreError(new InvalidOperationException()));
+
+                var detectionStrategy2 = new TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy();
+                Assert.NotNull(detectionStrategy2.InvokeCanRetrySqlException(sqlException));
+                Assert.NotNull(detectionStrategy2.InvokeShouldIgnoreSqlException(sqlException));
             }
 
             var unknownCodeReason = RetryPolicy.ThrottlingReason.FromReasonCode(-1);
@@ -655,6 +696,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Assert.NotNull(codeReason.IsThrottledOnWorkerThreads);
             Assert.NotNull(codeReason.IsUnknown);
             Assert.NotNull(codeReason.ToString());
+        }
+
+        [Fact]
+        public void RetryErrorsTest()
+        {
+            var sqlServerRetryError =  new SqlServerRetryError(
+                "test message", new Exception(), 
+                1, 200, ErrorSeverity.Warning);
+            Assert.True(sqlServerRetryError.RetryCount == 1);
+            Assert.NotNull(SqlServerRetryError.FormatRetryMessage(1, TimeSpan.FromSeconds(15), new Exception()));
+            Assert.NotNull(SqlServerRetryError.FormatIgnoreMessage(1, new Exception()));
+
+            var sqlServerError1 = new SqlServerError("test message", "document", ErrorSeverity.Warning);
+            var sqlServerError2 = new SqlServerError("test message", "document", 1, ErrorSeverity.Warning);
+            var sqlServerError3 = new SqlServerError(new Exception(), "document",1,  ErrorSeverity.Warning);
+            var sqlServerError4 = new SqlServerError("test message", "document", 1, 2, ErrorSeverity.Warning);
+            var sqlServerError5 = new SqlServerError(new Exception(), "document", 1, 2, 3, ErrorSeverity.Warning);
+            var sqlServerError6 = new SqlServerError("test message", "document", 1, 2, 3, ErrorSeverity.Warning);
+            var sqlServerError7 = new SqlServerError("test message", new Exception(), "document", 1, 2, 3, ErrorSeverity.Warning);
+
+            Assert.True(SqlSchemaModelErrorCodes.IsParseErrorCode(46010));
+            Assert.True(SqlSchemaModelErrorCodes.IsInterpretationErrorCode(Interpretation.InterpretationBaseCode+ 1));
+            Assert.True(SqlSchemaModelErrorCodes.IsStatementFilterError(StatementFilter.StatementFilterBaseCode + 1));        
         }
     }
 }

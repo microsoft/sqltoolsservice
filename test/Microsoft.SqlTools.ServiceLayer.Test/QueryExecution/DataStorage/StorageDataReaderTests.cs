@@ -81,6 +81,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             string shortXml = storageReader.GetXmlWithMaxCapacity(0, 2);
             Assert.True(shortXml.Length == 3);
         }
+
+        /// <summary>
+        /// Validate StringWriterWithMaxCapacity Write test
+        /// </summary>
+        [Fact]
+        public void StringWriterWithMaxCapacityTest()
+        {
+            var writer = new StorageDataReader.StringWriterWithMaxCapacity(null, 100);
+            string output = "...";
+            writer.Write(output);
+            Assert.True(writer.ToString().Equals(output));
+        }       
     }
 }
 
