@@ -95,30 +95,37 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         /// </summary>
         public static ConnectParams GetConnectionFromVsCodeSettings(string serverName)
         {
-            string settingsFilename;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            try
             {
-                settingsFilename = Environment.GetEnvironmentVariable("APPDATA") + @"\Code\User\settings.json";
+                string settingsFilename;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("APPDATA") + @"\Code\User\settings.json";
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/Library/Application Support/Code/User/settings.json";
+                }
+                else
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/.config/Code/User/settings.json";
+                }
+                string settingsFileContents = File.ReadAllText(settingsFilename);
+
+                JObject root = JObject.Parse(settingsFileContents);
+                JArray connections = (JArray)root["mssql.connections"];
+
+                var connectionObject = connections.Where(x => x["server"].ToString() == serverName).First();
+
+                return CreateConnectParams( connectionObject["server"].ToString(),
+                                            connectionObject["database"].ToString(),
+                                            connectionObject["user"].ToString(),
+                                            connectionObject["password"].ToString());
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            catch (Exception ex)
             {
-                settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/Library/Application Support/Code/User/settings.json";
+                throw new Exception("Unable to load connection " + serverName + " from the vscode settings.json. Ensure the file is formatted correctly.", ex);
             }
-            else
-            {
-                settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/.config/Code/User/settings.json";
-            }
-            string settingsFileContents = File.ReadAllText(settingsFilename);
-
-            JObject root = JObject.Parse(settingsFileContents);
-            JArray connections = (JArray)root["mssql.connections"];
-
-            var connectionObject = connections.Where(x => x["server"].ToString() == serverName).First();
-
-            return CreateConnectParams( connectionObject["server"].ToString(),
-                                        connectionObject["database"].ToString(),
-                                        connectionObject["user"].ToString(),
-                                        connectionObject["password"].ToString());
         }
     }
 }
