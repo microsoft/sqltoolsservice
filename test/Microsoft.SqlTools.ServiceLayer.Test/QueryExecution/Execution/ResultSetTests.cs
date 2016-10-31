@@ -4,7 +4,9 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -60,17 +62,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         
-
-        public void ReadToEndForXmlJson()
+        [Theory]
+        [InlineData("JSON")]
+        [InlineData("XML")]
+        public async Task ReadToEndForXmlJson(string forType)
         {
+            // Setup:
+            // ... Build a FOR XML or FOR JSON data set
+            string columnName = string.Format("{0}_F52E2B61-18A1-11d1-B105-00805F49916B", forType);
+            List<Dictionary<string, string>> data = new List<Dictionary<string, string>>();
+            for(int i = 0; i < Common.StandardRows; i++)
+            {
+                data.Add(new Dictionary<string, string> { { columnName, "test data"} });
+            }
+            Dictionary<string, string>[][] dataSets = {data.ToArray()};
+
             // If:
             // ... I create a new resultset with a valid db data reader that is FOR XML/JSON
             // ... and I read it to the end
+            DbDataReader mockReader = GetReader(Common.CreateTestConnectionInfo(dataSets, false), Common.StandardQuery);
+            ResultSet resultSet = new ResultSet(mockReader, Common.GetFileStreamFactory());
+            await resultSet.ReadResultToEnd(CancellationToken.None);
 
             // Then:
             // ... There should only be one column
             // ... There should only be one row
             // ... The result should be marked as complete
+            Assert.Equal(1, resultSet.Columns.Length);
+            Assert.Equal(1, resultSet.RowCount);
+
+            // If:
+            // ... I attempt to read back the results
+            // Then: 
+            // ... I should only get one row
+            var subset = await resultSet.GetSubset(0, 10);
+            Assert.Equal(1, subset.RowCount);
         }
 
         [Fact]
