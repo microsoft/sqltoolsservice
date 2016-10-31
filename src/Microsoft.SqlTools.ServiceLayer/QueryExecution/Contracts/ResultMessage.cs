@@ -40,5 +40,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             Time = DateTime.Now.ToString("o");
             Message = message;
         }
+
+        /// <summary>
+        /// Default constructor, used for deserializing JSON RPC only
+        /// </summary>
+        public ResultMessage()
+        {
+        }
     }
 }

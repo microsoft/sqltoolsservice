@@ -4,7 +4,6 @@
 //
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -16,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -252,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in CSV format
         /// </summary>
-        public async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
+        internal async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -265,73 +263,39 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 });
                 return;
             }
-            try
+
+
+            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
+            if (!selectedResultSet.IsBeingDisposed)
             {
-                using (StreamWriter csvFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
+                // Create SaveResults object and add success and error handlers to respective events
+                SaveResults saveAsCsv = new SaveResults();
+
+                SaveResults.AsyncSaveEventHandler successHandler = async message =>
                 {
-                    // get the requested resultSet from query
-                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = (selectedBatch.ResultSets.ToList())[saveParams.ResultSetIndex];
-
-                    // set column, row counts depending on whether save request is for entire result set or a subset
-                    int columnStartIndex = 0;
-                    int rowStartIndex = 0;
-                    int columnCount;
-                    int rowCount;
-                    if (SaveResults.IsSaveSelection(saveParams))
-                    {   
-                        // ReSharper disable PossibleInvalidOperationException  IsSaveSelection checks for nulls in the index values
-                        columnStartIndex = saveParams.ColumnStartIndex.Value;
-                        rowStartIndex = saveParams.RowStartIndex.Value;
-                        columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
-                        rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
-                        // ReSharper restore PossibleInvalidOperationException
-                    }
-                    else
-                    {
-                        columnCount = selectedResultSet.Columns.Length;
-                        rowCount = (int)selectedResultSet.RowCount;
-                    }
-
-                    // write column names if include headers option is chosen
-                    if (saveParams.IncludeHeaders)
-                    {
-                        var columnNames = from column in selectedResultSet.Columns
-                                          select SaveResults.EncodeCsvField(column?.ColumnName ?? string.Empty);
-                        var selectedData = columnNames.Skip(columnStartIndex).Take(columnCount);
-                        await csvFile.WriteLineAsync(string.Join(",", selectedData));
-                    }
-
-                    // retrieve rows and write as csv
-                    ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
-                    foreach (var row in resultSubset.Rows)
-                    {
-                        var dataValues = from cell in row
-                                         select SaveResults.EncodeCsvField(cell ?? "NULL");
-                        var selectedCells = dataValues.Skip(columnStartIndex).Take(columnCount);
-                        await csvFile.WriteLineAsync(string.Join(",", selectedCells));
-                    }
-
-                }
-
-                // Successfully wrote file, send success result
-                await requestContext.SendResult(new SaveResultRequestResult { Messages = null });
-            }
-            catch(Exception ex)
-            {
-                // Delete file when exception occurs
-                if (File.Exists(saveParams.FilePath))
+                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
+                    await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
+                };
+                saveAsCsv.SaveCompleted += successHandler;
+                SaveResults.AsyncSaveEventHandler errorHandler = async message =>
                 {
-                    File.Delete(saveParams.FilePath);
-                }
-                await requestContext.SendError(ex.Message);
+                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
+                    await requestContext.SendError(new SaveResultRequestError { message = message });
+                };
+                saveAsCsv.SaveFailed += errorHandler;
+
+                saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
+
+                // Associate the ResultSet with the save task
+                selectedResultSet.AddSaveTask(saveParams.FilePath, saveAsCsv.SaveTask);
+
             }
         }
 
         /// <summary>
         /// Process request to save a resultSet to a file in JSON format
         /// </summary>
-        public async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
+        internal async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
@@ -344,74 +308,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 });
                 return;
             }
-            try
+
+            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
+            if (!selectedResultSet.IsBeingDisposed)
             {
-                using (StreamWriter jsonFile = new StreamWriter(File.Open(saveParams.FilePath, FileMode.Create)))
-                using (JsonWriter jsonWriter = new JsonTextWriter(jsonFile) )
+                // Create SaveResults object and add success and error handlers to respective events
+                SaveResults saveAsJson = new SaveResults();
+                SaveResults.AsyncSaveEventHandler successHandler = async message =>
                 {
-                    jsonWriter.Formatting = Formatting.Indented;
-                    jsonWriter.WriteStartArray();
-
-                    // get the requested resultSet from query
-                    Batch selectedBatch = result.Batches[saveParams.BatchIndex];
-                    ResultSet selectedResultSet = selectedBatch.ResultSets.ToList()[saveParams.ResultSetIndex];
-                    int rowStartIndex = 0;
-                    int columnStartIndex = 0;
-                    int rowCount;
-                    int columnEndIndex;
-
-                    // set column, row counts depending on whether save request is for entire result set or a subset
-                    if (SaveResults.IsSaveSelection(saveParams))
-                    {
-                        // ReSharper disable PossibleInvalidOperationException  IsSaveSelection checks for nulls in the index values
-                        rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
-                        rowStartIndex = saveParams.RowStartIndex.Value;
-                        columnStartIndex = saveParams.ColumnStartIndex.Value;
-                        columnEndIndex = saveParams.ColumnEndIndex.Value + 1 ; // include the last column
-                        // ReSharper restore PossibleInvalidOperationException
-                    }
-                    else 
-                    {
-                        rowCount = (int)selectedResultSet.RowCount;
-                        columnEndIndex = selectedResultSet.Columns.Length;
-                    }
-
-                    // retrieve rows and write as json
-                    ResultSetSubset resultSubset = await result.GetSubset(saveParams.BatchIndex, saveParams.ResultSetIndex, rowStartIndex, rowCount);
-                    foreach (var row in resultSubset.Rows)
-                    {
-                        jsonWriter.WriteStartObject();
-                        for (int i = columnStartIndex ; i < columnEndIndex; i++)
-                        {
-                            //get column name
-                            DbColumnWrapper col = selectedResultSet.Columns[i];
-                            string val = row[i];
-                            jsonWriter.WritePropertyName(col.ColumnName);
-                            if (val == null)
-                            {
-                                jsonWriter.WriteNull();
-                            }
-                            else
-                            {
-                                jsonWriter.WriteValue(val);
-                            }
-                        }
-                        jsonWriter.WriteEndObject();
-                    }
-                    jsonWriter.WriteEndArray();
-                }
-
-                await requestContext.SendResult(new SaveResultRequestResult { Messages = null });
-            }
-            catch(Exception ex)
-            {
-                // Delete file when exception occurs
-                if (File.Exists(saveParams.FilePath))
+                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
+                    await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
+                };
+                saveAsJson.SaveCompleted += successHandler;
+                SaveResults.AsyncSaveEventHandler errorHandler = async message =>
                 {
-                    File.Delete(saveParams.FilePath);
-                }
-                await requestContext.SendError(ex.Message);
+                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
+                    await requestContext.SendError(new SaveResultRequestError { message = message });
+                };
+                saveAsJson.SaveFailed += errorHandler;
+
+                saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
+
+                // Associate the ResultSet with the save task
+                selectedResultSet.AddSaveTask(saveParams.FilePath, saveAsJson.SaveTask);
             }
+
         }
 
         #endregion
@@ -446,27 +367,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 string queryText;
 
-                if (executeParams.QuerySelection != null) 
+                if (executeParams.QuerySelection != null)
                 {
                     string[] queryTextArray = queryFile.GetLinesInRange(
                         new BufferRange(
                             new BufferPosition(
-                                executeParams.QuerySelection.StartLine + 1, 
+                                executeParams.QuerySelection.StartLine + 1,
                                 executeParams.QuerySelection.StartColumn + 1
-                            ), 
+                            ),
                             new BufferPosition(
-                                executeParams.QuerySelection.EndLine + 1, 
+                                executeParams.QuerySelection.EndLine + 1,
                                 executeParams.QuerySelection.EndColumn + 1
                             )
                         )
                     );
                     queryText = queryTextArray.Aggregate((a, b) => a + '\r' + '\n' + b);
-                } 
-                else 
+                }
+                else
                 {
                     queryText = queryFile.Contents;
                 }
-                
+
                 // If we can't add the query now, it's assumed the query is in progress
                 Query newQuery = new Query(queryText, connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
@@ -505,8 +426,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
+
+            Query.QueryAsyncErrorEventHandler errorCallback = async errorMessage =>
+            {
+                // Send back the error message
+                QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
+                {
+                    OwnerUri = executeParams.OwnerUri,
+                    Message = errorMessage              
+                };
+                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
+            };
+
             query.QueryCompleted += callback;
             query.QueryFailed += callback;
+            query.QueryConnectionException += errorCallback;
 
             // Setup the batch completion callback
             Batch.BatchAsyncEventHandler batchCallback = async b =>

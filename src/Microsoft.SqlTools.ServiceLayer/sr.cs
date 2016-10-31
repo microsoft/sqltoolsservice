@@ -245,6 +245,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceAffectedOneRow
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceAffectedOneRow);
+            }
+        }
+
         public static string QueryServiceCompletedSuccessfully
         {
             get
@@ -485,6 +493,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceFileWrapperReadOnly = "QueryServiceFileWrapperReadOnly";
+
+
+            public const string QueryServiceAffectedOneRow = "QueryServiceAffectedOneRow";
 
 
             public const string QueryServiceAffectedRows = "QueryServiceAffectedRows";

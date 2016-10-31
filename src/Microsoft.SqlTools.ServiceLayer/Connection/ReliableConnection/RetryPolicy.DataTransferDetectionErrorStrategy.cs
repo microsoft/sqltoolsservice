@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <summary>
         /// Provides the error detection logic for temporary faults that are commonly found during data transfer.
         /// </summary>
-        internal sealed class DataTransferErrorDetectionStrategy : ErrorDetectionStrategyBase, IErrorDetectionStrategy
+        internal class DataTransferErrorDetectionStrategy : ErrorDetectionStrategyBase, IErrorDetectionStrategy
         {
             private static readonly DataTransferErrorDetectionStrategy instance = new DataTransferErrorDetectionStrategy();
 

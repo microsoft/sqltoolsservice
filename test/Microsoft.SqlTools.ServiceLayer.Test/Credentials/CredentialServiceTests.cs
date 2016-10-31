@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
     /// </summary>
     public class CredentialServiceTests : IDisposable
     {
-        private static readonly LinuxCredentialStore.StoreConfig config = new LinuxCredentialStore.StoreConfig()
+        private static readonly StoreConfig config = new StoreConfig()
         {
             CredentialFolder = ".testsecrets", 
             CredentialFile = "sqltestsecrets.json", 
@@ -61,6 +61,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         {
             credStore.DeletePassword(credentialId);
             credStore.DeletePassword(otherCredId);
+
+#if !WINDOWS_ONLY_BUILD
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 string credsFolder = ((LinuxCredentialStore)credStore).CredentialFolderPath;
@@ -69,6 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                     Directory.Delete(credsFolder, true);
                 }
             }
+#endif
         }
 
         [Fact]

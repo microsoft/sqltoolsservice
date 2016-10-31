@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +15,18 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
 {
     /// <summary>
+    /// Store configuration struct
+    /// </summary>
+    internal struct StoreConfig
+    {
+        public string CredentialFolder { get; set; }
+        public string CredentialFile { get; set; }
+        public bool IsRelativeToUserHomeDir { get; set; }
+    }
+    
+#if !WINDOWS_ONLY_BUILD
+
+    /// <summary>
     /// Linux implementation of the credential store.
     /// 
     /// <remarks>
@@ -25,13 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
     /// </summary>
     internal class LinuxCredentialStore : ICredentialStore
     {
-        internal struct StoreConfig
-        {
-            public string CredentialFolder { get; set; }
-            public string CredentialFile { get; set; }
-            public bool IsRelativeToUserHomeDir { get; set; }
-        }
-
         private string credentialFolderPath;
         private string credentialFileName;
         private FileTokenStorage storage;
@@ -228,4 +232,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
             }
         }
     }
+#endif
+
 }

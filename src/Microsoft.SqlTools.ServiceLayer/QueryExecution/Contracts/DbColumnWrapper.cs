@@ -152,6 +152,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             }
         }
 
+        /// <summary>
+        /// Default constructor, used for deserializing JSON RPC only
+        /// </summary>
+        public DbColumnWrapper()
+        {
+        }
+
         #region Properties
 
         /// <summary>

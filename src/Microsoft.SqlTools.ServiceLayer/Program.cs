@@ -23,9 +23,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// </summary>
         internal static void Main(string[] args)
         {
+            // read command-line arguments
+            CommandOptions commandOptions = new CommandOptions(args);
+            if (commandOptions.ShouldExit)
+            {
+                return;
+            }
+
             // turn on Verbose logging during early development
             // we need to switch to Normal when preparing for public preview
-            Logger.Initialize(minimumLogLevel: LogLevel.Verbose);
+            Logger.Initialize(minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
             Logger.Write(LogLevel.Normal, "Starting SQL Tools Service Host");
 
             // set up the host details and profile paths 

@@ -15,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -107,6 +106,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event Batch.BatchAsyncEventHandler BatchCompleted;
 
         /// <summary>
+        /// Delegate type for callback when a query connection fails
+        /// </summary>
+        /// <param name="message">Message to return</param>
+        public delegate Task QueryAsyncErrorEventHandler(string message);
+
+        /// <summary>
         /// Callback for when the query has completed successfully
         /// </summary>
         public event QueryAsyncEventHandler QueryCompleted;
@@ -115,6 +120,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Callback for when the query has failed
         /// </summary>
         public event QueryAsyncEventHandler QueryFailed;
+
+        /// <summary>
+        /// Callback for when the query connection has failed
+        /// </summary>
+        public event QueryAsyncErrorEventHandler QueryConnectionException;
 
         /// <summary>
         /// The batches underneath this query
@@ -228,7 +238,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // TODO: Don't create a new connection every time, see TFS #834978
             using (DbConnection conn = editorConnection.Factory.CreateSqlConnection(connectionString))
             {
-                await conn.OpenAsync();
+                try
+                {
+                    await conn.OpenAsync();
+                }
+                catch(Exception exception)
+                {
+                    this.HasExecuted = true;                 
+                    if (QueryConnectionException != null)
+                    {                        
+                        await QueryConnectionException(exception.Message);
+                    }
+                    return;
+                }
 
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)

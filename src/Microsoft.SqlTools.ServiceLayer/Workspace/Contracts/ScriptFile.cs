@@ -94,15 +94,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             private set;
         }
 
-        /// <summary>
-        /// Gets the array of filepaths dot sourced in this ScriptFile 
-        /// </summary>
-        public string[] ReferencedFiles
-        {
-            get;
-            private set;
-        }
-
         #endregion
 
         #region Constructors
@@ -299,9 +290,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
                 this.FileLines.Insert(currentLineNumber - 1, finalLine);
                 currentLineNumber++;
             }
-
-            // Parse the script again to be up-to-date
-            this.ParseFileContents();
         }
 
         /// <summary>
@@ -447,97 +435,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
                     .Split('\n')
                     .Select(line => line.TrimEnd('\r'))
                     .ToList();
-
-            // Parse the contents to get syntax tree and errors
-            this.ParseFileContents();
         }
 
         #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Parses the current file contents to get the AST, tokens,
-        /// and parse errors.
-        /// </summary>
-        private void ParseFileContents()
-        {
-#if false            
-            ParseError[] parseErrors = null;
-
-            // First, get the updated file range
-            int lineCount = this.FileLines.Count;
-            if (lineCount > 0)
-            {
-                this.FileRange =
-                    new BufferRange(
-                        new BufferPosition(1, 1),
-                        new BufferPosition(
-                            lineCount + 1,
-                            this.FileLines[lineCount - 1].Length + 1));
-            }
-            else
-            {
-                this.FileRange = BufferRange.None;
-            }
-
-            try
-            {
-#if SqlToolsv5r2
-                // This overload appeared with Windows 10 Update 1
-                if (this.SqlToolsVersion.Major >= 5 &&
-                    this.SqlToolsVersion.Build >= 10586)
-                {
-                    // Include the file path so that module relative
-                    // paths are evaluated correctly
-                    this.ScriptAst =
-                        Parser.ParseInput(
-                            this.Contents,
-                            this.FilePath,
-                            out this.scriptTokens,
-                            out parseErrors);
-                }
-                else
-                {
-                    this.ScriptAst =
-                        Parser.ParseInput(
-                            this.Contents,
-                            out this.scriptTokens,
-                            out parseErrors);
-                }
-#else
-                this.ScriptAst =
-                    Parser.ParseInput(
-                        this.Contents,
-                        out this.scriptTokens,
-                        out parseErrors);
-#endif
-            }
-            catch (RuntimeException ex)
-            {
-                var parseError =
-                    new ParseError(
-                        null,
-                        ex.ErrorRecord.FullyQualifiedErrorId, 
-                        ex.Message);
-
-                parseErrors = new[] { parseError };
-                this.scriptTokens = new Token[0];
-                this.ScriptAst = null;
-            }
-
-            // Translate parse errors into syntax markers
-            this.SyntaxMarkers =
-                parseErrors
-                    .Select(ScriptFileMarker.FromParseError)
-                    .ToArray();
-            
-            //Get all dot sourced referenced files and store  them
-            this.ReferencedFiles =
-                AstOperations.FindDotSourcedIncludes(this.ScriptAst);
-#endif                
-        }
-
-#endregion
     }
 }
