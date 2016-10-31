@@ -222,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                     if (SaveFailed != null)
                     {
-                        await SaveFailed(ex.ToString());
+                        await SaveFailed(ex.Message);
                     }
                 }
             });

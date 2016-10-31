@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// want to consider this as passing since the first execution that has timed out (or failed for some other temporary error)
         /// might have managed to create the object.
         /// </summary>
-        internal sealed class SqlAzureTemporaryAndIgnorableErrorDetectionStrategy : ErrorDetectionStrategyBase, IErrorDetectionStrategy
+        internal class SqlAzureTemporaryAndIgnorableErrorDetectionStrategy : ErrorDetectionStrategyBase, IErrorDetectionStrategy
         {
             /// <summary>
             /// Azure error that can be ignored

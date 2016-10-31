@@ -137,8 +137,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 FilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "G:\\test.csv" : "/test.csv"
             };
 
-            string errMessage = null;
-            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
+            SaveResultRequestError errMessage = null;
+            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (SaveResultRequestError) err);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
 
             // Call save results and wait on the save task
@@ -296,8 +296,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             };
 
 
-            string errMessage = null;
-            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (string) err);
+            SaveResultRequestError errMessage = null;
+            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (SaveResultRequestError) err);
             queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             
             // Call save results and wait on the save task
