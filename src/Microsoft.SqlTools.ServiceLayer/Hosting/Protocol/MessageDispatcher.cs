@@ -163,8 +163,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                     TParams typedParams = default(TParams);
                     if (eventMessage.Contents != null)
                     {
-                        // TODO: Catch parse errors!
-                        typedParams = eventMessage.Contents.ToObject<TParams>();
+                        try
+                        {
+                            typedParams = eventMessage.Contents.ToObject<TParams>();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Write(LogLevel.Verbose, ex.ToString());
+                        }
                     }
 
                     return eventHandler(typedParams, eventContext);

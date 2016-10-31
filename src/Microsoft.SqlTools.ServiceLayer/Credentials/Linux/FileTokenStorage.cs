@@ -13,6 +13,9 @@ using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
 {
+
+#if !WINDOWS_ONLY_BUILD
+
     public class FileTokenStorage
     {
         private const int OwnerAccessMode = 384; // Permission 0600 - owner read/write, nobody else has access
@@ -84,4 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
             Interop.Sys.ChMod(filePath, OwnerAccessMode);            
         }
     }
+
+#endif
+
 }

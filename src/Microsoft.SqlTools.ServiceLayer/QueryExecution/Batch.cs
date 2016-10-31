@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Local time when the execution starts, specifically when the object is created
         /// </summary>
-        private readonly DateTime executionStartTime;
+        private DateTime executionStartTime;
 
         /// <summary>
         /// Factory for creating readers/writers for the output of the batch
@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The result sets of the batch execution
         /// </summary>
-        public IEnumerable<ResultSet> ResultSets
+        public IList<ResultSet> ResultSets
         {
             get { return resultSets; }
         }
@@ -215,8 +215,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 DbCommand command;
                 if (sqlConn != null)
                 {
+                    // Register the message listener to *this instance* of the batch
+                    // Note: This is being done to associate messages with batches
                     sqlConn.GetUnderlyingConnection().InfoMessage += StoreDbMessage;
                     command = sqlConn.GetUnderlyingConnection().CreateCommand();
+
+                    // Add a handler for when the command completes
+                    SqlCommand sqlCommand = (SqlCommand) command;
+                    sqlCommand.StatementCompleted += StatementCompletedHandler;
                 }
                 else
                 {
@@ -233,6 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     command.CommandText = BatchText;
                     command.CommandType = CommandType.Text;
                     command.CommandTimeout = 0;
+                    executionStartTime = DateTime.Now;
 
                     // Execute the command to get back a reader
                     using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
@@ -242,10 +249,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
                             if (!reader.HasRows && reader.FieldCount == 0)
                             {
-                                // Create a message with the number of affected rows -- IF the query affects rows
-                                resultMessages.Add(new ResultMessage(reader.RecordsAffected >= 0
-                                    ? SR.QueryServiceAffectedRows(reader.RecordsAffected)
-                                    : SR.QueryServiceCompletedSuccessfully));
                                 continue;
                             }
 
@@ -258,9 +261,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // Read until we hit the end of the result set
                             await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
-                            // Add a message for the number of rows the query returned
-                            resultMessages.Add(new ResultMessage(SR.QueryServiceAffectedRows(resultSet.RowCount)));
                         } while (await reader.NextResultAsync(cancellationToken));
+
+                        // If there were no messages, for whatever reason (NO COUNT set, messages 
+                        // were emitted, records returned), output a "successful" message
+                        if (resultMessages.Count == 0)
+                        {
+                            resultMessages.Add(new ResultMessage(SR.QueryServiceCompletedSuccessfully));
+                        }
                     }
                 }
             }
@@ -329,6 +337,29 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #endregion
 
         #region Private Helpers
+
+        /// <summary>
+        /// Handler for when the StatementCompleted event is fired for this batch's command. This
+        /// will be executed ONLY when there is a rowcount to report. If this event is not fired
+        /// either NOCOUNT has been set or the command doesn't affect records.
+        /// </summary>
+        /// <param name="sender">Sender of the event</param>
+        /// <param name="args">Arguments for the event</param>
+        private void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
+        {
+            // Add a message for the number of rows the query returned
+            string message;
+            if (args.RecordCount == 1)
+            {
+                message = SR.QueryServiceAffectedOneRow;
+            }
+            else
+            {
+                message = SR.QueryServiceAffectedRows(args.RecordCount);
+            }
+
+            resultMessages.Add(new ResultMessage(message));
+        }
 
         /// <summary>
         /// Delegate handler for storing messages that are returned from the server

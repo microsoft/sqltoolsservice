@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -370,7 +371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Success
             return true;
         }
-
+        
         /// <summary>
         /// List all databases on the server specified
         /// </summary>
@@ -397,11 +398,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connection.Open();
             
             List<string> results = new List<string>();
+            var systemDatabases = new string[] {"master", "model", "msdb", "tempdb"};
             using (DbCommand command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT name FROM sys.databases ORDER BY database_id ASC";
+                command.CommandText = "SELECT name FROM sys.databases ORDER BY name ASC";
                 command.CommandTimeout = 15;
-                command.CommandType = CommandType.Text;
+                command.CommandType = CommandType.Text; 
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -411,6 +413,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     }
                 }
             }
+
+            // Put system databases at the top of the list
+            results = 
+                results.Where(s => systemDatabases.Any(s.Equals)).Concat(
+                results.Where(s => systemDatabases.All(x => !s.Equals(x)))).ToList();
 
             connection.Close();
 

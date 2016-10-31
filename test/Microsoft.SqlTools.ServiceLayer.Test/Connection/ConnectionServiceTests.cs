@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             var commandMockSetup = commandMock.Protected()
                 .Setup<DbDataReader>("ExecuteDbDataReader", It.IsAny<CommandBehavior>());
 
-            commandMockSetup.Returns(new TestDbDataReader(data));
+            commandMockSetup.Returns(() => new TestDbDataReader(data));
 
             return commandMock.Object;
         }
@@ -807,6 +807,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // verify that a valid connection id was returned
             Assert.True(callbackInvoked);
+        }
+
+        /// <summary>
+        /// Test ConnectionSummaryComparer 
+        /// </summary>
+        [Fact]
+        public void TestConnectionSummaryComparer()
+        {
+            var summary1 = new ConnectionSummary()
+            {
+                ServerName = "localhost",
+                DatabaseName = "master",
+                UserName = "user"
+            };
+
+            var summary2 = new ConnectionSummary()
+            {
+                ServerName = "localhost",
+                DatabaseName = "master",
+                UserName = "user"
+            };
+
+            var comparer = new ConnectionSummaryComparer();
+            Assert.True(comparer.Equals(summary1, summary2));
+
+            summary2.DatabaseName = "tempdb";
+            Assert.False(comparer.Equals(summary1, summary2));
+            Assert.False(comparer.Equals(null, summary2));
+
+            Assert.False(summary1.GetHashCode() == summary2.GetHashCode());
         }
 
         /// <summary>

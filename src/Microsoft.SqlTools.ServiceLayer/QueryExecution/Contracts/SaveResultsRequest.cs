@@ -60,17 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// Parameters to save results as CSV
     /// </summary>
     public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams{
-        
-        /// <summary>
-        /// CSV - Write values in quotes 
-        /// </summary>
-        public Boolean ValueInQuotes { get; set; }
-
-        /// <summary>
-        /// The encoding of the file to save results in
-        /// </summary>
-        public string FileEncoding { get; set; }
-
         /// <summary>
         /// Include headers of columns in CSV
         /// </summary>
@@ -93,6 +82,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Error messages for saving to file. 
         /// </summary>
         public string Messages { get; set; }
+    }
+
+    /// <summary>
+    /// Error object for save result 
+    /// </summary>
+    public class SaveResultRequestError
+    {
+        /// <summary>
+        /// Error message 
+        /// </summary>
+        public string message { get; set; }
     }
 
     /// <summary>

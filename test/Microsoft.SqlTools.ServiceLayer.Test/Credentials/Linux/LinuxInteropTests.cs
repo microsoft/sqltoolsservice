@@ -15,23 +15,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
         [Fact]
         public void GetEUidReturnsInt()
         {
+#if !WINDOWS_ONLY_BUILD           
             TestUtils.RunIfLinux(() =>
             {
                 Assert.NotNull(Interop.Sys.GetEUid());
             });
+#endif           
         }
 
         [Fact]
         public void GetHomeDirectoryFromPwFindsHomeDir()
         {
-
+#if !WINDOWS_ONLY_BUILD
             TestUtils.RunIfLinux(() =>
             {
                 string userDir = LinuxCredentialStore.GetHomeDirectoryFromPw();
                 Assert.StartsWith("/", userDir);
             });
+#endif
         }
-        
     }
 }
 
