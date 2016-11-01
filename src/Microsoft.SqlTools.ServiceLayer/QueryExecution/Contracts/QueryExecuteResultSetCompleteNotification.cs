@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class QueryExecuteResultSetCompleteEvent
     {
         public static readonly
-            EventType<QueryExecuteBatchCompleteParams> Type =
-            EventType<QueryExecuteBatchCompleteParams>.Create("query/resultSetComplete");
+            EventType<QueryExecuteResultSetCompleteParams> Type =
+            EventType<QueryExecuteResultSetCompleteParams>.Create("query/resultSetComplete");
     }
 }

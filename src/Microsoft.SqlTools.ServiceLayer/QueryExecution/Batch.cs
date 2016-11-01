@@ -89,6 +89,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event BatchAsyncEventHandler BatchCompletion;
 
         /// <summary>
+        /// Event that will be called when the resultset has completed execution. It will not be
+        /// called from the Batch but from the ResultSet instance
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetCompletion;
+
+        /// <summary>
         /// The text of batch that will be executed
         /// </summary>
         public string BatchText { get; set; }
@@ -155,12 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                return ResultSets.Select((set, index) => new ResultSetSummary()
-                {
-                    ColumnInfo = set.Columns,
-                    Id = index,
-                    RowCount = set.RowCount
-                }).ToArray();
+                return ResultSets.Select(set => set.Summary).ToArray();
             }
         }
 
@@ -244,6 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Execute the command to get back a reader
                     using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
                     {
+                        int resultSetOrdinal = 0;
                         do
                         {
                             // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
@@ -253,11 +255,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // This resultset has results (ie, SELECT/etc queries)
-                            ResultSet resultSet = new ResultSet(reader, outputFileFactory);
-                            
+                            ResultSet resultSet = new ResultSet(reader, resultSetOrdinal, outputFileFactory);
+                            resultSet.ResultCompletion += ResultSetCompletion;
+
                             // Add the result set to the results of the query
                             resultSets.Add(resultSet);
-                            
+                            resultSetOrdinal++;
+
                             // Read until we hit the end of the result set
                             await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 

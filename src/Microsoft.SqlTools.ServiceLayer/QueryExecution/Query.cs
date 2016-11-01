@@ -92,24 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Batches = batchSelection.ToArray();
         }
 
-        #region Properties
-
-        /// <summary>
-        /// Delegate type for callback when a query completes or fails
-        /// </summary>
-        /// <param name="q">The query that completed</param>
-        public delegate Task QueryAsyncEventHandler(Query q);
+        #region Events
 
         /// <summary>
         /// Event to be called when a batch is completed.
         /// </summary>
         public event Batch.BatchAsyncEventHandler BatchCompleted;
-
-        /// <summary>
-        /// Delegate type for callback when a query connection fails
-        /// </summary>
-        /// <param name="message">Message to return</param>
-        public delegate Task QueryAsyncErrorEventHandler(string message);
 
         /// <summary>
         /// Callback for when the query has completed successfully
@@ -125,6 +113,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Callback for when the query connection has failed
         /// </summary>
         public event QueryAsyncErrorEventHandler QueryConnectionException;
+
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetCompleted;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Delegate type for callback when a query completes or fails
+        /// </summary>
+        /// <param name="q">The query that completed</param>
+        public delegate Task QueryAsyncEventHandler(Query q);
+
+        /// <summary>
+        /// Delegate type for callback when a query connection fails
+        /// </summary>
+        /// <param name="message">Message to return</param>
+        public delegate Task QueryAsyncErrorEventHandler(string message);
 
         /// <summary>
         /// The batches underneath this query
@@ -265,6 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     foreach (Batch b in Batches)
                     {
                         b.BatchCompletion += BatchCompleted;
+                        b.ResultSetCompletion += ResultSetCompleted;
                         await b.Execute(conn, cancellationSource.Token);
                     }
 
