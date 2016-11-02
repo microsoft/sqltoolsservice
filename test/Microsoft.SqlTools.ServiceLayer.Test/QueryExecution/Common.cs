@@ -6,16 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SmoMetadataProvider;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
@@ -108,11 +102,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public static IFileStreamFactory GetFileStreamFactory()
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            Dictionary<string, byte[]> mockStorage = new Dictionary<string, byte[]>();
+
+            mock.Setup(fsf => fsf.CreateFile())
+                .Returns(() =>
+                {
+                    string fileName = Guid.NewGuid().ToString();
+                    mockStorage.Add(fileName, new byte[8192]);
+                    return fileName;
+                });
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns(new ServiceBufferFileStreamReader(new InMemoryWrapper(), It.IsAny<string>()));
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new InMemoryWrapper(mockStorage[output]), output));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(new ServiceBufferFileStreamWriter(new InMemoryWrapper(), It.IsAny<string>(), 1024,
-                    1024));
+                .Returns<string, int, int>((output, chars, xml) => new ServiceBufferFileStreamWriter(
+                    new InMemoryWrapper(mockStorage[output]), output, chars, xml));
 
             return mock.Object;
         }
@@ -121,9 +124,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             private readonly MemoryStream memoryStream;
             private bool readingOnly;
-            private readonly byte[] storage = new byte[8192];
 
-            public InMemoryWrapper()
+            public InMemoryWrapper(byte[] storage)
             {
                 memoryStream = new MemoryStream(storage);
             }
@@ -199,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var connectionMock = new Mock<DbConnection> { CallBase = true };
             connectionMock.Protected()
                 .Setup<DbCommand>("CreateDbCommand")
-                .Returns(CreateTestCommand(data, throwOnRead));
+                .Returns(() => CreateTestCommand(data, throwOnRead));
             connectionMock.Setup(dbc => dbc.Open())
                 .Callback(() => connectionMock.SetupGet(dbc => dbc.State).Returns(ConnectionState.Open));
             connectionMock.Setup(dbc => dbc.Close())
@@ -212,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
-                .Returns(CreateTestConnection(data, throwOnRead));
+                .Returns(() => CreateTestConnection(data, throwOnRead));
 
             return mockFactory.Object;
         }
@@ -226,55 +228,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #region Service Mocking
 
-        public static void GetAutoCompleteTestObjects(
-            out TextDocumentPosition textDocument,
-            out ScriptFile scriptFile,
-            out ConnectionInfo connInfo
-            )
+        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
         {
-            textDocument = new TextDocumentPosition
-            {
-                TextDocument = new TextDocumentIdentifier {Uri = OwnerUri},
-                Position = new Position
-                {
-                    Line = 0,
-                    Character = 0
-                }
-            };
+            var connectionServiceMock = new Mock<ConnectionService>();
+            ConnectionInfo ci = new ConnectionInfo(factory, OwnerUri, StandardConnectionDetails);
 
+            ConnectionInfo outValMock;
+            connectionServiceMock
+                .Setup(service => service.TryFindConnection(It.IsAny<string>(), out outValMock))
+                .OutCallback((string ownerUri, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null)
+                .Returns(isConnected);
 
-            connInfo = CreateTestConnectionInfo(null, false);
-
-            var srvConn = GetServerConnection(connInfo);
-            var metadataProvider = SmoMetadataProvider.CreateConnectedProvider(srvConn);
-            var binder = BinderProvider.CreateBinder(metadataProvider);
-            connInfo = Common.CreateTestConnectionInfo(null, false);
-
-            LanguageService.Instance.ScriptParseInfoMap.Add(textDocument.TextDocument.Uri,  new ScriptParseInfo());
-
-            scriptFile = new ScriptFile {ClientFilePath = textDocument.TextDocument.Uri};
-
-        }
-
-        public static ServerConnection GetServerConnection(ConnectionInfo connection)
-        {
-            string connectionString = ConnectionService.BuildConnectionString(connection.ConnectionDetails);
-            var sqlConnection = new SqlConnection(connectionString);
-            return new ServerConnection(sqlConnection);
-        }
-
-        public static async Task<QueryExecutionService> GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
-        {
-            var connectionService = new ConnectionService(factory);
-            if (isConnected)
-            {
-                await connectionService.Connect(new ConnectParams
-                {
-                    Connection = StandardConnectionDetails,
-                    OwnerUri = OwnerUri
-                });
-            }
-            return new QueryExecutionService(connectionService, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
+            return new QueryExecutionService(connectionServiceMock.Object, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
         }
 
         public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService()

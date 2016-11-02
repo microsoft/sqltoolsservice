@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
@@ -30,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvSuccessTest()
         {
             // Execute a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -74,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvWithSelectionSuccessTest()
         {
             // Execute a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -122,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvExceptionTest()
         {   
             // Execute a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -157,11 +156,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         /// Test saving results to CSV file when the requested result set is no longer active
         /// </summary>
         [Fact]
-        public async void SaveResultsAsCsvQueryNotFoundTest()
+        public void SaveResultsAsCsvQueryNotFoundTest()
         {
             // Create a query execution service
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
 
             // Request to save the results as csv with query that is no longer active
             var saveParams = new SaveResultsAsCsvRequestParams
@@ -188,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsJsonSuccessTest()
         {
             // Execute a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -233,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsJsonWithSelectionSuccessTest()
         {
             // Execute a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -280,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsJsonExceptionTest()
         {
             // Execute a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -316,12 +315,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         /// Test saving results to JSON file when the requested result set is no longer active
         /// </summary>
         [Fact]
-        public async void SaveResultsAsJsonQueryNotFoundTest()
+        public void SaveResultsAsJsonQueryNotFoundTest()
         {
 
             // Create a query service
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
 
             // Request to save the results as json with query that is no longer active
             var saveParams = new SaveResultsAsJsonRequestParams

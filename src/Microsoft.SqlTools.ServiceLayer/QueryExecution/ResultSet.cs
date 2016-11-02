@@ -236,9 +236,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 hasBeenRead = true;
 
                 // Open a writer for the file
-                using (
-                    IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore,
-                        MaxXmlCharsToStore))
+                var fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxCharsToStore);
+                using (fileWriter)
                 {
                     // If we can initialize the columns using the column schema, use that
                     if (!DataReader.DbDataReader.CanGetColumnSchema())

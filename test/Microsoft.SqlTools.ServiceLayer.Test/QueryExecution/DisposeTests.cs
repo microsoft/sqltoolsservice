@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var mockDataReader = Common.CreateTestConnection(null, false).CreateCommand().ExecuteReaderAsync().Result;
             
             // If: I setup a single resultset and then dispose it
-            ResultSet rs = new ResultSet(mockDataReader, mockFileStreamFactory.Object);
+            ResultSet rs = new ResultSet(mockDataReader, Common.Ordinal, mockFileStreamFactory.Object);
             rs.Dispose();
 
             // Then: The file that was created should have been deleted
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 .Returns(fileMock.Object);
             // If:
             // ... I request a query (doesn't matter what kind)
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
             var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I attempt to dispose a query that doesn't exist
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
             var disposeParams = new QueryDisposeParams {OwnerUri = Common.OwnerUri};
             QueryDisposeResult result = null;
             var disposeRequest = GetQueryDisposeResultContextMock(qdr => result = qdr, null);
@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
                 .Returns(fileMock.Object);
             // ... We need a query service
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true,
+            var queryService = Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true,
                 workspaceService.Object);
 
             // If:

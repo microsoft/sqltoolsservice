@@ -17,34 +17,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         private static void VerifyReadWrite<T>(int valueLength, T value, Func<ServiceBufferFileStreamWriter, T, int> writeFunc, Func<ServiceBufferFileStreamReader, FileStreamReadResult> readFunc)
         {
             // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            try
-            {
-                // If:
-                // ... I write a type T to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-                {
-                    int writtenBytes = writeFunc(writer, value);
-                    Assert.Equal(valueLength, writtenBytes);
-                }
+            byte[] mockStorage = new byte[8192];
 
-                // ... And read the type T back
-                FileStreamReadResult outValue;
-                using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-                {
-                    outValue = readFunc(reader);
-                }
-
-                // Then:
-                Assert.Equal(value, outValue.Value.RawObject);
-                Assert.Equal(valueLength, outValue.TotalLength);
-                Assert.NotNull(outValue.Value);
-            }
-            finally
+            // If:
+            // ... I write a type T to the writer
+            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(new Common.InMemoryWrapper(mockStorage), "abc", 10, 10))
             {
-                // Cleanup: Close the wrapper
-                mockWrapper.Close();
+                int writtenBytes = writeFunc(writer, value);
+                Assert.Equal(valueLength, writtenBytes);
             }
+
+            // ... And read the type T back
+            FileStreamReadResult outValue;
+            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(new Common.InMemoryWrapper(mockStorage), "abc"))
+            {
+                outValue = readFunc(reader);
+            }
+
+            // Then:
+            Assert.Equal(value, outValue.Value.RawObject);
+            Assert.Equal(valueLength, outValue.TotalLength);
+            Assert.NotNull(outValue.Value);
         }
 
         [Theory]
@@ -223,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         public void StringNullTest()
         {
             // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
+            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper(new byte[8192]);
 
             // If:
             // ... I write null as a string to the writer
@@ -259,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         public void BytesNullTest()
         {
             // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
+            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper(new byte[8192]);
 
             // If:
             // ... I write null as a string to the writer
