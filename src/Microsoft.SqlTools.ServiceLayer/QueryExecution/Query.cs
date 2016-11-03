@@ -51,11 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private bool hasExecuteBeenCalled;
 
-        /// <summary>
-        /// The factory to use for outputting the results of this query
-        /// </summary>
-        private readonly IFileStreamFactory outputFileFactory;
-
         #endregion
 
         /// <summary>
@@ -77,7 +72,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryText = queryText;
             editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
-            outputFileFactory = outputFactory;
 
             // Process the query into batches
             ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
@@ -85,13 +79,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BatchSeparator = settings.BatchSeparator
             });
             // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
-            Batches = parseResult.Script.Batches.Where(b => b.Statements.Count > 0)
-                .Select(b => new Batch(b.Sql, 
-                                       b.StartLocation.LineNumber - 1, 
-                                       b.StartLocation.ColumnNumber - 1, 
-                                       b.EndLocation.LineNumber - 1, 
-                                       b.EndLocation.ColumnNumber - 1, 
-                                       outputFileFactory)).ToArray();
+            var batchSelection = parseResult.Script.Batches
+                .Where(batch => batch.Statements.Count > 0)
+                .Select((batch, index) =>
+                    new Batch(batch.Sql,
+                        new SelectionData(
+                            batch.StartLocation.LineNumber - 1,
+                            batch.StartLocation.ColumnNumber - 1,
+                            batch.EndLocation.LineNumber - 1,
+                            batch.EndLocation.ColumnNumber - 1),
+                        index, outputFactory));
+            Batches = batchSelection.ToArray();
         }
 
         #region Properties
@@ -103,9 +101,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public delegate Task QueryAsyncEventHandler(Query q);
 
         /// <summary>
+        /// Event to be called when a batch is completed.
+        /// </summary>
+        public event Batch.BatchAsyncEventHandler BatchCompleted;
+
+        /// <summary>
         /// Delegate type for callback when a query connection fails
         /// </summary>
-        /// <param name="q">The query that completed</param>
+        /// <param name="message">Message to return</param>
         public delegate Task QueryAsyncErrorEventHandler(string message);
 
         /// <summary>
@@ -139,18 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     throw new InvalidOperationException("Query has not been executed.");
                 }
-
-                return Batches.Select((batch, index) => new BatchSummary
-                {
-                    Id = index,
-                    ExecutionStart = batch.ExecutionStartTimeStamp,
-                    ExecutionEnd = batch.ExecutionEndTimeStamp,
-                    ExecutionElapsed = batch.ExecutionElapsedTime,
-                    HasError = batch.HasError,
-                    Messages = batch.ResultMessages.ToArray(),
-                    ResultSetSummaries = batch.ResultSummaries,
-                    Selection = batch.Selection
-                }).ToArray();
+                return Batches.Select(b => b.Summary).ToArray();
             }
         }
 
@@ -214,12 +206,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
         {
-            // Sanity check that the results are available
-            if (!HasExecuted)
-            {
-                throw new InvalidOperationException(SR.QueryServiceSubsetNotCompleted);
-            }
-
             // Sanity check to make sure that the batch is within bounds
             if (batchIndex < 0 || batchIndex >= Batches.Length)
             {
@@ -278,6 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // We need these to execute synchronously, otherwise the user will be very unhappy
                     foreach (Batch b in Batches)
                     {
+                        b.BatchCompletion += BatchCompleted;
                         await b.Execute(conn, cancellationSource.Token);
                     }
 

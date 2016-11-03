@@ -83,7 +83,7 @@ QueryServiceQueryCancelled = Query was canceled by user
 
 ### Subset Request
 
-QueryServiceSubsetNotCompleted = The query has not completed, yet
+QueryServiceSubsetBatchNotCompleted = The batch has not completed, yet
 
 QueryServiceSubsetBatchOutOfRange = Batch index cannot be less than 0 or greater than the number of batches
 
