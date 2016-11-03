@@ -23,9 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         #region ResultSet Class Tests
 
         [Theory]
-        [InlineData(0,2)]
-        [InlineData(0,20)]
-        [InlineData(1,2)]
+        [InlineData(0, 2)]
+        [InlineData(0, 20)]
+        [InlineData(1, 2)]
         public void ResultSetValidTest(int startRow, int rowCount)
         {
             // Setup:
@@ -58,6 +58,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Then:
             // ... It should throw an exception
             Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => rs.GetSubset(rowStartIndex, rowCount)).Wait();
+        }
+
+        [Fact]
+        public async Task ResultSetNotReadTest()
+        {
+            // If:
+            // ... I have a resultset that hasn't been executed and I request a valid result set from it
+            // Then:
+            // ... It should throw an exception for having not been read
+            ResultSet rs = new ResultSet(new TestDbDataReader(null), Common.Ordinal, Common.GetFileStreamFactory());
+            await Assert.ThrowsAsync<InvalidOperationException>(() => rs.GetSubset(0, 1));
         }
 
         #endregion
@@ -93,21 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Then: 
             // ... It should throw an exception
             Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, 0, 2)).Wait();
-        }
-
-        [Fact]
-        public async Task BatchSubsetIncompleteTest()
-        {
-            // If:
-            // ... I have a batch that hasn't completed execution
-            Batch b = new Batch(Common.StandardQuery, Common.WholeDocument, Common.Ordinal, Common.GetFileStreamFactory());
-            Assert.False(b.HasExecuted);
-
-            // ... And I ask for a subset
-            // Then:
-            // ... It should throw an exception
-            await Assert.ThrowsAsync<InvalidOperationException>(() => b.GetSubset(Common.Ordinal, 0, 2));
-
         }
 
         #endregion
@@ -146,15 +142,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I have a query that has results (doesn't matter what)
             var queryService = Common.GetPrimedExecutionService(
-                Common.CreateMockFactory(new[] {Common.StandardTestData}, false), true,
+                Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true,
                 workspaceService.Object);
-            var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
+            var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a valid set of results from it
-            var subsetParams = new QueryExecuteSubsetParams {OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0};
+            var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             QueryExecuteSubsetResult result = null;
             var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
@@ -191,9 +187,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public async void SubsetServiceUnexecutedQueryTest()
+        public async Task SubsetServiceUnexecutedQueryTest()
         {
-            
+
             // Set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
             fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
@@ -210,13 +206,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
-            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;
+            queryService.ActiveQueries[Common.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             QueryExecuteSubsetResult result = null;
             var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
-            queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object).Wait();
+            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
 
             // Then:
             // ... I should get an error result
@@ -229,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         [Fact]
         public async void SubsetServiceOutOfRangeSubsetTest()
-        {            
+        {
             // If:
             // ... I have a query that doesn't have any result sets
             var queryService = Common.GetPrimedExecutionService(

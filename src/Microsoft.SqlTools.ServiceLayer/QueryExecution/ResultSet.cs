@@ -45,9 +45,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly IFileStreamFactory fileStreamFactory;
 
         /// <summary>
-        /// Whether or not the result set has been read in from the database
+        /// Whether or not the result set has been read in from the database,
+        /// set as internal in order to fake value in unit tests
         /// </summary>
-        private bool hasBeenRead;
+        internal bool hasBeenRead;
 
         /// <summary>
         /// Whether resultSet is a 'for xml' or 'for json' result
@@ -62,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// All save tasks currently saving this ResultSet
         /// </summary>
-        private ConcurrentDictionary<string, Task> saveTasks;
+        private readonly ConcurrentDictionary<string, Task> saveTasks;
 
         #endregion
 
@@ -70,6 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Creates a new result set and initializes its state
         /// </summary>
         /// <param name="reader">The reader from executing a query</param>
+        /// <param name="ordinal">The ID of the resultset, the ordinal of the result within the batch</param>
         /// <param name="factory">Factory for creating a reader/writer</param>
         public ResultSet(DbDataReader reader, int ordinal, IFileStreamFactory factory)
         {
@@ -199,9 +201,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (isSingleColumnXmlJsonResultSet)
                     {
                         // Iterate over all the rows and process them into a list of string builders
+                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
                         IEnumerable<string> rowValues = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
                         rows = new[] { new[] { string.Join(string.Empty, rowValues) } };
-
                     }
                     else
                     {
@@ -209,8 +211,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
 
                         // Iterate over the rows we need and process them into output
-                        rows = rowOffsets.Select(rowOffset =>
-                            fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
+                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in .ToArray call
+                        rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)
+                            .Select(cell => cell.DisplayValue).ToArray())
                             .ToArray();
 
                     }
@@ -321,10 +324,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// If the result set represented by this class corresponds to a single JSON
         /// column that contains results of "for json" query, set isJson = true
         /// </summary>
-        private void SingleColumnXmlJsonResultSet() {
+        private void SingleColumnXmlJsonResultSet()
+        {
 
             if (Columns?.Length == 1 && RowCount != 0)
-            {   
+            {
                 if (Columns[0].ColumnName.Equals(NameOfForXMLColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsXml = true;
@@ -336,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Columns[0].IsJson = true;
                     isSingleColumnXmlJsonResultSet = true;
                     RowCount = 1;
-                }                
+                }
             }
         }
 

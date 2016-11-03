@@ -114,6 +114,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public event QueryAsyncErrorEventHandler QueryConnectionException;
 
+        /// <summary>
+        /// Event to be called when a resultset has completed.
+        /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetCompleted;
 
         #endregion
@@ -152,6 +155,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Storage for the async task for execution. Set as internal in order to await completion
+        /// in unit tests.
+        /// </summary>
         internal Task ExecutionTask { get; private set; }
 
         /// <summary>
@@ -248,11 +255,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await conn.OpenAsync();
                 }
-                catch(Exception exception)
+                catch (Exception exception)
                 {
-                    this.HasExecuted = true;                 
+                    this.HasExecuted = true;
                     if (QueryConnectionException != null)
-                    {                        
+                    {
                         await QueryConnectionException(exception.Message);
                     }
                     return;

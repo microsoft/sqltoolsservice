@@ -161,7 +161,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                return ResultSets.Select(set => set.Summary).ToArray();
+                lock (resultSets)
+                {
+                    return resultSets.Select(set => set.Summary).ToArray();
+                }
             }
         }
 
@@ -222,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     command = sqlConn.GetUnderlyingConnection().CreateCommand();
 
                     // Add a handler for when the command completes
-                    SqlCommand sqlCommand = (SqlCommand) command;
+                    SqlCommand sqlCommand = (SqlCommand)command;
                     sqlCommand.StatementCompleted += StatementCompletedHandler;
                 }
                 else
@@ -259,8 +262,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSet.ResultCompletion += ResultSetCompletion;
 
                             // Add the result set to the results of the query
-                            resultSets.Add(resultSet);
-                            resultSetOrdinal++;
+                            lock (resultSets)
+                            {
+                                resultSets.Add(resultSet);
+                                resultSetOrdinal++;
+                            }
 
                             // Read until we hit the end of the result set
                             await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
@@ -322,20 +328,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ResultSetSubset> GetSubset(int resultSetIndex, int startRow, int rowCount)
         {
-            // Sanity check to make sure that the batch has finished
-            if (!HasExecuted)
+            ResultSet targetResultSet;
+            lock (resultSets)
             {
-                throw new InvalidOperationException(SR.QueryServiceSubsetBatchNotCompleted);
-            }
+                // Sanity check to make sure we have valid numbers
+                if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(resultSetIndex),
+                        SR.QueryServiceSubsetResultSetOutOfRange);
+                }
 
-            // Sanity check to make sure we have valid numbers
-            if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), SR.QueryServiceSubsetResultSetOutOfRange);
+                targetResultSet = resultSets[resultSetIndex];
             }
 
             // Retrieve the result set
-            return resultSets[resultSetIndex].GetSubset(startRow, rowCount);
+            return targetResultSet.GetSubset(startRow, rowCount);
         }
 
         #endregion
@@ -435,9 +442,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (disposing)
             {
-                foreach (ResultSet r in ResultSets)
+                lock (resultSets)
                 {
-                    r.Dispose();
+                    foreach (ResultSet r in resultSets)
+                    {
+                        r.Dispose();
+                    }
                 }
             }
 
