@@ -790,7 +790,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public async void QueryExecuteUnconnectedUriTest()
+        public void QueryExecuteUnconnectedUriTest()
         {
 
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
@@ -802,7 +802,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             object error = null;
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(null)
                 .AddErrorHandling(e => error = e);
-            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
+            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
 
             // Then:
             // ... An error should have been returned
@@ -1021,6 +1021,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             mock.Verify(rc => rc.SendEvent(
                 It.Is<EventType<QueryExecuteResultSetCompleteParams>>(m => m == QueryExecuteResultSetCompleteEvent.Type),
                 It.IsAny<QueryExecuteResultSetCompleteParams>()), sendResultCompleteEvent);
+
             mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
         }
 

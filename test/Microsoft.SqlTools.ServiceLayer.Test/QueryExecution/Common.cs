@@ -124,6 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             private readonly MemoryStream memoryStream;
             private bool readingOnly;
+            private readonly byte[] storage = new byte[8192];
 
             public InMemoryWrapper(byte[] storage)
             {
@@ -228,7 +229,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #region Service Mocking
 
-        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected, WorkspaceService<SqlToolsSettings> workspaceService)
+        public static QueryExecutionService GetPrimedExecutionService(ISqlConnectionFactory factory, bool isConnected,
+            WorkspaceService<SqlToolsSettings> workspaceService)
         {
             var connectionServiceMock = new Mock<ConnectionService>();
             ConnectionInfo ci = new ConnectionInfo(factory, OwnerUri, StandardConnectionDetails);
@@ -239,7 +241,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 .OutCallback((string ownerUri, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null)
                 .Returns(isConnected);
 
-            return new QueryExecutionService(connectionServiceMock.Object, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory()};
+            return new QueryExecutionService(connectionServiceMock.Object, workspaceService)
+            {
+                BufferFileStreamFactory = GetFileStreamFactory()
+            };
         }
 
         public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService()
