@@ -206,270 +206,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Writes null to the file as one 0x00 byte
-        /// </summary>
-        /// <returns>Number of bytes used to store the null</returns>
-        public int WriteNull()
-        {
-            byteBuffer[0] = 0x00;
-            return fileStream.WriteData(byteBuffer, 1);
-        }
-
-        /// <summary>
-        /// Writes a short to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the short</returns>
-        public int WriteInt16(short val)
-        {
-            byteBuffer[0] = 0x02; // length
-            shortBuffer[0] = val;
-            Buffer.BlockCopy(shortBuffer, 0, byteBuffer, 1, 2);
-            return fileStream.WriteData(byteBuffer, 3);
-        }
-
-        /// <summary>
-        /// Writes a int to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the int</returns>
-        public int WriteInt32(int val)
-        {
-            byteBuffer[0] = 0x04; // length
-            intBuffer[0] = val;
-            Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return fileStream.WriteData(byteBuffer, 5);
-        }
-
-        /// <summary>
-        /// Writes a long to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the long</returns>
-        public int WriteInt64(long val)
-        {
-            byteBuffer[0] = 0x08; // length
-            longBuffer[0] = val;
-            Buffer.BlockCopy(longBuffer, 0, byteBuffer, 1, 8);
-            return fileStream.WriteData(byteBuffer, 9);
-        }
-
-        /// <summary>
-        /// Writes a char to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the char</returns>
-        public int WriteChar(char val)
-        {
-            byteBuffer[0] = 0x02; // length
-            charBuffer[0] = val;
-            Buffer.BlockCopy(charBuffer, 0, byteBuffer, 1, 2);
-            return fileStream.WriteData(byteBuffer, 3);
-        }
-
-        /// <summary>
-        /// Writes a bool to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the bool</returns>
-        public int WriteBoolean(bool val)
-        {
-            byteBuffer[0] = 0x01; // length
-            byteBuffer[1] = (byte) (val ? 0x01 : 0x00);
-            return fileStream.WriteData(byteBuffer, 2);
-        }
-
-        /// <summary>
-        /// Writes a byte to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the byte</returns>
-        public int WriteByte(byte val)
-        {
-            byteBuffer[0] = 0x01; // length
-            byteBuffer[1] = val;
-            return fileStream.WriteData(byteBuffer, 2);
-        }
-
-        /// <summary>
-        /// Writes a float to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the float</returns>
-        public int WriteSingle(float val)
-        {
-            byteBuffer[0] = 0x04; // length
-            floatBuffer[0] = val;
-            Buffer.BlockCopy(floatBuffer, 0, byteBuffer, 1, 4);
-            return fileStream.WriteData(byteBuffer, 5);
-        }
-
-        /// <summary>
-        /// Writes a double to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the double</returns>
-        public int WriteDouble(double val)
-        {
-            byteBuffer[0] = 0x08; // length
-            doubleBuffer[0] = val;
-            Buffer.BlockCopy(doubleBuffer, 0, byteBuffer, 1, 8);
-            return fileStream.WriteData(byteBuffer, 9);
-        }
-
-        /// <summary>
-        /// Writes a SqlDecimal to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the SqlDecimal</returns>
-        public int WriteSqlDecimal(SqlDecimal val)
-        {
-            int[] arrInt32 = val.Data;
-            int iLen = 3 + (arrInt32.Length * 4);
-            int iTotalLen = WriteLength(iLen); // length
-
-            // precision
-            byteBuffer[0] = val.Precision;
-
-            // scale
-            byteBuffer[1] = val.Scale;
-
-            // positive
-            byteBuffer[2] = (byte)(val.IsPositive ? 0x01 : 0x00);
-
-            // data value
-            Buffer.BlockCopy(arrInt32, 0, byteBuffer, 3, iLen - 3);
-            iTotalLen += fileStream.WriteData(byteBuffer, iLen);
-            return iTotalLen; // len+data
-        }
-
-        /// <summary>
-        /// Writes a decimal to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the decimal</returns>
-        public int WriteDecimal(decimal val)
-        {
-            int[] arrInt32 = decimal.GetBits(val);
-
-            int iLen = arrInt32.Length * 4;
-            int iTotalLen = WriteLength(iLen); // length
-
-            Buffer.BlockCopy(arrInt32, 0, byteBuffer, 0, iLen);
-            iTotalLen += fileStream.WriteData(byteBuffer, iLen);
-
-            return iTotalLen; // len+data
-        }
-
-        /// <summary>
-        /// Writes a DateTime to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the DateTime</returns>
-        public int WriteDateTime(DateTime dtVal)
-        {
-            return WriteInt64(dtVal.Ticks);
-        }
-
-        /// <summary>
-        /// Writes a DateTimeOffset to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the DateTimeOffset</returns>
-        public int WriteDateTimeOffset(DateTimeOffset dtoVal)
-        {
-            // Write the length, which is the 2*sizeof(long)
-            byteBuffer[0] = 0x10; // length (16)
-
-            // Write the two longs, the datetime and the offset
-            long[] longBufferOffset = new long[2];
-            longBufferOffset[0] = dtoVal.Ticks;
-            longBufferOffset[1] = dtoVal.Offset.Ticks;
-            Buffer.BlockCopy(longBufferOffset, 0, byteBuffer, 1, 16);
-            return fileStream.WriteData(byteBuffer, 17);
-        }
-
-        /// <summary>
-        /// Writes a TimeSpan to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the TimeSpan</returns>
-        public int WriteTimeSpan(TimeSpan timeSpan)
-        {
-            return WriteInt64(timeSpan.Ticks);
-        }
-
-        /// <summary>
-        /// Writes a string to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the string</returns>
-        public int WriteString(string sVal)
-        {
-            Validate.IsNotNull(nameof(sVal), sVal);
-
-            int iTotalLen;
-            if (0 == sVal.Length) // special case of 0 length string
-            {
-                const int iLen = 5;
-
-                AssureBufferLength(iLen);
-                byteBuffer[0] = 0xFF;
-                byteBuffer[1] = 0x00;
-                byteBuffer[2] = 0x00;
-                byteBuffer[3] = 0x00;
-                byteBuffer[4] = 0x00;
-
-                iTotalLen = fileStream.WriteData(byteBuffer, 5);
-            }
-            else
-            {
-                // Convert to a unicode byte array
-                byte[] bytes = Encoding.Unicode.GetBytes(sVal);
-
-                // convert char array into byte array and write it out							
-                iTotalLen = WriteLength(bytes.Length);
-                iTotalLen += fileStream.WriteData(bytes, bytes.Length);
-            }
-            return iTotalLen; // len+data
-        }
-
-        /// <summary>
-        /// Writes a byte[] to the file
-        /// </summary>
-        /// <returns>Number of bytes used to store the byte[]</returns>
-        public int WriteBytes(byte[] bytesVal)
-        {
-            Validate.IsNotNull(nameof(bytesVal), bytesVal);
-
-            int iTotalLen;
-            if (bytesVal.Length == 0) // special case of 0 length byte array "0x"
-            {
-                AssureBufferLength(5);
-                byteBuffer[0] = 0xFF;
-                byteBuffer[1] = 0x00;
-                byteBuffer[2] = 0x00;
-                byteBuffer[3] = 0x00;
-                byteBuffer[4] = 0x00;
-
-                iTotalLen = fileStream.WriteData(byteBuffer, 5);
-            }
-            else
-            {
-                iTotalLen = WriteLength(bytesVal.Length);
-                iTotalLen += fileStream.WriteData(bytesVal, bytesVal.Length);
-            }
-            return iTotalLen; // len+data
-        }
-
-        /// <summary>
-        /// Stores a GUID value to the file by treating it as a byte array
-        /// </summary>
-        /// <param name="val">The GUID to write to the file</param>
-        /// <returns>Number of bytes written to the file</returns>
-        public int WriteGuid(Guid val)
-        {
-            byte[] guidBytes = val.ToByteArray();
-            return WriteBytes(guidBytes);
-        }
-
-        /// <summary>
-        /// Stores a SqlMoney value to the file by treating it as a decimal
-        /// </summary>
-        /// <param name="val">The SqlMoney value to write to the file</param>
-        /// <returns>Number of bytes written to the file</returns>
-        public int WriteMoney(SqlMoney val)
-        {
-            return WriteDecimal(val.Value);
-        }
-
-        /// <summary>
         /// Flushes the internal buffer to the file stream
         /// </summary>
         public void FlushBuffer()
@@ -530,6 +266,270 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private int WriteNullable(INullable val, Func<object, int> valueWriteFunc)
         {
             return val.IsNull ? WriteNull() : valueWriteFunc(val);
+        }
+
+        /// <summary>
+        /// Writes null to the file as one 0x00 byte
+        /// </summary>
+        /// <returns>Number of bytes used to store the null</returns>
+        internal int WriteNull()
+        {
+            byteBuffer[0] = 0x00;
+            return fileStream.WriteData(byteBuffer, 1);
+        }
+
+        /// <summary>
+        /// Writes a short to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the short</returns>
+        internal int WriteInt16(short val)
+        {
+            byteBuffer[0] = 0x02; // length
+            shortBuffer[0] = val;
+            Buffer.BlockCopy(shortBuffer, 0, byteBuffer, 1, 2);
+            return fileStream.WriteData(byteBuffer, 3);
+        }
+
+        /// <summary>
+        /// Writes a int to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the int</returns>
+        internal int WriteInt32(int val)
+        {
+            byteBuffer[0] = 0x04; // length
+            intBuffer[0] = val;
+            Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
+            return fileStream.WriteData(byteBuffer, 5);
+        }
+
+        /// <summary>
+        /// Writes a long to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the long</returns>
+        internal int WriteInt64(long val)
+        {
+            byteBuffer[0] = 0x08; // length
+            longBuffer[0] = val;
+            Buffer.BlockCopy(longBuffer, 0, byteBuffer, 1, 8);
+            return fileStream.WriteData(byteBuffer, 9);
+        }
+
+        /// <summary>
+        /// Writes a char to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the char</returns>
+        internal int WriteChar(char val)
+        {
+            byteBuffer[0] = 0x02; // length
+            charBuffer[0] = val;
+            Buffer.BlockCopy(charBuffer, 0, byteBuffer, 1, 2);
+            return fileStream.WriteData(byteBuffer, 3);
+        }
+
+        /// <summary>
+        /// Writes a bool to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the bool</returns>
+        internal int WriteBoolean(bool val)
+        {
+            byteBuffer[0] = 0x01; // length
+            byteBuffer[1] = (byte)(val ? 0x01 : 0x00);
+            return fileStream.WriteData(byteBuffer, 2);
+        }
+
+        /// <summary>
+        /// Writes a byte to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the byte</returns>
+        internal int WriteByte(byte val)
+        {
+            byteBuffer[0] = 0x01; // length
+            byteBuffer[1] = val;
+            return fileStream.WriteData(byteBuffer, 2);
+        }
+
+        /// <summary>
+        /// Writes a float to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the float</returns>
+        internal int WriteSingle(float val)
+        {
+            byteBuffer[0] = 0x04; // length
+            floatBuffer[0] = val;
+            Buffer.BlockCopy(floatBuffer, 0, byteBuffer, 1, 4);
+            return fileStream.WriteData(byteBuffer, 5);
+        }
+
+        /// <summary>
+        /// Writes a double to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the double</returns>
+        internal int WriteDouble(double val)
+        {
+            byteBuffer[0] = 0x08; // length
+            doubleBuffer[0] = val;
+            Buffer.BlockCopy(doubleBuffer, 0, byteBuffer, 1, 8);
+            return fileStream.WriteData(byteBuffer, 9);
+        }
+
+        /// <summary>
+        /// Writes a SqlDecimal to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the SqlDecimal</returns>
+        internal int WriteSqlDecimal(SqlDecimal val)
+        {
+            int[] arrInt32 = val.Data;
+            int iLen = 3 + (arrInt32.Length * 4);
+            int iTotalLen = WriteLength(iLen); // length
+
+            // precision
+            byteBuffer[0] = val.Precision;
+
+            // scale
+            byteBuffer[1] = val.Scale;
+
+            // positive
+            byteBuffer[2] = (byte)(val.IsPositive ? 0x01 : 0x00);
+
+            // data value
+            Buffer.BlockCopy(arrInt32, 0, byteBuffer, 3, iLen - 3);
+            iTotalLen += fileStream.WriteData(byteBuffer, iLen);
+            return iTotalLen; // len+data
+        }
+
+        /// <summary>
+        /// Writes a decimal to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the decimal</returns>
+        internal int WriteDecimal(decimal val)
+        {
+            int[] arrInt32 = decimal.GetBits(val);
+
+            int iLen = arrInt32.Length * 4;
+            int iTotalLen = WriteLength(iLen); // length
+
+            Buffer.BlockCopy(arrInt32, 0, byteBuffer, 0, iLen);
+            iTotalLen += fileStream.WriteData(byteBuffer, iLen);
+
+            return iTotalLen; // len+data
+        }
+
+        /// <summary>
+        /// Writes a DateTime to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the DateTime</returns>
+        internal int WriteDateTime(DateTime dtVal)
+        {
+            return WriteInt64(dtVal.Ticks);
+        }
+
+        /// <summary>
+        /// Writes a DateTimeOffset to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the DateTimeOffset</returns>
+        internal int WriteDateTimeOffset(DateTimeOffset dtoVal)
+        {
+            // Write the length, which is the 2*sizeof(long)
+            byteBuffer[0] = 0x10; // length (16)
+
+            // Write the two longs, the datetime and the offset
+            long[] longBufferOffset = new long[2];
+            longBufferOffset[0] = dtoVal.Ticks;
+            longBufferOffset[1] = dtoVal.Offset.Ticks;
+            Buffer.BlockCopy(longBufferOffset, 0, byteBuffer, 1, 16);
+            return fileStream.WriteData(byteBuffer, 17);
+        }
+
+        /// <summary>
+        /// Writes a TimeSpan to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the TimeSpan</returns>
+        internal int WriteTimeSpan(TimeSpan timeSpan)
+        {
+            return WriteInt64(timeSpan.Ticks);
+        }
+
+        /// <summary>
+        /// Writes a string to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the string</returns>
+        internal int WriteString(string sVal)
+        {
+            Validate.IsNotNull(nameof(sVal), sVal);
+
+            int iTotalLen;
+            if (0 == sVal.Length) // special case of 0 length string
+            {
+                const int iLen = 5;
+
+                AssureBufferLength(iLen);
+                byteBuffer[0] = 0xFF;
+                byteBuffer[1] = 0x00;
+                byteBuffer[2] = 0x00;
+                byteBuffer[3] = 0x00;
+                byteBuffer[4] = 0x00;
+
+                iTotalLen = fileStream.WriteData(byteBuffer, 5);
+            }
+            else
+            {
+                // Convert to a unicode byte array
+                byte[] bytes = Encoding.Unicode.GetBytes(sVal);
+
+                // convert char array into byte array and write it out							
+                iTotalLen = WriteLength(bytes.Length);
+                iTotalLen += fileStream.WriteData(bytes, bytes.Length);
+            }
+            return iTotalLen; // len+data
+        }
+
+        /// <summary>
+        /// Writes a byte[] to the file
+        /// </summary>
+        /// <returns>Number of bytes used to store the byte[]</returns>
+        internal int WriteBytes(byte[] bytesVal)
+        {
+            Validate.IsNotNull(nameof(bytesVal), bytesVal);
+
+            int iTotalLen;
+            if (bytesVal.Length == 0) // special case of 0 length byte array "0x"
+            {
+                AssureBufferLength(5);
+                byteBuffer[0] = 0xFF;
+                byteBuffer[1] = 0x00;
+                byteBuffer[2] = 0x00;
+                byteBuffer[3] = 0x00;
+                byteBuffer[4] = 0x00;
+
+                iTotalLen = fileStream.WriteData(byteBuffer, 5);
+            }
+            else
+            {
+                iTotalLen = WriteLength(bytesVal.Length);
+                iTotalLen += fileStream.WriteData(bytesVal, bytesVal.Length);
+            }
+            return iTotalLen; // len+data
+        }
+
+        /// <summary>
+        /// Stores a GUID value to the file by treating it as a byte array
+        /// </summary>
+        /// <param name="val">The GUID to write to the file</param>
+        /// <returns>Number of bytes written to the file</returns>
+        internal int WriteGuid(Guid val)
+        {
+            byte[] guidBytes = val.ToByteArray();
+            return WriteBytes(guidBytes);
+        }
+
+        /// <summary>
+        /// Stores a SqlMoney value to the file by treating it as a decimal
+        /// </summary>
+        /// <param name="val">The SqlMoney value to write to the file</param>
+        /// <returns>Number of bytes written to the file</returns>
+        internal int WriteMoney(SqlMoney val)
+        {
+            return WriteDecimal(val.Value);
         }
 
         #endregion
