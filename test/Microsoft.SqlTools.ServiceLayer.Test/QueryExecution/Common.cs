@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns(new ServiceBufferFileStreamReader(new InMemoryWrapper(), It.IsAny<string>()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
                 .Returns(new ServiceBufferFileStreamWriter(new InMemoryWrapper(), It.IsAny<string>(), 1024,
                     1024));
 

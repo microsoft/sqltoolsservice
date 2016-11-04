@@ -64,7 +64,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private IFileStreamFactory BufferFileFactory
         {
-            get { return BufferFileStreamFactory ?? (BufferFileStreamFactory = new ServiceBufferFileStreamFactory()); }
+            get
+            {
+                return BufferFileStreamFactory ?? (BufferFileStreamFactory = new ServiceBufferFileStreamFactory
+                {
+                    MaxCharsToStore = Settings.SqlTools.QueryExecutionSettings.MaxCharsToStore,
+                    MaxXmlCharsToStore = Settings.SqlTools.QueryExecutionSettings.MaxXmlCharsToStore
+                });
+            }
         }
 
         /// <summary>

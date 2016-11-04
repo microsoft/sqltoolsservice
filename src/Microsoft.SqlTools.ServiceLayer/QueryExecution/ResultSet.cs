@@ -8,7 +8,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -21,15 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     {
         #region Constants
 
-        private const int DefaultMaxCharsToStore = 65535; // 64 KB - QE default
-
-        // xml is a special case so number of chars to store is usually greater than for other long types
-        private const int DefaultMaxXmlCharsToStore = 2097152; // 2 MB - QE default
-
         // Column names of 'for xml' and 'for json' queries
         private const string NameOfForXMLColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
-
 
         #endregion
 
@@ -124,16 +117,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private LongList<long> FileOffsets { get; set; }
 
         /// <summary>
-        /// Maximum number of characters to store for a field
-        /// </summary>
-        public int MaxCharsToStore { get { return DefaultMaxCharsToStore; } }
-
-        /// <summary>
-        /// Maximum number of characters to store for an XML field
-        /// </summary>
-        public int MaxXmlCharsToStore { get { return DefaultMaxXmlCharsToStore; } }
-
-        /// <summary>
         /// The number of rows for this result set
         /// </summary>
         public long RowCount { get; private set; }
@@ -213,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             hasBeenRead = true;
 
             // Open a writer for the file
-            using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
+            using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName))
             {
                 // If we can initialize the columns using the column schema, use that
                 if (!DataReader.DbDataReader.CanGetColumnSchema())
