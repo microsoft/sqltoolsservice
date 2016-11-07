@@ -45,6 +45,30 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
+        public async Task SuggestionsTest()
+        {
+            try
+            {
+                string query = SimpleQuery;
+                TestServerType serverType = TestServerType.OnPrem;
+                string ownerUri = Path.GetTempFileName();
+
+                WriteToFile(ownerUri, query);
+
+                await ConnectAsync(serverType, query, ownerUri);
+                await ValidateCompletionResponse(ownerUri, query, null);
+                
+                await ValidateCompletionResponse(ownerUri, query, "Suggestions");
+
+                await Disconnect(ownerUri);
+            }
+            finally
+            {
+                WaitForExit();
+            }
+        }
+
+        [Fact]
         public async Task DiagnosticsTests()
         {
             try
@@ -110,13 +134,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        private async Task VerifyBindingLoadScenario(TestServerType serverType, string query, string testName)
+        private async Task ValidateCompletionResponse(string ownerUri, string query, string testName)
         {
-            string ownerUri = Path.GetTempFileName();
-
-            WriteToFile(ownerUri, query);
-
-            await ConnectAsync(serverType, query, ownerUri);
             TestTimer timer = new TestTimer();
             CompletionItem completion = null;
             while (true)
@@ -126,7 +145,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 completion = completions != null ? completions.FirstOrDefault(x => x.Label == "master") : null;
                 if (completion != null)
                 {
-                    timer.EndAndPrint(testName);
+                    if (testName != null)
+                    {
+                        timer.EndAndPrint(testName);
+                    }
                     break;
                 }
                 if (timer.TotalMilliSecondsUntilNow >= 500000)
@@ -137,6 +159,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 Thread.Sleep(50);
             }
+        }
+
+        private async Task VerifyBindingLoadScenario(TestServerType serverType, string query, string testName = null)
+        {
+            string ownerUri = Path.GetTempFileName();
+
+            WriteToFile(ownerUri, query);
+
+            await ConnectAsync(serverType, query, ownerUri);
+            await ValidateCompletionResponse(ownerUri, query, testName);
+
             await Disconnect(ownerUri);
         }
 
