@@ -43,86 +43,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         internal event AsyncSaveEventHandler SaveFailed;
 
-        /// Method ported from SSMS
-        /// <summary>
-        /// Encodes a single field for inserting into a CSV record. The following rules are applied:
-        /// <list type="bullet">
-        /// <item><description>All double quotes (") are replaced with a pair of consecutive double quotes</description></item>
-        /// </list>
-        /// The entire field is also surrounded by a pair of double quotes if any of the following conditions are met:
-        /// <list type="bullet">
-        /// <item><description>The field begins or ends with a space</description></item>
-        /// <item><description>The field begins or ends with a tab</description></item>
-        /// <item><description>The field contains the ListSeparator string</description></item>
-        /// <item><description>The field contains the '\n' character</description></item>
-        /// <item><description>The field contains the '\r' character</description></item>
-        /// <item><description>The field contains the '"' character</description></item>
-        /// </list>
-        /// </summary>
-        /// <param name="field">The field to encode</param>
-        /// <returns>The CSV encoded version of the original field</returns>
-        internal static string EncodeCsvField(string field)
-        {
-            StringBuilder sbField = new StringBuilder(field);
-
-            //Whether this field has special characters which require it to be embedded in quotes
-            bool embedInQuotes = false;
-
-            //Check for leading/trailing spaces
-            if (sbField.Length > 0 &&
-                (sbField[0] == ' ' ||
-                sbField[0] == '\t' ||
-                sbField[sbField.Length - 1] == ' ' ||
-                sbField[sbField.Length - 1] == '\t'))
-            {
-                embedInQuotes = true;
-            }
-            else
-            {   //List separator being in the field will require quotes
-                if (field.Contains(","))
-                {
-                    embedInQuotes = true;
-                }
-                else
-                {
-                    for (int i = 0; i < sbField.Length; ++i)
-                    {
-                        //Check whether this character is a special character
-                        if (sbField[i] == '\r' ||
-                            sbField[i] == '\n' ||
-                            sbField[i] == '"')
-                        { //If even one character requires embedding the whole field will
-                            //be embedded in quotes so we can just break out now
-                            embedInQuotes = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            //Replace all quotes in the original field with double quotes
-            sbField.Replace("\"", "\"\"");
-            string ret = sbField.ToString();
-          
-            if (embedInQuotes)
-            {
-                ret = "\"" + ret + "\"";
-            }
-
-            return ret;
-        }
-
-        /// <summary>
-        /// Check if request is a subset of result set or whole result set
-        /// </summary>
-        /// <param name="saveParams"> Parameters from the request </param>
-        /// <returns></returns>
-        internal static bool IsSaveSelection(SaveResultsRequestParams saveParams)
-        {
-            return (saveParams.ColumnStartIndex != null && saveParams.ColumnEndIndex != null
-                && saveParams.RowStartIndex != null && saveParams.RowEndIndex != null);
-        }
-
         /// <summary>
         /// Save results as JSON format to the file specified in saveParams
         /// </summary>
@@ -154,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         ResultSet selectedResultSet = selectedBatch.ResultSets[saveParams.ResultSetIndex];
 
                         // Set column, row counts depending on whether save request is for entire result set or a subset
-                        if (IsSaveSelection(saveParams))
+                        if (saveParams.IsSaveSelection)
                         {
 
                             rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
@@ -253,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         Batch selectedBatch = result.Batches[saveParams.BatchIndex];
                         ResultSet selectedResultSet = (selectedBatch.ResultSets)[saveParams.ResultSetIndex];
                         // Set column, row counts depending on whether save request is for entire result set or a subset
-                        if (IsSaveSelection(saveParams))
+                        if (saveParams.IsSaveSelection)
                         {
                             columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
                             rowCount = saveParams.RowEndIndex.Value - saveParams.RowStartIndex.Value + 1;
@@ -313,7 +233,74 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             });
         }
 
+        /// Method ported from SSMS
+        /// <summary>
+        /// Encodes a single field for inserting into a CSV record. The following rules are applied:
+        /// <list type="bullet">
+        /// <item><description>All double quotes (") are replaced with a pair of consecutive double quotes</description></item>
+        /// </list>
+        /// The entire field is also surrounded by a pair of double quotes if any of the following conditions are met:
+        /// <list type="bullet">
+        /// <item><description>The field begins or ends with a space</description></item>
+        /// <item><description>The field begins or ends with a tab</description></item>
+        /// <item><description>The field contains the ListSeparator string</description></item>
+        /// <item><description>The field contains the '\n' character</description></item>
+        /// <item><description>The field contains the '\r' character</description></item>
+        /// <item><description>The field contains the '"' character</description></item>
+        /// </list>
+        /// </summary>
+        /// <param name="field">The field to encode</param>
+        /// <returns>The CSV encoded version of the original field</returns>
+        internal static string EncodeCsvField(string field)
+        {
+            StringBuilder sbField = new StringBuilder(field);
 
+            //Whether this field has special characters which require it to be embedded in quotes
+            bool embedInQuotes = false;
+
+            //Check for leading/trailing spaces
+            if (sbField.Length > 0 &&
+                (sbField[0] == ' ' ||
+                sbField[0] == '\t' ||
+                sbField[sbField.Length - 1] == ' ' ||
+                sbField[sbField.Length - 1] == '\t'))
+            {
+                embedInQuotes = true;
+            }
+            else
+            {   //List separator being in the field will require quotes
+                if (field.Contains(","))
+                {
+                    embedInQuotes = true;
+                }
+                else
+                {
+                    for (int i = 0; i < sbField.Length; ++i)
+                    {
+                        //Check whether this character is a special character
+                        if (sbField[i] == '\r' ||
+                            sbField[i] == '\n' ||
+                            sbField[i] == '"')
+                        { //If even one character requires embedding the whole field will
+                            //be embedded in quotes so we can just break out now
+                            embedInQuotes = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            //Replace all quotes in the original field with double quotes
+            sbField.Replace("\"", "\"\"");
+            string ret = sbField.ToString();
+
+            if (embedInQuotes)
+            {
+                ret = "\"" + ret + "\"";
+            }
+
+            return ret;
+        }
     }
 
 }

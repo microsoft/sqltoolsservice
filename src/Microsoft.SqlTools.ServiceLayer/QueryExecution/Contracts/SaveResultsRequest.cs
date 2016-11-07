@@ -54,6 +54,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         /// <returns></returns>
         public int? ColumnEndIndex { get; set; }
+
+        /// <summary>
+        /// Check if request is a subset of result set or whole result set
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsSaveSelection
+        {
+            get
+            {
+                return ColumnStartIndex.HasValue && ColumnEndIndex.HasValue
+                       && RowStartIndex.HasValue && RowEndIndex.HasValue;
+            }
+        }
     }
 
     /// <summary>

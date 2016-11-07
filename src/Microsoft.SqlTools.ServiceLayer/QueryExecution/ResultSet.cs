@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// All save tasks currently saving this ResultSet
         /// </summary>
-        private ConcurrentDictionary<string, Task> saveTasks;
+        private readonly ConcurrentDictionary<string, Task> saveTasks;
 
         #endregion
 
@@ -88,6 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         #region Properties
+
+        public delegate Task SaveAsAsyncEventHandler(SaveResultsRequestParams parameters);
+
+        public delegate Task SaveAsFailureAsyncEventHandler(
+            SaveResultsRequestParams pararmeters, Exception thrownException);
 
         /// <summary>
         /// Whether the resultSet is in the process of being disposed
@@ -215,6 +220,74 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
             SingleColumnXmlJsonResultSet();
+        }
+
+        public void SaveAsCsv(SaveResultsAsCsvRequestParams saveParams, IFileStreamFactory csvFactory, 
+            SaveAsAsyncEventHandler successHandler, SaveAsFailureAsyncEventHandler failureHandler)
+        {
+            // Make sure there isn't a task for this file already
+            Task existingTask;
+            if (saveTasks.TryGetValue(saveParams.FilePath, out existingTask))
+            {
+                if (existingTask.IsCompleted)
+                {
+                    // The task has completed, so let's attempt to remove it
+                    if (!saveTasks.TryRemove(saveParams.FilePath, out existingTask))
+                    {
+                        failureHandler?.Invoke(saveParams, null);
+                        return;
+                    }
+                }
+                else
+                {
+                    // The task hasn't completed, so we shouldn't continue
+                    failureHandler?.Invoke(saveParams, null);
+                    return;
+                }
+            }
+
+            // Create the new task
+            Task saveAsTask = new Task(() =>
+            {
+                try
+                {
+                    // Set row counts depending on whether save request is for entire set or a subset
+                    long rowEndIndex = RowCount;
+                    int rowStartIndex = 0;
+                    if (saveParams.IsSaveSelection)
+                    {
+                        // ReSharper disable PossibleInvalidOperationException  IsSaveSelection verifies these values exist
+                        rowEndIndex = saveParams.RowEndIndex.Value;
+                        rowStartIndex = saveParams.RowStartIndex.Value;
+                        // ReSharper restore PossibleInvalidOperationException
+                    }
+
+                    using (var fileReader = csvFactory.GetReader(outputFileName))
+                    using (var fileWriter = csvFactory.GetWriter(saveParams.FilePath))
+                    {
+                        // Iterate over the rows that are in the selected row set
+                        for (long i = rowStartIndex; i <= rowEndIndex; ++i)
+                        {
+                            fileWriter.WriteRow(fileReader.ReadRow(FileOffsets[i], Columns), Columns);
+                        }
+                        successHandler?.Invoke(saveParams).Wait();
+                    }
+                }
+                catch (Exception e)
+                {
+                    csvFactory.DisposeFile(saveParams.FilePath);
+                    failureHandler?.Invoke(saveParams, e).Wait();
+                }
+            });
+
+            // If saving the task fails, return a failure
+            if (!saveTasks.TryAdd(saveParams.FilePath, saveAsTask))
+            {
+                failureHandler?.Invoke(saveParams, null);
+            }
+
+            // Task was saved, so start up the task
+            saveAsTask.Start();
         }
 
         #endregion

@@ -49,6 +49,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
+        #region Member Variables
+
+        /// <summary>
+        /// File factory to be used to create CSV files from result sets. Set to internal in order
+        /// to allow overriding in unit testing
+        /// </summary>
+        internal IFileStreamFactory csvFileFactory;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -261,8 +271,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // retrieve query for OwnerUri
-            Query result;
-            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            Query query;
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out query))
             {
                 await requestContext.SendResult(new SaveResultRequestResult
                 {
@@ -271,32 +281,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
+            //Setup the callback for completion of the save task
 
-            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            if (!selectedResultSet.IsBeingDisposed)
+            ResultSet.SaveAsAsyncEventHandler successHandler = async parameters =>
             {
-                // Create SaveResults object and add success and error handlers to respective events
-                SaveResults saveAsCsv = new SaveResults();
+                await requestContext.SendResult(new SaveResultRequestResult());
+            };
+            ResultSet.SaveAsFailureAsyncEventHandler errorHandler = async (parameters, exception) =>
+            {
+                // TODO: Put this into the strings file
+                string message = string.Format("{0} failed {1}", parameters.FilePath, exception.Message);
+                await requestContext.SendError(new SaveResultRequestError { message = message });
+            };
 
-                SaveResults.AsyncSaveEventHandler successHandler = async message =>
-                {
-                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
-                };
-                saveAsCsv.SaveCompleted += successHandler;
-                SaveResults.AsyncSaveEventHandler errorHandler = async message =>
-                {
-                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendError(new SaveResultRequestError { message = message });
-                };
-                saveAsCsv.SaveFailed += errorHandler;
+            // Use the default CSV file factory if we haven't overridden it
+            IFileStreamFactory csvFactory = csvFileFactory ?? new SaveAsCsvFileStreamFactory
+            {
+                SaveRequestParams = saveParams
+            };
 
-                saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
-
-                // Associate the ResultSet with the save task
-                selectedResultSet.AddSaveTask(saveParams.FilePath, saveAsCsv.SaveTask);
-
-            }
+            // Launch the task
+            query.SaveAsCsv(saveParams, csvFactory, successHandler, errorHandler);
         }
 
         /// <summary>
@@ -411,7 +416,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(e.Message);
                 return null;
             }
-            // Any other exceptions will fall through here and be collected at the end
         }
 
         private static async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)

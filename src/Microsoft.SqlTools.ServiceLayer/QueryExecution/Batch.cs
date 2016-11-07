@@ -334,6 +334,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return resultSets[resultSetIndex].GetSubset(startRow, rowCount);
         }
 
+        public void SaveAsCsv(SaveResultsAsCsvRequestParams saveParams, IFileStreamFactory csvFactory,
+            ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
+        {
+            // Sanity check to make sure that the batch has finished
+            if (!HasExecuted)
+            {
+                throw new InvalidOperationException(SR.QueryServiceSubsetBatchNotCompleted);
+            }
+
+            // Sanity check to make sure we have a valid result set
+            if (saveParams.ResultSetIndex < 0 || saveParams.ResultSetIndex >= resultSets.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(saveParams.BatchIndex), SR.QueryServiceSubsetResultSetOutOfRange);
+            }
+
+            // Save the result set to a CSV
+            resultSets[saveParams.ResultSetIndex].SaveAsCsv(saveParams, csvFactory, successHandler, failureHandler);
+        }
+
         #endregion
 
         #region Private Helpers

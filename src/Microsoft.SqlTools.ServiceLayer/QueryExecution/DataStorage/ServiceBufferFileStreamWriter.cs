@@ -205,6 +205,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return rowBytes;
         }
 
+        [Obsolete]
+        public int WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        {
+            throw new InvalidOperationException("This type of writer is meant to write values from a DbDataReader only.");
+        }
+
         /// <summary>
         /// Flushes the internal buffer to the file stream
         /// </summary>
