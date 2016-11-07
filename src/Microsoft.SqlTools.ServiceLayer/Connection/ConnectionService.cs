@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -205,7 +206,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     var cancellationTask = Task.Run(() =>
                     {
                         source.Token.WaitHandle.WaitOne();
-                        source.Token.ThrowIfCancellationRequested();
+                        try
+                        {
+                            source.Token.ThrowIfCancellationRequested();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            // Ignore
+                        }
                     });
 
                     var openTask = Task.Run(async () => {
@@ -367,7 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Success
             return true;
         }
-
+        
         /// <summary>
         /// List all databases on the server specified
         /// </summary>
@@ -393,17 +401,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails));
             connection.Open();
             
-            DbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT name FROM sys.databases ORDER BY database_id ASC";
-            command.CommandTimeout = 15;
-            command.CommandType = CommandType.Text;
-            var reader = command.ExecuteReader();
-
             List<string> results = new List<string>();
-            while (reader.Read())
+            var systemDatabases = new string[] {"master", "model", "msdb", "tempdb"};
+            using (DbCommand command = connection.CreateCommand())
             {
-                results.Add(reader[0].ToString());
+                command.CommandText = "SELECT name FROM sys.databases ORDER BY name ASC";
+                command.CommandTimeout = 15;
+                command.CommandType = CommandType.Text; 
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        results.Add(reader[0].ToString());
+                    }
+                }
             }
+
+            // Put system databases at the top of the list
+            results = 
+                results.Where(s => systemDatabases.Any(s.Equals)).Concat(
+                results.Where(s => systemDatabases.All(x => !s.Equals(x)))).ToList();
 
             connection.Close();
 

@@ -3,7 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -25,89 +30,44 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
+        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
+
+        private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
+
         private static readonly string[] DefaultCompletionText = new string[]
-        {
-            "absolute",
-            "accent_sensitivity",
-            "action",
-            "activation",
-            "add",
-            "address",
-            "admin",
-            "after",
-            "aggregate",
-            "algorithm",
-            "allow_page_locks",
-            "allow_row_locks",
-            "allow_snapshot_isolation",
+        {            
+            "all",
             "alter",
-            "always",
-            "ansi_null_default",
-            "ansi_nulls",
-            "ansi_padding",
-            "ansi_warnings",
-            "application",
-            "arithabort",
+            "and",
+            "apply",
             "as",
             "asc",
-            "assembly",
-            "asymmetric",
             "at",
-            "atomic",
-            "audit",
-            "authentication",
-            "authorization",
-            "auto",
-            "auto_close",
-            "auto_shrink",
-            "auto_update_statistics",
-            "auto_update_statistics_async",
-            "availability",
             "backup",
-            "before",
             "begin",
             "binary",
             "bit",
-            "block",
             "break",
-            "browse",
-            "bucket_count",
             "bulk",
             "by",
             "call",
-            "caller",
-            "card",
             "cascade",
             "case",
-            "catalog",
             "catch",
-            "change_tracking",
-            "changes",
             "char",
             "character",
             "check",
             "checkpoint",
             "close",
             "clustered",
-            "collection",
             "column",
-            "column_encryption_key",
             "columnstore",
             "commit",
-            "compatibility_level",
-            "compress_all_row_groups",
-            "compression",
-            "compression_delay",
-            "compute",
-            "concat_null_yields_null",
-            "configuration",
             "connect",
             "constraint",
-            "containstable",
             "continue",
             "create",
-            "cube",
-            "current",
+            "cross",
             "current_date",
             "cursor",
             "cursor_close_on_commit",
@@ -116,47 +76,34 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "data_compression",
             "database",
             "date",
-            "date_correlation_optimization",
-            "datefirst",
             "datetime",
             "datetime2",
             "days",
-            "db_chaining",
             "dbcc",
-            "deallocate",
             "dec",
             "decimal",
             "declare",
             "default",
-            "delayed_durability",
             "delete",
             "deny",
             "desc",
             "description",
-            "disable_broker",
             "disabled",
             "disk",
             "distinct",
-            "distributed",
             "double",
             "drop",
             "drop_existing",
             "dump",
-            "durability",
             "dynamic",
             "else",
             "enable",
             "encrypted",
-            "encryption_type",
             "end",
             "end-exec",
-            "entry",
-            "errlvl",
-            "escape",
-            "event",
-            "except",
             "exec",
             "execute",
+            "exists",
             "exit",
             "external",
             "fast_forward",
@@ -165,20 +112,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "filegroup",
             "filename",
             "filestream",
-            "fillfactor",
             "filter",
             "first",
             "float",
             "for",
             "foreign",
-            "freetext",
-            "freetexttable",
             "from",
             "full",
-            "fullscan",
-            "fulltext",
             "function",
-            "generated",
             "geography",
             "get",
             "global",
@@ -194,30 +135,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "holdlock",
             "hours",
             "identity",
-            "identity_insert",
             "identitycol",
             "if",
-            "ignore_dup_key",
             "image",
             "immediate",
             "include",
             "index",
-            "inflectional",
-            "insensitive",
+            "inner",
             "insert",
             "instead",
             "int",
             "integer",
-            "integrated",
             "intersect",
             "into",
             "isolation",
+            "join",
             "json",
             "key",
-            "kill",
             "language",
             "last",
-            "legacy_cardinality_estimation",
+            "left",
             "level",
             "lineno",
             "load",
@@ -226,16 +163,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "location",
             "login",
             "masked",
-            "master",
             "maxdop",
-            "memory_optimized",
             "merge",
             "message",
             "modify",
             "move",
-            "multi_user",
             "namespace",
-            "national",
             "native_compilation",
             "nchar",
             "next",
@@ -245,9 +178,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "nonclustered",
             "none",
             "norecompute",
+            "not",
             "now",
+            "null",
             "numeric",
-            "numeric_roundabort",
             "object",
             "of",
             "off",
@@ -255,21 +189,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "on",
             "online",
             "open",
-            "opendatasource",
-            "openquery",
             "openrowset",
             "openxml",
             "option",
+            "or",
             "order",
             "out",
+            "outer",
             "output",
             "over",
             "owner",
-            "pad_index",
-            "page",
-            "page_verify",
-            "parameter_sniffing",
-            "parameterization",
             "partial",
             "partition",
             "password",
@@ -280,7 +209,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "persisted",
             "plan",
             "policy",
-            "population",
             "precision",
             "predicate",
             "primary",
@@ -289,7 +217,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "proc",
             "procedure",
             "public",
-            "query_optimizer_hotfixes",
             "query_store",
             "quoted_identifier",
             "raiserror",
@@ -312,7 +239,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "relative",
             "remove",
             "reorganize",
-            "replication",
             "required",
             "restart",
             "restore",
@@ -322,7 +248,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "returns",
             "revert",
             "revoke",
-            "role",
             "rollback",
             "rollup",
             "row",
@@ -338,11 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "scroll",
             "secondary",
             "security",
-            "securityaudit",
             "select",
-            "semantickeyphrasetable",
-            "semanticsimilaritydetailstable",
-            "semanticsimilaritytable",
             "send",
             "sent",
             "sequence",
@@ -351,12 +272,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "set",
             "sets",
             "setuser",
-            "shutdown",
             "simple",
             "smallint",
             "smallmoney",
             "snapshot",
-            "sort_in_tempdb",
             "sql",
             "standard",
             "start",
@@ -368,20 +287,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "statistics_norecompute",
             "status",
             "stopped",
-            "supported",
-            "symmetric",
             "sysname",
             "system",
             "system_time",
-            "system_versioning",
             "table",
-            "tablesample",
             "take",
             "target",
-            "textimage_on",
-            "textsize",
             "then",
-            "thesaurus",
             "throw",
             "time",
             "timestamp",
@@ -392,14 +304,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "transaction",
             "trigger",
             "truncate",
-            "trustworthy",
             "try",
             "tsql",
             "type",
+            "uncommitted",
             "union",
             "unique",
             "uniqueidentifier",
-            "unlimited",
             "updatetext",
             "use",
             "user",
@@ -407,23 +318,31 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "value",
             "values",
             "varchar",
-            "varying",
             "version",
             "view",
             "waitfor",
-            "weight",
             "when",
             "where",
             "while",
             "with",
             "within",
-            "within group",
             "without",
             "writetext",
             "xact_abort",
             "xml",
-            "zone"
         };
+
+        /// <summary>
+        /// Gets a static instance of an empty completion list to avoid
+        // unneeded memory allocations
+        /// </summary>
+        internal static CompletionItem[] EmptyCompletionList
+        {
+            get
+            {
+                return AutoCompleteHelper.emptyCompletionList;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the current workspace service instance
@@ -443,7 +362,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 AutoCompleteHelper.workspaceServiceInstance = value;
             }
-        }
+        }        
 
         /// <summary>
         /// Get the default completion list from hard-coded list
@@ -456,17 +375,47 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int row, 
             int startColumn, 
             int endColumn,
-            bool useLowerCase)
+            bool useLowerCase,
+            string tokenText = null)
         {
-            var completionItems = new CompletionItem[DefaultCompletionText.Length];
-            for (int i = 0; i < DefaultCompletionText.Length; ++i)
+            // determine how many default completion items there will be 
+            int listSize = DefaultCompletionText.Length;
+            if (!string.IsNullOrWhiteSpace(tokenText))
             {
-                completionItems[i] = CreateDefaultCompletionItem(
-                    useLowerCase ? DefaultCompletionText[i].ToLower() : DefaultCompletionText[i].ToUpper(),
-                    row, 
-                    startColumn, 
-                    endColumn);
+                listSize = 0;
+                foreach (var completionText in DefaultCompletionText)
+                {
+                    if (completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ++listSize;
+                    }
+                }
             }
+
+            // special case empty list to avoid unneed array allocations
+            if (listSize == 0)
+            {
+                return emptyCompletionList;
+            }
+
+            // build the default completion list
+            var completionItems = new CompletionItem[listSize];
+            int completionItemIndex = 0;
+            foreach (var completionText in DefaultCompletionText)
+            {
+                // add item to list if the tokenText is null (meaning return whole list) 
+                // or if the completion item begins with the tokenText
+                if (string.IsNullOrWhiteSpace(tokenText) || completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
+                {
+                    completionItems[completionItemIndex] = CreateDefaultCompletionItem(
+                        useLowerCase ? completionText.ToLower() : completionText.ToUpper(),
+                        row, 
+                        startColumn, 
+                        endColumn);
+                    ++completionItemIndex;
+                }
+            }
+
             return completionItems;
         }
 
@@ -483,14 +432,44 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startColumn, 
             int endColumn)
         {
-            return new CompletionItem()
+            return CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
+        }
+
+        internal static CompletionItem[] AddTokenToItems(CompletionItem[] currentList, Token token, int row,
+            int startColumn,
+            int endColumn)
+        {
+            if (currentList != null &&
+                token != null && !string.IsNullOrWhiteSpace(token.Text) &&
+                token.Text.All(ch => char.IsLetter(ch)) &&
+                currentList.All(x => string.Compare(x.Label, token.Text, true) != 0
+                ))
+            {
+                var list = currentList.ToList();
+                list.Insert(0, CreateCompletionItem(token.Text, token.Text, token.Text, CompletionItemKind.Text, row, startColumn, endColumn));
+                return list.ToArray();
+            }
+            return currentList;
+        }
+
+        private static CompletionItem CreateCompletionItem(
+            string label, 
+            string detail,
+            string insertText,
+            CompletionItemKind kind,
+            int row,
+            int startColumn,
+            int endColumn)
+        {
+            CompletionItem item = new CompletionItem()
             {
                 Label = label,
-                Kind = CompletionItemKind.Keyword,
-                Detail = label + " keyword",
+                Kind = kind,
+                Detail = detail,
+                InsertText = insertText,
                 TextEdit = new TextEdit
                 {
-                    NewText = label,
+                    NewText = insertText,
                     Range = new Range
                     {
                         Start = new Position
@@ -506,6 +485,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             };
+
+            return item;
         }
 
         /// <summary>
@@ -521,37 +502,53 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int row,
             int startColumn,
             int endColumn)
-        {
+        {           
             List<CompletionItem> completions = new List<CompletionItem>();
+    
             foreach (var autoCompleteItem in suggestions)
             {
-                // convert the completion item candidates into CompletionItems
-                completions.Add(new CompletionItem()
+                string  insertText = GetCompletionItemInsertName(autoCompleteItem);
+                CompletionItemKind kind = CompletionItemKind.Variable;
+                switch (autoCompleteItem.Type)
                 {
-                    Label = autoCompleteItem.Title,
-                    Kind = CompletionItemKind.Variable,
-                    Detail = autoCompleteItem.Title,
-                    TextEdit = new TextEdit
-                    {
-                        NewText = autoCompleteItem.Title,
-                        Range = new Range
-                        {
-                            Start = new Position
-                            {
-                                Line = row,
-                                Character = startColumn
-                            },
-                            End = new Position
-                            {
-                                Line = row,
-                                Character = endColumn
-                            }
-                        }
-                    }
-                });
+                    case DeclarationType.Schema:
+                        kind = CompletionItemKind.Module;
+                        break;
+                    case DeclarationType.Column:
+                        kind = CompletionItemKind.Field;
+                        break;
+                    case DeclarationType.Table:
+                    case DeclarationType.View:
+                        kind = CompletionItemKind.File;
+                        break;
+                    case DeclarationType.Database:
+                        kind = CompletionItemKind.Method;
+                        break;
+                    case DeclarationType.ScalarValuedFunction:
+                    case DeclarationType.TableValuedFunction:
+                    case DeclarationType.BuiltInFunction:
+                        kind = CompletionItemKind.Value;
+                        break;
+                    default:
+                        kind = CompletionItemKind.Unit;
+                        break;
+                }
+
+                // convert the completion item candidates into CompletionItems
+                completions.Add(CreateCompletionItem(autoCompleteItem.Title, autoCompleteItem.Title, insertText, kind, row, startColumn, endColumn));
             }
 
             return completions.ToArray();
+        }
+
+        private static string GetCompletionItemInsertName(Declaration autoCompleteItem)
+        {
+            string insertText = autoCompleteItem.Title;
+            if (!string.IsNullOrEmpty(autoCompleteItem.Title) && !ValidSqlNameRegex.IsMatch(autoCompleteItem.Title))
+            {
+                insertText = string.Format(CultureInfo.InvariantCulture, "[{0}]", autoCompleteItem.Title);
+            }
+            return insertText;
         }
 
         /// <summary>
@@ -572,15 +569,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);                                
                 LanguageService.Instance.ParseAndBind(scriptFile, info);
 
-                if (scriptInfo.BuildingMetadataEvent.WaitOne(LanguageService.OnConnectionWaitTimeout))
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
-                        scriptInfo.BuildingMetadataEvent.Reset();
-
                         QueueItem queueItem = bindingQueue.QueueBindingOperation(
                             key: scriptInfo.ConnectionKey,
                             bindingTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
+                            waitForLockTimeout: AutoCompleteHelper.PrepopulateBindTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 // parse a simple statement that returns common metadata
@@ -631,9 +627,57 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     finally
                     {
-                        scriptInfo.BuildingMetadataEvent.Set();
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
+            }
+        }
+
+
+        /// <summary>
+        /// Converts a SQL Parser QuickInfo object into a VS Code Hover object
+        /// </summary>
+        /// <param name="quickInfo"></param>
+        /// <param name="row"></param>
+        /// <param name="startColumn"></param>
+        /// <param name="endColumn"></param>
+        internal static Hover ConvertQuickInfoToHover(
+            Babel.CodeObjectQuickInfo quickInfo,
+            int row,
+            int startColumn,
+            int endColumn)
+        {
+            // convert from the parser format to the VS Code wire format
+            var markedStrings = new MarkedString[1];
+            if (quickInfo != null)
+            {
+                markedStrings[0] = new MarkedString()
+                {
+                    Language = "SQL",
+                    Value = quickInfo.Text                                
+                };
+
+                return new Hover()
+                {
+                    Contents = markedStrings,
+                    Range = new Range
+                    {
+                        Start = new Position
+                        {
+                            Line = row,
+                            Character = startColumn
+                        },
+                        End = new Position
+                        {
+                            Line = row,
+                            Character = endColumn
+                        }
+                    }
+                };
+            }
+            else
+            {
+                return null;
             }
         }
 

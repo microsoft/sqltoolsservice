@@ -205,6 +205,10 @@
     <value>Query successfully cancelled, failed to dispose query. Owner URI not found.</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>Query was canceled by user</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceSubsetNotCompleted" xml:space="preserve">
     <value>The query has not completed, yet</value>
     <comment></comment>
@@ -241,19 +245,28 @@
     <value>This FileStreamWrapper cannot be used for writing</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 row affected)</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>({0} row(s) affected)</value>
+    <value>({0} rows affected)</value>
     <comment>.
  Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
-    <value>Command(s) copleted successfully.</value>
+    <value>Commands completed successfully.</value>
     <comment></comment>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</value>
     <comment>.
  Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </comment>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>Query failed: {0}</value>
+    <comment>.
+ Parameters: 0 - message (string) </comment>
   </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
     <value>(No column name)</value>

@@ -5,7 +5,6 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -51,6 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the binding operation timeout in milliseconds
         /// </summary>
         public int? BindingTimeout { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timeout for how long to wait for the binding lock
+        /// </summary>
+        public int? WaitForLockTimeout { get; set; }
 
         /// <summary>
         /// Converts the result of the execution to type T

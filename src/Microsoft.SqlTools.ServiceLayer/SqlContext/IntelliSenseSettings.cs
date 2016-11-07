@@ -15,11 +15,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public IntelliSenseSettings()
         {
+            this.EnableIntellisense = true;
             this.EnableSuggestions = true;
             this.LowerCaseSuggestions = false;
-            this.EnableDiagnostics = true;
+            this.EnableErrorChecking = true;
             this.EnableQuickInfo = true;
         }
+
+        /// <summary>
+        /// Gets or sets a flag determining if IntelliSense is enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool EnableIntellisense { get; set; }
 
         /// <summary>
         /// Gets or sets a flag determining if suggestions are enabled
@@ -35,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Gets or sets a flag determining if diagnostics are enabled
         /// </summary>
-        public bool? EnableDiagnostics { get; set; }
+        public bool? EnableErrorChecking { get; set; }
 
         /// <summary>
         /// Gets or sets a flag determining if quick info is enabled
@@ -52,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             {
                 this.EnableSuggestions = settings.EnableSuggestions;
                 this.LowerCaseSuggestions = settings.LowerCaseSuggestions;
-                this.EnableDiagnostics = settings.EnableDiagnostics;
+                this.EnableErrorChecking = settings.EnableErrorChecking;
                 this.EnableQuickInfo = settings.EnableQuickInfo;
             }
         }

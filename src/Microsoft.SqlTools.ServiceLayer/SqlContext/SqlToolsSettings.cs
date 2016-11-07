@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Newtonsoft.Json;
+
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
     /// <summary>
@@ -15,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Gets or sets the underlying settings value object
         /// </summary>
+        [JsonProperty("mssql")]
         public SqlToolsSettingsValues SqlTools 
         { 
             get
@@ -47,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             if (settings != null)
             {
-                this.SqlTools.EnableIntellisense = settings.SqlTools.EnableIntellisense;
+                this.SqlTools.IntelliSense.EnableIntellisense = settings.SqlTools.IntelliSense.EnableIntellisense;
                 this.SqlTools.IntelliSense.Update(settings.SqlTools.IntelliSense);
             }
         }
@@ -59,8 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             get
             {
-                return this.SqlTools.EnableIntellisense
-                    && this.SqlTools.IntelliSense.EnableDiagnostics.Value;
+                return this.SqlTools.IntelliSense.EnableIntellisense
+                    && this.SqlTools.IntelliSense.EnableErrorChecking.Value;
             }
         }
 
@@ -71,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             get
             {
-                return this.SqlTools.EnableIntellisense
+                return this.SqlTools.IntelliSense.EnableIntellisense
                     && this.SqlTools.IntelliSense.EnableSuggestions.Value;
             }
         }
@@ -83,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             get
             {
-                return this.SqlTools.EnableIntellisense
+                return this.SqlTools.IntelliSense.EnableIntellisense
                     && this.SqlTools.IntelliSense.EnableQuickInfo.Value;
             }
         }
@@ -99,16 +102,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public SqlToolsSettingsValues()
         {
-            this.EnableIntellisense = true;
+            
             this.IntelliSense = new IntelliSenseSettings();
             this.QueryExecutionSettings = new QueryExecutionSettings();
         }
-
-        /// <summary>
-        /// Gets or sets a flag determining if IntelliSense is enabled
-        /// </summary>
-        /// <returns></returns>
-        public bool EnableIntellisense { get; set; }
 
         /// <summary>
         /// Gets or sets the detailed IntelliSense settings

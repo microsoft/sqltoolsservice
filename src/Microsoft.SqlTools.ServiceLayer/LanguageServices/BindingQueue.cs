@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Main class for the Binding Queue
     /// </summary>
     public class BindingQueue<T> where T : IBindingContext, new()
-    {             
+    {
         private CancellationTokenSource processQueueCancelToken = new CancellationTokenSource();
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
@@ -61,7 +61,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,
             Func<IBindingContext, object> timeoutOperation = null,
-            int? bindingTimeout = null)
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null)
         {
             // don't add null operations to the binding queue
             if (bindOperation == null)
@@ -74,7 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Key = key,
                 BindOperation = bindOperation,
                 TimeoutOperation = timeoutOperation,
-                BindingTimeout = bindingTimeout
+                BindingTimeout = bindingTimeout,
+                WaitForLockTimeout = waitForLockTimeout
             };
 
             lock (this.bindingQueueLock)
@@ -98,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 key = "disconnected_binding_context";
             }
-  
+                        
             lock (this.bindingContextLock)
             {
                 if (!this.BindingContextMap.ContainsKey(key))
@@ -107,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
                 return this.BindingContextMap[key];
-            }            
+            }      
         }
 
         private bool HasPendingQueueItems
@@ -191,18 +193,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             continue;
                         }
 
+                        bool lockTaken = false;
                         try
                         {                                                    
                             // prefer the queue item binding item, otherwise use the context default timeout
                             int bindTimeout = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
 
-                            // handle the case a previous binding operation is still running                            
-                            if (!bindingContext.BindingLocked.WaitOne(bindTimeout))
+                            // handle the case a previous binding operation is still running                                                 
+                            if (!bindingContext.BindingLock.WaitOne(queueItem.WaitForLockTimeout ?? 0))
                             {
-                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);
-                                queueItem.ItemProcessed.Set();
+                                queueItem.Result = queueItem.TimeoutOperation != null
+                                    ? queueItem.TimeoutOperation(bindingContext)
+                                    : null;
+
                                 continue;
                             }
+
+                            bindingContext.BindingLock.Reset();
+
+                            lockTaken = true;
 
                             // execute the binding operation
                             object result = null;
@@ -220,13 +229,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 queueItem.Result = result;
                             }
                             else
-                            {                                
+                            {       
+                                cancelToken.Cancel();
+
                                 // if the task didn't complete then call the timeout callback
                                 if (queueItem.TimeoutOperation != null)
-                                {                            
-                                    cancelToken.Cancel();
+                                {                                    
                                     queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
                                 }
+                                
+                                lockTaken = false;
+
+                                bindTask.ContinueWith((a) => bindingContext.BindingLock.Set());
                             }                            
                         }                        
                         catch (Exception ex)
@@ -237,7 +251,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                         finally
                         {
-                            bindingContext.BindingLocked.Set();
+                            if (lockTaken)
+                            {
+                                bindingContext.BindingLock.Set();
+                            }
+
                             queueItem.ItemProcessed.Set();
                         }
 
@@ -250,8 +268,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 finally
                 {
-                    // reset the item queued event since we've processed all the pending items
-                    this.itemQueuedEvent.Reset();
+                    lock (this.bindingQueueLock)
+                    {
+                        // verify the binding queue is still empty
+                        if (this.bindingQueue.Count == 0)
+                        {
+                            // reset the item queued event since we've processed all the pending items
+                            this.itemQueuedEvent.Reset();
+                        }
+                    }
                 }
             }
         }

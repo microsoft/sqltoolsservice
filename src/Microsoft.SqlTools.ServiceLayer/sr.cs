@@ -165,6 +165,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceQueryCancelled
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceQueryCancelled);
+            }
+        }
+
         public static string QueryServiceSubsetNotCompleted
         {
             get
@@ -234,6 +242,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.QueryServiceFileWrapperReadOnly);
+            }
+        }
+
+        public static string QueryServiceAffectedOneRow
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceAffectedOneRow);
             }
         }
 
@@ -363,6 +379,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceErrorFormat, msg, lvl, state, line, newLine, message);
         }
 
+        public static string QueryServiceQueryFailed(string message)
+        {
+            return Keys.GetString(Keys.QueryServiceQueryFailed, message);
+        }
+
         public static string WorkspaceServicePositionColumnOutOfRange(int line)
         {
             return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
@@ -444,6 +465,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceCancelDisposeFailed = "QueryServiceCancelDisposeFailed";
 
 
+            public const string QueryServiceQueryCancelled = "QueryServiceQueryCancelled";
+
+
             public const string QueryServiceSubsetNotCompleted = "QueryServiceSubsetNotCompleted";
 
 
@@ -471,6 +495,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceFileWrapperReadOnly = "QueryServiceFileWrapperReadOnly";
 
 
+            public const string QueryServiceAffectedOneRow = "QueryServiceAffectedOneRow";
+
+
             public const string QueryServiceAffectedRows = "QueryServiceAffectedRows";
 
 
@@ -478,6 +505,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceErrorFormat = "QueryServiceErrorFormat";
+
+
+            public const string QueryServiceQueryFailed = "QueryServiceQueryFailed";
 
 
             public const string QueryServiceColumnNull = "QueryServiceColumnNull";

@@ -257,6 +257,7 @@ Task("TestCore")
 /// </summary>
 Task("Test")
     .IsDependentOn("Setup")
+	.IsDependentOn("SRGen")
     .IsDependentOn("BuildTest")
     .Does(() =>
 {
@@ -304,6 +305,7 @@ Task("Test")
 /// </summary>
 Task("OnlyPublish")
     .IsDependentOn("Setup")
+	.IsDependentOn("SRGen")
     .Does(() =>
 {
     var project = buildPlan.MainProject;
@@ -322,7 +324,13 @@ Task("OnlyPublish")
             publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
             Run(dotnetcli, publishArguments)
                 .ExceptionOnError($"Failed to publish {project} / {framework}");
-
+            //Setting the rpath for System.Security.Cryptography.Native.dylib library
+            //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
+            //If that's not the case user has to run the command manually
+            if (!IsRunningOnWindows() && runtime.Contains("osx"))
+            {    
+                Run("install_name_tool",  "-add_rpath /usr/local/opt/openssl/lib " + outputFolder + "/System.Security.Cryptography.Native.dylib");
+            }
             if (requireArchive)
             {
                 Package(runtime, framework, outputFolder, packageFolder, buildPlan.MainProject.ToLower());
@@ -359,7 +367,6 @@ Task("RestrictToLocalRuntime")
 /// </summary>
 Task("LocalPublish")
     .IsDependentOn("Restore")
-	.IsDependentOn("SrGen")
     .IsDependentOn("RestrictToLocalRuntime")
     .IsDependentOn("OnlyPublish")
     .Does(() =>
@@ -529,7 +536,8 @@ Task("SRGen")
 		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
 			srgenPath, outputResx, outputCs, projectName, projectName, projectStrings);
 		Information("{0}", dotnetArgs);
-		Run(dotnetcli, dotnetArgs);
+		Run(dotnetcli, dotnetArgs)
+			.ExceptionOnError("Failed to run SRGen.");
 	}
 });
 

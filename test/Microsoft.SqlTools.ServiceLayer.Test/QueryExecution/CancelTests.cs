@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
             fileMock.Setup(file => file.GetLinesInRange(It.IsAny<BufferRange>()))
-                .Returns(new string[] { Common.StandardQuery });
+                .Returns(new[] { Common.StandardQuery });
             // Set up workspace mock
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
@@ -36,7 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var executeParams = new QueryExecuteParams { QuerySelection = Common.GetSubSectionDocument(), OwnerUri = Common.OwnerUri };
             var executeRequest = 
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
             // ... And then I request to cancel the query
@@ -50,8 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             VerifyQueryCancelCallCount(cancelRequest, Times.Once(), Times.Never());
             Assert.Null(result.Messages);
             
-            // ... The query should have been disposed as well
-            Assert.Empty(queryService.ActiveQueries);
+            // ... The query should not have been disposed
+            Assert.Equal(1, queryService.ActiveQueries.Count);
         }
 
         [Fact]
@@ -71,13 +72,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var executeParams = new QueryExecuteParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
             var executeRequest =
                 RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
-            queryService.HandleExecuteRequest(executeParams, executeRequest.Object).Wait();
+            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
             // ... And then I request to cancel the query
             var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
             QueryCancelResult result = null;
             var cancelRequest = GetQueryCancelResultContextMock(qcr => result = qcr, null);
-            queryService.HandleCancelRequest(cancelParams, cancelRequest.Object).Wait();
+            await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
 
             // Then:
             // ... I should have seen a result event with an error message

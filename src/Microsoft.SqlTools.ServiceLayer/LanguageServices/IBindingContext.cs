@@ -44,9 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         IBinder Binder { get; set; }
 
         /// <summary>
-        /// Gets or sets an event to signal if a binding operation is in progress
+        /// Gets the binding lock object
         /// </summary>
-        ManualResetEvent BindingLocked { get; set; }
+        ManualResetEvent BindingLock { get; }
 
         /// <summary>
         /// Gets or sets the binding operation timeout in milliseconds

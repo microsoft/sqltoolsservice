@@ -4,9 +4,11 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -44,20 +46,29 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly IFileStreamFactory fileStreamFactory;
 
         /// <summary>
-        /// File stream reader that will be reused to make rapid-fire retrieval of result subsets
-        /// quick and low perf impact.
-        /// </summary>
-        private IFileStreamReader fileStreamReader;
-
-        /// <summary>
         /// Whether or not the result set has been read in from the database
         /// </summary>
         private bool hasBeenRead;
 
         /// <summary>
+        /// Whether resultSet is a 'for xml' or 'for json' result
+        /// </summary>
+        private bool isSingleColumnXmlJsonResultSet;
+
+        /// <summary>
         /// The name of the temporary file we're using to output these results in
         /// </summary>
         private readonly string outputFileName;
+
+        /// <summary>
+        /// Whether the resultSet is in the process of being disposed
+        /// </summary>
+        private bool isBeingDisposed;
+
+        /// <summary>
+        /// All save tasks currently saving this ResultSet
+        /// </summary>
+        private ConcurrentDictionary<string, Task> saveTasks;
 
         #endregion
 
@@ -80,9 +91,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Store the factory
             fileStreamFactory = factory;
             hasBeenRead = false;
+            saveTasks = new ConcurrentDictionary<string, Task>();
         }
 
         #region Properties
+
+        /// <summary>
+        /// Whether the resultSet is in the process of being disposed
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsBeingDisposed
+        {
+            get
+            {
+                return isBeingDisposed;
+            }
+        }
 
         /// <summary>
         /// The columns for this result set
@@ -114,18 +138,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public long RowCount { get; private set; }
 
-        /// <summary>
-        /// The rows of this result set
-        /// </summary>
-        public IEnumerable<string[]> Rows
-        {
-            get
-            {
-                return FileOffsets.Select(
-                    offset => fileStreamReader.ReadRow(offset, Columns).Select(cell => cell.DisplayValue).ToArray());
-            }
-        }
-
         #endregion
 
         #region Public Methods
@@ -139,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Task<ResultSetSubset> GetSubset(int startRow, int rowCount)
         {
             // Sanity check to make sure that the results have been read beforehand
-            if (!hasBeenRead || fileStreamReader == null)
+            if (!hasBeenRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
@@ -156,14 +168,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             return Task.Factory.StartNew(() =>
             {
-                // Figure out which rows we need to read back
-                IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
 
-                // Iterate over the rows we need and process them into output
-                string[][] rows = rowOffsets.Select(rowOffset =>
-                    fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
-                    .ToArray();
+                string[][] rows;
 
+                using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                {
+                    // If result set is 'for xml' or 'for json',
+                    // Concatenate all the rows together into one row
+                    if (isSingleColumnXmlJsonResultSet)
+                    {
+                        // Iterate over all the rows and process them into a list of string builders
+                        IEnumerable<string> rowValues = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
+                        rows = new[] { new[] { string.Join(string.Empty, rowValues) } };
+
+                    }
+                    else
+                    {
+                        // Figure out which rows we need to read back
+                        IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
+
+                        // Iterate over the rows we need and process them into output
+                        rows = rowOffsets.Select(rowOffset =>
+                            fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
+                            .ToArray();
+
+                    }
+                }
                 // Retrieve the subset of the results as per the request
                 return new ResultSetSubset
                 {
@@ -179,6 +209,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
         public async Task ReadResultToEnd(CancellationToken cancellationToken)
         {
+            // Mark that result has been read
+            hasBeenRead = true;
+
             // Open a writer for the file
             using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
             {
@@ -199,10 +232,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
             SingleColumnXmlJsonResultSet();
-
-            // Mark that result has been read
-            hasBeenRead = true;
-            fileStreamReader = fileStreamFactory.GetReader(outputFileName);
         }
 
         #endregion
@@ -222,13 +251,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            if (disposing)
+            isBeingDisposed = true;
+            // Check if saveTasks are running for this ResultSet
+            if (!saveTasks.IsEmpty)
             {
-                fileStreamReader?.Dispose();
-                fileStreamFactory.DisposeFile(outputFileName);
+                // Wait for tasks to finish before disposing ResultSet
+                Task.WhenAll(saveTasks.Values.ToArray()).ContinueWith((antecedent) =>
+                {
+                    if (disposing)
+                    {
+                        fileStreamFactory.DisposeFile(outputFileName);
+                    }
+                    disposed = true;
+                    isBeingDisposed = false;
+                });
             }
-
-            disposed = true;
+            else
+            {
+                // If saveTasks is empty, continue with dispose
+                if (disposing)
+                {
+                    fileStreamFactory.DisposeFile(outputFileName);
+                }
+                disposed = true;
+                isBeingDisposed = false;
+            }
         }
 
         #endregion
@@ -243,19 +290,43 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private void SingleColumnXmlJsonResultSet() {
 
-            if (Columns?.Length == 1)
+            if (Columns?.Length == 1 && RowCount != 0)
             {   
                 if (Columns[0].ColumnName.Equals(NameOfForXMLColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsXml = true;
+                    isSingleColumnXmlJsonResultSet = true;
+                    RowCount = 1;
                 }
                 else if (Columns[0].ColumnName.Equals(NameOfForJSONColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsJson = true;
+                    isSingleColumnXmlJsonResultSet = true;
+                    RowCount = 1;
                 }                
             }
         }
 
+        #endregion
+
+        #region Internal Methods to Add and Remove save tasks
+        internal void AddSaveTask(string key, Task saveTask)
+        {
+            saveTasks.TryAdd(key, saveTask);
+        }
+
+        internal void RemoveSaveTask(string key)
+        {
+            Task completedTask;
+            saveTasks.TryRemove(key, out completedTask);
+        }
+
+        internal Task GetSaveTask(string key)
+        {
+            Task completedTask;
+            saveTasks.TryRemove(key, out completedTask);
+            return completedTask;
+        }
         #endregion
     }
 }

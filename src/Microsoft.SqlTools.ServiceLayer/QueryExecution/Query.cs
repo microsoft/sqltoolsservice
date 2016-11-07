@@ -97,6 +97,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
+        /// Delegate type for callback when a query completes or fails
+        /// </summary>
+        /// <param name="q">The query that completed</param>
+        public delegate Task QueryAsyncEventHandler(Query q);
+
+        /// <summary>
+        /// Delegate type for callback when a query connection fails
+        /// </summary>
+        /// <param name="q">The query that completed</param>
+        public delegate Task QueryAsyncErrorEventHandler(string message);
+
+        /// <summary>
+        /// Callback for when the query has completed successfully
+        /// </summary>
+        public event QueryAsyncEventHandler QueryCompleted;
+
+        /// <summary>
+        /// Callback for when the query has failed
+        /// </summary>
+        public event QueryAsyncEventHandler QueryFailed;
+
+        /// <summary>
+        /// Callback for when the query connection has failed
+        /// </summary>
+        public event QueryAsyncErrorEventHandler QueryConnectionException;
+
+        /// <summary>
         /// The batches underneath this query
         /// </summary>
         internal Batch[] Batches { get; set; }
@@ -116,6 +143,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return Batches.Select((batch, index) => new BatchSummary
                 {
                     Id = index,
+                    ExecutionStart = batch.ExecutionStartTimeStamp,
+                    ExecutionEnd = batch.ExecutionEndTimeStamp,
+                    ExecutionElapsed = batch.ExecutionElapsedTime,
                     HasError = batch.HasError,
                     Messages = batch.ResultMessages.ToArray(),
                     ResultSetSummaries = batch.ResultSummaries,
@@ -123,6 +153,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }).ToArray();
             }
         }
+
+        internal Task ExecutionTask { get; private set; }
 
         /// <summary>
         /// Whether or not the query has completed executed, regardless of success or failure
@@ -167,10 +199,44 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             cancellationSource.Cancel();
         }
 
+        public void Execute()
+        {
+            ExecutionTask = Task.Run(ExecuteInternal);
+        }
+
+        /// <summary>
+        /// Retrieves a subset of the result sets
+        /// </summary>
+        /// <param name="batchIndex">The index for selecting the batch item</param>
+        /// <param name="resultSetIndex">The index for selecting the result set</param>
+        /// <param name="startRow">The starting row of the results</param>
+        /// <param name="rowCount">How many rows to retrieve</param>
+        /// <returns>A subset of results</returns>
+        public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
+        {
+            // Sanity check that the results are available
+            if (!HasExecuted)
+            {
+                throw new InvalidOperationException(SR.QueryServiceSubsetNotCompleted);
+            }
+
+            // Sanity check to make sure that the batch is within bounds
+            if (batchIndex < 0 || batchIndex >= Batches.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
+            }
+
+            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
+        }
+
+        #endregion
+
+        #region Private Helpers
+
         /// <summary>
         /// Executes this query asynchronously and collects all result sets
         /// </summary>
-        public async Task Execute()
+        private async Task ExecuteInternal()
         {
             // Mark that we've internally executed
             hasExecuteBeenCalled = true;
@@ -186,7 +252,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // TODO: Don't create a new connection every time, see TFS #834978
             using (DbConnection conn = editorConnection.Factory.CreateSqlConnection(connectionString))
             {
-                await conn.OpenAsync();
+                try
+                {
+                    await conn.OpenAsync();
+                }
+                catch(Exception exception)
+                {
+                    this.HasExecuted = true;                 
+                    if (QueryConnectionException != null)
+                    {                        
+                        await QueryConnectionException(exception.Message);
+                    }
+                    return;
+                }
 
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
                 if (sqlConn != null)
@@ -201,6 +279,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     foreach (Batch b in Batches)
                     {
                         await b.Execute(conn, cancellationSource.Token);
+                    }
+
+                    // Call the query execution callback
+                    if (QueryCompleted != null)
+                    {
+                        await QueryCompleted(this);
+                    }
+                }
+                catch (Exception)
+                {
+                    // Call the query failure callback
+                    if (QueryFailed != null)
+                    {
+                        await QueryFailed(this);
                     }
                 }
                 finally
@@ -227,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException(SR.QueryServiceMessageSenderNotSql);
             }
 
-            foreach(SqlError error in args.Errors) 
+            foreach (SqlError error in args.Errors)
             {
                 // Did the database context change (error code 5701)?
                 if (error.Number == DatabaseContextChangeErrorNumber)
@@ -235,31 +327,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
                 }
             }
-        }
-
-        /// <summary>
-        /// Retrieves a subset of the result sets
-        /// </summary>
-        /// <param name="batchIndex">The index for selecting the batch item</param>
-        /// <param name="resultSetIndex">The index for selecting the result set</param>
-        /// <param name="startRow">The starting row of the results</param>
-        /// <param name="rowCount">How many rows to retrieve</param>
-        /// <returns>A subset of results</returns>
-        public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
-        {
-            // Sanity check that the results are available
-            if (!HasExecuted)
-            {
-                throw new InvalidOperationException(SR.QueryServiceSubsetNotCompleted);
-            }
-
-            // Sanity check to make sure that the batch is within bounds
-            if (batchIndex < 0 || batchIndex >= Batches.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
-            }
-
-            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
 
         #endregion

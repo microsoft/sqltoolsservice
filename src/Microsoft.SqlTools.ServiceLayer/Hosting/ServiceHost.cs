@@ -150,14 +150,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     Capabilities = new ServerCapabilities
                     {
                         TextDocumentSync = TextDocumentSyncKind.Incremental,
-                        DefinitionProvider = true,
-                        ReferencesProvider = true,
-                        DocumentHighlightProvider = true,
-                        HoverProvider = true,             
+                        DefinitionProvider = false,
+                        ReferencesProvider = false,
+                        DocumentHighlightProvider = false,
+                        HoverProvider = true,
                         CompletionProvider = new CompletionOptions
                         {
                             ResolveProvider = true,
-                            TriggerCharacters = new string[] { ".", "-", ":", "\\", ",", " " }
+                            TriggerCharacters = new string[] { ".", "-", ":", "\\" }
                         },
                         SignatureHelpProvider = new SignatureHelpOptions
                         {
