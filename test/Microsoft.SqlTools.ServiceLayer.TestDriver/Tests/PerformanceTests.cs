@@ -50,31 +50,57 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             try
             {
                 string ownerUri = Path.GetTempFileName();
-                string query = "SELECT *** FROM sys.objects";
+                string query = "SELECT * FROM sys.objects";
 
-                await ConnectAsync(TestServerType.Azure, query, ownerUri);
+                await ConnectAsync(TestServerType.OnPrem, query, ownerUri);
+                Thread.Sleep(500);
 
-                DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification()
+                var contentChanges = new TextDocumentChangeEvent[1];
+                contentChanges[0] = new TextDocumentChangeEvent()
                 {
-                    TextDocument = new TextDocumentItem()
+                    Range = new Range()
                     {
-                        Uri = ownerUri,
-                        LanguageId = "enu",
-                        Version = 1,
-                        Text = query
-                    }
+                        Start = new Position()
+                        {
+                            Line = 0,
+                            Character = 5
+                        },
+                        End = new Position()
+                        {
+                            Line = 0,
+                            Character = 6
+                        }
+                    },
+                    RangeLength = 1,
+                    Text = "z"
                 };
 
-                var completeEvent = await CalculateRunTime("Diagnostics", async () =>
+                DidChangeTextDocumentParams changeParams = new DidChangeTextDocumentParams()
                 {
-                    await RequestOpenDocumentNotification(openParams);
-
-                    return await Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
-                });
-
-                Assert.NotNull(completeEvent);
-                Assert.NotNull(completeEvent.Diagnostics);
-                Assert.True(completeEvent.Diagnostics.Length > 0);
+                    ContentChanges = contentChanges,
+                    TextDocument = new VersionedTextDocumentIdentifier()
+                    {
+                        Version = 2,
+                        Uri = ownerUri
+                    }
+                };
+                TestTimer timer = new TestTimer();
+                await RequestChangeTextDocumentNotification(changeParams);
+                
+                while (true)
+                {
+                    var completeEvent = await Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
+                    if (completeEvent != null && completeEvent.Diagnostics != null && completeEvent.Diagnostics.Length > 0)
+                    {
+                        timer.EndAndPrint("Diagnostics");
+                        break;
+                    }
+                    if (timer.TotalMilliSecondsUntilNow >= 500000)
+                    {
+                        Assert.True(false, "Failed to get Diagnostics");
+                        break;
+                    }
+                }
 
                 await Disconnect(ownerUri);
             }
@@ -115,11 +141,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCachColdAzureSimpleQuery()
+        public async Task BindingCacheColdAzureSimpleQuery()
         {
             try
             {
                 string query = SimpleQuery;
+                Thread.Sleep(5000);
                 await VerifyBindingLoadScenario(TestServerType.Azure, query, "[Simple query][Cold][SQL DB] Binding cache");
             }
             finally
@@ -129,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCachColdOnPremSimpleQuery()
+        public async Task BindingCacheColdOnPremSimpleQuery()
         {
             try
             {
@@ -143,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCachWarmAzureSimpleQuery()
+        public async Task BindingCacheWarmAzureSimpleQuery()
         {
             try
             {
@@ -161,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCachWarmOnPremSimpleQuery()
+        public async Task BindingCacheWarmOnPremSimpleQuery()
         {
             try
             {
@@ -179,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCachColdAzureComplexQuery()
+        public async Task BindingCacheColdAzureComplexQuery()
         {
             try
             {
@@ -193,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCachColdOnPremComplexQuery()
+        public async Task BindingCacheColdOnPremComplexQuery()
         {
             try
             {
@@ -207,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCachWarmAzureComplexQuery()
+        public async Task BindingCacheWarmAzureComplexQuery()
         {
             try
             {
@@ -225,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCachWarmOnPremComplexQuery()
+        public async Task BindingCacheWarmOnPremComplexQuery()
         {
             try
             {
