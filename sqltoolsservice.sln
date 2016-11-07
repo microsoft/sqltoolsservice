@@ -19,6 +19,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceL
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.Test", "test\Microsoft.SqlTools.ServiceLayer.Test\Microsoft.SqlTools.ServiceLayer.Test.xproj", "{2D771D16-9D85-4053-9F79-E2034737DEEF}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.TestDriver", "test\Microsoft.SqlTools.ServiceLayer.TestDriver\Microsoft.SqlTools.ServiceLayer.TestDriver.xproj", "{CC785604-6277-4878-8DA9-360C47158E96}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{B7D21727-2926-452B-9610-3ADB0BB6D789}"
 	ProjectSection(SolutionItems) = preProject
 		scripts\archiving.cake = scripts\archiving.cake
@@ -38,6 +40,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F9978D78
 		build.sh = build.sh
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeCoverage", "CodeCoverage", "{87D9C7D9-18F4-4AB9-B20D-66C02B6075E2}"
+	ProjectSection(SolutionItems) = preProject
+		test\CodeCoverage\codecoverage.bat = test\CodeCoverage\codecoverage.bat
+		test\CodeCoverage\gulpfile.js = test\CodeCoverage\gulpfile.js
+		test\CodeCoverage\nuget.config = test\CodeCoverage\nuget.config
+		test\CodeCoverage\package.json = test\CodeCoverage\package.json
+		test\CodeCoverage\packages.config = test\CodeCoverage\packages.config
+		test\CodeCoverage\ReplaceText.vbs = test\CodeCoverage\ReplaceText.vbs
+		test\CodeCoverage\runintegration.bat = test\CodeCoverage\runintegration.bat
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +65,10 @@ Global
 		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC785604-6277-4878-8DA9-360C47158E96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC785604-6277-4878-8DA9-360C47158E96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC785604-6277-4878-8DA9-360C47158E96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC785604-6277-4878-8DA9-360C47158E96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +76,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{2D771D16-9D85-4053-9F79-E2034737DEEF} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+		{CC785604-6277-4878-8DA9-360C47158E96} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{B7D21727-2926-452B-9610-3ADB0BB6D789} = {F9978D78-78FE-4E92-A7D6-D436B7683EF6}
+		{87D9C7D9-18F4-4AB9-B20D-66C02B6075E2} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 	EndGlobalSection
 EndGlobal
