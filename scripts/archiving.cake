@@ -99,7 +99,7 @@ void CopyEulas(string runtime, string framework, string contentFolder, string pa
 {
     var files = System.IO.Directory.GetFiles(
         System.IO.Path.Combine(workingDirectory, "docs", "eulas"), 
-        "*.rtf", 
+        "*.RTF", 
         SearchOption.AllDirectories).ToList();
 
     foreach (var file in files) {
