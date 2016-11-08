@@ -333,7 +333,7 @@ Task("OnlyPublish")
             }
             if (requireArchive)
             {
-                Package(runtime, framework, outputFolder, packageFolder, buildPlan.MainProject.ToLower());
+                Package(runtime, framework, outputFolder, packageFolder, buildPlan.MainProject.ToLower(), workingDirectory);
             }
         }
     }
