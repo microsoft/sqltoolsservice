@@ -9,10 +9,8 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
@@ -46,26 +44,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.NotEmpty(query.BatchSummaries[0].Messages);
         }
 #endif
-
-        private static void VerifyQueryExecuteCallCount(Mock<RequestContext<QueryExecuteResult>> mock, Times sendResultCalls, Times sendEventCalls, Times sendErrorCalls)
-        {
-            mock.Verify(rc => rc.SendResult(It.IsAny<QueryExecuteResult>()), sendResultCalls);
-            mock.Verify(rc => rc.SendEvent(
-                It.Is<EventType<QueryExecuteCompleteParams>>(m => m == QueryExecuteCompleteEvent.Type),
-                It.IsAny<QueryExecuteCompleteParams>()), sendEventCalls);
-            mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
-        }
-
-        private static DbConnection GetConnection(ConnectionInfo info)
-        {
-            return info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
-        }
-
-        private static async Task AwaitExecution(QueryExecutionService service, QueryExecuteParams qeParams,
-            RequestContext<QueryExecuteResult> requestContext)
-        {
-            await service.HandleExecuteRequest(qeParams, requestContext);
-            await service.ActiveQueries[qeParams.OwnerUri].ExecutionTask;
-        }
     }
 }

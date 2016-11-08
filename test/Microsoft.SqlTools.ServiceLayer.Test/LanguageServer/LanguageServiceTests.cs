@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             try
             {
-                InitializeTestServices();
+                TestObjects.InitializeTestServices();
             }
             catch (System.ArgumentException)
             {
@@ -175,26 +175,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void PrepopulateCommonMetadata()
         {
-            InitializeTestServices();
+            ScriptFile scriptFile;
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
 
-            string sqlFilePath = GetTestSqlFile();            
-            ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(sqlFilePath);
-
-            string ownerUri = scriptFile.ClientFilePath;
-            var connectionService = TestObjects.GetLiveTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams()
-                {
-                    OwnerUri = ownerUri,
-                    Connection = TestObjects.GetIntegratedTestConnectionDetails()
-                });
-            
-            connectionResult.Wait();
-
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
-            
             ScriptParseInfo scriptInfo = new ScriptParseInfo();
             scriptInfo.IsConnected = true;
 
@@ -225,48 +208,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
 #endif
-
-        private string GetTestSqlFile()
-        {
-            string filePath = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                "sqltest.sql");
-            
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-
-            File.WriteAllText(filePath, "SELECT * FROM sys.objects\n");
-
-            return filePath;
-        }
-
-        private void InitializeTestServices()
-        {
-            const string hostName = "SQL Tools Service Host";
-            const string hostProfileId = "SQLToolsService";
-            Version hostVersion = new Version(1,0); 
-
-            // set up the host details and profile paths 
-            var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);     
-            SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-
-            // Grab the instance of the service host
-            Hosting.ServiceHost serviceHost = Hosting.ServiceHost.Instance;
-
-            // Start the service
-            serviceHost.Start().Wait();
-
-            // Initialize the services that will be hosted here
-            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
-            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
-            ConnectionService.Instance.InitializeService(serviceHost);
-            CredentialService.Instance.InitializeService(serviceHost);
-            QueryExecutionService.Instance.InitializeService(serviceHost);
-
-            serviceHost.Initialize();
-        }
 
         private Hosting.ServiceHost GetTestServiceHost()
         {

@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="field">The field to encode</param>
         /// <returns>The CSV encoded version of the original field</returns>
-        internal static String EncodeCsvField(String field)
+        internal static string EncodeCsvField(string field)
         {
             StringBuilder sbField = new StringBuilder(field);
 
@@ -102,9 +102,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             //Replace all quotes in the original field with double quotes
             sbField.Replace("\"", "\"\"");
-
-            String ret = sbField.ToString();
-
+            string ret = sbField.ToString();
+          
             if (embedInQuotes)
             {
                 ret = "\"" + ret + "\"";
@@ -121,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal static bool IsSaveSelection(SaveResultsRequestParams saveParams)
         {
             return (saveParams.ColumnStartIndex != null && saveParams.ColumnEndIndex != null
-                && saveParams.RowEndIndex != null && saveParams.RowEndIndex != null);
+                && saveParams.RowStartIndex != null && saveParams.RowEndIndex != null);
         }
 
         /// <summary>
@@ -222,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                     if (SaveFailed != null)
                     {
-                        await SaveFailed(ex.ToString());
+                        await SaveFailed(ex.Message);
                     }
                 }
             });
