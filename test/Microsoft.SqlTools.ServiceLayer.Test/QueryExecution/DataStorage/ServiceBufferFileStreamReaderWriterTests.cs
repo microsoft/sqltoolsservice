@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         private static void VerifyReadWrite<T>(int valueLength, T value, Func<ServiceBufferFileStreamWriter, T, int> writeFunc, Func<ServiceBufferFileStreamReader, FileStreamReadResult> readFunc)
         {
             // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
+            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper(new byte[8192]);
             try
             {
                 // If:
@@ -223,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         public void StringNullTest()
         {
             // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
+            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper(new byte[8192]);
 
             // If:
             // ... I write null as a string to the writer
@@ -259,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         public void BytesNullTest()
         {
             // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
+            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper(new byte[8192]);
 
             // If:
             // ... I write null as a string to the writer

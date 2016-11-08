@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .Returns(fileMock.Object);
             // If:
             // ... I request to execute a valid query with no results
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService.Object);
             var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
 
             QueryExecuteResult result = null;
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, p) => completeParams = p)
                 .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchCompleteParams = p);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
 
             // Then:
             // ... No Errors should have been sent
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .Returns(fileMock.Object);
             // If:
             // ... I request to execute a valid query with results
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true,
+            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false,
                 workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, p) => completeParams = p)
                 .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchCompleteParams = p);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
 
             // Then:
             // ... No errors should have been sent
@@ -121,13 +121,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I request to execute a query using a file URI that isn't connected
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), false, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(null, false, false, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
             object error = null;
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(null)
                 .AddErrorHandling(e => error = e);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
 
             // Then:
             // ... An error should have been returned
@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // If:
             // ... I request to execute a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // If:
             // ... I request to execute a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var secondRequestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp)
                 .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchComplete = p);
-            queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object).Wait();
+            await queryService.HandleExecuteRequest(queryParams, secondRequestContext.Object);
 
             // Then:
             // ... No errors should have been sent
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .Returns(fileMock.Object);
             // If:
             // ... I request to execute a query with a missing query string
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = null };
 
             object errorResult = null;
@@ -272,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .Returns(fileMock.Object);
             // If:
             // ... I request to execute a query that is invalid
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, true), true, workspaceService.Object);
+            var queryService = Common.GetPrimedExecutionService(null, true, true, workspaceService.Object);
             var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             QueryExecuteResult result = null;
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp)
                 .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchComplete = p);
-            queryService.HandleExecuteRequest(queryParams, requestContext.Object).Wait();
+            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
 
             // Then:
             // ... No errors should have been sent

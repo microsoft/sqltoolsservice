@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // Then:
             // ... It should throw an exception
             Assert.Throws<ArgumentException>(() =>
-                new Query(null, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings(), Common.GetFileStreamFactory()));
+                new Query(null, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings(), Common.GetFileStreamFactory(null)));
         }
 
         [Fact]
@@ -32,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I create a query that has a null connection info
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new Query("Some Query", null, new QueryExecutionSettings(), Common.GetFileStreamFactory()));
+            Assert.Throws<ArgumentNullException>(() => new Query("Some Query", null, new QueryExecutionSettings(), Common.GetFileStreamFactory(null)));
         }
 
         [Fact]
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // Then:
             // ... It should throw an exception
             Assert.Throws<ArgumentNullException>(() =>
-                new Query("Some query", Common.CreateTestConnectionInfo(null, false), null, Common.GetFileStreamFactory()));
+                new Query("Some query", Common.CreateTestConnectionInfo(null, false), null, Common.GetFileStreamFactory(null)));
         }
 
         [Fact]
@@ -63,7 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I create a query from a single batch (without separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
-            Query query = new Query(Common.StandardQuery, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            Query query = new Query(Common.StandardQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
 
             // Then:
             // ... I should get a single batch to execute that hasn't been executed
@@ -91,7 +93,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I create a query from a single batch that does nothing
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
-            Query query = new Query(Common.NoOpQuery, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            Query query = new Query(Common.NoOpQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
 
             // Then:
             // ... I should get no batches back
@@ -118,7 +121,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I create a query from two batches (with separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
             string queryText = string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery);
-            Query query = new Query(queryText, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
 
             // Then:
             // ... I should get back two batches to execute that haven't been executed
@@ -147,7 +151,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I create a query from a two batches (with separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
             string queryText = string.Format("{0}\r\nGO\r\n{1}", Common.StandardQuery, Common.NoOpQuery);
-            Query query = new Query(queryText, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
 
             // Then:
             // ... I should get back one batch to execute that hasn't been executed
@@ -174,7 +179,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I create a query from an invalid batch
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
-            Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings(), Common.GetFileStreamFactory());
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
 
             // Then:
             // ... I should get back a query with one batch not executed
