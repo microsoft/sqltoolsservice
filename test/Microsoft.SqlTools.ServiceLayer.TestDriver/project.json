@@ -3,7 +3,10 @@
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "embed": [
+      "Scripts/AdventureWorks.sql"
+    ]
   },
   "dependencies": {
     "xunit": "2.1.0",
