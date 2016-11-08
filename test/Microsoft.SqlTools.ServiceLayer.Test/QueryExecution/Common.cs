@@ -8,8 +8,10 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
@@ -93,6 +95,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             }
 
             return output;
+        }
+
+        public static async Task AwaitExecution(QueryExecutionService service, QueryExecuteParams qeParams,
+            RequestContext<QueryExecuteResult> requestContext)
+        {
+            await service.HandleExecuteRequest(qeParams, requestContext);
+            if (service.ActiveQueries.ContainsKey(qeParams.OwnerUri) && service.ActiveQueries[qeParams.OwnerUri].ExecutionTask != null)
+            {
+                await service.ActiveQueries[qeParams.OwnerUri].ExecutionTask;
+            }
         }
 
         #endregion
@@ -246,11 +258,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return new QueryExecutionService(connectionService.Object, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory(storage)};
         }
 
-        public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService()
+        public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService(string query)
         {
             // Set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns(StandardQuery);
+            fileMock.SetupGet(file => file.Contents).Returns(query);
            
             // Set up workspace mock
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();

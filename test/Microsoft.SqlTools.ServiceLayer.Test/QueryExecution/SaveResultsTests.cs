@@ -9,9 +9,7 @@ using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using Xunit;
 
@@ -29,11 +27,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvSuccessTest()
         {
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, Common.GetPrimedWorkspaceService());
+            var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, workplaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
             // Request to save the results as csv with correct parameters
             var saveParams = new SaveResultsAsCsvRequestParams
@@ -71,11 +69,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvWithSelectionSuccessTest()
         {
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(new []{Common.StandardTestData}, true, false, Common.GetPrimedWorkspaceService());
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new []{Common.StandardTestData}, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
             // Request to save the results as csv with correct parameters
             var saveParams = new SaveResultsAsCsvRequestParams
@@ -116,13 +114,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         /// </summary>
         [Fact]
         public async void SaveResultsAsCsvExceptionTest()
-        {   
+        {
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, Common.GetPrimedWorkspaceService());
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
             // Request to save the results as csv with incorrect filepath
             var saveParams = new SaveResultsAsCsvRequestParams
@@ -154,8 +152,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvQueryNotFoundTest()
         {
             // Create a query execution service
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService.Object);
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
 
             // Request to save the results as csv with query that is no longer active
             var saveParams = new SaveResultsAsCsvRequestParams
@@ -182,11 +180,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsJsonSuccessTest()
         {
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, Common.GetPrimedWorkspaceService());
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
             // Request to save the results as json with correct parameters
             var saveParams = new SaveResultsAsJsonRequestParams
@@ -224,11 +222,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsJsonWithSelectionSuccessTest()
         {
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, Common.GetPrimedWorkspaceService());
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
             // Request to save the results as json with correct parameters
             var saveParams = new SaveResultsAsJsonRequestParams
@@ -269,11 +267,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsJsonExceptionTest()
         {
             // Execute a query
-            var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, Common.GetPrimedWorkspaceService());
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
             // Request to save the results as json with incorrect filepath
             var saveParams = new SaveResultsAsJsonRequestParams
@@ -306,10 +304,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public async void SaveResultsAsJsonQueryNotFoundTest()
         {
-
             // Create a query service
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService.Object);
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
 
             // Request to save the results as json with query that is no longer active
             var saveParams = new SaveResultsAsJsonRequestParams
@@ -341,25 +338,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Action<SaveResultRequestResult> resultCallback,
             Action<object> errorCallback)
         {
-            var requestContext = new Mock<RequestContext<SaveResultRequestResult>>();
-
-            // Setup the mock for SendResult
-            var sendResultFlow = requestContext
-                .Setup(rc => rc.SendResult(It.IsAny<SaveResultRequestResult> ()))
-                .Returns(Task.FromResult(0));
-            if (resultCallback != null)
-            {
-                sendResultFlow.Callback(resultCallback);
-            }
-
-            // Setup the mock for SendError
-            var sendErrorFlow = requestContext
-                .Setup(rc => rc.SendError(It.IsAny<object>()))
-                .Returns(Task.FromResult(0));
-            if (errorCallback != null)
-            {
-                sendErrorFlow.Callback(errorCallback);
-            }
+            var requestContext = RequestContextMocks.Create(resultCallback)
+                .AddErrorHandling(errorCallback);
 
             return requestContext;
         }
