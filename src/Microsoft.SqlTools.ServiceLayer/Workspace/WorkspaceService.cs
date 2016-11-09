@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             ConfigChangeCallbacks = new List<ConfigChangeCallback>();
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
             TextDocOpenCallbacks = new List<TextDocOpenCallback>();
+            TextDocCloseCallbacks = new List<TextDocCloseCallback>();
 
             CurrentSettings = new TConfig();
         }
@@ -55,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <summary>
         /// Workspace object for the service. Virtual to allow for mocking
         /// </summary>
-        public virtual Workspace Workspace { get; private set; }
+        public virtual Workspace Workspace { get; internal set; }
 
         /// <summary>
         /// Current settings for the workspace
@@ -84,7 +85,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <param name="openFile">File that was opened</param>
         /// <param name="eventContext">Context of the event raised for the changed files</param>
         public delegate Task TextDocOpenCallback(ScriptFile openFile, EventContext eventContext);
-        
+
+        /// <summary>
+        /// Delegate for callbacks that occur when a text document is closed
+        /// </summary>
+        /// <param name="closedFile">File that was closed</param>
+        /// <param name="eventContext">Context of the event raised for changed files</param>
+        public delegate Task TextDocCloseCallback(ScriptFile closedFile, EventContext eventContext);
+
         /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
         /// </summary>
@@ -100,6 +108,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// </summary>
         private List<TextDocOpenCallback> TextDocOpenCallbacks { get; set; }
 
+        /// <summary>
+        /// List of callbacks to call when a text document is closed
+        /// </summary>
+        private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
 
         #endregion
 
@@ -161,6 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             TextDocChangeCallbacks.Add(task);
         }
 
+        public void RegisterTextDocCloseCallback(TextDocCloseCallback task)
+        {
+            TextDocCloseCallbacks.Add(task);
+        }
+
         /// <summary>
         /// Adds a new task to be called when a file is opened
         /// </summary>
@@ -177,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <summary>
         /// Handles text document change events
         /// </summary>
-        protected Task HandleDidChangeTextDocumentNotification(
+        public Task HandleDidChangeTextDocumentNotification(
             DidChangeTextDocumentParams textChangeParams,
             EventContext eventContext)
         {
@@ -207,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             return Task.WhenAll(handlers);
         }
 
-        protected async Task HandleDidOpenTextDocumentNotification(
+        public async Task HandleDidOpenTextDocumentNotification(
             DidOpenTextDocumentNotification openParams,
             EventContext eventContext)
         {
@@ -223,18 +240,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             await Task.WhenAll(textDocOpenTasks);
         }
 
-        protected Task HandleDidCloseTextDocumentNotification(
+        public async Task HandleDidCloseTextDocumentNotification(
            DidCloseTextDocumentParams closeParams,
            EventContext eventContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");
-            return Task.FromResult(true);
+
+            // Skip closing this file if the file doesn't exist
+            var closedFile = Workspace.GetFile(closeParams.TextDocument.Uri);
+            if (closedFile == null)
+            {
+                return;
+            }
+
+            // Trash the existing document from our mapping
+            Workspace.CloseFile(closedFile);
+
+            // Send out a notification to other services that have subscribed to this event
+            var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closedFile, eventContext));
+            await Task.WhenAll(textDocClosedTasks);
         }
 
         /// <summary>
         /// Handles the configuration change event
         /// </summary>
-        protected async Task HandleDidChangeConfigurationNotification(
+        public async Task HandleDidChangeConfigurationNotification(
             DidChangeConfigurationParams<TConfig> configChangeParams,
             EventContext eventContext)
         {
