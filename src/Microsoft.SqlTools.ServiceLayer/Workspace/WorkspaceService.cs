@@ -173,6 +173,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             TextDocChangeCallbacks.Add(task);
         }
 
+        /// <summary>
+        /// Adds a new task to be called when a text document closes.
+        /// </summary>
+        /// <param name="task">Delegate to call when the document closes</param>
         public void RegisterTextDocCloseCallback(TextDocCloseCallback task)
         {
             TextDocCloseCallbacks.Add(task);
@@ -194,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <summary>
         /// Handles text document change events
         /// </summary>
-        public Task HandleDidChangeTextDocumentNotification(
+        internal Task HandleDidChangeTextDocumentNotification(
             DidChangeTextDocumentParams textChangeParams,
             EventContext eventContext)
         {
@@ -224,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             return Task.WhenAll(handlers);
         }
 
-        public async Task HandleDidOpenTextDocumentNotification(
+        internal async Task HandleDidOpenTextDocumentNotification(
             DidOpenTextDocumentNotification openParams,
             EventContext eventContext)
         {
@@ -240,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             await Task.WhenAll(textDocOpenTasks);
         }
 
-        public async Task HandleDidCloseTextDocumentNotification(
+        internal async Task HandleDidCloseTextDocumentNotification(
            DidCloseTextDocumentParams closeParams,
            EventContext eventContext)
         {
@@ -264,7 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <summary>
         /// Handles the configuration change event
         /// </summary>
-        public async Task HandleDidChangeConfigurationNotification(
+        internal async Task HandleDidChangeConfigurationNotification(
             DidChangeConfigurationParams<TConfig> configChangeParams,
             EventContext eventContext)
         {
