@@ -14,7 +14,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
     /// </summary>
     public class EventContext
     {
-        private MessageWriter messageWriter;
+        private readonly MessageWriter messageWriter;
+
+        /// <summary>
+        /// Parameterless constructor required for mocking
+        /// </summary>
+        public EventContext() { }
 
         public EventContext(MessageWriter messageWriter)
         {
