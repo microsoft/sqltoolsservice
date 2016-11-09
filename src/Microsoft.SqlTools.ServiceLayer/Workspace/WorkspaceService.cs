@@ -181,30 +181,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             DidChangeTextDocumentParams textChangeParams,
             EventContext eventContext)
         {
-            StringBuilder msg = new StringBuilder();
-            msg.Append("HandleDidChangeTextDocumentNotification");
-            List<ScriptFile> changedFiles = new List<ScriptFile>();
-
-            // A text change notification can batch multiple change requests
-            foreach (var textChange in textChangeParams.ContentChanges)
+            try
             {
-                string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri; 
-                msg.AppendLine(string.Format("  File: {0}", fileUri));
+                StringBuilder msg = new StringBuilder();
+                msg.Append("HandleDidChangeTextDocumentNotification");
+                List<ScriptFile> changedFiles = new List<ScriptFile>();
 
-                ScriptFile changedFile = Workspace.GetFile(fileUri);
+                // A text change notification can batch multiple change requests
+                foreach (var textChange in textChangeParams.ContentChanges)
+                {
+                    string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri; 
+                    msg.AppendLine(string.Format("  File: {0}", fileUri));
 
-                changedFile.ApplyChange(
-                    GetFileChangeDetails(
-                        textChange.Range.Value,
-                        textChange.Text));
+                    ScriptFile changedFile = Workspace.GetFile(fileUri);
 
-                changedFiles.Add(changedFile);
+                    changedFile.ApplyChange(
+                        GetFileChangeDetails(
+                            textChange.Range.Value,
+                            textChange.Text));
+
+                    changedFiles.Add(changedFile);
+                }
+
+                Logger.Write(LogLevel.Verbose, msg.ToString());
+
+                var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
+                return Task.WhenAll(handlers);
             }
-
-            Logger.Write(LogLevel.Verbose, msg.ToString());
-
-            var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
-            return Task.WhenAll(handlers);
+            catch
+            {
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return Task.FromResult(true);
+            }
         }
 
         protected async Task HandleDidOpenTextDocumentNotification(
