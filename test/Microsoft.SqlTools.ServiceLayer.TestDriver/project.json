@@ -4,9 +4,11 @@
   "buildOptions": {
     "debugType": "portable",
     "emitEntryPoint": true,
-    "embed": [
-      "Scripts/AdventureWorks.sql"
-    ]
+    "copyToOutput": {
+        "includeFiles": [
+        "Scripts/AdventureWorks.sql"
+        ]
+      }
   },
   "dependencies": {
     "xunit": "2.1.0",
