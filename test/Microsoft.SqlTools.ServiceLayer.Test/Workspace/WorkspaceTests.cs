@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Workspace
             // Then:
             // ... There should be a file not found exception thrown
             // TODO: This logic should be changed to not create the ScriptFile
-            await Assert.ThrowsAsync<IOException>(
+            await Assert.ThrowsAnyAsync<IOException>(
                 () => workspaceService.HandleDidCloseTextDocumentNotification(requestParams, eventContext));
 
             // ... There should still be no open files
