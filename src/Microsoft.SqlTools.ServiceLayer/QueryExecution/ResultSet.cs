@@ -16,6 +16,10 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
+    /// <summary>
+    /// Class that represents a resultset the was generated from a query. Contains logic for
+    /// storing and retrieving results. Is contained by a Batch class.
+    /// </summary>
     public class ResultSet : IDisposable
     {
         #region Constants
