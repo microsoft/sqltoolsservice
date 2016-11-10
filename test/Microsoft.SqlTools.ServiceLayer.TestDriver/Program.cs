@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
 {
     internal class Program
     {
-        internal static void Main(string[] args)
+        internal static int Main(string[] args)
         {
             if (args.Length < 1)
             {
@@ -25,11 +25,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
                                     "    [tests] is a space-separated list of tests to run." + Environment.NewLine + 
                                     "            They are qualified within the Microsoft.SqlTools.ServiceLayer.TestDriver.Tests namespace" + Environment.NewLine +
                                     "Be sure to set the environment variable " + ServiceTestDriver.ServiceHostEnvironmentVariable + " to the full path of the sqltoolsservice executable.");
-                Environment.Exit(0);
+                return 0;
             }
 
             Logger.Initialize("testdriver", LogLevel.Verbose);
 
+            int returnCode = 0;
             Task.Run(async () => 
             {
                 string testNamespace = "Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.";
@@ -67,9 +68,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
+                        returnCode = -1;
                     }
                 }
             }).Wait();
+
+            return returnCode;
         }
 
         private static async Task RunTest(Type type, MethodInfo methodInfo, string testName)
