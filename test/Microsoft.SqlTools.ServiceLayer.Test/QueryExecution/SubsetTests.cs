@@ -9,10 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Xunit;
 
@@ -100,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // If:
             // ... I have a batch that hasn't completed execution
-            Batch b = new Batch(Common.StandardQuery, Common.WholeDocument, Common.Ordinal, Common.GetFileStreamFactory());
+            Batch b = new Batch(Common.StandardQuery, Common.WholeDocument, Common.Ordinal, Common.GetFileStreamFactory(null));
             Assert.False(b.HasExecuted);
 
             // ... And I ask for a subset
@@ -135,19 +132,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public async Task SubsetServiceValidTest()
         {
-
-            // Set up file for returning the query
-            var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
-            // Set up workspace mock
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
-                .Returns(fileMock.Object);
             // If:
             // ... I have a query that has results (doesn't matter what)
-            var queryService = await Common.GetPrimedExecutionService(
-                Common.CreateMockFactory(new[] {Common.StandardTestData}, false), true,
-                workspaceService.Object);
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, workspaceService);
             var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -171,15 +159,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public async void SubsetServiceMissingQueryTest()
         {
-
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I ask for a set of results for a file that hasn't executed a query
-            var queryService = await Common.GetPrimedExecutionService(Common.CreateMockFactory(null, false), true, workspaceService.Object);
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             QueryExecuteSubsetResult result = null;
             var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
-            queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object).Wait();
+            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
 
             // Then:
             // ... I should have an error result
@@ -193,19 +180,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public async void SubsetServiceUnexecutedQueryTest()
         {
-            
-            // Set up file for returning the query
-            var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
-            // Set up workspace mock
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
-                .Returns(fileMock.Object);
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
-            var queryService = await Common.GetPrimedExecutionService(
-                Common.CreateMockFactory(new[] { Common.StandardTestData }, false), true,
-                workspaceService.Object);
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -232,8 +210,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {            
             // If:
             // ... I have a query that doesn't have any result sets
-            var queryService = await Common.GetPrimedExecutionService(
-                Common.CreateMockFactory(null, false), true, Common.GetPrimedWorkspaceService());
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);

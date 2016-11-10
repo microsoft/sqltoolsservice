@@ -77,9 +77,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Default constructor is private since it's a singleton class
+        /// Default constructor should be private since it's a singleton class, but we need a constructor
+        /// for use in unit test mocking.
         /// </summary>
-        private ConnectionService()
+        public ConnectionService()
         {
         }
 
@@ -129,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         // Attempts to link a URI to an actively used connection for this URI
-        public bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo)
+        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo)
         {
             return this.ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
         }
