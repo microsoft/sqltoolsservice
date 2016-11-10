@@ -5,6 +5,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
 {
@@ -13,6 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
     /// </summary>
     public class TestTimer
     {
+        private static string ResultFolder = Environment.GetEnvironmentVariable("ResultFolder");
+
         public TestTimer()
         {
             Start();
@@ -35,6 +38,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test Name: {0} Run time in milliSeconds: {1}", testName, TotalMilliSeconds));
             Console.ForegroundColor = currentColor;
+            string resultContent = Newtonsoft.Json.JsonConvert.SerializeObject(new TestResult { ElapsedTime = TotalMilliSeconds.ToString() });
+            string fileName = testName + ".json";
+            string resultFilePath = string.IsNullOrEmpty(ResultFolder) ? fileName : Path.Combine(ResultFolder, fileName);
+            File.WriteAllText(resultFilePath, resultContent);
         }
 
         public double TotalMilliSeconds

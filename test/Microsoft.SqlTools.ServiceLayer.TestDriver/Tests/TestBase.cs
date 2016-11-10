@@ -183,12 +183,32 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// </summary>
         protected async Task<ConnectParams> GetDatabaseConnectionAsync(TestServerType serverType)
         {
+            ConnectionProfile connectionProfile = null;
             TestServerIdentity serverIdentiry = ConnectionTestUtils.TestServers.FirstOrDefault(x => x.ServerType == serverType);
-            var connectionProfile = ConnectionTestUtils.Setting.GetConnentProfile(serverIdentiry.ProfileName, serverIdentiry.ServerName);
-            Credential credential = await ReadCredential(connectionProfile.formatCredentialId());
-            ConnectParams conenctParam = ConnectionTestUtils.CreateConnectParams(connectionProfile.ServerName, connectionProfile.Database,
-                connectionProfile.User, credential.Password);
-            return conenctParam;
+            if (serverIdentiry == null)
+            {
+                connectionProfile = ConnectionTestUtils.Setting.Connections.FirstOrDefault(x => x.ServerType == serverType);
+            }
+            else
+            {
+                connectionProfile = ConnectionTestUtils.Setting.GetConnentProfile(serverIdentiry.ProfileName, serverIdentiry.ServerName);
+            }
+
+            if (connectionProfile != null)
+            {
+
+
+                string password = connectionProfile.Password;
+                if (string.IsNullOrEmpty(password))
+                {
+                    Credential credential = await ReadCredential(connectionProfile.formatCredentialId());
+                    password = credential.Password;
+                }
+                ConnectParams conenctParam = ConnectionTestUtils.CreateConnectParams(connectionProfile.ServerName, connectionProfile.Database,
+                    connectionProfile.User, password);
+                return conenctParam;
+            }
+            return null;
         }
 
         /// <summary>

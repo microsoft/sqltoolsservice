@@ -18,8 +18,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
     public class PerformanceTests : TestBase
     {
-        private static string ComplexQuery = File.ReadAllText("./Scripts/AdventureWorks.sql");
+        private static string ComplexQuery = LoadComplexScript();
         private static string SimpleQuery = "SELECT * FROM sys.all_columns";
+
+
+        private static string LoadComplexScript()
+        {
+            string assemblyLocation = System.Reflection.Assembly.GetEntryAssembly().Location;
+            string folderName = Path.GetDirectoryName(assemblyLocation);
+            string filePath =  Path.Combine(folderName, "Scripts/AdventureWorks.sql");
+            return File.ReadAllText(filePath);
+        }
 
         [Fact]
         public async Task HoverTestOnPrem()
@@ -556,6 +565,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             TestTimer timer = new TestTimer();
             T result = await testToRun();
             timer.EndAndPrint(testName);
+           
+
             return result;
         }
     }

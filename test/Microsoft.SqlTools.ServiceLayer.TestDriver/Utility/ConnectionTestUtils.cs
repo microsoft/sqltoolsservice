@@ -29,8 +29,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             try
             {
                 string testServerNamesFilePath = Environment.GetEnvironmentVariable("TestServerNamesFile");
-                string jsonFileContent = File.ReadAllText(testServerNamesFilePath);
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<IList<TestServerIdentity>>(jsonFileContent);
+                if (!string.IsNullOrEmpty(testServerNamesFilePath))
+                {
+                    string jsonFileContent = File.ReadAllText(testServerNamesFilePath);
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<IList<TestServerIdentity>>(jsonFileContent);
+                }
+                else
+                {
+                    return Enumerable.Empty<TestServerIdentity>();
+                }
             }
             catch (Exception ex)
             {
@@ -106,17 +113,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         private static string GetSettingFileContent()
         {
             string settingsFilename;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            settingsFilename = Environment.GetEnvironmentVariable("SettingsFileName");
+            if (string.IsNullOrEmpty(settingsFilename))
             {
-                settingsFilename = Environment.GetEnvironmentVariable("APPDATA") + @"\Code\User\settings.json";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/Library/Application Support/Code/User/settings.json";
-            }
-            else
-            {
-                settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/.config/Code/User/settings.json";
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("APPDATA") + @"\Code\User\settings.json";
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/Library/Application Support/Code/User/settings.json";
+                }
+                else
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/.config/Code/User/settings.json";
+                }
             }
             string settingsFileContents = File.ReadAllText(settingsFilename);
 
