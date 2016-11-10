@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             ConfigChangeCallbacks = new List<ConfigChangeCallback>();
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
             TextDocOpenCallbacks = new List<TextDocOpenCallback>();
+            TextDocCloseCallbacks = new List<TextDocCloseCallback>();
 
             CurrentSettings = new TConfig();
         }
@@ -55,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <summary>
         /// Workspace object for the service. Virtual to allow for mocking
         /// </summary>
-        public virtual Workspace Workspace { get; private set; }
+        public virtual Workspace Workspace { get; internal set; }
 
         /// <summary>
         /// Current settings for the workspace
@@ -84,7 +85,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <param name="openFile">File that was opened</param>
         /// <param name="eventContext">Context of the event raised for the changed files</param>
         public delegate Task TextDocOpenCallback(ScriptFile openFile, EventContext eventContext);
-        
+
+        /// <summary>
+        /// Delegate for callbacks that occur when a text document is closed
+        /// </summary>
+        /// <param name="closedFile">File that was closed</param>
+        /// <param name="eventContext">Context of the event raised for changed files</param>
+        public delegate Task TextDocCloseCallback(ScriptFile closedFile, EventContext eventContext);
+
         /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
         /// </summary>
@@ -100,6 +108,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// </summary>
         private List<TextDocOpenCallback> TextDocOpenCallbacks { get; set; }
 
+        /// <summary>
+        /// List of callbacks to call when a text document is closed
+        /// </summary>
+        private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
 
         #endregion
 
@@ -162,6 +174,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         }
 
         /// <summary>
+        /// Adds a new task to be called when a text document closes.
+        /// </summary>
+        /// <param name="task">Delegate to call when the document closes</param>
+        public void RegisterTextDocCloseCallback(TextDocCloseCallback task)
+        {
+            TextDocCloseCallbacks.Add(task);
+        }
+
+        /// <summary>
         /// Adds a new task to be called when a file is opened
         /// </summary>
         /// <param name="task">Delegate to call when a document is opened</param>
@@ -177,37 +198,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <summary>
         /// Handles text document change events
         /// </summary>
-        protected Task HandleDidChangeTextDocumentNotification(
+        internal Task HandleDidChangeTextDocumentNotification(
             DidChangeTextDocumentParams textChangeParams,
             EventContext eventContext)
         {
-            StringBuilder msg = new StringBuilder();
-            msg.Append("HandleDidChangeTextDocumentNotification");
-            List<ScriptFile> changedFiles = new List<ScriptFile>();
-
-            // A text change notification can batch multiple change requests
-            foreach (var textChange in textChangeParams.ContentChanges)
+            try
             {
-                string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri; 
-                msg.AppendLine(string.Format("  File: {0}", fileUri));
+                StringBuilder msg = new StringBuilder();
+                msg.Append("HandleDidChangeTextDocumentNotification");
+                List<ScriptFile> changedFiles = new List<ScriptFile>();
 
-                ScriptFile changedFile = Workspace.GetFile(fileUri);
+                // A text change notification can batch multiple change requests
+                foreach (var textChange in textChangeParams.ContentChanges)
+                {
+                    string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri; 
+                    msg.AppendLine(string.Format("  File: {0}", fileUri));
 
-                changedFile.ApplyChange(
-                    GetFileChangeDetails(
-                        textChange.Range.Value,
-                        textChange.Text));
+                    ScriptFile changedFile = Workspace.GetFile(fileUri);
 
-                changedFiles.Add(changedFile);
+                    changedFile.ApplyChange(
+                        GetFileChangeDetails(
+                            textChange.Range.Value,
+                            textChange.Text));
+
+                    changedFiles.Add(changedFile);
+                }
+
+                Logger.Write(LogLevel.Verbose, msg.ToString());
+
+                var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
+                return Task.WhenAll(handlers);
             }
-
-            Logger.Write(LogLevel.Verbose, msg.ToString());
-
-            var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
-            return Task.WhenAll(handlers);
+            catch
+            {
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return Task.FromResult(true);
+            }
         }
 
-        protected async Task HandleDidOpenTextDocumentNotification(
+        internal async Task HandleDidOpenTextDocumentNotification(
             DidOpenTextDocumentNotification openParams,
             EventContext eventContext)
         {
@@ -223,18 +253,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             await Task.WhenAll(textDocOpenTasks);
         }
 
-        protected Task HandleDidCloseTextDocumentNotification(
+        internal async Task HandleDidCloseTextDocumentNotification(
            DidCloseTextDocumentParams closeParams,
            EventContext eventContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");
-            return Task.FromResult(true);
+
+            // Skip closing this file if the file doesn't exist
+            var closedFile = Workspace.GetFile(closeParams.TextDocument.Uri);
+            if (closedFile == null)
+            {
+                return;
+            }
+
+            // Trash the existing document from our mapping
+            Workspace.CloseFile(closedFile);
+
+            // Send out a notification to other services that have subscribed to this event
+            var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closedFile, eventContext));
+            await Task.WhenAll(textDocClosedTasks);
         }
 
         /// <summary>
         /// Handles the configuration change event
         /// </summary>
-        protected async Task HandleDidChangeConfigurationNotification(
+        internal async Task HandleDidChangeConfigurationNotification(
             DidChangeConfigurationParams<TConfig> configChangeParams,
             EventContext eventContext)
         {

@@ -104,7 +104,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 || ch == '='
                 || ch == '/'
                 || ch == '%'
-                || ch == ',';
+                || ch == ','
+                || ch == ';'
+                || ch == '('
+                || ch == ')';
         }
     }
 }

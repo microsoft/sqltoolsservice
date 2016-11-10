@@ -99,7 +99,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         {
             ScriptFile scriptFile = GetTestScriptFile();
             int offset = scriptFile.GetOffsetAtPosition(2, 5);
-            Assert.True(offset == 37, "Offset is at expected location");
+            int expected = 35 + Environment.NewLine.Length;
+            Assert.True(offset == expected, "Offset is at expected location");
 
             BufferPosition position = scriptFile.GetPositionAtOffset(offset);
             Assert.True(position.Line == 2 && position.Column == 5, "Position is at expected location");

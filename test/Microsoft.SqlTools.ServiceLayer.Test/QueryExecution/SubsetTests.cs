@@ -95,21 +95,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, 0, 2)).Wait();
         }
 
+        [Fact]
+        public async Task BatchSubsetIncompleteTest()
+        {
+            // If:
+            // ... I have a batch that hasn't completed execution
+            Batch b = new Batch(Common.StandardQuery, Common.WholeDocument, Common.Ordinal, Common.GetFileStreamFactory());
+            Assert.False(b.HasExecuted);
+
+            // ... And I ask for a subset
+            // Then:
+            // ... It should throw an exception
+            await Assert.ThrowsAsync<InvalidOperationException>(() => b.GetSubset(Common.Ordinal, 0, 2));
+
+        }
+
         #endregion
 
         #region Query Class Tests
-
-        [Fact]
-        public void SubsetUnexecutedQueryTest()
-        {
-            // If I have a query that has *not* been executed
-            Query q = new Query(Common.StandardQuery, Common.CreateTestConnectionInfo(null, false), new QueryExecutionSettings(), Common.GetFileStreamFactory());
-
-            // ... And I ask for a subset with valid arguments
-            // Then:
-            // ... It should throw an exception
-            Assert.ThrowsAsync<InvalidOperationException>(() => q.GetSubset(0, 0, 0, 2)).Wait();
-        }
 
         [Theory]
         [InlineData(-1)]  // Invalid batch, too low

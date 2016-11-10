@@ -5,12 +5,15 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
+using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
@@ -163,7 +166,31 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             var result = await Driver.SendRequest(CompletionResolveRequest.Type, item);
             return result;
         }
-        
+
+        /// <summary>
+        /// Request a Read Credential for given credential id
+        /// </summary>
+        protected async Task<Credential> ReadCredential(string credentialId)
+        {
+            var credentialParams = new Credential();
+            credentialParams.CredentialId = credentialId;
+
+            return await Driver.SendRequest(ReadCredentialRequest.Type, credentialParams);
+        }
+
+        /// <summary>
+        /// Returns database connection parameters for given server type
+        /// </summary>
+        protected async Task<ConnectParams> GetDatabaseConnectionAsync(TestServerType serverType)
+        {
+            TestServerIdentity serverIdentiry = ConnectionTestUtils.TestServers.FirstOrDefault(x => x.ServerType == serverType);
+            var connectionProfile = ConnectionTestUtils.Setting.GetConnentProfile(serverIdentiry.ProfileName, serverIdentiry.ServerName);
+            Credential credential = await ReadCredential(connectionProfile.formatCredentialId());
+            ConnectParams conenctParam = ConnectionTestUtils.CreateConnectParams(connectionProfile.ServerName, connectionProfile.Database,
+                connectionProfile.User, credential.Password);
+            return conenctParam;
+        }
+
         /// <summary>
         /// Request a list of completion items for a position in a block of text
         /// </summary>
@@ -211,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Run a query using a given connection bound to a URI
         /// </summary>
-        protected async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query)
+        protected async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query, int timeoutMilliseconds = 5000)
         {
             // Write the query text to a backing file
             WriteToFile(ownerUri, query);
@@ -223,13 +250,71 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             var result = await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
             if (result != null && string.IsNullOrEmpty(result.Messages))
             {
-                var eventResult = await Driver.WaitForEvent(QueryExecuteCompleteEvent.Type);
+                var eventResult = await Driver.WaitForEvent(QueryExecuteCompleteEvent.Type, timeoutMilliseconds);
                 return eventResult;
             }
             else
             {
                 return null;
             }
+        }
+        
+        /// <summary>
+        /// Request to cancel an executing query
+        /// </summary>
+        protected async Task<QueryCancelResult> CancelQuery(string ownerUri)
+        {
+            var cancelParams = new QueryCancelParams();
+            cancelParams.OwnerUri = ownerUri;
+
+            var result = await Driver.SendRequest(QueryCancelRequest.Type, cancelParams);
+            return result;
+        }
+
+        /// <summary>
+        /// Request to save query results as CSV
+        /// </summary>
+        protected async Task<SaveResultRequestResult> SaveAsCsv(string ownerUri, string filename, int batchIndex, int resultSetIndex)
+        {
+            var saveParams = new SaveResultsAsCsvRequestParams();
+            saveParams.OwnerUri = ownerUri;
+            saveParams.BatchIndex = batchIndex;
+            saveParams.ResultSetIndex = resultSetIndex;
+            saveParams.FilePath = filename;
+            
+            var result = await Driver.SendRequest(SaveResultsAsCsvRequest.Type, saveParams);
+            return result;
+        }
+
+        /// <summary>
+        /// Request to save query results as JSON
+        /// </summary>
+        protected async Task<SaveResultRequestResult> SaveAsJson(string ownerUri, string filename, int batchIndex, int resultSetIndex)
+        {
+            var saveParams = new SaveResultsAsJsonRequestParams();
+            saveParams.OwnerUri = ownerUri;
+            saveParams.BatchIndex = batchIndex;
+            saveParams.ResultSetIndex = resultSetIndex;
+            saveParams.FilePath = filename;
+            
+            var result = await Driver.SendRequest(SaveResultsAsJsonRequest.Type, saveParams);
+            return result;
+        }
+
+        /// <summary>
+        /// Request a subset of results from a query
+        /// </summary>
+        protected async Task<QueryExecuteSubsetResult> ExecuteSubset(string ownerUri, int batchIndex, int resultSetIndex, int rowStartIndex, int rowCount)
+        {
+            var subsetParams = new QueryExecuteSubsetParams();
+            subsetParams.OwnerUri = ownerUri;
+            subsetParams.BatchIndex = batchIndex;
+            subsetParams.ResultSetIndex = resultSetIndex;
+            subsetParams.RowsStartIndex = rowStartIndex;
+            subsetParams.RowsCount = rowCount;
+
+            var result = await Driver.SendRequest(QueryExecuteSubsetRequest.Type, subsetParams);
+            return result;
         }
 
         protected void WriteToFile(string ownerUri, string query)

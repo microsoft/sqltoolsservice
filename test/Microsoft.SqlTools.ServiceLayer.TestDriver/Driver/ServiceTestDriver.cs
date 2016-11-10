@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
@@ -28,15 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
 
         public const string CodeCoverageToolEnvironmentVariable = "CODECOVERAGETOOL";
 
-        public const string CodeCoverageOutputEnvironmentVariable = "CODECOVERAGEOUTPUT";        
+        public const string CodeCoverageOutputEnvironmentVariable = "CODECOVERAGEOUTPUT";
 
-        /// <summary>
-        /// Environment variable that stores the path to the service host executable.
-        /// </summary>
-        public static string ServiceHostEnvironmentVariable
-        {
-            get { return "SQLTOOLSSERVICE_EXE"; }
-        }       
+        public const string ServiceHostEnvironmentVariable = "SQLTOOLSSERVICE_EXE";
 
         public bool IsCoverageRun { get; set; } 
 
@@ -44,6 +39,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
         {
             string serviceHostExecutable = Environment.GetEnvironmentVariable(ServiceHostEnvironmentVariable);
             string serviceHostArguments = "--enable-logging";
+            if (string.IsNullOrWhiteSpace(serviceHostExecutable))
+            {
+                // Include a fallback value to for running tests within visual studio
+                serviceHostExecutable =
+                    @"..\..\src\Microsoft.SqlTools.ServiceLayer\bin\Debug\netcoreapp1.0\win7-x64\Microsoft.SqlTools.ServiceLayer.exe";
+            }
+
+            // Make sure it exists before continuing
+            if (!File.Exists(serviceHostExecutable))
+            {
+                throw new FileNotFoundException($"Failed to find Microsoft.SqlTools.ServiceLayer.exe at provided location '{serviceHostExecutable}'. " +
+                                                "Please set SQLTOOLSERVICE_EXE environment variable to location of exe");
+            }
 
             //setup the service host for code coverage if the envvar is enabled
             if (Environment.GetEnvironmentVariable(ServiceCodeCoverageEnvironmentVariable) == "True")
@@ -86,6 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             // Setup events to queue for testing
             this.QueueEventsForType(ConnectionCompleteNotification.Type);
             this.QueueEventsForType(QueryExecuteCompleteEvent.Type);
+            this.QueueEventsForType(PublishDiagnosticsNotification.Type);
         }
 
         /// <summary>
