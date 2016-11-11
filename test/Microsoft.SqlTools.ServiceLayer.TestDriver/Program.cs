@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
                 using (var typeInstance = (IDisposable)Activator.CreateInstance(type))
                 {
                     Console.WriteLine("Running test " + testName);
-                    await (Task)methodInfo.Invoke(typeInstance, null);
+                    await (Task)methodInfo.Invoke(typeInstance, new object[] { testName });
                     Console.WriteLine("Test ran successfully: " + testName);
                 }
             }

@@ -5,10 +5,15 @@
     "debugType": "portable",
     "emitEntryPoint": true,
     "copyToOutput": {
-        "includeFiles": [
+      "includeFiles": [
         "Scripts/AdventureWorks.sql"
-        ]
-      }
+      ]
+    },
+    "publishOptions": {
+      "include": [
+        "Scripts/AdventureWorks.sql"
+      ]
+    }
   },
   "dependencies": {
     "xunit": "2.1.0",

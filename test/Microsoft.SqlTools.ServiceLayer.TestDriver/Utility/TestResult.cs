@@ -7,6 +7,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
 {
     public class TestResult
     {
-        public string ElapsedTime { get; set; }
+        public double ElapsedTime { get; set; }
     }
 }
