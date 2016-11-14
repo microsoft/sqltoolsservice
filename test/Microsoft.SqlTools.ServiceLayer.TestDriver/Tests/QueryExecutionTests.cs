@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 await RequestOpenDocumentNotification(openParams);
 
-                var queryResult = await RunQuery(ownerUri, query);
+                var queryResult = await RunQuery(ownerUri, query, 10000);
 
                 Assert.NotNull(queryResult);
                 Assert.NotNull(queryResult.BatchSummaries);

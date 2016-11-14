@@ -44,21 +44,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                this.isRunning = false;            
-
-                if (!Driver.IsCoverageRun)
-                {
-                    Driver.Stop().Wait();
-                }
-                else
-                {
-                    var p = Process.Start("taskkill", "/IM Microsoft.SqlTools.ServiceLayer.exe /F");
-                    p.WaitForExit();    
-                    Driver.ServiceProcess?.WaitForExit();
-                }
+                this.isRunning = false;
+                Driver.Stop().Wait();
+                Console.WriteLine("Successfully killed process.");
             }
-            catch
-            {                
+            catch(Exception e)
+            {
+                Console.WriteLine($"Exception while waiting for service exit: {e.Message}");
             }
         }
 
