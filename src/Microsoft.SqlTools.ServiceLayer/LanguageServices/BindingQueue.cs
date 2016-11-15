@@ -112,6 +112,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }      
         }
 
+        /// <summary>
+        /// Checks if a binding context already exists for the provided context key
+        /// </summary>
+        protected bool BindingContextExists(string key)
+        {
+            lock (this.bindingContextLock)
+            {
+                return this.BindingContextMap.ContainsKey(key);
+            }
+        }
+
         private bool HasPendingQueueItems
         {
             get
