@@ -24,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         private static string ComplexQuery = LoadComplexScript();
         private static string SimpleQuery = "SELECT * FROM sys.all_columns";
 
+        public string TestName { get; set; }
+
         private static string LoadComplexScript()
         {
             try
@@ -41,10 +43,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task HoverTestOnPrem(string scenarioName = "Hover")
+        public async Task HoverTestOnPrem()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "Hover" : TestName;
                 string ownerUri = Path.GetTempFileName();
                 string query = SimpleQuery;
                
@@ -64,10 +67,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task SuggestionsTest(string scenarioName = "Suggestions")
+        public async Task SuggestionsTest()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "Suggestions" : TestName;
                 string query = SimpleQuery;
                 TestServerType serverType = TestServerType.OnPrem;
                 string ownerUri = Path.GetTempFileName();
@@ -88,10 +92,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task DiagnosticsTests(string scenarioName = "Diagnostics")
+        public async Task DiagnosticsTests()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "Diagnostics" : TestName;
                 string ownerUri = Path.GetTempFileName();
                 string query = "SELECT * FROM sys.objects";
 
@@ -193,10 +198,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCacheColdAzureSimpleQuery(string scenarioName = "[Simple query][Cold][SQL DB] Binding cache")
+        public async Task BindingCacheColdAzureSimpleQuery()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Cold][SQL DB] Binding cache" : TestName;
                 string query = SimpleQuery;
                 Thread.Sleep(5000);
                 await VerifyBindingLoadScenario(TestServerType.Azure, query, scenarioName);
@@ -208,10 +214,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCacheColdOnPremSimpleQuery(string scenarioName = "[Simple query][Cold][On-Prem] Binding cache")
+        public async Task BindingCacheColdOnPremSimpleQuery()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Cold][On-Prem] Binding cache" : TestName;
+
                 string query = SimpleQuery;
                 await VerifyBindingLoadScenario(TestServerType.OnPrem, query, scenarioName);
             }
@@ -222,10 +230,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCacheWarmAzureSimpleQuery(string scenarioName = "[Simple query][Warm][SQL DB] Binding cache")
+        public async Task BindingCacheWarmAzureSimpleQuery()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Warm][SQL DB] Binding cache" : TestName;
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.Azure;
@@ -240,10 +249,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCacheWarmOnPremSimpleQuery(string scenarioName = "[Simple query][Warm][On-Prem] Binding cache")
+        public async Task BindingCacheWarmOnPremSimpleQuery()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Warm][On-Prem] Binding cache" : TestName;
+
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.OnPrem;
@@ -258,10 +269,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCacheColdAzureComplexQuery(string scenarioName = "[Complex query][Cold][SQL DB] Binding cache")
+        public async Task BindingCacheColdAzureComplexQuery()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Cold][SQL DB] Binding cache" : TestName;
+
                 string query = ComplexQuery;
                 await VerifyBindingLoadScenario(TestServerType.Azure, query, scenarioName);
             }
@@ -272,10 +285,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCacheColdOnPremComplexQuery(string scenarioName = "[Complex query][Cold][On-Prem] Binding cache")
+        public async Task BindingCacheColdOnPremComplexQuery()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Cold][On-Prem] Binding cache" : TestName;
+
                 string query = ComplexQuery;
                 await VerifyBindingLoadScenario(TestServerType.OnPrem, query, scenarioName);
             }
@@ -286,10 +301,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCacheWarmAzureComplexQuery(string scenarioName = "[Complex query][Warm][SQL DB] Binding cache")
+        public async Task BindingCacheWarmAzureComplexQuery()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Warm][SQL DB] Binding cache" : TestName;
+
                 string query = ComplexQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.Azure;
@@ -304,10 +321,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task BindingCacheWarmOnPremComplexQuery(string scenarioName = "[Complex query][Warm][On-Prem] Binding cache")
+        public async Task BindingCacheWarmOnPremComplexQuery()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Warm][On-Prem] Binding cache" : TestName;
+
                 string query = ComplexQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.OnPrem;
@@ -322,10 +341,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task ConnectAzureTest(string scenarioName = "Connect SQL DB")
+        public async Task ConnectAzureTest()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "Connect SQL DB" : TestName;
+
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.Azure;
@@ -359,10 +380,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task ConnectOnPremTest(string scenarioName = "Connect On-Prem")
+        public async Task ConnectOnPremTest()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "Connect On-Prem" : TestName;
+
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.OnPrem;
@@ -396,10 +419,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task DisconnectTest(string scenarioName = "Disconnect On-Prem")
+        public async Task DisconnectTest()
         {
             try
             {
+                string scenarioName = string.IsNullOrEmpty(TestName) ? "Disconnect On-Prem" : TestName;
+
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.OnPrem;
@@ -418,8 +443,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task QueryResultSummaryOnPremTest(string scenarioName = "Basic Query Result On-Prem")
+        public async Task QueryResultSummaryOnPremTest()
         {
+            string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Result On-Prem" : TestName;
+
             string ownerUri = Path.GetTempFileName();
             TestServerType serverType = TestServerType.OnPrem;
             string query = SimpleQuery;
@@ -438,8 +465,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task QueryResultFirstOnPremTest(string scenarioName = "Basic Query Result First Rows On-Prem")
+        public async Task QueryResultFirstOnPremTest()
         {
+            string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Result First Rows On-Prem" : TestName;
+
             string ownerUri = Path.GetTempFileName();
             TestServerType serverType = TestServerType.OnPrem;
             string query = SimpleQuery;
@@ -461,8 +490,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
 
         [Fact]
-        public async Task CancelQueryOnPremTest(string scenarioName = "Cancel Query On-Prem")
+        public async Task CancelQueryOnPremTest()
         {
+            string scenarioName = string.IsNullOrEmpty(TestName) ? "Cancel Query On-Prem" : TestName;
+
             string ownerUri = Path.GetTempFileName();
             TestServerType serverType = TestServerType.OnPrem;
             string query = "WAITFOR DELAY '00:01:00';";
@@ -503,8 +534,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task TestSaveResultsToCsvTest(string scenarioName = "Basic Query Save To CSV")
+        public async Task TestSaveResultsToCsvTest()
         {
+            string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Save To CSV" : TestName;
+
             string ownerUri = Path.GetTempFileName();
             string query = SimpleQuery;
             TestServerType serverType = TestServerType.OnPrem;
@@ -523,8 +556,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task TestSaveResultsToJsonTest(string scenarioName = "Basic Query Save To Json")
+        public async Task TestSaveResultsToJsonTest()
         {
+            string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Save To Json" : TestName;
+
             string ownerUri = Path.GetTempFileName();
             string query = SimpleQuery;
             TestServerType serverType = TestServerType.OnPrem;
