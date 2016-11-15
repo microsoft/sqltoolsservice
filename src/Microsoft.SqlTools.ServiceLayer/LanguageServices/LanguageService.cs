@@ -874,9 +874,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
-            if (parseResult != null)
+            if (parseResult != null && parseResult.Errors != null)
             {
-                foreach (var error in parseResult.Errors ?? Enumerable.Empty<Error>())
+                foreach (var error in parseResult.Errors)
                 {
                     markers.Add(new ScriptFileMarker()
                     {
