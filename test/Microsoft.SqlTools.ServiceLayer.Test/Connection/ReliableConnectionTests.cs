@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#if LIVE_CONNECTION_TESTS
+// TODO: Remove the NOT (!) before merging in
+#if !LIVE_CONNECTION_TESTS
 
 using System;
 using System.Collections.Generic;
@@ -719,6 +720,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Assert.True(SqlSchemaModelErrorCodes.IsParseErrorCode(46010));
             Assert.True(SqlSchemaModelErrorCodes.IsInterpretationErrorCode(Interpretation.InterpretationBaseCode+ 1));
             Assert.True(SqlSchemaModelErrorCodes.IsStatementFilterError(StatementFilter.StatementFilterBaseCode + 1));        
+        }
+
+        [Fact]
+        public void RetryCallbackEventArgsTest()
+        {
+            var exception = new Exception();
+            var timespan = TimeSpan.FromMinutes(1);
+
+            var args = new RetryCallbackEventArgs(5, exception, timespan);
+            Assert.Equal(5, args.RetryCount);
+            Assert.Equal(exception, args.Exception);
+            Assert.Equal(timespan, args.Delay);
         }
     }
 }

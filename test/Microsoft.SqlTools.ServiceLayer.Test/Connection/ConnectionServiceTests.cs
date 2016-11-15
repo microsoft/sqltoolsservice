@@ -891,5 +891,65 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 }
             });
         }
+
+        /// <summary>
+        /// Test that the connection complete notification type can be created.
+        /// </summary>
+        [Fact]
+        public void TestConnectionCompleteNotificationIsCreated()
+        {
+            Assert.NotNull(ConnectionCompleteNotification.Type);
+        }
+
+        /// <summary>
+        /// Test that the connection summary comparer creates a hash code correctly
+        /// <summary>
+        [Theory]
+        [InlineData(true, null, null ,null)]
+        [InlineData(false, null, null, null)]
+        [InlineData(false, null, null, "sa")]
+        [InlineData(false, null, "test", null)]
+        [InlineData(false, null, "test", "sa")]
+        [InlineData(false, "server", null, null)]
+        [InlineData(false, "server", null, "sa")]
+        [InlineData(false, "server", "test", null)]
+        [InlineData(false, "server", "test", "sa")]
+        public void TestConnectionSummaryComparerHashCode(bool objectNull, string serverName, string databaseName, string userName)
+        {
+            ConnectionSummary summary = null;
+            if (!objectNull)
+            {
+                summary = new ConnectionSummary()
+                {
+                    ServerName = serverName,
+                    DatabaseName = databaseName,
+                    UserName = userName
+                };
+            }
+            ConnectionSummaryComparer comparer = new ConnectionSummaryComparer();
+            
+            int hashCode = comparer.GetHashCode(summary);
+            if (summary == null || (serverName == null && databaseName == null && userName == null))
+            {
+                Assert.Equal(31, hashCode);
+            }
+            else
+            {
+                Assert.NotEqual(31, hashCode);
+            }
+        }
+
+        [Fact]
+        public void ConnectParamsAreInvalidIfConnectionIsNull()
+        {
+            ConnectParams parameters = new ConnectParams();
+            parameters.OwnerUri = "my/sql/file.sql";
+            parameters.Connection = null;
+
+            string errorMessage;
+            Assert.False(parameters.IsValid(out errorMessage));
+            Assert.NotNull(errorMessage);
+            Assert.NotEmpty(errorMessage);
+        }
     }
 }
