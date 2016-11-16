@@ -6,6 +6,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
 {
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             EndDateTime = DateTime.UtcNow;
         }
 
-        public void EndAndPrint(string testName)
+        public void EndAndPrint([CallerMemberName] string testName = "")
         {
             End();
             var currentColor = Console.ForegroundColor;

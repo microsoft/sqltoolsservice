@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -14,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
@@ -47,12 +47,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Hover" : TestName;
                 string ownerUri = Path.GetTempFileName();
                 string query = SimpleQuery;
                
                 await ConnectAsync(TestServerType.OnPrem, query, ownerUri);
-                Hover hover = await CalculateRunTime(scenarioName, async () =>
+                Hover hover = await CalculateRunTime(async () =>
                 {
                     return await RequestHover(ownerUri, query, 0, 15); ;
                 });
@@ -71,7 +70,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Suggestions" : TestName;
                 string query = SimpleQuery;
                 TestServerType serverType = TestServerType.OnPrem;
                 string ownerUri = Path.GetTempFileName();
@@ -81,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 await ConnectAsync(serverType, query, ownerUri);
                 await ValidateCompletionResponse(ownerUri, query, null);
                 
-                await ValidateCompletionResponse(ownerUri, query, scenarioName);
+                await ValidateCompletionResponse(ownerUri, query);
 
                 await Disconnect(ownerUri);
             }
@@ -96,7 +94,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Diagnostics" : TestName;
                 string ownerUri = Path.GetTempFileName();
                 string query = "SELECT * FROM sys.objects";
 
@@ -140,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     var completeEvent = await Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
                     if (completeEvent != null && completeEvent.Diagnostics != null && completeEvent.Diagnostics.Length > 0)
                     {
-                        timer.EndAndPrint(scenarioName);
+                        timer.EndAndPrint();
                         break;
                     }
                     if (timer.TotalMilliSecondsUntilNow >= 500000)
@@ -158,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        private async Task ValidateCompletionResponse(string ownerUri, string query, string testName)
+        private async Task ValidateCompletionResponse(string ownerUri, string query, [CallerMemberName] string testName = "")
         {
             TestTimer timer = new TestTimer();
             CompletionItem completion = null;
@@ -202,10 +199,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Cold][SQL DB] Binding cache" : TestName;
                 string query = SimpleQuery;
                 Thread.Sleep(5000);
-                await VerifyBindingLoadScenario(TestServerType.Azure, query, scenarioName);
+                await VerifyBindingLoadScenario(TestServerType.Azure, query);
             }
             finally
             {
@@ -218,10 +214,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Cold][On-Prem] Binding cache" : TestName;
-
                 string query = SimpleQuery;
-                await VerifyBindingLoadScenario(TestServerType.OnPrem, query, scenarioName);
+                await VerifyBindingLoadScenario(TestServerType.OnPrem, query);
             }
             finally
             {
@@ -234,13 +228,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Warm][SQL DB] Binding cache" : TestName;
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.Azure;
                 await ConnectAsync(serverType, query, ownerUri);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(serverType, query);
             }
             finally
             {
@@ -253,14 +246,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Warm][On-Prem] Binding cache" : TestName;
-
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.OnPrem;
                 await ConnectAsync(serverType, query, ownerUri);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(serverType, query);
             }
             finally
             {
@@ -273,10 +264,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Cold][SQL DB] Binding cache" : TestName;
-
                 string query = ComplexQuery;
-                await VerifyBindingLoadScenario(TestServerType.Azure, query, scenarioName);
+                await VerifyBindingLoadScenario(TestServerType.Azure, query);
             }
             finally
             {
@@ -289,10 +278,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Cold][On-Prem] Binding cache" : TestName;
-
                 string query = ComplexQuery;
-                await VerifyBindingLoadScenario(TestServerType.OnPrem, query, scenarioName);
+                await VerifyBindingLoadScenario(TestServerType.OnPrem, query);
             }
             finally
             {
@@ -305,14 +292,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Warm][SQL DB] Binding cache" : TestName;
-
                 string query = ComplexQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.Azure;
                 await ConnectAsync(serverType, query, ownerUri);
                 Thread.Sleep(100000);
-                await VerifyBindingLoadScenario(serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(serverType, query);
             }
             finally
             {
@@ -325,14 +310,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Warm][On-Prem] Binding cache" : TestName;
-
                 string query = ComplexQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.OnPrem;
                 await ConnectAsync(serverType, query, ownerUri);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(serverType, query);
             }
             finally
             {
@@ -345,8 +328,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Connect SQL DB" : TestName;
-
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.Azure;
@@ -366,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 await RequestOpenDocumentNotification(openParams);
 
                 Thread.Sleep(500);
-                var connected = await CalculateRunTime(scenarioName, async () =>
+                var connected = await CalculateRunTime(async () =>
                 {
                     var connectParams = await GetDatabaseConnectionAsync(serverType);
                     return await Connect(ownerUri, connectParams);
@@ -384,8 +365,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Connect On-Prem" : TestName;
-
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.OnPrem;
@@ -405,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 await RequestOpenDocumentNotification(openParams);
 
                 Thread.Sleep(500);
-                var connected = await CalculateRunTime(scenarioName, async () =>
+                var connected = await CalculateRunTime(async () =>
                 {
                     var connectParams = await GetDatabaseConnectionAsync(serverType);
                     return await Connect(ownerUri, connectParams);
@@ -423,14 +402,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             try
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Disconnect On-Prem" : TestName;
-
                 string query = SimpleQuery;
                 string ownerUri = Path.GetTempFileName();
                 TestServerType serverType = TestServerType.OnPrem;
                 await ConnectAsync(serverType, query, ownerUri);
                 Thread.Sleep(1000);
-                var connected = await CalculateRunTime(scenarioName, async () =>
+                var connected = await CalculateRunTime(async () =>
                 {
                     return await base.Disconnect(ownerUri);
                 });
@@ -445,15 +422,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task QueryResultSummaryOnPremTest()
         {
-            string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Result On-Prem" : TestName;
-
             string ownerUri = Path.GetTempFileName();
             TestServerType serverType = TestServerType.OnPrem;
             string query = SimpleQuery;
 
             await ConnectAsync(serverType, query, ownerUri);
 
-            var queryTask = await CalculateRunTime(scenarioName, async () =>
+            var queryTask = await CalculateRunTime(async () =>
             {
                 return await RunQuery(ownerUri, query);
             });
@@ -467,15 +442,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task QueryResultFirstOnPremTest()
         {
-            string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Result First Rows On-Prem" : TestName;
-
             string ownerUri = Path.GetTempFileName();
             TestServerType serverType = TestServerType.OnPrem;
             string query = SimpleQuery;
 
             await ConnectAsync(serverType, query, ownerUri);
 
-            var queryResult = await CalculateRunTime(scenarioName, async () =>
+            var queryResult = await CalculateRunTime(async () =>
             {
                 var queryTask = await RunQuery(ownerUri, query);
                 return await ExecuteSubset(ownerUri, 0, 0, 0, 100);
@@ -492,8 +465,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task CancelQueryOnPremTest()
         {
-            string scenarioName = string.IsNullOrEmpty(TestName) ? "Cancel Query On-Prem" : TestName;
-
             string ownerUri = Path.GetTempFileName();
             TestServerType serverType = TestServerType.OnPrem;
             string query = "WAITFOR DELAY '00:01:00';";
@@ -513,7 +484,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     var queryTask = await CancelQuery(ownerUri);
                     if (queryTask != null)
                     {
-                        timer.EndAndPrint(scenarioName);
+                        timer.EndAndPrint();
                         break;
                     }
                     if (timer.TotalMilliSecondsUntilNow >= 100000)
@@ -536,8 +507,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task TestSaveResultsToCsvTest()
         {
-            string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Save To CSV" : TestName;
-
             string ownerUri = Path.GetTempFileName();
             string query = SimpleQuery;
             TestServerType serverType = TestServerType.OnPrem;
@@ -547,7 +516,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             // Execute a query
             await RunQuery(ownerUri, query);
 
-            var saveTask = await CalculateRunTime(scenarioName, async () =>
+            var saveTask = await CalculateRunTime(async () =>
             {
                 return await SaveAsCsv(ownerUri, output, 0, 0);
             });
@@ -558,8 +527,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task TestSaveResultsToJsonTest()
         {
-            string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Save To Json" : TestName;
-
             string ownerUri = Path.GetTempFileName();
             string query = SimpleQuery;
             TestServerType serverType = TestServerType.OnPrem;
@@ -568,7 +535,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             // Execute a query
             await RunQuery(ownerUri, query);
 
-            var saveTask = await CalculateRunTime(scenarioName, async () =>
+            var saveTask = await CalculateRunTime(async () =>
             {
                 return await SaveAsJson(ownerUri, output, 0, 0);
             });
@@ -605,12 +572,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             return connected;
         }
 
-        private async Task<T> CalculateRunTime<T>(string testName, Func<Task<T>> testToRun)
+        private async Task<T> CalculateRunTime<T>(Func<Task<T>> testToRun, [CallerMemberName] string testName = "")
         {
             TestTimer timer = new TestTimer();
             T result = await testToRun();
             timer.EndAndPrint(testName);
-           
 
             return result;
         }
