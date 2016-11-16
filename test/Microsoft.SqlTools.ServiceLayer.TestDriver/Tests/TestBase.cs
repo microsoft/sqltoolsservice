@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -21,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// <summary>
     /// Base class for all test suites run by the test driver
     /// </summary>
-    public class TestBase : IDisposable
+    public sealed class TestBase : IDisposable
     {
         private bool isRunning = false;
 
@@ -69,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// Request a new connection to be created
         /// </summary>
         /// <returns>True if the connection completed successfully</returns>        
-        protected async Task<bool> Connect(string ownerUri, ConnectParams connectParams, int timeout = 15000)
+        public async Task<bool> Connect(string ownerUri, ConnectParams connectParams, int timeout = 15000)
         { 
             connectParams.OwnerUri = ownerUri;
             var connectResult = await Driver.SendRequest(ConnectionRequest.Type, connectParams);
@@ -87,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a disconnect
         /// </summary>
-        protected async Task<bool> Disconnect(string ownerUri)
+        public async Task<bool> Disconnect(string ownerUri)
         {
             var disconnectParams = new DisconnectParams();
             disconnectParams.OwnerUri = ownerUri;
@@ -99,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a cancel connect
         /// </summary>
-        protected async Task<bool> CancelConnect(string ownerUri)
+        public async Task<bool> CancelConnect(string ownerUri)
         {
             var cancelParams = new CancelConnectParams();
             cancelParams.OwnerUri = ownerUri;
@@ -110,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a cancel connect
         /// </summary>
-        protected async Task<ListDatabasesResponse> ListDatabases(string ownerUri)
+        public async Task<ListDatabasesResponse> ListDatabases(string ownerUri)
         {
             var listParams = new ListDatabasesParams();
             listParams.OwnerUri = ownerUri;
@@ -121,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request the active SQL script is parsed for errors
         /// </summary>
-        protected async Task<QueryExecuteSubsetResult> RequestQueryExecuteSubset(QueryExecuteSubsetParams subsetParams)
+        public async Task<QueryExecuteSubsetResult> RequestQueryExecuteSubset(QueryExecuteSubsetParams subsetParams)
         {
             return await Driver.SendRequest(QueryExecuteSubsetRequest.Type, subsetParams);
         }
@@ -129,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request the active SQL script is parsed for errors
         /// </summary>
-        protected async Task RequestOpenDocumentNotification(DidOpenTextDocumentNotification openParams)
+        public async Task RequestOpenDocumentNotification(DidOpenTextDocumentNotification openParams)
         {
             await Driver.SendEvent(DidOpenTextDocumentNotification.Type, openParams);
         }
@@ -137,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a configuration change notification
         /// </summary>
-        protected async Task RequestChangeConfigurationNotification(DidChangeConfigurationParams<SqlToolsSettings> configParams)
+        public async Task RequestChangeConfigurationNotification(DidChangeConfigurationParams<SqlToolsSettings> configParams)
         {
             await Driver.SendEvent(DidChangeConfigurationNotification<SqlToolsSettings>.Type, configParams);
         }
@@ -145,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// /// Request the active SQL script is parsed for errors
         /// </summary>
-        protected async Task RequestChangeTextDocumentNotification(DidChangeTextDocumentParams changeParams)
+        public async Task RequestChangeTextDocumentNotification(DidChangeTextDocumentParams changeParams)
         {
             await Driver.SendEvent(DidChangeTextDocumentNotification.Type, changeParams);
         }
@@ -153,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request completion item resolve to look-up additional info
         /// </summary>
-        protected async Task<CompletionItem> RequestResolveCompletion(CompletionItem item)
+        public async Task<CompletionItem> RequestResolveCompletion(CompletionItem item)
         {
             var result = await Driver.SendRequest(CompletionResolveRequest.Type, item);
             return result;
@@ -162,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a Read Credential for given credential id
         /// </summary>
-        protected async Task<Credential> ReadCredential(string credentialId)
+        public async Task<Credential> ReadCredential(string credentialId)
         {
             var credentialParams = new Credential();
             credentialParams.CredentialId = credentialId;
@@ -173,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Returns database connection parameters for given server type
         /// </summary>
-        protected async Task<ConnectParams> GetDatabaseConnectionAsync(TestServerType serverType)
+        public async Task<ConnectParams> GetDatabaseConnectionAsync(TestServerType serverType)
         {
             ConnectionProfile connectionProfile = null;
             TestServerIdentity serverIdentiry = ConnectionTestUtils.TestServers.FirstOrDefault(x => x.ServerType == serverType);
@@ -206,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a list of completion items for a position in a block of text
         /// </summary>
-        protected async Task<CompletionItem[]> RequestCompletion(string ownerUri, string text, int line, int character)
+        public async Task<CompletionItem[]> RequestCompletion(string ownerUri, string text, int line, int character)
         {
             // Write the text to a backing file
             lock (fileLock)
@@ -228,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a a hover tooltop
         /// </summary>
-        protected async Task<Hover> RequestHover(string ownerUri, string text, int line, int character)
+        public async Task<Hover> RequestHover(string ownerUri, string text, int line, int character)
         {
             // Write the text to a backing file
             lock (fileLock)
@@ -236,12 +235,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 System.IO.File.WriteAllText(ownerUri, text);
             }
 
-            var completionParams = new TextDocumentPosition();
-            completionParams.TextDocument = new TextDocumentIdentifier();
-            completionParams.TextDocument.Uri = ownerUri;
-            completionParams.Position = new Position();
-            completionParams.Position.Line = line;
-            completionParams.Position.Character = character;
+            var completionParams = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier {Uri = ownerUri},
+                Position = new Position
+                {
+                    Line = line,
+                    Character = character
+                }
+            };
 
             var result = await Driver.SendRequest(HoverRequest.Type, completionParams);
             return result;
@@ -250,14 +252,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Run a query using a given connection bound to a URI
         /// </summary>
-        protected async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query, int timeoutMilliseconds = 5000)
+        public async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query, int timeoutMilliseconds = 5000)
         {
             // Write the query text to a backing file
             WriteToFile(ownerUri, query);
 
-            var queryParams = new QueryExecuteParams();
-            queryParams.OwnerUri = ownerUri;
-            queryParams.QuerySelection = null;
+            var queryParams = new QueryExecuteParams
+            {
+                OwnerUri = ownerUri,
+                QuerySelection = null
+            };
 
             var result = await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
             if (result != null && string.IsNullOrEmpty(result.Messages))
@@ -274,10 +278,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request to cancel an executing query
         /// </summary>
-        protected async Task<QueryCancelResult> CancelQuery(string ownerUri)
+        public async Task<QueryCancelResult> CancelQuery(string ownerUri)
         {
-            var cancelParams = new QueryCancelParams();
-            cancelParams.OwnerUri = ownerUri;
+            var cancelParams = new QueryCancelParams {OwnerUri = ownerUri};
 
             var result = await Driver.SendRequest(QueryCancelRequest.Type, cancelParams);
             return result;
@@ -286,14 +289,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request to save query results as CSV
         /// </summary>
-        protected async Task<SaveResultRequestResult> SaveAsCsv(string ownerUri, string filename, int batchIndex, int resultSetIndex)
+        public async Task<SaveResultRequestResult> SaveAsCsv(string ownerUri, string filename, int batchIndex, int resultSetIndex)
         {
-            var saveParams = new SaveResultsAsCsvRequestParams();
-            saveParams.OwnerUri = ownerUri;
-            saveParams.BatchIndex = batchIndex;
-            saveParams.ResultSetIndex = resultSetIndex;
-            saveParams.FilePath = filename;
-            
+            var saveParams = new SaveResultsAsCsvRequestParams
+            {
+                OwnerUri = ownerUri,
+                BatchIndex = batchIndex,
+                ResultSetIndex = resultSetIndex,
+                FilePath = filename
+            };
+
             var result = await Driver.SendRequest(SaveResultsAsCsvRequest.Type, saveParams);
             return result;
         }
@@ -301,14 +306,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request to save query results as JSON
         /// </summary>
-        protected async Task<SaveResultRequestResult> SaveAsJson(string ownerUri, string filename, int batchIndex, int resultSetIndex)
+        public async Task<SaveResultRequestResult> SaveAsJson(string ownerUri, string filename, int batchIndex, int resultSetIndex)
         {
-            var saveParams = new SaveResultsAsJsonRequestParams();
-            saveParams.OwnerUri = ownerUri;
-            saveParams.BatchIndex = batchIndex;
-            saveParams.ResultSetIndex = resultSetIndex;
-            saveParams.FilePath = filename;
-            
+            var saveParams = new SaveResultsAsJsonRequestParams
+            {
+                OwnerUri = ownerUri,
+                BatchIndex = batchIndex,
+                ResultSetIndex = resultSetIndex,
+                FilePath = filename
+            };
+
             var result = await Driver.SendRequest(SaveResultsAsJsonRequest.Type, saveParams);
             return result;
         }
@@ -316,7 +323,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Request a subset of results from a query
         /// </summary>
-        protected async Task<QueryExecuteSubsetResult> ExecuteSubset(string ownerUri, int batchIndex, int resultSetIndex, int rowStartIndex, int rowCount)
+        public async Task<QueryExecuteSubsetResult> ExecuteSubset(string ownerUri, int batchIndex, int resultSetIndex, int rowStartIndex, int rowCount)
         {
             var subsetParams = new QueryExecuteSubsetParams();
             subsetParams.OwnerUri = ownerUri;
@@ -329,7 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             return result;
         }
 
-        protected void WriteToFile(string ownerUri, string query)
+        public void WriteToFile(string ownerUri, string query)
         {
             lock (fileLock)
             {

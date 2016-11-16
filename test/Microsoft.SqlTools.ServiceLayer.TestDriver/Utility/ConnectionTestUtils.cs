@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         public static Setting Setting = InitSetting();
 
         private static readonly Lazy<ConnectParams> azureTestServerConnection =
-            new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("***REMOVED***"));
+            new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("localhost"));
 
         private static IEnumerable<TestServerIdentity> InitTestServerNames()
         {
@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         }
 
         private static readonly Lazy<ConnectParams> sqlDataToolsAzureConnection =
-            new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("***REMOVED***"));
+            new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("localhost"));
 
         public static ConnectParams SqlDataToolsAzureConnection
         {
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         }
 
         private static readonly Lazy<ConnectParams> dataToolsTelemetryAzureConnection =
-            new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("***REMOVED***"));
+            new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("localhost"));
 
         private static string GetSettingFileContent()
         {
