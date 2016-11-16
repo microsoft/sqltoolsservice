@@ -93,6 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
 
             // Setup events to queue for testing
             this.QueueEventsForType(ConnectionCompleteNotification.Type);
+            this.QueueEventsForType(IntelliSenseReadyNotification.Type);
             this.QueueEventsForType(QueryExecuteCompleteEvent.Type);
             this.QueueEventsForType(PublishDiagnosticsNotification.Type);
         }
