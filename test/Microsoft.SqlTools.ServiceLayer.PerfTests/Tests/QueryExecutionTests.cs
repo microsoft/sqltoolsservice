@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
                 string scenarioName = string.IsNullOrEmpty(TestName) ? "Basic Query Result First Rows On-Prem" : TestName;
                 const string query = Scripts.SimpleQuery;
 
-                await Common.ConnectAsync(testBase, TestServerType.OnPrem, query, ownerUri);
+                await Common.ConnectAsync(testBase, TestServerType.OnPrem, query, queryFile.FilePath);
 
                 var queryResult = await Common.CalculateRunTime(scenarioName, async () =>
                 {

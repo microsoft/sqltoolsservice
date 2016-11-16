@@ -39,10 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (TestBase testBase = new TestBase())
             {
                 string scenarioName = string.IsNullOrEmpty(TestName) ? "Suggestions" : TestName;
-                string query = Scripts.SimpleQuery;
+                const string query = Scripts.SimpleQuery;
                 await Common.ConnectAsync(testBase, TestServerType.OnPrem, query, queryFile.FilePath);
-                await ValidateCompletionResponse(queryFile.FilePath, query, null);
-                await ValidateCompletionResponse(queryFile.FilePath, query, scenarioName);
+                await ValidateCompletionResponse(testBase, queryFile.FilePath, query, null);
+                await ValidateCompletionResponse(testBase, queryFile.FilePath, query, scenarioName);
                 await testBase.Disconnect(queryFile.FilePath);
             }
         }
@@ -177,8 +177,8 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
                 string query = Scripts.ComplexQuery;
                 const TestServerType serverType = TestServerType.Azure;
                 await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
-                Thread.Sleep(100000);
-                await VerifyBindingLoadScenario(serverType, query, scenarioName);
+                Thread.Sleep(10000);
+                await VerifyBindingLoadScenario(testBase, serverType, query, scenarioName);
             }
         }
 
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
                 const TestServerType serverType = TestServerType.OnPrem;
                 await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(testBase, serverType, query, scenarioName);
             }
         }
 
