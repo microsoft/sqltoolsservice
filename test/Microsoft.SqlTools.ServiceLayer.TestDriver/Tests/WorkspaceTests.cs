@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task InitializeRequestTest()
         {
-            using (TestBase testBase = new TestBase())
+            using (TestHelper testHelper = new TestHelper())
             {
                 InitializeRequest initializeRequest = new InitializeRequest()
                 {
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Capabilities = new ClientCapabilities()
                 };                   
                        
-                InitializeResult result = await testBase.Driver.SendRequest(InitializeRequest.Type, initializeRequest);
+                InitializeResult result = await testHelper.Driver.SendRequest(InitializeRequest.Type, initializeRequest);
                 Assert.NotNull(result);
             }
         }

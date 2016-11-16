@@ -21,24 +21,24 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             const string query = "SELECT * FROM sys.objects a CROSS JOIN sys.objects b CROSS JOIN sys.objects c";
 
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
 
                 // Run and cancel 100 queries
                 for (int i = 0; i < 100; i++)
                 {
-                    var queryTask = testBase.RunQuery(queryFile.FilePath, query);
+                    var queryTask = testHelper.RunQuery(queryTempFile.FilePath, query);
 
-                    var cancelResult = await testBase.CancelQuery(queryFile.FilePath);
+                    var cancelResult = await testHelper.CancelQuery(queryTempFile.FilePath);
                     Assert.NotNull(cancelResult);
                     Assert.True(string.IsNullOrEmpty(cancelResult.Messages));
 
                     await queryTask;
                 }
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -47,27 +47,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             const string query = "SELECT * FROM sys.objects a CROSS JOIN sys.objects b CROSS JOIN sys.objects c";
 
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
 
                 // Start a long-running query
-                var queryTask = testBase.RunQuery(queryFile.FilePath, query, 60000);
+                var queryTask = testHelper.RunQuery(queryTempFile.FilePath, query, 60000);
 
                 // Interact with the service. None of these requests should time out while waiting for the query to finish
                 for (int i = 0; i < 10; i++)
                 {
-                    using (SelfCleaningFile queryFile2 = new SelfCleaningFile())
+                    using (SelfCleaningTempFile queryFile2 = new SelfCleaningTempFile())
                     {
-                        await testBase.Connect(queryFile2.FilePath, ConnectionTestUtils.AzureTestServerConnection);
-                        Assert.NotNull(await testBase.RequestCompletion(queryFile2.FilePath, "SELECT * FROM sys.objects", 0, 10));
-                        await testBase.Disconnect(queryFile2.FilePath);
+                        await testHelper.Connect(queryFile2.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                        Assert.NotNull(await testHelper.RequestCompletion(queryFile2.FilePath, "SELECT * FROM sys.objects", 0, 10));
+                        await testHelper.Disconnect(queryFile2.FilePath);
                     }
                 }
 
-                await testBase.CancelQuery(queryFile.FilePath);
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.CancelQuery(queryTempFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -77,21 +77,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             const int queryCount = 10;
             const string query = "SELECT * FROM sys.objects";
 
-            using (TestBase testBase = new TestBase())
+            using (TestHelper testHelper = new TestHelper())
             {
                 // Create n connections
-                SelfCleaningFile[] ownerUris = new SelfCleaningFile[queryCount];
+                SelfCleaningTempFile[] ownerUris = new SelfCleaningTempFile[queryCount];
                 for (int i = 0; i < queryCount; i++)
                 {
-                    ownerUris[i] = new SelfCleaningFile();
-                    Assert.NotNull(await testBase.Connect(ownerUris[i].FilePath, ConnectionTestUtils.AzureTestServerConnection));
+                    ownerUris[i] = new SelfCleaningTempFile();
+                    Assert.NotNull(await testHelper.Connect(ownerUris[i].FilePath, ConnectionTestUtils.AzureTestServerConnection));
                 }
 
                 // Run n queries at once
                 var queryTasks = new Task<QueryExecuteCompleteParams>[queryCount];
                 for (int i = 0; i < queryCount; i++)
                 {
-                    queryTasks[i] = testBase.RunQuery(ownerUris[i].FilePath, query);
+                    queryTasks[i] = testHelper.RunQuery(ownerUris[i].FilePath, query);
                 }
                 await Task.WhenAll(queryTasks);
 
@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 {
                     Assert.NotNull(queryTasks[i].Result);
                     Assert.NotNull(queryTasks[i].Result.BatchSummaries);
-                    await testBase.Disconnect(ownerUris[i].FilePath);
+                    await testHelper.Disconnect(ownerUris[i].FilePath);
                     ownerUris[i].Dispose();
                 }
             }
@@ -111,13 +111,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             const string query = "SELECT * FROM sys.objects";
 
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
 
                 // Execute a query
-                await testBase.RunQuery(queryFile.FilePath, query);
+                await testHelper.RunQuery(queryTempFile.FilePath, query);
 
                 // Spawn several tasks to save results
                 var saveTasks = new Task<SaveResultRequestResult>[100];
@@ -125,28 +125,28 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 {
                     if (i % 2 == 0)
                     {
-                        saveTasks[i] = testBase.SaveAsCsv(queryFile.FilePath, System.IO.Path.GetTempFileName(), 0, 0);
+                        saveTasks[i] = testHelper.SaveAsCsv(queryTempFile.FilePath, System.IO.Path.GetTempFileName(), 0, 0);
                     }
                     else
                     {
-                        saveTasks[i] = testBase.SaveAsJson(queryFile.FilePath, System.IO.Path.GetTempFileName(), 0, 0);
+                        saveTasks[i] = testHelper.SaveAsJson(queryTempFile.FilePath, System.IO.Path.GetTempFileName(), 0, 0);
                     }
                 }
 
                 // Interact with the service. None of these requests should time out while waiting for the save results tasks to finish
                 for (int i = 0; i < 10; i++)
                 {
-                    using(SelfCleaningFile queryFile2 = new SelfCleaningFile())
+                    using(SelfCleaningTempFile queryFile2 = new SelfCleaningTempFile())
                     {
-                        await testBase.Connect(queryFile2.FilePath, ConnectionTestUtils.AzureTestServerConnection);
-                        Assert.NotNull(await testBase.RequestCompletion(queryFile2.FilePath, "SELECT * FROM sys.objects", 0, 10));
-                        await testBase.Disconnect(queryFile2.FilePath);
+                        await testHelper.Connect(queryFile2.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                        Assert.NotNull(await testHelper.RequestCompletion(queryFile2.FilePath, "SELECT * FROM sys.objects", 0, 10));
+                        await testHelper.Disconnect(queryFile2.FilePath);
                     }
                 }
 
                 await Task.WhenAll(saveTasks);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -155,35 +155,35 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             const string query = "SELECT * FROM sys.objects";
 
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
 
                 // Execute a query
-                await testBase.RunQuery(queryFile.FilePath, query);
+                await testHelper.RunQuery(queryTempFile.FilePath, query);
 
                 // Spawn several tasks for subset requests
                 var subsetTasks = new Task<QueryExecuteSubsetResult>[100];
                 for (int i = 0; i < 100; i++)
                 {
-                    subsetTasks[i] = testBase.ExecuteSubset(queryFile.FilePath, 0, 0, 0, 100);
+                    subsetTasks[i] = testHelper.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 100);
                 }
 
                 // Interact with the service. None of these requests should time out while waiting for the subset tasks to finish
                 for (int i = 0; i < 10; i++)
                 {
-                    using (SelfCleaningFile queryFile2 = new SelfCleaningFile())
+                    using (SelfCleaningTempFile queryFile2 = new SelfCleaningTempFile())
                     {
-                        await testBase.Connect(queryFile2.FilePath, ConnectionTestUtils.AzureTestServerConnection);
-                        Assert.NotNull(await testBase.RequestCompletion(queryFile2.FilePath, "SELECT * FROM sys.objects", 0, 10));
-                        await testBase.Disconnect(queryFile2.FilePath);
+                        await testHelper.Connect(queryFile2.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                        Assert.NotNull(await testHelper.RequestCompletion(queryFile2.FilePath, "SELECT * FROM sys.objects", 0, 10));
+                        await testHelper.Disconnect(queryFile2.FilePath);
                     }
                 }
 
                 await Task.WhenAll(subsetTasks);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -192,35 +192,35 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             const string query = "SELECT * FROM sys.objects a CROSS JOIN sys.objects b";
 
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 List<Task> tasks = new List<Task>();
 
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
 
                 // Execute a long-running query
-                var queryTask = testBase.RunQuery(queryFile.FilePath, query, 60000);
+                var queryTask = testHelper.RunQuery(queryTempFile.FilePath, query, 60000);
 
                 // Queue up some tasks that interact with the service
                 for (int i = 0; i < 10; i++)
                 {
-                    using (SelfCleaningFile queryFile2 = new SelfCleaningFile())
+                    using (SelfCleaningTempFile queryFile2 = new SelfCleaningTempFile())
                     {
                         tasks.Add(Task.Run(async () =>
                         {
-                            await testBase.Connect(queryFile2.FilePath, ConnectionTestUtils.AzureTestServerConnection);
-                            await testBase.RequestCompletion(queryFile2.FilePath, "SELECT * FROM sys.objects", 0, 10);
-                            await testBase.RunQuery(queryFile2.FilePath, "SELECT * FROM sys.objects");
-                            await testBase.Disconnect(queryFile2.FilePath);
+                            await testHelper.Connect(queryFile2.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                            await testHelper.RequestCompletion(queryFile2.FilePath, "SELECT * FROM sys.objects", 0, 10);
+                            await testHelper.RunQuery(queryFile2.FilePath, "SELECT * FROM sys.objects");
+                            await testHelper.Disconnect(queryFile2.FilePath);
                         }));
                     }
                 }
 
                 // Cancel the long-running query
-                await testBase.CancelQuery(queryFile.FilePath);
+                await testHelper.CancelQuery(queryTempFile.FilePath);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -229,10 +229,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             const string query = "SELECT * FROM sys.all_columns c";
 
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                bool connected = await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
                 Assert.True(connected, "Connection is successful");
 
                 Thread.Sleep(500);
@@ -241,16 +241,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 {
                     TextDocument = new TextDocumentItem()
                     {
-                        Uri = queryFile.FilePath,
+                        Uri = queryTempFile.FilePath,
                         LanguageId = "enu",
                         Version = 1,
                         Text = query
                     }
                 };
 
-                await testBase.RequestOpenDocumentNotification(openParams);
+                await testHelper.RequestOpenDocumentNotification(openParams);
 
-                var queryResult = await testBase.RunQuery(queryFile.FilePath, query, 10000);
+                var queryResult = await testHelper.RunQuery(queryTempFile.FilePath, query, 10000);
 
                 Assert.NotNull(queryResult);
                 Assert.NotNull(queryResult.BatchSummaries);
@@ -265,18 +265,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 var subsetRequest = new QueryExecuteSubsetParams()
                 {
-                    OwnerUri = queryFile.FilePath,
+                    OwnerUri = queryTempFile.FilePath,
                     BatchIndex = 0,
                     ResultSetIndex = 0,
                     RowsStartIndex = 0,
                     RowsCount = 100,
                 };
                 
-                var querySubset = await testBase.RequestQueryExecuteSubset(subsetRequest);
+                var querySubset = await testHelper.RequestQueryExecuteSubset(subsetRequest);
                 Assert.NotNull(querySubset);
                 Assert.True(querySubset.ResultSubset.RowCount == 100);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -285,42 +285,42 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             const string query = "SELECT * FROM sys.objects";
 
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 List<Task> tasks = new List<Task>();
 
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.AzureTestServerConnection);
 
-                Enumerable.Range(0, 10).ToList().ForEach(arg => tasks.Add(testBase.RequestCompletion(queryFile.FilePath, query, 0, 10)));
-                var queryTask = testBase.RunQuery(queryFile.FilePath, query);
+                Enumerable.Range(0, 10).ToList().ForEach(arg => tasks.Add(testHelper.RequestCompletion(queryTempFile.FilePath, query, 0, 10)));
+                var queryTask = testHelper.RunQuery(queryTempFile.FilePath, query);
                 tasks.Add(queryTask);
                 await Task.WhenAll(tasks);
                
                 Assert.NotNull(queryTask.Result);
                 Assert.NotNull(queryTask.Result.BatchSummaries);
             
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.DataToolsTelemetryAzureConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.DataToolsTelemetryAzureConnection);
                 tasks.Clear();
-                Enumerable.Range(0, 10).ToList().ForEach(arg => tasks.Add(testBase.RequestCompletion(queryFile.FilePath, query, 0, 10)));
-                queryTask = testBase.RunQuery(queryFile.FilePath, query);
+                Enumerable.Range(0, 10).ToList().ForEach(arg => tasks.Add(testHelper.RequestCompletion(queryTempFile.FilePath, query, 0, 10)));
+                queryTask = testHelper.RunQuery(queryTempFile.FilePath, query);
                 tasks.Add(queryTask);
                 await Task.WhenAll(tasks);
             
                 Assert.NotNull(queryTask.Result);
                 Assert.NotNull(queryTask.Result.BatchSummaries);
 
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.SqlDataToolsAzureConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.SqlDataToolsAzureConnection);
                 tasks.Clear();
-                Enumerable.Range(0, 10).ToList().ForEach(arg => tasks.Add(testBase.RequestCompletion(queryFile.FilePath, query, 0, 10)));
-                queryTask = testBase.RunQuery(queryFile.FilePath, query);
+                Enumerable.Range(0, 10).ToList().ForEach(arg => tasks.Add(testHelper.RequestCompletion(queryTempFile.FilePath, query, 0, 10)));
+                queryTask = testHelper.RunQuery(queryTempFile.FilePath, query);
                 tasks.Add(queryTask);
                 await Task.WhenAll(tasks);
             
                 Assert.NotNull(queryTask.Result);
                 Assert.NotNull(queryTask.Result.BatchSummaries);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
     }

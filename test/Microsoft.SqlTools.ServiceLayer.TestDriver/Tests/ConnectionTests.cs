@@ -21,19 +21,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task InvalidConnection()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                bool connected = await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.InvalidConnection, 300000);
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.InvalidConnection, 300000);
                 Assert.False(connected, "Invalid connection is failed to connect");
 
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.InvalidConnection, 300000);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.InvalidConnection, 300000);
 
                 Thread.Sleep(1000);
 
-                await testBase.CancelConnect(queryFile.FilePath);
+                await testHelper.CancelConnect(queryTempFile.FilePath);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -43,16 +43,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ListDatabasesTest()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                bool connected = await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
                 Assert.True(connected, "Connection successful");
 
-                var listDatabaseResult = await testBase.ListDatabases(queryFile.FilePath);
+                var listDatabaseResult = await testHelper.ListDatabases(queryTempFile.FilePath);
                 Assert.True(listDatabaseResult.DatabaseNames.Length > 0);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
     }

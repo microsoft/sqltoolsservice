@@ -1,4 +1,9 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,9 +38,9 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             }
         }
 
-        internal static async Task<bool> ConnectAsync(TestBase testBase, TestServerType serverType, string query, string ownerUri)
+        internal static async Task<bool> ConnectAsync(TestHelper testHelper, TestServerType serverType, string query, string ownerUri)
         {
-            testBase.WriteToFile(ownerUri, query);
+            testHelper.WriteToFile(ownerUri, query);
 
             DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
             {
@@ -48,11 +53,11 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
                 }
             };
 
-            await testBase.RequestOpenDocumentNotification(openParams);
+            await testHelper.RequestOpenDocumentNotification(openParams);
 
             Thread.Sleep(500);
-            var connectParams = await testBase.GetDatabaseConnectionAsync(serverType);
-            bool connected = await testBase.Connect(ownerUri, connectParams);
+            var connectParams = await testHelper.GetDatabaseConnectionAsync(serverType);
+            bool connected = await testHelper.Connect(ownerUri, connectParams);
             Assert.True(connected, "Connection is successful");
             Console.WriteLine($"Connection to {connectParams.Connection.ServerName} is successful");
 

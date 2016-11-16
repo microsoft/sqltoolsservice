@@ -25,38 +25,38 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task HoverTest()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 string query = "SELECT * FROM sys.objects";
 
-                testBase.WriteToFile(queryFile.FilePath, query);
+                testHelper.WriteToFile(queryTempFile.FilePath, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
                 {
                     TextDocument = new TextDocumentItem
                     {
-                        Uri = queryFile.FilePath,
+                        Uri = queryTempFile.FilePath,
                         LanguageId = "enu",
                         Version = 1,
                         Text = query
                     }
                 };
 
-                await testBase.RequestOpenDocumentNotification(openParams);
+                await testHelper.RequestOpenDocumentNotification(openParams);
                   
                 Thread.Sleep(500);
 
-                bool connected = await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
                 Assert.True(connected, "Connection was not successful");
 
                 Thread.Sleep(10000);
 
-                Hover hover = await testBase.RequestHover(queryFile.FilePath, query, 0, 15);
+                Hover hover = await testHelper.RequestHover(queryTempFile.FilePath, query, 0, 15);
 
                 Assert.True(hover != null, "Hover tooltop is null");
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -66,44 +66,44 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task CompletionTest()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 string query = "SELECT * FROM sys.objects";
 
-                testBase.WriteToFile(queryFile.FilePath, query);
+                testHelper.WriteToFile(queryTempFile.FilePath, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
                 {
                     TextDocument = new TextDocumentItem
                     {
-                        Uri = queryFile.FilePath,
+                        Uri = queryTempFile.FilePath,
                         LanguageId = "enu",
                         Version = 1,
                         Text = query
                     }
                 };
 
-                await testBase.RequestOpenDocumentNotification(openParams);
+                await testHelper.RequestOpenDocumentNotification(openParams);
                   
                 Thread.Sleep(500);
 
-                bool connected = await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
                 Assert.True(connected, "Connection is successful");
 
                 Thread.Sleep(10000);
 
-                CompletionItem[] completions = await testBase.RequestCompletion(queryFile.FilePath, query, 0, 15);
+                CompletionItem[] completions = await testHelper.RequestCompletion(queryTempFile.FilePath, query, 0, 15);
 
                 Assert.True(completions != null && completions.Length > 0, "Completion items list is null or empty");
 
                 Thread.Sleep(50);
 
-                await testBase.RequestResolveCompletion(completions[0]);
+                await testHelper.RequestResolveCompletion(completions[0]);
 
                 Assert.True(completions != null && completions.Length > 0, "Completion items list is null or empty");
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -113,10 +113,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task DiagnosticsTests()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                bool connected = await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
                 Assert.True(connected, "Connection was not successful");
 
                 Thread.Sleep(500);
@@ -127,14 +127,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 {
                     TextDocument = new TextDocumentItem
                     {
-                        Uri = queryFile.FilePath,
+                        Uri = queryTempFile.FilePath,
                         LanguageId = "enu",
                         Version = 1,
                         Text = query
                     }
                 };
 
-                await testBase.RequestOpenDocumentNotification(openParams);
+                await testHelper.RequestOpenDocumentNotification(openParams);
               
                 Thread.Sleep(100);
 
@@ -164,11 +164,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     TextDocument = new VersionedTextDocumentIdentifier()
                     {
                         Version = 2,
-                        Uri = queryFile.FilePath
+                        Uri = queryTempFile.FilePath
                     }
                 };
 
-                await testBase.RequestChangeTextDocumentNotification(changeParams);
+                await testHelper.RequestChangeTextDocumentNotification(changeParams);
 
                 Thread.Sleep(100);
         
@@ -197,15 +197,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     TextDocument = new VersionedTextDocumentIdentifier
                     {
                         Version = 3,
-                        Uri = queryFile.FilePath
+                        Uri = queryTempFile.FilePath
                     }
                 };
 
-                await testBase.RequestChangeTextDocumentNotification(changeParams);
+                await testHelper.RequestChangeTextDocumentNotification(changeParams);
 
                 Thread.Sleep(2500);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -215,10 +215,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ChangeConfigurationTest()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                bool connected = await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
                 Assert.True(connected, "Connection was not successful");
 
                 Thread.Sleep(500);             
@@ -230,29 +230,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Settings = settings
                 };
 
-                await testBase.RequestChangeConfigurationNotification(configParams);
+                await testHelper.RequestChangeConfigurationNotification(configParams);
 
                 Thread.Sleep(2000);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
         [Fact]
         public async Task NotificationIsSentAfterOnConnectionAutoCompleteUpdate()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 // Connect
-                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
 
                 // An event signalling that IntelliSense is ready should be sent shortly thereafter
-                var readyParams = await testBase.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                var readyParams = await testHelper.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
-                Assert.Equal(queryFile.FilePath, readyParams.OwnerUri);
+                Assert.Equal(queryTempFile.FilePath, readyParams.OwnerUri);
 
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
     }

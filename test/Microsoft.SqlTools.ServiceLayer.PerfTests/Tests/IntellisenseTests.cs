@@ -1,4 +1,7 @@
-﻿
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -18,38 +21,38 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
         [Fact]
         public async Task HoverTestOnPrem()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 const string query = Scripts.SimpleQuery;
-                await Common.ConnectAsync(testBase, TestServerType.OnPrem, query, queryFile.FilePath);
-                Hover hover = await Common.CalculateRunTime(() => testBase.RequestHover(queryFile.FilePath, query, 0, 15));
+                await Common.ConnectAsync(testHelper, TestServerType.OnPrem, query, queryTempFile.FilePath);
+                Hover hover = await Common.CalculateRunTime(() => testHelper.RequestHover(queryTempFile.FilePath, query, 0, 15));
                 Assert.NotNull(hover);
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
         [Fact]
         public async Task SuggestionsTest()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 const string query = Scripts.SimpleQuery;
-                await Common.ConnectAsync(testBase, TestServerType.OnPrem, query, queryFile.FilePath);
-                await ValidateCompletionResponse(testBase, queryFile.FilePath, query, null);
-                await ValidateCompletionResponse(testBase, queryFile.FilePath, query);
-                await testBase.Disconnect(queryFile.FilePath);
+                await Common.ConnectAsync(testHelper, TestServerType.OnPrem, query, queryTempFile.FilePath);
+                await ValidateCompletionResponse(testHelper, queryTempFile.FilePath, query, null);
+                await ValidateCompletionResponse(testHelper, queryTempFile.FilePath, query);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
         [Fact]
         public async Task DiagnosticsTests()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await Common.ConnectAsync(testBase, TestServerType.OnPrem, Scripts.SimpleQuery, queryFile.FilePath);
+                await Common.ConnectAsync(testHelper, TestServerType.OnPrem, Scripts.SimpleQuery, queryTempFile.FilePath);
 
                 Thread.Sleep(500);
                 var contentChanges = new TextDocumentChangeEvent[1];
@@ -77,131 +80,131 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
                     TextDocument = new VersionedTextDocumentIdentifier
                     {
                         Version = 2,
-                        Uri = queryFile.FilePath
+                        Uri = queryTempFile.FilePath
                     }
                 };
 
                 TestTimer timer = new TestTimer();
-                await testBase.RequestChangeTextDocumentNotification(changeParams);
+                await testHelper.RequestChangeTextDocumentNotification(changeParams);
                 await Common.ExecuteWithTimeout(timer, 60000, async () =>
                 {
-                    var completeEvent = await testBase.Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
+                    var completeEvent = await testHelper.Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
                     return completeEvent?.Diagnostics != null && completeEvent.Diagnostics.Length > 0;
                 });
-                await testBase.Disconnect(queryFile.FilePath);
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
         [Fact]
         public async Task BindingCacheColdAzureSimpleQuery()
         {
-            using (TestBase testBase = new TestBase())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await VerifyBindingLoadScenario(testBase, TestServerType.Azure, Scripts.SimpleQuery);
+                await VerifyBindingLoadScenario(testHelper, TestServerType.Azure, Scripts.SimpleQuery);
             }
         }
 
         [Fact]
         public async Task BindingCacheColdOnPremSimpleQuery()
         {
-            using (TestBase testBase = new TestBase())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await VerifyBindingLoadScenario(testBase, TestServerType.OnPrem, Scripts.SimpleQuery);
+                await VerifyBindingLoadScenario(testHelper, TestServerType.OnPrem, Scripts.SimpleQuery);
             }
         }
 
         [Fact]
         public async Task BindingCacheWarmAzureSimpleQuery()
         {
-            using (TestBase testBase = new TestBase())
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
+            using (TestHelper testHelper = new TestHelper())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 const string query = Scripts.SimpleQuery;
                 const TestServerType serverType = TestServerType.Azure;
-                await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
+                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(testBase, serverType, query);
+                await VerifyBindingLoadScenario(testHelper, serverType, query);
             }
         }
 
         [Fact]
         public async Task BindingCacheWarmOnPremSimpleQuery()
         {
-            using (TestBase testBase = new TestBase())
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
+            using (TestHelper testHelper = new TestHelper())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 const string query = Scripts.SimpleQuery;
                 const TestServerType serverType = TestServerType.OnPrem;
-                await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
+                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(testBase, serverType, query);
+                await VerifyBindingLoadScenario(testHelper, serverType, query);
             }
         }
 
         [Fact]
         public async Task BindingCacheColdAzureComplexQuery()
         {
-            using (TestBase testBase = new TestBase())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await VerifyBindingLoadScenario(testBase, TestServerType.Azure, Scripts.ComplexQuery);
+                await VerifyBindingLoadScenario(testHelper, TestServerType.Azure, Scripts.ComplexQuery);
             }
         }
 
         [Fact]
         public async Task BindingCacheColdOnPremComplexQuery()
         {
-            using (TestBase testBase = new TestBase())
+            using (TestHelper testHelper = new TestHelper())
             {
-                await VerifyBindingLoadScenario(testBase, TestServerType.OnPrem, Scripts.ComplexQuery);
+                await VerifyBindingLoadScenario(testHelper, TestServerType.OnPrem, Scripts.ComplexQuery);
             }
         }
 
         [Fact]
         public async Task BindingCacheWarmAzureComplexQuery()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 string query = Scripts.ComplexQuery;
                 const TestServerType serverType = TestServerType.Azure;
-                await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
+                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(testBase, serverType, query);
+                await VerifyBindingLoadScenario(testHelper, serverType, query);
             }
         }
 
         [Fact]
         public async Task BindingCacheWarmOnPremComplexQuery()
         {
-            using (SelfCleaningFile queryFile = new SelfCleaningFile())
-            using (TestBase testBase = new TestBase())
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
             {
                 string query = Scripts.ComplexQuery;
                 const TestServerType serverType = TestServerType.OnPrem;
-                await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
+                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(testBase, serverType, query);
+                await VerifyBindingLoadScenario(testHelper, serverType, query);
             }
         }
 
         #region Private Helper Methods
 
-        private static async Task VerifyBindingLoadScenario(TestBase testBase, TestServerType serverType, string query, [CallerMemberName] string testName = "")
+        private static async Task VerifyBindingLoadScenario(TestHelper testHelper, TestServerType serverType, string query, [CallerMemberName] string testName = "")
         {
-            using(SelfCleaningFile testFile = new SelfCleaningFile()) { 
-                testBase.WriteToFile(testFile.FilePath, query);
-                await Common.ConnectAsync(testBase, serverType, query, testFile.FilePath);
-                await ValidateCompletionResponse(testBase, testFile.FilePath, query, testName);
-                await testBase.Disconnect(testFile.FilePath);
+            using(SelfCleaningTempFile testTempFile = new SelfCleaningTempFile()) { 
+                testHelper.WriteToFile(testTempFile.FilePath, query);
+                await Common.ConnectAsync(testHelper, serverType, query, testTempFile.FilePath);
+                await ValidateCompletionResponse(testHelper, testTempFile.FilePath, query, testName);
+                await testHelper.Disconnect(testTempFile.FilePath);
             }
         }
 
-        private static async Task ValidateCompletionResponse(TestBase testBase, string ownerUri, string query, [CallerMemberName] string testName="")
+        private static async Task ValidateCompletionResponse(TestHelper testHelper, string ownerUri, string query, [CallerMemberName] string testName="")
         {
             TestTimer timer = new TestTimer();
             await Common.ExecuteWithTimeout(timer, 60000, async () =>
             {
-                CompletionItem[] completions = await testBase.RequestCompletion(ownerUri, query, 0, 15);
+                CompletionItem[] completions = await testHelper.RequestCompletion(ownerUri, query, 0, 15);
                 return completions != null && completions.Any(x => x.Label == "master");
             }, testName:testName);
         }

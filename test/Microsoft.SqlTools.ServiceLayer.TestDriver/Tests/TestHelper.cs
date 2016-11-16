@@ -20,11 +20,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// <summary>
     /// Base class for all test suites run by the test driver
     /// </summary>
-    public sealed class TestBase : IDisposable
+    public sealed class TestHelper : IDisposable
     {
         private bool isRunning = false;
 
-        public TestBase()
+        public TestHelper()
         {
             Driver = new ServiceTestDriver();
             Driver.Start().Wait();
