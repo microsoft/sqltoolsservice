@@ -8,9 +8,9 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
 {
     /// <summary>
-    /// Parameters sent back with an update event
+    /// Parameters sent back with an IntelliSense ready event
     /// </summary>
-    public class UpdateParams
+    public class IntelliSenseReadyParams
     {
         /// <summary>
         /// URI identifying the text document
@@ -21,10 +21,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
     /// <summary>
     /// Event sent when the language service is finished updating after a connection
     /// </summary>
-    public class UpdateNotification
+    public class IntelliSenseReadyNotification
     {
         public static readonly
-            EventType<UpdateParams> Type =
-            EventType<UpdateParams>.Create("textDocument/update");
+            EventType<IntelliSenseReadyParams> Type =
+            EventType<IntelliSenseReadyParams>.Create("textDocument/intelliSenseReady");
     }
 }
