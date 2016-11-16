@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
                 using (var typeInstance = (IDisposable)Activator.CreateInstance(type))
                 {
                     PropertyInfo testNameProperty = type.GetProperty("TestName");
-                    testNameProperty.SetValue(typeInstance, testName);
+                    testNameProperty?.SetValue(typeInstance, testName);
                     Console.WriteLine("Running test " + testName);
                     await (Task)methodInfo.Invoke(typeInstance, null);
                     Console.WriteLine("Test ran successfully: " + testName);

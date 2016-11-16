@@ -120,20 +120,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             // verify that send result was called with a completion array
             requestContext.Verify(m => m.SendResult(It.IsAny<CompletionItem[]>()), Times.Once());
         }
-
-        /// <summary>
-        /// Test the service initialization code path and verify nothing throws
-        /// </summary>
-        [Fact]
-        public async void UpdateLanguageServiceOnConnection()
-        {    
-            InitializeTestObjects();
-
-            AutoCompleteHelper.WorkspaceServiceInstance = workspaceService.Object;
-
-            ConnectionInfo connInfo = TestObjects.GetTestConnectionInfo();
-
-            await LanguageService.Instance.UpdateLanguageServiceOnConnection(connInfo);
-        }
     }
 }

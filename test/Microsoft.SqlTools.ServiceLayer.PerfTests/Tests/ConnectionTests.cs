@@ -11,15 +11,12 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
     public class ConnectionTests
     {
 
-        public string TestName { get; set; }
-
         [Fact]
         public async Task ConnectAzureTest()
         {
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Connect SQL DB" : TestName;
                 const string query = Scripts.SimpleQuery;
                 testBase.WriteToFile(queryFile.FilePath, query);
 
@@ -37,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
                 await testBase.RequestOpenDocumentNotification(openParams);
 
                 Thread.Sleep(500);
-                var connected = await Common.CalculateRunTime(scenarioName, async () =>
+                var connected = await Common.CalculateRunTime(async () =>
                 {
                     var connectParams = await testBase.GetDatabaseConnectionAsync(TestServerType.Azure);
                     return await testBase.Connect(queryFile.FilePath, connectParams);
@@ -52,7 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Connect On-Prem" : TestName;
                 const string query = Scripts.SimpleQuery;
                 testBase.WriteToFile(queryFile.FilePath, query);
 
@@ -70,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
                 await testBase.RequestOpenDocumentNotification(openParams);
 
                 Thread.Sleep(500);
-                var connected = await Common.CalculateRunTime(scenarioName, async () =>
+                var connected = await Common.CalculateRunTime(async () =>
                 {
                     var connectParams = await testBase.GetDatabaseConnectionAsync(TestServerType.OnPrem);
                     return await testBase.Connect(queryFile.FilePath, connectParams);
@@ -85,10 +81,9 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Disconnect On-Prem" : TestName;
                 await Common.ConnectAsync(testBase, TestServerType.OnPrem, Scripts.SimpleQuery, queryFile.FilePath);
                 Thread.Sleep(1000);
-                var connected = await Common.CalculateRunTime(scenarioName, () => testBase.Disconnect(queryFile.FilePath));
+                var connected = await Common.CalculateRunTime(() => testBase.Disconnect(queryFile.FilePath));
                 Assert.True(connected);
             }
         }

@@ -61,6 +61,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // lookup the current binding context
             string connectionKey = GetConnectionContextKey(connInfo);
+            if (BindingContextExists(connectionKey))
+            {
+                // no need to populate the context again since the context already exists
+                return connectionKey;
+            }
             IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
 
             if (bindingContext.BindingLock.WaitOne())

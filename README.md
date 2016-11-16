@@ -3,7 +3,6 @@ The SQL Tools Service is an application that provides core functionality for var
 * Connection management
 * Language Service support using VS Code protocol
 * Query execution and resultset management
-* Schema discovery
 
 # Contribution Guidelines
 
@@ -130,12 +129,8 @@ on this check so that our project will always have good generated documentation.
 
 - **The build and unit tests must run green**
 
-  When you submit your pull request, our automated build system on AppVeyor will attempt to run a
-  Release build of your changes and then run all unit tests against the build.  If you notice that
-  any of your unit tests have failed, please fix them by creating a new commit and then pushing it
-  to your branch.  If you see that some unrelated test has failed, try re-running the build for your
-  pull request.  If you continue to see issues, write a comment on the pull request and we will
-  look into it.
+  Run all unit tests and code coverage tests to ensure all tests are passing and code coverage numbers
+  and not negatively impacted by your change.
 
 - **Respond to code review feedback**
 
@@ -147,6 +142,5 @@ on this check so that our project will always have good generated documentation.
 
   Once your final changes have been accepted, we may ask you to do a final rebase to have your commits
   so that they follow our commit guidelines.  If specific guidance is given, please follow it when
-  rebasing your commits.  Once you do your final push and we see the AppVeyor build pass, we will
-  merge your changes!
+  rebasing your commits.  Once you do your final push we will merge your changes!
   

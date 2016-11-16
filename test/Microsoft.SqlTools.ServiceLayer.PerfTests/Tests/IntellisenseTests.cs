@@ -1,6 +1,7 @@
 ﻿
 
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -14,19 +15,15 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
 {
     public class IntellisenseTests
     {
-        public string TestName { get; set; }
-
         [Fact]
         public async Task HoverTestOnPrem()
         {
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Hover" : TestName;
                 const string query = Scripts.SimpleQuery;
                 await Common.ConnectAsync(testBase, TestServerType.OnPrem, query, queryFile.FilePath);
-                Hover hover = await Common.CalculateRunTime(scenarioName, 
-                    () => testBase.RequestHover(queryFile.FilePath, query, 0, 15));
+                Hover hover = await Common.CalculateRunTime(() => testBase.RequestHover(queryFile.FilePath, query, 0, 15));
                 Assert.NotNull(hover);
                 await testBase.Disconnect(queryFile.FilePath);
             }
@@ -38,11 +35,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Suggestions" : TestName;
                 const string query = Scripts.SimpleQuery;
                 await Common.ConnectAsync(testBase, TestServerType.OnPrem, query, queryFile.FilePath);
                 await ValidateCompletionResponse(testBase, queryFile.FilePath, query, null);
-                await ValidateCompletionResponse(testBase, queryFile.FilePath, query, scenarioName);
+                await ValidateCompletionResponse(testBase, queryFile.FilePath, query);
                 await testBase.Disconnect(queryFile.FilePath);
             }
         }
@@ -53,7 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "Diagnostics" : TestName;
                 await Common.ConnectAsync(testBase, TestServerType.OnPrem, Scripts.SimpleQuery, queryFile.FilePath);
 
                 Thread.Sleep(500);
@@ -88,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
 
                 TestTimer timer = new TestTimer();
                 await testBase.RequestChangeTextDocumentNotification(changeParams);
-                await Common.ExecuteWithTimeout(timer, 60000, scenarioName, async () =>
+                await Common.ExecuteWithTimeout(timer, 60000, async () =>
                 {
                     var completeEvent = await testBase.Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
                     return completeEvent?.Diagnostics != null && completeEvent.Diagnostics.Length > 0;
@@ -102,8 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
         {
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Cold][SQL DB] Binding cache" : TestName;
-                await VerifyBindingLoadScenario(testBase, TestServerType.Azure, Scripts.SimpleQuery, scenarioName);
+                await VerifyBindingLoadScenario(testBase, TestServerType.Azure, Scripts.SimpleQuery);
             }
         }
 
@@ -112,8 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
         {
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Cold][On-Prem] Binding cache" : TestName;
-                await VerifyBindingLoadScenario(testBase, TestServerType.OnPrem, Scripts.SimpleQuery, scenarioName);
+                await VerifyBindingLoadScenario(testBase, TestServerType.OnPrem, Scripts.SimpleQuery);
             }
         }
 
@@ -123,12 +116,11 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (TestBase testBase = new TestBase())
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Simple query][Warm][SQL DB] Binding cache" : TestName;
                 const string query = Scripts.SimpleQuery;
                 const TestServerType serverType = TestServerType.Azure;
                 await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(testBase, serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(testBase, serverType, query);
             }
         }
 
@@ -138,12 +130,11 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (TestBase testBase = new TestBase())
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName)? "[Simple query][Warm][On-Prem] Binding cache" : TestName;
                 const string query = Scripts.SimpleQuery;
                 const TestServerType serverType = TestServerType.OnPrem;
                 await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(testBase, serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(testBase, serverType, query);
             }
         }
 
@@ -152,8 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
         {
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Cold][SQL DB] Binding cache" : TestName;
-                await VerifyBindingLoadScenario(testBase, TestServerType.Azure, Scripts.ComplexQuery, scenarioName);
+                await VerifyBindingLoadScenario(testBase, TestServerType.Azure, Scripts.ComplexQuery);
             }
         }
 
@@ -162,8 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
         {
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Cold][On-Prem] Binding cache" : TestName;
-                await VerifyBindingLoadScenario(testBase, TestServerType.OnPrem, Scripts.ComplexQuery, scenarioName);
+                await VerifyBindingLoadScenario(testBase, TestServerType.OnPrem, Scripts.ComplexQuery);
             }
         }
 
@@ -173,12 +162,11 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Warm][SQL DB] Binding cache" : TestName;
                 string query = Scripts.ComplexQuery;
                 const TestServerType serverType = TestServerType.Azure;
                 await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(testBase, serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(testBase, serverType, query);
             }
         }
 
@@ -188,18 +176,17 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             using (SelfCleaningFile queryFile = new SelfCleaningFile())
             using (TestBase testBase = new TestBase())
             {
-                string scenarioName = string.IsNullOrEmpty(TestName) ? "[Complex query][Warm][On-Prem] Binding cache" : TestName;
                 string query = Scripts.ComplexQuery;
                 const TestServerType serverType = TestServerType.OnPrem;
                 await Common.ConnectAsync(testBase, serverType, query, queryFile.FilePath);
                 Thread.Sleep(10000);
-                await VerifyBindingLoadScenario(testBase, serverType, query, scenarioName);
+                await VerifyBindingLoadScenario(testBase, serverType, query);
             }
         }
 
         #region Private Helper Methods
 
-        private static async Task VerifyBindingLoadScenario(TestBase testBase, TestServerType serverType, string query, string testName = null)
+        private static async Task VerifyBindingLoadScenario(TestBase testBase, TestServerType serverType, string query, [CallerMemberName] string testName = "")
         {
             using(SelfCleaningFile testFile = new SelfCleaningFile()) { 
                 testBase.WriteToFile(testFile.FilePath, query);
@@ -209,14 +196,14 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             }
         }
 
-        private static async Task ValidateCompletionResponse(TestBase testBase, string ownerUri, string query, string testName)
+        private static async Task ValidateCompletionResponse(TestBase testBase, string ownerUri, string query, [CallerMemberName] string testName="")
         {
             TestTimer timer = new TestTimer();
-            await Common.ExecuteWithTimeout(timer, 60000, testName, async () =>
+            await Common.ExecuteWithTimeout(timer, 60000, async () =>
             {
                 CompletionItem[] completions = await testBase.RequestCompletion(ownerUri, query, 0, 15);
                 return completions != null && completions.Any(x => x.Label == "master");
-            });
+            }, testName:testName);
         }
 
         #endregion

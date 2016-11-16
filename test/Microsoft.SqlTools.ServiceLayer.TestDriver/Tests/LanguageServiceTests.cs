@@ -238,5 +238,22 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
+        [Fact]
+        public async Task NotificationIsSentAfterOnConnectionAutoCompleteUpdate()
+        {
+            using (SelfCleaningFile queryFile = new SelfCleaningFile())
+            using (TestBase testBase = new TestBase())
+            {
+                // Connect
+                await testBase.Connect(queryFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+
+                // An event signalling that IntelliSense is ready should be sent shortly thereafter
+                var readyParams = await testBase.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                Assert.NotNull(readyParams);
+                Assert.Equal(queryFile.FilePath, readyParams.OwnerUri);
+
+                await testBase.Disconnect(queryFile.FilePath);
+            }
+        }
     }
 }

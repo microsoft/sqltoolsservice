@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Tests;
@@ -10,7 +11,8 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
 {
     public class Common
     {
-        internal static async Task ExecuteWithTimeout(TestTimer timer, int timeout, string testName, Func<Task<bool>> repeatedCode)
+        internal static async Task ExecuteWithTimeout(TestTimer timer, int timeout, Func<Task<bool>> repeatedCode,
+            TimeSpan? delay = null, [CallerMemberName] string testName = "")
         {
             while (true)
             {
@@ -23,6 +25,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
                 {
                     Assert.True(false, $"{testName} timed out after {timeout} milliseconds");
                     break;
+                }
+                if (delay.HasValue)
+                {
+                    await Task.Delay(delay.Value);
                 }
             }
         }
@@ -53,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
             return connected;
         }
 
-        internal static async Task<T> CalculateRunTime<T>(string testName, Func<Task<T>> testToRun)
+        internal static async Task<T> CalculateRunTime<T>(Func<Task<T>> testToRun, [CallerMemberName] string testName = "")
         {
             TestTimer timer = new TestTimer();
             T result = await testToRun();
