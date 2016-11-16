@@ -561,7 +561,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }  
 
-                AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);          
+                AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
+
+                // Send a notification to signal that autocomplete is ready
+                ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = info.OwnerUri});
             });
         }
 

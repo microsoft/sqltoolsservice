@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -17,8 +18,47 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
     /// </summary>
     public class ConnectionTestUtils
     {
+        public static IEnumerable<TestServerIdentity> TestServers = InitTestServerNames();
+        public static Setting Setting = InitSetting();
+
         private static readonly Lazy<ConnectParams> azureTestServerConnection =
             new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("***REMOVED***"));
+
+        private static IEnumerable<TestServerIdentity> InitTestServerNames()
+        {
+            try
+            {
+                string testServerNamesFilePath = Environment.GetEnvironmentVariable("TestServerNamesFile");
+                if (!string.IsNullOrEmpty(testServerNamesFilePath))
+                {
+                    string jsonFileContent = File.ReadAllText(testServerNamesFilePath);
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<IList<TestServerIdentity>>(jsonFileContent);
+                }
+                else
+                {
+                    return Enumerable.Empty<TestServerIdentity>();
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        private static Setting InitSetting()
+        {
+            try
+            {
+                string settingsFileContents = GetSettingFileContent();
+                Setting setting = Newtonsoft.Json.JsonConvert.DeserializeObject<Setting>(settingsFileContents);
+
+                return setting;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
 
         public static ConnectParams AzureTestServerConnection
         {
@@ -70,6 +110,30 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         private static readonly Lazy<ConnectParams> dataToolsTelemetryAzureConnection =
             new Lazy<ConnectParams>(() => GetConnectionFromVsCodeSettings("***REMOVED***"));
 
+        private static string GetSettingFileContent()
+        {
+            string settingsFilename;
+            settingsFilename = Environment.GetEnvironmentVariable("SettingsFileName");
+            if (string.IsNullOrEmpty(settingsFilename))
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("APPDATA") + @"\Code\User\settings.json";
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/Library/Application Support/Code/User/settings.json";
+                }
+                else
+                {
+                    settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/.config/Code/User/settings.json";
+                }
+            }
+            string settingsFileContents = File.ReadAllText(settingsFilename);
+
+            return settingsFileContents;
+        }
+
         public static ConnectParams DataToolsTelemetryAzureConnection
         {
             get { return dataToolsTelemetryAzureConnection.Value; }
@@ -97,20 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         {
             try
             {
-                string settingsFilename;
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    settingsFilename = Environment.GetEnvironmentVariable("APPDATA") + @"\Code\User\settings.json";
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/Library/Application Support/Code/User/settings.json";
-                }
-                else
-                {
-                    settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/.config/Code/User/settings.json";
-                }
-                string settingsFileContents = File.ReadAllText(settingsFilename);
+                string settingsFileContents = GetSettingFileContent();
 
                 JObject root = JObject.Parse(settingsFileContents);
                 JArray connections = (JArray)root["mssql.connections"];

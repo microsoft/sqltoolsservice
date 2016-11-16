@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
@@ -16,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
 {
     internal class Program
     {
-        internal static void Main(string[] args)
+        internal static int Main(string[] args)
         {
             if (args.Length < 1)
             {
@@ -24,35 +25,72 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
                                     "    [tests] is a space-separated list of tests to run." + Environment.NewLine + 
                                     "            They are qualified within the Microsoft.SqlTools.ServiceLayer.TestDriver.Tests namespace" + Environment.NewLine +
                                     "Be sure to set the environment variable " + ServiceTestDriver.ServiceHostEnvironmentVariable + " to the full path of the sqltoolsservice executable.");
-                Environment.Exit(0);
+                return 0;
             }
 
             Logger.Initialize("testdriver", LogLevel.Verbose);
 
+            int returnCode = 0;
             Task.Run(async () => 
             {
+                string testNamespace = "Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.";
                 foreach (var test in args)
                 {
                     try
                     {
-                        var className = test.Substring(0, test.LastIndexOf('.'));
-                        var methodName = test.Substring(test.LastIndexOf('.') + 1);
+                        var testName = test.Contains(testNamespace) ? test.Replace(testNamespace, "") : test;
+                        bool containsTestName = testName.Contains(".");
+                        var className = containsTestName ? testName.Substring(0, testName.LastIndexOf('.')) : testName;
+                        var methodName = containsTestName ?  testName.Substring(testName.LastIndexOf('.') + 1) : null;
                         
-                        var type = Type.GetType("Microsoft.SqlTools.ServiceLayer.TestDriver.Tests." + className);
-                        using (var typeInstance = (IDisposable)Activator.CreateInstance(type))
+                        var type = Type.GetType(testNamespace + className);
+                        if (type == null)
                         {
-                            MethodInfo methodInfo = type.GetMethod(methodName);
-
-                            Console.WriteLine("Running test " + test);
-                            await (Task)methodInfo.Invoke(typeInstance, null);
+                            Console.WriteLine("Invalid class name");
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(methodName))
+                            {
+                                var methods = type.GetMethods().Where(x => x.CustomAttributes.Any(a => a.AttributeType == typeof(FactAttribute)));
+                                foreach (var method in methods)
+                                {
+                                    await RunTest(type, method, method.Name);
+                                }
+                            }
+                            else
+                            {
+                                MethodInfo methodInfo = type.GetMethod(methodName);
+                                await RunTest(type, methodInfo, test);
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
+                        returnCode = -1;
                     }
                 }
             }).Wait();
+
+            return returnCode;
+        }
+
+        private static async Task RunTest(Type type, MethodInfo methodInfo, string testName)
+        {
+            if (methodInfo == null)
+            {
+                Console.WriteLine("Invalid method name");
+            }
+            else
+            {
+                using (var typeInstance = (IDisposable)Activator.CreateInstance(type))
+                {
+                    Console.WriteLine("Running test " + testName);
+                    await (Task)methodInfo.Invoke(typeInstance, null);
+                    Console.WriteLine("Test ran successfully: " + testName);
+                }
+            }
         }
     }
 }

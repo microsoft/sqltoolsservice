@@ -5,12 +5,15 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
+using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
@@ -163,7 +166,49 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             var result = await Driver.SendRequest(CompletionResolveRequest.Type, item);
             return result;
         }
-        
+
+        /// <summary>
+        /// Request a Read Credential for given credential id
+        /// </summary>
+        protected async Task<Credential> ReadCredential(string credentialId)
+        {
+            var credentialParams = new Credential();
+            credentialParams.CredentialId = credentialId;
+
+            return await Driver.SendRequest(ReadCredentialRequest.Type, credentialParams);
+        }
+
+        /// <summary>
+        /// Returns database connection parameters for given server type
+        /// </summary>
+        protected async Task<ConnectParams> GetDatabaseConnectionAsync(TestServerType serverType)
+        {
+            ConnectionProfile connectionProfile = null;
+            TestServerIdentity serverIdentiry = ConnectionTestUtils.TestServers.FirstOrDefault(x => x.ServerType == serverType);
+            if (serverIdentiry == null)
+            {
+                connectionProfile = ConnectionTestUtils.Setting.Connections.FirstOrDefault(x => x.ServerType == serverType);
+            }
+            else
+            {
+                connectionProfile = ConnectionTestUtils.Setting.GetConnentProfile(serverIdentiry.ProfileName, serverIdentiry.ServerName);
+            }
+
+            if (connectionProfile != null)
+            {
+                string password = connectionProfile.Password;
+                if (string.IsNullOrEmpty(password))
+                {
+                    Credential credential = await ReadCredential(connectionProfile.formatCredentialId());
+                    password = credential.Password;
+                }
+                ConnectParams conenctParam = ConnectionTestUtils.CreateConnectParams(connectionProfile.ServerName, connectionProfile.Database,
+                    connectionProfile.User, password);
+                return conenctParam;
+            }
+            return null;
+        }
+
         /// <summary>
         /// Request a list of completion items for a position in a block of text
         /// </summary>
