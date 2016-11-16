@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 await ConnectAsync(TestServerType.OnPrem, query, ownerUri);
                 Hover hover = await CalculateRunTime(async () =>
                 {
-                    return await RequestHover(ownerUri, query, 0, 15); ;
+                    return await RequestHover(ownerUri, query, 0, 15);
                 });
                 Assert.True(hover != null, "Hover tool-tip is not null");
 
@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        private async Task VerifyBindingLoadScenario(TestServerType serverType, string query, string testName = null)
+        private async Task VerifyBindingLoadScenario(TestServerType serverType, string query, [CallerMemberName] string testName = "")
         {
             string ownerUri = Path.GetTempFileName();
 
