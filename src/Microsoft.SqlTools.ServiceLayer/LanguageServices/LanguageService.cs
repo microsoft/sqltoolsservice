@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -42,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int BindingTimeout = 500;
 
-        internal const int PeekDefinitionTimeout = 30000;
+        internal const int PeekDefinitionTimeout = 10000;
 
         internal const int OnConnectionWaitTimeout = 300000;
 
@@ -299,114 +298,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
             //TODO: check for settings
-            // await Task.FromResult(true);
 
-            ConnectionInfo connInfo;
-            string result = null;
-            // retrieve document and connection
-            var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
-            LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
-            if (RequiresReparse(scriptParseInfo, scriptFile))
+            Location[] locations = this.GetDefinition(textDocumentPosition);
+            if (locations != null)
             {
-                ParseAndBind(scriptFile, connInfo);
-            }
-            
-            //check if parse failed
-            if (scriptParseInfo == null)
-            {
-                return;
-            }
-            IEnumerable<Declaration> declarationItems;
-            Token token = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
-            string tokenText = token != null ? token.Text : null;
-
-            if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
-            {
-                try
-                {
-                    // queue the task with the binding queue    
-                    QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
-                        key: scriptParseInfo.ConnectionKey,
-                        bindingTimeout: LanguageService.PeekDefinitionTimeout,
-                        bindOperation: (bindingContext, cancelToken) =>
-                        {
-                            // get the suggestions for the token
-                            if (scriptParseInfo.CurrentSuggestions != null)
-                            {
-                                declarationItems = scriptParseInfo.CurrentSuggestions;
-                            }
-                            else
-                            {
-                                int parserLine = textDocumentPosition.Position.Line + 1;
-                                int parserColumn = textDocumentPosition.Position.Character + 1;
-                                declarationItems = Resolver.FindCompletions(scriptParseInfo.ParseResult, parserLine, parserColumn, bindingContext.MetadataDisplayInfoProvider);
-                            }
-                            //CompletionItemKind type = 0;
-                            DeclarationType type = 0;
-                            //TODO: Refactor PeekDef ConnInfo
-                            PeekDefinition pd = new PeekDefinition(connInfo);
-                            string resultUri = null;
-
-                            foreach (Declaration completionItem in declarationItems)
-                            {
-                                if (completionItem.Title.Equals(tokenText))
-                                {
-                                    // type = (CompletionItemKind)completionItem.Kind;
-                                    type = completionItem.Type;
-                                    switch (type)
-                                    {
-                                        //case CompletionItemKind.Table:
-                                        case DeclarationType.Table:
-                                            resultUri = pd.GetTableDefinition(tokenText);
-                                            break;
-                                        // case CompletionItemKind.View:
-                                        case DeclarationType.View:
-                                            // Get schema name 
-                                            string sql = scriptFile.GetLine(textDocumentPosition.Position.Line + 1);
-                                            int startColumn = TextUtilities.PositionOfPrevDelimeter(sql, 0, textDocumentPosition.Position.Character);
-                                            int prevDelimiter = TextUtilities.PositionOfPrevDelimeter(sql, 0, startColumn - 1);
-                                            // TODO: check for no schema later
-                                            string schemaName = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, startColumn - 1).Text;
-                                            resultUri = pd.GetViewDefinition(tokenText, schemaName);
-                                            break;
-                                    }
-                                    return resultUri;
-                                }
-                            }
-                            return null;
-
-                        },
-                        timeoutOperation: (bindingContext) =>
-                        {
-                            return null;
-                        });
-
-                    // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
-                    result = queueItem.GetResultAsT<String>();
-                }
-                finally
-                {
-                    Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
-                }
-
-                Uri definitionFile = new Uri(result);
-                Location[] locations = new[] { new Location {
-                // Uri = "file:///c%3A/Users/shravind/AppData/Local/Temp/script.sql",
-                Uri = definitionFile.AbsoluteUri,
-                // TODO: change line range to start of create
-                Range = new Range{
-                    Start = new Position{ Line = 2, Character = 1},
-                    End = new Position{ Line = 3, Character = 1}
-                }
-            }};
                 await requestContext.SendResult(locations);
                 return;
             }
-
-            await Task.FromResult(true);
+            else
+            {
+                await Task.FromResult(true);
+            }
         }
 
         // turn off this code until needed (10/28/2016)
@@ -926,74 +828,85 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return resultCompletionItems;
         }
 
-        public IEnumerable<Declaration> GetDeclarations(
-            TextDocumentPosition textDocumentPosition,
-            ScriptFile scriptFile,
-            ConnectionInfo connInfo)
+        public Location[] GetDefinition(TextDocumentPosition textDocumentPosition)
         {
-            // initialize some state to parse and bind the current script file
-            IEnumerable<Declaration> resultCompletionItems = null;
-            string filePath = textDocumentPosition.TextDocument.Uri;
-            //int startLine = textDocumentPosition.Position.Line;
-            int parserLine = textDocumentPosition.Position.Line + 1;
-            int parserColumn = textDocumentPosition.Position.Character + 1;
-            bool useLowerCaseSuggestions = this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
+            
+            // retrieve document and connection
+            ConnectionInfo connInfo;
+            var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
+            LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
 
-            // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
-            if (scriptParseInfo == null)
-            {
-                return null;
-            }
-
-            // reparse and bind the SQL statement if needed
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 ParseAndBind(scriptFile, connInfo);
             }
 
-            // if the parse failed then return the default list
-            if (scriptParseInfo.ParseResult == null)
+            //check if parse failed
+            if (scriptParseInfo == null)
+            {
+                return null;
+            }
+            ;
+            Token token = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
+            if (token == null)
             {
                 return null;
             }
 
-            // need to adjust line & column for base-1 parser indices
-            Token token = GetToken(scriptParseInfo, parserLine, parserColumn);
-            string tokenText = token != null ? token.Text : null;
-
-            // check if the file is connected and the file lock is available
+            string tokenText = token.Text.Replace("]",String.Empty).Replace("[",String.Empty);
             if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
             {
                 try
                 {
-                    // queue the completion task with the binding queue    
+                    // queue the task with the binding queue    
                     QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                         key: scriptParseInfo.ConnectionKey,
-                        bindingTimeout: LanguageService.BindingTimeout,
+                        bindingTimeout: LanguageService.PeekDefinitionTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
-                            // get the completion list from SQL Parser
-                            scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
-                                scriptParseInfo.ParseResult,
-                                parserLine,
-                                parserColumn,
-                                bindingContext.MetadataDisplayInfoProvider);
+                            // get the suggestions for the token
+                            IEnumerable<Declaration> declarationItems;
+                            int parserLine = textDocumentPosition.Position.Line + 1;
+                            int parserColumn = textDocumentPosition.Position.Character + 1;
+                            declarationItems = Resolver.FindCompletions(scriptParseInfo.ParseResult, parserLine, parserColumn, bindingContext.MetadataDisplayInfoProvider);
 
-                            // convert the suggestion list to the VS Code format
-                            return scriptParseInfo.CurrentSuggestions;
+
+                            DeclarationType type = 0;
+                            string schemaName;
+                            PeekDefinition pd = new PeekDefinition(connInfo);
+
+                            foreach (Declaration completionItem in declarationItems)
+                            {
+                                if (completionItem.Title.Equals(tokenText))
+                                {
+                                    type = completionItem.Type;
+                                    switch (type)
+                                    {
+                                        case DeclarationType.Table:
+                                            return pd.GetTableDefinition(tokenText);
+                                        case DeclarationType.View:
+                                            schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                                            return pd.GetViewDefinition(tokenText, schemaName);
+                                        case DeclarationType.StoredProcedure:
+                                            schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                                            return pd.GetStoredProcedureDefinition(tokenText, schemaName);
+                                        default:
+                                            return null;
+                                    }
+                                }
+                            }
+                            return null;
+
                         },
                         timeoutOperation: (bindingContext) =>
                         {
-                            // return the default list if the connected bind fails
                             return null;
                         });
 
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
-
-                    resultCompletionItems = queueItem.GetResultAsT<IEnumerable<Declaration>>();
-
+                    return queueItem.GetResultAsT<Location[]>();
                 }
                 finally
                 {
@@ -1001,8 +914,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
+            return null;
+        }
 
-            return resultCompletionItems;
+        private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
+        {
+            // Get schema name 
+            string sql = scriptFile.GetLine(position.Line + 1);
+            int startColumn = TextUtilities.PositionOfPrevDelimeter(sql, 0, position.Character);
+            // if no schema name, returns null
+            return GetToken(scriptParseInfo, position.Line + 1, startColumn - 1).Text.Replace("]",String.Empty).Replace("[",String.Empty);
         }
 
         private static Token GetToken(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
