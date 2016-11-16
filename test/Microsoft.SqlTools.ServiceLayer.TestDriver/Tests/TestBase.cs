@@ -196,8 +196,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
             if (connectionProfile != null)
             {
-
-
                 string password = connectionProfile.Password;
                 if (string.IsNullOrEmpty(password))
                 {
