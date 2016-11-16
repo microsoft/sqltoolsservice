@@ -24,8 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         private static string ComplexQuery = LoadComplexScript();
         private static string SimpleQuery = "SELECT * FROM sys.all_columns";
 
-        public string TestName { get; set; }
-
         private static string LoadComplexScript()
         {
             try
