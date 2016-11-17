@@ -15,6 +15,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         private ConnectionInfo connectionInfo;
         private string tempPath;
+
+        private Database database 
+        {
+            get
+            {
+                Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
+                return server.Databases[this.connectionInfo.SqlConnection.Database];
+            }
+        }
+
         public PeekDefinition(ConnectionInfo connInfo)
         {
             connectionInfo = connInfo;
@@ -30,8 +40,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (this.connectionInfo.SqlConnection != null)
             {
-                Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
-                Database database = server.Databases[this.connectionInfo.SqlConnection.Database];
                 Table table = database.Tables[tableName];
                 string tempFileName = tempPath + tableName + ".sql";
 
@@ -66,8 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (this.connectionInfo.SqlConnection != null)
             {
-                Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
-                Database database = server.Databases[this.connectionInfo.SqlConnection.Database];
                 View view = (schemaName != null) ? database.Views[viewName, schemaName] : database.Views[viewName];
                 string tempFileName = (schemaName != null) ? tempPath + schemaName + "." + viewName + ".sql"
                                                     : tempPath + viewName + ".sql";
@@ -102,8 +108,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (this.connectionInfo.SqlConnection != null)
             {
-                Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
-                Database database = server.Databases[this.connectionInfo.SqlConnection.Database];
                 StoredProcedure storedProcedure = (schemaName != null) ? database.StoredProcedures[storedProcedureName, schemaName] :
                                                     database.StoredProcedures[storedProcedureName];
                 string tempFileName = (schemaName != null) ? tempPath + schemaName + "." + storedProcedureName + ".sql" 
@@ -129,21 +133,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Converta file to a location array containing a location object as expected by the extension
+        /// Convert a file to a location array containing a location object as expected by the extension
         /// </summary>
         private Location[] GetLocationFromFile(string tempFileName)
         {
             Location[] locations = new[] { 
                     new Location {
                         Uri = new Uri(tempFileName).AbsoluteUri,
-                        // TODO: change line range to start of create
                         Range = new Range {
-                            Start = new Position{ Line = 2, Character = 1},
-                            End = new Position{ Line = 3, Character = 1}
+                            Start = new Position { Line = 0, Character = 1},
+                            End = new Position { Line = 1, Character = 1}
                         }
                     }
-                };
-                return locations;
+            };
+            return locations;
         }
 
     }

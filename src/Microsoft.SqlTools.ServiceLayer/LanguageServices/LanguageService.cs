@@ -304,10 +304,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await requestContext.SendResult(locations);
             }
-            else
-            {
-                await Task.FromResult(true);
-            }
         }
 
         // turn off this code until needed (10/28/2016)
