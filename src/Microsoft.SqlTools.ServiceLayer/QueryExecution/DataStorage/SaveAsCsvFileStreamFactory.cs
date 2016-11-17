@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         public IFileStreamWriter GetWriter(string fileName)
         {
-            return new SaveAsCsvFileStreamWriter(new FileStreamWrapper(), fileName, SaveRequestParams);
+            return new SaveAsCsvFileStreamWriter(new FileStreamWrapper(), SaveRequestParams);
         }
 
         public void DisposeFile(string fileName)

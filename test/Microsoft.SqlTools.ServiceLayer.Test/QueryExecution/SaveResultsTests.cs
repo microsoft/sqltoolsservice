@@ -3,12 +3,14 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Xunit;
@@ -27,8 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvSuccessTest()
         {
             // Execute a query
+            Dictionary<string, byte[]> storage;
             var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, workplaceService);
+            var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, workplaceService, out storage);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
@@ -39,13 +42,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
                 BatchIndex = 0,
-                FilePath = "testwrite_1.csv",
+                FilePath = "testwrite.csv",
                 IncludeHeaders = true
             };
             SaveResultRequestResult result = null;
-            var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
+            var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(qcr => result = qcr);
 
             // Call save results and wait on the save task
+            queryService.CsvFileFactory = GetCsvFileStreamFactory(storage, saveParams);
             await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
             ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
             await selectedResultSet.GetSaveTask(saveParams.FilePath);
@@ -53,13 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Expect to see a file successfully created in filepath and a success message
             VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
             Assert.Null(result.Messages);
-            Assert.True(File.Exists(saveParams.FilePath));
-
-            // Delete temp file after test
-            if (File.Exists(saveParams.FilePath))
-            {
-                File.Delete(saveParams.FilePath);
-            }
+            Assert.True(storage.ContainsKey(saveParams.FilePath));
         }
 
         /// <summary>
@@ -69,8 +67,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvWithSelectionSuccessTest()
         {
             // Execute a query
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new []{Common.StandardTestData}, true, false, workspaceService);
+            Dictionary<string, byte[]> storage;
+            var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workplaceService, out storage);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
@@ -81,32 +80,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
                 BatchIndex = 0,
-                FilePath = "testwrite_2.csv",
+                FilePath = "testwrite.csv",
                 IncludeHeaders = true,
                 RowStartIndex = 0,
-                RowEndIndex = 0,
+                RowEndIndex = 1,
                 ColumnStartIndex = 0,
-                ColumnEndIndex = 0
+                ColumnEndIndex = 1
             };
             SaveResultRequestResult result = null;
-            var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
+            var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(qcr => result = qcr);
 
             // Call save results and wait on the save task
+            queryService.CsvFileFactory = GetCsvFileStreamFactory(storage, saveParams);
             await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
             ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            Task saveTask = selectedResultSet.GetSaveTask(saveParams.FilePath);         
-            await saveTask;
+            await selectedResultSet.GetSaveTask(saveParams.FilePath);         
 
             // Expect to see a file successfully created in filepath and a success message
             VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
             Assert.Null(result.Messages);
-            Assert.True(File.Exists(saveParams.FilePath));
-
-            // Delete temp file after test
-            if (File.Exists(saveParams.FilePath))
-            {
-                File.Delete(saveParams.FilePath);
-            }
+            Assert.True(storage.ContainsKey(saveParams.FilePath));
         }
 
         /// <summary>
@@ -116,8 +109,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public async void SaveResultsAsCsvExceptionTest()
         {
             // Execute a query
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, workspaceService);
+            Dictionary<string, byte[]> storage;
+            var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workplaceService, out storage);
             var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
@@ -128,11 +122,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 OwnerUri = Common.OwnerUri,
                 ResultSetIndex = 0,
                 BatchIndex = 0,
-                FilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "G:\\test.csv" : "/test.csv"
+                FilePath = string.Empty
             };
 
-            SaveResultRequestError errMessage = null;
-            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (SaveResultRequestError) err);
+            object errMessage = null;
+            var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(null)
+                .AddErrorHandling(err => errMessage = err);
 
             // Call save results and wait on the save task
             await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);           
@@ -142,7 +137,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Expect to see error message
             VerifySaveResultsCallCount(saveRequest, Times.Never(), Times.Once());
             Assert.NotNull(errMessage);
-            Assert.False(File.Exists(saveParams.FilePath));
+            Assert.IsType<SaveResultRequestError>(errMessage);
+            Assert.False(storage.ContainsKey(saveParams.FilePath));
         }
 
         /// <summary>
@@ -355,6 +351,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             mock.Verify(rc => rc.SendResult(It.IsAny<SaveResultRequestResult>()), sendResultCalls);
             mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
+        }
+
+        private static IFileStreamFactory GetCsvFileStreamFactory(Dictionary<string, byte[]> storage, SaveResultsAsCsvRequestParams request)
+        {
+            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
+                .Returns<string>(f => new ServiceBufferFileStreamReader(new Common.InMemoryWrapper(storage[f]), f));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
+                .Returns<string>(f =>
+                {
+                    storage.Add(f, new byte[8192]);
+                    return new SaveAsCsvFileStreamWriter(new Common.InMemoryWrapper(storage[f]), request);
+                });
+            return mock.Object;
         }
 
         #endregion

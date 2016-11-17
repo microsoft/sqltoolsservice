@@ -49,16 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        #region Member Variables
-
-        /// <summary>
-        /// File factory to be used to create CSV files from result sets. Set to internal in order
-        /// to allow overriding in unit testing
-        /// </summary>
-        internal IFileStreamFactory csvFileFactory;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -83,6 +73,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 });
             }
         }
+
+        /// <summary>
+        /// File factory to be used to create CSV files from result sets. Set to internal in order
+        /// to allow overriding in unit testing
+        /// </summary>
+        internal IFileStreamFactory CsvFileFactory { get; set; }
 
         /// <summary>
         /// The collection of active queries
@@ -295,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             };
 
             // Use the default CSV file factory if we haven't overridden it
-            IFileStreamFactory csvFactory = csvFileFactory ?? new SaveAsCsvFileStreamFactory
+            IFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
             {
                 SaveRequestParams = saveParams
             };

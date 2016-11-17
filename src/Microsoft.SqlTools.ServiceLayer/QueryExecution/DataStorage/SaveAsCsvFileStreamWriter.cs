@@ -24,11 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #endregion
 
-        public SaveAsCsvFileStreamWriter(IFileStreamWrapper fileWrapper, string fileName, SaveResultsAsCsvRequestParams requestParams)
+        public SaveAsCsvFileStreamWriter(IFileStreamWrapper fileWrapper, SaveResultsAsCsvRequestParams requestParams)
         {
             // Open the requested file for writing
             fileStream = fileWrapper;
-            fileStream.Init(fileName, DefaultBufferLength, FileAccess.ReadWrite);
+            fileStream.Init(requestParams.FilePath, DefaultBufferLength, FileAccess.ReadWrite);
 
             saveParams = requestParams;
             if (requestParams.IsSaveSelection)
@@ -68,7 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             // Build the string for the row
-            var selectedCells = row.Skip(columnStartIndex ?? 0).Take(columnCount ?? columns.Count)
+            var selectedCells = row.Skip(columnStartIndex ?? 0)
+                .Take(columnCount ?? columns.Count)
                 .Select(c => EncodeCsvField(c.DisplayValue));
             string rowLine = string.Join(",", selectedCells);
 
@@ -86,7 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #endregion
 
-        /// Method ported from SSMS
         /// <summary>
         /// Encodes a single field for inserting into a CSV record. The following rules are applied:
         /// <list type="bullet">
@@ -106,50 +106,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>The CSV encoded version of the original field</returns>
         internal static string EncodeCsvField(string field)
         {
-            StringBuilder sbField = new StringBuilder(field);
-
-            //Whether this field has special characters which require it to be embedded in quotes
-            bool embedInQuotes = false;
-
-            //Check for leading/trailing spaces
-            if (sbField.Length > 0 &&
-                (sbField[0] == ' ' ||
-                sbField[0] == '\t' ||
-                sbField[sbField.Length - 1] == ' ' ||
-                sbField[sbField.Length - 1] == '\t'))
-            {
-                embedInQuotes = true;
-            }
-            else
-            {   //List separator being in the field will require quotes
-                if (field.Contains(","))
-                {
-                    embedInQuotes = true;
-                }
-                else
-                {
-                    for (int i = 0; i < sbField.Length; ++i)
-                    {
-                        //Check whether this character is a special character
-                        if (sbField[i] == '\r' ||
-                            sbField[i] == '\n' ||
-                            sbField[i] == '"')
-                        { //If even one character requires embedding the whole field will
-                            //be embedded in quotes so we can just break out now
-                            embedInQuotes = true;
-                            break;
-                        }
-                    }
-                }
-            }
+            // Whether this field has special characters which require it to be embedded in quotes
+            bool embedInQuotes = field.Contains(",\r\n\"")                          // Contains special characters
+                                 || field.StartsWith(" ") || field.EndsWith(" ")    // Start/Ends with space
+                                 || field.StartsWith("\t") || field.EndsWith("\t"); // Starts/Ends with tab
 
             //Replace all quotes in the original field with double quotes
-            sbField.Replace("\"", "\"\"");
-            string ret = sbField.ToString();
+            string ret = field.Replace("\"", "\"\"");
 
             if (embedInQuotes)
             {
-                ret = "\"" + ret + "\"";
+                ret = $"\"{ret}\"";
             }
 
             return ret;

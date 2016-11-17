@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns<string>(output => new ServiceBufferFileStreamReader(new InMemoryWrapper(storage[output]), output));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string, int, int>((output, chars, xml) => new ServiceBufferFileStreamWriter(
+                .Returns<string>(output => new ServiceBufferFileStreamWriter(
                     new InMemoryWrapper(storage[output]), output, 1024, 1024));
 
             return mock.Object;
@@ -238,10 +238,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #region Service Mocking
 
-        public static QueryExecutionService GetPrimedExecutionService(Dictionary<string, string>[][] data, bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService)
+        public static QueryExecutionService GetPrimedExecutionService(Dictionary<string, string>[][] data,
+            bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService,
+            out Dictionary<string, byte[]> storage)
         {
             // Create a place for the temp "files" to be written
-            Dictionary<string, byte[]> storage = new Dictionary<string, byte[]>();
+            storage = new Dictionary<string, byte[]>();
 
             // Create the connection factory with the dataset
             var factory = CreateTestConnectionInfo(data, throwOnRead).Factory;
@@ -255,7 +257,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null)
                 .Returns(isConnected);
 
-            return new QueryExecutionService(connectionService.Object, workspaceService) {BufferFileStreamFactory = GetFileStreamFactory(storage)};
+            return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = GetFileStreamFactory(storage) };
+        }
+
+        public static QueryExecutionService GetPrimedExecutionService(Dictionary<string, string>[][] data, bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService)
+        {
+            Dictionary<string, byte[]> storage;
+            return GetPrimedExecutionService(data, isConnected, throwOnRead, workspaceService, out storage);
         }
 
         public static WorkspaceService<SqlToolsSettings> GetPrimedWorkspaceService(string query)

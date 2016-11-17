@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     using (var fileWriter = csvFactory.GetWriter(saveParams.FilePath))
                     {
                         // Iterate over the rows that are in the selected row set
-                        for (long i = rowStartIndex; i <= rowEndIndex; ++i)
+                        for (long i = rowStartIndex; i < rowEndIndex; ++i)
                         {
                             fileWriter.WriteRow(fileReader.ReadRow(fileOffsets[i], Columns), Columns);
                         }
