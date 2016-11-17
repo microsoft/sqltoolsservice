@@ -4,15 +4,17 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 
 namespace Microsoft.SqlServer.Management.SmoSdkSamples
 {
-    // This application demostrates how to script out a sample database without dependencies and iterate through the list to display the results.
+    // This application demonstrates how to script out a sample database without dependencies and iterate through the list to display the results.
     public class Program
     {
         public static void Main(string[] args)
-        {          
+        {
+            //Microsoft.SqlServer.Management.Smo.Server
             // Connect to the local, default instance of SQL Server.
-            Server srv = new Server();
-	        // database name 
-            string dbName = "AdventureWorks"; 
+            Smo.Server srv = new Smo.Server();
+	        // database name
+	        Console.WriteLine("Enter database name for scripting:"); 
+            string dbName = Console.ReadLine(); 
             // Reference the database.    
             Database db = srv.Databases[dbName];
             // Define a Scripter object and set the required scripting options.   
