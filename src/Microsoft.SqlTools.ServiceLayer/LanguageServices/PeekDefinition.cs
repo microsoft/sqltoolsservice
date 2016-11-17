@@ -21,7 +21,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             tempPath = Path.GetTempPath();
         }
 
-        public Location[] GetTableDefinition(string tableName)
+        /// <summary>
+        /// Script a table using SMO and write to a file.
+        /// </summary>
+        /// <param name="tableName">Table name</param>
+        /// <returns>Location object representing URI and range of the script file</returns>
+        internal Location[] GetTableDefinition(string tableName)
         {
             if (this.connectionInfo.SqlConnection != null)
             {
@@ -51,14 +56,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return null;
         }
 
-        public Location[] GetViewDefinition(string viewName, string schemaName)
+        /// <summary>
+        /// Script a view using SMO and write to a file.
+        /// </summary>
+        /// <param name="viewName">View name</param>
+        /// <param name="schemaName">Schema name </param>
+        /// <returns>Location object representing URI and range of the script file</returns>
+        internal Location[] GetViewDefinition(string viewName, string schemaName)
         {
             if (this.connectionInfo.SqlConnection != null)
             {
                 Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
                 Database database = server.Databases[this.connectionInfo.SqlConnection.Database];
                 View view = (schemaName != null) ? database.Views[viewName, schemaName] : database.Views[viewName];
-                string tempFileName = tempPath + schemaName + "." + viewName + ".sql";
+                string tempFileName = (schemaName != null) ? tempPath + schemaName + "." + viewName + ".sql"
+                                                    : tempPath + viewName + ".sql";
 
                 if (view != null)
                 {
@@ -80,7 +92,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return null;
         }
 
-        public Location[] GetStoredProcedureDefinition(string storedProcedureName, string schemaName)
+        /// <summary>
+        /// Script a stored procedure using SMO and write to a file.
+        /// </summary>
+        /// <param name="storedProcedureName">Stored Procedure name</param>
+        /// <param name="schemaName">Schema Name</param>
+        /// <returns>Location object representing URI and range of the script file</returns>
+        internal Location[] GetStoredProcedureDefinition(string storedProcedureName, string schemaName)
         {
             if (this.connectionInfo.SqlConnection != null)
             {
@@ -88,7 +106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Database database = server.Databases[this.connectionInfo.SqlConnection.Database];
                 StoredProcedure storedProcedure = (schemaName != null) ? database.StoredProcedures[storedProcedureName, schemaName] :
                                                     database.StoredProcedures[storedProcedureName];
-                string tempFileName = tempPath + schemaName + "." + storedProcedureName + ".sql";
+                string tempFileName = (schemaName != null) ? tempPath + schemaName + "." + storedProcedureName + ".sql" 
+                                                    : tempPath + storedProcedureName + ".sql";
 
                 if (storedProcedure != null)
                 {
@@ -109,11 +128,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return null;
         }
 
-        public Location[] GetLocationFromFile(string tempFileName)
+        /// <summary>
+        /// Converta file to a location array containing a location object as expected by the extension
+        /// </summary>
+        private Location[] GetLocationFromFile(string tempFileName)
         {
             Location[] locations = new[] { 
                     new Location {
-                        // Uri = "file:///c%3A/Users/shravind/AppData/Local/Temp/script.sql",
                         Uri = new Uri(tempFileName).AbsoluteUri,
                         // TODO: change line range to start of create
                         Range = new Range {

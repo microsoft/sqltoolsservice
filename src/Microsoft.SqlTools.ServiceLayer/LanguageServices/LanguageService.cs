@@ -303,7 +303,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (locations != null)
             {
                 await requestContext.SendResult(locations);
-                return;
             }
             else
             {
@@ -831,56 +830,64 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public Location[] GetDefinition(TextDocumentPosition textDocumentPosition)
         {
             
-            // retrieve document and connection
+            // Retrieve document and connection
             ConnectionInfo connInfo;
             var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
             LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
 
+            // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 ParseAndBind(scriptFile, connInfo);
             }
 
-            //check if parse failed
+            // Return if parse failed
             if (scriptParseInfo == null)
             {
                 return null;
             }
-            ;
+
+            // Get token from selected text
             Token token = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
             if (token == null)
             {
                 return null;
             }
-
+            // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
+            // The suggestion title does not contain any sql punctuation
             string tokenText = token.Text.Replace("]",String.Empty).Replace("[",String.Empty);
+
+
             if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
             {
                 try
                 {
-                    // queue the task with the binding queue    
+                    // Queue the task with the binding queue    
                     QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                         key: scriptParseInfo.ConnectionKey,
                         bindingTimeout: LanguageService.PeekDefinitionTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
-                            // get the suggestions for the token
+                            // Get suggestions for the token
                             IEnumerable<Declaration> declarationItems;
                             int parserLine = textDocumentPosition.Position.Line + 1;
                             int parserColumn = textDocumentPosition.Position.Character + 1;
-                            declarationItems = Resolver.FindCompletions(scriptParseInfo.ParseResult, parserLine, parserColumn, bindingContext.MetadataDisplayInfoProvider);
+                            declarationItems = Resolver.FindCompletions(
+                                scriptParseInfo.ParseResult, 
+                                parserLine, parserColumn, 
+                                bindingContext.MetadataDisplayInfoProvider);
 
-
+                            // Match token with the suggestions(declaration items) returned
                             DeclarationType type = 0;
                             string schemaName;
                             PeekDefinition pd = new PeekDefinition(connInfo);
-
-                            foreach (Declaration completionItem in declarationItems)
+                            foreach (Declaration declarationItem in declarationItems)
                             {
-                                if (completionItem.Title.Equals(tokenText))
+                                if (declarationItem.Title.Equals(tokenText))
                                 {
-                                    type = completionItem.Type;
+                                    type = declarationItem.Type;
+                                    // Script object using SMO based on type
                                     switch (type)
                                     {
                                         case DeclarationType.Table:
