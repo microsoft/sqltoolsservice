@@ -54,6 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
 
         public string ProfileName { get; set; }
 
+        public TestServerType ServerType { get; set; }
+
 
         public string formatCredentialId(string itemType = "Profile")
         {

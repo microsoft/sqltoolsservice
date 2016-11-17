@@ -258,5 +258,26 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
+        [Fact]
+        public async Task NotificationIsSentAfterOnConnectionAutoCompleteUpdate()
+        {
+            try
+            {
+                // Connect
+                string ownerUri = System.IO.Path.GetTempFileName();
+                await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+
+                // An event signalling that IntelliSense is ready should be sent shortly thereafter
+                var readyParams = await Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                Assert.NotNull(readyParams);
+                Assert.Equal(ownerUri, readyParams.OwnerUri);
+
+                await Disconnect(ownerUri);
+            }
+            finally
+            {
+                WaitForExit();
+            }
+        }
     }
 }
