@@ -279,5 +279,137 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 WaitForExit();
             }
         }
+
+        [Fact]
+        public async Task FunctionSignatureCompletionReturnsCorrectFunction()
+        {
+            string sqlText = "EXEC sys.fn_isrolemember ";
+            string ownerUri = System.IO.Path.GetTempFileName();
+
+            try
+            {
+                System.IO.File.WriteAllText(ownerUri, sqlText);
+
+                // Connect
+                await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+
+                // Wait for intellisense to be ready
+                var readyParams = await Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                Assert.NotNull(readyParams);
+                Assert.Equal(ownerUri, readyParams.OwnerUri);
+
+                // Send a function signature help Request
+                var position = new TextDocumentPosition()
+                {
+                    TextDocument = new TextDocumentIdentifier()
+                    {
+                        Uri = ownerUri
+                    },
+                    Position = new Position()
+                    {
+                        Line = 0,
+                        Character = sqlText.Length
+                    }
+                };
+                var signatureHelp = await Driver.SendRequest(SignatureHelpRequest.Type, position);
+
+                Assert.NotNull(signatureHelp);
+                Assert.True(signatureHelp.ActiveSignature.HasValue);
+                Assert.NotEmpty(signatureHelp.Signatures);
+
+                var label = signatureHelp.Signatures[signatureHelp.ActiveSignature.Value].Label;
+                Assert.NotNull(label);
+                Assert.NotEmpty(label);
+                Assert.True(label.Contains("fn_isrolemember"));
+
+                await Disconnect(ownerUri);
+            }
+            finally
+            {
+                System.IO.File.Delete(ownerUri);
+                WaitForExit();
+            }
+        }
+
+        [Fact]
+        public async Task FunctionSignatureCompletionReturnsCorrectParametersAtEachPosition()
+        {
+            string sqlText = "EXEC sys.fn_isrolemember 1, 'testing', 2";
+            string ownerUri = System.IO.Path.GetTempFileName();
+
+            try
+            {
+                System.IO.File.WriteAllText(ownerUri, sqlText);
+
+                // Connect
+                await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+
+                // Wait for intellisense to be ready
+                var readyParams = await Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                Assert.NotNull(readyParams);
+                Assert.Equal(ownerUri, readyParams.OwnerUri);
+
+                // Verify all parameters when the cursor is inside of parameters and at separator boundaries (,)
+                await VerifyFunctionSignatureHelpParameter(ownerUri, 25, "fn_isrolemember", 0, "@mode int");
+                await VerifyFunctionSignatureHelpParameter(ownerUri, 26, "fn_isrolemember", 0, "@mode int");
+                await VerifyFunctionSignatureHelpParameter(ownerUri, 27, "fn_isrolemember", 1, "@login sysname");
+                await VerifyFunctionSignatureHelpParameter(ownerUri, 30, "fn_isrolemember", 1, "@login sysname");
+                await VerifyFunctionSignatureHelpParameter(ownerUri, 37, "fn_isrolemember", 1, "@login sysname");
+                await VerifyFunctionSignatureHelpParameter(ownerUri, 38, "fn_isrolemember", 2, "@tranpubid int");
+                await VerifyFunctionSignatureHelpParameter(ownerUri, 39, "fn_isrolemember", 2, "@tranpubid int");
+
+                await Disconnect(ownerUri);
+            }
+            finally
+            {
+                System.IO.File.Delete(ownerUri);
+                WaitForExit();
+            }
+        }
+
+        public async Task VerifyFunctionSignatureHelpParameter(
+            string ownerUri, 
+            int character, 
+            string expectedFunctionName, 
+            int expectedParameterIndex, 
+            string expectedParameterName)
+        {
+            var position = new TextDocumentPosition()
+            {
+                TextDocument = new TextDocumentIdentifier()
+                {
+                    Uri = ownerUri
+                },
+                Position = new Position()
+                {
+                    Line = 0,
+                    Character = character
+                }
+            };
+            var signatureHelp = await Driver.SendRequest(SignatureHelpRequest.Type, position);
+
+            Assert.NotNull(signatureHelp);
+            Assert.NotNull(signatureHelp.ActiveSignature);
+            Assert.True(signatureHelp.ActiveSignature.HasValue);
+            Assert.NotEmpty(signatureHelp.Signatures);
+
+            var activeSignature = signatureHelp.Signatures[signatureHelp.ActiveSignature.Value];
+            Assert.NotNull(activeSignature);
+
+            var label = activeSignature.Label;
+            Assert.NotNull(label);
+            Assert.NotEmpty(label);
+            Assert.True(label.Contains(expectedFunctionName));
+
+            Assert.NotNull(signatureHelp.ActiveParameter);
+            Assert.True(signatureHelp.ActiveParameter.HasValue);
+            Assert.Equal(expectedParameterIndex, signatureHelp.ActiveParameter.Value);
+
+            var parameter = activeSignature.Parameters[signatureHelp.ActiveParameter.Value];
+            Assert.NotNull(parameter);
+            Assert.NotNull(parameter.Label);
+            Assert.NotEmpty(parameter.Label);
+            Assert.Equal(expectedParameterName, parameter.Label);
+        }
     }
 }
