@@ -1,54 +1,26 @@
 ﻿
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
-    public class SaveAsCsvFileStreamWriter : IFileStreamWriter
+    public class SaveAsCsvFileStreamWriter : SaveAsStreamWriter
     {
-
-        private const int DefaultBufferLength = 8192;
 
         #region Member Variables
 
-        private readonly IFileStreamWrapper fileStream;
-        private bool disposed;
         private bool headerWritten;
-        private readonly SaveResultsAsCsvRequestParams saveParams;
-        private readonly int? columnStartIndex;
-        private readonly int? columnCount;
 
         #endregion
 
         public SaveAsCsvFileStreamWriter(IFileStreamWrapper fileWrapper, SaveResultsAsCsvRequestParams requestParams)
+            : base(fileWrapper, requestParams)
         {
-            // Open the requested file for writing
-            fileStream = fileWrapper;
-            fileStream.Init(requestParams.FilePath, DefaultBufferLength, FileAccess.ReadWrite);
-
-            saveParams = requestParams;
-            if (requestParams.IsSaveSelection)
-            {
-                // ReSharper disable PossibleInvalidOperationException  IsSaveSelection verifies these values exist
-                columnStartIndex = saveParams.ColumnStartIndex.Value;
-                columnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value;
-                // ReSharper restore PossibleInvalidOperationException
-            }
         }
 
-        #region IFileStreamWriter Implementation
-
-        [Obsolete]
-        public int WriteRow(StorageDataReader dataReader)
-        {
-            throw new InvalidOperationException("This type of writer is meant to write values from a list of cell values only.");
-        }
-
-        public int WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        public override int WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
         {
             int bytesWritten = 0;
 
@@ -79,13 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             return bytesWritten;
         }
-
-        public void FlushBuffer()
-        {
-            fileStream.Flush();
-        }
-
-        #endregion
 
         /// <summary>
         /// Encodes a single field for inserting into a CSV record. The following rules are applied:
@@ -121,26 +86,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             return ret;
         }
-
-        #region IDisposable Implementation
-
-        private void Dispose(bool disposing)
-        {
-            if (disposed || !disposing)
-            {
-                disposed = true;
-                return;
-            }
-
-            fileStream.Flush();
-            fileStream.Dispose();
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
+        
     }
 }
