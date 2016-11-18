@@ -3,8 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-// TODO: Remove the NOT (!) before merging in
-#if !LIVE_CONNECTION_TESTS
+#if LIVE_CONNECTION_TESTS
 
 using System;
 using System.Collections.Generic;
