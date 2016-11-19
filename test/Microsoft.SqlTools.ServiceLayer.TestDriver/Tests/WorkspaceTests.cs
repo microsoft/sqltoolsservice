@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// <summary>
     /// Language Service end-to-end integration tests
     /// </summary>
-    public class WorkspaceTests : TestBase
+    public class WorkspaceTests
     {
         /// <summary>
         /// Validate workspace lifecycle events
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task InitializeRequestTest()
         {
-            try
+            using (TestHelper testHelper = new TestHelper())
             {
                 InitializeRequest initializeRequest = new InitializeRequest()
                 {
@@ -29,12 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Capabilities = new ClientCapabilities()
                 };                   
                        
-                InitializeResult result = await Driver.SendRequest(InitializeRequest.Type, initializeRequest);
+                InitializeResult result = await testHelper.Driver.SendRequest(InitializeRequest.Type, initializeRequest);
                 Assert.NotNull(result);
-            }
-            finally
-            {
-                WaitForExit();
             }
         }
     }
