@@ -424,6 +424,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = executeParams.OwnerUri,
                     BatchSummaries = q.BatchSummaries
                 };
+
+                // If there were no batch results in the query, send back a message that the commands were completed successfully
+                if (eventParams.BatchSummaries.Length == 0)
+                {
+                    eventParams.BatchSummaries = new BatchSummary[] { new BatchSummary()
+                    {
+                        Messages = new ResultMessage[] { new ResultMessage(SR.QueryServiceCompletedSuccessfully) }
+                    }};
+
+                    var batchParams = new QueryExecuteBatchCompleteParams();
+                    batchParams.BatchSummary = eventParams.BatchSummaries[0];
+                    batchParams.OwnerUri = executeParams.OwnerUri;
+
+                    // HACK: this is here to prevent the QueryExecuteCompleteEvent from being sent before the QueryExecuteResult is processed
+                    System.Threading.Thread.Sleep(100);
+
+                    await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, batchParams);
+                }
+
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
 

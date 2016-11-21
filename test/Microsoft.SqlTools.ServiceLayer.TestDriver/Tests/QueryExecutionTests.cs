@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -321,6 +322,39 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 Assert.NotNull(queryTask.Result.BatchSummaries);
 
                 await testHelper.Disconnect(queryTempFile.FilePath);
+            }
+        }
+
+        [Fact]
+        public async Task NoOpQueryReturnsMessage()
+        {
+            // Given queries that do nothing (no-ops)...
+            var queries = new string[]
+            {
+                "-- no-op",
+                "GO"
+            };
+
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
+            {
+                foreach (var query in queries)
+                {
+                    Assert.True(await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection));
+
+                    // If the queries are executed...
+                    var queryResult = await testHelper.RunQuery(queryTempFile.FilePath, query);
+
+                    // Then I expect messages that the commands were completed successfully to be in the result
+                    Assert.NotNull(queryResult);
+                    Assert.Equal(queryTempFile.FilePath, queryResult.OwnerUri);
+                    Assert.True(queryResult.BatchSummaries.Length != 0);
+                    Assert.NotNull(queryResult.BatchSummaries[0]);
+                    Assert.NotNull(queryResult.BatchSummaries[0].Messages);
+                    Assert.Equal("Commands completed successfully.", queryResult.BatchSummaries[0].Messages[0].Message);
+
+                    await testHelper.Disconnect(queryTempFile.FilePath);
+                }
             }
         }
     }

@@ -230,6 +230,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Don't actually execute if there aren't any batches to execute
             if (Batches.Length == 0)
             {
+                // Call the query execution callback
+                if (QueryCompleted != null)
+                {
+                    await QueryCompleted(this);
+                }
                 return;
             }
 
