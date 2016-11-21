@@ -18,18 +18,22 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts
 
         private static readonly Lazy<string> ComplexQueryInstance = new Lazy<string>(() =>
         {
+            string fileContent = string.Empty;
             try
             {
-                string assemblyLocation = typeof(Scripts).GetTypeInfo().Assembly.Location;
-                string folderName = Path.GetDirectoryName(assemblyLocation);
-                string filePath = Path.Combine(folderName, "Scripts/AdventureWorks.sql");
-                return File.ReadAllText(filePath);
+                using (Stream stream = typeof(Scripts).GetTypeInfo().Assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts.AdventureWorks.sql"))
+                {
+                    using(StreamReader reader = new StreamReader(stream))
+                    {
+                        fileContent = reader.ReadToEnd();
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to load the sql script. error: {ex.Message}");
-                return string.Empty;
             }
+            return fileContent;
         });
 
         public static string ComplexQuery { get { return ComplexQueryInstance.Value; } }

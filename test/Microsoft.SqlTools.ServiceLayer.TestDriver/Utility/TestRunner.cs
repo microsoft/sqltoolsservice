@@ -23,9 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
                     bool containsTestName = testName.Contains(".");
                     var className = containsTestName ? testName.Substring(0, testName.LastIndexOf('.')) : testName;
                     var methodName = containsTestName ? testName.Substring(testName.LastIndexOf('.') + 1) : null;
-
-
-                    var type = Type.GetType(testNamespace + className);
+                    Assembly assembly = Assembly.GetEntryAssembly();
+                    Type type = assembly.GetType(testNamespace + className);
                     if (type == null)
                     {
                         Console.WriteLine("Invalid class name");
@@ -64,12 +63,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             }
             else
             {
-                using (var typeInstance = (IDisposable)Activator.CreateInstance(type))
-                {
-                    Console.WriteLine("Running test " + testName);
-                    await (Task)methodInfo.Invoke(typeInstance, null);
-                    Console.WriteLine("Test ran successfully: " + testName);
-                }
+                var typeInstance = Activator.CreateInstance(type);
+                Console.WriteLine("Running test " + testName);
+                await (Task)methodInfo.Invoke(typeInstance, null);
+                Console.WriteLine("Test ran successfully: " + testName);
             }
         }
     }

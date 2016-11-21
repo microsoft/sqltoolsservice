@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
+namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class ConnectionTests
     {

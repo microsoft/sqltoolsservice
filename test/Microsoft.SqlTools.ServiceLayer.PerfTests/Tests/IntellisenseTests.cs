@@ -14,7 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
+namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class IntellisenseTests
     {
@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
         private static async Task ValidateCompletionResponse(TestHelper testHelper, string ownerUri, string query, [CallerMemberName] string testName="")
         {
             TestTimer timer = new TestTimer();
-            await Common.ExecuteWithTimeout(timer, 60000, async () =>
+            await Common.ExecuteWithTimeout(timer, 500000, async () =>
             {
                 CompletionItem[] completions = await testHelper.RequestCompletion(ownerUri, query, 0, 15);
                 return completions != null && completions.Any(x => x.Label == "master");

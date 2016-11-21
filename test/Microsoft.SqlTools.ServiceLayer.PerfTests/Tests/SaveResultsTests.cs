@@ -9,7 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.TestDriver.Tests;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
+namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class SaveResultsTests
     {
