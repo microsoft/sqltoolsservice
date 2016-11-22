@@ -727,7 +727,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             var exception = new Exception();
             var timespan = TimeSpan.FromMinutes(1);
 
+            // Given a RetryCallbackEventArgs object with certain parameters
             var args = new RetryCallbackEventArgs(5, exception, timespan);
+
+            // If I check the properties on the object
+            // Then I expect the values to be the same as the values I passed into the constructor
             Assert.Equal(5, args.RetryCount);
             Assert.Equal(exception, args.Exception);
             Assert.Equal(timespan, args.Delay);

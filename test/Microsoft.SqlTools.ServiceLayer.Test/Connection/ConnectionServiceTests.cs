@@ -916,6 +916,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [InlineData(false, "server", "test", "sa")]
         public void TestConnectionSummaryComparerHashCode(bool objectNull, string serverName, string databaseName, string userName)
         {
+            // Given a connection summary and comparer object
             ConnectionSummary summary = null;
             if (!objectNull)
             {
@@ -928,13 +929,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             }
             ConnectionSummaryComparer comparer = new ConnectionSummaryComparer();
             
+            // If I compute a hash code
             int hashCode = comparer.GetHashCode(summary);
             if (summary == null || (serverName == null && databaseName == null && userName == null))
             {
+                // Then I expect it to be 31 for a null summary
                 Assert.Equal(31, hashCode);
             }
             else
             {
+                // And not 31 otherwise
                 Assert.NotEqual(31, hashCode);
             }
         }
@@ -942,12 +946,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Fact]
         public void ConnectParamsAreInvalidIfConnectionIsNull()
         {
+            // Given connection parameters where the connection property is null
             ConnectParams parameters = new ConnectParams();
             parameters.OwnerUri = "my/sql/file.sql";
             parameters.Connection = null;
 
             string errorMessage;
+
+            // If I check if the parameters are valid
             Assert.False(parameters.IsValid(out errorMessage));
+
+            // Then I expect an error message
             Assert.NotNull(errorMessage);
             Assert.NotEmpty(errorMessage);
         }
