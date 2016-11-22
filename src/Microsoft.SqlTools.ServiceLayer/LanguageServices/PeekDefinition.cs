@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (this.connectionInfo.SqlConnection != null)
             {
                 Table table = database.Tables[tableName];
-                string tempFileName = tempPath + tableName + ".sql";
+                string tempFileName = String.Format("{0}{1}.sql", tempPath, tableName); 
 
                 if (table != null)
                 {
@@ -75,8 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (this.connectionInfo.SqlConnection != null)
             {
                 View view = (schemaName != null) ? database.Views[viewName, schemaName] : database.Views[viewName];
-                string tempFileName = (schemaName != null) ? tempPath + schemaName + "." + viewName + ".sql"
-                                                    : tempPath + viewName + ".sql";
+                string tempFileName = (schemaName != null) ? String.Format("{0}{1}.{2}.sql", tempPath, schemaName, viewName)
+                                                    :  String.Format("{0}{1}.sql", tempPath, viewName);
 
                 if (view != null)
                 {
@@ -110,8 +110,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 StoredProcedure storedProcedure = (schemaName != null) ? database.StoredProcedures[storedProcedureName, schemaName] :
                                                     database.StoredProcedures[storedProcedureName];
-                string tempFileName = (schemaName != null) ? tempPath + schemaName + "." + storedProcedureName + ".sql" 
-                                                    : tempPath + storedProcedureName + ".sql";
+                string tempFileName = (schemaName != null) ?  String.Format("{0}{1}.{2}.sql", tempPath, schemaName, storedProcedureName) 
+                                                    : String.Format("{0}{1}.sql", tempPath, storedProcedureName);
 
                 if (storedProcedure != null)
                 {
