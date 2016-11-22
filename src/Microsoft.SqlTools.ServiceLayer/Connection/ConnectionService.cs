@@ -77,8 +77,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Default constructor is internal since it's a singleton class, but we need a
-        /// parameterless constructor for mocking in unit tests.
+        /// Default constructor should be private since it's a singleton class, but we need a constructor
+        /// for use in unit test mocking.
         /// </summary>
         public ConnectionService()
         {

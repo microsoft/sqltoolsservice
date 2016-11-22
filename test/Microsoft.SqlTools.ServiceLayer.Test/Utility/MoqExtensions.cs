@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
                 .Assembly.GetType("Moq.MethodCall")
                 .GetMethod("SetCallbackWithArguments",
                     BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(mock, new[] {action});
+                .Invoke(mock, new[] { action });
             return mock as IReturnsThrows<TMock, TReturn>;
 
         }

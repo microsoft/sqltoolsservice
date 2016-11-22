@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Linq;
-using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 {
@@ -93,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             List<DbColumn> columns = new List<DbColumn>();
             for (int i = 0; i < ResultSet.Current[0].Count; i++)
             {
-                columns.Add(new TestDbColumn());
+                columns.Add(new TestDbColumn(ResultSet.Current[0].Keys.ToArray()[i]));
             }
             return new ReadOnlyCollection<DbColumn>(columns);
         }

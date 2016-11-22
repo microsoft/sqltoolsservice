@@ -16,6 +16,10 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
+    /// <summary>
+    /// Class that represents a resultset the was generated from a query. Contains logic for
+    /// storing and retrieving results. Is contained by a Batch class.
+    /// </summary>
     public class ResultSet : IDisposable
     {
         #region Constants
@@ -35,9 +39,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Member Variables
 
         /// <summary>
+        /// The reader to use for this resultset
+        /// </summary>
+        private readonly StorageDataReader dataReader;
+
+        /// <summary>
         /// For IDisposable pattern, whether or not object has been disposed
         /// </summary>
         private bool disposed;
+
+        /// <summary>
+        /// A list of offsets into the buffer file that correspond to where rows start
+        /// </summary>
+        private readonly LongList<long> fileOffsets;
 
         /// <summary>
         /// The factory to use to get reading/writing handlers
@@ -78,12 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Sanity check to make sure we got a reader
             Validate.IsNotNull(nameof(reader), SR.QueryServiceResultSetReaderNull);
 
-            DataReader = new StorageDataReader(reader);
+            dataReader = new StorageDataReader(reader);
             Id = ordinal;
 
             // Initialize the storage
             outputFileName = factory.CreateFile();
-            FileOffsets = new LongList<long>();
+            fileOffsets = new LongList<long>();
 
             // Store the factory
             fileStreamFactory = factory;
@@ -114,16 +128,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The columns for this result set
         /// </summary>
         public DbColumnWrapper[] Columns { get; private set; }
-
-        /// <summary>
-        /// The reader to use for this resultset
-        /// </summary>
-        private StorageDataReader DataReader { get; set; }
-
-        /// <summary>
-        /// A list of offsets into the buffer file that correspond to where rows start
-        /// </summary>
-        private LongList<long> FileOffsets { get; set; }
 
         /// <summary>
         /// ID of the result set, relative to the batch
@@ -202,13 +206,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         // Iterate over all the rows and process them into a list of string builders
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
-                        IEnumerable<string> rowValues = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
+                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
                         rows = new[] { new[] { string.Join(string.Empty, rowValues) } };
                     }
                     else
                     {
                         // Figure out which rows we need to read back
-                        IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
+                        IEnumerable<long> rowOffsets = fileOffsets.Skip(startRow).Take(rowCount);
 
                         // Iterate over the rows we need and process them into output
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in .ToArray call
@@ -243,18 +247,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 using (fileWriter)
                 {
                     // If we can initialize the columns using the column schema, use that
-                    if (!DataReader.DbDataReader.CanGetColumnSchema())
+                    if (!dataReader.DbDataReader.CanGetColumnSchema())
                     {
                         throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
                     }
-                    Columns = DataReader.Columns;
+                    Columns = dataReader.Columns;
                     long currentFileOffset = 0;
 
-                    while (await DataReader.ReadAsync(cancellationToken))
+                    while (await dataReader.ReadAsync(cancellationToken))
                     {
                         RowCount++;
-                        FileOffsets.Add(currentFileOffset);
-                        currentFileOffset += fileWriter.WriteRow(DataReader);
+                        fileOffsets.Add(currentFileOffset);
+                        currentFileOffset += fileWriter.WriteRow(dataReader);
                     }
                 }
                 // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata

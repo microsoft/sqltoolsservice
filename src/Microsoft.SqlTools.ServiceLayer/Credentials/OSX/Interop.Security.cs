@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
                 ErrSecSuccess                = 0,       /* No error. */
                 ErrSecUnimplemented          = -4,      /* Function or operation not implemented. */
                 ErrSecDskFull                = -34,
-                ErrSecIO                     = -36,     /*I/O error (bummers)*/
+                ErrSecIO                     = -36,     /*I/O error*/
 
                 ErrSecParam                  = -50,     /* One or more parameters passed to a function were not valid. */
                 ErrSecWrPerm                 = -61,     /* write permissions error*/
