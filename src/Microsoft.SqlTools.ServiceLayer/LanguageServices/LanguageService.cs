@@ -43,6 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int OnConnectionWaitTimeout = 300000;
 
+        internal const int PeekDefinitionTimeout = 10000;
+
         private static ConnectionService connectionService = null;
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
@@ -198,7 +200,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
-            // serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
             // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
             // serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
@@ -206,6 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
+            serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -293,15 +295,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-// turn off this code until needed (10/28/2016)
-#if false
-        private static async Task HandleDefinitionRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<Location[]> requestContext)
+        internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            await Task.FromResult(true);
+            // Retrieve document and connection
+            ConnectionInfo connInfo;
+            var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
+            LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+
+            Location[] locations = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
+            if (locations != null)
+            {
+                await requestContext.SendResult(locations);
+            }
         }
 
+// turn off this code until needed (10/28/2016)
+#if false
         private static async Task HandleReferencesRequest(
             ReferencesParams referencesParams,
             RequestContext<Location[]> requestContext)
@@ -634,6 +643,131 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             return completionItem;
         }
+
+        /// <summary>
+        /// Get definition for a selected sql object using SMO Scripting
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="connInfo"></param>
+        /// <returns> Location with the URI of the script file</returns>
+        internal Location[] GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        {
+            Location[] locations = new[] { 
+                    new Location {
+                        Uri = new Uri("C:\\test.txt").AbsoluteUri,
+                        Range = new Range {
+                            Start = new Position { Line = 0, Character = 1},
+                            End = new Position { Line = 1, Character = 1}
+                        }
+                    }
+            };
+
+            // Parse sql
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                ParseAndBind(scriptFile, connInfo);
+            }
+
+            // Return if parse failed
+            if (scriptParseInfo == null)
+            {
+                return locations;
+            }
+
+            // Get token from selected text
+            Token token = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
+            if (token == null)
+            {
+                return null;
+            }
+            // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
+            // The suggestion title does not contain any sql punctuation
+            string tokenText = token.Text.Replace("]",String.Empty).Replace("[",String.Empty);
+
+
+            if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+            {
+                try
+                {
+                    // Queue the task with the binding queue    
+                    QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        key: scriptParseInfo.ConnectionKey,
+                        bindingTimeout: LanguageService.PeekDefinitionTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            // Get suggestions for the token
+                            IEnumerable<Declaration> declarationItems;
+                            int parserLine = textDocumentPosition.Position.Line + 1;
+                            int parserColumn = textDocumentPosition.Position.Character + 1;
+                            declarationItems = Resolver.FindCompletions(
+                                scriptParseInfo.ParseResult, 
+                                parserLine, parserColumn, 
+                                bindingContext.MetadataDisplayInfoProvider);
+
+                            // Match token with the suggestions(declaration items) returned
+                            DeclarationType type = 0;
+                            string schemaName;
+                            PeekDefinition pd = new PeekDefinition(connInfo);
+                            foreach (Declaration declarationItem in declarationItems)
+                            {
+                                if (declarationItem.Title.Equals(tokenText))
+                                {
+                                    type = declarationItem.Type;
+                                    // Script object using SMO based on type
+                                    switch (type)
+                                    {
+                                        case DeclarationType.Table:
+                                            return pd.GetTableDefinition(tokenText);
+                                        case DeclarationType.View:
+                                            schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                                            return pd.GetViewDefinition(tokenText, schemaName);
+                                        case DeclarationType.StoredProcedure:
+                                            schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                                            return pd.GetStoredProcedureDefinition(tokenText, schemaName);
+                                        default:
+                                            return null;
+                                    }
+                                }
+                            }
+                            return null;
+
+                        },
+                        timeoutOperation: (bindingContext) =>
+                        {
+                            return null;
+                        });
+
+                    // wait for the queue item
+                    queueItem.ItemProcessed.WaitOne();
+                    return queueItem.GetResultAsT<Location[]>();
+                }
+                finally
+                {
+                    Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Extract schema name for a token, if present
+        /// </summary>
+        /// <param name="scriptParseInfo"></param>
+        /// <param name="position"></param>
+        /// <param name="scriptFile"></param>
+        /// <returns> schema nama</returns>
+        private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
+        {
+            // Get schema name 
+            string sql = scriptFile.GetLine(position.Line + 1);
+            int startColumn = TextUtilities.PositionOfPrevDelimeter(sql, 0, position.Character);
+            // if no schema name, returns null
+            return GetToken(scriptParseInfo, position.Line + 1, startColumn - 1).Text.Replace("]",String.Empty).Replace("[",String.Empty);
+        }
+
 
         /// <summary>
         /// Get quick info hover tooltips for the current position
