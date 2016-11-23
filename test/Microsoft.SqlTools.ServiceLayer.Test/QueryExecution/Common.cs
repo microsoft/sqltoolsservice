@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public const string NoOpQuery = "-- No ops here, just us chickens.";
 
-        public const int Ordinal = 0;
+        public const int Ordinal = 100;     // We'll pick something other than default(int)
 
         public const string OwnerUri = "testFile";
 
@@ -130,56 +130,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return mock.Object;
         }
 
-        public class InMemoryWrapper : IFileStreamWrapper
-        {
-            private readonly MemoryStream memoryStream;
-            private bool readingOnly;
-
-            public InMemoryWrapper(byte[] storage)
-            {
-                memoryStream = new MemoryStream(storage);
-            }
-
-            public void Close()
-            {
-                memoryStream.Dispose();
-            }
-
-            public void Dispose()
-            {
-                // We'll dispose this via a special method
-            }
-
-            public void Flush()
-            {
-                if (readingOnly) { throw new InvalidOperationException(); }
-            }
-
-            public void Init(string fileName, int bufferSize, FileAccess fAccess)
-            {
-                readingOnly = fAccess == FileAccess.Read;
-            }
-
-            public int ReadData(byte[] buffer, int bytes)
-            {
-                return ReadData(buffer, bytes, memoryStream.Position);
-            }
-
-            public int ReadData(byte[] buffer, int bytes, long fileOffset)
-            {
-                memoryStream.Seek(fileOffset, SeekOrigin.Begin);
-                return memoryStream.Read(buffer, 0, bytes);
-            }
-
-            public int WriteData(byte[] buffer, int bytes)
-            {
-                if (readingOnly) { throw new InvalidOperationException(); }
-                memoryStream.Write(buffer, 0, bytes);
-                memoryStream.Flush();
-                return bytes;
-            }
-        }
-
         #endregion
 
         #region DbConnection Mocking
@@ -211,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var connectionMock = new Mock<DbConnection> { CallBase = true };
             connectionMock.Protected()
                 .Setup<DbCommand>("CreateDbCommand")
-                .Returns(CreateTestCommand(data, throwOnRead));
+                .Returns(() => CreateTestCommand(data, throwOnRead));
             connectionMock.Setup(dbc => dbc.Open())
                 .Callback(() => connectionMock.SetupGet(dbc => dbc.State).Returns(ConnectionState.Open));
             connectionMock.Setup(dbc => dbc.Close())
@@ -224,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
-                .Returns(CreateTestConnection(data, throwOnRead));
+                .Returns(() => CreateTestConnection(data, throwOnRead));
 
             return mockFactory.Object;
         }

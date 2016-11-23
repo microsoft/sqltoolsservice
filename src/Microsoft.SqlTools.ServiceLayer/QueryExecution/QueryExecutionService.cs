@@ -444,7 +444,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
-
             query.QueryCompleted += callback;
             query.QueryFailed += callback;
             query.QueryConnectionException += errorCallback;
@@ -460,6 +459,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCallback;
+
+            // Setup the ResultSet completion callback
+            ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
+            {
+                QueryExecuteResultSetCompleteParams eventParams = new QueryExecuteResultSetCompleteParams
+                {
+                    ResultSetSummary = r.Summary,
+                    OwnerUri = executeParams.OwnerUri
+                };
+                await requestContext.SendEvent(QueryExecuteResultSetCompleteEvent.Type, eventParams);
+            };
+            query.ResultSetCompleted += resultCallback;
 
             // Launch this as an asynchronous task
             query.Execute();

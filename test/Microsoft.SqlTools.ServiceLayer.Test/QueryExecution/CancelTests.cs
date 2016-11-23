@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public async void CancelNonExistantTest()
+        public async Task CancelNonExistantTest()
         {
 
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();

@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A <see cref="ServiceBufferFileStreamReader"/></returns>
         public IFileStreamReader GetReader(string fileName)
         {
-            return new ServiceBufferFileStreamReader(new FileStreamWrapper(), fileName);
+            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read));
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A <see cref="ServiceBufferFileStreamWriter"/></returns>
         public IFileStreamWriter GetWriter(string fileName)
         {
-            return new ServiceBufferFileStreamWriter(new FileStreamWrapper(), fileName, MaxCharsToStore, MaxXmlCharsToStore);
+            return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), MaxCharsToStore, MaxXmlCharsToStore);
         }
 
         /// <summary>
@@ -63,14 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="fileName">The file to dispose of</param>
         public void DisposeFile(string fileName)
         {
-            try
-            {
-                FileStreamWrapper.DeleteFile(fileName);
-            }
-            catch
-            {
-                // If we have problems deleting the file from a temp location, we don't really care
-            }
+            FileUtils.SafeFileDelete(fileName);
         }
     }
 }

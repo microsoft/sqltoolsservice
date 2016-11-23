@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Singleton service instance
         /// </summary>
-        private static Lazy<ConnectionService> instance 
+        private static readonly Lazy<ConnectionService> instance 
             = new Lazy<ConnectionService>(() => new ConnectionService());
 
         /// <summary>
@@ -48,11 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         private ISqlConnectionFactory connectionFactory;
            
-        private Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
+        private readonly Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
-        private ConcurrentDictionary<string, CancellationTokenSource> ownerToCancellationTokenSourceMap = new ConcurrentDictionary<string, CancellationTokenSource>();
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> ownerToCancellationTokenSourceMap = new ConcurrentDictionary<string, CancellationTokenSource>();
 
-        private Object cancellationTokenSourceLock = new Object();
+        private readonly object cancellationTokenSourceLock = new object();
 
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
@@ -173,13 +173,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
 
             // try to connect
-            var response = new ConnectionCompleteParams();
-            response.OwnerUri = connectionParams.OwnerUri;
+            var response = new ConnectionCompleteParams {OwnerUri = connectionParams.OwnerUri};
             CancellationTokenSource source = null;
             try
             {
                 // build the connection string from the input parameters
-                string connectionString = ConnectionService.BuildConnectionString(connectionInfo.ConnectionDetails);
+                string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
@@ -261,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Update with the actual database name in connectionInfo and result
             // Doing this here as we know the connection is open - expect to do this only on connecting
             connectionInfo.ConnectionDetails.DatabaseName = connectionInfo.SqlConnection.Database;
-            response.ConnectionSummary = new ConnectionSummary()
+            response.ConnectionSummary = new ConnectionSummary
             {
                 ServerName = connectionInfo.ConnectionDetails.ServerName,
                 DatabaseName = connectionInfo.ConnectionDetails.DatabaseName,
@@ -269,7 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             };
 
             // invoke callback notifications
-            invokeOnConnectionActivities(connectionInfo);
+            InvokeOnConnectionActivities(connectionInfo);
 
             // try to get information about the connected SQL Server instance
             try
@@ -278,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 DbConnection connection = reliableConnection != null ? reliableConnection.GetUnderlyingConnection() : connectionInfo.SqlConnection;
                 
                 ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
-                response.ServerInfo = new Contracts.ServerInfo()
+                response.ServerInfo = new ServerInfo
                 {
                     ServerMajorVersion = serverInfo.ServerMajorVersion,
                     ServerMinorVersion = serverInfo.ServerMinorVersion,
@@ -399,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connection.Open();
             
             List<string> results = new List<string>();
-            var systemDatabases = new string[] {"master", "model", "msdb", "tempdb"};
+            var systemDatabases = new[] {"master", "model", "msdb", "tempdb"};
             using (DbCommand command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT name FROM sys.databases ORDER BY name ASC";
@@ -473,7 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                RunConnectRequestHandlerTask(connectParams, requestContext);
+                RunConnectRequestHandlerTask(connectParams);
                 await requestContext.SendResult(true);
             }
             catch
@@ -482,7 +481,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
-        private void RunConnectRequestHandlerTask(ConnectParams connectParams, RequestContext<bool> requestContext)
+        private void RunConnectRequestHandlerTask(ConnectParams connectParams)
         {
             // create a task to connect asynchronously so that other requests are not blocked in the meantime
             Task.Run(async () => 
@@ -490,7 +489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 try
                 {
                     // open connection based on request details
-                    ConnectionCompleteParams result = await ConnectionService.Instance.Connect(connectParams);
+                    ConnectionCompleteParams result = await Instance.Connect(connectParams);
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
                 catch (Exception ex)
@@ -515,7 +514,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                bool result = ConnectionService.Instance.CancelConnect(cancelParams);
+                bool result = Instance.CancelConnect(cancelParams);
                 await requestContext.SendResult(result);
             }
             catch(Exception ex)
@@ -535,7 +534,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                bool result = ConnectionService.Instance.Disconnect(disconnectParams);
+                bool result = Instance.Disconnect(disconnectParams);
                 await requestContext.SendResult(result);
             }
             catch(Exception ex)
@@ -556,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                ListDatabasesResponse result = ConnectionService.Instance.ListDatabases(listDatabasesParams);
+                ListDatabasesResponse result = Instance.ListDatabases(listDatabasesParams);
                 await requestContext.SendResult(result);
             }
             catch(Exception ex)
@@ -579,10 +578,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionDetails"></param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails)
         {
-            SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder();
-            connectionBuilder["Data Source"] = connectionDetails.ServerName;
-            connectionBuilder["User Id"] = connectionDetails.UserName;
-            connectionBuilder["Password"] = connectionDetails.Password;
+            SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder
+            {
+                ["Data Source"] = connectionDetails.ServerName,
+                ["User Id"] = connectionDetails.UserName,
+                ["Password"] = connectionDetails.Password
+            };
 
             // Check for any optional parameters
             if (!string.IsNullOrEmpty(connectionDetails.DatabaseName))
@@ -722,7 +723,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                     // Fire a connection changed event
                     ConnectionChangedParams parameters = new ConnectionChangedParams();
-                    ConnectionSummary summary = (ConnectionSummary)(info.ConnectionDetails);
+                    ConnectionSummary summary = info.ConnectionDetails;
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
                     ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
@@ -741,7 +742,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
-        private void invokeOnConnectionActivities(ConnectionInfo connectionInfo)
+        private void InvokeOnConnectionActivities(ConnectionInfo connectionInfo)
         {
             foreach (var activity in this.onConnectionActivities)
             {
