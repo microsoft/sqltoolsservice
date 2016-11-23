@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -141,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
 
             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            Location[] locations = peekDefinition.GetTableDefinition("test_table");
+            Location[] locations = peekDefinition.GetTableDefinition("test_table", null);
             Assert.NotNull(locations);
             Cleanup(locations);
         }

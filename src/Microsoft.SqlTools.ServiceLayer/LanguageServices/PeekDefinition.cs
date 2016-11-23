@@ -4,14 +4,16 @@
 //
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
-    public class PeekDefinition
+    internal class PeekDefinition
     {
         private ConnectionInfo connectionInfo;
         private string tempPath;
@@ -25,11 +27,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        public PeekDefinition(ConnectionInfo connInfo)
+        internal PeekDefinition(ConnectionInfo connInfo)
         {
             connectionInfo = connInfo;
             DirectoryInfo tempScriptDirectory = Directory.CreateDirectory( Path.GetTempPath()+ "mssql_definition");
             tempPath = tempScriptDirectory.FullName;
+        }
+
+        internal Location[] GetScript(IEnumerable<Declaration> declarationItems, string tokenText, string schemaName)
+        {
+            foreach (Declaration declarationItem in declarationItems)
+            {
+                if (declarationItem.Title.Equals(tokenText))
+                {
+                    DeclarationType type  = declarationItem.Type;
+                    // Script object using SMO based on type
+                    switch (type)
+                    {
+                        case DeclarationType.Table:
+                            return this.GetTableDefinition(tokenText, schemaName);
+                        case DeclarationType.View:
+                            return this.GetViewDefinition(tokenText, schemaName);
+                        case DeclarationType.StoredProcedure:
+                            return this.GetStoredProcedureDefinition(tokenText, schemaName);
+                        default:
+                            return null;
+                    }
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -37,12 +63,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="tableName">Table name</param>
         /// <returns>Location object representing URI and range of the script file</returns>
-        internal Location[] GetTableDefinition(string tableName)
+        internal Location[] GetTableDefinition(string tableName, string schemaName)
         {
             if (this.connectionInfo.SqlConnection != null)
             {
                 Table table = database.Tables[tableName];
-                string tempFileName = Path.Combine( tempPath, String.Format("{0}{1}.sql", tempPath, tableName)); 
+                string tempFileName = (schemaName != null) ? Path.Combine( tempPath, String.Format("{0}.{1}.sql", schemaName, tableName)) 
+                                                : Path.Combine( tempPath, String.Format("{0}.sql", tableName)); 
 
                 if (table != null)
                 {

@@ -655,6 +655,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            if (scriptParseInfo == null)
+            {
+                return null;
+            }
+
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 ParseAndBind(scriptFile, connInfo);
@@ -688,10 +693,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         bindOperation: (bindingContext, cancelToken) =>
                         {
                             // Get suggestions for the token
-                            IEnumerable<Declaration> declarationItems;
                             int parserLine = textDocumentPosition.Position.Line + 1;
                             int parserColumn = textDocumentPosition.Position.Character + 1;
-                            declarationItems = Resolver.FindCompletions(
+                            IEnumerable<Declaration> declarationItems = Resolver.FindCompletions(
                                 scriptParseInfo.ParseResult, 
                                 parserLine, parserColumn, 
                                 bindingContext.MetadataDisplayInfoProvider);
@@ -709,7 +713,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     switch (type)
                                     {
                                         case DeclarationType.Table:
-                                            return peekDefinition.GetTableDefinition(tokenText);
+                                            schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                                            return peekDefinition.GetTableDefinition(tokenText, schemaName);
                                         case DeclarationType.View:
                                             schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
                                             return peekDefinition.GetViewDefinition(tokenText, schemaName);
