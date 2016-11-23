@@ -122,62 +122,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     return fileName;
                 });
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new InMemoryWrapper(storage[output]), output));
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output])));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Returns<string, int, int>((output, chars, xml) => new ServiceBufferFileStreamWriter(
-                    new InMemoryWrapper(storage[output]), output, chars, xml));
+                    new MemoryStream(storage[output]), chars, xml));
 
             return mock.Object;
-        }
-
-        public class InMemoryWrapper : IFileStreamWrapper
-        {
-            private readonly MemoryStream memoryStream;
-            private bool readingOnly;
-
-            public InMemoryWrapper(byte[] storage)
-            {
-                memoryStream = new MemoryStream(storage);
-            }
-
-            public void Close()
-            {
-                memoryStream.Dispose();
-            }
-
-            public void Dispose()
-            {
-                // We'll dispose this via a special method
-            }
-
-            public void Flush()
-            {
-                if (readingOnly) { throw new InvalidOperationException(); }
-            }
-
-            public void Init(string fileName, int bufferSize, FileAccess fAccess)
-            {
-                readingOnly = fAccess == FileAccess.Read;
-            }
-
-            public int ReadData(byte[] buffer, int bytes)
-            {
-                return ReadData(buffer, bytes, memoryStream.Position);
-            }
-
-            public int ReadData(byte[] buffer, int bytes, long fileOffset)
-            {
-                memoryStream.Seek(fileOffset, SeekOrigin.Begin);
-                return memoryStream.Read(buffer, 0, bytes);
-            }
-
-            public int WriteData(byte[] buffer, int bytes)
-            {
-                if (readingOnly) { throw new InvalidOperationException(); }
-                memoryStream.Write(buffer, 0, bytes);
-                memoryStream.Flush();
-                return bytes;
-            }
         }
 
         #endregion

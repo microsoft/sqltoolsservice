@@ -408,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (string.IsNullOrWhiteSpace(tokenText) || completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
                 {
                     completionItems[completionItemIndex] = CreateDefaultCompletionItem(
-                        useLowerCase ? completionText.ToLower() : completionText.ToUpper(),
+                        useLowerCase ? completionText.ToLowerInvariant() : completionText.ToUpperInvariant(),
                         row, 
                         startColumn, 
                         endColumn);
