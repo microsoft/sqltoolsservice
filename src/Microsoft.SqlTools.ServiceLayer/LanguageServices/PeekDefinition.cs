@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             if (script.IndexOf( "CREATE PROCEDURE", StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 scriptFile.WriteLine(script);
-                                lineNumber = getStartOfCreate(script, "CREATE PROCEDURE");
+                                lineNumber = GetStartOfCreate(script, "CREATE PROCEDURE");
                             }                       
                         }         
                     }
@@ -151,7 +151,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return locations;
         }
 
-        private int getStartOfCreate(string script, string createString)
+        /// <summary>
+        /// Get line number for the create statement
+        /// </summary>
+        private int GetStartOfCreate(string script, string createString)
         {
             string[] lines = script.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             for (int lineNumber = 0; lineNumber < lines.Length; lineNumber++)
