@@ -306,8 +306,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.Create<QueryExecuteResult>(null);
-
-            queryService.HandleExecuteRequest(queryParams, firstRequestContext.Object).Wait();
+            await Common.AwaitExecution(queryService, queryParams, firstRequestContext.Object);
 
             // ... And then I request another query after waiting for the first to complete
             QueryExecuteResult result = null;
