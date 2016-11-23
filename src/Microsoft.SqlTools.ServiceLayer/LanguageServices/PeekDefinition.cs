@@ -28,7 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public PeekDefinition(ConnectionInfo connInfo)
         {
             connectionInfo = connInfo;
-            tempPath = Path.GetTempPath();
+            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory( Path.GetTempPath()+ "mssql_definition");
+            tempPath = tempScriptDirectory.FullName;
         }
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (this.connectionInfo.SqlConnection != null)
             {
                 Table table = database.Tables[tableName];
-                string tempFileName = String.Format("{0}{1}.sql", tempPath, tableName); 
+                string tempFileName = Path.Combine( tempPath, String.Format("{0}{1}.sql", tempPath, tableName)); 
 
                 if (table != null)
                 {
@@ -75,8 +76,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (this.connectionInfo.SqlConnection != null)
             {
                 View view = (schemaName != null) ? database.Views[viewName, schemaName] : database.Views[viewName];
-                string tempFileName = (schemaName != null) ? String.Format("{0}{1}.{2}.sql", tempPath, schemaName, viewName)
-                                                    :  String.Format("{0}{1}.sql", tempPath, viewName);
+                string tempFileName = (schemaName != null) ? Path.Combine( tempPath, String.Format("{0}.{1}.sql", schemaName, viewName))
+                                                    :  Path.Combine( tempPath, String.Format("{0}.sql", viewName));
 
                 if (view != null)
                 {
@@ -110,8 +111,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 StoredProcedure storedProcedure = (schemaName != null) ? database.StoredProcedures[storedProcedureName, schemaName] :
                                                     database.StoredProcedures[storedProcedureName];
-                string tempFileName = (schemaName != null) ?  String.Format("{0}{1}.{2}.sql", tempPath, schemaName, storedProcedureName) 
-                                                    : String.Format("{0}{1}.sql", tempPath, storedProcedureName);
+                string tempFileName = (schemaName != null) ?  Path.Combine( tempPath, String.Format("{0}.{1}.sql", tempPath, schemaName, storedProcedureName)) 
+                                                    : Path.Combine( tempPath, String.Format("{0}.sql", tempPath, storedProcedureName));
 
                 if (storedProcedure != null)
                 {
