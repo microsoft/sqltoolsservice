@@ -16,6 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public int Id { get; set; }
 
         /// <summary>
+        /// The ID of the batch set within the query
+        /// </summary>
+        public int BatchId { get; set; }
+
+        /// <summary>
         /// The number of rows that was returned with the resultset
         /// </summary>
         public long RowCount { get; set; }

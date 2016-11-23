@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public const string NoOpQuery = "-- No ops here, just us chickens.";
 
-        public const int Ordinal = 0;
+        public const int Ordinal = 100;     // We'll pick something other than default(int)
 
         public const string OwnerUri = "testFile";
 

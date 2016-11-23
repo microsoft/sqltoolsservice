@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // This resultset has results (ie, SELECT/etc queries)
-                            ResultSet resultSet = new ResultSet(reader, resultSetOrdinal, outputFileFactory);
+                            ResultSet resultSet = new ResultSet(reader, resultSetOrdinal, Id, outputFileFactory);
                             resultSet.ResultCompletion += ResultSetCompletion;
 
                             // Add the result set to the results of the query

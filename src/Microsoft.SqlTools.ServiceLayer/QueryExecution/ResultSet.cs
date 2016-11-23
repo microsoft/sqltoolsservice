@@ -86,14 +86,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="reader">The reader from executing a query</param>
         /// <param name="ordinal">The ID of the resultset, the ordinal of the result within the batch</param>
+        /// <param name="batchOrdinal">The ID of the batch, the ordinal of the batch within the query</param>
         /// <param name="factory">Factory for creating a reader/writer</param>
-        public ResultSet(DbDataReader reader, int ordinal, IFileStreamFactory factory)
+        public ResultSet(DbDataReader reader, int ordinal, int batchOrdinal, IFileStreamFactory factory)
         {
             // Sanity check to make sure we got a reader
             Validate.IsNotNull(nameof(reader), SR.QueryServiceResultSetReaderNull);
 
             dataReader = new StorageDataReader(reader);
             Id = ordinal;
+            BatchId = batchOrdinal;
 
             // Initialize the storage
             outputFileName = factory.CreateFile();
@@ -135,6 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public int Id { get; private set; }
 
         /// <summary>
+        /// ID of the batch set, relative to the query
+        /// </summary>
+        public int BatchId { get; private set; }
+
+        /// <summary>
         /// Maximum number of characters to store for a field
         /// </summary>
         public int MaxCharsToStore { get { return DefaultMaxCharsToStore; } }
@@ -160,6 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     ColumnInfo = Columns,
                     Id = Id,
+                    BatchId = BatchId,
                     RowCount = RowCount
                 };
             }

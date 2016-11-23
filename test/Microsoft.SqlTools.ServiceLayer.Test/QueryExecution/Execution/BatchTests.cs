@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(0, batch.Summary.Selection.StartLine);
             Assert.True(DateTime.Parse(batch.Summary.ExecutionStart) > default(DateTime));
             Assert.True(DateTime.Parse(batch.Summary.ExecutionEnd) > default(DateTime));
-            Assert.True(TimeSpan.Parse(batch.Summary.ExecutionElapsed) > TimeSpan.Zero);
+            Assert.NotNull(batch.Summary.ExecutionElapsed);
         }
 
         [Fact]
