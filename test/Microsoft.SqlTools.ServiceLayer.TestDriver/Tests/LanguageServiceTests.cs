@@ -210,6 +210,49 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         /// <summary>
+        /// Peek Definition/ Go to definition 
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task DefinitionTest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
+            {
+                string query = "SELECT * FROM sys.objects";
+                int lineNumber = 0;
+                int position = 23;
+
+                testHelper.WriteToFile(queryTempFile.FilePath, query);
+
+                DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
+                {
+                    TextDocument = new TextDocumentItem
+                    {
+                        Uri = queryTempFile.FilePath,
+                        LanguageId = "enu",
+                        Version = 1,
+                        Text = query
+                    }
+                };
+
+                await testHelper.RequestOpenDocumentNotification(openParams);
+                  
+                Thread.Sleep(500);
+
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                Assert.True(connected, "Connection is successful");
+
+                Thread.Sleep(10000);
+                // Request definition for "objects"
+                Location[] locations = await testHelper.RequestDefinition(queryTempFile.FilePath, query, lineNumber, position);
+                
+                Assert.True(locations != null, "Location is not null and not empty");
+                await testHelper.Disconnect(queryTempFile.FilePath);
+            }
+        }
+
+        /// <summary>
         /// Validate the configuration change event
         /// </summary>
         [Fact]
