@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
 
         /// <summary>
-        /// Gets a flag determining if suggestons are enabled
+        /// Gets a flag determining if suggestions are enabled
         /// </summary>
         public bool IsSuggestionsEnabled
         {
@@ -88,6 +88,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             {
                 return this.SqlTools.IntelliSense.EnableIntellisense
                     && this.SqlTools.IntelliSense.EnableQuickInfo.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets a flag determining if IntelliSense is enabled
+        /// </summary>
+        public bool IsIntellisenseEnabled
+        {
+            get
+            {
+                return this.SqlTools.IntelliSense.EnableIntellisense;
             }
         }
     }

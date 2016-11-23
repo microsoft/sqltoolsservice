@@ -297,15 +297,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            // Retrieve document and connection
-            ConnectionInfo connInfo;
-            var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
-            LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-
-            Location[] locations = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
-            if (locations != null)
+            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntellisenseEnabled)
             {
-                await requestContext.SendResult(locations);
+                // Retrieve document and connection
+                ConnectionInfo connInfo;
+                var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
+                LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+
+                Location[] locations = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                if (locations != null)
+                {
+                    await requestContext.SendResult(locations);
+                }
             }
         }
 
