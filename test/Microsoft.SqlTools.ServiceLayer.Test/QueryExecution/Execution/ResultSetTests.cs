@@ -22,14 +22,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             // If:
             // ... I create a new result set with a valid db data reader
-
             DbDataReader mockReader = GetReader(null, false, string.Empty);
-            ResultSet resultSet = new ResultSet(mockReader, Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
 
             // Then:
             // ... There should not be any data read yet
             Assert.Null(resultSet.Columns);
             Assert.Equal(0, resultSet.RowCount);
+            Assert.Equal(Common.Ordinal, resultSet.Id);
+
+            // ... The summary should include the same info
+            Assert.Null(resultSet.Summary.ColumnInfo);
+            Assert.Equal(0, resultSet.Summary.RowCount);
+            Assert.Equal(Common.Ordinal, resultSet.Summary.Id);
+            Assert.Equal(Common.Ordinal, resultSet.Summary.BatchId);
         }
 
         [Fact]
@@ -39,29 +45,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I create a new result set without a reader
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new ResultSet(null, null));
+            Assert.Throws<ArgumentNullException>(() => new ResultSet(null, Common.Ordinal, Common.Ordinal, null));
 
         }
 
         [Fact]
         public async Task ReadToEndSuccess()
         {
+            // Setup: Create a callback for resultset completion
+            ResultSetSummary resultSummaryFromCallback = null;
+            ResultSet.ResultSetAsyncEventHandler callback = r =>
+            {
+                resultSummaryFromCallback = r.Summary;
+                return Task.FromResult(0);
+            };
+
             // If:
             // ... I create a new resultset with a valid db data reader that has data
             // ... and I read it to the end
             DbDataReader mockReader = GetReader(new [] {Common.StandardTestData}, false, Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            ResultSet resultSet = new ResultSet(mockReader, fileStreamFactory);
+            ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
+            resultSet.ResultCompletion += callback;
             await resultSet.ReadResultToEnd(CancellationToken.None);
 
             // Then:
             // ... The columns should be set
             // ... There should be rows to read back
             Assert.NotNull(resultSet.Columns);
-            Assert.NotEmpty(resultSet.Columns);
+            Assert.Equal(Common.StandardColumns, resultSet.Columns.Length);
             Assert.Equal(Common.StandardRows, resultSet.RowCount);
-        }
 
+            // ... The summary should have the same info
+            Assert.NotNull(resultSet.Summary.ColumnInfo);
+            Assert.Equal(Common.StandardColumns, resultSet.Summary.ColumnInfo.Length);
+            Assert.Equal(Common.StandardRows, resultSet.Summary.RowCount);
+
+            // ... The callback for result set completion should have been fired
+            Assert.NotNull(resultSummaryFromCallback);
+        }
         
         [Theory]
         [InlineData("JSON")]
@@ -78,12 +100,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             }
             Dictionary<string, string>[][] dataSets = {data.ToArray()};
 
+            // ... Create a callback for resultset completion
+            ResultSetSummary resultSummary = null;
+            ResultSet.ResultSetAsyncEventHandler callback = r =>
+            {
+                resultSummary = r.Summary;
+                return Task.FromResult(0);
+            };
+
             // If:
             // ... I create a new resultset with a valid db data reader that is FOR XML/JSON
             // ... and I read it to the end
             DbDataReader mockReader = GetReader(dataSets, false, Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            ResultSet resultSet = new ResultSet(mockReader, fileStreamFactory);
+            ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
+            resultSet.ResultCompletion += callback;
             await resultSet.ReadResultToEnd(CancellationToken.None);
 
             // Then:
@@ -92,6 +123,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... The result should be marked as complete
             Assert.Equal(1, resultSet.Columns.Length);
             Assert.Equal(1, resultSet.RowCount);
+
+            // ... The callback should have been called
+            Assert.NotNull(resultSummary);
 
             // If:
             // ... I attempt to read back the results
@@ -108,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I create a new result set with a valid db data reader without executing it
             DbDataReader mockReader = GetReader(null, false, string.Empty);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            ResultSet resultSet = new ResultSet(mockReader, fileStreamFactory);
+            ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
 
             // Then:
             // ... Attempting to read a subset should fail miserably
@@ -126,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... And execute the result
             DbDataReader mockReader = GetReader(new[] {Common.StandardTestData}, false, Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            ResultSet resultSet = new ResultSet(mockReader, fileStreamFactory);
+            ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(CancellationToken.None);
 
             // ... And attempt to get a subset with invalid parameters
@@ -147,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... And execute the result set
             DbDataReader mockReader = GetReader(new[] { Common.StandardTestData }, false, Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            ResultSet resultSet = new ResultSet(mockReader, fileStreamFactory);
+            ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(CancellationToken.None);
 
             // ... And attempt to get a subset with valid number of rows

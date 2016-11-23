@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public const string NoOpQuery = "-- No ops here, just us chickens.";
 
-        public const int Ordinal = 0;
+        public const int Ordinal = 100;     // We'll pick something other than default(int)
 
         public const string OwnerUri = "testFile";
 
@@ -161,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var connectionMock = new Mock<DbConnection> { CallBase = true };
             connectionMock.Protected()
                 .Setup<DbCommand>("CreateDbCommand")
-                .Returns(CreateTestCommand(data, throwOnRead));
+                .Returns(() => CreateTestCommand(data, throwOnRead));
             connectionMock.Setup(dbc => dbc.Open())
                 .Callback(() => connectionMock.SetupGet(dbc => dbc.State).Returns(ConnectionState.Open));
             connectionMock.Setup(dbc => dbc.Close())
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
-                .Returns(CreateTestConnection(data, throwOnRead));
+                .Returns(() => CreateTestConnection(data, throwOnRead));
 
             return mockFactory.Object;
         }
