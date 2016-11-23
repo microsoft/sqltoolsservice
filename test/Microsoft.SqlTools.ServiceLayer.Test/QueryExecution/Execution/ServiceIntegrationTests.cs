@@ -168,11 +168,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             }
         }
 
+        [Fact]
         public async Task QueryExecuteMultipleBatchSingleResultTest()
         {
             // Given:
             // ... A workspace with a standard query is configured
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery));
 
             // If:
             // ... I request a to execute a valid query with multiple batches

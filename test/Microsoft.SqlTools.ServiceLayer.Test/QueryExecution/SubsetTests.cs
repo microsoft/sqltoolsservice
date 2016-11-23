@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a resultset that hasn't been executed and I request a valid result set from it
             // Then:
             // ... It should throw an exception for having not been read
-            ResultSet rs = new ResultSet(new TestDbDataReader(null), Common.Ordinal, Common.GetFileStreamFactory(null));
+            ResultSet rs = new ResultSet(new TestDbDataReader(null), Common.Ordinal, Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
             await Assert.ThrowsAsync<InvalidOperationException>(() => rs.GetSubset(0, 1));
         }
 

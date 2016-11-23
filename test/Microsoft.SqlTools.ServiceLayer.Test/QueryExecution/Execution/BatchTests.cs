@@ -42,6 +42,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // ... It's ordinal ID should be what I set it to
             Assert.Equal(Common.Ordinal, batch.Id);
+
+            // ... The summary should have the same info
+            Assert.False(batch.Summary.HasError);
+            Assert.Equal(Common.Ordinal, batch.Summary.Id);
+            Assert.Empty(batch.Summary.ResultSetSummaries);
+            Assert.Empty(batch.Summary.Messages);
+            Assert.Equal(0, batch.Summary.Selection.StartLine);
+            Assert.NotEqual(default(DateTime).ToString("o"), batch.Summary.ExecutionStart); // Should have been set at construction
+            Assert.Equal(default(DateTime).ToString("o"), batch.Summary.ExecutionEnd);
+            Assert.Equal((default(DateTime) - DateTime.Parse(batch.Summary.ExecutionStart)).ToString(), batch.Summary.ExecutionElapsed);
         }
 
         [Fact]
@@ -49,18 +59,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             // Setup: Create a callback for batch completion
             BatchSummary batchSummaryFromCallback = null;
-            bool completionCallbackFired = false;
-            Batch.BatchAsyncEventHandler callback = b =>
+            Batch.BatchAsyncEventHandler batchCallback = b =>
             {
-                completionCallbackFired = true;
                 batchSummaryFromCallback = b.Summary;
+                return Task.FromResult(0);
+            };
+
+            // ... Create a callback for result completion
+            bool resultCallbackFired = false;
+            ResultSet.ResultSetAsyncEventHandler resultSetCallback = r =>
+            {
+                resultCallbackFired = true;
                 return Task.FromResult(0);
             };
 
             // If I execute a query that should get no result sets
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
-            batch.BatchCompletion += callback;
+            batch.BatchCompletion += batchCallback;
+            batch.ResultSetCompletion += resultSetCallback;
             batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None).Wait();
 
             // Then:
@@ -80,8 +97,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(1, batch.ResultMessages.Count());
 
             // ... The callback for batch completion should have been fired
-            Assert.True(completionCallbackFired);
             Assert.NotNull(batchSummaryFromCallback);
+
+            // ... The callback for the result set should NOT have been fired
+            Assert.False(resultCallbackFired);
+
+            // ... The summary should have the same info
+            Assert.False(batch.Summary.HasError);
+            Assert.Equal(Common.Ordinal, batch.Summary.Id);
+            Assert.Equal(0, batch.Summary.ResultSetSummaries.Length);
+            Assert.Equal(1, batch.Summary.Messages.Length);
+            Assert.Equal(0, batch.Summary.Selection.StartLine);
+            Assert.True(DateTime.Parse(batch.Summary.ExecutionStart) > default(DateTime));
+            Assert.True(DateTime.Parse(batch.Summary.ExecutionEnd) > default(DateTime));
+            Assert.True(TimeSpan.Parse(batch.Summary.ExecutionElapsed) > TimeSpan.Zero);
         }
 
         [Fact]
@@ -92,18 +121,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // Setup: Create a callback for batch completion
             BatchSummary batchSummaryFromCallback = null;
-            bool completionCallbackFired = false;
-            Batch.BatchAsyncEventHandler callback = b =>
+            Batch.BatchAsyncEventHandler batchCallback = b =>
             {
-                completionCallbackFired = true;
                 batchSummaryFromCallback = b.Summary;
+                return Task.FromResult(0);
+            };
+
+            // ... Create a callback for result set completion
+            bool resultCallbackFired = false;
+            ResultSet.ResultSetAsyncEventHandler resultSetCallback = r =>
+            {
+                resultCallbackFired = true;
                 return Task.FromResult(0);
             };
 
             // If I execute a query that should get one result set
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
-            batch.BatchCompletion += callback;
+            batch.BatchCompletion += batchCallback;
+            batch.ResultSetCompletion += resultSetCallback;
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -112,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.False(batch.HasError, "The batch should not have an error");
 
             // ... There should be exactly one result set
-            Assert.Equal(resultSets, batch.ResultSets.Count());
+            Assert.Equal(resultSets, batch.ResultSets.Count);
             Assert.Equal(resultSets, batch.ResultSummaries.Length);
 
             // ... Inside the result set should be with 5 rows
@@ -127,8 +163,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(resultSets, batch.ResultMessages.Count());
 
             // ... The callback for batch completion should have been fired
-            Assert.True(completionCallbackFired);
             Assert.NotNull(batchSummaryFromCallback);
+
+            // ... The callback for resultset completion should have been fired
+            Assert.True(resultCallbackFired);  // We only want to validate that it happened, validation of the 
+                                               // summary is done in result set tests
         }
 
         [Fact]
@@ -140,18 +179,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // Setup: Create a callback for batch completion
             BatchSummary batchSummaryFromCallback = null;
-            bool completionCallbackFired = false;
-            Batch.BatchAsyncEventHandler callback = b =>
+            Batch.BatchAsyncEventHandler batchCallback = b =>
             {
-                completionCallbackFired = true;
                 batchSummaryFromCallback = b.Summary;
+                return Task.FromResult(0);
+            };
+
+            // ... Create a callback for resultset completion
+            int resultSummaryCount  = 0;
+            ResultSet.ResultSetAsyncEventHandler resultSetCallback = r =>
+            {
+                resultSummaryCount++;
                 return Task.FromResult(0);
             };
 
             // If I execute a query that should get two result sets
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
-            batch.BatchCompletion += callback;
+            batch.BatchCompletion += batchCallback;
+            batch.ResultSetCompletion += resultSetCallback;
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -184,8 +230,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             }
 
             // ... The callback for batch completion should have been fired
-            Assert.True(completionCallbackFired);
             Assert.NotNull(batchSummaryFromCallback);
+
+            // ... The callback for result set completion should have been fired
+            Assert.Equal(2, resultSummaryCount);
         }
 
         [Fact]
@@ -193,12 +241,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             // Setup: Create a callback for batch completion
             BatchSummary batchSummaryFromCallback = null;
-            bool completionCallbackFired = false;
-            Batch.BatchAsyncEventHandler callback = b =>
+            Batch.BatchAsyncEventHandler batchCallback = b =>
             {
-                completionCallbackFired = true;
                 batchSummaryFromCallback = b.Summary;
                 return Task.FromResult(0);
+            };
+
+            // ... Create a callback that will fail the test if it's called
+            ResultSet.ResultSetAsyncEventHandler resultSetCallback = r =>
+            {
+                throw new Exception("ResultSet callback was called when it should not have been.");
             };
 
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
@@ -206,7 +258,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If I execute a batch that is invalid
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
-            batch.BatchCompletion += callback;
+            batch.BatchCompletion += batchCallback;
+            batch.ResultSetCompletion += resultSetCallback;
             batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
 
             // Then:
@@ -222,14 +275,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.NotEmpty(batch.ResultMessages);
 
             // ... The callback for batch completion should have been fired
-            Assert.True(completionCallbackFired);
             Assert.NotNull(batchSummaryFromCallback);
         }
 
         [Fact]
         public async Task BatchExecuteExecuted()
         {
-            // Setup: Create a callback for batch completion
+            ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
+
+            // If I execute a batch
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
+            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
+
+            // Then:
+            // ... It should have executed without error
+            Assert.True(batch.HasExecuted, "The batch should have been marked executed.");
+            Assert.False(batch.HasError, "The batch should not have an error");
+
+            // Setup for part 2: Create a callback for batch completion
             BatchSummary batchSummaryFromCallback = null;
             bool completionCallbackFired = false;
             Batch.BatchAsyncEventHandler callback = b =>
@@ -239,26 +303,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 return Task.FromResult(0);
             };
 
-            ConnectionInfo ci = Common.CreateTestConnectionInfo(new[] { Common.StandardTestData }, false);
-
-            // If I execute a batch
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
-            batch.BatchCompletion += callback;
-            batch.Execute(GetConnection(ci), CancellationToken.None).Wait();
-
-            // Then:
-            // ... It should have executed without error
-            Assert.True(batch.HasExecuted, "The batch should have been marked executed.");
-            Assert.False(batch.HasError, "The batch should not have an error");
-
-            // ... The callback for batch completion should have been fired
-            Assert.True(completionCallbackFired);
-            Assert.NotNull(batchSummaryFromCallback);
-
             // If I execute it again
             // Then:
             // ... It should throw an invalid operation exception
+            batch.BatchCompletion += callback;
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 batch.Execute(GetConnection(ci), CancellationToken.None));
 
@@ -267,6 +315,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.True(batch.HasExecuted, "The batch should still be marked executed.");
             Assert.NotEmpty(batch.ResultSets);
             Assert.NotEmpty(batch.ResultSummaries);
+
+            // ... The callback for batch completion should not have been fired for the second run
+            Assert.False(completionCallbackFired);
+            Assert.Null(batchSummaryFromCallback);
         }
 
         [Theory]
