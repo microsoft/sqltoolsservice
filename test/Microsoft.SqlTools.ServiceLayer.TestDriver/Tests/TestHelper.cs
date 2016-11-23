@@ -258,15 +258,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 System.IO.File.WriteAllText(ownerUri, text);
             }
 
-            var completionParams = new TextDocumentPosition();
-            completionParams.TextDocument = new TextDocumentIdentifier();
-            completionParams.TextDocument.Uri = ownerUri;
-            completionParams.Position = new Position();
-            completionParams.Position.Line = line;
-            completionParams.Position.Character = character;
+            var definitionParams = new TextDocumentPosition();
+            definitionParams.TextDocument = new TextDocumentIdentifier();
+            definitionParams.TextDocument.Uri = ownerUri;
+            definitionParams.Position = new Position();
+            definitionParams.Position.Line = line;
+            definitionParams.Position.Character = character;
 
             // Send definition request
-            var result = await Driver.SendRequest(DefinitionRequest.Type, completionParams);
+            var result = await Driver.SendRequest(DefinitionRequest.Type, definitionParams);
             return result;
         }
 

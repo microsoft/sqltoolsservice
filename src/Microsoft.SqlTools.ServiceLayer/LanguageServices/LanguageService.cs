@@ -709,7 +709,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             // Match token with the suggestions(declaration items) returned
                             DeclarationType type = 0;
                             string schemaName;
-                            PeekDefinition pd = new PeekDefinition(connInfo);
+                            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
                             foreach (Declaration declarationItem in declarationItems)
                             {
                                 if (declarationItem.Title.Equals(tokenText))
@@ -719,13 +719,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     switch (type)
                                     {
                                         case DeclarationType.Table:
-                                            return pd.GetTableDefinition(tokenText);
+                                            return peekDefinition.GetTableDefinition(tokenText);
                                         case DeclarationType.View:
                                             schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                                            return pd.GetViewDefinition(tokenText, schemaName);
+                                            return peekDefinition.GetViewDefinition(tokenText, schemaName);
                                         case DeclarationType.StoredProcedure:
                                             schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                                            return pd.GetStoredProcedureDefinition(tokenText, schemaName);
+                                            return peekDefinition.GetStoredProcedureDefinition(tokenText, schemaName);
                                         default:
                                             return null;
                                     }
