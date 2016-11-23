@@ -655,12 +655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
-            if (scriptParseInfo == null)
-            {
-                return null;
-            }
-
-            if (RequiresReparse(scriptParseInfo, scriptFile))
+            if (scriptParseInfo != null && RequiresReparse(scriptParseInfo, scriptFile))
             {
                 ParseAndBind(scriptFile, connInfo);
             }
@@ -672,15 +667,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Get token from selected text
-            Token token = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
-            if (token == null)
+            Token selectedToken = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
+            if (selectedToken == null)
             {
                 return null;
             }
             // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
             // The suggestion title does not contain any sql punctuation
-            string tokenText = token.Text.Replace("]",String.Empty).Replace("[",String.Empty);
-
+            string tokenText = selectedToken.Text.Replace("]",String.Empty).Replace("[",String.Empty);
 
             if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
             {
@@ -701,32 +695,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 bindingContext.MetadataDisplayInfoProvider);
 
                             // Match token with the suggestions(declaration items) returned
-                            DeclarationType type = 0;
-                            string schemaName;
+                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
                             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-                            foreach (Declaration declarationItem in declarationItems)
-                            {
-                                if (declarationItem.Title.Equals(tokenText))
-                                {
-                                    type = declarationItem.Type;
-                                    // Script object using SMO based on type
-                                    switch (type)
-                                    {
-                                        case DeclarationType.Table:
-                                            schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                                            return peekDefinition.GetTableDefinition(tokenText, schemaName);
-                                        case DeclarationType.View:
-                                            schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                                            return peekDefinition.GetViewDefinition(tokenText, schemaName);
-                                        case DeclarationType.StoredProcedure:
-                                            schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                                            return peekDefinition.GetStoredProcedureDefinition(tokenText, schemaName);
-                                        default:
-                                            return null;
-                                    }
-                                }
-                            }
-                            return null;
+                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
+                            
 
                         },
                         timeoutOperation: (bindingContext) =>

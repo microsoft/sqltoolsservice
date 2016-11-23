@@ -117,9 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void DefinitionsHandlerWithNoConnectionTest()
         {
-
             InitializeTestObjects();
-
             // request the completion list
             Task handleCompletion = LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object);
             handleCompletion.Wait(TaskTimeout);
