@@ -653,16 +653,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns> Location with the URI of the script file</returns>
         internal Location[] GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
-            Location[] locations = new[] { 
-                    new Location {
-                        Uri = new Uri("C:\\test.txt").AbsoluteUri,
-                        Range = new Range {
-                            Start = new Position { Line = 0, Character = 1},
-                            End = new Position { Line = 1, Character = 1}
-                        }
-                    }
-            };
-
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
             if (RequiresReparse(scriptParseInfo, scriptFile))
@@ -673,7 +663,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Return if parse failed
             if (scriptParseInfo == null)
             {
-                return locations;
+                return null;
             }
 
             // Get token from selected text
