@@ -81,6 +81,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal IFileStreamFactory CsvFileFactory { get; set; }
 
         /// <summary>
+        /// File factory to be used to create JSON files from result sets. Set to internal in order
+        /// to allow overriding in unit testing
+        /// </summary>
+        internal IFileStreamFactory JsonFileFactory { get; set; }
+
+        /// <summary>
         /// The collection of active queries
         /// </summary>
         internal ConcurrentDictionary<string, Query> ActiveQueries
@@ -266,38 +272,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
-            // retrieve query for OwnerUri
-            Query query;
-            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out query))
-            {
-                await requestContext.SendResult(new SaveResultRequestResult
-                {
-                    Messages = SR.QueryServiceRequestsNoQuery
-                });
-                return;
-            }
-
-            //Setup the callback for completion of the save task
-
-            ResultSet.SaveAsAsyncEventHandler successHandler = async parameters =>
-            {
-                await requestContext.SendResult(new SaveResultRequestResult());
-            };
-            ResultSet.SaveAsFailureAsyncEventHandler errorHandler = async (parameters, exception) =>
-            {
-                // TODO: Put this into the strings file
-                string message = string.Format("{0} failed {1}", parameters.FilePath, exception.Message);
-                await requestContext.SendError(new SaveResultRequestError { message = message });
-            };
-
             // Use the default CSV file factory if we haven't overridden it
             IFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
             {
                 SaveRequestParams = saveParams
             };
-
-            // Launch the task
-            query.SaveAsCsv(saveParams, csvFactory, successHandler, errorHandler);
+            await SaveResultsHelper(saveParams, requestContext, csvFactory);
         }
 
         /// <summary>
@@ -306,41 +286,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
-            // retrieve query for OwnerUri
-            Query result;
-            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            // Use the default JSON file factory if we haven't overridden it
+            IFileStreamFactory jsonFactory = JsonFileFactory ?? new SaveAsJsonFileStreamFactory
             {
-                await requestContext.SendResult(new SaveResultRequestResult
-                {
-                    Messages = "Failed to save results, ID not found."
-                });
-                return;
-            }
-
-            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            if (!selectedResultSet.IsBeingDisposed)
-            {
-                // Create SaveResults object and add success and error handlers to respective events
-                SaveResults saveAsJson = new SaveResults();
-                SaveResults.AsyncSaveEventHandler successHandler = async message =>
-                {
-                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
-                };
-                saveAsJson.SaveCompleted += successHandler;
-                SaveResults.AsyncSaveEventHandler errorHandler = async message =>
-                {
-                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendError(new SaveResultRequestError { message = message });
-                };
-                saveAsJson.SaveFailed += errorHandler;
-
-                saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
-
-                // Associate the ResultSet with the save task
-                selectedResultSet.AddSaveTask(saveParams.FilePath, saveAsJson.SaveTask);
-            }
-
+                SaveRequestParams = saveParams
+            };
+            await SaveResultsHelper(saveParams, requestContext, jsonFactory);
         }
 
         #endregion
@@ -480,6 +431,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 Messages = null
             });
+        }
+
+        private async Task SaveResultsHelper(SaveResultsRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext, IFileStreamFactory fileFactory)
+        {
+            // retrieve query for OwnerUri
+            Query result;
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            {
+                await requestContext.SendResult(new SaveResultRequestResult
+                {
+                    Messages = "Failed to save results, ID not found."
+                });
+                return;
+            }
+
+            //Setup the callback for completion of the save task
+            ResultSet.SaveAsAsyncEventHandler successHandler = async parameters =>
+            {
+                await requestContext.SendResult(new SaveResultRequestResult());
+            };
+            ResultSet.SaveAsFailureAsyncEventHandler errorHandler = async (parameters, exception) =>
+            {
+                // TODO: Put this into the strings file
+                string message = string.Format("{0} failed {1}", parameters.FilePath, exception.Message);
+                await requestContext.SendError(new SaveResultRequestError { message = message });
+            };
+
+            // Launch the task
+            await result.SaveAs(saveParams, fileFactory, successHandler, errorHandler);
         }
 
         #endregion

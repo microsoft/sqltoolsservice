@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
 
-        public void SaveAsCsv(SaveResultsAsCsvRequestParams saveParams, IFileStreamFactory csvFactory, 
+        public async Task SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory csvFactory, 
             ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
         {
             // Sanity check to make sure that the batch is within bounds
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new ArgumentOutOfRangeException(nameof(saveParams.BatchIndex), SR.QueryServiceSubsetBatchOutOfRange);
             }
 
-            Batches[saveParams.BatchIndex].SaveAsCsv(saveParams, csvFactory, successHandler, failureHandler);
+            await Batches[saveParams.BatchIndex].SaveAs(saveParams, csvFactory, successHandler, failureHandler);
         }
 
         #endregion

@@ -357,12 +357,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(f => new ServiceBufferFileStreamReader(new Common.InMemoryWrapper(storage[f]), f));
+                .Returns<string>(f => new ServiceBufferFileStreamReader(new MemoryStream(storage[f])));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
                 .Returns<string>(f =>
                 {
                     storage.Add(f, new byte[8192]);
-                    return new SaveAsCsvFileStreamWriter(new Common.InMemoryWrapper(storage[f]), request);
+                    return new SaveAsCsvFileStreamWriter(new MemoryStream(storage[f]), request);
                 });
             return mock.Object;
         }

@@ -271,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        public void SaveAsCsv(SaveResultsAsCsvRequestParams saveParams, IFileStreamFactory csvFactory, 
+        public async Task SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
             SaveAsAsyncEventHandler successHandler, SaveAsFailureAsyncEventHandler failureHandler)
         {
             // Make sure there isn't a task for this file already
@@ -283,14 +283,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // The task has completed, so let's attempt to remove it
                     if (!saveTasks.TryRemove(saveParams.FilePath, out existingTask))
                     {
-                        failureHandler?.Invoke(saveParams, null);
+                        if (failureHandler != null)
+                        {
+                            await failureHandler(saveParams, null);
+                        }
                         return;
                     }
                 }
                 else
                 {
                     // The task hasn't completed, so we shouldn't continue
-                    failureHandler?.Invoke(saveParams, null);
+                    if (failureHandler != null)
+                    {
+                        await failureHandler(saveParams, null);
+                    }
                     return;
                 }
             }
@@ -311,8 +317,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // ReSharper restore PossibleInvalidOperationException
                     }
 
-                    using (var fileReader = csvFactory.GetReader(outputFileName))
-                    using (var fileWriter = csvFactory.GetWriter(saveParams.FilePath))
+                    using (var fileReader = fileFactory.GetReader(outputFileName))
+                    using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath))
                     {
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
@@ -324,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
                 catch (Exception e)
                 {
-                    csvFactory.DisposeFile(saveParams.FilePath);
+                    fileFactory.DisposeFile(saveParams.FilePath);
                     failureHandler?.Invoke(saveParams, e).Wait();
                 }
             });
@@ -332,7 +338,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // If saving the task fails, return a failure
             if (!saveTasks.TryAdd(saveParams.FilePath, saveAsTask))
             {
-                failureHandler?.Invoke(saveParams, null);
+                if (failureHandler != null)
+                {
+                    await failureHandler(saveParams, null);
+                }
+                return;
             }
 
             // Task was saved, so start up the task

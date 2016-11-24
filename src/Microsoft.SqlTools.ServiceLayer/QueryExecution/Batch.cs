@@ -345,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return targetResultSet.GetSubset(startRow, rowCount);
         }
 
-        public void SaveAsCsv(SaveResultsAsCsvRequestParams saveParams, IFileStreamFactory csvFactory,
+        public async Task SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory csvFactory,
             ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
         {
             // Sanity check to make sure that the batch has finished
@@ -361,7 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Save the result set to a CSV
-            resultSets[saveParams.ResultSetIndex].SaveAsCsv(saveParams, csvFactory, successHandler, failureHandler);
+            await resultSets[saveParams.ResultSetIndex].SaveAs(saveParams, csvFactory, successHandler, failureHandler);
         }
 
         #endregion

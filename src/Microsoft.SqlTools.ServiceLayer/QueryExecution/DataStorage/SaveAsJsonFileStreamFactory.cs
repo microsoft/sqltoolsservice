@@ -4,11 +4,12 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
-    public class SaveAsCsvFileStreamFactory : IFileStreamFactory
+    public class SaveAsJsonFileStreamFactory : IFileStreamFactory
     {
+
         #region Properties
 
-        public SaveResultsAsCsvRequestParams SaveRequestParams { get; set; }
+        public SaveResultsAsJsonRequestParams SaveRequestParams { get; set; }
 
         #endregion
 
@@ -24,12 +25,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         public IFileStreamWriter GetWriter(string fileName)
         {
-            return new SaveAsCsvFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), SaveRequestParams);
+            return new SaveAsJsonFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), SaveRequestParams);
         }
 
         public void DisposeFile(string fileName)
         {
             FileUtils.SafeFileDelete(fileName);
         }
+
     }
 }

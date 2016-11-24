@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -11,45 +12,43 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #region Member Variables
 
+        private readonly SaveResultsAsCsvRequestParams saveParams;
         private bool headerWritten;
 
         #endregion
 
-        public SaveAsCsvFileStreamWriter(IFileStreamWrapper fileWrapper, SaveResultsAsCsvRequestParams requestParams)
-            : base(fileWrapper, requestParams)
+        public SaveAsCsvFileStreamWriter(Stream stream, SaveResultsAsCsvRequestParams requestParams)
+            : base(stream, requestParams)
         {
+            saveParams = requestParams;
         }
 
-        public override int WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
         {
-            int bytesWritten = 0;
-
             // Write out the header if we haven't already and the user chose to have it
             if (saveParams.IncludeHeaders && !headerWritten)
             {
                 // Build the string
-                var selectedColumns = columns.Skip(columnStartIndex ?? 0).Take(columnCount ?? columns.Count)
+                var selectedColumns = columns.Skip(ColumnStartIndex ?? 0).Take(ColumnCount ?? columns.Count)
                     .Select(c => EncodeCsvField(c.ColumnName) ?? string.Empty);
                 string headerLine = string.Join(",", selectedColumns);
 
                 // Encode it and write it out
                 byte[] headerBytes = Encoding.Unicode.GetBytes(headerLine);
-                bytesWritten += fileStream.WriteData(headerBytes, headerBytes.Length);
+                FileStream.Write(headerBytes, 0, headerBytes.Length);
 
                 headerWritten = true;
             }
 
             // Build the string for the row
-            var selectedCells = row.Skip(columnStartIndex ?? 0)
-                .Take(columnCount ?? columns.Count)
+            var selectedCells = row.Skip(ColumnStartIndex ?? 0)
+                .Take(ColumnCount ?? columns.Count)
                 .Select(c => EncodeCsvField(c.DisplayValue));
             string rowLine = string.Join(",", selectedCells);
 
             // Encode it and write it out
             byte[] rowBytes = Encoding.Unicode.GetBytes(rowLine);
-            bytesWritten += fileStream.WriteData(rowBytes, rowBytes.Length);
-
-            return bytesWritten;
+            FileStream.Write(rowBytes, 0, rowBytes.Length);
         }
 
         /// <summary>
@@ -86,6 +85,5 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             return ret;
         }
-        
     }
 }
