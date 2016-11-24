@@ -735,6 +735,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string sql = scriptFile.GetLine(position.Line + 1);
             int startColumn = TextUtilities.PositionOfPrevDelimeter(sql, 0, position.Character);
             // if no schema name, returns null
+            if( sql[startColumn - 1] != '.')
+            {
+                return null;
+            }
             return GetToken(scriptParseInfo, position.Line + 1, startColumn - 1).Text.Replace("]",String.Empty).Replace("[",String.Empty);
         }
 

@@ -13,6 +13,10 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
+    /// <summary>
+    /// Peek Definition/ Go to definition implementation
+    /// Script sql objects and write create scripts to file
+    /// </summary>
     internal class PeekDefinition
     {
         private ConnectionInfo connectionInfo;
@@ -45,11 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     switch (type)
                     {
                         case DeclarationType.Table:
-                            return this.GetTableDefinition(tokenText, schemaName);
+                            return GetSqlObjectDefinition(GetTableScripts, tokenText, schemaName, "TABLE" ); 
                         case DeclarationType.View:
-                            return this.GetViewDefinition(tokenText, schemaName);
+                            return GetSqlObjectDefinition(GetViewScripts, tokenText, schemaName, "VIEW" );
                         case DeclarationType.StoredProcedure:
-                            return this.GetStoredProcedureDefinition(tokenText, schemaName);
+                            return GetSqlObjectDefinition(GetStoredProcedureScripts, tokenText, schemaName, "PROCEDURE" );
                         default:
                             return null;
                     }
@@ -59,100 +63,73 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Script a table using SMO and write to a file.
+        /// Script a table using SMO
         /// </summary>
         /// <param name="tableName">Table name</param>
-        /// <returns>Location object representing URI and range of the script file</returns>
-        internal Location[] GetTableDefinition(string tableName, string schemaName)
+        /// <param name="schemaName">Schema name</param>
+        /// <returns>String collection of scripts</returns>
+        internal  StringCollection GetTableScripts(string tableName, string schemaName)
         {
-            if (this.connectionInfo.SqlConnection != null)
-            {
-                Table table = database.Tables[tableName];
-                string tempFileName = (schemaName != null) ? Path.Combine( tempPath, String.Format("{0}.{1}.sql", schemaName, tableName)) 
-                                                : Path.Combine( tempPath, String.Format("{0}.sql", tableName)); 
-
-                if (table != null)
-                {
-                    using (StreamWriter scriptFile = new StreamWriter(File.Open(tempFileName, FileMode.Create, FileAccess.ReadWrite)))
-                    {
-                        StringCollection scripts = table.Script();
-                        foreach (string script in scripts)
-                        {
-                            if (script.IndexOf( "CREATE TABLE", StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                scriptFile.WriteLine(script);
-                            }  
-                        }
-
-                        
-                    }
-                    return GetLocationFromFile(tempFileName, 0);
-                }
-            }
-            return null;
+            return (schemaName != null) ? database.Tables[tableName, schemaName]?.Script()
+                    : database.Tables[tableName].Script();
         }
 
         /// <summary>
-        /// Script a view using SMO and write to a file.
+        /// Script a view using SMO
         /// </summary>
         /// <param name="viewName">View name</param>
         /// <param name="schemaName">Schema name </param>
-        /// <returns>Location object representing URI and range of the script file</returns>
-        internal Location[] GetViewDefinition(string viewName, string schemaName)
+        /// <returns>String collection of scripts</returns>
+        internal StringCollection GetViewScripts(string viewName, string schemaName)
         {
-            if (this.connectionInfo.SqlConnection != null)
-            {
-                View view = (schemaName != null) ? database.Views[viewName, schemaName] : database.Views[viewName];
-                string tempFileName = (schemaName != null) ? Path.Combine( tempPath, String.Format("{0}.{1}.sql", schemaName, viewName))
-                                                    :  Path.Combine( tempPath, String.Format("{0}.sql", viewName));
-
-                if (view != null)
-                {
-                    using (StreamWriter scriptFile = new StreamWriter(File.Open(tempFileName, FileMode.Create, FileAccess.ReadWrite)))
-                    {
-                        StringCollection scripts = view.Script();
-                        foreach (string script in scripts)
-                        {
-                            if (script.IndexOf( "CREATE VIEW", StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                scriptFile.WriteLine(script);
-                            }  
-                        }
-                        
-                    }
-                    return GetLocationFromFile(tempFileName, 0);
-                }
-            }
-            return null;
+            return (schemaName != null) ? database.Views[viewName, schemaName]?.Script()
+                    : database.Views[viewName]?.Script();
         }
 
         /// <summary>
-        /// Script a stored procedure using SMO and write to a file.
+        /// Script a stored procedure using SMO
         /// </summary>
         /// <param name="storedProcedureName">Stored Procedure name</param>
         /// <param name="schemaName">Schema Name</param>
+        /// <returns>String collection of scripts</returns>
+        internal StringCollection GetStoredProcedureScripts(string viewName, string schemaName)
+        {
+            return (schemaName != null) ? database.StoredProcedures[viewName, schemaName]?.Script()
+                    : database.StoredProcedures[viewName]?.Script();
+        }
+
+        /// <summary>
+        /// Script a object using SMO and write to a file.
+        /// </summary>
+        /// <param name="sqlScriptGetter">Function that returns the SMO scripts for an object</param>
+        /// <param name="objectName">SQL object name</param>
+        /// <param name="schemaName">Schema name or null</param>
+        /// <param name="objectType">Type of SQL object</param>
         /// <returns>Location object representing URI and range of the script file</returns>
-        internal Location[] GetStoredProcedureDefinition(string storedProcedureName, string schemaName)
+        internal Location[] GetSqlObjectDefinition(
+                Func<string, string, StringCollection> sqlScriptGetter, 
+                string objectName, 
+                string schemaName, 
+                string objectType) 
         {
             if (this.connectionInfo.SqlConnection != null)
             {
-                StoredProcedure storedProcedure = (schemaName != null) ? database.StoredProcedures[storedProcedureName, schemaName] :
-                                                    database.StoredProcedures[storedProcedureName];
-                string tempFileName = (schemaName != null) ?  Path.Combine( tempPath, String.Format("{0}.{1}.sql", tempPath, schemaName, storedProcedureName)) 
-                                                    : Path.Combine( tempPath, String.Format("{0}.sql", tempPath, storedProcedureName));
+                StringCollection scripts = sqlScriptGetter(objectName, schemaName);
+                string tempFileName = (schemaName != null) ?  Path.Combine( tempPath, String.Format("{0}.{1}.sql", schemaName, objectName)) 
+                                                    : Path.Combine( tempPath, String.Format("{0}.sql", objectName));
 
-                if (storedProcedure != null)
+                if (scripts != null)
                 {
                     int lineNumber = 0;
                     using (StreamWriter scriptFile = new StreamWriter(File.Open(tempFileName, FileMode.Create, FileAccess.ReadWrite)))
                     {
-                        StringCollection scripts = storedProcedure.Script();
+                        
                         foreach (string script in scripts)
                         {
-                            if (script.IndexOf( "CREATE PROCEDURE", StringComparison.OrdinalIgnoreCase) >= 0)
+                            if (script.IndexOf(String.Format("CREATE {0}", objectType), StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 scriptFile.WriteLine(script);
-                                lineNumber = GetStartOfCreate(script, "CREATE PROCEDURE");
+                                lineNumber = GetStartOfCreate(script, String.Format("CREATE {0}", objectType));
                             }                       
                         }         
                     }

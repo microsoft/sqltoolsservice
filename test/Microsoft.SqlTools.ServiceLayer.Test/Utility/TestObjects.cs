@@ -191,6 +191,27 @@ namespace Microsoft.SqlTools.Test.Utility
             connectionService.TryFindConnection(ownerUri, out connInfo);
             return connInfo;
         }
+
+        public static ConnectionInfo InitLiveConnectionInfoForDefinition()
+        {
+            TestObjects.InitializeTestServices();
+
+            string ownerUri = ScriptUri;
+            var connectionService = TestObjects.GetLiveTestConnectionService();
+            var connectionResult =
+                connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetIntegratedTestConnectionDetails()
+                });
+            
+            connectionResult.Wait();
+
+            ConnectionInfo connInfo = null;
+            connectionService.TryFindConnection(ownerUri, out connInfo);
+            return connInfo;
+        }
     }
 
     /// <summary>
