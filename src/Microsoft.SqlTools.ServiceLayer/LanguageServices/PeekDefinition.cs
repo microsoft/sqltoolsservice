@@ -21,6 +21,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         private ConnectionInfo connectionInfo;
         private string tempPath;
+        
+        // Dictionary that holds the script getter for each type
+        private Dictionary<DeclarationType, Func<string, string, StringCollection>> sqlScriptGetters =
+            new Dictionary<DeclarationType, Func<string, string, StringCollection>>();
+
+        //Dictionary that holds the object name(as appears on the TSQL create statement)
+        private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
 
         private Database database 
         {
@@ -30,33 +37,58 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return server.Databases[this.connectionInfo.SqlConnection.Database];
             }
         }
-
+        
         internal PeekDefinition(ConnectionInfo connInfo)
         {
             connectionInfo = connInfo;
             DirectoryInfo tempScriptDirectory = Directory.CreateDirectory( Path.GetTempPath()+ "mssql_definition");
             tempPath = tempScriptDirectory.FullName;
+            Initialize();
         }
 
+        private void Initialize()
+        {
+            //Add script getters for each sql object
+
+            //Add tables to supported types
+            sqlScriptGetters.Add(DeclarationType.Table, GetTableScripts);
+            sqlObjectTypes.Add(DeclarationType.Table, "Table");
+
+            //Add views to supported types
+            sqlScriptGetters.Add(DeclarationType.View, GetViewScripts);
+            sqlObjectTypes.Add(DeclarationType.View, "View");
+
+            //Add stored procedures to supported types
+            sqlScriptGetters.Add(DeclarationType.StoredProcedure, GetStoredProcedureScripts);
+            sqlObjectTypes.Add(DeclarationType.StoredProcedure, "Procedure");
+
+        }
+
+        /// <summary>
+        /// Get the script of the selected token based on the type of the token
+        /// </summary>
+        /// <param name="declarationItems"></param>
+        /// <param name="tokenText"></param>
+        /// <param name="schemaName"></param>
+        /// <returns></returns>
         internal Location[] GetScript(IEnumerable<Declaration> declarationItems, string tokenText, string schemaName)
         {
             foreach (Declaration declarationItem in declarationItems)
             {
                 if (declarationItem.Title.Equals(tokenText))
                 {
-                    DeclarationType type  = declarationItem.Type;
                     // Script object using SMO based on type
-                    switch (type)
+                    DeclarationType type  = declarationItem.Type;
+                    if (sqlScriptGetters.ContainsKey(type))
                     {
-                        case DeclarationType.Table:
-                            return GetSqlObjectDefinition(GetTableScripts, tokenText, schemaName, "TABLE" ); 
-                        case DeclarationType.View:
-                            return GetSqlObjectDefinition(GetViewScripts, tokenText, schemaName, "VIEW" );
-                        case DeclarationType.StoredProcedure:
-                            return GetSqlObjectDefinition(GetStoredProcedureScripts, tokenText, schemaName, "PROCEDURE" );
-                        default:
-                            return null;
+                        return GetSqlObjectDefinition( 
+                                    sqlScriptGetters[type], 
+                                    tokenText, 
+                                    schemaName, 
+                                    sqlObjectTypes[type]
+                                ); 
                     }
+                    return null;
                 }
             }
             return null;
@@ -164,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string[] lines = script.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             for (int lineNumber = 0; lineNumber < lines.Length; lineNumber++)
             {
-                if ( lines[lineNumber].IndexOf( createString, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (lines[lineNumber].IndexOf( createString, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     return lineNumber;
                 }
