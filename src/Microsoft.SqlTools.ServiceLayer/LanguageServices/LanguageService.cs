@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await Task.FromResult(true);
             }
             else
-            {                
+            {
                 // get the current list of completion items and return to client 
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);

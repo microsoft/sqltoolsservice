@@ -183,6 +183,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
 
+                // turning on MARS to avoid break in LanguageService with multiple editors
+                // we'll remove this once ConnectionService is refactored to not own the LanguageService connection
+                connectionInfo.ConnectionDetails.MultipleActiveResultSets = true;
+
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
                 using (source = new CancellationTokenSource())
                 {

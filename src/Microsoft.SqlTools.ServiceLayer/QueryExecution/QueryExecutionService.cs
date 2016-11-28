@@ -437,6 +437,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
+
             query.QueryCompleted += callback;
             query.QueryFailed += callback;
             query.QueryConnectionException += errorCallback;

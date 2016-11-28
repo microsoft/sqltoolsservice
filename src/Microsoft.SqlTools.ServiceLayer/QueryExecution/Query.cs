@@ -100,6 +100,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event Batch.BatchAsyncEventHandler BatchCompleted;
 
         /// <summary>
+        /// Delegate type for callback when a query connection fails
+        /// </summary>
+        /// <param name="q">The query that completed</param>
+        public delegate Task QueryAsyncErrorEventHandler(string message);
+
+        /// <summary>
         /// Callback for when the query has completed successfully
         /// </summary>
         public event QueryAsyncEventHandler QueryCompleted;

@@ -633,7 +633,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-
         /// <summary>
         /// Converts a SQL Parser QuickInfo object into a VS Code Hover object
         /// </summary>
