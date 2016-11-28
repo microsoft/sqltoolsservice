@@ -29,15 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class QueryExecuteResult
     {
         /// <summary>
-        /// Connection error messages. Optional, can be set to null to indicate no errors
+        /// Informational messages from the query runner. Optional, can be set to null.
         /// </summary>
         public string Messages { get; set; }
-
-        /// <summary>
-        /// Optional, can be set to true to indicate that the messages in the result should not be treated as an error,
-        /// but rather as an informational message.
-        /// </summary>
-        public bool? HasInfoMessages { get; set; }
     }
 
     public class QueryExecuteRequest

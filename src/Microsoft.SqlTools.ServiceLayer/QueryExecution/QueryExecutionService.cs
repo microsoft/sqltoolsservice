@@ -460,17 +460,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Send back a result showing we were successful
             string messages = null;
-            bool hasInfoMessages = false;
             if (query.Batches.Length == 0)
             {
                 // If there were no batches to execute, send back an informational message that the commands were completed successfully
                 messages = SR.QueryServiceCompletedSuccessfully;
-                hasInfoMessages = true;
             }
             await requestContext.SendResult(new QueryExecuteResult
             {
-                Messages = messages,
-                HasInfoMessages = hasInfoMessages
+                Messages = messages
             });
         }
 

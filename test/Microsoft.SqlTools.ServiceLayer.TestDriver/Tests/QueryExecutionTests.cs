@@ -348,8 +348,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                     // Then I expect messages that the commands were completed successfully to be in the result
                     Assert.NotNull(queryResult);
-                    Assert.NotNull(queryResult.HasInfoMessages);
-                    Assert.True(queryResult.HasInfoMessages);
                     Assert.NotNull(queryResult.Messages);
                     Assert.Equal("Commands completed successfully.", queryResult.Messages);
 
