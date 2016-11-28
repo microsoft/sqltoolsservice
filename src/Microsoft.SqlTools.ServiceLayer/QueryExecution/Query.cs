@@ -136,12 +136,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public delegate Task QueryAsyncEventHandler(Query q);
 
         /// <summary>
-        /// Delegate type for callback when a query connection fails
-        /// </summary>
-        /// <param name="message">Message to return</param>
-        public delegate Task QueryAsyncErrorEventHandler(string message);
-
-        /// <summary>
         /// The batches underneath this query
         /// </summary>
         internal Batch[] Batches { get; set; }
