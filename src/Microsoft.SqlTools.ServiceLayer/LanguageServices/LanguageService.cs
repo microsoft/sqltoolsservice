@@ -33,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public sealed class LanguageService
     {
+        private const int ONE_SECOND = 1000;
+        
         internal const string DefaultBatchSeperator = "GO";
 
         internal const int DiagnosticParseDelay = 750;
@@ -41,9 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int BindingTimeout = 500;
 
-        internal const int OnConnectionWaitTimeout = 300000;
+        internal const int OnConnectionWaitTimeout = 300 * ONE_SECOND;
 
-        internal const int PeekDefinitionTimeout = 10000;
+        internal const int PeekDefinitionTimeout = 10 * ONE_SECOND;
 
         private static ConnectionService connectionService = null;
 
