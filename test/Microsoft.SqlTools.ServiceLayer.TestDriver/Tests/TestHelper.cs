@@ -272,6 +272,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 return null;
             }
         }
+
+        /// <summary>
+        /// Run a query using a given connection bound to a URI. This method only waits for the initial response from query
+        /// execution (QueryExecuteResult). It is up to the caller to wait for the QueryExecuteCompleteEvent if they are interested.
+        /// </summary>
+        public async Task<QueryExecuteResult> RunQueryAsync(string ownerUri, string query, int timeoutMilliseconds = 5000)
+        {
+            WriteToFile(ownerUri, query);
+
+            var queryParams = new QueryExecuteParams
+            {
+                OwnerUri = ownerUri,
+                QuerySelection = null
+            };
+
+            return await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
+        }
         
         /// <summary>
         /// Request to cancel an executing query

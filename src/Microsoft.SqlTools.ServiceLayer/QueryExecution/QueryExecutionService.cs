@@ -424,6 +424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = executeParams.OwnerUri,
                     BatchSummaries = q.BatchSummaries
                 };
+
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
 
@@ -470,9 +471,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             query.Execute();
 
             // Send back a result showing we were successful
+            string messages = null;
+            if (query.Batches.Length == 0)
+            {
+                // If there were no batches to execute, send back an informational message that the commands were completed successfully
+                messages = SR.QueryServiceCompletedSuccessfully;
+            }
             await requestContext.SendResult(new QueryExecuteResult
             {
-                Messages = null
+                Messages = messages
             });
         }
 
