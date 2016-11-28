@@ -332,7 +332,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             var queries = new string[]
             {
                 "-- no-op",
-                "GO"
+                "GO",
+                "GO -- no-op"
             };
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -343,15 +344,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Assert.True(await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection));
 
                     // If the queries are executed...
-                    var queryResult = await testHelper.RunQuery(queryTempFile.FilePath, query);
+                    var queryResult = await testHelper.RunQueryAsync(queryTempFile.FilePath, query);
 
                     // Then I expect messages that the commands were completed successfully to be in the result
                     Assert.NotNull(queryResult);
-                    Assert.Equal(queryTempFile.FilePath, queryResult.OwnerUri);
-                    Assert.True(queryResult.BatchSummaries.Length != 0);
-                    Assert.NotNull(queryResult.BatchSummaries[0]);
-                    Assert.NotNull(queryResult.BatchSummaries[0].Messages);
-                    Assert.Equal("Commands completed successfully.", queryResult.BatchSummaries[0].Messages[0].Message);
+                    Assert.NotNull(queryResult.HasInfoMessages);
+                    Assert.True(queryResult.HasInfoMessages);
+                    Assert.NotNull(queryResult.Messages);
+                    Assert.Equal("Commands completed successfully.", queryResult.Messages);
 
                     await testHelper.Disconnect(queryTempFile.FilePath);
                 }

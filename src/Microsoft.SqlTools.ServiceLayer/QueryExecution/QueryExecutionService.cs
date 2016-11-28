@@ -425,24 +425,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
-                // If there were no batch results in the query, send back a message that the commands were completed successfully
-                if (eventParams.BatchSummaries.Length == 0)
-                {
-                    eventParams.BatchSummaries = new BatchSummary[] { new BatchSummary()
-                    {
-                        Messages = new ResultMessage[] { new ResultMessage(SR.QueryServiceCompletedSuccessfully) }
-                    }};
-
-                    var batchParams = new QueryExecuteBatchCompleteParams();
-                    batchParams.BatchSummary = eventParams.BatchSummaries[0];
-                    batchParams.OwnerUri = executeParams.OwnerUri;
-
-                    // HACK: this is here to prevent the QueryExecuteCompleteEvent from being sent before the QueryExecuteResult is processed
-                    System.Threading.Thread.Sleep(100);
-
-                    await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, batchParams);
-                }
-
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
 
@@ -477,9 +459,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             query.Execute();
 
             // Send back a result showing we were successful
+            string messages = null;
+            bool hasInfoMessages = false;
+            if (query.Batches.Length == 0)
+            {
+                // If there were no batches to execute, send back an informational message that the commands were completed successfully
+                messages = SR.QueryServiceCompletedSuccessfully;
+                hasInfoMessages = true;
+            }
             await requestContext.SendResult(new QueryExecuteResult
             {
-                Messages = null
+                Messages = messages,
+                HasInfoMessages = hasInfoMessages
             });
         }
 
