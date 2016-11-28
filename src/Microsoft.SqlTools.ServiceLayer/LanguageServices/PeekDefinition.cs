@@ -46,6 +46,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Initialize();
         }
 
+        /// <summary>
+        /// Add getters for each sql object supported by peek definition
+        /// </summary>
         private void Initialize()
         {
             //Add script getters for each sql object
@@ -65,12 +68,45 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Convert a file to a location array containing a location object as expected by the extension
+        /// </summary>
+        private Location[] GetLocationFromFile(string tempFileName, int lineNumber)
+        {
+            Location[] locations = new[] { 
+                    new Location {
+                        Uri = new Uri(tempFileName).AbsoluteUri,
+                        Range = new Range {
+                            Start = new Position { Line = lineNumber, Character = 1},
+                            End = new Position { Line = lineNumber + 1, Character = 1}
+                        }
+                    }
+            };
+            return locations;
+        }
+
+        /// <summary>
+        /// Get line number for the create statement
+        /// </summary>
+        private int GetStartOfCreate(string script, string createString)
+        {
+            string[] lines = script.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+            for (int lineNumber = 0; lineNumber < lines.Length; lineNumber++)
+            {
+                if (lines[lineNumber].IndexOf( createString, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return lineNumber;
+                }
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// Get the script of the selected token based on the type of the token
         /// </summary>
         /// <param name="declarationItems"></param>
         /// <param name="tokenText"></param>
         /// <param name="schemaName"></param>
-        /// <returns></returns>
+        /// <returns>Location object of the script file</returns>
         internal Location[] GetScript(IEnumerable<Declaration> declarationItems, string tokenText, string schemaName)
         {
             foreach (Declaration declarationItem in declarationItems)
@@ -170,39 +206,5 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             return null;
         }
-
-        /// <summary>
-        /// Convert a file to a location array containing a location object as expected by the extension
-        /// </summary>
-        private Location[] GetLocationFromFile(string tempFileName, int lineNumber)
-        {
-            Location[] locations = new[] { 
-                    new Location {
-                        Uri = new Uri(tempFileName).AbsoluteUri,
-                        Range = new Range {
-                            Start = new Position { Line = lineNumber, Character = 1},
-                            End = new Position { Line = lineNumber+1, Character = 1}
-                        }
-                    }
-            };
-            return locations;
-        }
-
-        /// <summary>
-        /// Get line number for the create statement
-        /// </summary>
-        private int GetStartOfCreate(string script, string createString)
-        {
-            string[] lines = script.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-            for (int lineNumber = 0; lineNumber < lines.Length; lineNumber++)
-            {
-                if (lines[lineNumber].IndexOf( createString, StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    return lineNumber;
-                }
-            }
-            return 0;
-        }
-
     }
 }
