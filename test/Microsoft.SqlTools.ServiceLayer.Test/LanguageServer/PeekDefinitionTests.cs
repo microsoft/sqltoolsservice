@@ -134,10 +134,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetTableDefinitionTest()
         {
-
+            // Get live connectionInfo
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, "test_table", null, "TABLE");
+            string objectName = "test_table";
+            string schemaName = null;
+            string objectType = "TABLE";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -148,11 +152,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetViewDefinitionTest()
         {
-            ScriptFile scriptFile;
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            PeekDefinition peekDefinition = new PeekDefinition(connInfo);           
+            string objectName = "objects";
+            string schemaName = "sys";
+            string objectType = "VIEW";
 
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetViewScripts, "objects", "sys", "VIEW");
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetViewScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -163,11 +169,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetViewDefinitionInvalidObjectTest()
         {
-            ScriptFile scriptFile;
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-
             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetViewScripts, "objects", null, "VIEW");
+            string objectName = "objects";
+            string schemaName = null;
+            string objectType = "VIEW";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetViewScripts, objectName, schemaName, objectType);
             Assert.Null(locations);
         }
 
@@ -177,11 +185,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetStoredProcedureDefinitionTest()
         {
-            ScriptFile scriptFile;
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-
             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, "SP1", "dbo", "PROCEDURE");
+            string objectName = "SP1";
+            string schemaName = "dbo";
+            string objectType = "PROCEDURE";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -192,11 +202,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetStoredProcedureDefinitionWithoutSchemaTest()
         {
-            ScriptFile scriptFile;
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, "SP1", null, "PROCEDURE");
+            string objectName = "SP1";
+            string schemaName = null;
+            string objectType = "PROCEDURE";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }

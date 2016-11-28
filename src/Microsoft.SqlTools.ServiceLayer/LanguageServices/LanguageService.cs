@@ -677,7 +677,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
             // The suggestion title does not contain any sql punctuation
-            string tokenText = selectedToken.Text.Replace("]",String.Empty).Replace("[",String.Empty);
+            string tokenText = TextUtilities.RemoveSquareBracketSyntax(selectedToken.Text);
 
             if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
             {
@@ -739,7 +739,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 return null;
             }
-            return GetToken(scriptParseInfo, position.Line + 1, startColumn - 1).Text.Replace("]",String.Empty).Replace("[",String.Empty);
+            return TextUtilities.RemoveSquareBracketSyntax(GetToken(scriptParseInfo, position.Line + 1, startColumn - 1).Text);
         }
 
 

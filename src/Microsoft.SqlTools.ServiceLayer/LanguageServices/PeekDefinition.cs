@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private Dictionary<DeclarationType, Func<string, string, StringCollection>> sqlScriptGetters =
             new Dictionary<DeclarationType, Func<string, string, StringCollection>>();
 
-        //Dictionary that holds the object name(as appears on the TSQL create statement)
+        //Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
 
         private Database database 

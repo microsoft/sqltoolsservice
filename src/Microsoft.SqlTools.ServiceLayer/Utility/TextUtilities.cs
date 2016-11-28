@@ -109,5 +109,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 || ch == '('
                 || ch == ')';
         }
+
+        public static string RemoveSquareBracketSyntax(string tokenText)
+        {
+            if(tokenText.StartsWith("[") && tokenText.EndsWith("]"))
+            {
+                return tokenText.Substring(1, tokenText.Length - 2);
+            }
+            return tokenText;
+        }
     }
 }
