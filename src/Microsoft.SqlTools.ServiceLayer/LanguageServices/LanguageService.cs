@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     public sealed class LanguageService
     {
         private const int ONE_SECOND = 1000;
-        
+
         internal const string DefaultBatchSeperator = "GO";
 
         internal const int DiagnosticParseDelay = 750;
@@ -660,15 +660,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
-            if (scriptParseInfo != null && RequiresReparse(scriptParseInfo, scriptFile))
-            {
-                ParseAndBind(scriptFile, connInfo);
-            }
-
-            // Return if parse failed
             if (scriptParseInfo == null)
             {
                 return null;
+            }
+
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                ParseAndBind(scriptFile, connInfo);
             }
 
             // Get token from selected text
