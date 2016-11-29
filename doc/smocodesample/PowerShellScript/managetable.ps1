@@ -7,14 +7,15 @@ $pathtodll = ""
 Add-Type -Path "$pathtodll\Microsoft.SqlServer.Smo.dll"
 Add-Type -Path "$pathtodll\Microsoft.SqlServer.ConnectionInfo.dll"
 
-#Connection information needs to be specified
-$connectionString = "Data Source=remote_server_name;User Id=user_id;Password=pwd;Initial Catalog=db_name"
-$sqlConn = New-Object System.Data.SqlClient.SqlConnection($connectionString)
-$connection = New-Object Microsoft.SqlServer.Management.Common.ServerConnection($sqlConn)
-$srv = New-Object Microsoft.SqlServer.Management.Smo.Server($connection)
+#Connection context need to be specified
+$srv = New-Object Microsoft.SqlServer.Management.Smo.Server()
+$srv.ConnectionContext.LoginSecure = $false
+$srv.ConnectionContext.ServerInstance = "instance_name"
+$srv.ConnectionContext.Login = "user_id"
+$srv.ConnectionContext.Password = "pwd"
 
-#And the database object corresponding to AdventureWorks.    
-$db = $srv.Databases["AdventureWorks"]  
+#And the database object corresponding to master.    
+$db = $srv.Databases["master"]  
 
 #Create a SMO Table  
 $tb = New-Object -TypeName Microsoft.SqlServer.Management.SMO.Table -argumentlist $db, "Test_Table"  
