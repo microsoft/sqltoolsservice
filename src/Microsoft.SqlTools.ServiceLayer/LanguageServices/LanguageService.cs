@@ -321,17 +321,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
-            ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
-                textDocumentPosition.TextDocument.Uri);
-
-            SignatureHelp help = LanguageService.Instance.GetSignatureHelp(textDocumentPosition, scriptFile);
-            if (help != null)
+            // check if Intellisense suggestions are enabled
+            if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
             {
-                await requestContext.SendResult(help);
+                await Task.FromResult(true);
             }
             else
             {
-                await requestContext.SendResult(new SignatureHelp());
+                ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
+
+                SignatureHelp help = LanguageService.Instance.GetSignatureHelp(textDocumentPosition, scriptFile);
+                if (help != null)
+                {
+                    await requestContext.SendResult(help);
+                }
+                else
+                {
+                    await requestContext.SendResult(new SignatureHelp());
+                }
             }
         }
 
