@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         /// Test saving results to CSV file when the requested result set is no longer active
         /// </summary>
         [Fact]
-        public async void SaveResultsAsCsvQueryNotFoundTest()
+        public async Task SaveResultsAsCsvQueryNotFoundTest()
         {
             // Create a query execution service
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
@@ -302,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         /// Test saving results to JSON file when the requested result set is no longer active
         /// </summary>
         [Fact]
-        public async void SaveResultsAsJsonQueryNotFoundTest()
+        public async Task SaveResultsAsJsonQueryNotFoundTest()
         {
             // Create a query service
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);

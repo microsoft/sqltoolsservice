@@ -9,7 +9,10 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -33,7 +36,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
 
         public const string ServiceHostEnvironmentVariable = "SQLTOOLSSERVICE_EXE";
 
-        public bool IsCoverageRun { get; set; } 
+        public bool IsCoverageRun { get; set; }
+
+        private Process[] serviceProcesses;
+
+        private DateTime startTime;
 
         public ServiceTestDriver()
         {
@@ -71,8 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
                         coverageOutput = "coverage.xml";
                     }
 
-                    serviceHostArguments = "-mergeoutput -target:" + serviceHostExecutable + " -targetargs:" + serviceHostArguments 
-                        + " -register:user -oldstyle -filter:\"+[Microsoft.SqlTools.*]* -[xunit*]*\" -output:" + coverageOutput + " -searchdirs:" + serviceHostDirectory;
+                    serviceHostArguments = $"-mergeoutput -target:{serviceHostExecutable} -targetargs:{serviceHostArguments} " +
+                                           $"-register:user -oldstyle -filter:\"+[Microsoft.SqlTools.*]* -[xunit*]*\" -output:{coverageOutput} " +
+                                           $"-searchdirs:{serviceHostDirectory};";
                     serviceHostExecutable = coverageToolPath;
 
                     this.IsCoverageRun = true;
@@ -88,8 +96,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
         /// </summary>
         public async Task Start()
         {
+            // Store the time we started
+            startTime = DateTime.Now;
+
+            // Launch the process
             await this.protocolClient.Start();
             await Task.Delay(1000); // Wait for the service host to start
+
+            // If this is a code coverage run, we need access to the service layer separate from open cover
+            if (IsCoverageRun)
+            {
+                CancellationTokenSource cancelSource = new CancellationTokenSource();
+                Task getServiceProcess = GetServiceProcess(cancelSource.Token);
+                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(15), cancelSource.Token);
+                if (await Task.WhenAny(getServiceProcess, timeoutTask) == timeoutTask)
+                {
+                    cancelSource.Cancel();
+                    throw new Exception("Failed to capture service process");
+                }
+            }
+
+            Console.WriteLine("Successfully launched service");
 
             // Setup events to queue for testing
             this.QueueEventsForType(ConnectionCompleteNotification.Type);
@@ -103,7 +130,38 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
         /// </summary>
         public async Task Stop()
         {
-            await this.protocolClient.Stop();
+            if (IsCoverageRun)
+            {
+                // Kill all the processes in the list
+                foreach (Process p in serviceProcesses.Where(p => !p.HasExited))
+                {
+                    p.Kill();
+                }
+                ServiceProcess?.WaitForExit();
+            }
+            else
+            {
+                await this.protocolClient.Stop();
+            }
+        }
+
+        private async Task GetServiceProcess(CancellationToken token)
+        {
+            while (serviceProcesses == null && !token.IsCancellationRequested)
+            {
+                var processes = Process.GetProcessesByName("Microsoft.SqlTools.ServiceLayer")
+                    .Where(p => p.StartTime >= startTime).ToArray();
+
+                // Wait a second if we can't find the process
+                if (processes.Any())
+                {
+                    serviceProcesses = processes;
+                }
+                else
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1), token);
+                }
+            }
         }
     }
 }

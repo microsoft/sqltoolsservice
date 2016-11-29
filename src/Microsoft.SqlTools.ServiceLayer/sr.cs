@@ -397,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.SR", typeof(SR).GetTypeInfo().Assembly);
+            static ResourceManager resourceManager = new ResourceManager(typeof(SR));
 
             static CultureInfo _culture = null;
 

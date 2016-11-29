@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await Task.FromResult(true);
             }
             else
-            {                
+            {
                 // get the current list of completion items and return to client 
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(
                     textDocumentPosition.TextDocument.Uri);
@@ -958,23 +958,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
-            foreach (var error in parseResult.Errors)
+            if (parseResult != null && parseResult.Errors != null)
             {
-                markers.Add(new ScriptFileMarker()
+                foreach (var error in parseResult.Errors)
                 {
-                    Message = error.Message,
-                    Level = ScriptFileMarkerLevel.Error,
-                    ScriptRegion = new ScriptRegion()
+                    markers.Add(new ScriptFileMarker()
                     {
-                        File = scriptFile.FilePath,
-                        StartLineNumber = error.Start.LineNumber,
-                        StartColumnNumber = error.Start.ColumnNumber,
-                        StartOffset = 0,
-                        EndLineNumber = error.End.LineNumber,
-                        EndColumnNumber = error.End.ColumnNumber,
-                        EndOffset = 0
-                    }
-                });
+                        Message = error.Message,
+                        Level = ScriptFileMarkerLevel.Error,
+                        ScriptRegion = new ScriptRegion()
+                        {
+                            File = scriptFile.FilePath,
+                            StartLineNumber = error.Start.LineNumber,
+                            StartColumnNumber = error.Start.ColumnNumber,
+                            StartOffset = 0,
+                            EndLineNumber = error.End.LineNumber,
+                            EndColumnNumber = error.End.ColumnNumber,
+                            EndOffset = 0
+                        }
+                    });
+                }
             }
 
             return markers.ToArray();

@@ -87,6 +87,31 @@ void DoArchive(string runtime, string contentFolder, string archiveName)
 }
 
 /// <summary>
+///  Copy EULAs into content folder prior to packaging archives.
+/// </summary>
+/// <param name="runtime">The RID</param>
+/// <param name="framework">The framework identifier</param>
+/// <param name="contentFolder">The folder containing the files to package</param>
+/// <param name="packageFolder">The destination folder for the archive</param>
+/// <param name="projectName">The project name</param>
+/// <param name="workingDirectory">The working root directory name</param>
+void CopyEulas(string runtime, string framework, string contentFolder, string packageFolder, string projectName, string workingDirectory)
+{
+    var files = System.IO.Directory.GetFiles(
+        System.IO.Path.Combine(workingDirectory, "docs", "eulas"), 
+        "*.RTF", 
+        SearchOption.AllDirectories).ToList();
+
+    foreach (var file in files) {
+        System.IO.File.Copy(
+            file,
+            System.IO.Path.Combine(
+                contentFolder,
+                System.IO.Path.GetFileName(file)));    
+    }
+}
+
+/// <summary>
 ///  Package a given output folder using a build identifier generated from the RID and framework identifier.
 /// </summary>
 /// <param name="runtime">The RID</param>
@@ -94,8 +119,12 @@ void DoArchive(string runtime, string contentFolder, string archiveName)
 /// <param name="contentFolder">The folder containing the files to package</param>
 /// <param name="packageFolder">The destination folder for the archive</param>
 /// <param name="projectName">The project name</param>
-void Package(string runtime, string framework, string contentFolder, string packageFolder, string projectName)
+/// <param name="workingDirectory">The working root directory name</param>
+void Package(string runtime, string framework, string contentFolder, string packageFolder, string projectName, string workingDirectory)
 {
+    // binplace EULA files prior to archiving
+    CopyEulas(runtime, framework, contentFolder, packageFolder, projectName, workingDirectory);
+
     var buildIdentifier = GetBuildIdentifier(runtime, framework);
     if (buildIdentifier != null)
     {

@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #region Member Variables
 
-        private readonly IFileStreamWrapper fileStream;
+        private readonly Stream fileStream;
         private readonly int maxCharsToStore;
         private readonly int maxXmlCharsToStore;
 
@@ -45,15 +45,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Constructs a new writer
         /// </summary>
-        /// <param name="fileWrapper">The file wrapper to use as the underlying file stream</param>
-        /// <param name="fileName">Name of the file to write to</param>
+        /// <param name="stream">The file wrapper to use as the underlying file stream</param>
         /// <param name="maxCharsToStore">Maximum number of characters to store for long text fields</param>
         /// <param name="maxXmlCharsToStore">Maximum number of characters to store for XML fields</param>
-        public ServiceBufferFileStreamWriter(IFileStreamWrapper fileWrapper, string fileName, int maxCharsToStore, int maxXmlCharsToStore)
+        public ServiceBufferFileStreamWriter(Stream stream, int maxCharsToStore, int maxXmlCharsToStore)
         {
             // open file for reading/writing
-            fileStream = fileWrapper;
-            fileStream.Init(fileName, DefaultBufferLength, FileAccess.ReadWrite);
+            if (!stream.CanWrite || !stream.CanSeek)
+            {
+                throw new InvalidOperationException("Stream must be writable and seekable.");
+            }
+            fileStream = stream;
 
             // create internal buffer
             byteBuffer = new byte[DefaultBufferLength];
@@ -212,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public int WriteNull()
         {
             byteBuffer[0] = 0x00;
-            return fileStream.WriteData(byteBuffer, 1);
+            return WriteHelper(byteBuffer, 1);
         }
 
         /// <summary>
@@ -224,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x02; // length
             shortBuffer[0] = val;
             Buffer.BlockCopy(shortBuffer, 0, byteBuffer, 1, 2);
-            return fileStream.WriteData(byteBuffer, 3);
+            return WriteHelper(byteBuffer, 3);
         }
 
         /// <summary>
@@ -236,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x04; // length
             intBuffer[0] = val;
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return fileStream.WriteData(byteBuffer, 5);
+            return WriteHelper(byteBuffer, 5);
         }
 
         /// <summary>
@@ -248,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x08; // length
             longBuffer[0] = val;
             Buffer.BlockCopy(longBuffer, 0, byteBuffer, 1, 8);
-            return fileStream.WriteData(byteBuffer, 9);
+            return WriteHelper(byteBuffer, 9);
         }
 
         /// <summary>
@@ -260,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x02; // length
             charBuffer[0] = val;
             Buffer.BlockCopy(charBuffer, 0, byteBuffer, 1, 2);
-            return fileStream.WriteData(byteBuffer, 3);
+            return WriteHelper(byteBuffer, 3);
         }
 
         /// <summary>
@@ -271,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             byteBuffer[0] = 0x01; // length
             byteBuffer[1] = (byte) (val ? 0x01 : 0x00);
-            return fileStream.WriteData(byteBuffer, 2);
+            return WriteHelper(byteBuffer, 2);
         }
 
         /// <summary>
@@ -282,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             byteBuffer[0] = 0x01; // length
             byteBuffer[1] = val;
-            return fileStream.WriteData(byteBuffer, 2);
+            return WriteHelper(byteBuffer, 2);
         }
 
         /// <summary>
@@ -294,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x04; // length
             floatBuffer[0] = val;
             Buffer.BlockCopy(floatBuffer, 0, byteBuffer, 1, 4);
-            return fileStream.WriteData(byteBuffer, 5);
+            return WriteHelper(byteBuffer, 5);
         }
 
         /// <summary>
@@ -306,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             byteBuffer[0] = 0x08; // length
             doubleBuffer[0] = val;
             Buffer.BlockCopy(doubleBuffer, 0, byteBuffer, 1, 8);
-            return fileStream.WriteData(byteBuffer, 9);
+            return WriteHelper(byteBuffer, 9);
         }
 
         /// <summary>
@@ -330,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // data value
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 3, iLen - 3);
-            iTotalLen += fileStream.WriteData(byteBuffer, iLen);
+            iTotalLen += WriteHelper(byteBuffer, iLen);
             return iTotalLen; // len+data
         }
 
@@ -346,7 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             int iTotalLen = WriteLength(iLen); // length
 
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 0, iLen);
-            iTotalLen += fileStream.WriteData(byteBuffer, iLen);
+            iTotalLen += WriteHelper(byteBuffer, iLen);
 
             return iTotalLen; // len+data
         }
@@ -374,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             longBufferOffset[0] = dtoVal.Ticks;
             longBufferOffset[1] = dtoVal.Offset.Ticks;
             Buffer.BlockCopy(longBufferOffset, 0, byteBuffer, 1, 16);
-            return fileStream.WriteData(byteBuffer, 17);
+            return WriteHelper(byteBuffer, 17);
         }
 
         /// <summary>
@@ -406,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byteBuffer[3] = 0x00;
                 byteBuffer[4] = 0x00;
 
-                iTotalLen = fileStream.WriteData(byteBuffer, 5);
+                iTotalLen = WriteHelper(byteBuffer, 5);
             }
             else
             {
@@ -415,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 // convert char array into byte array and write it out							
                 iTotalLen = WriteLength(bytes.Length);
-                iTotalLen += fileStream.WriteData(bytes, bytes.Length);
+                iTotalLen += WriteHelper(bytes, bytes.Length);
             }
             return iTotalLen; // len+data
         }
@@ -438,12 +440,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byteBuffer[3] = 0x00;
                 byteBuffer[4] = 0x00;
 
-                iTotalLen = fileStream.WriteData(byteBuffer, 5);
+                iTotalLen = WriteHelper(byteBuffer, 5);
             }
             else
             {
                 iTotalLen = WriteLength(bytesVal.Length);
-                iTotalLen += fileStream.WriteData(bytesVal, bytesVal.Length);
+                iTotalLen += WriteHelper(bytesVal, bytesVal.Length);
             }
             return iTotalLen; // len+data
         }
@@ -507,7 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 int iTmp = iLen & 0x000000FF;
 
                 byteBuffer[0] = Convert.ToByte(iTmp);
-                return fileStream.WriteData(byteBuffer, 1);
+                return WriteHelper(byteBuffer, 1);
             }
             // The length won't fit in 1 byte, so we need to use 1 byte to signify that the length
             // is a full 4 bytes.
@@ -516,7 +518,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // convert int32 into array of bytes
             intBuffer[0] = iLen;
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return fileStream.WriteData(byteBuffer, 5);
+            return WriteHelper(byteBuffer, 5);
         }
 
         /// <summary>
@@ -530,6 +532,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private int WriteNullable(INullable val, Func<object, int> valueWriteFunc)
         {
             return val.IsNull ? WriteNull() : valueWriteFunc(val);
+        }
+
+        private int WriteHelper(byte[] buffer, int length)
+        {
+            fileStream.Write(buffer, 0, length);
+            return length;
         }
 
         #endregion

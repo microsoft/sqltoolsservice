@@ -409,7 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (string.IsNullOrWhiteSpace(tokenText) || completionText.StartsWith(tokenText, StringComparison.OrdinalIgnoreCase))
                 {
                     completionItems[completionItemIndex] = CreateDefaultCompletionItem(
-                        useLowerCase ? completionText.ToLower() : completionText.ToUpper(),
+                        useLowerCase ? completionText.ToLowerInvariant() : completionText.ToUpperInvariant(),
                         row, 
                         startColumn, 
                         endColumn);
@@ -633,7 +633,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
         }
-
 
         /// <summary>
         /// Converts a SQL Parser QuickInfo object into a VS Code Hover object
