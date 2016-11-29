@@ -15,6 +15,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -686,6 +687,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal static SignatureHelp ConvertMethodHelpTextListToSignatureHelp(List<Babel.MethodHelpText> methods, Babel.MethodNameAndParamLocations locations, int line, int column)
         {
+            Validate.IsNotNull(nameof(methods), methods);
+            Validate.IsNotNull(nameof(locations), locations);
+            Validate.IsGreaterThan(nameof(line), line, 0);
+            Validate.IsGreaterThan(nameof(column), column, 0);
+
             SignatureHelp help = new SignatureHelp();
 
             help.Signatures = methods.Select(method =>
@@ -704,7 +710,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         };
                     }).ToArray()
                 };
-            }).ToArray();
+            }).Where(method => method.Label.Contains(locations.Name)).ToArray();
 
             if (help.Signatures.Length == 0)
             {
@@ -712,15 +718,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Find the matching method signature at the cursor's location
-            int signatureIndex = methods.FindIndex(method => method.Name.Contains(locations.Name));
-            if (signatureIndex != -1)
-            {
-                help.ActiveSignature = signatureIndex;
-            }
-            else
-            {
-                return null;
-            }
+            // For now, take the first match (since we've already filtered by name above)
+            help.ActiveSignature = 0;
 
             // Determine the current parameter at the cursor
             int currentParameter = -1; // Default case: not on any particular parameter

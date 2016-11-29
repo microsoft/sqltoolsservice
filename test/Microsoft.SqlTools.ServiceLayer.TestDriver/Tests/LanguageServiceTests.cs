@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -281,6 +282,52 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
+        public async Task FunctionSignatureCompletionReturnsEmptySignatureHelpObject()
+        {
+            string sqlText = "EXEC sys.fn_not_a_real_function ";
+            string ownerUri = System.IO.Path.GetTempFileName();
+
+            try
+            {
+                File.WriteAllText(ownerUri, sqlText);
+
+                // Connect
+                await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+
+                // Wait for intellisense to be ready
+                var readyParams = await Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                Assert.NotNull(readyParams);
+                Assert.Equal(ownerUri, readyParams.OwnerUri);
+
+                // Send a function signature help Request
+                var position = new TextDocumentPosition()
+                {
+                    TextDocument = new TextDocumentIdentifier()
+                    {
+                        Uri = ownerUri
+                    },
+                    Position = new Position()
+                    {
+                        Line = 0,
+                        Character = sqlText.Length
+                    }
+                };
+                var signatureHelp = await Driver.SendRequest(SignatureHelpRequest.Type, position);
+
+                Assert.NotNull(signatureHelp);
+                Assert.False(signatureHelp.ActiveSignature.HasValue);
+                Assert.Empty(signatureHelp.Signatures);
+
+                await Disconnect(ownerUri);
+            }
+            finally
+            {
+                File.Delete(ownerUri);
+                WaitForExit();
+            }
+        }
+
+        [Fact]
         public async Task FunctionSignatureCompletionReturnsCorrectFunction()
         {
             string sqlText = "EXEC sys.fn_isrolemember ";
@@ -288,7 +335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
             try
             {
-                System.IO.File.WriteAllText(ownerUri, sqlText);
+                File.WriteAllText(ownerUri, sqlText);
 
                 // Connect
                 await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
@@ -326,7 +373,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
             finally
             {
-                System.IO.File.Delete(ownerUri);
+                File.Delete(ownerUri);
                 WaitForExit();
             }
         }
@@ -339,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
             try
             {
-                System.IO.File.WriteAllText(ownerUri, sqlText);
+                File.WriteAllText(ownerUri, sqlText);
 
                 // Connect
                 await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
@@ -362,7 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
             finally
             {
-                System.IO.File.Delete(ownerUri);
+                File.Delete(ownerUri);
                 WaitForExit();
             }
         }

@@ -321,16 +321,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
-            var scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+            ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
                 textDocumentPosition.TextDocument.Uri);
 
-            var help = LanguageService.Instance.GetSignatureHelp(textDocumentPosition, scriptFile);
+            SignatureHelp help = LanguageService.Instance.GetSignatureHelp(textDocumentPosition, scriptFile);
             if (help != null)
             {
                 await requestContext.SendResult(help);
             }
-            
-            await requestContext.SendResult(new SignatureHelp());
+            else
+            {
+                await requestContext.SendResult(new SignatureHelp());
+            }
         }
 
         private static async Task HandleHoverRequest(
@@ -702,8 +704,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Get function signature help for the current position
         /// </summary>
-        /// <param name="textDocumentPosition"></param>
-        /// <param name="scriptFile"></param>
         internal SignatureHelp GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             int startLine = textDocumentPosition.Position.Line;
