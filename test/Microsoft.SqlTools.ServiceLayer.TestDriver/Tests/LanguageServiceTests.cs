@@ -259,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         [Fact]
-        public async Task FunctionSignatureCompletionReturnsEmptySignatureHelpObject()
+        public async Task FunctionSignatureCompletionReturnsEmptySignatureHelpObjectWhenThereAreNoMatches()
         {
             string sqlText = "EXEC sys.fn_not_a_real_function ";
 
