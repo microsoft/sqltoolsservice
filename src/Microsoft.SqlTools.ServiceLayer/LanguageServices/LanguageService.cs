@@ -742,7 +742,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
-                            bindingTimeout: LanguageService.HoverTimeout,
+                            bindingTimeout: LanguageService.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {                          
                                 // get the list of possible current methods for signature help
