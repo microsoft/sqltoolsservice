@@ -89,6 +89,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event BatchAsyncEventHandler BatchCompletion;
 
         /// <summary>
+        /// Event that will be called when the resultset has completed execution. It will not be
+        /// called from the Batch but from the ResultSet instance
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetCompletion;
+
+        /// <summary>
         /// The text of batch that will be executed
         /// </summary>
         public string BatchText { get; set; }
@@ -155,12 +161,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                return ResultSets.Select((set, index) => new ResultSetSummary()
+                lock (resultSets)
                 {
-                    ColumnInfo = set.Columns,
-                    Id = index,
-                    RowCount = set.RowCount
-                }).ToArray();
+                    return resultSets.Select(set => set.Summary).ToArray();
+                }
             }
         }
 
@@ -221,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     command = sqlConn.GetUnderlyingConnection().CreateCommand();
 
                     // Add a handler for when the command completes
-                    SqlCommand sqlCommand = (SqlCommand) command;
+                    SqlCommand sqlCommand = (SqlCommand)command;
                     sqlCommand.StatementCompleted += StatementCompletedHandler;
                 }
                 else
@@ -244,6 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Execute the command to get back a reader
                     using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
                     {
+                        int resultSetOrdinal = 0;
                         do
                         {
                             // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
@@ -253,11 +258,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // This resultset has results (ie, SELECT/etc queries)
-                            ResultSet resultSet = new ResultSet(reader, outputFileFactory);
-                            
+                            ResultSet resultSet = new ResultSet(reader, resultSetOrdinal, Id, outputFileFactory);
+                            resultSet.ResultCompletion += ResultSetCompletion;
+
                             // Add the result set to the results of the query
-                            resultSets.Add(resultSet);
-                            
+                            lock (resultSets)
+                            {
+                                resultSets.Add(resultSet);
+                                resultSetOrdinal++;
+                            }
+
                             // Read until we hit the end of the result set
                             await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
@@ -318,20 +328,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ResultSetSubset> GetSubset(int resultSetIndex, int startRow, int rowCount)
         {
-            // Sanity check to make sure that the batch has finished
-            if (!HasExecuted)
+            ResultSet targetResultSet;
+            lock (resultSets)
             {
-                throw new InvalidOperationException(SR.QueryServiceSubsetBatchNotCompleted);
-            }
+                // Sanity check to make sure we have valid numbers
+                if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(resultSetIndex),
+                        SR.QueryServiceSubsetResultSetOutOfRange);
+                }
 
-            // Sanity check to make sure we have valid numbers
-            if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), SR.QueryServiceSubsetResultSetOutOfRange);
+                targetResultSet = resultSets[resultSetIndex];
             }
 
             // Retrieve the result set
-            return resultSets[resultSetIndex].GetSubset(startRow, rowCount);
+            return targetResultSet.GetSubset(startRow, rowCount);
         }
 
         #endregion
@@ -431,9 +442,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (disposing)
             {
-                foreach (ResultSet r in ResultSets)
+                lock (resultSets)
                 {
-                    r.Dispose();
+                    foreach (ResultSet r in resultSets)
+                    {
+                        r.Dispose();
+                    }
                 }
             }
 

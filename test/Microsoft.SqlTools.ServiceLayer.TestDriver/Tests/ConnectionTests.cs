@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// <summary>
     /// Language Service end-to-end integration tests
     /// </summary>
-    public class ConnectionTests : TestBase
+    public class ConnectionTest
     {
         /// <summary>
         /// Try to connect with invalid credentials
@@ -21,23 +21,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task InvalidConnection()
         {
-            try
-            {            
-                string ownerUri = System.IO.Path.GetTempFileName();
-                bool connected = await Connect(ownerUri, ConnectionTestUtils.InvalidConnection, 300000);
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
+            {
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.InvalidConnection, 300000);
                 Assert.False(connected, "Invalid connection is failed to connect");
 
-                await Connect(ownerUri, ConnectionTestUtils.InvalidConnection, 300000);
+                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.InvalidConnection, 300000);
 
                 Thread.Sleep(1000);
 
-                await CancelConnect(ownerUri);
+                await testHelper.CancelConnect(queryTempFile.FilePath);
 
-                await Disconnect(ownerUri);
-            }
-            finally
-            {
-                WaitForExit();
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -47,22 +43,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ListDatabasesTest()
         {
-            try
-            {            
-                string ownerUri = System.IO.Path.GetTempFileName();
-                bool connected = await Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (TestHelper testHelper = new TestHelper())
+            {
+                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
                 Assert.True(connected, "Connection successful");
 
-                var listDatabaseResult = await ListDatabases(ownerUri);
+                var listDatabaseResult = await testHelper.ListDatabases(queryTempFile.FilePath);
                 Assert.True(listDatabaseResult.DatabaseNames.Length > 0);
 
-                await Disconnect(ownerUri);
-            }
-            finally
-            {
-                WaitForExit();
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
-
     }
 }

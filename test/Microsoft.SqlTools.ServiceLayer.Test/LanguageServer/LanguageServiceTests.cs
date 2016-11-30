@@ -3,28 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.IO;
-using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
-using Moq;
-using Moq.Protected;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
+namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
 {
     /// <summary>
     /// Tests for the ServiceHost Language Service tests
@@ -145,14 +130,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
         #region "General Language Service tests"
 
-
 #if LIVE_CONNECTION_TESTS
+
+        private static void GetLiveAutoCompleteTestObjects(
+            out TextDocumentPosition textDocument,
+            out ScriptFile scriptFile,
+            out ConnectionInfo connInfo)
+        {
+            textDocument = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier {Uri = TestObjects.ScriptUri},
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = 0
+                }
+            };
+
+            connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+        }
+
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         // Test is causing failures in build lab..investigating to reenable
         [Fact]
-        public void ServiceInitiailzation()
+        public void ServiceInitialization()
         {
             try
             {
@@ -178,8 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ScriptFile scriptFile;
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
 
-            ScriptParseInfo scriptInfo = new ScriptParseInfo();
-            scriptInfo.IsConnected = true;
+            ScriptParseInfo scriptInfo = new ScriptParseInfo {IsConnected = true};
 
             AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
         }
@@ -193,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             TextDocumentPosition textDocument;
             ConnectionInfo connInfo;
             ScriptFile scriptFile;
-            Common.GetAutoCompleteTestObjects(out textDocument, out scriptFile, out connInfo);
+            GetLiveAutoCompleteTestObjects(out textDocument, out scriptFile, out connInfo);
 
             textDocument.Position.Character = 7;
             scriptFile.Contents = "select ";
@@ -208,52 +210,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
 #endif
-
-        private Hosting.ServiceHost GetTestServiceHost()
-        {
-            // set up the host details and profile paths 
-            var hostDetails = new HostDetails("Test Service Host", "SQLToolsService", new Version(1,0)); 
-            SqlToolsContext context = new SqlToolsContext(hostDetails);
-
-            // Grab the instance of the service host
-            Hosting.ServiceHost host = Hosting.ServiceHost.Instance;
-
-            // Start the service
-            host.Start().Wait();
-
-            return host;
-        }
-
-        #endregion
-
-        #region "Autocomplete Tests"
-
-        /// <summary>
-        /// Creates a mock db command that returns a predefined result set
-        /// </summary>
-        public static DbCommand CreateTestCommand(Dictionary<string, string>[][] data)
-        {
-            var commandMock = new Mock<DbCommand> { CallBase = true };
-            var commandMockSetup = commandMock.Protected()
-                .Setup<DbDataReader>("ExecuteDbDataReader", It.IsAny<CommandBehavior>());
-
-            commandMockSetup.Returns(new TestDbDataReader(data));
-
-            return commandMock.Object;
-        }
-
-        /// <summary>
-        /// Creates a mock db connection that returns predefined data when queried for a result set
-        /// </summary>
-        public DbConnection CreateMockDbConnection(Dictionary<string, string>[][] data)
-        {
-            var connectionMock = new Mock<DbConnection> { CallBase = true };
-            connectionMock.Protected()
-                .Setup<DbCommand>("CreateDbCommand")
-                .Returns(CreateTestCommand(data));
-
-            return connectionMock.Object;
-        }
 
         #endregion
     }

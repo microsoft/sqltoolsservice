@@ -17,7 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
     {
         private static string resultFolder = InitResultFolder();
 
-
         private static string InitResultFolder()
         {
             string resultFodler = Environment.GetEnvironmentVariable("ResultFolder");
@@ -34,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             Start();
         }
 
+        public bool PrintResult { get; set; }
+
         public void Start()
         {
             StartDateTime = DateTime.UtcNow;
@@ -47,15 +48,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         public void EndAndPrint([CallerMemberName] string testName = "")
         {
             End();
-            var currentColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test Name: {0} Run time in milliSeconds: {1}", testName, TotalMilliSeconds));
-            Console.ForegroundColor = currentColor;
-            string resultContent = Newtonsoft.Json.JsonConvert.SerializeObject(new TestResult { ElapsedTime = TotalMilliSeconds });
-            string fileName = testName + ".json";
-            string resultFilePath = string.IsNullOrEmpty(resultFolder) ? fileName : Path.Combine(resultFolder, fileName);
-            File.WriteAllText(resultFilePath, resultContent);
-            Console.WriteLine("Result file: " + resultFilePath);
+            if (PrintResult)
+            {
+                var currentColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test Name: {0} Run time in milliSeconds: {1}", testName, TotalMilliSeconds));
+                Console.ForegroundColor = currentColor;
+                string resultContent = Newtonsoft.Json.JsonConvert.SerializeObject(new TestResult { ElapsedTime = TotalMilliSeconds });
+                string fileName = testName + ".json";
+                string resultFilePath = string.IsNullOrEmpty(resultFolder) ? fileName : Path.Combine(resultFolder, fileName);
+                File.WriteAllText(resultFilePath, resultContent);
+                Console.WriteLine("Result file: " + resultFilePath);
+            }
         }
 
         public double TotalMilliSeconds

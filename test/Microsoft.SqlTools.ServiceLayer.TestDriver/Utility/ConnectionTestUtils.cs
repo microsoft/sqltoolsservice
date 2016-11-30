@@ -41,6 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Failed to load the database connection server name settings. error: " + ex.Message);
                 return null;
             }
         }
@@ -56,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Failed to load the connection settings. error: " + ex.Message);
                 return null;
             }
         }
