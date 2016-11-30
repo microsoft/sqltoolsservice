@@ -732,17 +732,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns> schema nama</returns>
         private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
         {
-            // Get schema name 
-            string sql = scriptFile.GetLine(position.Line + 1);
-            int startColumn = TextUtilities.PositionOfPrevDelimeter(sql, 0, position.Character);
-            // if no schema name, returns null
-            if( sql[startColumn - 1] != '.')
-            {
-                return null;
-            }
-            return TextUtilities.RemoveSquareBracketSyntax(GetToken(scriptParseInfo, position.Line + 1, startColumn - 1).Text);
-        }
+            // Offset index by 1 for sql parser
+            int startLine = position.Line + 1;
+            int startColumn = position.Character + 1;
 
+            // Get schema name
+            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
+            {
+                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
+                var prevTokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
+                var prevTokenText = scriptParseInfo.ParseResult.Script.TokenManager.GetText(prevTokenIndex);
+                if (prevTokenText != null && prevTokenText.Equals("."))
+                {
+                    var schemaTokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.GetPreviousSignificantTokenIndex(prevTokenIndex);
+                    Token schemaToken = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(schemaTokenIndex);
+                    return TextUtilities.RemoveSquareBracketSyntax(schemaToken.Text);
+                }
+            }           
+            // if no schema name, returns null
+            return null;
+        }
 
         /// <summary>
         /// Get quick info hover tooltips for the current position

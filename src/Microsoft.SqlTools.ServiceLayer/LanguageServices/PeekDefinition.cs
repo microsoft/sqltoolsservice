@@ -21,10 +21,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         private ConnectionInfo connectionInfo;
         private string tempPath;
+
+        internal delegate StringCollection ScriptGetter(string objectName, string schemaName);
         
         // Dictionary that holds the script getter for each type
-        private Dictionary<DeclarationType, Func<string, string, StringCollection>> sqlScriptGetters =
-            new Dictionary<DeclarationType, Func<string, string, StringCollection>>();
+        private Dictionary<DeclarationType, ScriptGetter> sqlScriptGetters =
+            new Dictionary<DeclarationType, ScriptGetter>();
 
         //Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
@@ -54,16 +56,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             //Add script getters for each sql object
 
             //Add tables to supported types
-            sqlScriptGetters.Add(DeclarationType.Table, GetTableScripts);
-            sqlObjectTypes.Add(DeclarationType.Table, "Table");
+            AddSupportedType(DeclarationType.Table, GetTableScripts, "Table");
 
             //Add views to supported types
-            sqlScriptGetters.Add(DeclarationType.View, GetViewScripts);
-            sqlObjectTypes.Add(DeclarationType.View, "View");
+            AddSupportedType(DeclarationType.View, GetViewScripts, "view");
 
             //Add stored procedures to supported types
-            sqlScriptGetters.Add(DeclarationType.StoredProcedure, GetStoredProcedureScripts);
-            sqlObjectTypes.Add(DeclarationType.StoredProcedure, "Procedure");
+            AddSupportedType(DeclarationType.StoredProcedure, GetStoredProcedureScripts, "Procedure");
+        }
+
+        /// <summary>
+        /// Add the given type, scriptgetter and the typeName string to the respective dictionaries
+        /// </summary>
+        private void AddSupportedType(DeclarationType type, ScriptGetter scriptGetter, string typeName)
+        {
+            sqlScriptGetters.Add(type, scriptGetter);
+            sqlObjectTypes.Add(type, typeName);
 
         }
 
@@ -115,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     // Script object using SMO based on type
                     DeclarationType type  = declarationItem.Type;
-                    if (sqlScriptGetters.ContainsKey(type))
+                    if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
                     {
                         return GetSqlObjectDefinition( 
                                     sqlScriptGetters[type], 
@@ -136,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="tableName">Table name</param>
         /// <param name="schemaName">Schema name</param>
         /// <returns>String collection of scripts</returns>
-        internal  StringCollection GetTableScripts(string tableName, string schemaName)
+        internal StringCollection GetTableScripts(string tableName, string schemaName)
         {
             return (schemaName != null) ? database.Tables[tableName, schemaName]?.Script()
                     : database.Tables[tableName].Script();
@@ -175,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="objectType">Type of SQL object</param>
         /// <returns>Location object representing URI and range of the script file</returns>
         internal Location[] GetSqlObjectDefinition(
-                Func<string, string, StringCollection> sqlScriptGetter, 
+                ScriptGetter sqlScriptGetter, 
                 string objectName, 
                 string schemaName, 
                 string objectType) 
@@ -183,8 +191,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (this.connectionInfo.SqlConnection != null)
             {
                 StringCollection scripts = sqlScriptGetter(objectName, schemaName);
-                string tempFileName = (schemaName != null) ?  Path.Combine( tempPath, String.Format("{0}.{1}.sql", schemaName, objectName)) 
-                                                    : Path.Combine( tempPath, String.Format("{0}.sql", objectName));
+                string tempFileName = (schemaName != null) ?  Path.Combine(tempPath, string.Format("{0}.{1}.sql", schemaName, objectName)) 
+                                                    : Path.Combine( tempPath, string.Format("{0}.sql", objectName));
 
                 if (scripts != null)
                 {
@@ -194,10 +202,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         
                         foreach (string script in scripts)
                         {
-                            if (script.IndexOf(String.Format("CREATE {0}", objectType), StringComparison.OrdinalIgnoreCase) >= 0)
+                            if (script.IndexOf(string.Format("CREATE {0}", objectType), StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 scriptFile.WriteLine(script);
-                                lineNumber = GetStartOfCreate(script, String.Format("CREATE {0}", objectType));
+                                lineNumber = GetStartOfCreate(script, string.Format("CREATE {0}", objectType));
                             }                       
                         }         
                     }
