@@ -15,6 +15,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -678,6 +679,78 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Converts a SQL Parser List of MethodHelpText objects into a VS Code SignatureHelp object
+        /// </summary>
+        internal static SignatureHelp ConvertMethodHelpTextListToSignatureHelp(List<Babel.MethodHelpText> methods, Babel.MethodNameAndParamLocations locations, int line, int column)
+        {
+            Validate.IsNotNull(nameof(methods), methods);
+            Validate.IsNotNull(nameof(locations), locations);
+            Validate.IsGreaterThan(nameof(line), line, 0);
+            Validate.IsGreaterThan(nameof(column), column, 0);
+
+            SignatureHelp help = new SignatureHelp();
+
+            help.Signatures = methods.Select(method =>
+            {
+                return new SignatureInformation()
+                {
+                    // Signature label format: <name> param1, param2, ..., paramn RETURNS <type>
+                    Label = method.Name + " " + method.Parameters.Select(parameter => parameter.Display).Aggregate((l, r) => l + "," + r) + " " + method.Type,
+                    Documentation = method.Description,
+                    Parameters = method.Parameters.Select(parameter => 
+                    {
+                        return new ParameterInformation()
+                        {
+                            Label = parameter.Display,
+                            Documentation = parameter.Description
+                        };
+                    }).ToArray()
+                };
+            }).Where(method => method.Label.Contains(locations.Name)).ToArray();
+
+            if (help.Signatures.Length == 0)
+            {
+                return null;
+            }
+
+            // Find the matching method signature at the cursor's location
+            // For now, take the first match (since we've already filtered by name above)
+            help.ActiveSignature = 0;
+
+            // Determine the current parameter at the cursor
+            int currentParameter = -1; // Default case: not on any particular parameter
+            if (locations.ParamStartLocation != null)
+            {
+                // Is the cursor past the function name?
+                var location = locations.ParamStartLocation.Value; 
+                if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column >= location.ColumnNumber))
+                {
+                    currentParameter = 0;
+                }
+            }
+            foreach (var location in locations.ParamSeperatorLocations)
+            {
+                // Is the cursor past a comma ',' and at least on the next parameter?
+                if (line > location.LineNumber || (line == location.LineNumber && column > location.ColumnNumber))
+                {
+                    currentParameter++;
+                }
+            }
+            if (locations.ParamEndLocation != null)
+            {
+                // Is the cursor past the end of the parameter list on a different token?
+                var location = locations.ParamEndLocation.Value; 
+                if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column > location.ColumnNumber))
+                {
+                    currentParameter = -1;
+                }
+            }
+            help.ActiveParameter = currentParameter;
+
+            return help;
         }
     }
 }

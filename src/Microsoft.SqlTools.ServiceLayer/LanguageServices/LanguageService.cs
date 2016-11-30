@@ -200,9 +200,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // turn off until needed (10/28/2016)
             // serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
             // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
-            // serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
+            serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
@@ -309,13 +309,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             await Task.FromResult(true);
         }
 
-        private static async Task HandleSignatureHelpRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<SignatureHelp> requestContext)
-        {
-            await Task.FromResult(true);
-        }
-
         private static async Task HandleDocumentHighlightRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<DocumentHighlight[]> requestContext)
@@ -323,6 +316,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             await Task.FromResult(true);
         }
 #endif
+
+        private static async Task HandleSignatureHelpRequest(
+            TextDocumentPosition textDocumentPosition,
+            RequestContext<SignatureHelp> requestContext)
+        {
+            // check if Intellisense suggestions are enabled
+            if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsSuggestionsEnabled)
+            {
+                await Task.FromResult(true);
+            }
+            else
+            {
+                ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
+
+                SignatureHelp help = LanguageService.Instance.GetSignatureHelp(textDocumentPosition, scriptFile);
+                if (help != null)
+                {
+                    await requestContext.SendResult(help);
+                }
+                else
+                {
+                    await requestContext.SendResult(new SignatureHelp());
+                }
+            }
+        }
 
         private static async Task HandleHoverRequest(
             TextDocumentPosition textDocumentPosition,
@@ -678,6 +697,76 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                         
                         queueItem.ItemProcessed.WaitOne();  
                         return queueItem.GetResultAsT<Hover>();     
+                    }
+                    finally
+                    {
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                    }               
+                }
+            }
+
+            // return null if there isn't a tooltip for the current location
+            return null;
+        }
+
+        /// <summary>
+        /// Get function signature help for the current position
+        /// </summary>
+        internal SignatureHelp GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        {
+            int startLine = textDocumentPosition.Position.Line;
+            int startColumn = TextUtilities.PositionOfPrevDelimeter(
+                                scriptFile.Contents,    
+                                textDocumentPosition.Position.Line,
+                                textDocumentPosition.Position.Character);
+            int endColumn = textDocumentPosition.Position.Character;
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+
+            ConnectionInfo connInfo;
+            LanguageService.ConnectionServiceInstance.TryFindConnection(
+                scriptFile.ClientFilePath, 
+                out connInfo);
+
+            // reparse and bind the SQL statement if needed
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {       
+                ParseAndBind(scriptFile, connInfo);
+            }
+
+            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
+            {
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+                {
+                    try
+                    {
+                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                            key: scriptParseInfo.ConnectionKey,
+                            bindingTimeout: LanguageService.BindingTimeout,
+                            bindOperation: (bindingContext, cancelToken) =>
+                            {                          
+                                // get the list of possible current methods for signature help
+                                var methods = Resolver.FindMethods(
+                                    scriptParseInfo.ParseResult, 
+                                    startLine + 1, 
+                                    endColumn + 1, 
+                                    bindingContext.MetadataDisplayInfoProvider);
+                                
+                                // get positional information on the current method
+                                var methodLocations = Resolver.GetMethodNameAndParams(scriptParseInfo.ParseResult,
+                                   startLine + 1,
+                                   endColumn + 1,
+                                   bindingContext.MetadataDisplayInfoProvider);
+                                
+                                // convert from the parser format to the VS Code wire format
+                                return AutoCompleteHelper.ConvertMethodHelpTextListToSignatureHelp(methods, 
+                                    methodLocations,
+                                    startLine + 1,
+                                    endColumn + 1);
+                            });
+                                        
+                        queueItem.ItemProcessed.WaitOne();  
+                        return queueItem.GetResultAsT<SignatureHelp>();     
                     }
                     finally
                     {
