@@ -15,13 +15,13 @@ $srv.ConnectionContext.ServerInstance = "instance_name"
 $srv.ConnectionContext.Login = "user_id"
 $srv.ConnectionContext.Password = "pwd"
 
-$d = $srv.EnumCollations()
+$datatable = $srv.EnumCollations()
 
-Foreach ($r in $d.Rows)
+Foreach ($row in $datatable.Rows)
 {
    Write-Host "============================================"
-   Foreach ($c in $r.Table.Columns)
+   Foreach ($column in $row.Table.Columns)
    {
-      Write-Host $c.ColumnName "=" $r[$c].ToString()
+      Write-Host $column.ColumnName "=" $row[$column].ToString()
    }
 }

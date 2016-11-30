@@ -5,7 +5,7 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "sharedmanagementobjects": "(140.0.0,150.0.0)"
+    "sharedmanagementobjects": "[140.0.0,150.0.0)"
   },
   "frameworks": {
     "netcoreapp1.0": {

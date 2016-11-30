@@ -9,11 +9,10 @@ namespace Microsoft.SqlServer.Management.SmoSdkSamples
     {
         public static void Main(string[] args)
         {
-            //Microsoft.SqlServer.Management.Smo.Server
             // Connect to the local, default instance of SQL Server.
             Smo.Server srv = new Smo.Server();
 	        // database name
-	        Console.WriteLine("Enter database name for scripting:"); 
+	    	Console.WriteLine("Enter database name for scripting:"); 
             string dbName = Console.ReadLine(); 
             // Reference the database.    
             Database db = srv.Databases[dbName];
