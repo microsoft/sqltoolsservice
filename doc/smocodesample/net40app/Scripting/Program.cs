@@ -17,12 +17,12 @@ namespace Microsoft.SqlServer.Management.SmoSdkSamples
             // Reference the database.    
             Database db = srv.Databases[dbName];
             // Define a Scripter object and set the required scripting options.   
-            Scripter scrp = new Scripter(srv);
-            scrp.Options.ScriptDrops = false;
+            Scripter scripter = new Scripter(srv);
+            scripter.Options.ScriptDrops = false;
             // To include indexes  
-            scrp.Options.Indexes = true;
+            scripter.Options.Indexes = true;
             // to include referential constraints in the script 
-            scrp.Options.DriAllConstraints = true;    
+            scripter.Options.DriAllConstraints = true;    
             // Iterate through the tables in database and script each one. Display the script.     
             foreach (Table tb in db.Tables)
             {
@@ -31,7 +31,7 @@ namespace Microsoft.SqlServer.Management.SmoSdkSamples
                 {
                     Console.WriteLine("-- Scripting for table " + tb.Name);
                     // Generating script for table tb  
-                    System.Collections.Specialized.StringCollection sc = scrp.Script(new Urn[] { tb.Urn });
+                    System.Collections.Specialized.StringCollection sc = scripter.Script(new Urn[] { tb.Urn });
                     foreach (string st in sc)
                     {
                         Console.WriteLine(st);
