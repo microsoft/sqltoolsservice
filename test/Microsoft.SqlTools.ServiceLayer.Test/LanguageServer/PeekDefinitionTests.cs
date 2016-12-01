@@ -2,8 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#define LIVE_CONNECTION_TESTS
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using System;
@@ -13,7 +13,6 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -46,7 +45,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
         private TextDocumentPosition textDocument;
 
-        private const string OwnerUri = "testFile";
+        private const string OwnerUri = "testFile1";
+
+        private const string ViewOwnerUri = "testFile2";
+
+        private const string TriggerOwnerUri = "testFile3";
 
         private void InitializeTestObjects()
         {
@@ -146,6 +149,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Cleanup(locations);
         }
 
+        [Fact]
+        public void GetUnsupportedDefinitionForFullScript()
+        {
+
+            ScriptFile scriptFile;
+            TextDocumentPosition textDocument = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = 20
+                }
+            };
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            scriptFile.Contents = "select * from dbo.func ()";
+
+            var languageService = LanguageService.Instance;
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+
+            var locations = languageService.GetDefinition(textDocument, scriptFile, connInfo);
+            Assert.Null(locations);
+        }
+
         /// <summary>
         /// Test get definition for a view object with active connection
         /// </summary>
@@ -153,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void GetViewDefinitionTest()
         {
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);           
+            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
             string objectName = "objects";
             string schemaName = "sys";
             string objectType = "VIEW";
@@ -164,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test get definition for an invalid view object with active connection
+        /// Test get definition for an invalid view object with no schema name and with active connection
         /// </summary>
         [Fact]
         public void GetViewDefinitionInvalidObjectTest()
@@ -194,6 +222,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a stored procedure object that does not exist with active connection
+        /// </summary>
+        [Fact]
+        public void GetStoredProcedureDefinitionFailureTest()
+        {
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            string objectName = "SP2";
+            string schemaName = "dbo";
+            string objectType = "PROCEDURE";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
+            Assert.Null(locations);
         }
 
         /// <summary>

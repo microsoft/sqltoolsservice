@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public sealed class LanguageService
     {
-        private const int ONE_SECOND = 1000;
+        private const int OneSecond = 1000;
 
         internal const string DefaultBatchSeperator = "GO";
 
@@ -43,9 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int BindingTimeout = 500;
 
-        internal const int OnConnectionWaitTimeout = 300 * ONE_SECOND;
+        internal const int OnConnectionWaitTimeout = 300 * OneSecond;
 
-        internal const int PeekDefinitionTimeout = 10 * ONE_SECOND;
+        internal const int PeekDefinitionTimeout = 10 * OneSecond;
 
         private static ConnectionService connectionService = null;
 
@@ -299,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntellisenseEnabled)
+            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
             {
                 // Retrieve document and connection
                 ConnectionInfo connInfo;
@@ -667,7 +667,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
-                ParseAndBind(scriptFile, connInfo);
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo);
             }
 
             // Get token from selected text

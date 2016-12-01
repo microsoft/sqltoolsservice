@@ -28,23 +28,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private Dictionary<DeclarationType, ScriptGetter> sqlScriptGetters =
             new Dictionary<DeclarationType, ScriptGetter>();
 
-        //Dictionary that holds the object name (as appears on the TSQL create statement)
+        // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
 
-        private Database database 
+        private Database Database 
         {
             get
             {
-                Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
-                return server.Databases[this.connectionInfo.SqlConnection.Database];
+                if (this.connectionInfo.SqlConnection != null)
+                {
+                    Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
+                    return server.Databases[this.connectionInfo.SqlConnection.Database];
+
+                }
+                return null;
             }
         }
         
         internal PeekDefinition(ConnectionInfo connInfo)
         {
-            connectionInfo = connInfo;
-            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory( Path.GetTempPath()+ "mssql_definition");
-            tempPath = tempScriptDirectory.FullName;
+            this.connectionInfo = connInfo;
+            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(Path.GetTempPath() + "mssql_definition");
+            this.tempPath = tempScriptDirectory.FullName;
             Initialize();
         }
 
@@ -146,8 +151,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>String collection of scripts</returns>
         internal StringCollection GetTableScripts(string tableName, string schemaName)
         {
-            return (schemaName != null) ? database.Tables[tableName, schemaName]?.Script()
-                    : database.Tables[tableName].Script();
+            return (schemaName != null) ? Database?.Tables[tableName, schemaName]?.Script()
+                    : Database?.Tables[tableName]?.Script();
         }
 
         /// <summary>
@@ -158,8 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>String collection of scripts</returns>
         internal StringCollection GetViewScripts(string viewName, string schemaName)
         {
-            return (schemaName != null) ? database.Views[viewName, schemaName]?.Script()
-                    : database.Views[viewName]?.Script();
+            return (schemaName != null) ? Database?.Views[viewName, schemaName]?.Script()
+                    : Database?.Views[viewName]?.Script();
         }
 
         /// <summary>
@@ -170,8 +175,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>String collection of scripts</returns>
         internal StringCollection GetStoredProcedureScripts(string viewName, string schemaName)
         {
-            return (schemaName != null) ? database.StoredProcedures[viewName, schemaName]?.Script()
-                    : database.StoredProcedures[viewName]?.Script();
+            return (schemaName != null) ? Database?.StoredProcedures[viewName, schemaName]?.Script()
+                    : Database?.StoredProcedures[viewName]?.Script();
         }
 
         /// <summary>
@@ -191,8 +196,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (this.connectionInfo.SqlConnection != null)
             {
                 StringCollection scripts = sqlScriptGetter(objectName, schemaName);
-                string tempFileName = (schemaName != null) ?  Path.Combine(tempPath, string.Format("{0}.{1}.sql", schemaName, objectName)) 
-                                                    : Path.Combine( tempPath, string.Format("{0}.sql", objectName));
+                string tempFileName = (schemaName != null) ?  Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName)) 
+                                                    : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
                 if (scripts != null)
                 {
@@ -202,10 +207,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         
                         foreach (string script in scripts)
                         {
-                            if (script.IndexOf(string.Format("CREATE {0}", objectType), StringComparison.OrdinalIgnoreCase) >= 0)
+                            string createSyntax = string.Format("CREATE {0}", objectType);
+                            if (script.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 scriptFile.WriteLine(script);
-                                lineNumber = GetStartOfCreate(script, string.Format("CREATE {0}", objectType));
+                                lineNumber = GetStartOfCreate(script, createSyntax);
                             }                       
                         }         
                     }

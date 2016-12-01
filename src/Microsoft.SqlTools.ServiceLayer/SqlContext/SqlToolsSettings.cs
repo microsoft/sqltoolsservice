@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Gets a flag determining if IntelliSense is enabled
         /// </summary>
-        public bool IsIntellisenseEnabled
+        public bool IsIntelliSenseEnabled
         {
             get
             {
