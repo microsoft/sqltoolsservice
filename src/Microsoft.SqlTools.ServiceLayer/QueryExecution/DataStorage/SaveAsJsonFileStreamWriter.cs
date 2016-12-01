@@ -8,16 +8,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     public class SaveAsJsonFileStreamWriter : SaveAsStreamWriter, IDisposable
     {
-
-        private SaveResultsAsJsonRequestParams saveParams;
         private readonly StreamWriter streamWriter;
         private readonly JsonWriter jsonWriter;
 
-        public SaveAsJsonFileStreamWriter(Stream stream, SaveResultsAsJsonRequestParams requestParams)
+        public SaveAsJsonFileStreamWriter(Stream stream, SaveResultsRequestParams requestParams)
             : base(stream, requestParams)
         {
             // Setup the internal state
-            saveParams = requestParams;
             streamWriter = new StreamWriter(stream);
             jsonWriter = new JsonTextWriter(streamWriter);
 
@@ -32,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             
             // Write the items out as properties
             int columnStart = ColumnStartIndex ?? 0;
-            int columnEnd = ColumnCount ?? columns.Count;
+            int columnEnd = ColumnEndIndex ?? columns.Count;
             for (int i = columnStart; i < columnEnd; i++)
             {
                 jsonWriter.WritePropertyName(columns[i].ColumnName);

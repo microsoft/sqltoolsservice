@@ -17,7 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 // ReSharper disable PossibleInvalidOperationException  IsSaveSelection verifies these values exist
                 ColumnStartIndex = saveParams.ColumnStartIndex.Value;
-                ColumnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value;
+                ColumnEndIndex = saveParams.ColumnEndIndex.Value;
+                ColumnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
                 // ReSharper restore PossibleInvalidOperationException
             }
         }
@@ -27,6 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         protected int? ColumnStartIndex { get; private set; }
 
         protected int? ColumnCount { get; private set; }
+
+        protected int? ColumnEndIndex { get; private set; }
 
         protected Stream FileStream { get; private set; }
 

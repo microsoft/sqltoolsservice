@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 string headerLine = string.Join(",", selectedColumns);
 
                 // Encode it and write it out
-                byte[] headerBytes = Encoding.Unicode.GetBytes(headerLine);
+                byte[] headerBytes = Encoding.Unicode.GetBytes(headerLine + Environment.NewLine);
                 FileStream.Write(headerBytes, 0, headerBytes.Length);
 
                 headerWritten = true;
@@ -47,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             string rowLine = string.Join(",", selectedCells);
 
             // Encode it and write it out
-            byte[] rowBytes = Encoding.Unicode.GetBytes(rowLine);
+            byte[] rowBytes = Encoding.Unicode.GetBytes(rowLine + Environment.NewLine);
             FileStream.Write(rowBytes, 0, rowBytes.Length);
         }
 
@@ -71,9 +72,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         internal static string EncodeCsvField(string field)
         {
             // Whether this field has special characters which require it to be embedded in quotes
-            bool embedInQuotes = field.Contains(",\r\n\"")                          // Contains special characters
-                                 || field.StartsWith(" ") || field.EndsWith(" ")    // Start/Ends with space
-                                 || field.StartsWith("\t") || field.EndsWith("\t"); // Starts/Ends with tab
+            bool embedInQuotes = field.IndexOfAny(new[] {',', '\r', '\n', '"'}) >= 0 // Contains special characters
+                                 || field.StartsWith(" ") || field.EndsWith(" ")          // Start/Ends with space
+                                 || field.StartsWith("\t") || field.EndsWith("\t");       // Starts/Ends with tab
 
             //Replace all quotes in the original field with double quotes
             string ret = field.Replace("\"", "\"\"");
