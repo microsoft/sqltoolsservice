@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Peek Definition/ Go to definition implementation
     /// Script sql objects and write create scripts to file
     /// </summary>
-    internal class PeekDefinition
+    internal partial class PeekDefinition
     {
         private ConnectionInfo connectionInfo;
         private string tempPath;
@@ -53,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Initialize();
         }
 
+        /*
         /// <summary>
         /// Add getters for each sql object supported by peek definition
         /// </summary>
@@ -69,6 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             //Add stored procedures to supported types
             AddSupportedType(DeclarationType.StoredProcedure, GetStoredProcedureScripts, "Procedure");
         }
+        */
 
         /// <summary>
         /// Add the given type, scriptgetter and the typeName string to the respective dictionaries
@@ -148,6 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return null;
         }
 
+        /*
         /// <summary>
         /// Script a table using SMO
         /// </summary>
@@ -183,7 +186,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return (schemaName != null) ? Database?.StoredProcedures[viewName, schemaName]?.Script()
                     : Database?.StoredProcedures[viewName]?.Script();
         }
-
+        */
+        
         /// <summary>
         /// Script a object using SMO and write to a file.
         /// </summary>

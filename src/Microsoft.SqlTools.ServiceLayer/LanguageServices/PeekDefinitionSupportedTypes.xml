@@ -1,0 +1,20 @@
+﻿<SupportedTypes>
+  <Type>
+    <Name>Table</Name>
+    <CreateSyntax>Table</CreateSyntax>
+    <AccessMethod>Tables</AccessMethod>
+    <SupportsSchemaQuery>true</SupportsSchemaQuery>
+  </Type>
+  <Type>
+    <Name>View</Name>
+    <CreateSyntax>View</CreateSyntax>
+    <AccessMethod>Views</AccessMethod>
+    <SupportsSchemaQuery>true</SupportsSchemaQuery>
+  </Type>
+  <Type>
+    <Name>StoredProcedure</Name>
+    <CreateSyntax>Procedure</CreateSyntax>
+    <AccessMethod>StoredProcedures</AccessMethod>
+    <SupportsSchemaQuery>true</SupportsSchemaQuery>
+  </Type>
+</SupportedTypes>

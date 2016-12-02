@@ -1,0 +1,109 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Xml.dll" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+{
+	internal partial class PeekDefinition
+    {
+
+		<#
+			///
+			/// Generate Initialize method
+			///
+			var directory = Path.GetDirectoryName("src\\Microsoft.SqlTools.ServiceLayer\\LanguageServices\\");
+			string xmlFile = Path.Combine(directory, "PeekDefinitionSupportedTypes.xml");
+			var supportedTypes = GetSupportedTypes(xmlFile);
+			if (supportedTypes != null && supportedTypes.Count > 0)
+			{
+				WriteLine("private void Initialize()");
+				WriteLine("\t\t{");
+				foreach(var typeProperty in supportedTypes)
+				{
+						string functionCall = string.Format("\t\t\tAddSupportedType(DeclarationType.{0}, Get{0}Scripts, \"{1}\");", typeProperty["Name"], typeProperty["CreateSyntax"]);
+						WriteLine(functionCall);
+				}
+				WriteLine("\t\t}");
+
+				///
+				/// Generate scriptGetters
+				///
+
+				foreach(var typeProperty in supportedTypes)
+				{
+					// Write comments
+					WriteLine("\t\t/// <summary>");
+					WriteLine(string.Format("\t\t/// Script a {0} using SMO", typeProperty["Name"]));
+					WriteLine("\t\t/// </summary>");
+					WriteLine(string.Format("\t\t/// <param name=\"objectName\">{0} name</param>", typeProperty["Name"]));
+					WriteLine(string.Format("\t\t/// <param name=\"schemaName\">Schema name</param>"));
+					WriteLine("\t\t/// <returns>String collection of scripts</returns>");
+
+					WriteLine(string.Format("\t\tinternal StringCollection Get{0}Scripts(string objectName, string schemaName)", typeProperty["Name"]));
+					WriteLine("\t\t{");
+					string statement;
+					if(typeProperty["SupportsSchemaQuery"].IndexOf("true", StringComparison.OrdinalIgnoreCase) >= 0)
+					{
+						statement = string.Format("\t\t\treturn (schemaName != null) ? Database?.{0}[objectName, schemaName]?.Script(): Database?.{0}[objectName]?.Script();", typeProperty["AccessMethod"]);
+					}
+					else
+					{
+						statement = string.Format("\t\t\treturn Database?.{0}[objectName]?.Script();", typeProperty["AccessMethod"]);
+					}
+					WriteLine(statement);
+					WriteLine("\t\t}");
+				}
+			}
+		#>
+	}
+}
+	<#+
+	public static List<Dictionary<string, string>> GetSupportedTypes(string xmlFile)
+	{
+		List<Dictionary<string, string>> typeList = null;
+		XmlDocument doc = new XmlDocument();
+		doc.Load(xmlFile);
+		XmlNodeList supportedTypes = doc.SelectNodes("/SupportedTypes/Type");
+		if (supportedTypes != null)
+		{
+			typeList = new List<Dictionary<string, string>>();
+			foreach (var type in supportedTypes)
+			{
+				XmlElement node = type as XmlElement;
+				if (node != null)
+				{
+					string typeName = node["Name"]?.InnerText;
+					string createSyntax = node["CreateSyntax"]?.InnerText;
+					string accessMethod = node["AccessMethod"]?.InnerText;
+					string supportsSchemaQuery = node["SupportsSchemaQuery"]?.InnerText;
+					if (typeName != null && createSyntax != null && accessMethod != null && supportsSchemaQuery!= null)
+					{
+						Dictionary<string, string> typeProperties = new Dictionary<string, string>();
+						typeProperties.Add("Name", typeName);
+						typeProperties.Add("CreateSyntax", createSyntax);
+						typeProperties.Add("AccessMethod", accessMethod);
+						typeProperties.Add("SupportsSchemaQuery", supportsSchemaQuery);
+						typeList.Add(typeProperties);
+					}
+
+				}
+			}
+		}
+		return typeList;
+	}
+
+	#>

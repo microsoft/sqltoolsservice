@@ -3,11 +3,13 @@
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
 #load "scripts/artifacts.cake"
+#tool "nuget:?package=Mono.TextTransform"
 
 using System.ComponentModel;
 using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Cake.Common.IO
 
 // Basic arguments
 var target = Argument("target", "Default");
