@@ -109,5 +109,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 || ch == '('
                 || ch == ')';
         }
+
+        /// <summary>
+        /// Remove square bracket syntax from a token string
+        /// </summary>
+        /// <param name="tokenText"></param>
+        /// <returns> string with outer brackets removed</returns>
+        public static string RemoveSquareBracketSyntax(string tokenText)
+        {
+            if(tokenText.StartsWith("[") && tokenText.EndsWith("]"))
+            {
+                return tokenText.Substring(1, tokenText.Length - 2);
+            }
+            return tokenText;
+        }
     }
 }
