@@ -68,11 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly string outputFileName;
 
-        /// <summary>
-        /// All save tasks currently saving this ResultSet
-        /// </summary>
-        private readonly ConcurrentDictionary<string, Task> saveTasks;
-
         #endregion
 
         /// <summary>
@@ -98,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Store the factory
             fileStreamFactory = factory;
             hasBeenRead = false;
-            saveTasks = new ConcurrentDictionary<string, Task>();
+            SaveTasks = new ConcurrentDictionary<string, Task>();
         }
 
         #region Properties
@@ -144,6 +139,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The number of rows for this result set
         /// </summary>
         public long RowCount { get; private set; }
+
+        /// <summary>
+        /// All save tasks currently saving this ResultSet
+        /// </summary>
+        internal ConcurrentDictionary<string, Task> SaveTasks { get; set; }
 
         /// <summary>
         /// Generates a summary of this result set
@@ -271,38 +271,40 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        public async Task SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
+        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
             SaveAsAsyncEventHandler successHandler, SaveAsFailureAsyncEventHandler failureHandler)
         {
+            // Sanity check the save params and file factory
+            Validate.IsNotNull(nameof(saveParams), saveParams);
+            Validate.IsNotNull(nameof(fileFactory), fileFactory);
+
+            // Make sure the resultset has finished being read
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException("Result cannot be saved until query execution has completed.");
+            }
+
             // Make sure there isn't a task for this file already
             Task existingTask;
-            if (saveTasks.TryGetValue(saveParams.FilePath, out existingTask))
+            if (SaveTasks.TryGetValue(saveParams.FilePath, out existingTask))
             {
                 if (existingTask.IsCompleted)
                 {
                     // The task has completed, so let's attempt to remove it
-                    if (!saveTasks.TryRemove(saveParams.FilePath, out existingTask))
+                    if (!SaveTasks.TryRemove(saveParams.FilePath, out existingTask))
                     {
-                        if (failureHandler != null)
-                        {
-                            await failureHandler(saveParams, null);
-                        }
-                        return;
+                        throw new InvalidOperationException("Internal error while starting save as task.");
                     }
                 }
                 else
                 {
                     // The task hasn't completed, so we shouldn't continue
-                    if (failureHandler != null)
-                    {
-                        await failureHandler(saveParams, null);
-                    }
-                    return;
+                    throw new InvalidOperationException("A save request to the same path is in progress.");
                 }
             }
 
             // Create the new task
-            Task saveAsTask = new Task(() =>
+            Task saveAsTask = new Task(async () =>
             {
                 try
                 {
@@ -312,7 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (saveParams.IsSaveSelection)
                     {
                         // ReSharper disable PossibleInvalidOperationException  IsSaveSelection verifies these values exist
-                        rowEndIndex = saveParams.RowEndIndex.Value;
+                        rowEndIndex = saveParams.RowEndIndex.Value + 1;
                         rowStartIndex = saveParams.RowStartIndex.Value;
                         // ReSharper restore PossibleInvalidOperationException
                     }
@@ -325,24 +327,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             fileWriter.WriteRow(fileReader.ReadRow(fileOffsets[i], Columns), Columns);
                         }
-                        successHandler?.Invoke(saveParams).Wait();
+                        if (successHandler != null)
+                        {
+                            await successHandler(saveParams);
+                        }
                     }
                 }
                 catch (Exception e)
                 {
                     fileFactory.DisposeFile(saveParams.FilePath);
-                    failureHandler?.Invoke(saveParams, e).Wait();
+                    if (failureHandler != null)
+                    {
+                        await failureHandler(saveParams, e);
+                    }
                 }
             });
 
             // If saving the task fails, return a failure
-            if (!saveTasks.TryAdd(saveParams.FilePath, saveAsTask))
+            if (!SaveTasks.TryAdd(saveParams.FilePath, saveAsTask))
             {
-                if (failureHandler != null)
-                {
-                    await failureHandler(saveParams, null);
-                }
-                return;
+                throw new InvalidOperationException("Internal error while starting save as task.");
             }
 
             // Task was saved, so start up the task
@@ -368,10 +372,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             IsBeingDisposed = true;
             // Check if saveTasks are running for this ResultSet
-            if (!saveTasks.IsEmpty)
+            if (!SaveTasks.IsEmpty)
             {
                 // Wait for tasks to finish before disposing ResultSet
-                Task.WhenAll(saveTasks.Values.ToArray()).ContinueWith((antecedent) =>
+                Task.WhenAll(SaveTasks.Values.ToArray()).ContinueWith((antecedent) =>
                 {
                     if (disposing)
                     {
@@ -423,26 +427,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        #endregion
-
-        #region Internal Methods to Add and Remove save tasks
-        internal void AddSaveTask(string key, Task saveTask)
-        {
-            saveTasks.TryAdd(key, saveTask);
-        }
-
-        internal void RemoveSaveTask(string key)
-        {
-            Task completedTask;
-            saveTasks.TryRemove(key, out completedTask);
-        }
-
-        internal Task GetSaveTask(string key)
-        {
-            Task completedTask;
-            saveTasks.TryRemove(key, out completedTask);
-            return completedTask;
-        }
         #endregion
     }
 }

@@ -459,8 +459,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(new SaveResultRequestError { message = message });
             };
 
-            // Launch the task
-            await result.SaveAs(saveParams, fileFactory, successHandler, errorHandler);
+            try
+            {
+                // Launch the task
+                result.SaveAs(saveParams, fileFactory, successHandler, errorHandler);
+            }
+            catch (Exception e)
+            {
+                await errorHandler(saveParams, e);
+            }
         }
 
         #endregion

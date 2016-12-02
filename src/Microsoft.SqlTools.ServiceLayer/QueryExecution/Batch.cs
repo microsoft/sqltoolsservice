@@ -345,23 +345,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return targetResultSet.GetSubset(startRow, rowCount);
         }
 
-        public async Task SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory csvFactory,
+        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
             ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
         {
-            // Sanity check to make sure that the batch has finished
-            if (!HasExecuted)
+            // Get the result set to save
+            ResultSet resultSet;
+            lock (resultSets)
             {
-                throw new InvalidOperationException(SR.QueryServiceSubsetBatchNotCompleted);
-            }
+                // Sanity check to make sure we have a valid result set
+                if (saveParams.ResultSetIndex < 0 || saveParams.ResultSetIndex >= resultSets.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(saveParams.BatchIndex), SR.QueryServiceSubsetResultSetOutOfRange);
+                }
 
-            // Sanity check to make sure we have a valid result set
-            if (saveParams.ResultSetIndex < 0 || saveParams.ResultSetIndex >= resultSets.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(saveParams.BatchIndex), SR.QueryServiceSubsetResultSetOutOfRange);
-            }
 
-            // Save the result set to a CSV
-            await resultSets[saveParams.ResultSetIndex].SaveAs(saveParams, csvFactory, successHandler, failureHandler);
+                resultSet = resultSets[saveParams.ResultSetIndex];
+            }
+            resultSet.SaveAs(saveParams, fileFactory, successHandler, failureHandler);
         }
 
         #endregion
