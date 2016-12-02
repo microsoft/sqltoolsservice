@@ -704,10 +704,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
                             
 
-                        },
-                        timeoutOperation: (bindingContext) =>
-                        {
-                            return null;
                         });
 
                     // wait for the queue item

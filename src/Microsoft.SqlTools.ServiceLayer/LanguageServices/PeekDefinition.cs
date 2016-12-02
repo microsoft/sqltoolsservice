@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private string tempPath;
 
         internal delegate StringCollection ScriptGetter(string objectName, string schemaName);
-        
+
         // Dictionary that holds the script getter for each type
         private Dictionary<DeclarationType, ScriptGetter> sqlScriptGetters =
             new Dictionary<DeclarationType, ScriptGetter>();
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
 
-        private Database Database 
+        private Database Database
         {
             get
             {
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
         }
-        
+
         internal PeekDefinition(ConnectionInfo connInfo)
         {
             this.connectionInfo = connInfo;
@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         private Location[] GetLocationFromFile(string tempFileName, int lineNumber)
         {
-            Location[] locations = new[] { 
+            Location[] locations = new[] {
                     new Location {
                         Uri = new Uri(tempFileName).AbsoluteUri,
                         Range = new Range {
@@ -124,18 +124,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             foreach (Declaration declarationItem in declarationItems)
             {
+                if (declarationItem.Title == null)
+                {
+                    continue;
+                }
+
                 if (declarationItem.Title.Equals(tokenText))
                 {
                     // Script object using SMO based on type
                     DeclarationType type  = declarationItem.Type;
                     if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
                     {
-                        return GetSqlObjectDefinition( 
-                                    sqlScriptGetters[type], 
-                                    tokenText, 
-                                    schemaName, 
+                        return GetSqlObjectDefinition(
+                                    sqlScriptGetters[type],
+                                    tokenText,
+                                    schemaName,
                                     sqlObjectTypes[type]
-                                ); 
+                                );
                     }
                     return null;
                 }
@@ -188,15 +193,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="objectType">Type of SQL object</param>
         /// <returns>Location object representing URI and range of the script file</returns>
         internal Location[] GetSqlObjectDefinition(
-                ScriptGetter sqlScriptGetter, 
-                string objectName, 
-                string schemaName, 
-                string objectType) 
+                ScriptGetter sqlScriptGetter,
+                string objectName,
+                string schemaName,
+                string objectType)
         {
-            if (this.connectionInfo.SqlConnection != null)
-            {
                 StringCollection scripts = sqlScriptGetter(objectName, schemaName);
-                string tempFileName = (schemaName != null) ?  Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName)) 
+                string tempFileName = (schemaName != null) ?  Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
                                                     : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
                 if (scripts != null)
@@ -204,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     int lineNumber = 0;
                     using (StreamWriter scriptFile = new StreamWriter(File.Open(tempFileName, FileMode.Create, FileAccess.ReadWrite)))
                     {
-                        
+
                         foreach (string script in scripts)
                         {
                             string createSyntax = string.Format("CREATE {0}", objectType);
@@ -212,12 +215,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             {
                                 scriptFile.WriteLine(script);
                                 lineNumber = GetStartOfCreate(script, createSyntax);
-                            }                       
-                        }         
+                            }
+                        }
                     }
                     return GetLocationFromFile(tempFileName, lineNumber);
                 }
-            }
+
             return null;
         }
     }
