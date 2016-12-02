@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     Capabilities = new ServerCapabilities
                     {
                         TextDocumentSync = TextDocumentSyncKind.Incremental,
-                        DefinitionProvider = false,
+                        DefinitionProvider = true,
                         ReferencesProvider = false,
                         DocumentHighlightProvider = false,
                         HoverProvider = true,

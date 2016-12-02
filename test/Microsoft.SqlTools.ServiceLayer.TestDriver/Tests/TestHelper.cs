@@ -258,6 +258,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         /// <summary>
+        /// Request definition( peek definition/go to definition) for a sql object in a sql string
+        /// </summary>
+        public async Task<Location[]> RequestDefinition(string ownerUri, string text, int line, int character)
+        {
+            // Write the text to a backing file
+            lock (fileLock)
+            {
+                System.IO.File.WriteAllText(ownerUri, text);
+            }
+
+            var definitionParams = new TextDocumentPosition();
+            definitionParams.TextDocument = new TextDocumentIdentifier();
+            definitionParams.TextDocument.Uri = ownerUri;
+            definitionParams.Position = new Position();
+            definitionParams.Position.Line = line;
+            definitionParams.Position.Character = character;
+
+            // Send definition request
+            var result = await Driver.SendRequest(DefinitionRequest.Type, definitionParams);
+            return result;
+        }
+
+        /// <summary>
         /// Run a query using a given connection bound to a URI
         /// </summary>
         public async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query, int timeoutMilliseconds = 5000)

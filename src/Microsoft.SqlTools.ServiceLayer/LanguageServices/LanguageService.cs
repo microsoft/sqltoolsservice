@@ -33,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public sealed class LanguageService
     {
+        private const int OneSecond = 1000;
+
         internal const string DefaultBatchSeperator = "GO";
 
         internal const int DiagnosticParseDelay = 750;
@@ -41,7 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int BindingTimeout = 500;
 
-        internal const int OnConnectionWaitTimeout = 300000;
+        internal const int OnConnectionWaitTimeout = 300 * OneSecond;
+
+        internal const int PeekDefinitionTimeout = 10 * OneSecond;
 
         private static ConnectionService connectionService = null;
 
@@ -198,7 +202,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
-            // serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
             // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
@@ -206,6 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
+            serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -293,15 +297,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-// turn off this code until needed (10/28/2016)
-#if false
-        private static async Task HandleDefinitionRequest(
-            TextDocumentPosition textDocumentPosition,
-            RequestContext<Location[]> requestContext)
+        internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            await Task.FromResult(true);
+            if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
+            {
+                // Retrieve document and connection
+                ConnectionInfo connInfo;
+                var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
+                LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+
+                Location[] locations = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                if (locations != null)
+                {
+                    await requestContext.SendResult(locations);
+                }
+            }
         }
 
+// turn off this code until needed (10/28/2016)
+#if false
         private static async Task HandleReferencesRequest(
             ReferencesParams referencesParams,
             RequestContext<Location[]> requestContext)
@@ -652,6 +666,106 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 
 
             return completionItem;
+        }
+
+        /// <summary>
+        /// Get definition for a selected sql object using SMO Scripting
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="connInfo"></param>
+        /// <returns> Location with the URI of the script file</returns>
+        internal Location[] GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        {
+            // Parse sql
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            if (scriptParseInfo == null)
+            {
+                return null;
+            }
+
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo);
+            }
+
+            // Get token from selected text
+            Token selectedToken = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
+            if (selectedToken == null)
+            {
+                return null;
+            }
+            // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
+            // The suggestion title does not contain any sql punctuation
+            string tokenText = TextUtilities.RemoveSquareBracketSyntax(selectedToken.Text);
+
+            if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+            {
+                try
+                {
+                    // Queue the task with the binding queue    
+                    QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        key: scriptParseInfo.ConnectionKey,
+                        bindingTimeout: LanguageService.PeekDefinitionTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            // Get suggestions for the token
+                            int parserLine = textDocumentPosition.Position.Line + 1;
+                            int parserColumn = textDocumentPosition.Position.Character + 1;
+                            IEnumerable<Declaration> declarationItems = Resolver.FindCompletions(
+                                scriptParseInfo.ParseResult, 
+                                parserLine, parserColumn, 
+                                bindingContext.MetadataDisplayInfoProvider);
+
+                            // Match token with the suggestions(declaration items) returned
+                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
+                            
+
+                        });
+
+                    // wait for the queue item
+                    queueItem.ItemProcessed.WaitOne();
+                    return queueItem.GetResultAsT<Location[]>();
+                }
+                finally
+                {
+                    Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Extract schema name for a token, if present
+        /// </summary>
+        /// <param name="scriptParseInfo"></param>
+        /// <param name="position"></param>
+        /// <param name="scriptFile"></param>
+        /// <returns> schema nama</returns>
+        private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
+        {
+            // Offset index by 1 for sql parser
+            int startLine = position.Line + 1;
+            int startColumn = position.Character + 1;
+
+            // Get schema name
+            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
+            {
+                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
+                var prevTokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
+                var prevTokenText = scriptParseInfo.ParseResult.Script.TokenManager.GetText(prevTokenIndex);
+                if (prevTokenText != null && prevTokenText.Equals("."))
+                {
+                    var schemaTokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.GetPreviousSignificantTokenIndex(prevTokenIndex);
+                    Token schemaToken = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(schemaTokenIndex);
+                    return TextUtilities.RemoveSquareBracketSyntax(schemaToken.Text);
+                }
+            }           
+            // if no schema name, returns null
+            return null;
         }
 
         /// <summary>
