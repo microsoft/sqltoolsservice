@@ -31,8 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
-        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
-
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
         private static readonly string[] DefaultCompletionText = new string[]
@@ -433,7 +431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startColumn, 
             int endColumn)
         {
-            return CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
+            return SqlCompletionItem.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
         }
 
         internal static CompletionItem[] AddTokenToItems(CompletionItem[] currentList, Token token, int row,
@@ -447,47 +445,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ))
             {
                 var list = currentList.ToList();
-                list.Insert(0, CreateCompletionItem(token.Text, token.Text, token.Text, CompletionItemKind.Text, row, startColumn, endColumn));
+                list.Insert(0, SqlCompletionItem.CreateCompletionItem(token.Text, token.Text, token.Text, CompletionItemKind.Text, row, startColumn, endColumn));
                 return list.ToArray();
             }
             return currentList;
-        }
-
-        private static CompletionItem CreateCompletionItem(
-            string label, 
-            string detail,
-            string insertText,
-            CompletionItemKind kind,
-            int row,
-            int startColumn,
-            int endColumn)
-        {
-            CompletionItem item = new CompletionItem()
-            {
-                Label = label,
-                Kind = kind,
-                Detail = detail,
-                InsertText = insertText,
-                TextEdit = new TextEdit
-                {
-                    NewText = insertText,
-                    Range = new Range
-                    {
-                        Start = new Position
-                        {
-                            Line = row,
-                            Character = startColumn
-                        },
-                        End = new Position
-                        {
-                            Line = row,
-                            Character = endColumn
-                        }
-                    }
-                }
-            };
-
-            return item;
         }
 
         /// <summary>
@@ -502,54 +463,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             IEnumerable<Declaration> suggestions, 
             int row,
             int startColumn,
-            int endColumn)
+            int endColumn, string tokenText = null)
         {           
             List<CompletionItem> completions = new List<CompletionItem>();
     
             foreach (var autoCompleteItem in suggestions)
             {
-                string  insertText = GetCompletionItemInsertName(autoCompleteItem);
-                CompletionItemKind kind = CompletionItemKind.Variable;
-                switch (autoCompleteItem.Type)
-                {
-                    case DeclarationType.Schema:
-                        kind = CompletionItemKind.Module;
-                        break;
-                    case DeclarationType.Column:
-                        kind = CompletionItemKind.Field;
-                        break;
-                    case DeclarationType.Table:
-                    case DeclarationType.View:
-                        kind = CompletionItemKind.File;
-                        break;
-                    case DeclarationType.Database:
-                        kind = CompletionItemKind.Method;
-                        break;
-                    case DeclarationType.ScalarValuedFunction:
-                    case DeclarationType.TableValuedFunction:
-                    case DeclarationType.BuiltInFunction:
-                        kind = CompletionItemKind.Value;
-                        break;
-                    default:
-                        kind = CompletionItemKind.Unit;
-                        break;
-                }
+                SqlCompletionItem sqlCompletionItem = new SqlCompletionItem(autoCompleteItem, tokenText);
 
                 // convert the completion item candidates into CompletionItems
-                completions.Add(CreateCompletionItem(autoCompleteItem.Title, autoCompleteItem.Title, insertText, kind, row, startColumn, endColumn));
+                completions.Add(sqlCompletionItem.CreateCompletionItem(row, startColumn, endColumn));
             }
 
             return completions.ToArray();
-        }
-
-        private static string GetCompletionItemInsertName(Declaration autoCompleteItem)
-        {
-            string insertText = autoCompleteItem.Title;
-            if (!string.IsNullOrEmpty(autoCompleteItem.Title) && !ValidSqlNameRegex.IsMatch(autoCompleteItem.Title))
-            {
-                insertText = string.Format(CultureInfo.InvariantCulture, "[{0}]", autoCompleteItem.Title);
-            }
-            return insertText;
         }
 
         /// <summary>
@@ -567,7 +493,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (scriptInfo.IsConnected)
             {
-                var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);                                
+                var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);
                 LanguageService.Instance.ParseAndBind(scriptFile, info);
 
                 if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
