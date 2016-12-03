@@ -25,13 +25,15 @@ SET SERVICECODECOVERAGE=True
 SET CODECOVERAGETOOL="%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe"
 SET CODECOVERAGEOUTPUT=coverage.xml
 
+REM Run the test driver tests and profile the service layer component which runs as a child process of the test driver
 dotnet.exe test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\project.json %DOTNETCONFIG%"
 
 SET SERVICECODECOVERAGE=FALSE
 
-REM Commenting this out since it overwrites the results obtained from "dotnet test" above
-REM "%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\project.json %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\bin\Debug\netcoreapp1.0
+REM Run the test driver tests again to get coverage on the client-side code that runs in the test driver process
+"%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\project.json %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\bin\Debug\netcoreapp1.0
 
+REM Run the unit tests
 "%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.Test\project.json %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.Test\bin\Debug\netcoreapp1.0
 
 "%WORKINGDIR%packages\OpenCoverToCoberturaConverter.0.2.4.0\tools\OpenCoverToCoberturaConverter.exe"  -input:coverage.xml -output:outputCobertura.xml -sources:%WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer
