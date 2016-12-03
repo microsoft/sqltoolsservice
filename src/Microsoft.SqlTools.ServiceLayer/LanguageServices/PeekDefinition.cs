@@ -9,6 +9,7 @@ using System.Collections.Specialized;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -48,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal PeekDefinition(ConnectionInfo connInfo)
         {
             this.connectionInfo = connInfo;
-            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(Path.GetTempPath() + "mssql_definition");
+            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(TextUtilities.PeekDefinitionTempFolder);
             this.tempPath = tempScriptDirectory.FullName;
             Initialize();
         }

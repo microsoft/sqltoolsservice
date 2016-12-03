@@ -2,11 +2,14 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     public static class TextUtilities
-    {       
+    {   
+        internal static string PeekDefinitionTempFolder = Path.GetTempPath() + "mssql_definition"; 
+
         /// <summary>
         /// Find the position of the cursor in the SQL script content buffer and return previous new line position
         /// </summary>

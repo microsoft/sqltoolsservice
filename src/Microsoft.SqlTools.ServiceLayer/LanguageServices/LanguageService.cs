@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -215,6 +216,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
                 Logger.Write(LogLevel.Verbose, "Shutting down language service");
+                // Delete temp folder created to store peek definition scripts
+                try
+                {
+                    if(File.Exists(TextUtilities.PeekDefinitionTempFolder))
+                    {
+                        File.Delete(TextUtilities.PeekDefinitionTempFolder);
+                    }
+                }
+                catch(Exception)
+                {
+                    //no op. Ignore failure to delete
+                }
                 await Task.FromResult(0);
             });
 
