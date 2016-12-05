@@ -310,6 +310,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (locations != null)
                 {
                     await requestContext.SendResult(locations);
+
+                    // Send a notification to signal that definition is sent
+                    await ServiceHost.Instance.SendEvent(DefinitionSentNotification.Type, new DefinitionSentParams());
                 }
             }
         }
