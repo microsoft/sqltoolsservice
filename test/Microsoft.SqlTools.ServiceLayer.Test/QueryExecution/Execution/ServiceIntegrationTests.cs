@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
-            QueryExecuteBatchCompleteParams batchCompleteParams = null;
+            QueryExecuteBatchNotificationParams batchCompleteParams = null;
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, p) => completeParams = p)
                 .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchCompleteParams = p)
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
-            QueryExecuteBatchCompleteParams batchCompleteParams = null;
+            QueryExecuteBatchNotificationParams batchCompleteParams = null;
             QueryExecuteResultSetCompleteParams resultCompleteParams = null;
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, p) => completeParams = p)
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
-            QueryExecuteBatchCompleteParams batchCompleteParams = null;
+            QueryExecuteBatchNotificationParams batchCompleteParams = null;
             List<QueryExecuteResultSetCompleteParams> resultCompleteParams = new List<QueryExecuteResultSetCompleteParams>();
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, p) => completeParams = p)
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams completeParams = null;
-            List<QueryExecuteBatchCompleteParams> batchCompleteParams = new List<QueryExecuteBatchCompleteParams>();
+            List<QueryExecuteBatchNotificationParams> batchCompleteParams = new List<QueryExecuteBatchNotificationParams>();
             List<QueryExecuteResultSetCompleteParams> resultCompleteParams = new List<QueryExecuteResultSetCompleteParams>();
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, p) => completeParams = p)
@@ -311,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... And then I request another query after waiting for the first to complete
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
-            QueryExecuteBatchCompleteParams batchComplete = null;
+            QueryExecuteBatchNotificationParams batchComplete = null;
             var secondRequestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp)
                 .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchComplete = p);
@@ -380,7 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             QueryExecuteResult result = null;
             QueryExecuteCompleteParams complete = null;
-            QueryExecuteBatchCompleteParams batchComplete = null;
+            QueryExecuteBatchNotificationParams batchComplete = null;
             var requestContext = RequestContextMocks.Create<QueryExecuteResult>(qer => result = qer)
                 .AddEventHandling(QueryExecuteCompleteEvent.Type, (et, qecp) => complete = qecp)
                 .AddEventHandling(QueryExecuteBatchCompleteEvent.Type, (et, p) => batchComplete = p);
@@ -411,8 +411,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 It.Is<EventType<QueryExecuteCompleteParams>>(m => m == QueryExecuteCompleteEvent.Type),
                 It.IsAny<QueryExecuteCompleteParams>()), sendCompletionEventCalls);
             mock.Verify(rc => rc.SendEvent(
-                It.Is<EventType<QueryExecuteBatchCompleteParams>>(m => m == QueryExecuteBatchCompleteEvent.Type),
-                It.IsAny<QueryExecuteBatchCompleteParams>()), sendBatchCompletionEvent);
+                It.Is<EventType<QueryExecuteBatchNotificationParams>>(m => m == QueryExecuteBatchCompleteEvent.Type),
+                It.IsAny<QueryExecuteBatchNotificationParams>()), sendBatchCompletionEvent);
             mock.Verify(rc => rc.SendEvent(
                 It.Is<EventType<QueryExecuteResultSetCompleteParams>>(m => m == QueryExecuteResultSetCompleteEvent.Type),
                 It.IsAny<QueryExecuteResultSetCompleteParams>()), sendResultCompleteEvent);
