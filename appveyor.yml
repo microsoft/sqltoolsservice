@@ -1,0 +1,11 @@
+before_build:
+- appveyor-retry dotnet restore -v Minimal
+
+build_script:
+  - dotnet build src/Microsoft.SqlTools.ServiceLayer
+
+test_script:
+  - dotnet test test/Microsoft.SqlTools.ServiceLayer.Test
+
+cache:
+- '%USERPROFILE%\.nuget\packages'
