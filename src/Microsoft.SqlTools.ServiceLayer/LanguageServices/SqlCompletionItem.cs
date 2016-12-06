@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -19,17 +20,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
 
+        /// <summary>
+        /// Create new instance given the SQL parser declaration
+        /// </summary>
         public SqlCompletionItem(Declaration declaration, string tokenText) :
             this(declaration == null ? null : declaration.Title, declaration == null ? DeclarationType.Table : declaration.Type, tokenText)
         {
         }
 
+        /// <summary>
+        /// Creates new instance given declaration title and type
+        /// </summary>
         public SqlCompletionItem(string declarationTitle, DeclarationType declarationType, string tokenText)
         {
-            if (string.IsNullOrEmpty(declarationTitle))
-            {
-                throw new ArgumentNullException(declarationTitle);
-            }
+            Validate.IsNotNullOrEmptyString("declarationTitle", declarationTitle);
 
             DeclarationTitle = declarationTitle;
             DeclarationType = declarationType;

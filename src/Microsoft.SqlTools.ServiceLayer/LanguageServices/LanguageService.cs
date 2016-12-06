@@ -977,7 +977,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 scriptParseInfo.CurrentSuggestions, 
                                 startLine, 
                                 startColumn, 
-                                endColumn, tokenText);
+                                endColumn, 
+                                tokenText);
                         },
                         timeoutOperation: (bindingContext) =>
                         {

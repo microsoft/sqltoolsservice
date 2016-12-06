@@ -463,7 +463,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             IEnumerable<Declaration> suggestions, 
             int row,
             int startColumn,
-            int endColumn, string tokenText = null)
+            int endColumn, 
+            string tokenText = null)
         {           
             List<CompletionItem> completions = new List<CompletionItem>();
     
