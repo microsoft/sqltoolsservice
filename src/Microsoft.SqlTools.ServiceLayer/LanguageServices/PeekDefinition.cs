@@ -41,6 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
+                        // Get server object from connection
                         string connectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails);
                         SqlConnection sqlConn = new SqlConnection(connectionString);                    
                         sqlConn.Open();
@@ -99,8 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (Path.DirectorySeparatorChar.Equals('/'))
             {
-                tempFileName = "file:" + tempFileName; 
-                
+                tempFileName = "file:" + tempFileName;                 
             }
             else
             {
