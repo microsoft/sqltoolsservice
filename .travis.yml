@@ -14,8 +14,6 @@ before_install:
 install:
   - dotnet restore
 
-build:
+script:
   - dotnet build src/Microsoft.SqlTools.ServiceLayer
-
-test:
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.Test
