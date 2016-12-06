@@ -1,6 +1,10 @@
 sudo: required
 dist: trusty
 
+os:
+  - linux
+  - osx
+
 language: csharp
 solution: sqltoolsservice.sln
 
@@ -10,6 +14,13 @@ before_install:
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893;
       sudo apt-get update;
       sudo apt-get install dotnet-dev-1.0.0-preview2-003121;
+    else
+      brew update;
+      brew install openssl;
+      mkdir -p /usr/local/lib;
+      ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/;
+      ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/;
+      brew install dotnet;
     fi
 install:
   - dotnet restore
