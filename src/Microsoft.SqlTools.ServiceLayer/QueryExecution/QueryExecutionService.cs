@@ -440,10 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Query result;
             if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
             {
-                await requestContext.SendResult(new SaveResultRequestResult
-                {
-                    Messages = "Failed to save results, ID not found."
-                });
+                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                 return;
             }
 

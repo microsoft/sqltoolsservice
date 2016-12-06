@@ -25,121 +25,121 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         /// <summary>
         /// Test save results to a file as CSV with correct parameters
         /// </summary>
-        [Fact]
-        public async void SaveResultsAsCsvSuccessTest()
-        {
-            // Execute a query
-            Dictionary<string, byte[]> storage;
-            var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, workplaceService, out storage);
-            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
+        //[Fact]
+        //public async void SaveResultsAsCsvSuccessTest()
+        //{
+        //    // Execute a query
+        //    Dictionary<string, byte[]> storage;
+        //    var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+        //    var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, workplaceService, out storage);
+        //    var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+        //    var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+        //    await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
-            // Request to save the results as csv with correct parameters
-            var saveParams = new SaveResultsAsCsvRequestParams
-            {
-                OwnerUri = Common.OwnerUri,
-                ResultSetIndex = 0,
-                BatchIndex = 0,
-                FilePath = "testwrite.csv",
-                IncludeHeaders = true
-            };
-            SaveResultRequestResult result = null;
-            var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(qcr => result = qcr);
+        //    // Request to save the results as csv with correct parameters
+        //    var saveParams = new SaveResultsAsCsvRequestParams
+        //    {
+        //        OwnerUri = Common.OwnerUri,
+        //        ResultSetIndex = 0,
+        //        BatchIndex = 0,
+        //        FilePath = "testwrite.csv",
+        //        IncludeHeaders = true
+        //    };
+        //    SaveResultRequestResult result = null;
+        //    var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(qcr => result = qcr);
 
-            // Call save results and wait on the save task
-            queryService.CsvFileFactory = GetCsvFileStreamFactory(storage, saveParams);
-            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
-            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            await selectedResultSet.GetSaveTask(saveParams.FilePath);
+        //    // Call save results and wait on the save task
+        //    queryService.CsvFileFactory = GetCsvFileStreamFactory(storage, saveParams);
+        //    await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
+        //    ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
+        //    await selectedResultSet.GetSaveTask(saveParams.FilePath);
 
-            // Expect to see a file successfully created in filepath and a success message
-            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
-            Assert.Null(result.Messages);
-            Assert.True(storage.ContainsKey(saveParams.FilePath));
-        }
+        //    // Expect to see a file successfully created in filepath and a success message
+        //    VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+        //    Assert.Null(result.Messages);
+        //    Assert.True(storage.ContainsKey(saveParams.FilePath));
+        //}
 
-        /// <summary>
-        /// Test save results to a file as CSV with a selection of cells and correct parameters
-        /// </summary>
-        [Fact]
-        public async void SaveResultsAsCsvWithSelectionSuccessTest()
-        {
-            // Execute a query
-            Dictionary<string, byte[]> storage;
-            var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workplaceService, out storage);
-            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
+        ///// <summary>
+        ///// Test save results to a file as CSV with a selection of cells and correct parameters
+        ///// </summary>
+        //[Fact]
+        //public async void SaveResultsAsCsvWithSelectionSuccessTest()
+        //{
+        //    // Execute a query
+        //    Dictionary<string, byte[]> storage;
+        //    var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+        //    var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workplaceService, out storage);
+        //    var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
+        //    var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+        //    await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
-            // Request to save the results as csv with correct parameters
-            var saveParams = new SaveResultsAsCsvRequestParams
-            {
-                OwnerUri = Common.OwnerUri,
-                ResultSetIndex = 0,
-                BatchIndex = 0,
-                FilePath = "testwrite.csv",
-                IncludeHeaders = true,
-                RowStartIndex = 0,
-                RowEndIndex = 1,
-                ColumnStartIndex = 0,
-                ColumnEndIndex = 1
-            };
-            SaveResultRequestResult result = null;
-            var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(qcr => result = qcr);
+        //    // Request to save the results as csv with correct parameters
+        //    var saveParams = new SaveResultsAsCsvRequestParams
+        //    {
+        //        OwnerUri = Common.OwnerUri,
+        //        ResultSetIndex = 0,
+        //        BatchIndex = 0,
+        //        FilePath = "testwrite.csv",
+        //        IncludeHeaders = true,
+        //        RowStartIndex = 0,
+        //        RowEndIndex = 1,
+        //        ColumnStartIndex = 0,
+        //        ColumnEndIndex = 1
+        //    };
+        //    SaveResultRequestResult result = null;
+        //    var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(qcr => result = qcr);
 
-            // Call save results and wait on the save task
-            queryService.CsvFileFactory = GetCsvFileStreamFactory(storage, saveParams);
-            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
-            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            await selectedResultSet.GetSaveTask(saveParams.FilePath);         
+        //    // Call save results and wait on the save task
+        //    queryService.CsvFileFactory = GetCsvFileStreamFactory(storage, saveParams);
+        //    await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);
+        //    ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
+        //    await selectedResultSet.GetSaveTask(saveParams.FilePath);         
 
-            // Expect to see a file successfully created in filepath and a success message
-            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
-            Assert.Null(result.Messages);
-            Assert.True(storage.ContainsKey(saveParams.FilePath));
-        }
+        //    // Expect to see a file successfully created in filepath and a success message
+        //    VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+        //    Assert.Null(result.Messages);
+        //    Assert.True(storage.ContainsKey(saveParams.FilePath));
+        //}
 
-        /// <summary>
-        /// Test handling exception in saving results to CSV file
-        /// </summary>
-        [Fact]
-        public async void SaveResultsAsCsvExceptionTest()
-        {
-            // Execute a query
-            Dictionary<string, byte[]> storage;
-            var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workplaceService, out storage);
-            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
+        ///// <summary>
+        ///// Test handling exception in saving results to CSV file
+        ///// </summary>
+        //[Fact]
+        //public async void SaveResultsAsCsvExceptionTest()
+        //{
+        //    // Execute a query
+        //    Dictionary<string, byte[]> storage;
+        //    var workplaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+        //    var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workplaceService, out storage);
+        //    var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+        //    var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+        //    await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
-            // Request to save the results as csv with incorrect filepath
-            var saveParams = new SaveResultsAsCsvRequestParams
-            {
-                OwnerUri = Common.OwnerUri,
-                ResultSetIndex = 0,
-                BatchIndex = 0,
-                FilePath = string.Empty
-            };
+        //    // Request to save the results as csv with incorrect filepath
+        //    var saveParams = new SaveResultsAsCsvRequestParams
+        //    {
+        //        OwnerUri = Common.OwnerUri,
+        //        ResultSetIndex = 0,
+        //        BatchIndex = 0,
+        //        FilePath = string.Empty
+        //    };
 
-            object errMessage = null;
-            var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(null)
-                .AddErrorHandling(err => errMessage = err);
+        //    object errMessage = null;
+        //    var saveRequest = RequestContextMocks.Create<SaveResultRequestResult>(null)
+        //        .AddErrorHandling(err => errMessage = err);
 
-            // Call save results and wait on the save task
-            await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);           
-            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            await selectedResultSet.GetSaveTask(saveParams.FilePath);
+        //    // Call save results and wait on the save task
+        //    await queryService.HandleSaveResultsAsCsvRequest(saveParams, saveRequest.Object);           
+        //    ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
+        //    await selectedResultSet.GetSaveTask(saveParams.FilePath);
 
-            // Expect to see error message
-            VerifySaveResultsCallCount(saveRequest, Times.Never(), Times.Once());
-            Assert.NotNull(errMessage);
-            Assert.IsType<SaveResultRequestError>(errMessage);
-            Assert.False(storage.ContainsKey(saveParams.FilePath));
-        }
+        //    // Expect to see error message
+        //    VerifySaveResultsCallCount(saveRequest, Times.Never(), Times.Once());
+        //    Assert.NotNull(errMessage);
+        //    Assert.IsType<SaveResultRequestError>(errMessage);
+        //    Assert.False(storage.ContainsKey(saveParams.FilePath));
+        //}
 
         /// <summary>
         /// Test saving results to CSV file when the requested result set is no longer active
@@ -172,127 +172,127 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         /// <summary>
         /// Test save results to a file as JSON with correct parameters
         /// </summary>
-        [Fact]
-        public async void SaveResultsAsJsonSuccessTest()
-        {
-            // Execute a query
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
+        //[Fact]
+        //public async void SaveResultsAsJsonSuccessTest()
+        //{
+        //    // Execute a query
+        //    var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+        //    var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, workspaceService);
+        //    var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+        //    var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+        //    await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
-            // Request to save the results as json with correct parameters
-            var saveParams = new SaveResultsAsJsonRequestParams
-            {
-                OwnerUri = Common.OwnerUri,
-                ResultSetIndex = 0,
-                BatchIndex = 0,
-                FilePath = "testwrite_4.json"
-            };
-            SaveResultRequestResult result = null;
-            var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
+        //    // Request to save the results as json with correct parameters
+        //    var saveParams = new SaveResultsAsJsonRequestParams
+        //    {
+        //        OwnerUri = Common.OwnerUri,
+        //        ResultSetIndex = 0,
+        //        BatchIndex = 0,
+        //        FilePath = "testwrite_4.json"
+        //    };
+        //    SaveResultRequestResult result = null;
+        //    var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
             
-            // Call save results and wait on the save task
-            await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            Task saveTask = selectedResultSet.GetSaveTask(saveParams.FilePath);         
-            await saveTask;
+        //    // Call save results and wait on the save task
+        //    await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
+        //    ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
+        //    Task saveTask = selectedResultSet.GetSaveTask(saveParams.FilePath);         
+        //    await saveTask;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-            // Expect to see a file successfully created in filepath and a success message
-            Assert.Null(result.Messages);
-            Assert.True(File.Exists(saveParams.FilePath));
-            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+        //    // Expect to see a file successfully created in filepath and a success message
+        //    Assert.Null(result.Messages);
+        //    Assert.True(File.Exists(saveParams.FilePath));
+        //    VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
 
-            // Delete temp file after test
-            if (File.Exists(saveParams.FilePath))
-            {
-                File.Delete(saveParams.FilePath);
-            }
-        }
+        //    // Delete temp file after test
+        //    if (File.Exists(saveParams.FilePath))
+        //    {
+        //        File.Delete(saveParams.FilePath);
+        //    }
+        //}
 
-        /// <summary>
-        /// Test save results to a file as JSON with a selection of cells and correct parameters
-        /// </summary>
-        [Fact]
-        public async void SaveResultsAsJsonWithSelectionSuccessTest()
-        {
-            // Execute a query
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
+        ///// <summary>
+        ///// Test save results to a file as JSON with a selection of cells and correct parameters
+        ///// </summary>
+        //[Fact]
+        //public async void SaveResultsAsJsonWithSelectionSuccessTest()
+        //{
+        //    // Execute a query
+        //    var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+        //    var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workspaceService);
+        //    var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument , OwnerUri = Common.OwnerUri };
+        //    var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+        //    await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
-            // Request to save the results as json with correct parameters
-            var saveParams = new SaveResultsAsJsonRequestParams
-            {
-                OwnerUri = Common.OwnerUri,
-                ResultSetIndex = 0,
-                BatchIndex = 0,
-                FilePath = "testwrite_5.json",          
-                RowStartIndex = 0,
-                RowEndIndex = 1,
-                ColumnStartIndex = 0,
-                ColumnEndIndex = 1             
-            };
-            SaveResultRequestResult result = null;
-            var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
+        //    // Request to save the results as json with correct parameters
+        //    var saveParams = new SaveResultsAsJsonRequestParams
+        //    {
+        //        OwnerUri = Common.OwnerUri,
+        //        ResultSetIndex = 0,
+        //        BatchIndex = 0,
+        //        FilePath = "testwrite_5.json",          
+        //        RowStartIndex = 0,
+        //        RowEndIndex = 1,
+        //        ColumnStartIndex = 0,
+        //        ColumnEndIndex = 1             
+        //    };
+        //    SaveResultRequestResult result = null;
+        //    var saveRequest = GetSaveResultsContextMock(qcr => result = qcr, null);
 
-            // Call save results and wait on the save task
-            await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            await selectedResultSet.GetSaveTask(saveParams.FilePath);
+        //    // Call save results and wait on the save task
+        //    await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
+        //    ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
+        //    await selectedResultSet.GetSaveTask(saveParams.FilePath);
 
-            // Expect to see a file successfully created in filepath and a success message
-            VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
-            Assert.Null(result.Messages);
-            Assert.True(File.Exists(saveParams.FilePath));
+        //    // Expect to see a file successfully created in filepath and a success message
+        //    VerifySaveResultsCallCount(saveRequest, Times.Once(), Times.Never());
+        //    Assert.Null(result.Messages);
+        //    Assert.True(File.Exists(saveParams.FilePath));
 
-            // Delete temp file after test
-            if (File.Exists(saveParams.FilePath))
-            {
-                File.Delete(saveParams.FilePath);
-            }
-        }
+        //    // Delete temp file after test
+        //    if (File.Exists(saveParams.FilePath))
+        //    {
+        //        File.Delete(saveParams.FilePath);
+        //    }
+        //}
 
-        /// <summary>
-        /// Test handling exception in saving results to JSON file
-        /// </summary>
-        [Fact]
-        public async void SaveResultsAsJsonExceptionTest()
-        {
-            // Execute a query
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
-            await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
+        ///// <summary>
+        ///// Test handling exception in saving results to JSON file
+        ///// </summary>
+        //[Fact]
+        //public async void SaveResultsAsJsonExceptionTest()
+        //{
+        //    // Execute a query
+        //    var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+        //    var queryService = Common.GetPrimedExecutionService(new [] {Common.StandardTestData}, true, false, workspaceService);
+        //    var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+        //    var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+        //    await Common.AwaitExecution(queryService, executeParams, executeRequest.Object);
 
-            // Request to save the results as json with incorrect filepath
-            var saveParams = new SaveResultsAsJsonRequestParams
-            {
-                OwnerUri = Common.OwnerUri,
-                ResultSetIndex = 0,
-                BatchIndex = 0,
-                FilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "G:\\test.json" : "/test.json"
-            };
+        //    // Request to save the results as json with incorrect filepath
+        //    var saveParams = new SaveResultsAsJsonRequestParams
+        //    {
+        //        OwnerUri = Common.OwnerUri,
+        //        ResultSetIndex = 0,
+        //        BatchIndex = 0,
+        //        FilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "G:\\test.json" : "/test.json"
+        //    };
 
 
-            SaveResultRequestError errMessage = null;
-            var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (SaveResultRequestError) err);
-            queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
+        //    SaveResultRequestError errMessage = null;
+        //    var saveRequest = GetSaveResultsContextMock( null, err => errMessage = (SaveResultRequestError) err);
+        //    queryService.ActiveQueries[Common.OwnerUri].Batches[0] = Common.GetBasicExecutedBatch();
             
-            // Call save results and wait on the save task
-            await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
-            ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            await selectedResultSet.GetSaveTask(saveParams.FilePath);
+        //    // Call save results and wait on the save task
+        //    await queryService.HandleSaveResultsAsJsonRequest(saveParams, saveRequest.Object);
+        //    ResultSet selectedResultSet = queryService.ActiveQueries[saveParams.OwnerUri].Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
+        //    await selectedResultSet.GetSaveTask(saveParams.FilePath);
 
-            // Expect to see error message
-            Assert.NotNull(errMessage);
-            VerifySaveResultsCallCount(saveRequest, Times.Never(), Times.Once());
-            Assert.False(File.Exists(saveParams.FilePath));
-        }
+        //    // Expect to see error message
+        //    Assert.NotNull(errMessage);
+        //    VerifySaveResultsCallCount(saveRequest, Times.Never(), Times.Once());
+        //    Assert.False(File.Exists(saveParams.FilePath));
+        //}
 
         /// <summary>
         /// Test saving results to JSON file when the requested result set is no longer active
