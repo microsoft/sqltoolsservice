@@ -453,7 +453,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
                 await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
             };
-            query.BatchCompleted += batchStartCallback;
+            query.BatchStarted += batchStartCallback;
 
             Batch.BatchAsyncEventHandler batchCompleteCallback = async b =>
             {
