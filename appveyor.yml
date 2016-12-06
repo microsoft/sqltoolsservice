@@ -1,3 +1,6 @@
+install:
+  - set PATH=C:\Ruby22\bin;%PATH%
+
 before_build:
 - appveyor-retry dotnet restore -v Minimal
 
@@ -6,6 +9,13 @@ build_script:
 
 test_script:
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.Test
+
+after_test:
+  - cd test/CodeCoverage
+  - gem install coveralls-cobertura
+  - npm install
+  - gulp
+  - ruby uploadCodeCoverage.rb
 
 cache:
 - '%USERPROFILE%\.nuget\packages'
