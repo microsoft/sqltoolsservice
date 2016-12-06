@@ -6,7 +6,9 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -37,9 +39,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (this.connectionInfo.SqlConnection != null)
                 {
-                    Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
-                    return server.Databases[this.connectionInfo.SqlConnection.Database];
-
+                    try
+                    {
+                        string connectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails);
+                        SqlConnection sqlConn = new SqlConnection(connectionString);                    
+                        sqlConn.Open();
+                        ServerConnection serverConn = new ServerConnection(sqlConn); 
+                        Server server = new Server(serverConn);
+                        return server.Databases[this.connectionInfo.SqlConnection.Database];
+                    }
+                    catch(Exception)
+                    {
+                        return null;
+                    }                   
                 }
                 return null;
             }
@@ -85,9 +97,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         private Location[] GetLocationFromFile(string tempFileName, int lineNumber)
         {
+            if (Path.DirectorySeparatorChar.Equals('/'))
+            {
+                tempFileName = "file:" + tempFileName; 
+                
+            }
+            else
+            {
+                tempFileName = new Uri(tempFileName).AbsoluteUri;
+            }
             Location[] locations = new[] {
                     new Location {
-                        Uri = new Uri(tempFileName).AbsoluteUri,
+                        Uri = tempFileName,
                         Range = new Range {
                             Start = new Position { Line = lineNumber, Character = 1},
                             End = new Position { Line = lineNumber + 1, Character = 1}
