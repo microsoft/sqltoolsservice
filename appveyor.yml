@@ -15,8 +15,7 @@ after_test:
   - npm install -g gulp-cli
   - npm install
   - gulp
-  - dir node_modules/.bin/
-  - ndoe node_modules/coveralls/bin/coveralls.js < outputCobertura.xml
+  - node node_modules/coveralls/bin/coveralls.js < outputCobertura.xml
 
 cache:
 - '%USERPROFILE%\.nuget\packages'
