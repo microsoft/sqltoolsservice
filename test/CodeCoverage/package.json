@@ -4,6 +4,7 @@
   "description": "SQL Tools Service Layer",
   "main": "gulpfile.js",
   "dependencies": {
+    "coveralls": "^2.11.15",
     "del": "^2.2.1",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-coveralls": "^0.1.4",
