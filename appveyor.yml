@@ -1,6 +1,6 @@
 environment:
     COVERALLS_REPO_TOKEN:  
-       secure: Insert coveralls token here
+       secure: Insert encrypted coveralls token here
 
 before_build:
 - appveyor-retry dotnet restore -v Minimal
