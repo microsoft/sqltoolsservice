@@ -20,7 +20,7 @@ before_install:
       mkdir -p /usr/local/lib;
       ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/;
       ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/;
-      brew install dotnet;
+      brew cask install dotnet;
     fi
 install:
   - dotnet restore
