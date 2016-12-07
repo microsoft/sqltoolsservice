@@ -6,6 +6,7 @@
   "dependencies": {
     "del": "^2.2.1",
     "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-coveralls": "^0.1.4",
     "gulp-hub": "frankwallis/gulp-hub#registry-init",
     "gulp-install": "^0.6.0",
     "gulp-util": "^3.0.7",
