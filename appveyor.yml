@@ -15,6 +15,7 @@ after_test:
   - npm install -g gulp-cli
   - npm install
   - gulp
+  - dir node_modules/.bin/
   - ./node_modules/.bin/coveralls < outputCobertura.xml
 
 cache:
