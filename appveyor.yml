@@ -16,7 +16,7 @@ after_test:
   - npm install
   - gulp
   - dir node_modules/.bin/
-  - ./node_modules/.bin/coveralls < outputCobertura.xml
+  - ndoe node_modules/coveralls/bin/coveralls.js < outputCobertura.xml
 
 cache:
 - '%USERPROFILE%\.nuget\packages'
