@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -49,8 +50,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         Server server = new Server(serverConn);
                         return server.Databases[this.connectionInfo.SqlConnection.Database];
                     }
-                    catch(Exception)
+                    catch(Exception ex)
                     {
+                        Logger.Write(LogLevel.Error, ex.Message);
                         return null;
                     }                   
                 }
@@ -96,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Convert a file to a location array containing a location object as expected by the extension
         /// </summary>
-        private Location[] GetLocationFromFile(string tempFileName, int lineNumber)
+        internal Location[] GetLocationFromFile(string tempFileName, int lineNumber)
         {
             if (Path.DirectorySeparatorChar.Equals('/'))
             {
