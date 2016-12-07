@@ -4,10 +4,11 @@
   "description": "SQL Tools Service Layer",
   "main": "gulpfile.js",
   "dependencies": {
-    "gulp": "github:gulpjs/gulp#4.0",
     "del": "^2.2.1",
+    "gulp": "github:gulpjs/gulp#4.0",
     "gulp-hub": "frankwallis/gulp-hub#registry-init",
     "gulp-install": "^0.6.0",
+    "gulp-util": "^3.0.7",
     "request": "^2.73.0"
   },
   "devDependencies": {},
