@@ -12,6 +12,7 @@ test_script:
 
 after_test:
   - cd test/CodeCoverage
+  - gem install coveralls
   - gem install coveralls-cobertura
   - npm install -g gulp-cli
   - npm install
