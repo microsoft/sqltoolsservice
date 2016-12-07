@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
@@ -43,6 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         private Mock<IBinder> binder;
 
         private TextDocumentPosition textDocument;
+
+        private const string OwnerUri = "testFile1";
 
         private void InitializeTestObjects()
         {
@@ -132,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null);
             Location[] locations = peekDefinition.GetLocationFromFile(filePath, 0);
 
-            String expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///c%3A/test/script.sql" : "file:/test/script.sql";
+            String expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
             Assert.Equal(locations[0].Uri, expectedFilePath);
         }
 
@@ -175,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test get definition for a invalid table object with active connection
+        /// Test get definition for a valid table object with schema and active connection
         /// </summary>
         [Fact]
         public void GetTableDefinitionWithSchemaTest()
@@ -187,25 +190,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             string schemaName = "dbo";
             string objectType = "TABLE";
 
-            // Get locations for valid table object
+            // Get locations for valid table object with schema name
             Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
-            /// <summary>
-        /// Test get definition for a invalid table object with active connection
-        /// </summary>
-        [Fact]
-        public void GetTableDefinitionInvalidObjectTest()
-        {
-            // Get live connectionInfo
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "test_invalid";
-            string schemaName = null;
-            string objectType = "TABLE";
-
-            // Get locations for valid tablel object
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
-            Assert.Null(locations);
-        }
+            Assert.NotNull(locations);
+            Cleanup(locations);            
         }
 
         [Fact]
