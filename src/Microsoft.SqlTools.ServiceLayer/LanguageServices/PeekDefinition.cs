@@ -7,6 +7,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -158,6 +159,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     DeclarationType type  = declarationItem.Type;
                     if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
                     {
+                        // On *nix and mac systems, the defaultSchema property throws an Exception when accessed
+                        // This workaround ensures that a schema name is present by attempting 
+                        // to get the schema name from the declaration item 
+                        // If all fails, default schema name is assumed to be "dbo"
+                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && string.IsNullOrEmpty(schemaName))
+                        {
+                            string fullObjectName = declarationItem.DatabaseQualifiedName;
+                            schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
+                        }
                         return GetSqlObjectDefinition(
                                     sqlScriptGetters[type],
                                     tokenText,
@@ -169,6 +179,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Return schema name from the full name of the database. If schema is missing return dbo as default.
+        /// </summary>
+        /// <param name="fullObjectName"> The full database qualified name(database.schema.object)</param>
+        /// <param name="objectName"> ocject name</param>
+        /// <returns></returns>
+        internal string GetSchemaFromDatabaseQualifiedName(string fullObjectName, string objectName)
+        {
+            string[] tokens = fullObjectName.Split('.');
+            for (int i = tokens.Length -1; i >= 0; i--)
+            {
+                if(tokens[i].Equals(objectName) && i > 0)
+                {
+                    return tokens[i-1];
+                }
+            }
+
+            return "dbo";
         }
 
         /// <summary>
