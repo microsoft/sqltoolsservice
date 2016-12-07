@@ -9,7 +9,8 @@
     "gulp-hub": "frankwallis/gulp-hub#registry-init",
     "gulp-install": "^0.6.0",
     "gulp-util": "^3.0.7",
-    "request": "^2.73.0"
+    "request": "^2.73.0",
+    "through2": "^2.0.3"
   },
   "devDependencies": {},
   "author": "Microsoft",
