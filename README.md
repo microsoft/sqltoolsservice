@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/anthonydresser/sqltoolsservice/badge.svg?branch=dev)](https://coveralls.io/github/anthonydresser/sqltoolsservice?branch=dev)
+
 # Microsoft SQL Tools Service 
 The SQL Tools Service is an application that provides core functionality for various SQL Server tools.  These features include the following:
 * Connection management
