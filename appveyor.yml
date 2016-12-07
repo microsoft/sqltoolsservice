@@ -16,9 +16,7 @@ test_script:
 
 after_test:
   - cd test/CodeCoverage
-  - npm install -g gulp-cli
-  - npm install
-  - gulp
+  - runintegration.bat
   - cmd: packages\coveralls.io.1.3.4\tools\coveralls.net.exe --opencover coverage.xml
 
 cache:
