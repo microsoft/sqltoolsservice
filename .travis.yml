@@ -21,7 +21,7 @@ before_install:
       ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/;
       ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/;
       brew cask install dotnet;
-      echo $PATH;
+      export PATH="/usr/local/share/dotnet/:$PATH";
     fi
 install:
   - dotnet restore
