@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Tests setting location objects on windows and non-windows systems
+        /// Tests creating location objects on windows and non-windows systems
         /// </summary>
         [Fact]
         public void GetLocationFromFileForValidFilePathTest()
@@ -139,6 +139,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.Equal(locations[0].Uri, expectedFilePath);
         }
 
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a valid database name
+        /// </summary>
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithValidNameTest()
         {
@@ -150,6 +153,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
             Assert.Equal(actualSchemaName, expectedSchemaName);
         }
+
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a valid object name and no schema
+        /// </summary>
 
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithNoSchemaTest()
@@ -163,7 +170,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.Equal(actualSchemaName, expectedSchemaName);
         }
 
-
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a invalid database name
+        /// </summary>
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithInvalidNameTest()
         {
@@ -190,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             string schemaName = null;
             string objectType = "TABLE";
 
-            // Get locations for valid tablel object
+            // Get locations for valid table object
             Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
@@ -233,6 +242,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Cleanup(locations);            
         }
 
+        /// <summary>
+        /// Test GetDefinition with an unsupported type(function)
+        /// </summary>
         [Fact]
         public void GetUnsupportedDefinitionForFullScript()
         {
