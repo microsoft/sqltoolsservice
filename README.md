@@ -1,3 +1,5 @@
+[![Travis CI](https://travis-ci.org/anthonydresser/sqltoolsservice.svg?branch=dev)](https://travis-ci.org/anthonydresser/sqltoolsservice)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/anthonydresser/sqltoolsservice?svg=true&retina=true&branch=dev)](https://ci.appveyor.com/project/anthonydresser/sqltoolsservice)
 [![Coverage Status](https://coveralls.io/repos/github/anthonydresser/sqltoolsservice/badge.svg?branch=dev)](https://coveralls.io/github/anthonydresser/sqltoolsservice?branch=dev)
 
 # Microsoft SQL Tools Service 
