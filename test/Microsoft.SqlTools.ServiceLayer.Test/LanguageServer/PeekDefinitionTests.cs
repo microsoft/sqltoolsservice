@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Tests the 
+        /// Tests setting location objects on windows and non-windows systems
         /// </summary>
         [Fact]
         public void GetLocationFromFileForValidFilePathTest()
@@ -139,6 +139,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.Equal(locations[0].Uri, expectedFilePath);
         }
 
+        [Fact]
+        public void GetSchemaFromDatabaseQualifiedNameWithValidNameTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null);
+            string validDatabaseQualifiedName = "master.test.test_table";
+            string objectName = "test_table";
+            string expectedSchemaName = "test";
+        
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
+        }
+
+        [Fact]
+        public void GetSchemaFromDatabaseQualifiedNameWithNoSchemaTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null);
+            string validDatabaseQualifiedName = "test_table";
+            string objectName = "test_table";
+            string expectedSchemaName = "dbo";
+        
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
+        }
+
+
+        [Fact]
+        public void GetSchemaFromDatabaseQualifiedNameWithInvalidNameTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null);
+            string validDatabaseQualifiedName = "x.y.z";
+            string objectName = "test_table";
+            string expectedSchemaName = "dbo";
+        
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
+        }
+         
 #if LIVE_CONNECTION_TESTS
         /// <summary>
         /// Test get definition for a table object with active connection
