@@ -190,9 +190,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal string GetSchemaFromDatabaseQualifiedName(string fullObjectName, string objectName)
         {
             string[] tokens = fullObjectName.Split('.');
-            for (int i = tokens.Length - 1; i >= 0; i--)
+            for (int i = tokens.Length - 1; i > 0; i--)
             {
-                if(tokens[i].Equals(objectName) && i > 0)
+                if(tokens[i].Equals(objectName))
                 {
                     return tokens[i-1];
                 }
