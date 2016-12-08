@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                // Basic summary with basic information
+                // Batch summary with information available at start
                 BatchSummary summary = new BatchSummary
                 {
                     HasError = HasError,

@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event Batch.BatchAsyncEventHandler BatchCompleted;
 
         /// <summary>
-        /// Event to be called when a batch starts execution;
+        /// Event to be called when a batch starts execution.
         /// </summary>
         public event Batch.BatchAsyncEventHandler BatchStarted;
 
