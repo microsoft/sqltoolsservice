@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             OwnerUri = ownerUri;
             ConnectionDetails = details;
             ConnectionId = Guid.NewGuid();
+            IntellisenseMetrics = new InteractionMetrics<InteractionMetrics<double>>(new int[] { 100, 1000, 2000, 5000 }); //File size (number of characterless) bucket
         }
 
         /// <summary>
@@ -49,5 +50,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// The connection to the SQL database that commands will be run against.
         /// </summary>
         public DbConnection SqlConnection { get; set; }
+
+        /// <summary>
+        /// Intellisense Metrics
+        /// </summary>
+        public InteractionMetrics<InteractionMetrics<double>> IntellisenseMetrics { get; private set; }
+
+        /// <summary>
+        /// Returns true is the db connection is to a SQL db
+        /// </summary>
+        public bool IsAzure { get; set; }
     }
 }

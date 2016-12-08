@@ -14,22 +14,5 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             RequestType<TextDocumentPosition, Location[]> Type =
             RequestType<TextDocumentPosition, Location[]>.Create("textDocument/definition");
     }
-
-    /// <summary>
-    /// Parameters sent back with a definition event
-    /// </summary>
-    public class DefinitionSentParams
-    {
-    }
-
-    /// <summary>
-    /// Event sent when the language service sent the definition
-    /// </summary>
-    public class DefinitionSentNotification
-    {
-        public static readonly
-            EventType<DefinitionSentParams> Type =
-            EventType<DefinitionSentParams>.Create("textDocument/definitionSent");
-    }
 }
 

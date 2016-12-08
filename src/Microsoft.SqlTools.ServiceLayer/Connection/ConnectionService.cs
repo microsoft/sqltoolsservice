@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -290,6 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion
                 };
+                connectionInfo.IsAzure = serverInfo.IsCloud;
             }
             catch(Exception ex)
             {
@@ -355,6 +357,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 return false;
             }
+
+            foreach (var item in info.IntellisenseMetrics.Quantile)
+            {
+                // Send a telemetry notification for intellisense performance metrics
+                ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                {
+                    Properties = new Dictionary<string, string>
+                    {
+                        { "IsAzure", info.IsAzure ? "1" : "0" },
+                        { "FileSize", item.Key }
+                    },
+                    EventName = TelemetryEvenNames.IntellisensePersentile,
+                    Measures = item.Value.Quantile
+                });
+            }
+            
 
             // Close the connection            
             info.SqlConnection.Close();
