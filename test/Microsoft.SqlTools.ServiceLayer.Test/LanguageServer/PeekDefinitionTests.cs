@@ -2,10 +2,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.IO;
-using System;
+using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -45,10 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         private TextDocumentPosition textDocument;
 
         private const string OwnerUri = "testFile1";
-
-        private const string ViewOwnerUri = "testFile2";
-
-        private const string TriggerOwnerUri = "testFile3";
 
         private void InitializeTestObjects()
         {
@@ -126,15 +123,74 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             // verify that send result was not called
             requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
-
         }
 
+        /// <summary>
+        /// Tests creating location objects on windows and non-windows systems
+        /// </summary>
+        [Fact]
+        public void GetLocationFromFileForValidFilePathTest()
+        {
+            String filePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:\\test\\script.sql" : "/test/script.sql";
+            PeekDefinition peekDefinition = new PeekDefinition(null);
+            Location[] locations = peekDefinition.GetLocationFromFile(filePath, 0);
+
+            String expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
+            Assert.Equal(locations[0].Uri, expectedFilePath);
+        }
+
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a valid database name
+        /// </summary>
+        [Fact]
+        public void GetSchemaFromDatabaseQualifiedNameWithValidNameTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null);
+            string validDatabaseQualifiedName = "master.test.test_table";
+            string objectName = "test_table";
+            string expectedSchemaName = "test";
+        
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
+        }
+
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a valid object name and no schema
+        /// </summary>
+
+        [Fact]
+        public void GetSchemaFromDatabaseQualifiedNameWithNoSchemaTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null);
+            string validDatabaseQualifiedName = "test_table";
+            string objectName = "test_table";
+            string expectedSchemaName = "dbo";
+        
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
+        }
+
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a invalid database name
+        /// </summary>
+        [Fact]
+        public void GetSchemaFromDatabaseQualifiedNameWithInvalidNameTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null);
+            string validDatabaseQualifiedName = "x.y.z";
+            string objectName = "test_table";
+            string expectedSchemaName = "dbo";
+        
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
+        }
+         
 #if LIVE_CONNECTION_TESTS
         /// <summary>
         /// Test get definition for a table object with active connection
         /// </summary>
         [Fact]
-        public void GetTableDefinitionTest()
+        public void GetValidTableDefinitionTest()
         {
             // Get live connectionInfo
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
@@ -143,11 +199,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             string schemaName = null;
             string objectType = "TABLE";
 
+            // Get locations for valid table object
             Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
 
+        /// <summary>
+        /// Test get definition for a invalid table object with active connection
+        /// </summary>
+        [Fact]
+        public void GetTableDefinitionInvalidObjectTest()
+        {
+            // Get live connectionInfo
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            string objectName = "test_invalid";
+            string schemaName = null;
+            string objectType = "TABLE";
+
+            // Get locations for invalid table object
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
+            Assert.Null(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a valid table object with schema and active connection
+        /// </summary>
+        [Fact]
+        public void GetTableDefinitionWithSchemaTest()
+        {
+            // Get live connectionInfo
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            string objectName = "test_table";
+            string schemaName = "dbo";
+            string objectType = "TABLE";
+
+            // Get locations for valid table object with schema name
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);            
+        }
+
+        /// <summary>
+        /// Test GetDefinition with an unsupported type(function)
+        /// </summary>
         [Fact]
         public void GetUnsupportedDefinitionForFullScript()
         {
@@ -177,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// Test get definition for a view object with active connection
         /// </summary>
         [Fact]
-        public void GetViewDefinitionTest()
+        public void GetValidViewDefinitionTest()
         {
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
