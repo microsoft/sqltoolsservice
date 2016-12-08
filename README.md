@@ -1,4 +1,4 @@
-[![Travis CI](https://travis-ci.org/Microsoft/sqltoolsservice.svg?branch=dev)](https://travis-ci.org/anthonydresser/sqltoolsservice)
+[![Travis CI](https://travis-ci.org/Microsoft/sqltoolsservice.svg?branch=dev)](https://travis-ci.org/Microsoft/sqltoolsservice)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/{INSERTUSERHERE}/sqltoolsservice?svg=true&retina=true&branch=dev)](https://ci.appveyor.com/project/{INSERTUSERHERE}/sqltoolsservice)
 [![Coverage Status](https://coveralls.io/repos/github/Microsoft/sqltoolsservice/badge.svg?branch=dev)](https://coveralls.io/github/Microsoft/sqltoolsservice?branch=dev)
 
