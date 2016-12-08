@@ -21,14 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         public AutoCompletionResult()
         {
             Stopwatch = new Stopwatch();
-            StartProcesssing();
-        }
-
-        /// <summary>
-        /// Starts processing the result
-        /// </summary>
-        public void StartProcesssing()
-        {
             Stopwatch.Start();
         }
 
@@ -37,10 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         /// <summary>
         /// Completes the results to calculate the duration
         /// </summary>
-        public void CompleteResult(IEnumerable<Declaration> suggestions, CompletionItem[] completionItems)
+        public void CompleteResult(CompletionItem[] completionItems)
         {
             Stopwatch.Stop();
-            Suggestions = suggestions;
             CompletionItems = completionItems;
         }
 
@@ -55,11 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             }
         }
         
-        /// <summary>
-        /// Suggestion list
-        /// </summary>
-        public IEnumerable<Declaration> Suggestions { get; private set; }
-
         /// <summary>
         /// Completion list
         /// </summary>

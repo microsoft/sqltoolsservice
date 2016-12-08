@@ -8,22 +8,27 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
 {
+    public class TelemetryProperties
+    {
+        public string EventName { get; set; }
+
+        /// <summary>
+        /// Telemetry properties
+        /// </summary>
+        public Dictionary<string, string> Properties { get; set; }
+
+        /// <summary>
+        /// Telemetry measures
+        /// </summary>
+        public Dictionary<string, double> Measures { get; set; }
+    }
+
     /// <summary>
     /// Parameters sent back with an IntelliSense ready event
     /// </summary>
     public class TelemetryParams
     {
-        public string EventName { get; set; }
-
-        /// <summary>
-        /// URI identifying the text document
-        /// </summary>
-        public Dictionary<string, string> Properties { get; set; }
-
-        /// <summary>
-        /// URI identifying the text document
-        /// </summary>
-        public Dictionary<string, double> Measures { get; set; }
+        public TelemetryProperties Params { get; set; }
     }
 
     /// <summary>
@@ -33,18 +38,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             EventType<TelemetryParams> Type =
-            EventType<TelemetryParams>.Create("textDocument/telemetry");
+            EventType<TelemetryParams>.Create("telemetry/event");
     }
 
     /// <summary>
     /// List of telemetry events
     /// </summary>
-    public static class TelemetryEvenNames
+    public static class TelemetryEventNames
     {
         /// <summary>
-        /// telemetry even name for auto complete response time
+        /// telemetry event name for auto complete response time
         /// </summary>
-        public const string IntellisensePersentile = "IntellisenseQuantile";
+        public const string IntellisenseQuantile = "IntellisenseQuantile";
 
         /// <summary>
         /// telemetry even name for when definition is requested

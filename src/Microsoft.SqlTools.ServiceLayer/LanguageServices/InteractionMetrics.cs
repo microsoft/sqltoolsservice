@@ -29,7 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
 
             Counters = new ConcurrentDictionary<string, T>();
-            Metrics = IsSorted(metrics) ? metrics : metrics.OrderBy( i => i).ToArray();
+            if (!IsSorted(metrics))
+            {
+                Array.Sort(metrics);
+            }
+            Metrics = metrics;
         }
 
         private ConcurrentDictionary<string, T> Counters { get; }
@@ -66,20 +70,17 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// </summary>
         public void UpdateMetrics(double duration, T newValue, Func<string, T, T> updateValueFactory)
         {
-           Task.Factory.StartNew(() =>
-           {
-               int metric = Metrics[Metrics.Length - 1];
-               for (int i = 0; i < Metrics.Length; i++)
-               {
-                   if (duration <= Metrics[i])
-                   {
-                       metric = Metrics[i];
-                       break;
-                   }
-               }
-               string key = metric.ToString();
-               Counters.AddOrUpdate(key, newValue, updateValueFactory);
-           });
+            int metric = Metrics[Metrics.Length - 1];
+            for (int i = 0; i < Metrics.Length; i++)
+            {
+                if (duration <= Metrics[i])
+                {
+                    metric = Metrics[i];
+                    break;
+                }
+            }
+            string key = metric.ToString();
+            Counters.AddOrUpdate(key, newValue, updateValueFactory);
         }
 
         /// <summary>

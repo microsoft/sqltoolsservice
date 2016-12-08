@@ -18,6 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     /// </summary>
     internal class CompletionService
     {
+        private ConnectedBindingQueue BindingQueue { get; set; }
+
         /// <summary>
         /// Created new instance given binding queue
         /// </summary>
@@ -66,13 +68,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
                     var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
-                    if (completionResult != null && completionResult.CompletionItems != null)
+                    if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
                     {
                         result = completionResult;
                     }
                     else if (!ShouldShowCompletionList(scriptDocumentInfo.Token))
                     {
-                        result.CompleteResult(scriptDocumentInfo.ScriptParseInfo.CurrentSuggestions, AutoCompleteHelper.EmptyCompletionList);
+                        result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
                     }
                 }
                 finally
@@ -122,13 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             return result;
         }
 
-        private ConnectedBindingQueue BindingQueue { get; set; }
-
         private AutoCompletionResult CreateDefaultCompletionItems(ScriptParseInfo scriptParseInfo, ScriptDocumentInfo scriptDocumentInfo, bool useLowerCaseSuggestions)
         {
             AutoCompletionResult result = new AutoCompletionResult();
             CompletionItem[] completionList = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
-            result.CompleteResult(scriptParseInfo.CurrentSuggestions, completionList);
+            result.CompleteResult(completionList);
             return result;
         }
 
@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 scriptDocumentInfo.EndColumn,
                 scriptDocumentInfo.TokenText);
 
-            result.CompleteResult(suggestions, completionList);
+            result.CompleteResult(completionList);
 
             //The bucket for number of milliseconds will take to send back auto complete list
             connInfo.IntellisenseMetrics.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);

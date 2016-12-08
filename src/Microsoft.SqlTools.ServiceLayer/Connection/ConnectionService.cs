@@ -361,12 +361,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Send a telemetry notification for intellisense performance metrics
             ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
             {
-                Properties = new Dictionary<string, string>
+                Params = new TelemetryProperties
+                {
+                    Properties = new Dictionary<string, string>
                     {
                         { "IsAzure", info.IsAzure ? "1" : "0" }
                     },
-                EventName = TelemetryEvenNames.IntellisensePersentile,
-                Measures = info.IntellisenseMetrics.Quantile
+                    EventName = TelemetryEventNames.IntellisenseQuantile,
+                    Measures = info.IntellisenseMetrics.Quantile
+                }
             });
 
 

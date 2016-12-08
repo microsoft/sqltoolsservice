@@ -313,7 +313,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     await requestContext.SendResult(locations);
 
                     // Send a notification to signal that definition is sent
-                    await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams() { EventName = TelemetryEvenNames.PeekDefinitionRequested });
+                    await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                    {
+                        Params = new TelemetryProperties
+                        {
+                            EventName = TelemetryEventNames.PeekDefinitionRequested
+                        }
+                    });
                 }
             }
         }

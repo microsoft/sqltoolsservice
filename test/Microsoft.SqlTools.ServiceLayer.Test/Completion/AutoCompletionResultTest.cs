@@ -4,9 +4,7 @@
 //
 
 
-using System.Collections.Generic;
 using System.Threading;
-using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Xunit;
@@ -21,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Completion
             AutoCompletionResult result = new AutoCompletionResult();
             int duration = 2000;
             Thread.Sleep(duration);
-            result.CompleteResult(new List<Declaration>(), new CompletionItem[] { });
+            result.CompleteResult(new CompletionItem[] { });
             Assert.True(result.Duration >= duration);
         }
     }

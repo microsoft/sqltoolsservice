@@ -28,8 +28,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             CompletionService completionService = new CompletionService(bindingQueue);
             ConnectionInfo connectionInfo = new ConnectionInfo(null, null, null);
             bool useLowerCaseSuggestions = true;
+            CompletionItem[] defaultCompletionList = AutoCompleteHelper.GetDefaultCompletionItems(docInfo, useLowerCaseSuggestions);
+
             List<Declaration> declarations = new List<Declaration>();
-            
+
             var sqlParserWrapper = new Mock<ISqlParserWrapper>();
             sqlParserWrapper.Setup(x => x.FindCompletions(docInfo.ScriptParseInfo.ParseResult, docInfo.ParserLine, docInfo.ParserColumn, 
                 It.IsAny<IMetadataDisplayInfoProvider>())).Returns(declarations);
@@ -37,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
 
             AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
-            Assert.Equal(result.CompletionItems.Count(), declarations.Count);
+            Assert.NotEqual(result.CompletionItems == null ? 0 : result.CompletionItems.Count(), defaultCompletionList.Count());
         }
 
         [Fact]
