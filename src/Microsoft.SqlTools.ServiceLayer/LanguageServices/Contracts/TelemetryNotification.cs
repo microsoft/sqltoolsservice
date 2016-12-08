@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             EventType<TelemetryParams> Type =
-            EventType<TelemetryParams>.Create("telemetry/event");
+            EventType<TelemetryParams>.Create("telemetry/sqlevent");
     }
 
     /// <summary>
