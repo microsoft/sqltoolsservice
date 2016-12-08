@@ -63,11 +63,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         public void QueryExecuteSingleBatch()
         {
             // Setup:
-            // ... Create a callback for batch completion
-            int batchCallbacksReceived = 0;
-            Batch.BatchAsyncEventHandler batchCallback = summary =>
+            // ... Create a callback for atch start
+            int batchStartCallbacksReceived = 0;
+            Batch.BatchAsyncEventHandler batchStartCallback = b =>
             {
-                batchCallbacksReceived++;
+                batchStartCallbacksReceived++;
+                return Task.FromResult(0);
+            };
+
+            // ... Create a callback for batch completion
+            int batchCompleteCallbacksReceived = 0;
+            Batch.BatchAsyncEventHandler batchCompleteCallback = summary =>
+            {
+                batchCompleteCallbacksReceived++;
                 return Task.CompletedTask;
             };
 
@@ -76,7 +84,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(Common.StandardQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
-            query.BatchCompleted += batchCallback;
+            query.BatchStarted += batchStartCallback;
+            query.BatchCompleted += batchCompleteCallback;
 
             // Then:
             // ... I should get a single batch to execute that hasn't been executed
@@ -97,16 +106,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.NotEmpty(query.BatchSummaries);
             Assert.Equal(1, query.BatchSummaries.Length);
 
-            // ... The batch callback should have been called precisely 1 time
-            Assert.Equal(1, batchCallbacksReceived);
+            // ... The batch callbacks should have been called precisely 1 time
+            Assert.Equal(1, batchStartCallbacksReceived);
+            Assert.Equal(1, batchCompleteCallbacksReceived);
         }
 
         [Fact]
         public void QueryExecuteNoOpBatch()
         {
             // Setup:
+            // ... Create a callback for batch startup
+            Batch.BatchAsyncEventHandler batchStartCallback = b =>
+            {
+                throw new Exception("Batch startup callback should not have been called.");
+            };
+
             // ... Create a callback for batch completion
-            Batch.BatchAsyncEventHandler batchCallback = summary =>
+            Batch.BatchAsyncEventHandler batchCompletionCallback = summary =>
             {
                 throw new Exception("Batch completion callback was called");
             };
@@ -116,7 +132,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(Common.NoOpQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
-            query.BatchCompleted += batchCallback;
+            query.BatchStarted += batchStartCallback;
+            query.BatchCompleted += batchCompletionCallback;
 
             // Then:
             // ... I should get no batches back
@@ -140,12 +157,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         public void QueryExecuteMultipleBatches()
         {
             // Setup:
-            // ... Create a callback for batch completion
-            int batchCallbacksReceived = 0;
-            Batch.BatchAsyncEventHandler batchCallback = summary =>
+            // ... Create a callback for batch start
+            int batchStartCallbacksReceived = 0;
+            Batch.BatchAsyncEventHandler batchStartCallback = b =>
             {
-                batchCallbacksReceived++;
-                return Task.CompletedTask;
+                batchStartCallbacksReceived++;
+                return Task.FromResult(0);
+            };
+
+            // ... Create a callback for batch completion
+            int batchCompletedCallbacksReceived = 0;
+            Batch.BatchAsyncEventHandler batchCompletedCallback = summary =>
+            {
+                batchCompletedCallbacksReceived++;
+                return Task.FromResult(0);
             };
 
             // If:
@@ -154,7 +179,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             string queryText = string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
-            query.BatchCompleted += batchCallback;
+            query.BatchStarted += batchStartCallback;
+            query.BatchCompleted += batchCompletedCallback;
 
             // Then:
             // ... I should get back two batches to execute that haven't been executed
@@ -175,19 +201,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.NotEmpty(query.BatchSummaries);
             Assert.Equal(2, query.BatchSummaries.Length);
 
-            // ... The batch callback should have been called precisely 2 times
-            Assert.Equal(2, batchCallbacksReceived);
+            // ... The batch start and completion callbacks should have been called precisely 2 times
+            Assert.Equal(2, batchStartCallbacksReceived);
+            Assert.Equal(2, batchCompletedCallbacksReceived);
         }
 
         [Fact]
         public void QueryExecuteMultipleBatchesWithNoOp()
         {
             // Setup:
-            // ... Create a callback for batch completion
-            int batchCallbacksReceived = 0;
-            Batch.BatchAsyncEventHandler batchCallback = summary =>
+            // ... Create a callback for batch start
+            int batchStartCallbacksReceived = 0;
+            Batch.BatchAsyncEventHandler batchStartCallback = b =>
             {
-                batchCallbacksReceived++;
+                batchStartCallbacksReceived++;
+                return Task.FromResult(0);
+            };
+
+            // ... Create a callback for batch completion
+            int batchCompletionCallbacksReceived = 0;
+            Batch.BatchAsyncEventHandler batchCompletionCallback = summary =>
+            {
+                batchCompletionCallbacksReceived++;
                 return Task.CompletedTask;
             };
 
@@ -197,7 +232,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             string queryText = string.Format("{0}\r\nGO\r\n{1}", Common.StandardQuery, Common.NoOpQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
-            query.BatchCompleted += batchCallback;
+            query.BatchStarted += batchStartCallback;
+            query.BatchCompleted += batchCompletionCallback;
 
             // Then:
             // ... I should get back one batch to execute that hasn't been executed
@@ -217,19 +253,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.NotEmpty(query.BatchSummaries);
             Assert.Equal(1, query.BatchSummaries.Length);
 
-            // ... The batch callback should have been called precisely 1 time
-            Assert.Equal(1, batchCallbacksReceived);
+            // ... The batch callbacks should have been called precisely 1 time
+            Assert.Equal(1, batchStartCallbacksReceived);
+            Assert.Equal(1, batchCompletionCallbacksReceived);
         }
 
         [Fact]
         public void QueryExecuteInvalidBatch()
         {
             // Setup:
-            // ... Create a callback for batch completion
-            int batchCallbacksReceived = 0;
-            Batch.BatchAsyncEventHandler batchCallback = summary =>
+            // ... Create a callback for batch start
+            int batchStartCallbacksReceived = 0;
+            Batch.BatchAsyncEventHandler batchStartCallback = b =>
             {
-                batchCallbacksReceived++;
+                batchStartCallbacksReceived++;
+                return Task.FromResult(0);
+            };
+
+            // ... Create a callback for batch completion
+            int batchCompletionCallbacksReceived = 0;
+            Batch.BatchAsyncEventHandler batchCompltionCallback = summary =>
+            {
+                batchCompletionCallbacksReceived++;
                 return Task.CompletedTask;
             };
 
@@ -238,7 +283,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
-            query.BatchCompleted += batchCallback;
+            query.BatchStarted += batchStartCallback;
+            query.BatchCompleted += batchCompltionCallback;
 
             // Then:
             // ... I should get back a query with one batch not executed
@@ -261,8 +307,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.True(query.BatchSummaries[0].HasError);
             Assert.NotEmpty(query.BatchSummaries[0].Messages);
 
-            // ... The batch callback should have been called once
-            Assert.Equal(1, batchCallbacksReceived);
+            // ... The batch callbacks should have been called once
+            Assert.Equal(1, batchStartCallbacksReceived);
+            Assert.Equal(1, batchCompletionCallbacksReceived);
         }
 
     }

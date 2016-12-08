@@ -6,8 +6,12 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -37,9 +41,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (this.connectionInfo.SqlConnection != null)
                 {
-                    Server server = new Server(this.connectionInfo.SqlConnection.DataSource);
-                    return server.Databases[this.connectionInfo.SqlConnection.Database];
-
+                    try
+                    {
+                        // Get server object from connection
+                        string connectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails);
+                        SqlConnection sqlConn = new SqlConnection(connectionString);                    
+                        sqlConn.Open();
+                        ServerConnection serverConn = new ServerConnection(sqlConn); 
+                        Server server = new Server(serverConn);
+                        return server.Databases[this.connectionInfo.SqlConnection.Database];
+                    }
+                    catch(Exception ex)
+                    {
+                        Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
+                        return null;
+                    }                   
                 }
                 return null;
             }
@@ -83,11 +99,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Convert a file to a location array containing a location object as expected by the extension
         /// </summary>
-        private Location[] GetLocationFromFile(string tempFileName, int lineNumber)
+        internal Location[] GetLocationFromFile(string tempFileName, int lineNumber)
         {
+            if (Path.DirectorySeparatorChar.Equals('/'))
+            {
+                tempFileName = "file:" + tempFileName;                 
+            }
+            else
+            {
+                tempFileName = new Uri(tempFileName).AbsoluteUri;
+            }
             Location[] locations = new[] {
                     new Location {
-                        Uri = new Uri(tempFileName).AbsoluteUri,
+                        Uri = tempFileName,
                         Range = new Range {
                             Start = new Position { Line = lineNumber, Character = 1},
                             End = new Position { Line = lineNumber + 1, Character = 1}
@@ -135,6 +159,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     DeclarationType type  = declarationItem.Type;
                     if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
                     {
+                        // On *nix and mac systems, the defaultSchema property throws an Exception when accessed.
+                        // This workaround ensures that a schema name is present by attempting 
+                        // to get the schema name from the declaration item 
+                        // If all fails, the default schema name is assumed to be "dbo"
+                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && string.IsNullOrEmpty(schemaName))
+                        {
+                            string fullObjectName = declarationItem.DatabaseQualifiedName;
+                            schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
+                        }
                         return GetSqlObjectDefinition(
                                     sqlScriptGetters[type],
                                     tokenText,
@@ -146,6 +179,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Return schema name from the full name of the database. If schema is missing return dbo as schema name.
+        /// </summary>
+        /// <param name="fullObjectName"> The full database qualified name(database.schema.object)</param>
+        /// <param name="objectName"> Object name</param>
+        /// <returns>Schema name</returns>
+        internal string GetSchemaFromDatabaseQualifiedName(string fullObjectName, string objectName)
+        {
+            string[] tokens = fullObjectName.Split('.');
+            for (int i = tokens.Length - 1; i > 0; i--)
+            {
+                if(tokens[i].Equals(objectName))
+                {
+                    return tokens[i-1];
+                }
+            }
+            return "dbo";
         }
 
         /// <summary>

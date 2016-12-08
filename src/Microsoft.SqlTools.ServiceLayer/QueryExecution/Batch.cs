@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             this.outputFileFactory = outputFileFactory;
         }
 
-        #region Properties
+        #region Events
 
         /// <summary>
         /// Asynchronous handler for when batches are completed
@@ -89,10 +89,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event BatchAsyncEventHandler BatchCompletion;
 
         /// <summary>
+        /// Event to call when the batch has started execution
+        /// </summary>
+        public event BatchAsyncEventHandler BatchStart;
+
+        /// <summary>
         /// Event that will be called when the resultset has completed execution. It will not be
         /// called from the Batch but from the ResultSet instance
         /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetCompletion;
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// The text of batch that will be executed
@@ -175,17 +184,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                return new BatchSummary
+                // Batch summary with information available at start
+                BatchSummary summary = new BatchSummary
                 {
                     HasError = HasError,
                     Id = Id,
-                    ResultSetSummaries = ResultSummaries,
-                    Messages = ResultMessages.ToArray(),
                     Selection = Selection,
-                    ExecutionElapsed = ExecutionElapsedTime,
-                    ExecutionStart = ExecutionStartTimeStamp,
-                    ExecutionEnd = ExecutionEndTimeStamp
+                    ExecutionStart = ExecutionStartTimeStamp
                 };
+
+                // Add on extra details if we finished executing it
+                if (HasExecuted)
+                {
+                    summary.ResultSetSummaries = ResultSummaries;
+                    summary.Messages = ResultMessages.ToArray();
+                    summary.ExecutionEnd = ExecutionEndTimeStamp;
+                    summary.ExecutionElapsed = ExecutionElapsedTime;
+                }
+
+                return summary;
             }
         }
 
@@ -209,6 +226,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (HasExecuted)
             {
                 throw new InvalidOperationException("Batch has already executed.");
+            }
+
+            // Notify that we've started execution
+            if (BatchStart != null)
+            {
+                await BatchStart(this);
             }
 
             try
