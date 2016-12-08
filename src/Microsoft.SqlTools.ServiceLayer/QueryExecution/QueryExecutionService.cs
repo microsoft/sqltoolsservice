@@ -443,17 +443,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             query.QueryFailed += callback;
             query.QueryConnectionException += errorCallback;
 
-            // Setup the batch completion callback
-            Batch.BatchAsyncEventHandler batchCallback = async b =>
+            // Setup the batch callbacks
+            Batch.BatchAsyncEventHandler batchStartCallback = async b =>
             {
-                QueryExecuteBatchCompleteParams eventParams = new QueryExecuteBatchCompleteParams
+                QueryExecuteBatchNotificationParams eventParams = new QueryExecuteBatchNotificationParams
+                {
+                    BatchSummary = b.Summary,
+                    OwnerUri = executeParams.OwnerUri
+                };
+                await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
+            };
+            query.BatchStarted += batchStartCallback;
+
+            Batch.BatchAsyncEventHandler batchCompleteCallback = async b =>
+            {
+                QueryExecuteBatchNotificationParams eventParams = new QueryExecuteBatchNotificationParams
                 {
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
                 await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
             };
-            query.BatchCompleted += batchCallback;
+            query.BatchCompleted += batchCompleteCallback;
 
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
