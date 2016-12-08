@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     catch(Exception ex)
                     {
-                        Logger.Write(LogLevel.Error, ex.Message);
+                        Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
                         return null;
                     }                   
                 }
