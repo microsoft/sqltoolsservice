@@ -49,6 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// <summary>
         /// telemetry even name for when definition is requested
         /// </summary>
-        public const string DefinitionRequested = "DefinitionRequested";
+        public const string PeekDefinitionRequested = "PeekDefinitionRequested";
     } 
 }

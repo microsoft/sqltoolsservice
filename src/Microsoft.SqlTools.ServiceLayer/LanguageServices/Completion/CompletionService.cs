@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             // queue the completion task with the binding queue    
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
-                bindingTimeout: 60000,
+                bindingTimeout: LanguageService.BindingTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider);
@@ -159,13 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             result.CompleteResult(suggestions, completionList);
 
             //The bucket for number of milliseconds will take to send back auto complete list
-            connInfo.IntellisenseMetrics.UpdateMetrics(scriptDocumentInfo.Contents.Length,
-                new InteractionMetrics<double>(new int[] { 50, 100, 200, 500, 1000, 2000 }),
-                (k, current) =>
-                {
-                    current.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);
-                    return current;
-                });
+            connInfo.IntellisenseMetrics.UpdateMetrics(result.Duration, 1, (k2, v2) => v2 + 1);
             return result;
         }
     }

@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             OwnerUri = ownerUri;
             ConnectionDetails = details;
             ConnectionId = Guid.NewGuid();
-            IntellisenseMetrics = new InteractionMetrics<InteractionMetrics<double>>(new int[] { 100, 1000, 2000, 5000 }); //File size (number of characterless) bucket
+            IntellisenseMetrics = new InteractionMetrics<double>(new int[] { 50, 100, 200, 500, 1000, 2000 });
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Intellisense Metrics
         /// </summary>
-        public InteractionMetrics<InteractionMetrics<double>> IntellisenseMetrics { get; private set; }
+        public InteractionMetrics<double> IntellisenseMetrics { get; private set; }
 
         /// <summary>
         /// Returns true is the db connection is to a SQL db

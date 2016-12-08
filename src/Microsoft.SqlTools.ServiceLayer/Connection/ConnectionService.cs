@@ -358,21 +358,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return false;
             }
 
-            foreach (var item in info.IntellisenseMetrics.Quantile)
+            // Send a telemetry notification for intellisense performance metrics
+            ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
             {
-                // Send a telemetry notification for intellisense performance metrics
-                ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
-                {
-                    Properties = new Dictionary<string, string>
+                Properties = new Dictionary<string, string>
                     {
-                        { "IsAzure", info.IsAzure ? "1" : "0" },
-                        { "FileSize", item.Key }
+                        { "IsAzure", info.IsAzure ? "1" : "0" }
                     },
-                    EventName = TelemetryEvenNames.IntellisensePersentile,
-                    Measures = item.Value.Quantile
-                });
-            }
-            
+                EventName = TelemetryEvenNames.IntellisensePersentile,
+                Measures = info.IntellisenseMetrics.Quantile
+            });
+
 
             // Close the connection            
             info.SqlConnection.Close();
