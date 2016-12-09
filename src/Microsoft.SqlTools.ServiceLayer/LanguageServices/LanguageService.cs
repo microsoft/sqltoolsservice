@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,6 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -216,18 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
                 Logger.Write(LogLevel.Verbose, "Shutting down language service");
-                // Delete temp folder created to store peek definition scripts
-                try
-                {
-                    if(File.Exists(TextUtilities.PeekDefinitionTempFolder))
-                    {
-                        File.Delete(TextUtilities.PeekDefinitionTempFolder);
-                    }
-                }
-                catch(Exception)
-                {
-                    //no op. Ignore failure to delete
-                }
+                DeletePeekDefinitionScripts();
                 await Task.FromResult(0);
             });
 
@@ -1304,6 +1293,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             else
             {
                 return false;
+            }
+        }
+
+        private void DeletePeekDefinitionScripts()
+        {
+            // Delete temp folder created to store peek definition scripts
+            if (FileUtils.SafeDirectoryExists(FileUtils.PeekDefinitionTempFolder))
+            {
+                FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
             }
         }
     }

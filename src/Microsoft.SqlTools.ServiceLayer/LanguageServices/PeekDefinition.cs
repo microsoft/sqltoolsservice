@@ -11,8 +11,8 @@ using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -65,8 +65,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal PeekDefinition(ConnectionInfo connInfo)
         {
             this.connectionInfo = connInfo;
-            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(TextUtilities.PeekDefinitionTempFolder);
-            this.tempPath = tempScriptDirectory.FullName;
+            DirectoryInfo tempScriptDirectory;
+            try 
+            {
+                tempScriptDirectory = Directory.CreateDirectory(FileUtils.PeekDefinitionTempFolder);
+                this.tempPath = tempScriptDirectory.FullName;
+            }
+            catch(Exception)
+            {
+                // swallow exception and use temp folder to store scripts
+                this.tempPath = Path.GetTempPath();
+            }         
             Initialize();
         }
 
