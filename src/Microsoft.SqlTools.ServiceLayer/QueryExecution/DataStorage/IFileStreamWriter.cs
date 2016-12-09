@@ -5,6 +5,7 @@
 
 using System;
 using System.Data.SqlTypes;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         int WriteDouble(double val);
         int WriteDecimal(decimal val);
         int WriteSqlDecimal(SqlDecimal val);
-        int WriteDateTime(DateTime val);
+        int WriteDateTime(DbColumnWrapper column, DateTime val);
         int WriteDateTimeOffset(DateTimeOffset dtoVal);
         int WriteTimeSpan(TimeSpan val);
         int WriteString(string val);
