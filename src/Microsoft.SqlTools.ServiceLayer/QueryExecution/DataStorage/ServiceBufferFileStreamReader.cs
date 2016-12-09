@@ -271,8 +271,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }, null,
                 time =>
                 {
-                    // Output the number milliseconds equivalent to the precision
-                    string format = "yyyy-MM-dd HH:mm:ss." + new string('f', precision);
+                    string format = "yyyy-MM-dd HH:mm:ss";
+                    if (precision > 0)
+                    {
+                        // Output the number milliseconds equivalent to the precision
+                        // NOTE: string('f', precision) will output ffff for precision=4
+                        format += "." + new string('f', precision);
+                    }
                     return time.ToString(format);
                 });
         }
