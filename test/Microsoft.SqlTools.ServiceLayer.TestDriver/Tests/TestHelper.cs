@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Returns database connection parameters for given server type
         /// </summary>
-        public async Task<ConnectParams> GetDatabaseConnectionAsync(TestServerType serverType)
+        public async Task<ConnectParams> GetDatabaseConnectionAsync(TestServerType serverType, string databaseName)
         {
             ConnectionProfile connectionProfile = null;
             TestServerIdentity serverIdentiry = ConnectionTestUtils.TestServers.FirstOrDefault(x => x.ServerType == serverType);
@@ -195,6 +195,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 }
                 ConnectParams conenctParam = ConnectionTestUtils.CreateConnectParams(connectionProfile.ServerName, connectionProfile.Database,
                     connectionProfile.User, password);
+                if (!string.IsNullOrEmpty(databaseName))
+                {
+                    conenctParam.Connection.DatabaseName = databaseName;
+                }
+                if (serverType == TestServerType.Azure)
+                {
+                    conenctParam.Connection.ConnectTimeout = 30;
+                    conenctParam.Connection.Encrypt = true;
+                    conenctParam.Connection.TrustServerCertificate = false;
+                }
                 return conenctParam;
             }
             return null;
@@ -248,6 +258,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         /// <summary>
+        /// Request definition( peek definition/go to definition) for a sql object in a sql string
+        /// </summary>
+        public async Task<Location[]> RequestDefinition(string ownerUri, string text, int line, int character)
+        {
+            // Write the text to a backing file
+            lock (fileLock)
+            {
+                System.IO.File.WriteAllText(ownerUri, text);
+            }
+
+            var definitionParams = new TextDocumentPosition();
+            definitionParams.TextDocument = new TextDocumentIdentifier();
+            definitionParams.TextDocument.Uri = ownerUri;
+            definitionParams.Position = new Position();
+            definitionParams.Position.Line = line;
+            definitionParams.Position.Character = character;
+
+            // Send definition request
+            var result = await Driver.SendRequest(DefinitionRequest.Type, definitionParams);
+            return result;
+        }
+
+        /// <summary>
         /// Run a query using a given connection bound to a URI
         /// </summary>
         public async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query, int timeoutMilliseconds = 5000)
@@ -271,6 +304,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Run a query using a given connection bound to a URI. This method only waits for the initial response from query
+        /// execution (QueryExecuteResult). It is up to the caller to wait for the QueryExecuteCompleteEvent if they are interested.
+        /// </summary>
+        public async Task<QueryExecuteResult> RunQueryAsync(string ownerUri, string query, int timeoutMilliseconds = 5000)
+        {
+            WriteToFile(ownerUri, query);
+
+            var queryParams = new QueryExecuteParams
+            {
+                OwnerUri = ownerUri,
+                QuerySelection = null
+            };
+
+            return await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
         }
         
         /// <summary>

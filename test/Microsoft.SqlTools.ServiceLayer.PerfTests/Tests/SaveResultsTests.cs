@@ -9,23 +9,25 @@ using Microsoft.SqlTools.ServiceLayer.TestDriver.Tests;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
+namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 {
     public class SaveResultsTests
     {
         [Fact]
         public async Task TestSaveResultsToCsvTest()
         {
+            TestServerType serverType = TestServerType.OnPrem;
+
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
             using (TestHelper testHelper = new TestHelper())
             {
-                const string query = Scripts.SimpleQuery;
+                const string query = Scripts.MasterBasicQuery;
 
                 // Execute a query
-                await Common.ConnectAsync(testHelper, TestServerType.OnPrem, query, queryTempFile.FilePath);
+                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath, Common.MasterDatabaseName);
                 await testHelper.RunQuery(queryTempFile.FilePath, query);
-                await Common.CalculateRunTime(() => testHelper.SaveAsCsv(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0));
+                await Common.CalculateRunTime(() => testHelper.SaveAsCsv(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), true);
                 await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
@@ -33,17 +35,18 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests.Tests
         [Fact]
         public async Task TestSaveResultsToJsonTest()
         {
+            TestServerType serverType = TestServerType.OnPrem;
+
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
             using (TestHelper testHelper = new TestHelper())
             {
-                const string query = Scripts.SimpleQuery;
-                const TestServerType serverType = TestServerType.OnPrem;
+                const string query = Scripts.MasterBasicQuery;
 
                 // Execute a query
-                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath);
+                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath, Common.MasterDatabaseName);
                 await testHelper.RunQuery(queryTempFile.FilePath, query);
-                await Common.CalculateRunTime(() => testHelper.SaveAsJson(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0));
+                await Common.CalculateRunTime(() => testHelper.SaveAsJson(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), true);
                 await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }

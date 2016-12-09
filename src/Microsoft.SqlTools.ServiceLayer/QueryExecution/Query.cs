@@ -100,6 +100,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event Batch.BatchAsyncEventHandler BatchCompleted;
 
         /// <summary>
+        /// Event to be called when a batch starts execution.
+        /// </summary>
+        public event Batch.BatchAsyncEventHandler BatchStarted;
+
+        /// <summary>
+        /// Delegate type for callback when a query connection fails
+        /// </summary>
+        /// <param name="message">Error message for the failing query</param>
+        public delegate Task QueryAsyncErrorEventHandler(string message);
+
+        /// <summary>
         /// Callback for when the query has completed successfully
         /// </summary>
         public event QueryAsyncEventHandler QueryCompleted;
@@ -128,12 +139,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="q">The query that completed</param>
         public delegate Task QueryAsyncEventHandler(Query q);
-
-        /// <summary>
-        /// Delegate type for callback when a query connection fails
-        /// </summary>
-        /// <param name="message">Message to return</param>
-        public delegate Task QueryAsyncErrorEventHandler(string message);
 
         /// <summary>
         /// The batches underneath this query
@@ -289,6 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // We need these to execute synchronously, otherwise the user will be very unhappy
                     foreach (Batch b in Batches)
                     {
+                        b.BatchStart += BatchStarted;
                         b.BatchCompletion += BatchCompleted;
                         b.ResultSetCompletion += ResultSetCompleted;
                         await b.Execute(conn, cancellationSource.Token);

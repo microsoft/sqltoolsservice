@@ -5,16 +5,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -29,8 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private const int PrepopulateBindTimeout = 60000;
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
-
-        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
 
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
@@ -372,12 +370,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="endColumn"></param>
         /// <param name="useLowerCase"></param>
         internal static CompletionItem[] GetDefaultCompletionItems(
-            int row, 
-            int startColumn, 
-            int endColumn,
-            bool useLowerCase,
-            string tokenText = null)
+            ScriptDocumentInfo scriptDocumentInfo,
+            bool useLowerCase)
         {
+            int row = scriptDocumentInfo.StartLine;
+            int startColumn = scriptDocumentInfo.StartColumn;
+            int endColumn = scriptDocumentInfo.EndColumn;
+            string tokenText = scriptDocumentInfo.TokenText;
             // determine how many default completion items there will be 
             int listSize = DefaultCompletionText.Length;
             if (!string.IsNullOrWhiteSpace(tokenText))
@@ -432,7 +431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             int startColumn, 
             int endColumn)
         {
-            return CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
+            return SqlCompletionItem.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, row, startColumn, endColumn);
         }
 
         internal static CompletionItem[] AddTokenToItems(CompletionItem[] currentList, Token token, int row,
@@ -446,47 +445,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ))
             {
                 var list = currentList.ToList();
-                list.Insert(0, CreateCompletionItem(token.Text, token.Text, token.Text, CompletionItemKind.Text, row, startColumn, endColumn));
+                list.Insert(0, SqlCompletionItem.CreateCompletionItem(token.Text, token.Text, token.Text, CompletionItemKind.Text, row, startColumn, endColumn));
                 return list.ToArray();
             }
             return currentList;
-        }
-
-        private static CompletionItem CreateCompletionItem(
-            string label, 
-            string detail,
-            string insertText,
-            CompletionItemKind kind,
-            int row,
-            int startColumn,
-            int endColumn)
-        {
-            CompletionItem item = new CompletionItem()
-            {
-                Label = label,
-                Kind = kind,
-                Detail = detail,
-                InsertText = insertText,
-                TextEdit = new TextEdit
-                {
-                    NewText = insertText,
-                    Range = new Range
-                    {
-                        Start = new Position
-                        {
-                            Line = row,
-                            Character = startColumn
-                        },
-                        End = new Position
-                        {
-                            Line = row,
-                            Character = endColumn
-                        }
-                    }
-                }
-            };
-
-            return item;
         }
 
         /// <summary>
@@ -501,54 +463,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             IEnumerable<Declaration> suggestions, 
             int row,
             int startColumn,
-            int endColumn)
+            int endColumn, 
+            string tokenText = null)
         {           
             List<CompletionItem> completions = new List<CompletionItem>();
     
             foreach (var autoCompleteItem in suggestions)
             {
-                string  insertText = GetCompletionItemInsertName(autoCompleteItem);
-                CompletionItemKind kind = CompletionItemKind.Variable;
-                switch (autoCompleteItem.Type)
-                {
-                    case DeclarationType.Schema:
-                        kind = CompletionItemKind.Module;
-                        break;
-                    case DeclarationType.Column:
-                        kind = CompletionItemKind.Field;
-                        break;
-                    case DeclarationType.Table:
-                    case DeclarationType.View:
-                        kind = CompletionItemKind.File;
-                        break;
-                    case DeclarationType.Database:
-                        kind = CompletionItemKind.Method;
-                        break;
-                    case DeclarationType.ScalarValuedFunction:
-                    case DeclarationType.TableValuedFunction:
-                    case DeclarationType.BuiltInFunction:
-                        kind = CompletionItemKind.Value;
-                        break;
-                    default:
-                        kind = CompletionItemKind.Unit;
-                        break;
-                }
+                SqlCompletionItem sqlCompletionItem = new SqlCompletionItem(autoCompleteItem, tokenText);
 
                 // convert the completion item candidates into CompletionItems
-                completions.Add(CreateCompletionItem(autoCompleteItem.Title, autoCompleteItem.Title, insertText, kind, row, startColumn, endColumn));
+                completions.Add(sqlCompletionItem.CreateCompletionItem(row, startColumn, endColumn));
             }
 
             return completions.ToArray();
-        }
-
-        private static string GetCompletionItemInsertName(Declaration autoCompleteItem)
-        {
-            string insertText = autoCompleteItem.Title;
-            if (!string.IsNullOrEmpty(autoCompleteItem.Title) && !ValidSqlNameRegex.IsMatch(autoCompleteItem.Title))
-            {
-                insertText = string.Format(CultureInfo.InvariantCulture, "[{0}]", autoCompleteItem.Title);
-            }
-            return insertText;
         }
 
         /// <summary>
@@ -566,7 +494,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (scriptInfo.IsConnected)
             {
-                var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);                                
+                var scriptFile = AutoCompleteHelper.WorkspaceServiceInstance.Workspace.GetFile(info.OwnerUri);
                 LanguageService.Instance.ParseAndBind(scriptFile, info);
 
                 if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
@@ -633,7 +561,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-
         /// <summary>
         /// Converts a SQL Parser QuickInfo object into a VS Code Hover object
         /// </summary>
@@ -679,6 +606,78 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Converts a SQL Parser List of MethodHelpText objects into a VS Code SignatureHelp object
+        /// </summary>
+        internal static SignatureHelp ConvertMethodHelpTextListToSignatureHelp(List<Babel.MethodHelpText> methods, Babel.MethodNameAndParamLocations locations, int line, int column)
+        {
+            Validate.IsNotNull(nameof(methods), methods);
+            Validate.IsNotNull(nameof(locations), locations);
+            Validate.IsGreaterThan(nameof(line), line, 0);
+            Validate.IsGreaterThan(nameof(column), column, 0);
+
+            SignatureHelp help = new SignatureHelp();
+
+            help.Signatures = methods.Select(method =>
+            {
+                return new SignatureInformation()
+                {
+                    // Signature label format: <name> param1, param2, ..., paramn RETURNS <type>
+                    Label = method.Name + " " + method.Parameters.Select(parameter => parameter.Display).Aggregate((l, r) => l + "," + r) + " " + method.Type,
+                    Documentation = method.Description,
+                    Parameters = method.Parameters.Select(parameter => 
+                    {
+                        return new ParameterInformation()
+                        {
+                            Label = parameter.Display,
+                            Documentation = parameter.Description
+                        };
+                    }).ToArray()
+                };
+            }).Where(method => method.Label.Contains(locations.Name)).ToArray();
+
+            if (help.Signatures.Length == 0)
+            {
+                return null;
+            }
+
+            // Find the matching method signature at the cursor's location
+            // For now, take the first match (since we've already filtered by name above)
+            help.ActiveSignature = 0;
+
+            // Determine the current parameter at the cursor
+            int currentParameter = -1; // Default case: not on any particular parameter
+            if (locations.ParamStartLocation != null)
+            {
+                // Is the cursor past the function name?
+                var location = locations.ParamStartLocation.Value; 
+                if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column >= location.ColumnNumber))
+                {
+                    currentParameter = 0;
+                }
+            }
+            foreach (var location in locations.ParamSeperatorLocations)
+            {
+                // Is the cursor past a comma ',' and at least on the next parameter?
+                if (line > location.LineNumber || (line == location.LineNumber && column > location.ColumnNumber))
+                {
+                    currentParameter++;
+                }
+            }
+            if (locations.ParamEndLocation != null)
+            {
+                // Is the cursor past the end of the parameter list on a different token?
+                var location = locations.ParamEndLocation.Value; 
+                if (line > location.LineNumber || (line == location.LineNumber && line == location.LineNumber && column > location.ColumnNumber))
+                {
+                    currentParameter = -1;
+                }
+            }
+            help.ActiveParameter = currentParameter;
+
+            return help;
         }
     }
 }

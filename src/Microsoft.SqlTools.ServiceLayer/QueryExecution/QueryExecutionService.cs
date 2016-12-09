@@ -382,6 +382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = executeParams.OwnerUri,
                     BatchSummaries = q.BatchSummaries
                 };
+
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
 
@@ -395,21 +396,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
+
             query.QueryCompleted += callback;
             query.QueryFailed += callback;
             query.QueryConnectionException += errorCallback;
 
-            // Setup the batch completion callback
-            Batch.BatchAsyncEventHandler batchCallback = async b =>
+            // Setup the batch callbacks
+            Batch.BatchAsyncEventHandler batchStartCallback = async b =>
             {
-                QueryExecuteBatchCompleteParams eventParams = new QueryExecuteBatchCompleteParams
+                QueryExecuteBatchNotificationParams eventParams = new QueryExecuteBatchNotificationParams
+                {
+                    BatchSummary = b.Summary,
+                    OwnerUri = executeParams.OwnerUri
+                };
+                await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
+            };
+            query.BatchStarted += batchStartCallback;
+
+            Batch.BatchAsyncEventHandler batchCompleteCallback = async b =>
+            {
+                QueryExecuteBatchNotificationParams eventParams = new QueryExecuteBatchNotificationParams
                 {
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
                 await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
             };
-            query.BatchCompleted += batchCallback;
+            query.BatchCompleted += batchCompleteCallback;
 
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
@@ -427,9 +440,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             query.Execute();
 
             // Send back a result showing we were successful
+            string messages = null;
+            if (query.Batches.Length == 0)
+            {
+                // If there were no batches to execute, send back an informational message that the commands were completed successfully
+                messages = SR.QueryServiceCompletedSuccessfully;
+            }
             await requestContext.SendResult(new QueryExecuteResult
             {
-                Messages = null
+                Messages = messages
             });
         }
 

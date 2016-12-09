@@ -4,9 +4,11 @@
   "buildOptions": {
     "debugType": "portable",
     "emitEntryPoint": true,
-    "copyToOutput": {
+    "embed": {
       "includeFiles": [
-        "Scripts/AdventureWorks.sql"
+        "Scripts/CreateTestDatabaseObjects.sql",
+        "Scripts/CreateTestDatabase.sql",
+        "Scripts/TestDbTableQueries.sql"
       ]
     },
     "publishOptions": {
@@ -27,6 +29,7 @@
     "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
+          "type": "platform",
           "version": "1.0.0"
         }
       },
