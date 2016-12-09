@@ -5,6 +5,7 @@
 
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
@@ -125,6 +126,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             Assert.Equal(10, fileMarkers[1].ScriptRegion.EndColumnNumber);
             Assert.Equal(3, fileMarkers[1].ScriptRegion.EndLineNumber);
         }
+        
+        [Fact]
+        public void GetSignatureHelpReturnsNullIfParseInfoNotInitialized()
+        {
+            // Given service doesn't have parseinfo intialized for a document
+            const string docContent = "SELECT * FROM sys.objects";
+            LanguageService service = TestObjects.GetTestLanguageService();
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents(docContent);
+
+            // When requesting SignatureHelp
+            SignatureHelp signatureHelp = service.GetSignatureHelp(CreateDummyDocPosition(), scriptFile);
+            
+            // Then null is returned as no parse info can be used to find the signature
+            Assert.Null(signatureHelp);
+        }
+
+        private TextDocumentPosition CreateDummyDocPosition()
+        {
+            return new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = TestObjects.ScriptUri },
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = 0
+                }
+            };
+        }
+
 
         #endregion
 
