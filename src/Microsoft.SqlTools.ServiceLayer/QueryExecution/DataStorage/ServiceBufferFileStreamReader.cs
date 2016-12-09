@@ -260,11 +260,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A DateTime</returns>
         public FileStreamReadResult ReadDateTime(long offset)
         {
-            return ReadCellHelper(offset, length =>
-            {
-                long ticks = BitConverter.ToInt64(buffer, 0);
-                return new DateTime(ticks);
-            });
+            int precision = 0;
+
+            return ReadCellHelper(offset,
+                length =>
+                {
+                    precision = BitConverter.ToInt32(buffer, 0);
+                    long ticks = BitConverter.ToInt64(buffer, 4);
+                    return new DateTime(ticks);
+                }, null,
+                time =>
+                {
+                    // Output the number milliseconds equivalent to the precision
+                    string format = "yyyy-MM-dd HH:mm:ss." + new string('f', precision);
+                    return time.ToString(format);
+                });
         }
 
         /// <summary>
