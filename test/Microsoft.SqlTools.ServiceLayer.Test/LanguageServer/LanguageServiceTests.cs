@@ -3,28 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.IO;
-using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
-using Moq;
-using Moq.Protected;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
+namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
 {
     /// <summary>
     /// Tests for the ServiceHost Language Service tests
@@ -140,131 +126,107 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.Equal(10, fileMarkers[1].ScriptRegion.EndColumnNumber);
             Assert.Equal(3, fileMarkers[1].ScriptRegion.EndLineNumber);
         }
+        
+        [Fact]
+        public void GetSignatureHelpReturnsNullIfParseInfoNotInitialized()
+        {
+            // Given service doesn't have parseinfo intialized for a document
+            const string docContent = "SELECT * FROM sys.objects";
+            LanguageService service = TestObjects.GetTestLanguageService();
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents(docContent);
+
+            // When requesting SignatureHelp
+            SignatureHelp signatureHelp = service.GetSignatureHelp(CreateDummyDocPosition(), scriptFile);
+            
+            // Then null is returned as no parse info can be used to find the signature
+            Assert.Null(signatureHelp);
+        }
+
+        private TextDocumentPosition CreateDummyDocPosition()
+        {
+            return new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = TestObjects.ScriptUri },
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = 0
+                }
+            };
+        }
+
 
         #endregion
 
         #region "General Language Service tests"
 
+#if LIVE_CONNECTION_TESTS
+
+        private static void GetLiveAutoCompleteTestObjects(
+            out TextDocumentPosition textDocument,
+            out ScriptFile scriptFile,
+            out ConnectionInfo connInfo)
+        {
+            textDocument = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier {Uri = TestObjects.ScriptUri},
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = 0
+                }
+            };
+
+            connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+        }
+
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         // Test is causing failures in build lab..investigating to reenable
-        //[Fact]
-        public void ServiceInitiailzation()
+        [Fact]
+        public void ServiceInitialization()
         {
-            InitializeTestServices();
+            try
+            {
+                TestObjects.InitializeTestServices();
+            }
+            catch (System.ArgumentException)
+            {
 
+            }
             Assert.True(LanguageService.Instance.Context != null);
             Assert.True(LanguageService.ConnectionServiceInstance != null);
             Assert.True(LanguageService.Instance.CurrentSettings != null);
             Assert.True(LanguageService.Instance.CurrentWorkspace != null);
-
-            LanguageService.ConnectionServiceInstance = null;
-            Assert.True(LanguageService.ConnectionServiceInstance == null);
         }        
 
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         // Test is causing failures in build lab..investigating to reenable
-        //[Fact]
+        [Fact]
         public void PrepopulateCommonMetadata()
         {
-            InitializeTestServices();
+            ScriptFile scriptFile;
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
 
-            string sqlFilePath = GetTestSqlFile();            
-            ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(sqlFilePath);
-
-            string ownerUri = scriptFile.ClientFilePath;
-            var connectionService = TestObjects.GetTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams()
-                {
-                    OwnerUri = ownerUri,
-                    Connection = TestObjects.GetTestConnectionDetails()
-                });
-            
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
-            
-            ScriptParseInfo scriptInfo = new ScriptParseInfo();
-            scriptInfo.IsConnected = true;
+            ScriptParseInfo scriptInfo = new ScriptParseInfo {IsConnected = true};
 
             AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
         }
 
-        private string GetTestSqlFile()
-        {
-            string filePath = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                "sqltest.sql");
-            
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-
-            File.WriteAllText(filePath, "SELECT * FROM sys.objects\n");
-
-            return filePath;
-        }
-
-        private void InitializeTestServices()
-        {
-            const string hostName = "SQL Tools Service Host";
-            const string hostProfileId = "SQLToolsService";
-            Version hostVersion = new Version(1,0); 
-
-            // set up the host details and profile paths 
-            var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);     
-            SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-
-            // Grab the instance of the service host
-            Hosting.ServiceHost serviceHost = Hosting.ServiceHost.Instance;
-
-            // Start the service
-            serviceHost.Start().Wait();
-
-            // Initialize the services that will be hosted here
-            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
-            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
-            ConnectionService.Instance.InitializeService(serviceHost);
-            CredentialService.Instance.InitializeService(serviceHost);
-            QueryExecutionService.Instance.InitializeService(serviceHost);
-
-            serviceHost.Initialize();
-        }
-
-        private Hosting.ServiceHost GetTestServiceHost()
-        {
-            // set up the host details and profile paths 
-            var hostDetails = new HostDetails("Test Service Host", "SQLToolsService", new Version(1,0)); 
-            SqlToolsContext context = new SqlToolsContext(hostDetails);
-
-            // Grab the instance of the service host
-            Hosting.ServiceHost host = Hosting.ServiceHost.Instance;
-
-            // Start the service
-            host.Start().Wait();
-
-            return host;
-        }
-
-        #endregion
-
-        #region "Autocomplete Tests"
-
         // This test currently requires a live database connection to initialize 
         // SMO connected metadata provider.  Since we don't want a live DB dependency
         // in the CI unit tests this scenario is currently disabled.
-        //[Fact]
+        [Fact]
         public void AutoCompleteFindCompletions()
         {
             TextDocumentPosition textDocument;
             ConnectionInfo connInfo;
             ScriptFile scriptFile;
-            Common.GetAutoCompleteTestObjects(out textDocument, out scriptFile, out connInfo);
+            GetLiveAutoCompleteTestObjects(out textDocument, out scriptFile, out connInfo);
 
             textDocument.Position.Character = 7;
             scriptFile.Contents = "select ";
@@ -278,32 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.True(completions.Length > 0);
         }
 
-        /// <summary>
-        /// Creates a mock db command that returns a predefined result set
-        /// </summary>
-        public static DbCommand CreateTestCommand(Dictionary<string, string>[][] data)
-        {
-            var commandMock = new Mock<DbCommand> { CallBase = true };
-            var commandMockSetup = commandMock.Protected()
-                .Setup<DbDataReader>("ExecuteDbDataReader", It.IsAny<CommandBehavior>());
-
-            commandMockSetup.Returns(new TestDbDataReader(data));
-
-            return commandMock.Object;
-        }
-
-        /// <summary>
-        /// Creates a mock db connection that returns predefined data when queried for a result set
-        /// </summary>
-        public DbConnection CreateMockDbConnection(Dictionary<string, string>[][] data)
-        {
-            var connectionMock = new Mock<DbConnection> { CallBase = true };
-            connectionMock.Protected()
-                .Setup<DbCommand>("CreateDbCommand")
-                .Returns(CreateTestCommand(data));
-
-            return connectionMock.Object;
-        }
+#endif
 
         #endregion
     }

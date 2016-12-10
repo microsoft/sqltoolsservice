@@ -57,20 +57,49 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        internal Batch(string batchText, int startLine, int startColumn, int endLine, int endColumn, IFileStreamFactory outputFileFactory)
+        internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
             Validate.IsNotNull(nameof(outputFileFactory), outputFileFactory);
+            Validate.IsGreaterThan(nameof(ordinalId), ordinalId, 0);
 
             // Initialize the internal state
             BatchText = batchText;
-            Selection = new SelectionData(startLine, startColumn, endLine, endColumn);
+            Selection = selection;
+            executionStartTime = DateTime.Now;
             HasExecuted = false;
+            Id = ordinalId;
             resultSets = new List<ResultSet>();
             resultMessages = new List<ResultMessage>();
             this.outputFileFactory = outputFileFactory;
         }
+
+        #region Events
+
+        /// <summary>
+        /// Asynchronous handler for when batches are completed
+        /// </summary>
+        /// <param name="batch">The batch that completed</param>
+        public delegate Task BatchAsyncEventHandler(Batch batch);
+
+        /// <summary>
+        /// Event that will be called when the batch has completed execution
+        /// </summary>
+        public event BatchAsyncEventHandler BatchCompletion;
+
+        /// <summary>
+        /// Event to call when the batch has started execution
+        /// </summary>
+        public event BatchAsyncEventHandler BatchStart;
+
+        /// <summary>
+        /// Event that will be called when the resultset has completed execution. It will not be
+        /// called from the Batch but from the ResultSet instance
+        /// </summary>
+        public event ResultSet.ResultSetAsyncEventHandler ResultSetCompletion;
+
+        #endregion
 
         #region Properties
 
@@ -114,6 +143,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasExecuted { get; set; }
 
         /// <summary>
+        /// Ordinal of the batch in the query
+        /// </summary>
+        public int Id { get; private set; }
+
+        /// <summary>
         /// Messages that have come back from the server
         /// </summary>
         public IEnumerable<ResultMessage> ResultMessages
@@ -136,12 +170,39 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                return ResultSets.Select((set, index) => new ResultSetSummary()
+                lock (resultSets)
                 {
-                    ColumnInfo = set.Columns,
-                    Id = index,
-                    RowCount = set.RowCount
-                }).ToArray();
+                    return resultSets.Select(set => set.Summary).ToArray();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="BatchSummary"/> based on the batch instance
+        /// </summary>
+        public BatchSummary Summary
+        {
+            get
+            {
+                // Batch summary with information available at start
+                BatchSummary summary = new BatchSummary
+                {
+                    HasError = HasError,
+                    Id = Id,
+                    Selection = Selection,
+                    ExecutionStart = ExecutionStartTimeStamp
+                };
+
+                // Add on extra details if we finished executing it
+                if (HasExecuted)
+                {
+                    summary.ResultSetSummaries = ResultSummaries;
+                    summary.Messages = ResultMessages.ToArray();
+                    summary.ExecutionEnd = ExecutionEndTimeStamp;
+                    summary.ExecutionElapsed = ExecutionElapsedTime;
+                }
+
+                return summary;
             }
         }
 
@@ -167,10 +228,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException("Batch has already executed.");
             }
 
+            // Notify that we've started execution
+            if (BatchStart != null)
+            {
+                await BatchStart(this);
+            }
+
             try
             {
-                DbCommand command = null;
+                // Register the message listener to *this instance* of the batch
+                // Note: This is being done to associate messages with batches
                 ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+                DbCommand command;
                 if (sqlConn != null)
                 {
                     // Register the message listener to *this instance* of the batch
@@ -179,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     command = sqlConn.GetUnderlyingConnection().CreateCommand();
 
                     // Add a handler for when the command completes
-                    SqlCommand sqlCommand = (SqlCommand) command;
+                    SqlCommand sqlCommand = (SqlCommand)command;
                     sqlCommand.StatementCompleted += StatementCompletedHandler;
                 }
                 else
@@ -202,6 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Execute the command to get back a reader
                     using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
                     {
+                        int resultSetOrdinal = 0;
                         do
                         {
                             // Skip this result set if there aren't any rows (ie, UPDATE/DELETE/etc queries)
@@ -211,11 +281,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // This resultset has results (ie, SELECT/etc queries)
-                            ResultSet resultSet = new ResultSet(reader, outputFileFactory);
-                            
+                            ResultSet resultSet = new ResultSet(reader, resultSetOrdinal, Id, outputFileFactory);
+                            resultSet.ResultCompletion += ResultSetCompletion;
+
                             // Add the result set to the results of the query
-                            resultSets.Add(resultSet);
-                            
+                            lock (resultSets)
+                            {
+                                resultSets.Add(resultSet);
+                                resultSetOrdinal++;
+                            }
+
                             // Read until we hit the end of the result set
                             await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
 
@@ -258,6 +333,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Mark that we have executed
                 HasExecuted = true;
                 executionEndTime = DateTime.Now;
+
+                // Fire an event to signify that the batch has completed
+                if (BatchCompletion != null)
+                {
+                    await BatchCompletion(this);
+                }
             }
         }
 
@@ -270,14 +351,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ResultSetSubset> GetSubset(int resultSetIndex, int startRow, int rowCount)
         {
-            // Sanity check to make sure we have valid numbers
-            if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
+            ResultSet targetResultSet;
+            lock (resultSets)
             {
-                throw new ArgumentOutOfRangeException(nameof(resultSetIndex), SR.QueryServiceSubsetResultSetOutOfRange);
+                // Sanity check to make sure we have valid numbers
+                if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(resultSetIndex),
+                        SR.QueryServiceSubsetResultSetOutOfRange);
+                }
+
+                targetResultSet = resultSets[resultSetIndex];
             }
 
             // Retrieve the result set
-            return resultSets[resultSetIndex].GetSubset(startRow, rowCount);
+            return targetResultSet.GetSubset(startRow, rowCount);
         }
 
         #endregion
@@ -377,9 +465,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (disposing)
             {
-                foreach (ResultSet r in ResultSets)
+                lock (resultSets)
                 {
-                    r.Dispose();
+                    foreach (ResultSet r in resultSets)
+                    {
+                        r.Dispose();
+                    }
                 }
             }
 

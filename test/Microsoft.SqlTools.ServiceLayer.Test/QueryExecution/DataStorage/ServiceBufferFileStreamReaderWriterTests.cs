@@ -6,45 +6,102 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.IO;
 using System.Text;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
 {
     public class ReaderWriterPairTest
     {
+        [Fact]
+        public void ReaderInvalidStreamCannotRead()
+        {
+            // If: I create a service buffer file stream reader with a stream that cannot be read
+            // Then: I should get an exception
+            var invalidStream = new Mock<Stream>();
+            invalidStream.SetupGet(s => s.CanRead).Returns(false);
+            invalidStream.SetupGet(s => s.CanSeek).Returns(true);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                ServiceBufferFileStreamReader obj = new ServiceBufferFileStreamReader(invalidStream.Object);
+                obj.Dispose();
+            });
+        }
+
+        [Fact]
+        public void ReaderInvalidStreamCannotSeek()
+        {
+            // If: I create a service buffer file stream reader with a stream that cannot seek
+            // Then: I should get an exception
+            var invalidStream = new Mock<Stream>();
+            invalidStream.SetupGet(s => s.CanRead).Returns(true);
+            invalidStream.SetupGet(s => s.CanSeek).Returns(false);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                ServiceBufferFileStreamReader obj = new ServiceBufferFileStreamReader(invalidStream.Object);
+                obj.Dispose();
+            });
+        }
+
+        [Fact]
+        public void WriterInvalidStreamCannotWrite()
+        {
+            // If: I create a service buffer file stream writer with a stream that cannot be read
+            // Then: I should get an exception
+            var invalidStream = new Mock<Stream>();
+            invalidStream.SetupGet(s => s.CanWrite).Returns(false);
+            invalidStream.SetupGet(s => s.CanSeek).Returns(true);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                ServiceBufferFileStreamWriter obj = new ServiceBufferFileStreamWriter(invalidStream.Object, 1024, 1024);
+                obj.Dispose();
+            });
+        }
+
+        [Fact]
+        public void WriterInvalidStreamCannotSeek()
+        {
+            // If: I create a service buffer file stream writer with a stream that cannot seek
+            // Then: I should get an exception
+            var invalidStream = new Mock<Stream>();
+            invalidStream.SetupGet(s => s.CanWrite).Returns(true);
+            invalidStream.SetupGet(s => s.CanSeek).Returns(false);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                ServiceBufferFileStreamWriter obj = new ServiceBufferFileStreamWriter(invalidStream.Object, 1024, 1024);
+                obj.Dispose();
+            });
+        }
+
         private static void VerifyReadWrite<T>(int valueLength, T value, Func<ServiceBufferFileStreamWriter, T, int> writeFunc, Func<ServiceBufferFileStreamReader, FileStreamReadResult> readFunc)
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-            try
+            // Setup: Create a mock file stream
+            byte[] storage = new byte[8192];
+            
+            // If:
+            // ... I write a type T to the writer
+            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(new MemoryStream(storage), 10, 10))
             {
-                // If:
-                // ... I write a type T to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
-                {
-                    int writtenBytes = writeFunc(writer, value);
-                    Assert.Equal(valueLength, writtenBytes);
-                }
-
-                // ... And read the type T back
-                FileStreamReadResult outValue;
-                using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(mockWrapper, "abc"))
-                {
-                    outValue = readFunc(reader);
-                }
-
-                // Then:
-                Assert.Equal(value, outValue.Value.RawObject);
-                Assert.Equal(valueLength, outValue.TotalLength);
-                Assert.NotNull(outValue.Value);
+                int writtenBytes = writeFunc(writer, value);
+                Assert.Equal(valueLength, writtenBytes);
             }
-            finally
+
+            // ... And read the type T back
+            FileStreamReadResult outValue;
+            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(new MemoryStream(storage)))
             {
-                // Cleanup: Close the wrapper
-                mockWrapper.Close();
+                outValue = readFunc(reader);
             }
+
+            // Then:
+            Assert.Equal(value, outValue.Value.RawObject);
+            Assert.Equal(valueLength, outValue.TotalLength);
+            Assert.NotNull(outValue.Value);
         }
 
         [Theory]
@@ -174,18 +231,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
-        public void DateTimeTest()
+        [Theory]
+        [InlineData(3)] // Scale 3 = DATETIME
+        [InlineData(7)] // Scale 7 = DATETIME2
+        public void DateTimeTest(int scale)
         {
-            // Setup: Create some test values
+            // Setup: Create some test values and a column with scale set
             // NOTE: We are doing these here instead of InlineData because DateTime values can't be written as constant expressions
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("dbcol", scale));
             DateTime[] testValues = 
             {
                 DateTime.Now, DateTime.UtcNow, DateTime.MinValue, DateTime.MaxValue
             };
             foreach (DateTime value in testValues)
             {
-                VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteDateTime(val), reader => reader.ReadDateTime(0));
+                VerifyReadWrite(sizeof(long) + sizeof(int) + 1, value, (writer, val) => writer.WriteDateTime(col, val), reader => reader.ReadDateTime(0));
             }
         }
 
@@ -222,16 +282,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [Fact]
         public void StringNullTest()
         {
-            // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-
-            // If:
-            // ... I write null as a string to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
+            // Setup: Create a mock file stream
+            using (MemoryStream stream = new MemoryStream(new byte[8192]))
             {
-                // Then:
-                // ... I should get an argument null exception
-                Assert.Throws<ArgumentNullException>(() => writer.WriteString(null));
+                // If:
+                // ... I write null as a string to the writer
+                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(stream, 10, 10))
+                {
+                    // Then:
+                    // ... I should get an argument null exception
+                    Assert.Throws<ArgumentNullException>(() => writer.WriteString(null));
+                }
             }
         }
 
@@ -259,15 +320,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         public void BytesNullTest()
         {
             // Setup: Create a mock file stream wrapper
-            Common.InMemoryWrapper mockWrapper = new Common.InMemoryWrapper();
-
-            // If:
-            // ... I write null as a string to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(mockWrapper, "abc", 10, 10))
+            using (MemoryStream stream = new MemoryStream(new byte[8192]))
             {
-                // Then:
-                // ... I should get an argument null exception
-                Assert.Throws<ArgumentNullException>(() => writer.WriteBytes(null));
+                // If:
+                // ... I write null as a string to the writer
+                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(stream, 10, 10))
+                {
+                    // Then:
+                    // ... I should get an argument null exception
+                    Assert.Throws<ArgumentNullException>(() => writer.WriteBytes(null));
+                }
             }
         }
 

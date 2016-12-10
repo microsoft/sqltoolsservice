@@ -8,21 +8,6 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
-    /// Container class for a selection range from file
-    /// </summary>
-    public class SelectionData {
-        public int StartLine { get; set; }
-        public int StartColumn { get; set; }
-        public int EndLine { get; set; }
-        public int EndColumn { get; set; }
-        public SelectionData(int startLine, int startColumn, int endLine, int endColumn) {
-            StartLine = startLine;
-            StartColumn = startColumn;
-            EndLine = endLine;
-            EndColumn = endColumn;
-        }
-    }
-    /// <summary>
     /// Parameters for the query execute request
     /// </summary>
     public class QueryExecuteParams
@@ -44,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class QueryExecuteResult
     {
         /// <summary>
-        /// Connection error messages. Optional, can be set to null to indicate no errors
+        /// Informational messages from the query runner. Optional, can be set to null.
         /// </summary>
         public string Messages { get; set; }
     }

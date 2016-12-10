@@ -810,6 +810,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         /// <summary>
+        /// Test ConnectionSummaryComparer 
+        /// </summary>
+        [Fact]
+        public void TestConnectionSummaryComparer()
+        {
+            var summary1 = new ConnectionSummary()
+            {
+                ServerName = "localhost",
+                DatabaseName = "master",
+                UserName = "user"
+            };
+
+            var summary2 = new ConnectionSummary()
+            {
+                ServerName = "localhost",
+                DatabaseName = "master",
+                UserName = "user"
+            };
+
+            var comparer = new ConnectionSummaryComparer();
+            Assert.True(comparer.Equals(summary1, summary2));
+
+            summary2.DatabaseName = "tempdb";
+            Assert.False(comparer.Equals(summary1, summary2));
+            Assert.False(comparer.Equals(null, summary2));
+
+            Assert.False(summary1.GetHashCode() == summary2.GetHashCode());
+        }
+
+        /// <summary>
         /// Verify when a connection is created that the URI -> Connection mapping is created in the connection service.
         /// </summary>
         [Fact]
@@ -860,6 +890,75 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                     Assert.Equal(ex.Number, 0);
                 }
             });
+        }
+
+        /// <summary>
+        /// Test that the connection complete notification type can be created.
+        /// </summary>
+        [Fact]
+        public void TestConnectionCompleteNotificationIsCreated()
+        {
+            Assert.NotNull(ConnectionCompleteNotification.Type);
+        }
+
+        /// <summary>
+        /// Test that the connection summary comparer creates a hash code correctly
+        /// <summary>
+        [Theory]
+        [InlineData(true, null, null ,null)]
+        [InlineData(false, null, null, null)]
+        [InlineData(false, null, null, "sa")]
+        [InlineData(false, null, "test", null)]
+        [InlineData(false, null, "test", "sa")]
+        [InlineData(false, "server", null, null)]
+        [InlineData(false, "server", null, "sa")]
+        [InlineData(false, "server", "test", null)]
+        [InlineData(false, "server", "test", "sa")]
+        public void TestConnectionSummaryComparerHashCode(bool objectNull, string serverName, string databaseName, string userName)
+        {
+            // Given a connection summary and comparer object
+            ConnectionSummary summary = null;
+            if (!objectNull)
+            {
+                summary = new ConnectionSummary()
+                {
+                    ServerName = serverName,
+                    DatabaseName = databaseName,
+                    UserName = userName
+                };
+            }
+            ConnectionSummaryComparer comparer = new ConnectionSummaryComparer();
+            
+            // If I compute a hash code
+            int hashCode = comparer.GetHashCode(summary);
+            if (summary == null || (serverName == null && databaseName == null && userName == null))
+            {
+                // Then I expect it to be 31 for a null summary
+                Assert.Equal(31, hashCode);
+            }
+            else
+            {
+                // And not 31 otherwise
+                Assert.NotEqual(31, hashCode);
+            }
+        }
+
+        [Fact]
+        public void ConnectParamsAreInvalidIfConnectionIsNull()
+        {
+            // Given connection parameters where the connection property is null
+            ConnectParams parameters = new ConnectParams();
+            parameters.OwnerUri = "my/sql/file.sql";
+            parameters.Connection = null;
+
+            string errorMessage;
+
+            // If I check if the parameters are valid
+            Assert.False(parameters.IsValid(out errorMessage));
+
+            // Then I expect an error message
+            Assert.NotNull(errorMessage);
+            Assert.NotEmpty(errorMessage);
         }
     }
 }

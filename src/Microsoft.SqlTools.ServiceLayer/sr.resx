@@ -209,8 +209,8 @@
     <value>Query was canceled by user</value>
     <comment></comment>
   </data>
-  <data name="QueryServiceSubsetNotCompleted" xml:space="preserve">
-    <value>The query has not completed, yet</value>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>The batch has not completed, yet</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">

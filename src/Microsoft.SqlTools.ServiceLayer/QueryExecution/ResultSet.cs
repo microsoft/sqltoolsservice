@@ -8,7 +8,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -17,6 +16,10 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
+    /// <summary>
+    /// Class that represents a resultset the was generated from a query. Contains logic for
+    /// storing and retrieving results. Is contained by a Batch class.
+    /// </summary>
     public class ResultSet : IDisposable
     {
         #region Constants
@@ -36,9 +39,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Member Variables
 
         /// <summary>
+        /// The reader to use for this resultset
+        /// </summary>
+        private readonly StorageDataReader dataReader;
+
+        /// <summary>
         /// For IDisposable pattern, whether or not object has been disposed
         /// </summary>
         private bool disposed;
+
+        /// <summary>
+        /// A list of offsets into the buffer file that correspond to where rows start
+        /// </summary>
+        private readonly LongList<long> fileOffsets;
 
         /// <summary>
         /// The factory to use to get reading/writing handlers
@@ -46,9 +59,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly IFileStreamFactory fileStreamFactory;
 
         /// <summary>
-        /// Whether or not the result set has been read in from the database
+        /// Whether or not the result set has been read in from the database,
+        /// set as internal in order to fake value in unit tests
         /// </summary>
-        private bool hasBeenRead;
+        internal bool hasBeenRead;
 
         /// <summary>
         /// Whether resultSet is a 'for xml' or 'for json' result
@@ -61,14 +75,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly string outputFileName;
 
         /// <summary>
-        /// Whether the resultSet is in the process of being disposed
-        /// </summary>
-        private bool isBeingDisposed;
-
-        /// <summary>
         /// All save tasks currently saving this ResultSet
         /// </summary>
-        private ConcurrentDictionary<string, Task> saveTasks;
+        private readonly ConcurrentDictionary<string, Task> saveTasks;
 
         #endregion
 
@@ -76,17 +85,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Creates a new result set and initializes its state
         /// </summary>
         /// <param name="reader">The reader from executing a query</param>
+        /// <param name="ordinal">The ID of the resultset, the ordinal of the result within the batch</param>
+        /// <param name="batchOrdinal">The ID of the batch, the ordinal of the batch within the query</param>
         /// <param name="factory">Factory for creating a reader/writer</param>
-        public ResultSet(DbDataReader reader, IFileStreamFactory factory)
+        public ResultSet(DbDataReader reader, int ordinal, int batchOrdinal, IFileStreamFactory factory)
         {
             // Sanity check to make sure we got a reader
             Validate.IsNotNull(nameof(reader), SR.QueryServiceResultSetReaderNull);
 
-            DataReader = new StorageDataReader(reader);
+            dataReader = new StorageDataReader(reader);
+            Id = ordinal;
+            BatchId = batchOrdinal;
 
             // Initialize the storage
             outputFileName = factory.CreateFile();
-            FileOffsets = new LongList<long>();
+            fileOffsets = new LongList<long>();
 
             // Store the factory
             fileStreamFactory = factory;
@@ -97,16 +110,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
+        /// Asynchronous handler for when a resultset has completed
+        /// </summary>
+        /// <param name="resultSet">The result set that completed</param>
+        public delegate Task ResultSetAsyncEventHandler(ResultSet resultSet);
+
+        /// <summary>
+        /// Event that will be called when the result set has completed execution
+        /// </summary>
+        public event ResultSetAsyncEventHandler ResultCompletion;
+
+        /// <summary>
         /// Whether the resultSet is in the process of being disposed
         /// </summary>
         /// <returns></returns>
-        internal bool IsBeingDisposed
-        {
-            get
-            {
-                return isBeingDisposed;
-            }
-        }
+        internal bool IsBeingDisposed { get; private set; }
 
         /// <summary>
         /// The columns for this result set
@@ -114,14 +132,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public DbColumnWrapper[] Columns { get; private set; }
 
         /// <summary>
-        /// The reader to use for this resultset
+        /// ID of the result set, relative to the batch
         /// </summary>
-        private StorageDataReader DataReader { get; set; }
+        public int Id { get; private set; }
 
         /// <summary>
-        /// A list of offsets into the buffer file that correspond to where rows start
+        /// ID of the batch set, relative to the query
         /// </summary>
-        private LongList<long> FileOffsets { get; set; }
+        public int BatchId { get; private set; }
 
         /// <summary>
         /// Maximum number of characters to store for a field
@@ -137,6 +155,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The number of rows for this result set
         /// </summary>
         public long RowCount { get; private set; }
+
+        /// <summary>
+        /// Generates a summary of this result set
+        /// </summary>
+        public ResultSetSummary Summary
+        {
+            get
+            {
+                return new ResultSetSummary
+                {
+                    ColumnInfo = Columns,
+                    Id = Id,
+                    BatchId = BatchId,
+                    RowCount = RowCount
+                };
+            }
+        }
 
         #endregion
 
@@ -178,18 +213,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (isSingleColumnXmlJsonResultSet)
                     {
                         // Iterate over all the rows and process them into a list of string builders
-                        IEnumerable<string> rowValues = FileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
+                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
+                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
                         rows = new[] { new[] { string.Join(string.Empty, rowValues) } };
-
                     }
                     else
                     {
                         // Figure out which rows we need to read back
-                        IEnumerable<long> rowOffsets = FileOffsets.Skip(startRow).Take(rowCount);
+                        IEnumerable<long> rowOffsets = fileOffsets.Skip(startRow).Take(rowCount);
 
                         // Iterate over the rows we need and process them into output
-                        rows = rowOffsets.Select(rowOffset =>
-                            fileStreamReader.ReadRow(rowOffset, Columns).Select(cell => cell.DisplayValue).ToArray())
+                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in .ToArray call
+                        rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)
+                            .Select(cell => cell.DisplayValue).ToArray())
                             .ToArray();
 
                     }
@@ -209,29 +245,41 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
         public async Task ReadResultToEnd(CancellationToken cancellationToken)
         {
-            // Mark that result has been read
-            hasBeenRead = true;
-
-            // Open a writer for the file
-            using (IFileStreamWriter fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxXmlCharsToStore))
+            try
             {
-                // If we can initialize the columns using the column schema, use that
-                if (!DataReader.DbDataReader.CanGetColumnSchema())
-                {
-                    throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
-                }
-                Columns = DataReader.Columns;
-                long currentFileOffset = 0;
+                // Mark that result has been read
+                hasBeenRead = true;
 
-                while (await DataReader.ReadAsync(cancellationToken))
+                // Open a writer for the file
+                var fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxCharsToStore);
+                using (fileWriter)
                 {
-                    RowCount++;
-                    FileOffsets.Add(currentFileOffset);
-                    currentFileOffset += fileWriter.WriteRow(DataReader);
+                    // If we can initialize the columns using the column schema, use that
+                    if (!dataReader.DbDataReader.CanGetColumnSchema())
+                    {
+                        throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
+                    }
+                    Columns = dataReader.Columns;
+                    long currentFileOffset = 0;
+
+                    while (await dataReader.ReadAsync(cancellationToken))
+                    {
+                        RowCount++;
+                        fileOffsets.Add(currentFileOffset);
+                        currentFileOffset += fileWriter.WriteRow(dataReader);
+                    }
+                }
+                // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
+                SingleColumnXmlJsonResultSet();
+            }
+            finally
+            {
+                // Fire off a result set completion event if we have one
+                if (ResultCompletion != null)
+                {
+                    await ResultCompletion(this);
                 }
             }
-            // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
-            SingleColumnXmlJsonResultSet();
         }
 
         #endregion
@@ -251,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            isBeingDisposed = true;
+            IsBeingDisposed = true;
             // Check if saveTasks are running for this ResultSet
             if (!saveTasks.IsEmpty)
             {
@@ -263,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         fileStreamFactory.DisposeFile(outputFileName);
                     }
                     disposed = true;
-                    isBeingDisposed = false;
+                    IsBeingDisposed = false;
                 });
             }
             else
@@ -274,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     fileStreamFactory.DisposeFile(outputFileName);
                 }
                 disposed = true;
-                isBeingDisposed = false;
+                IsBeingDisposed = false;
             }
         }
 
@@ -288,10 +336,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// If the result set represented by this class corresponds to a single JSON
         /// column that contains results of "for json" query, set isJson = true
         /// </summary>
-        private void SingleColumnXmlJsonResultSet() {
+        private void SingleColumnXmlJsonResultSet()
+        {
 
             if (Columns?.Length == 1 && RowCount != 0)
-            {   
+            {
                 if (Columns[0].ColumnName.Equals(NameOfForXMLColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsXml = true;
@@ -303,7 +352,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Columns[0].IsJson = true;
                     isSingleColumnXmlJsonResultSet = true;
                     RowCount = 1;
-                }                
+                }
             }
         }
 

@@ -8,14 +8,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 {
     public class TestDbColumn : DbColumn
     {
-        public TestDbColumn()
+        public TestDbColumn(string columnName)
         {
             base.IsLong = false;
-            base.ColumnName = "Test Column";
+            base.ColumnName = columnName;
             base.ColumnSize = 128;
             base.AllowDBNull = true;
             base.DataType = typeof(string);
             base.DataTypeName = "nvarchar";
+        }
+
+        public TestDbColumn(string columnName, int numericScale)
+            : this(columnName)
+        {
+            base.NumericScale = numericScale;
         }
     }
 }

@@ -173,11 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string QueryServiceSubsetNotCompleted
+        public static string QueryServiceSubsetBatchNotCompleted
         {
             get
             {
-                return Keys.GetString(Keys.QueryServiceSubsetNotCompleted);
+                return Keys.GetString(Keys.QueryServiceSubsetBatchNotCompleted);
             }
         }
 
@@ -468,7 +468,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceQueryCancelled = "QueryServiceQueryCancelled";
 
 
-            public const string QueryServiceSubsetNotCompleted = "QueryServiceSubsetNotCompleted";
+            public const string QueryServiceSubsetBatchNotCompleted = "QueryServiceSubsetBatchNotCompleted";
 
 
             public const string QueryServiceSubsetBatchOutOfRange = "QueryServiceSubsetBatchOutOfRange";

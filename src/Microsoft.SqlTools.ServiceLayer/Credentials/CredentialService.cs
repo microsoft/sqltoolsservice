@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         /// Default constructor is private since it's a singleton class
         /// </summary>
         private CredentialService()
-            : this(null, new LinuxCredentialStore.StoreConfig() 
+            : this(null, new StoreConfig() 
                 { CredentialFolder = DefaultSecretsFolder, CredentialFile = DefaultSecretsFile, IsRelativeToUserHomeDir = true})
         {
         }
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
-        internal CredentialService(ICredentialStore store, LinuxCredentialStore.StoreConfig config)
+        internal CredentialService(ICredentialStore store, StoreConfig config)
         {
             this.credStore = store != null ? store : GetStoreForOS(config);
         }
@@ -64,12 +64,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
-        internal static ICredentialStore GetStoreForOS(LinuxCredentialStore.StoreConfig config)
+        internal static ICredentialStore GetStoreForOS(StoreConfig config)
         {
             if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new Win32CredentialStore();
             }
+#if !WINDOWS_ONLY_BUILD
             else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return new OSXCredentialStore();
@@ -78,6 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
             {
                 return new LinuxCredentialStore(config);
             }
+#endif
             throw new InvalidOperationException("Platform not currently supported");
         }
 

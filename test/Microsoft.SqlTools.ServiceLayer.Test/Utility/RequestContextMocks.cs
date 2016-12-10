@@ -50,11 +50,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             this Mock<RequestContext<TResponse>> mock,
             Action<object> errorCallback)
         {
-
             // Setup the mock for SendError
             var sendErrorFlow = mock.Setup(rc => rc.SendError(It.IsAny<object>()))
                 .Returns(Task.FromResult(0));
-            if (mock != null && errorCallback != null)
+            if (errorCallback != null)
             {
                 sendErrorFlow.Callback(errorCallback);
             }

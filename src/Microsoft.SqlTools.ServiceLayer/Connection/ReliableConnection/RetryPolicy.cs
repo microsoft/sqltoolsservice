@@ -533,7 +533,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 return new RetryStateEx { TotalRetryTime = TimeSpan.Zero };
             }
 
-            private sealed class RetryStateEx : RetryState
+            internal sealed class RetryStateEx : RetryState
             {
                 public TimeSpan TotalRetryTime { get; set; }
             }

@@ -23,22 +23,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private byte[] buffer;
 
-        private readonly IFileStreamWrapper fileStream;
+        private readonly Stream fileStream;
 
-        private Dictionary<Type, Func<long, FileStreamReadResult>> readMethods;
+        private readonly Dictionary<Type, Func<long, FileStreamReadResult>> readMethods;
 
         #endregion
 
         /// <summary>
         /// Constructs a new ServiceBufferFileStreamReader and initializes its state
         /// </summary>
-        /// <param name="fileWrapper">The filestream wrapper to read from</param>
-        /// <param name="fileName">The name of the file to read from</param>
-        public ServiceBufferFileStreamReader(IFileStreamWrapper fileWrapper, string fileName)
+        /// <param name="stream">The filestream to read from</param>
+        public ServiceBufferFileStreamReader(Stream stream)
         {            
             // Open file for reading/writing
-            fileStream = fileWrapper;
-            fileStream.Init(fileName, DefaultBufferSize, FileAccess.Read);
+            if (!stream.CanRead || !stream.CanSeek)
+            {
+                throw new InvalidOperationException("Stream must be readable and seekable");
+            }
+            fileStream = stream;
 
             // Create internal buffer
             buffer = new byte[DefaultBufferSize];
@@ -258,11 +260,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A DateTime</returns>
         public FileStreamReadResult ReadDateTime(long offset)
         {
-            return ReadCellHelper(offset, length =>
-            {
-                long ticks = BitConverter.ToInt64(buffer, 0);
-                return new DateTime(ticks);
-            });
+            int precision = 0;
+
+            return ReadCellHelper(offset,
+                length =>
+                {
+                    precision = BitConverter.ToInt32(buffer, 0);
+                    long ticks = BitConverter.ToInt64(buffer, 4);
+                    return new DateTime(ticks);
+                }, null,
+                time =>
+                {
+                    string format = "yyyy-MM-dd HH:mm:ss";
+                    if (precision > 0)
+                    {
+                        // Output the number milliseconds equivalent to the precision
+                        // NOTE: string('f', precision) will output ffff for precision=4
+                        format += "." + new string('f', precision);
+                    }
+                    return time.ToString(format);
+                });
         }
 
         /// <summary>
@@ -372,7 +389,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // read in length information
             int lengthValue;
-            int lengthLength = fileStream.ReadData(buffer, 1, offset);
+            fileStream.Seek(offset, SeekOrigin.Begin);
+            int lengthLength = fileStream.Read(buffer, 0, 1);
             if (buffer[0] != 0xFF)
             {
                 // one byte is enough
@@ -381,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             else
             {
                 // read in next 4 bytes
-                lengthLength += fileStream.ReadData(buffer, 4);
+                lengthLength += fileStream.Read(buffer, 0, 4);
 
                 // reconstruct the length
                 lengthValue = BitConverter.ToInt32(buffer, 0);
@@ -433,7 +451,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             else
             {
                 AssureBufferLength(length.ValueLength);
-                fileStream.ReadData(buffer, length.ValueLength);
+                fileStream.Read(buffer, 0, length.ValueLength);
                 T resultObject = convertFunc(length.ValueLength);
                 result.RawObject = resultObject;
                 result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);

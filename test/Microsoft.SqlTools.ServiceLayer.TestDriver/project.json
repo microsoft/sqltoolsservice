@@ -3,24 +3,40 @@
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "embed": {
+      "includeFiles": [
+        "Scripts/CreateTestDatabaseObjects.sql",
+        "Scripts/CreateTestDatabase.sql",
+        "Scripts/TestDbTableQueries.sql"
+      ]
+    },
+    "publishOptions": {
+      "include": [
+        "Scripts/AdventureWorks.sql"
+      ]
+    }
   },
   "dependencies": {
+    "xunit": "2.1.0",
+    "dotnet-test-xunit": "1.0.0-rc2-192208-24",
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
     }
   },
+  "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
+          "type": "platform",
           "version": "1.0.0"
         }
       },
       "imports": [
         "dotnet5.4",
         "portable-net451+win8"
-      ],
+      ]
     }
   },
   "runtimes": {
