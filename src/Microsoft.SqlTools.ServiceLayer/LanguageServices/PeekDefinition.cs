@@ -23,7 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     internal class PeekDefinition
     {
-        private ConnectionInfo connectionInfo;
+        private ServerConnection serverConnection;
+
+        private Database database;
+
         private string tempPath;
 
         internal delegate StringCollection ScriptGetter(string objectName, string schemaName);
@@ -35,38 +38,46 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
 
+        /// <summary>
+        /// Initialize a Peek Definition helper object
+        /// </summary>
+        /// <param name="serverConnection">SMO Server connection</param>
+        internal PeekDefinition(ServerConnection serverConnection)
+        {
+            this.serverConnection = serverConnection;
+
+            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(Path.GetTempPath() + "mssql_definition");
+            this.tempPath = tempScriptDirectory.FullName;
+            Initialize();
+        }
+
         private Database Database
         {
             get
             {
-                if (this.connectionInfo.SqlConnection != null)
+                if (this.database == null)
                 {
-                    try
+                    if (this.serverConnection != null && !string.IsNullOrEmpty(this.serverConnection.DatabaseName))
                     {
-                        // Get server object from connection
-                        string connectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails);
-                        SqlConnection sqlConn = new SqlConnection(connectionString);                    
-                        sqlConn.Open();
-                        ServerConnection serverConn = new ServerConnection(sqlConn); 
-                        Server server = new Server(serverConn);
-                        return server.Databases[this.connectionInfo.SqlConnection.Database];
+                        try
+                        {
+                            // Get server object from connection
+                            SqlConnection sqlConn = new SqlConnection(this.serverConnection.ConnectionString);                    
+                            sqlConn.Open();
+                            ServerConnection peekConnection = new ServerConnection(sqlConn);
+                            Server server = new Server(peekConnection);                        
+                            this.database = new Database(server, peekConnection.DatabaseName);                        
+                        }
+                        catch(Exception ex)
+                        {
+                            Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
+                        }   
                     }
-                    catch(Exception ex)
-                    {
-                        Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
-                        return null;
-                    }                   
-                }
-                return null;
-            }
-        }
 
-        internal PeekDefinition(ConnectionInfo connInfo)
-        {
-            this.connectionInfo = connInfo;
-            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(Path.GetTempPath() + "mssql_definition");
-            this.tempPath = tempScriptDirectory.FullName;
-            Initialize();
+                }
+                
+                return this.database;
+            }
         }
 
         /// <summary>
@@ -208,8 +219,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>String collection of scripts</returns>
         internal StringCollection GetTableScripts(string tableName, string schemaName)
         {
-            return (schemaName != null) ? Database?.Tables[tableName, schemaName]?.Script()
-                    : Database?.Tables[tableName]?.Script();
+            try
+            {
+                Table table = string.IsNullOrEmpty(schemaName)
+                    ? new Table(this.Database, tableName)
+                    : new Table(this.Database, tableName, schemaName);
+
+                    
+                var options = new ScriptingOptions();
+                options.WithDependencies = false;                    
+                return table.Script(options);
+            }
+            catch
+            {
+                return null;
+            }
+
+            // return (schemaName != null) ? Database?.Tables[tableName, schemaName]?.Script()
+            //        : Database?.Tables[tableName]?.Script();
         }
 
         /// <summary>
