@@ -67,8 +67,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.connectionInfo = connInfo;
             DirectoryInfo tempScriptDirectory;
             try 
-            {
-                tempScriptDirectory = Directory.CreateDirectory(FileUtils.PeekDefinitionTempFolder);
+            {   
+                string tempFolder = string.Format("{0}_{1}", FileUtils.PeekDefinitionTempFolder , DateTime.Now.ToString("yyyyMMddHHmmssffff"));
+                tempScriptDirectory = Directory.CreateDirectory(tempFolder);
+                FileUtils.PeekDefinitionTempFolder = tempScriptDirectory.FullName;
                 this.tempPath = tempScriptDirectory.FullName;
             }
             catch(Exception)
