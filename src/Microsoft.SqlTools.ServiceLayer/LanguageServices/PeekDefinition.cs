@@ -7,12 +7,12 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.SqlClient;
-using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -24,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     internal class PeekDefinition
     {
         private ConnectionInfo connectionInfo;
+        private bool error;
+        private string errorMessage;
         private string tempPath;
 
         internal delegate StringCollection ScriptGetter(string objectName, string schemaName);
@@ -54,6 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     catch(Exception ex)
                     {
                         Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
+                        this.error = true;
+                        this.errorMessage = "This feature is currently not supported on Azure SQL DB and Data Warehouse";
                         return null;
                     }                   
                 }
@@ -144,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="tokenText"></param>
         /// <param name="schemaName"></param>
         /// <returns>Location object of the script file</returns>
-        internal Location[] GetScript(IEnumerable<Declaration> declarationItems, string tokenText, string schemaName)
+        internal DefinitionResult GetScript(IEnumerable<Declaration> declarationItems, string tokenText, string schemaName)
         {
             foreach (Declaration declarationItem in declarationItems)
             {
@@ -163,17 +167,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // This workaround ensures that a schema name is present by attempting 
                         // to get the schema name from the declaration item 
                         // If all fails, the default schema name is assumed to be "dbo"
-                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && string.IsNullOrEmpty(schemaName))
+                        if (connectionInfo.ConnectionDetails.AuthenticationType.Equals("SqlLogin") && string.IsNullOrEmpty(schemaName))
                         {
                             string fullObjectName = declarationItem.DatabaseQualifiedName;
                             schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
                         }
-                        return GetSqlObjectDefinition(
+                        Location[] locations =  GetSqlObjectDefinition(
                                     sqlScriptGetters[type],
                                     tokenText,
                                     schemaName,
                                     sqlObjectTypes[type]
                                 );
+                        DefinitionResult result = new DefinitionResult {
+                            Error = this.error,
+                            Message = this.errorMessage,
+                            Locations = locations
+                        };
+                        return result;
                     }
                     return null;
                 }

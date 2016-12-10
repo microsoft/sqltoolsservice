@@ -14,5 +14,37 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             RequestType<TextDocumentPosition, Location[]> Type =
             RequestType<TextDocumentPosition, Location[]>.Create("textDocument/definition");
     }
+
+    /// <summary>
+    /// Error object for Definition
+    /// </summary>
+    public class DefinitionError
+    {
+        /// <summary>
+        /// Error message 
+        /// </summary>
+        public string message { get; set; }
+    }
+
+    /// <summary>
+    /// Result object for Definition
+    /// </summary>
+    public class DefinitionResult
+    {
+        /// <summary>
+        /// True, if definition error occured
+        /// </summary>
+        public bool Error;
+        /// <summary>
+        /// Error message, if any
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
+        /// location object representing the definition script file
+        /// </summary>
+        public Location[] Locations;
+        
+    }
 }
 

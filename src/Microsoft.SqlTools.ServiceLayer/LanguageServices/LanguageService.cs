@@ -307,11 +307,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
 
-                Location[] locations = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
-                if (locations != null)
-                {
-                    await requestContext.SendResult(locations);
-
+                DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                if (definitionResult != null)
+                {   
+                    if (definitionResult.Error)
+                    {
+                        await requestContext.SendError( new DefinitionError { message = definitionResult.Message });
+                    }
+                    else
+                    {
+                        await requestContext.SendResult(definitionResult.Locations);
+                    }
                     // Send a notification to signal that definition is sent
                     await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                     {
@@ -685,7 +691,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal Location[] GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
@@ -731,13 +737,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
                             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
                             return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
-                            
-
                         });
 
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
-                    return queueItem.GetResultAsT<Location[]>();
+                    return queueItem.GetResultAsT<DefinitionResult>();
                 }
                 finally
                 {
