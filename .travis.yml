@@ -5,6 +5,12 @@ os:
   - linux
   - osx
 
+# safelist
+branches:
+  only:
+  - master
+  - dev
+
 language: csharp
 solution: sqltoolsservice.sln
 
