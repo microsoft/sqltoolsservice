@@ -18,16 +18,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         /// Create new instance
         /// </summary>
         public ScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo)
-            : this(textDocumentPosition, scriptFile)
-        {
-            Validate.IsNotNull(nameof(scriptParseInfo), scriptParseInfo);
-
-            ScriptParseInfo = scriptParseInfo;
-            // need to adjust line & column for base-1 parser indices
-            Token = GetToken(scriptParseInfo, ParserLine, ParserColumn);
-        }
-
-        private ScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             StartLine = textDocumentPosition.Position.Line;
             ParserLine = textDocumentPosition.Position.Line + 1;
@@ -40,18 +30,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                                 textDocumentPosition.Position.Line,
                                 textDocumentPosition.Position.Character);
             ParserColumn = textDocumentPosition.Position.Character + 1;
+            ScriptParseInfo = scriptParseInfo;
             Contents = scriptFile.Contents;
-        }
 
-        /// <summary>
-        /// Creates a new <see cref="ScriptDocumentInfo"/> with no backing <see cref="ScriptParseInfo"/> defined
-        /// </summary>
-        /// <param name="textDocumentPosition">A <see cref="TextDocumentPosition"/></param>
-        /// <param name="scriptFile">A <see cref="ScriptFile"/> to process</param>
-        /// <returns></returns>
-        public static ScriptDocumentInfo CreateDefaultDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
-        {
-            return new ScriptDocumentInfo(textDocumentPosition, scriptFile);
+            // need to adjust line & column for base-1 parser indices
+            Token = GetToken(scriptParseInfo, ParserLine, ParserColumn);
         }
 
         /// <summary>
