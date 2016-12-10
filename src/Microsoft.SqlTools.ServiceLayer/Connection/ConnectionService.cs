@@ -183,6 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // create a sql connection instance
                 connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+                connectionInfo.QueryConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
                 using (source = new CancellationTokenSource())
@@ -213,12 +214,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         }
                     });
 
-                    var openTask = Task.Run(async () => {
+                    var openTaskSql = Task.Run(async () => {
                         await connectionInfo.SqlConnection.OpenAsync(source.Token);
                     });
-                    
+
+                    var openTaskQuery = Task.Run(async () => {
+                        await connectionInfo.QueryConnection.OpenAsync(source.Token);
+                    });
+
                     // Open the connection
-                    await Task.WhenAny(openTask, cancellationTask).Unwrap();
+                    await Task.WhenAny(openTaskSql, cancellationTask).Unwrap();
+                    await Task.WhenAny(openTaskQuery, cancellationTask).Unwrap();
+
                     source.Cancel();
                 }
             }
@@ -377,6 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Close the connection            
             info.SqlConnection.Close();
+            info.QueryConnection.Close();
 
             // Remove URI mapping
             ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
@@ -737,6 +745,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     if (info.SqlConnection.State == ConnectionState.Open)
                     {
                         info.SqlConnection.ChangeDatabase(newDatabaseName);
+                    }
+                    if (info.QueryConnection.State == ConnectionState.Open)
+                    {
+                        info.QueryConnection.ChangeDatabase(newDatabaseName);
                     }
                     info.ConnectionDetails.DatabaseName = newDatabaseName;
 

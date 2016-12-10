@@ -58,6 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="queryText">The text of the query to execute</param>
         /// <param name="connection">The information of the connection to use to execute the query</param>
+        /// <param name="connection">The information of the connection to use to execute the query</param>
         /// <param name="settings">Settings for how to execute the query, from the user</param>
         /// <param name="outputFactory">Factory for creating output files</param>
         public Query(string queryText, ConnectionInfo connection, QueryExecutionSettings settings, IFileStreamFactory outputFactory)
@@ -251,68 +252,60 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Open up a connection for querying the database
-            string connectionString = ConnectionService.BuildConnectionString(editorConnection.ConnectionDetails);
-            // TODO: Don't create a new connection every time, see TFS #834978
-            using (DbConnection conn = editorConnection.Factory.CreateSqlConnection(connectionString))
+            try
             {
-                try
+                await editorConnection.QueryConnection.OpenAsync();
+            }
+            catch (Exception exception)
+            {
+                this.HasExecuted = true;
+                if (QueryConnectionException != null)
                 {
-                    await conn.OpenAsync();
+                    await QueryConnectionException(exception.Message);
                 }
-                catch (Exception exception)
+                return;
+            }
+
+            ReliableSqlConnection sqlConn = editorConnection.QueryConnection as ReliableSqlConnection;
+            if (sqlConn != null)
+            {
+                // Subscribe to database informational messages
+                sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
+            }
+
+            try
+            {
+                // We need these to execute synchronously, otherwise the user will be very unhappy
+                foreach (Batch b in Batches)
                 {
-                    this.HasExecuted = true;
-                    if (QueryConnectionException != null)
-                    {
-                        await QueryConnectionException(exception.Message);
-                    }
-                    return;
+                    b.BatchStart += BatchStarted;
+                    b.BatchCompletion += BatchCompleted;
+                    b.ResultSetCompletion += ResultSetCompleted;
+                    await b.Execute(editorConnection.QueryConnection, cancellationSource.Token);
                 }
 
-                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+                // Call the query execution callback
+                if (QueryCompleted != null)
+                {
+                    await QueryCompleted(this);
+                }
+            }
+            catch (Exception)
+            {
+                // Call the query failure callback
+                if (QueryFailed != null)
+                {
+                    await QueryFailed(this);
+                }
+            }
+            finally
+            {
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
-                    sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
+                    sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
                 }
-
-                try
-                {
-                    // We need these to execute synchronously, otherwise the user will be very unhappy
-                    foreach (Batch b in Batches)
-                    {
-                        b.BatchStart += BatchStarted;
-                        b.BatchCompletion += BatchCompleted;
-                        b.ResultSetCompletion += ResultSetCompleted;
-                        await b.Execute(conn, cancellationSource.Token);
-                    }
-
-                    // Call the query execution callback
-                    if (QueryCompleted != null)
-                    {
-                        await QueryCompleted(this);
-                    }
-                }
-                catch (Exception)
-                {
-                    // Call the query failure callback
-                    if (QueryFailed != null)
-                    {
-                        await QueryFailed(this);
-                    }
-                }
-                finally
-                {
-                    if (sqlConn != null)
-                    {
-                        // Subscribe to database informational messages
-                        sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
-                    }
-                }
-
-                // TODO: Close connection after eliminating using statement for above TODO
-            }
+            }            
         }
 
         /// <summary>

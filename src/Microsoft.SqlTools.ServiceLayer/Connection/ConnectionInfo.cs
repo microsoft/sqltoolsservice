@@ -52,6 +52,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public DbConnection SqlConnection { get; set; }
 
         /// <summary>
+        /// The connection to the SQL database that queries will be run against.
+        /// A single instance is created and re-used after the first query is run 
+        /// </summary>
+        public DbConnection QueryConnection { get; set; }
+
+        /// <summary>
         /// Intellisense Metrics
         /// </summary>
         public InteractionMetrics<double> IntellisenseMetrics { get; private set; }
