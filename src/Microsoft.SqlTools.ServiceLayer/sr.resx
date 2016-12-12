@@ -308,6 +308,10 @@
     <value>Could not retrieve column schema for result set</value>
     <comment></comment>
   </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>This feature is currently not supported on Azure SQL DB and Data Warehouse</value>
+    <comment></comment>
+  </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
     <value>Position is outside of file line range</value>
     <comment></comment>

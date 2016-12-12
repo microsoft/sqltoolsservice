@@ -140,6 +140,11 @@ QueryServiceResultSetRowCountOutOfRange = Row count must be a positive integer
 QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for result set
 
 ############################################################################
+# Language Service
+
+PeekDefinitionAzureError = This feature is currently not supported on Azure SQL DB and Data Warehouse
+
+############################################################################
 # Workspace Service
 
 WorkspaceServicePositionLineOutOfRange = Position is outside of file line range

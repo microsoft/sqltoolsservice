@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
                         this.error = true;
-                        this.errorMessage = "This feature is currently not supported on Azure SQL DB and Data Warehouse";
+                        this.errorMessage = SR.PeekDefinitionAzureError;
                         return null;
                     }                   
                 }

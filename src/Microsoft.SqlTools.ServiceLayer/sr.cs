@@ -341,6 +341,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string PeekDefinitionAzureError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionAzureError);
+            }
+        }
+
         public static string WorkspaceServicePositionLineOutOfRange
         {
             get
@@ -397,7 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager(typeof(SR));
+            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
 
@@ -538,6 +546,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetNoColumnSchema = "QueryServiceResultSetNoColumnSchema";
+
+
+            public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";
 
 
             public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";
