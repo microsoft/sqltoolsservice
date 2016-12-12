@@ -4,6 +4,7 @@
 //
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -143,6 +144,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Request Handlers
 
+        /// <summary>
+        /// Handles request to execute the query
+        /// </summary>
         public async Task HandleExecuteRequest(QueryExecuteParams executeParams,
             RequestContext<QueryExecuteResult> requestContext)
         {
@@ -153,6 +157,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             await ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
         }
 
+        /// <summary>
+        /// Handles a request to get a subset of the results of this query
+        /// </summary>
         public async Task HandleResultSubsetRequest(QueryExecuteSubsetParams subsetParams,
             RequestContext<QueryExecuteSubsetResult> requestContext)
         {
@@ -201,6 +208,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Handles a request to dispose of this query
+        /// </summary>
         public async Task HandleDisposeRequest(QueryDisposeParams disposeParams,
             RequestContext<QueryDisposeResult> requestContext)
         {
@@ -232,6 +242,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Handles a request to cancel this query if it is in progress
+        /// </summary>
         public async Task HandleCancelRequest(QueryCancelParams cancelParams,
             RequestContext<QueryCancelResult> requestContext)
         {
@@ -471,10 +484,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await requestContext.SendResult(new SaveResultRequestResult());
             };
-            ResultSet.SaveAsFailureAsyncEventHandler errorHandler = async (parameters, exception) =>
+            ResultSet.SaveAsFailureAsyncEventHandler errorHandler = async (parameters, reason) =>
             {
                 // TODO: Put this into the strings file
-                string message = string.Format("{0} failed {1}", parameters.FilePath, exception.Message);
+                string message = SR.QueryServiceSaveAsFail(Path.GetFileName(parameters.FilePath), reason);
                 await requestContext.SendError(new SaveResultRequestError { message = message });
             };
 
@@ -485,7 +498,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (Exception e)
             {
-                await errorHandler(saveParams, e);
+                await errorHandler(saveParams, e.Message);
             }
         }
 

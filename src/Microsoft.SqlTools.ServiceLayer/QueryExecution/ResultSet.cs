@@ -98,10 +98,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Properties
 
+        /// <summary>
+        /// Asynchronous handler for when saving query results succeeds
+        /// </summary>
+        /// <param name="parameters">Request parameters for identifying the request</param>
         public delegate Task SaveAsAsyncEventHandler(SaveResultsRequestParams parameters);
 
-        public delegate Task SaveAsFailureAsyncEventHandler(
-            SaveResultsRequestParams pararmeters, Exception thrownException);
+        /// <summary>
+        /// Asynchronous handler for when saving query results fails
+        /// </summary>
+        /// <param name="parameters">Request parameters for identifying the request</param>
+        /// <param name="message">Message to send back describing why the request failed</param>
+        public delegate Task SaveAsFailureAsyncEventHandler(SaveResultsRequestParams parameters, string message);
 
         /// <summary>
         /// Asynchronous handler for when a resultset has completed
@@ -281,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Make sure the resultset has finished being read
             if (!hasBeenRead)
             {
-                throw new InvalidOperationException("Result cannot be saved until query execution has completed.");
+                throw new InvalidOperationException(SR.QueryServiceSaveAsResultSetNotComplete);
             }
 
             // Make sure there isn't a task for this file already
@@ -293,13 +301,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // The task has completed, so let's attempt to remove it
                     if (!SaveTasks.TryRemove(saveParams.FilePath, out existingTask))
                     {
-                        throw new InvalidOperationException("Internal error while starting save as task.");
+                        throw new InvalidOperationException(SR.QueryServiceSaveAsMscStartingError);
                     }
                 }
                 else
                 {
                     // The task hasn't completed, so we shouldn't continue
-                    throw new InvalidOperationException("A save request to the same path is in progress.");
+                    throw new InvalidOperationException(SR.QueryServiceSaveAsInProgress);
                 }
             }
 
@@ -338,7 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     fileFactory.DisposeFile(saveParams.FilePath);
                     if (failureHandler != null)
                     {
-                        await failureHandler(saveParams, e);
+                        await failureHandler(saveParams, e.Message);
                     }
                 }
             });
@@ -346,7 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // If saving the task fails, return a failure
             if (!SaveTasks.TryAdd(saveParams.FilePath, saveAsTask))
             {
-                throw new InvalidOperationException("Internal error while starting save as task.");
+                throw new InvalidOperationException(SR.QueryServiceSaveAsMscStartingError);
             }
 
             // Task was saved, so start up the task

@@ -1,4 +1,8 @@
-﻿
+﻿// 
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +12,9 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Writer for writing rows of results to a CSV file
+    /// </summary>
     public class SaveAsCsvFileStreamWriter : SaveAsStreamWriter
     {
 
@@ -18,12 +25,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #endregion
 
+        /// <summary>
+        /// Constructor, stores the CSV specific request params locally, chains into the base 
+        /// constructor
+        /// </summary>
+        /// <param name="stream">FileStream to access the CSV file output</param>
+        /// <param name="requestParams">CSV save as request parameters</param>
         public SaveAsCsvFileStreamWriter(Stream stream, SaveResultsAsCsvRequestParams requestParams)
             : base(stream, requestParams)
         {
             saveParams = requestParams;
         }
 
+        /// <summary>
+        /// Writes a row of data as a CSV row. If this is the first row and the user has requested
+        /// it, the headers for the column will be emitted as well.
+        /// </summary>
+        /// <param name="row">The data of the row to output to the file</param>
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
         public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
         {
             // Write out the header if we haven't already and the user chose to have it

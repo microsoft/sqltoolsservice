@@ -368,6 +368,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return targetResultSet.GetSubset(startRow, rowCount);
         }
 
+        /// <summary>
+        /// Saves a result to a file format selected by the user
+        /// </summary>
+        /// <param name="saveParams">Parameters for the save as request</param>
+        /// <param name="fileFactory">
+        /// Factory for creating the reader/writer pair for outputing to the selected format
+        /// </param>
+        /// <param name="successHandler">Delegate to call when request successfully completes</param>
+        /// <param name="failureHandler">Delegate to call if the request fails</param>
         public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
             ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
         {
