@@ -65,19 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal PeekDefinition(ConnectionInfo connInfo)
         {
             this.connectionInfo = connInfo;
-            DirectoryInfo tempScriptDirectory;
-            try 
-            {   
-                string tempFolder = string.Format("{0}_{1}", FileUtils.PeekDefinitionTempFolder , DateTime.Now.ToString("yyyyMMddHHmmssffff"));
-                tempScriptDirectory = Directory.CreateDirectory(tempFolder);
-                FileUtils.PeekDefinitionTempFolder = tempScriptDirectory.FullName;
-                this.tempPath = tempScriptDirectory.FullName;
-            }
-            catch(Exception)
-            {
-                // swallow exception and use temp folder to store scripts
-                this.tempPath = Path.GetTempPath();
-            }         
+            this.tempPath = FileUtils.GetPeekDefinitionTempFolder();    
             Initialize();
         }
 

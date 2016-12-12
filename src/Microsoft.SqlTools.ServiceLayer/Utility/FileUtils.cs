@@ -9,6 +9,44 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     internal static class FileUtils
     {
         internal static string PeekDefinitionTempFolder = Path.GetTempPath() + "mssql_definition"; 
+        internal static bool PeekDefinitionTempFolderCreated = false;
+
+        internal static string GetPeekDefinitionTempFolder()
+        {
+            string tempPath;
+            if (!PeekDefinitionTempFolderCreated)
+            {
+                
+                try
+                {
+                    // create new temp folder
+                    string tempFolder = string.Format("{0}_{1}", FileUtils.PeekDefinitionTempFolder, DateTime.Now.ToString("yyyyMMddHHmmssffff"));
+                    DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(tempFolder);
+                    FileUtils.PeekDefinitionTempFolder = tempPath = tempScriptDirectory.FullName;
+                    PeekDefinitionTempFolderCreated = true;
+                }
+                catch (Exception)
+                {
+                    // swallow exception and use temp folder to store scripts
+                    tempPath = Path.GetTempPath();
+                }
+            }
+            else
+            {
+                try
+                {
+                    // use tempDirectory name created previously
+                    DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(FileUtils.PeekDefinitionTempFolder);
+                    tempPath = tempScriptDirectory.FullName;
+                }
+                catch (Exception)
+                {
+                    // swallow exception and use temp folder to store scripts
+                    tempPath = Path.GetTempPath();
+                }
+            }
+            return tempPath;
+        }
 
         /// <summary>
         /// Checks if file exists and swallows exceptions, if any
