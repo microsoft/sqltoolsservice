@@ -456,10 +456,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext, IFileStreamFactory fileFactory)
         {
             // retrieve query for OwnerUri
-            Query result;
-            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            Query query;
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out query))
             {
-                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+                await requestContext.SendError(new SaveResultRequestError
+                {
+                    message = SR.QueryServiceQueryInvalidOwnerUri
+                });
                 return;
             }
 
@@ -478,7 +481,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
                 // Launch the task
-                result.SaveAs(saveParams, fileFactory, successHandler, errorHandler);
+                query.SaveAs(saveParams, fileFactory, successHandler, errorHandler);
             }
             catch (Exception e)
             {
