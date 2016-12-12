@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public static class AutoCompleteHelper
     {
-        private const int PrepopulateBindTimeout = 60000;
+        private const int PrepopulateBindTimeout = 150000;
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
