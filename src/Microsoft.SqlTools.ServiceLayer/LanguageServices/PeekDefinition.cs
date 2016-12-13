@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             Server server = new Server(peekConnection);                        
                             this.database = new Database(server, peekConnection.DatabaseName);                        
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
                         }   
@@ -229,8 +229,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 
                 return table.Script();
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Write(LogLevel.Error, "Exception at PeekDefinition GetTableScripts : " + ex.Message);
                 return null;
             }
         }
@@ -253,8 +254,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 
                 return view.Script();
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Write(LogLevel.Error, "Exception at PeekDefinition GetViewScripts : " + ex.Message);
                 return null;
             }
         }
@@ -277,8 +279,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 
                 return sproc.Script();
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Write(LogLevel.Error, "Exception at PeekDefinition GetStoredProcedureScripts : " + ex.Message);
                 return null;
             }
         }
