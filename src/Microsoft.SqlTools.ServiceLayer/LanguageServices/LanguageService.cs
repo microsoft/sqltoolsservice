@@ -310,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
                 if (definitionResult != null)
                 {   
-                    if (definitionResult.Error)
+                    if (definitionResult.IsErrorResult)
                     {
                         await requestContext.SendError( new DefinitionError { message = definitionResult.Message });
                     }

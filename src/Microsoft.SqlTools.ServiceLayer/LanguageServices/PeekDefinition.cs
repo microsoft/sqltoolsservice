@@ -53,11 +53,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         Server server = new Server(serverConn);
                         return server.Databases[this.connectionInfo.SqlConnection.Database];
                     }
+                    catch(ConnectionFailureException cfe)
+                    {
+                        Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + cfe.Message);
+                        this.error = true;
+                        this.errorMessage = connectionInfo.IsAzure? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionDatabaseError(cfe.Message);;
+                        return null;
+                    }
                     catch(Exception ex)
                     {
                         Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
                         this.error = true;
-                        this.errorMessage = SR.PeekDefinitionAzureError;
+                        this.errorMessage = SR.PeekDefinitionDatabaseError(ex.Message);
                         return null;
                     }                   
                 }
@@ -179,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     sqlObjectTypes[type]
                                 );
                         DefinitionResult result = new DefinitionResult {
-                            Error = this.error,
+                            IsErrorResult = this.error,
                             Message = this.errorMessage,
                             Locations = locations
                         };

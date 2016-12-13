@@ -309,8 +309,14 @@
     <comment></comment>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
-    <value>This feature is currently not supported on Azure SQL DB and Data Warehouse</value>
-    <comment></comment>
+    <value>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>An unexpected error occurred during Peek Definition execution: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
     <value>Position is outside of file line range</value>

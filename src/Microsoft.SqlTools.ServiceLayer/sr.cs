@@ -341,14 +341,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string PeekDefinitionAzureError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionAzureError);
-            }
-        }
-
         public static string WorkspaceServicePositionLineOutOfRange
         {
             get
@@ -390,6 +382,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string QueryServiceQueryFailed(string message)
         {
             return Keys.GetString(Keys.QueryServiceQueryFailed, message);
+        }
+
+        public static string PeekDefinitionAzureError(string errorMessage)
+        {
+            return Keys.GetString(Keys.PeekDefinitionAzureError, errorMessage);
+        }
+
+        public static string PeekDefinitionDatabaseError(string errorMessage)
+        {
+            return Keys.GetString(Keys.PeekDefinitionDatabaseError, errorMessage);
         }
 
         public static string WorkspaceServicePositionColumnOutOfRange(int line)
@@ -549,6 +551,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";
+
+
+            public const string PeekDefinitionDatabaseError = "PeekDefinitionDatabaseError";
 
 
             public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";

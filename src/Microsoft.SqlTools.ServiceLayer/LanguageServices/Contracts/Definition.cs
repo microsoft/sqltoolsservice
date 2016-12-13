@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// <summary>
         /// True, if definition error occured
         /// </summary>
-        public bool Error;
+        public bool IsErrorResult;
         /// <summary>
         /// Error message, if any
         /// </summary>

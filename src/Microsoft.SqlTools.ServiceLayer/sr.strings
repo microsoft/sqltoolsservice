@@ -142,7 +142,9 @@ QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for resul
 ############################################################################
 # Language Service
 
-PeekDefinitionAzureError = This feature is currently not supported on Azure SQL DB and Data Warehouse
+PeekDefinitionAzureError(string errorMessage) = This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}
+
+PeekDefinitionDatabaseError(string errorMessage) = An unexpected error occurred during Peek Definition execution: {0}
 
 ############################################################################
 # Workspace Service
