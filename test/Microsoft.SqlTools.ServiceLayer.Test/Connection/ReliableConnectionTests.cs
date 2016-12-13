@@ -829,6 +829,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // verify constructor with null connection doesn't throw
             Assert.NotNull(new ReliableSqlConnection.ReliableSqlCommand(null));
         }
+
+        [Fact]
+        public void ReliableSqlCommandProperties()
+        {
+            var command = new ReliableSqlConnection.ReliableSqlCommand();
+            command.CommandText = "SELECT 1";
+            Assert.Equal(command.CommandText, "SELECT 1");
+            Assert.NotNull(command.CommandTimeout);
+            Assert.NotNull(command.CommandType);   
+            command.DesignTimeVisible = true;
+            Assert.True(command.DesignTimeVisible);
+            command.UpdatedRowSource = UpdateRowSource.None;
+            Assert.Equal(command.UpdatedRowSource, UpdateRowSource.None);
+            Assert.NotNull(command.GetUnderlyingCommand());
+            Assert.Throws<InvalidOperationException>(() => command.ValidateConnectionIsSet());
+            command.Prepare();
+            Assert.NotNull(command.CreateParameter());
+            command.Cancel();            
+        }
     }
 }
 
