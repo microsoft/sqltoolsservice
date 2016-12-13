@@ -1,6 +1,6 @@
 environment:
     COVERALLS_REPO_TOKEN:  
-       secure: Insert encrypted coveralls token here
+       secure: KjiClJjgj/eB1zo52GBz/CHCmdxj6ut+q6+LD5G3sYhy9Hi4kEF6CWi8vOQPH1oy
 
 # safelist
 branches:
