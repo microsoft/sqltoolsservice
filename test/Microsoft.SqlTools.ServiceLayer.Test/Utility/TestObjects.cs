@@ -9,6 +9,8 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Reflection;
+using System.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
@@ -211,6 +213,15 @@ namespace Microsoft.SqlTools.Test.Utility
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
             return connInfo;
+        }
+
+        public static ServerConnection InitLiveServerConnectionForDefinition(ConnectionInfo connInfo)
+        {
+            string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+            SqlConnection sqlConn = new SqlConnection(connectionString);                    
+            sqlConn.Open();
+            // populate the binding context to work with the SMO metadata provider
+            return new ServerConnection(sqlConn);
         }
     }
 

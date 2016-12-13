@@ -48,6 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int PeekDefinitionTimeout = 10 * OneSecond;
 
+        internal static ServiceHost ServiceHost= ServiceHost.Instance;
+
         private static ConnectionService connectionService = null;
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
@@ -236,6 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Store the SqlToolsContext for future use
             Context = context;
+
         }
 
         #endregion
@@ -306,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ConnectionInfo connInfo;
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-                await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                await LanguageService.ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                 {
                     Params = new TelemetryProperties
                     {
@@ -787,7 +790,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptParseInfo"></param>
         /// <param name="position"></param>
         /// <param name="scriptFile"></param>
-        /// <returns> schema nama</returns>
+        /// <returns> schema name</returns>
         private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
         {
             // Offset index by 1 for sql parser

@@ -2,22 +2,29 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#define LIVE_CONNECTION_TESTS
 using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Data.SqlClient;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using Moq;
 using Xunit;
@@ -99,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             var testScriptParseInfo = new ScriptParseInfo();
             LanguageService.Instance.AddOrUpdateScriptParseInfo(this.testScriptUri, testScriptParseInfo);
-            testScriptParseInfo.IsConnected = true;
+            testScriptParseInfo.IsConnected = false;
             testScriptParseInfo.ConnectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(connectionInfo);
 
             // setup the binding context object
@@ -107,22 +114,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             bindingContext.Binder = binder.Object;
             bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
             LanguageService.Instance.BindingQueue.BindingContextMap.Add(testScriptParseInfo.ConnectionKey, bindingContext);
+            // var serviceHostMock = new Mock<ServiceHost>();
+            // LanguageService.ServiceHost = serviceHostMock.Object;
         }
 
 
         /// <summary>
-        /// Tests the definition event handler. When called with no active connection, no definition is sent
+        /// Tests the definition event handler. When called with no active connection, an error is sent
         /// </summary>
         [Fact]
         public void DefinitionsHandlerWithNoConnectionTest()
         {
+            TestObjects.InitializeTestServices();
             InitializeTestObjects();
+
             // request the completion list
             Task handleCompletion = LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object);
             handleCompletion.Wait(TaskTimeout);
 
-            // verify that send result was not called
+            // verify that send result was not called and send error was called
             requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
+            requestContext.Verify(m => m.SendError(It.IsAny<DefinitionError>()), Times.Once());
         }
 
         /// <summary>
@@ -132,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void GetLocationFromFileForValidFilePathTest()
         {
             String filePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:\\test\\script.sql" : "/test/script.sql";
-            PeekDefinition peekDefinition = new PeekDefinition(null);
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
             Location[] locations = peekDefinition.GetLocationFromFile(filePath, 0);
 
             String expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
@@ -145,11 +157,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithValidNameTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null);
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string validDatabaseQualifiedName = "master.test.test_table";
             string objectName = "test_table";
             string expectedSchemaName = "test";
-        
+
             string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
             Assert.Equal(actualSchemaName, expectedSchemaName);
         }
@@ -161,11 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithNoSchemaTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null);
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string validDatabaseQualifiedName = "test_table";
             string objectName = "test_table";
             string expectedSchemaName = "dbo";
-        
+
             string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
             Assert.Equal(actualSchemaName, expectedSchemaName);
         }
@@ -176,15 +188,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithInvalidNameTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null);
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string validDatabaseQualifiedName = "x.y.z";
             string objectName = "test_table";
             string expectedSchemaName = "dbo";
-        
+
             string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
             Assert.Equal(actualSchemaName, expectedSchemaName);
         }
-         
+
 #if LIVE_CONNECTION_TESTS
         /// <summary>
         /// Test get definition for a table object with active connection
@@ -192,9 +204,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetValidTableDefinitionTest()
         {
-            // Get live connectionInfo
+            // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "test_table";
             string schemaName = null;
             string objectType = "TABLE";
@@ -211,9 +225,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetTableDefinitionInvalidObjectTest()
         {
-            // Get live connectionInfo
+            // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "test_invalid";
             string schemaName = null;
             string objectType = "TABLE";
@@ -229,9 +245,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetTableDefinitionWithSchemaTest()
         {
-            // Get live connectionInfo
+            // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "test_table";
             string schemaName = "dbo";
             string objectType = "TABLE";
@@ -239,7 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             // Get locations for valid table object with schema name
             Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
-            Cleanup(locations);            
+            Cleanup(locations);
         }
 
         /// <summary>
@@ -266,8 +284,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
 
-            var locations = languageService.GetDefinition(textDocument, scriptFile, connInfo);
-            Assert.Null(locations);
+            var result = languageService.GetDefinition(textDocument, scriptFile, connInfo);
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
         }
 
         /// <summary>
@@ -277,7 +296,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void GetValidViewDefinitionTest()
         {
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = "sys";
             string objectType = "VIEW";
@@ -293,8 +314,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetViewDefinitionInvalidObjectTest()
         {
+            // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = null;
             string objectType = "VIEW";
@@ -309,8 +333,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetStoredProcedureDefinitionTest()
         {
+            // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "SP1";
             string schemaName = "dbo";
             string objectType = "PROCEDURE";
@@ -326,8 +353,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetStoredProcedureDefinitionFailureTest()
         {
+            // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "SP2";
             string schemaName = "dbo";
             string objectType = "PROCEDURE";
@@ -342,8 +372,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetStoredProcedureDefinitionWithoutSchemaTest()
         {
+            // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "SP1";
             string schemaName = null;
             string objectType = "PROCEDURE";
