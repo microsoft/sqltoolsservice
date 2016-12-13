@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void GetDefinitionInvalidTextDocument()
         {
             InitializeTestObjects();
-            textDocument.TextDocument.Uri = "abracadabra";
+            textDocument.TextDocument.Uri = "invaliduri";
             Assert.Null(LanguageService.Instance.GetDefinition(textDocument, null, null));
         }
 
@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void RemoveScriptParseInfoNullUri()
         {
             InitializeTestObjects();
-            Assert.False(LanguageService.Instance.RemoveScriptParseInfo("abracadabra"));
+            Assert.False(LanguageService.Instance.RemoveScriptParseInfo("abc123"));
         }
 
         [Fact]
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void GetCompletionItemsInvalidTextDocument()
         {
             InitializeTestObjects();
-            textDocument.TextDocument.Uri = "abracadabra";
+            textDocument.TextDocument.Uri = "somethinggoeshere";
             Assert.True(LanguageService.Instance.GetCompletionItems(textDocument, scriptFile.Object, null).Length > 0);
         }        
 
