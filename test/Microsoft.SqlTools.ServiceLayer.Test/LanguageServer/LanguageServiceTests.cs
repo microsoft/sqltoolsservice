@@ -180,11 +180,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
 
             connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
         }
-
+        
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
-        // Test is causing failures in build lab..investigating to reenable
         [Fact]
         public void ServiceInitialization()
         {
@@ -200,12 +199,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             Assert.True(LanguageService.ConnectionServiceInstance != null);
             Assert.True(LanguageService.Instance.CurrentSettings != null);
             Assert.True(LanguageService.Instance.CurrentWorkspace != null);
-        }        
+        }  
 
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
-        // Test is causing failures in build lab..investigating to reenable
         [Fact]
         public void PrepopulateCommonMetadata()
         {

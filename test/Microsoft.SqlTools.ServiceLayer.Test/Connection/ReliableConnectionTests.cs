@@ -824,7 +824,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // verify constructor with null connection doesn't throw
             Assert.NotNull(new ReliableSqlConnection.ReliableSqlCommand(null));
         }
-
     }
 }
 

@@ -65,24 +65,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var wrapper = new DbColumnWrapper(column);
             Assert.NotNull(wrapper.DataType);
             Assert.Null(wrapper.AllowDBNull);
- 	        Assert.Null(wrapper.BaseCatalogName);
- 	        Assert.Null(wrapper.BaseColumnName);
- 	        Assert.Null(wrapper.BaseServerName);
- 	        Assert.Null(wrapper.BaseTableName);
- 	        Assert.Null(wrapper.ColumnOrdinal);
- 	        Assert.Null(wrapper.ColumnSize);
- 	        Assert.Null(wrapper.IsAliased);
- 	        Assert.Null(wrapper.IsAutoIncrement);
- 	        Assert.Null(wrapper.IsExpression);
- 	        Assert.Null(wrapper.IsHidden);
- 	        Assert.Null(wrapper.IsIdentity);
- 	        Assert.Null(wrapper.IsKey);
- 	        Assert.Null(wrapper. IsReadOnly);
- 	        Assert.Null(wrapper.IsUnique);
- 	        Assert.Null(wrapper.NumericPrecision);
- 	        Assert.Null(wrapper.NumericScale);
- 	        Assert.Null(wrapper.UdtAssemblyQualifiedName); 	        
- 	        Assert.Null(wrapper.DataTypeName);
+            Assert.Null(wrapper.BaseCatalogName);
+            Assert.Null(wrapper.BaseColumnName);
+            Assert.Null(wrapper.BaseServerName);
+            Assert.Null(wrapper.BaseTableName);
+            Assert.Null(wrapper.ColumnOrdinal);
+            Assert.Null(wrapper.ColumnSize);
+            Assert.Null(wrapper.IsAliased);
+            Assert.Null(wrapper.IsAutoIncrement);
+            Assert.Null(wrapper.IsExpression);
+            Assert.Null(wrapper.IsHidden);
+            Assert.Null(wrapper.IsIdentity);
+            Assert.Null(wrapper.IsKey);
+            Assert.Null(wrapper. IsReadOnly);
+            Assert.Null(wrapper.IsUnique);
+            Assert.Null(wrapper.NumericPrecision);
+            Assert.Null(wrapper.NumericScale);
+            Assert.Null(wrapper.UdtAssemblyQualifiedName); 	        
+            Assert.Null(wrapper.DataTypeName);
         }
 
         /// <summary>
