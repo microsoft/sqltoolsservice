@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#if !LIVE_CONNECTION_TESTS
+#if LIVE_CONNECTION_TESTS
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,8 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
@@ -711,6 +713,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 var detectionStrategy2 = new TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy();
                 Assert.NotNull(detectionStrategy2.InvokeCanRetrySqlException(sqlException));
                 Assert.NotNull(detectionStrategy2.InvokeShouldIgnoreSqlException(sqlException));
+
+                Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory(null));
+                batch.UnwrapDbException(sqlException);
             }
 
             var unknownCodeReason = RetryPolicy.ThrottlingReason.FromReasonCode(-1);
