@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int OnConnectionWaitTimeout = 300 * OneSecond;
 
-        internal const int PeekDefinitionTimeout = 1 * OneSecond;
+        internal const int PeekDefinitionTimeout = 10 * OneSecond;
 
         private static ConnectionService connectionService = null;
 
