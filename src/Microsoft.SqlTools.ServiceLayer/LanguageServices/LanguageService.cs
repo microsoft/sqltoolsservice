@@ -733,8 +733,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 bindingContext.MetadataDisplayInfoProvider);
 
                             // Match token with the suggestions(declaration items) returned
+
                             string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
                             return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
                         },
                         timeoutOperation: (bindingContext) =>
@@ -879,6 +880,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
 
+            if (scriptParseInfo == null)
+            {
+                // Cache not set up yet - skip and wait until later
+                return null;
+            }
+
             ConnectionInfo connInfo;
             LanguageService.ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientFilePath, 
@@ -890,7 +897,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ParseAndBind(scriptFile, connInfo);
             }
 
-            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
+            if (scriptParseInfo.ParseResult != null)
             {
                 if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
@@ -960,13 +967,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
-            ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
-
+            
             if (scriptParseInfo == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
+                return AutoCompleteHelper.GetDefaultCompletionItems(ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile), useLowerCaseSuggestions);
             }
 
+            ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            
             // reparse and bind the SQL statement if needed
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {

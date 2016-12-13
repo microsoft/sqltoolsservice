@@ -17,5 +17,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             base.DataType = typeof(string);
             base.DataTypeName = "nvarchar";
         }
+
+        public TestDbColumn(string columnName, int numericScale)
+            : this(columnName)
+        {
+            base.NumericScale = numericScale;
+        }
     }
 }
