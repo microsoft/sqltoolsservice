@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         CompletionProvider = new CompletionOptions
                         {
                             ResolveProvider = true,
-                            TriggerCharacters = new string[] { ".", "-", ":", "\\", "[" }
+                            TriggerCharacters = new string[] { ".", "-", ":", "\\", "[", "\"" }
                         },
                         SignatureHelpProvider = new SignatureHelpOptions
                         {

@@ -4,6 +4,7 @@
 //
 
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -18,6 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     public class SqlCompletionItem
     {
         private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
+        private static DelimitedIdentifier BracketeIidentifiers = new DelimitedIdentifier { Start = "[", End = "]"};
+        private static DelimitedIdentifier[] DelimitedIdentifiers =
+            new DelimitedIdentifier[] { BracketeIidentifiers, new DelimitedIdentifier {Start = "\"", End = "\"" } };
 
         /// <summary>
         /// Create new instance given the SQL parser declaration
@@ -45,10 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         {
             InsertText = GetCompletionItemInsertName();
             Label = DeclarationTitle;
-            if (StartsWithBracket(TokenText))
+            DelimitedIdentifier delimitedIdentifier = GetDelimitedIdentifier(TokenText);
+            if (delimitedIdentifier != null)
             {
-                Label = WithBracket(Label);
-                InsertText = WithBracket(InsertText);
+                Label = WithDelimitedIdentifier(delimitedIdentifier, Label);
+                InsertText = WithDelimitedIdentifier(delimitedIdentifier, InsertText);
             }
             Detail = Label;
             Kind = CreateCompletionItemKind();
@@ -176,31 +181,38 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             string insertText = DeclarationTitle;
             if (!string.IsNullOrEmpty(DeclarationTitle) && !ValidSqlNameRegex.IsMatch(DeclarationTitle))
             {
-                insertText = WithBracket(DeclarationTitle);
+                insertText = WithDelimitedIdentifier(BracketeIidentifiers, DeclarationTitle);
             }
             return insertText;
         }
 
-        private bool HasBrackets(string text)
+        private bool HasDelimitedIdentifier(DelimitedIdentifier delimiteIidentifier, string text)
         {
-            return text != null && text.StartsWith("[") && text.EndsWith("]");
+            return text != null && delimiteIidentifier != null && text.StartsWith(delimiteIidentifier.Start) 
+                && text.EndsWith(delimiteIidentifier.End);
         }
 
-        private bool StartsWithBracket(string text)
+        private DelimitedIdentifier GetDelimitedIdentifier(string text)
         {
-            return text != null && text.StartsWith("[");
+            return text != null ? DelimitedIdentifiers.FirstOrDefault(x => text.StartsWith(x.Start)) : null;
         }
 
-        private string WithBracket(string text)
+        private string WithDelimitedIdentifier(DelimitedIdentifier delimiteIidentifier, string text)
         {
-            if (!HasBrackets(text))
+            if (!HasDelimitedIdentifier(delimiteIidentifier, text))
             {
-                return string.Format(CultureInfo.InvariantCulture, "[{0}]", text);
+                return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", delimiteIidentifier.Start, text, delimiteIidentifier.End);
             }
             else
             {
                 return text;
             }
         }
+    }
+
+    internal class DelimitedIdentifier
+    {
+        public string Start { get; set; }
+        public string End { get; set; }
     }
 }

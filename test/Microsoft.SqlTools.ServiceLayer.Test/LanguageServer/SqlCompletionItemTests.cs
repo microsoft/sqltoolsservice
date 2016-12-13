@@ -4,7 +4,6 @@
 //
 
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Xunit;
@@ -124,6 +123,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             string expected = "[" + declarationTitle + "]";
             DeclarationType declarationType = DeclarationType.Table;
             string tokenText = "[]";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(completionItem.Label, expected);
+            Assert.Equal(completionItem.InsertText, expected);
+            Assert.Equal(completionItem.Detail, expected);
+        }
+
+        [Fact]
+        public void LabelShouldIncludeQuotedIdentifiersGivenTokenWithQuotedIdentifier()
+        {
+            string declarationTitle = "name";
+            string expected = "\"" + declarationTitle + "\"";
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "\"";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(completionItem.Label, expected);
+            Assert.Equal(completionItem.InsertText, expected);
+            Assert.Equal(completionItem.Detail, expected);
+        }
+
+        [Fact]
+        public void LabelShouldIncludeQuotedIdentifiersGivenTokenWithQuotedIdentifiers()
+        {
+            string declarationTitle = "name";
+            string expected = "\"" + declarationTitle + "\"";
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "\"\"";
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
