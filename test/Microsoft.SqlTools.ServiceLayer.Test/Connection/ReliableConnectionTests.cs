@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#if LIVE_CONNECTION_TESTS
+#if !LIVE_CONNECTION_TESTS
 
 using System;
 using System.Collections.Generic;
@@ -70,6 +70,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             {
                 return ShouldRetryImpl(retryStateObj);
             }
+
+            public void DoOnIgnoreErrorOccurred(RetryState retryState)
+            {
+                OnIgnoreErrorOccurred(retryState);
+            }
         }
 
         internal class TestProgressiveRetryPolicy : ProgressiveRetryPolicy
@@ -126,7 +131,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 strategy: new NetworkConnectivityErrorDetectionStrategy(),
                 maxRetryCount: 3, 
                 intervalBetweenRetries: TimeSpan.FromMilliseconds(100));
-            bool shouldRety = policy.InvokeShouldRetryImpl(new RetryStateEx());
+            var retryState = new RetryStateEx();
+            bool shouldRety = policy.InvokeShouldRetryImpl(retryState);
+            policy.DoOnIgnoreErrorOccurred(retryState);
             Assert.True(shouldRety);
         }
 
@@ -140,6 +147,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 increment: TimeSpan.FromMilliseconds(100));
             bool shouldRety = policy.InvokeShouldRetryImpl(new RetryStateEx());
             Assert.True(shouldRety);
+            Assert.NotNull(policy.CommandTimeoutInSeconds);
+            policy.ShouldIgnoreOnFirstTry = false;
+            Assert.False(policy.ShouldIgnoreOnFirstTry);
         }
         
         [Fact]
@@ -155,6 +165,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 intervalFactor: 1);
             bool shouldRety = policy.InvokeShouldRetryImpl(new RetryStateEx());
             Assert.True(shouldRety);
+        }
+
+
+        [Fact]
+        public void GetErrorNumberWithNullExceptionTest()
+        {
+            Assert.Null(RetryPolicy.GetErrorNumber(null));
         }
 
         /// <summary>
@@ -796,6 +813,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Assert.NotNull(ReliableConnectionHelper.GetCompleteServerName("localhost"));
 
             Assert.NotNull(ReliableConnectionHelper.GetCompleteServerName("mytestservername"));
+        }
+
+        [Fact]
+        public void ReliableSqlCommandConstructorTests()
+        {
+            // verify default constructor doesn't throw
+            Assert.NotNull(new ReliableSqlConnection.ReliableSqlCommand());
+
+            // verify constructor with null connection doesn't throw
+            Assert.NotNull(new ReliableSqlConnection.ReliableSqlCommand(null));
         }
 
     }
