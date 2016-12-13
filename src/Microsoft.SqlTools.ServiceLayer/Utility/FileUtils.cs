@@ -15,14 +15,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             string tempPath;
             if (!PeekDefinitionTempFolderCreated)
-            {
-                
+            {               
                 try
                 {
                     // create new temp folder
                     string tempFolder = string.Format("{0}_{1}", FileUtils.PeekDefinitionTempFolder, DateTime.Now.ToString("yyyyMMddHHmmssffff"));
                     DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(tempFolder);
-                    FileUtils.PeekDefinitionTempFolder = tempPath = tempScriptDirectory.FullName;
+                    FileUtils.PeekDefinitionTempFolder = tempScriptDirectory.FullName;
+                    tempPath = tempScriptDirectory.FullName;
                     PeekDefinitionTempFolderCreated = true;
                 }
                 catch (Exception)
