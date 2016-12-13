@@ -260,6 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                     Assert.True(serverInfo.ServerEdition == serverInfo2.ServerEdition);
                     Assert.True(serverInfo.IsCloud == serverInfo2.IsCloud);
                     Assert.True(serverInfo.AzureVersion == serverInfo2.AzureVersion);
+                    Assert.True(serverInfo.IsAzureV1 == serverInfo2.IsAzureV1);                    
                 }
             });
         }
@@ -475,6 +476,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             });
         }
 
+        /// <summary>
+        /// Test that TryGetServerVersion() fails with invalid connection string
+        /// </summary>
+        [Fact]
+        public void TestTryGetServerVersionInvalidConnectionString()
+        {
+            TestUtils.RunIfWindows(() =>
+            {
+                ReliableConnectionHelper.ServerInfo info = null;
+                Assert.False(ReliableConnectionHelper.TryGetServerVersion("this is not a valid connstr", out info));
+            });
+        }
 
         /// <summary>
         /// Validate ambient static settings
@@ -736,6 +749,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Assert.Equal(exception, args.Exception);
             Assert.Equal(timespan, args.Delay);
         }
+
+        [Fact]
+        public void CheckStaticVariables()
+        {
+            Assert.NotNull(ReliableConnectionHelper.BuilderWithDefaultApplicationName);                        
+        }
+
+        [Fact]
+        public void SetLockAndCommandTimeoutThrowsOnNull()
+        {
+            Assert.Throws(typeof(ArgumentNullException), () => ReliableConnectionHelper.SetLockAndCommandTimeout(null));
+        }
+
+        [Fact]
+        public void StandardExceptionHandlerTests()
+        {
+            Assert.True(ReliableConnectionHelper.StandardExceptionHandler(new InvalidCastException()));
+            Assert.False(ReliableConnectionHelper.StandardExceptionHandler(new Exception()));
+        }
+
+        [Fact]
+        public void GetConnectionStringBuilderNullConnectionString()
+        {
+            SqlConnectionStringBuilder builder;
+            Assert.False(ReliableConnectionHelper.TryGetConnectionStringBuilder(null, out builder));                
+        }
+
+        [Fact]
+        public void GetConnectionStringBuilderExceptionTests()
+        {
+            SqlConnectionStringBuilder builder;
+
+            // throws ArgumentException
+            Assert.False(ReliableConnectionHelper.TryGetConnectionStringBuilder("IntegratedGoldFish=True", out builder));
+
+            // throws FormatException
+            Assert.False(ReliableConnectionHelper.TryGetConnectionStringBuilder("rabbits**frogs**lizards", out builder));            
+        }
+
+        [Fact]
+        public void GetCompleteServerNameTests()
+        {
+            Assert.Null(ReliableConnectionHelper.GetCompleteServerName(null));
+
+            Assert.NotNull(ReliableConnectionHelper.GetCompleteServerName("localhost"));
+
+            Assert.NotNull(ReliableConnectionHelper.GetCompleteServerName("mytestservername"));
+        }
+
     }
 }
 
