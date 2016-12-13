@@ -25,26 +25,5 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         /// </summary>
         public string message { get; set; }
     }
-
-    /// <summary>
-    /// Result object for Definition
-    /// </summary>
-    public class DefinitionResult
-    {
-        /// <summary>
-        /// True, if definition error occured
-        /// </summary>
-        public bool IsErrorResult;
-        /// <summary>
-        /// Error message, if any
-        /// </summary>
-        public string Message { get; set; }
-
-        /// <summary>
-        /// location object representing the definition script file
-        /// </summary>
-        public Location[] Locations;
-        
-    }
 }
 
