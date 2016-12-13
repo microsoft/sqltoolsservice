@@ -12,7 +12,8 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -174,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // This workaround ensures that a schema name is present by attempting 
                         // to get the schema name from the declaration item 
                         // If all fails, the default schema name is assumed to be "dbo"
-                        if (connectionInfo.ConnectionDetails.AuthenticationType.Equals("SqlLogin") && string.IsNullOrEmpty(schemaName))
+                        if (connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType) && string.IsNullOrEmpty(schemaName))
                         {
                             string fullObjectName = declarationItem.DatabaseQualifiedName;
                             schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
