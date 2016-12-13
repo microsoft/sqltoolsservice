@@ -300,6 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
+            await DocumentStatusHelper.SendStatusChange(textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
             {
                 // Retrieve document and connection
@@ -322,6 +323,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     });
                 }
             }
+            await DocumentStatusHelper.SendStatusChange(textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
 // turn off this code until needed (10/28/2016)
