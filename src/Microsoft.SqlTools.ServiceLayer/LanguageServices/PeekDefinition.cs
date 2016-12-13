@@ -58,14 +58,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + cfe.Message);
                         this.error = true;
-                        this.errorMessage = connectionInfo.IsAzure? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionDatabaseError(cfe.Message);;
+                        this.errorMessage = connectionInfo.IsAzure? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message);;
                         return null;
                     }
                     catch(Exception ex)
                     {
                         Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
                         this.error = true;
-                        this.errorMessage = SR.PeekDefinitionDatabaseError(ex.Message);
+                        this.errorMessage = SR.PeekDefinitionError(ex.Message);
                         return null;
                     }                   
                 }
@@ -193,10 +193,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         };
                         return result;
                     }
-                    return null;
+                    // sql object type is currently not supported
+                    return GetDefinitionErrorResult(SR.PeekDefinitionTypeNotSupportedError);
                 }
             }
-            return null;
+            // no definition found
+            return GetDefinitionErrorResult(SR.PeekDefinitionNoResultsError);
         }
 
         /// <summary>
@@ -290,8 +292,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     return GetLocationFromFile(tempFileName, lineNumber);
                 }
+                else
+                {
+                    this.error = true;
+                    this.errorMessage = SR.PeekDefinitionNoResultsError;
+                    return null;
+                }
+        }
 
-            return null;
+        /// <summary>
+        /// Helper method to create definition error result object
+        /// </summary>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns> DefinitionResult</returns>
+        internal DefinitionResult GetDefinitionErrorResult(string errorMessage)
+        {
+            return new DefinitionResult {
+                    IsErrorResult = true,
+                    Message = errorMessage,
+                    Locations = null
+            };
         }
     }
 }

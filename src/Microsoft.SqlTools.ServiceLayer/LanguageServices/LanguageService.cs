@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int OnConnectionWaitTimeout = 300 * OneSecond;
 
-        internal const int PeekDefinitionTimeout = 10 * OneSecond;
+        internal const int PeekDefinitionTimeout = 1 * OneSecond;
 
         private static ConnectionService connectionService = null;
 
@@ -306,6 +306,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ConnectionInfo connInfo;
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+                await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                {
+                    Params = new TelemetryProperties
+                    {
+                        EventName = TelemetryEventNames.PeekDefinitionRequested
+                    }
+                });
 
                 DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
                 if (definitionResult != null)
@@ -317,15 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     else
                     {
                         await requestContext.SendResult(definitionResult.Locations);
-                    }
-                    // Send a notification to signal that definition is sent
-                    await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams()
-                    {
-                        Params = new TelemetryProperties
-                        {
-                            EventName = TelemetryEventNames.PeekDefinitionRequested
-                        }
-                    });
+                    }                    
                 }
             }
         }
@@ -729,27 +728,56 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             int parserLine = textDocumentPosition.Position.Line + 1;
                             int parserColumn = textDocumentPosition.Position.Character + 1;
                             IEnumerable<Declaration> declarationItems = Resolver.FindCompletions(
-                                scriptParseInfo.ParseResult, 
-                                parserLine, parserColumn, 
+                                scriptParseInfo.ParseResult,
+                                parserLine, parserColumn,
                                 bindingContext.MetadataDisplayInfoProvider);
 
                             // Match token with the suggestions(declaration items) returned
                             string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
                             PeekDefinition peekDefinition = new PeekDefinition(connInfo);
                             return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
+                        },
+                        timeoutOperation: (bindingContext) =>
+                        {
+                            // return error result
+                            return new DefinitionResult
+                            {
+                                IsErrorResult = true,
+                                Message = SR.PeekDefinitionTimedoutError,
+                                Locations = null
+                            };
                         });
 
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
                     return queueItem.GetResultAsT<DefinitionResult>();
                 }
+                catch (Exception ex)
+                {
+                    // if any exceptions are raised return error result with message
+                    Logger.Write(LogLevel.Error, "Exception in GetDefinition " + ex.ToString());
+                    return new DefinitionResult
+                    {
+                        IsErrorResult = true,
+                        Message = SR.PeekDefinitionError(ex.Message),
+                        Locations = null
+                    };
+                }
                 finally
                 {
                     Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                 }
             }
-
-            return null;
+            else
+            {
+                // User is not connected.
+                return new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = SR.PeekDefinitionNotConnectedError,
+                    Locations = null
+                };
+            }
         }
 
         /// <summary>

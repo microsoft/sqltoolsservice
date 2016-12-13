@@ -313,10 +313,26 @@
     <comment>.
  Parameters: 0 - errorMessage (string) </comment>
   </data>
-  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+  <data name="PeekDefinitionError" xml:space="preserve">
     <value>An unexpected error occurred during Peek Definition execution: {0}</value>
     <comment>.
  Parameters: 0 - errorMessage (string) </comment>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>No results were found.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Please connect to a server.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>Operation timed out.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>This object type is currently not supported by this feature.</value>
+    <comment></comment>
   </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
     <value>Position is outside of file line range</value>
