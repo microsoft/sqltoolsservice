@@ -257,7 +257,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 {
                     string query = Scripts.SelectQuery;
                     CompletionItem[] completions = await testHelper.RequestCompletion(ownerUri, query, 0, query.Length + 1);
-                    return completions != null && completions.Any(x => x.Label == databaseName);
+                    return completions != null && 
+                    (completions.Any(x => string.Compare(x.Label, databaseName, StringComparison.OrdinalIgnoreCase) == 0 || 
+                    string.Compare(x.Label, $"[{databaseName}]", StringComparison.OrdinalIgnoreCase) == 0 ||
+                    string.Compare(x.Label, $"\"{databaseName}\"", StringComparison.OrdinalIgnoreCase) == 0));
                 }
                 else
                 {

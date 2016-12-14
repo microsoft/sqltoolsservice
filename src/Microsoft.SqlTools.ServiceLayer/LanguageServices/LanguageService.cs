@@ -728,11 +728,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 bindingContext.MetadataDisplayInfoProvider);
 
                             // Match token with the suggestions(declaration items) returned
-                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
-                            
-
+                            string schemaName = GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection);
+                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);                        
                         });
 
                     // wait for the queue item
