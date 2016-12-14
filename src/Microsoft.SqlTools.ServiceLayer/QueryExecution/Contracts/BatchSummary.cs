@@ -26,11 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string ExecutionStart { get; set; }
 
         /// <summary>
-        /// Whether or not the batch was successful. True indicates errors, false indicates success
-        /// </summary>
-        public bool HasError { get; set; }
-
-        /// <summary>
         /// The ID of the result set within the query results
         /// </summary>
         public int Id { get; set; }
@@ -39,11 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// The selection from the file for this batch
         /// </summary>
         public SelectionData Selection { get; set; }
-
-        /// <summary>
-        /// Any messages that came back from the server during execution of the batch
-        /// </summary>
-        public ResultMessage[] Messages { get; set; }
 
         /// <summary>
         /// The summaries of the result sets inside the batch

@@ -466,6 +466,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             };
             query.BatchCompleted += batchCompleteCallback;
 
+            Batch.BatchAsyncMessageHandler batchMessageCallback = async (batch, message) =>
+            {
+                QueryExecuteMessageParams eventParams = new QueryExecuteMessageParams
+                {
+                    BatchId = batch.Id,
+                    Message = message,
+                    OwnerUri = executeParams.OwnerUri
+                };
+                await requestContext.SendEvent(QueryExecuteMessageEvent.Type, eventParams);
+            };
+            query.BatchMessage += batchMessageCallback;
+
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
             {
