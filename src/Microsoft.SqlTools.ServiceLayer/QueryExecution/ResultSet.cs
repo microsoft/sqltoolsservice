@@ -333,7 +333,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
                         {
-                            fileWriter.WriteRow(fileReader.ReadRow(fileOffsets[i], Columns), Columns);
+                            var row = fileReader.ReadRow(fileOffsets[i], Columns);
+                            fileWriter.WriteRow(row, Columns);
                         }
                         if (successHandler != null)
                         {

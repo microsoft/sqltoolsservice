@@ -61,6 +61,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         }
 
         [Fact]
+        public void EncodeCsvFieldNull()
+        {
+            // If: I CSV encode a null
+            string output = SaveAsCsvFileStreamWriter.EncodeCsvField(null);
+
+            // Then: there should be a string version of null returned
+            Assert.Equal("NULL", output);
+        }
+
+        [Fact]
         public void WriteRowWithoutColumnSelectionOrHeader()
         {
             // Setup: 
