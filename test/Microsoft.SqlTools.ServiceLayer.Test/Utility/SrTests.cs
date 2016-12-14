@@ -16,12 +16,10 @@ namespace Microsoft.SqlTools.Test.Utility
         [Fact]
         public void SrPropertiesTest()
         {
-            Assert.NotNull(new SR());
             Assert.NotNull(SR.QueryServiceSubsetBatchNotCompleted);
             Assert.NotNull(SR.QueryServiceFileWrapperWriteOnly);
             Assert.NotNull(SR.QueryServiceFileWrapperNotInitialized);
             Assert.NotNull(SR.QueryServiceColumnNull);
-            Assert.NotNull(new SR.Keys());   
         }
     }
 }
