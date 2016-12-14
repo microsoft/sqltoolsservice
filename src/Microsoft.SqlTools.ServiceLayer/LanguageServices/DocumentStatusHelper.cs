@@ -22,17 +22,37 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Sends an event for specific document using the existing request context
         /// </summary>
-        public async static Task SendStatusChange<T>(RequestContext<T> requestContext, TextDocumentPosition textDocumentPosition, string status)
+        public static void SendStatusChange<T>(RequestContext<T> requestContext, TextDocumentPosition textDocumentPosition, string status)
         {
-            if (requestContext != null)
+            Task.Factory.StartNew(async () =>
             {
-                string ownerUri = textDocumentPosition != null && textDocumentPosition.TextDocument != null ? textDocumentPosition.TextDocument.Uri : "";
-                await requestContext.SendEvent(StatusChangedNotification.Type, new StatusChangeParams()
+                if (requestContext != null)
                 {
-                    OwnerUri = ownerUri,
-                    Status = status
+                    string ownerUri = textDocumentPosition != null && textDocumentPosition.TextDocument != null ? textDocumentPosition.TextDocument.Uri : "";
+                    await requestContext.SendEvent(StatusChangedNotification.Type, new StatusChangeParams()
+                    {
+                        OwnerUri = ownerUri,
+                        Status = status
+                    });
+                }
+            });
+        }
+
+        /// <summary>
+        /// Sends a telemetry event for specific document using the existing request context
+        /// </summary>
+        public static void SendTelemetryEvent<T>(RequestContext<T> requestContext, string telemetryEvent)
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                {
+                    Params = new TelemetryProperties
+                    {
+                        EventName = telemetryEvent
+                    }
                 });
-            }
+            });
         }
     }
 }

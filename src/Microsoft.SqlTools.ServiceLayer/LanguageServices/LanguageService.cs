@@ -308,8 +308,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     EventName = TelemetryEventNames.PeekDefinitionRequested
                 }
             });
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, TelemetryEventNames.PeekDefinitionRequested);
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
 
-            await DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
             {
                 // Retrieve document and connection
@@ -323,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     await requestContext.SendResult(locations);
                 }
             }
-            await DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
 // turn off this code until needed (10/28/2016)
