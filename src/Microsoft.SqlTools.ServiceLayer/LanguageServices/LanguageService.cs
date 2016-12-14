@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        private static async Task HandleCompletionResolveRequest(
+        internal static async Task HandleCompletionResolveRequest(
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
@@ -300,6 +300,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
+            // Send a notification to signal that definition is sent
+            await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+            {
+                Params = new TelemetryProperties
+                {
+                    EventName = TelemetryEventNames.PeekDefinitionRequested
+                }
+            });
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, TelemetryEventNames.PeekDefinitionRequested);
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
             {
                 // Retrieve document and connection
@@ -311,17 +322,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (locations != null)
                 {
                     await requestContext.SendResult(locations);
-
-                    // Send a notification to signal that definition is sent
-                    await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams()
-                    {
-                        Params = new TelemetryProperties
-                        {
-                            EventName = TelemetryEventNames.PeekDefinitionRequested
-                        }
-                    });
                 }
             }
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
 // turn off this code until needed (10/28/2016)
@@ -341,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 #endif
 
-        private static async Task HandleSignatureHelpRequest(
+        internal static async Task HandleSignatureHelpRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
@@ -728,11 +731,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 bindingContext.MetadataDisplayInfoProvider);
 
                             // Match token with the suggestions(declaration items) returned
-                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
-                            
-
+                            string schemaName = GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection);
+                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);                        
                         });
 
                     // wait for the queue item
@@ -1040,11 +1041,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception e)
             {
-                Logger.Write(
-                    LogLevel.Error,
-                    string.Format(
-                        "Exception while cancelling analysis task:\n\n{0}",
-                        e.ToString()));
+                Logger.Write(LogLevel.Error, string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
 
                 TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
                 cancelTask.SetCanceled();
@@ -1168,7 +1165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private bool RemoveScriptParseInfo(string uri)
+        internal bool RemoveScriptParseInfo(string uri)
         {
             lock (this.parseMapLock)
             {
@@ -1187,7 +1184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Returns a flag indicating if the ScriptFile refers to the output window.
         /// </summary>
         /// <param name="scriptFile"></param>
-        private bool IsPreviewWindow(ScriptFile scriptFile)
+        internal bool IsPreviewWindow(ScriptFile scriptFile)
         {
             if (scriptFile != null && !string.IsNullOrWhiteSpace(scriptFile.ClientFilePath))
             {

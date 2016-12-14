@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 return _command;
             }
 
-            private void ValidateConnectionIsSet()
+            internal void ValidateConnectionIsSet()
             {
                 if (_connection == null)
                 {
