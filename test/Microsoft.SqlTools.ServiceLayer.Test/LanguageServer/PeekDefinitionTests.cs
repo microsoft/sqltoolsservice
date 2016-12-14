@@ -3,17 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
+using System.IO;
 using System.Collections.Generic;
-<<<<<<< HEAD
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Common;
-=======
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
->>>>>>> dev
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
@@ -99,8 +94,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             requestContext = new Mock<RequestContext<Location[]>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<Location[]>()))
                 .Returns(Task.FromResult(0));
-            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>()));
-            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>()));
+            requestContext.Setup(rc => rc.SendError(It.IsAny<DefinitionError>())).Returns(Task.FromResult(0));;
+            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.FromResult(0));;
+            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.FromResult(0));;
 
             // setup the IBinder mock
             binder = new Mock<IBinder>();
@@ -130,9 +126,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             TestObjects.InitializeTestServices();
             InitializeTestObjects();
-            // request the completion list
-            await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
-           
+            // request definition
+            var definitionTask = await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
+            await definitionTask;
             // verify that send result was not called and send error was called
             requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
             requestContext.Verify(m => m.SendError(It.IsAny<DefinitionError>()), Times.Once());
