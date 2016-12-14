@@ -3,8 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
@@ -141,6 +143,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             
             // Then null is returned as no parse info can be used to find the signature
             Assert.Null(signatureHelp);
+        }
+
+        [Fact]
+        public void EmptyCompletionListTest()
+        {           
+            Assert.Equal(AutoCompleteHelper.EmptyCompletionList.Length, 0);
+        }
+
+        [Fact]
+        public void SetWorkspaceServiceInstanceTest()
+        {           
+            AutoCompleteHelper.WorkspaceServiceInstance = null;
+            // workspace will be recreated if it's set to null
+            Assert.NotNull(AutoCompleteHelper.WorkspaceServiceInstance);
+        }
+
+        internal class TestScriptDocumentInfo : ScriptDocumentInfo
+        {
+            public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo)
+                :base(textDocumentPosition, scriptFile, scriptParseInfo)
+            {
+                
+            }
+            
+            public override string TokenText
+            {
+                get
+                {
+                    return "doesntmatchanythingintheintellisensedefaultlist";
+                }
+            }
+        }
+
+        [Fact]
+        public void GetDefaultCompletionListWithNoMatchesTest()
+        {           
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("koko wants a bananas");
+
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = false };
+
+            var scriptDocumentInfo = new TestScriptDocumentInfo(
+                new TextDocumentPosition()
+                {
+                    TextDocument = new TextDocumentIdentifier() {  Uri = TestObjects.ScriptUri  },
+                    Position = new Position() { Line = 0, Character = 0 }
+                }, scriptFile, scriptInfo);
+      
+            AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
+
         }
 
         private TextDocumentPosition CreateDummyDocPosition()

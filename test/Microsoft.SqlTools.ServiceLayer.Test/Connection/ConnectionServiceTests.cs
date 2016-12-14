@@ -537,6 +537,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         /// <summary>
+        /// Build connection string with an invalid auth type
+        /// </summary>
+        [Fact]
+        public void BuildConnectionStringWithInvalidAuthType()
+        {
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            details.AuthenticationType = "NotAValidAuthType";
+            Assert.Throws<ArgumentException>(() => ConnectionService.BuildConnectionString(details));
+        }
+
+        /// <summary>
         /// Verify that a connection changed event is fired when the database context changes.
         /// </summary>
         [Fact]
@@ -890,6 +901,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                     Assert.Equal(ex.Number, 0);
                 }
             });
+        }
+
+        // <summary>
+        /// Test that cancel connection with a null connection parameter
+        /// </summary>
+        [Fact]
+        public void TestCancelConnectionNullParam()
+        {
+            var service = TestObjects.GetTestConnectionService();
+            Assert.False(service.CancelConnect(null));
+        }
+
+        // <summary>
+        /// Test that cancel connection with a null connection parameter
+        /// </summary>
+        [Fact]
+        public void TestListDatabasesInvalidParams()
+        {
+            var service = TestObjects.GetTestConnectionService();
+            var listParams = new ListDatabasesParams();            
+            Assert.Throws<ArgumentException>(() => service.ListDatabases(listParams));
+            listParams.OwnerUri = "file://notmyfile.sql";
+            Assert.Throws<Exception>(() => service.ListDatabases(listParams));
         }
 
         /// <summary>
