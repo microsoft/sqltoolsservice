@@ -3,24 +3,26 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using Moq;
 using Xunit;
+using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 {
@@ -89,6 +91,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             requestContext = new Mock<RequestContext<Location[]>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<Location[]>()))
                 .Returns(Task.FromResult(0));
+            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>()));
+            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>()));
 
             // setup the IBinder mock
             binder = new Mock<IBinder>();
@@ -114,13 +118,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// Tests the definition event handler. When called with no active connection, no definition is sent
         /// </summary>
         [Fact]
-        public void DefinitionsHandlerWithNoConnectionTest()
+        public async Task DefinitionsHandlerWithNoConnectionTest()
         {
+            TestObjects.InitializeTestServices();
             InitializeTestObjects();
             // request the completion list
-            Task handleCompletion = LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object);
-            handleCompletion.Wait(TaskTimeout);
-
+            await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
+            
             // verify that send result was not called
             requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
         }

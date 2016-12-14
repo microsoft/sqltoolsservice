@@ -300,6 +300,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
+            // Send a notification to signal that definition is sent
+            await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+            {
+                Params = new TelemetryProperties
+                {
+                    EventName = TelemetryEventNames.PeekDefinitionRequested
+                }
+            });
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, TelemetryEventNames.PeekDefinitionRequested);
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
             {
                 // Retrieve document and connection
@@ -311,17 +322,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (locations != null)
                 {
                     await requestContext.SendResult(locations);
-
-                    // Send a notification to signal that definition is sent
-                    await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams()
-                    {
-                        Params = new TelemetryProperties
-                        {
-                            EventName = TelemetryEventNames.PeekDefinitionRequested
-                        }
-                    });
                 }
             }
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
 // turn off this code until needed (10/28/2016)
