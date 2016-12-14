@@ -13,7 +13,6 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -24,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     internal class PeekDefinition
     {
-
         private bool error;
         private string errorMessage;
         private ServerConnection serverConnection;
@@ -76,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + cfe.Message);
                             this.error = true;
-                            this.errorMessage = connectionInfo.IsAzure ? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message); ;
+                            this.errorMessage = (connectionInfo != null && connectionInfo.IsAzure)? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message); ;
                             return null;
                         }
                         catch (Exception ex)
@@ -187,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // This workaround ensures that a schema name is present by attempting 
                         // to get the schema name from the declaration item 
                         // If all fails, the default schema name is assumed to be "dbo"
-                        if (connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType) && string.IsNullOrEmpty(schemaName))
+                        if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
                         {
                             string fullObjectName = declarationItem.DatabaseQualifiedName;
                             schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);

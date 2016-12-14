@@ -260,12 +260,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test GetDefinition with an unsupported type(function). Expect a error result.
+        /// Test GetDefinition with an unsupported type(schema). Expect a error result.
         /// </summary>
         [Fact]
         public void GetUnsupportedDefinitionErrorTest()
         {
-
             ScriptFile scriptFile;
             TextDocumentPosition textDocument = new TextDocumentPosition
             {
@@ -288,7 +287,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             // Then I expect null locations and an error to be reported
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
-
         }
 
 
