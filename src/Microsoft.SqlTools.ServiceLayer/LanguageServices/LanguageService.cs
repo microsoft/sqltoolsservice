@@ -303,20 +303,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
+            // Send a notification to signal that definition is sent
+            await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+            {
+                Params = new TelemetryProperties
+                {
+                    EventName = TelemetryEventNames.PeekDefinitionRequested
+                }
+            });
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, TelemetryEventNames.PeekDefinitionRequested);
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
             {
                 // Retrieve document and connection
                 ConnectionInfo connInfo;
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-                await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
-                {
-                    Params = new TelemetryProperties
-                    {
-                        EventName = TelemetryEventNames.PeekDefinitionRequested
-                    }
-                });
-
                 DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
                 if (definitionResult != null)
                 {   
@@ -330,6 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }                    
                 }
             }
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
 // turn off this code until needed (10/28/2016)
