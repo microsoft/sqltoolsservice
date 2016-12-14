@@ -8,8 +8,6 @@ using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using System.Data.SqlClient;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -114,8 +112,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             bindingContext.Binder = binder.Object;
             bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
             LanguageService.Instance.BindingQueue.BindingContextMap.Add(testScriptParseInfo.ConnectionKey, bindingContext);
-            // var serviceHostMock = new Mock<ServiceHost>();
-            // LanguageService.ServiceHost = serviceHostMock.Object;
         }
 
 
@@ -261,10 +257,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test GetDefinition with an unsupported type(function)
+        /// Test GetDefinition with an unsupported type(function). Expect a error result.
         /// </summary>
         [Fact]
-        public void GetUnsupportedDefinitionForFullScript()
+        public void GetUnsupportedDefinitionErrorTest()
         {
 
             ScriptFile scriptFile;
