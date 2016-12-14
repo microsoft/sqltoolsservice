@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + cfe.Message);
                             this.error = true;
-                            this.errorMessage = (connectionInfo != null && connectionInfo.IsAzure)? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message); ;
+                            this.errorMessage = (connectionInfo != null && connectionInfo.IsAzure)? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message);
                             return null;
                         }
                         catch (Exception ex)

@@ -48,8 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int PeekDefinitionTimeout = 10 * OneSecond;
 
-        internal static ServiceHost ServiceHost= ServiceHost.Instance;
-
         private static ConnectionService connectionService = null;
 
         private static WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
