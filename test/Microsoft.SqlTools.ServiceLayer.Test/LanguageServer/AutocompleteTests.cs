@@ -169,7 +169,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             InitializeTestObjects();
             textDocument.TextDocument.Uri = "somethinggoeshere";
             Assert.True(LanguageService.Instance.GetCompletionItems(textDocument, scriptFile.Object, null).Length > 0);
-        }        
+        }
+
+        [Fact]
+        public void GetDiagnosticFromMarkerTest()
+        {
+            var scriptFileMarker = new ScriptFileMarker()
+            {
+                Message = "Message",
+                Level = ScriptFileMarkerLevel.Error,
+                ScriptRegion = new ScriptRegion()
+                {
+                    File = "file://nofile.sql",
+                    StartLineNumber = 1,
+                    StartColumnNumber = 1,
+                    StartOffset = 0,
+                    EndLineNumber = 1,
+                    EndColumnNumber = 1,
+                    EndOffset = 0
+                }
+            }; 
+            var diagnostic = DiagnosticsHelper.GetDiagnosticFromMarker(scriptFileMarker);
+            Assert.Equal(diagnostic.Message, scriptFileMarker.Message);
+        }
+
+        [Fact]
+        public void MapDiagnosticSeverityTest()
+        {
+            var level = ScriptFileMarkerLevel.Error;
+            Assert.Equal(DiagnosticsHelper.MapDiagnosticSeverity(level), DiagnosticSeverity.Error);
+            level = ScriptFileMarkerLevel.Warning;
+            Assert.Equal(DiagnosticsHelper.MapDiagnosticSeverity(level), DiagnosticSeverity.Warning);
+            level = ScriptFileMarkerLevel.Information;
+            Assert.Equal(DiagnosticsHelper.MapDiagnosticSeverity(level), DiagnosticSeverity.Information);
+            level = (ScriptFileMarkerLevel)100;
+            Assert.Equal(DiagnosticsHelper.MapDiagnosticSeverity(level), DiagnosticSeverity.Error);
+        }
 
         /// <summary>
         /// Tests the primary completion list event handler
