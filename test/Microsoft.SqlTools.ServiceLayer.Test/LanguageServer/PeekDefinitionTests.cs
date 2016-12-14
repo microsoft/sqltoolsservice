@@ -6,11 +6,12 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -22,7 +23,6 @@ using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using Moq;
 using Xunit;
@@ -270,19 +270,100 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
                 Position = new Position
                 {
                     Line = 0,
+                    Character = 16
+                }
+            };
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            scriptFile.Contents = "select * from dbo.func ()";
+            var languageService = new LanguageService();
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+
+            // When I call the language service
+            var result = languageService.GetDefinition(textDocument, scriptFile, connInfo);
+
+            // Then I expect null locations and an error to be reported
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
+
+        }
+
+
+        /// <summary>
+        /// Get Definition for a object with no definition. Expect a error result
+        /// </summary>
+        [Fact]
+        public void GetDefinitionWithNoResultsFoundError()
+        {
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "from";
+
+            List<Declaration> declarations = new List<Declaration>();
+            DefinitionResult result = peekDefinition.GetScript(declarations, objectName, null);
+
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
+            Assert.Equal(SR.PeekDefinitionNoResultsError, result.Message);
+        }
+
+        
+        /// <summary>
+        /// Test GetDefinition with a forced timeout. Expect a error result.
+        /// </summary>
+        [Fact]
+        public void GetDefinitionTimeoutTest()
+        {
+            // Given a binding queue that will automatically time out
+            var languageService = new LanguageService();
+            Mock<ConnectedBindingQueue> queueMock = new Mock<ConnectedBindingQueue>();
+            languageService.BindingQueue = queueMock.Object;
+            ManualResetEvent mre = new ManualResetEvent(true); // Do not block
+            Mock<QueueItem> itemMock = new Mock<QueueItem>();
+            itemMock.Setup(i => i.ItemProcessed).Returns(mre);
+            
+            DefinitionResult timeoutResult = null;
+            
+            queueMock.Setup(q => q.QueueBindingOperation(
+                It.IsAny<string>(),
+                It.IsAny<Func<IBindingContext, CancellationToken, object>>(),
+                It.IsAny<Func<IBindingContext, object>>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>()))
+            .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, int?, int?>(
+                (key, bindOperation, timeoutOperation, blah, blah2) => 
+            {
+                timeoutResult = (DefinitionResult) timeoutOperation((IBindingContext)null);
+                itemMock.Object.Result = timeoutResult;
+            })
+            .Returns(() => itemMock.Object);
+
+            ScriptFile scriptFile;
+            TextDocumentPosition textDocument = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
+                Position = new Position
+                {
+                    Line = 0,
                     Character = 20
                 }
             };
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
             scriptFile.Contents = "select * from dbo.func ()";
 
-            var languageService = LanguageService.Instance;
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
 
+            // When I call the language service
             var result = languageService.GetDefinition(textDocument, scriptFile, connInfo);
+
+            // Then I expect null locations and an error to be reported
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
+            // Check timeout message
+            Assert.Equal(SR.PeekDefinitionTimedoutError, result.Message);
         }
 
         /// <summary>
