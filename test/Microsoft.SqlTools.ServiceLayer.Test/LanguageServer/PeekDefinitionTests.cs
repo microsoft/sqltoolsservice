@@ -260,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test GetDefinition with an unsupported type(schema). Expect a error result.
+        /// Test GetDefinition with an unsupported type(schema - dbo). Expect a error result.
         /// </summary>
         [Fact]
         public void GetUnsupportedDefinitionErrorTest()
@@ -272,6 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
                 Position = new Position
                 {
                     Line = 0,
+                    // test for 'dbo'
                     Character = 16
                 }
             };
@@ -288,7 +289,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
         }
-
 
         /// <summary>
         /// Get Definition for a object with no definition. Expect a error result
@@ -309,8 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.True(result.IsErrorResult);
             Assert.Equal(SR.PeekDefinitionNoResultsError, result.Message);
         }
-
-        
+    
         /// <summary>
         /// Test GetDefinition with a forced timeout. Expect a error result.
         /// </summary>
