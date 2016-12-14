@@ -118,15 +118,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// Tests the definition event handler. When called with no active connection, an error is sent
         /// </summary>
         [Fact]
-        public void DefinitionsHandlerWithNoConnectionTest()
+        public async Task DefinitionsHandlerWithNoConnectionTest()
         {
             TestObjects.InitializeTestServices();
             InitializeTestObjects();
-
             // request the completion list
-            Task handleCompletion = LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object);
-            handleCompletion.Wait(TaskTimeout);
-
+            await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
+            
             // verify that send result was not called and send error was called
             requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
             requestContext.Verify(m => m.SendError(It.IsAny<DefinitionError>()), Times.Once());

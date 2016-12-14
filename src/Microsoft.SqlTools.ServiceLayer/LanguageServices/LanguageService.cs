@@ -309,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ConnectionInfo connInfo;
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-                await LanguageService.ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                 {
                     Params = new TelemetryProperties
                     {
