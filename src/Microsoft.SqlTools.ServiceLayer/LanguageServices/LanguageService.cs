@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        private static async Task HandleCompletionResolveRequest(
+        internal static async Task HandleCompletionResolveRequest(
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
@@ -344,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 #endif
 
-        private static async Task HandleSignatureHelpRequest(
+        internal static async Task HandleSignatureHelpRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
@@ -1041,11 +1041,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception e)
             {
-                Logger.Write(
-                    LogLevel.Error,
-                    string.Format(
-                        "Exception while cancelling analysis task:\n\n{0}",
-                        e.ToString()));
+                Logger.Write(LogLevel.Error, string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
 
                 TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
                 cancelTask.SetCanceled();
@@ -1169,7 +1165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private bool RemoveScriptParseInfo(string uri)
+        internal bool RemoveScriptParseInfo(string uri)
         {
             lock (this.parseMapLock)
             {
@@ -1188,7 +1184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Returns a flag indicating if the ScriptFile refers to the output window.
         /// </summary>
         /// <param name="scriptFile"></param>
-        private bool IsPreviewWindow(ScriptFile scriptFile)
+        internal bool IsPreviewWindow(ScriptFile scriptFile)
         {
             if (scriptFile != null && !string.IsNullOrWhiteSpace(scriptFile.ClientFilePath))
             {

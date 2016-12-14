@@ -5,7 +5,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -388,8 +390,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // Then:
             // ... It should throw an exception
             Assert.Throws<ArgumentOutOfRangeException>(() => new Batch("stuff", Common.SubsectionDocument, -1, Common.GetFileStreamFactory(null)));
-        }
+        }        
 
+        [Fact]
+        public void StatementCompletedHandlerTest()
+        {
+            // If:
+            // ... I call the StatementCompletedHandler
+            // Then:
+            // ... a ResultMaessage should be logged in the resultsMessages collection
+             Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory(null));
+             batch.StatementCompletedHandler(null, new StatementCompletedEventArgs(1));
+             Assert.True(batch.ResultMessages.Count() == 1);
+             batch.StatementCompletedHandler(null, new StatementCompletedEventArgs(2));
+             Assert.True(batch.ResultMessages.Count() == 2);
+        }     
+      
         private static DbConnection GetConnection(ConnectionInfo info)
         {
             return info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));

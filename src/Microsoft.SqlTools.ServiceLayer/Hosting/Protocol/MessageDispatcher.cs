@@ -23,10 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
 
         private AsyncContextThread messageLoopThread;
 
-        private Dictionary<string, Func<Message, MessageWriter, Task>> requestHandlers =
+        internal Dictionary<string, Func<Message, MessageWriter, Task>> requestHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
 
-        private Dictionary<string, Func<Message, MessageWriter, Task>> eventHandlers =
+        internal Dictionary<string, Func<Message, MessageWriter, Task>> eventHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
 
         private Action<Message> responseHandler;
@@ -218,10 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 {
                     string message = string.Format("Exception occurred while parsing message: {0}", e.Message);
                     Logger.Write(LogLevel.Error, message);
-                    await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams
-                    {
-                        Message = message
-                    });
+                    await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
 
                     // Continue the loop
                     continue;
@@ -236,10 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                     // Log the error and send an error event to the client
                     string message = string.Format("Exception occurred while receiving message: {0}", e.Message);
                     Logger.Write(LogLevel.Error, message);
-                    await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams
-                    {
-                        Message = message
-                    });
+                    await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
 
                     // Continue the loop
                     continue;
@@ -273,10 +267,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                 {
                     handlerToAwait = requestHandler(messageToDispatch, messageWriter);
                 }
-                else
-                {
-                    // TODO: Message not supported error
-                }
+                // else
+                // {
+                //     // TODO: Message not supported error
+                // }
             }
             else if (messageToDispatch.MessageType == MessageType.Response)
             {
@@ -297,10 +291,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                     // TODO: Message not supported error
                 }
             }
-            else
-            {
-                // TODO: Return message not supported
-            }
+            // else
+            // {
+            //     // TODO: Return message not supported
+            // }
 
             if (handlerToAwait != null)
             {
@@ -325,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
             }
         }
 
-        private void OnListenTaskCompleted(Task listenTask)
+        internal void OnListenTaskCompleted(Task listenTask)
         {
             if (listenTask.IsFaulted)
             {

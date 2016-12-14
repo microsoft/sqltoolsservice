@@ -25,5 +25,34 @@ namespace Microsoft.SqlTools.Test.Utility
             longList.RemoveAt(0);
             Assert.True(longList.Count == 0);
         }
+
+        /// <summary>
+        /// Add and remove and item in a LongList causing an expansion
+        /// </summary>
+        [Fact]
+        public void LongListExpandTest()
+        {
+            var longList = new LongList<int>();
+            longList.ExpandListSize = 3;
+            for (int i = 0; i < 6; ++i)
+            {
+                longList.Add(i);
+            }
+            Assert.Equal(longList.Count, 6);
+            Assert.NotNull(longList.GetItem(4));
+            
+            bool didEnum = false;
+            foreach (var j in longList)
+            {            
+                didEnum = true;
+                break;
+            }
+
+            Assert.True(didEnum);
+
+            longList.RemoveAt(4);
+            Assert.Equal(longList.Count, 5);
+        }
     }
 }
+

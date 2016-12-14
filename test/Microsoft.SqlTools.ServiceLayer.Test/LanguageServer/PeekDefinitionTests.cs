@@ -197,9 +197,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void GetValidTableDefinitionTest()
         {
             // Get live connectionInfo
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "test_table";
+            PeekDefinition peekDefinition = new PeekDefinition(TestObjects.InitLiveConnectionInfoForDefinition());
+            string objectName = "spt_monitor";
             string schemaName = null;
             string objectType = "TABLE";
 
@@ -216,8 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void GetTableDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            PeekDefinition peekDefinition = new PeekDefinition(TestObjects.InitLiveConnectionInfoForDefinition());
             string objectName = "test_invalid";
             string schemaName = null;
             string objectType = "TABLE";
@@ -234,9 +232,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         public void GetTableDefinitionWithSchemaTest()
         {
             // Get live connectionInfo
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "test_table";
+            PeekDefinition peekDefinition = new PeekDefinition(TestObjects.InitLiveConnectionInfoForDefinition());
+            string objectName = "spt_monitor";
             string schemaName = "dbo";
             string objectType = "TABLE";
 
@@ -279,9 +276,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         /// </summary>
         [Fact]
         public void GetValidViewDefinitionTest()
-        {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+        {            
+            PeekDefinition peekDefinition = new PeekDefinition(TestObjects.InitLiveConnectionInfoForDefinition());
             string objectName = "objects";
             string schemaName = "sys";
             string objectType = "VIEW";
@@ -297,8 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetViewDefinitionInvalidObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            PeekDefinition peekDefinition = new PeekDefinition(TestObjects.InitLiveConnectionInfoForDefinition());
             string objectName = "objects";
             string schemaName = null;
             string objectType = "VIEW";
@@ -313,9 +308,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetStoredProcedureDefinitionTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "SP1";
+            PeekDefinition peekDefinition = new PeekDefinition(TestObjects.InitLiveConnectionInfoForDefinition());
+            string objectName = "sp_MSrepl_startup";
             string schemaName = "dbo";
             string objectType = "PROCEDURE";
 
@@ -330,8 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetStoredProcedureDefinitionFailureTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            PeekDefinition peekDefinition = new PeekDefinition(TestObjects.InitLiveConnectionInfoForDefinition());
             string objectName = "SP2";
             string schemaName = "dbo";
             string objectType = "PROCEDURE";
@@ -346,9 +339,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetStoredProcedureDefinitionWithoutSchemaTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "SP1";
+            PeekDefinition peekDefinition = new PeekDefinition(TestObjects.InitLiveConnectionInfoForDefinition());
+            string objectName = "sp_MSrepl_startup";
             string schemaName = null;
             string objectType = "PROCEDURE";
 
