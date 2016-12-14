@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -89,6 +90,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Workspace
             // ... The callback should not have been called
             Assert.Empty(workspace.GetOpenedFiles());
             Assert.False(callbackCalled);
+        }
+
+        [Fact]
+        public void BufferRangeNoneNotNull()
+        {
+            Assert.NotNull(BufferRange.None); 
+        }
+
+        [Fact]
+        public void BufferRangeStartGreaterThanEnd()
+        {
+            Assert.Throws<ArgumentException>(() => 
+                new BufferRange(new BufferPosition(2, 2), new BufferPosition(1, 1)));
+        }
+
+        [Fact]
+        public void BufferRangeEquals()
+        {
+            var range = new BufferRange(new BufferPosition(1, 1), new BufferPosition(2, 2));
+            Assert.False(range.Equals(null));
+            Assert.True(range.Equals(range));
+            Assert.NotNull(range.GetHashCode());
+        }
+
+        [Fact]
+        public void UnescapePath()
+        {
+            Assert.NotNull(Microsoft.SqlTools.ServiceLayer.Workspace.Workspace.UnescapePath("`/path/`"));
+        }
+
+        [Fact]
+        public void GetBaseFilePath()
+        {
+            using (var workspace = new ServiceLayer.Workspace.Workspace())
+            {
+                Assert.Throws<InvalidOperationException>(() => workspace.GetBaseFilePath("path"));
+                Assert.NotNull(workspace.GetBaseFilePath(@"c:\path\file.sql"));
+                Assert.Equal(workspace.GetBaseFilePath("tsqloutput://c:/path/file.sql"), workspace.WorkspacePath);
+            }
+        }
+
+        [Fact]
+        public void ResolveRelativeScriptPath()
+        {
+            var workspace = new ServiceLayer.Workspace.Workspace();
+            Assert.NotNull(workspace.ResolveRelativeScriptPath(null, @"c:\path\file.sql"));
+            Assert.NotNull(workspace.ResolveRelativeScriptPath(@"c:\path\", "file.sql"));
         }
     }
 }

@@ -933,7 +933,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         public void CalcExponentialRetryDelayWithSchemaDefaultsTest()
         {
             Assert.NotNull(RetryPolicyUtils.CalcExponentialRetryDelayWithSchemaDefaults(1));
-        }        
+        }
+
+        [Fact]
+        public void IsSupportedCommandNullCommandTest()
+        {
+            Assert.False(DbCommandWrapper.IsSupportedCommand(null));
+        }
+
+        [Fact]
+        public void StatementCompletedTests()
+        {
+            bool handlerCalled = false;
+            StatementCompletedEventHandler handler = (s, e) => handlerCalled = true; 
+            var command = new DbCommandWrapper(new SqlCommand());
+            command.StatementCompleted += handler;
+            command.StatementCompleted -= handler;
+        }
     }
 }
 
