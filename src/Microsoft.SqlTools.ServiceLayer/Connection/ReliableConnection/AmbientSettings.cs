@@ -48,12 +48,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         internal const string DoNotSerializeQueryStoreSettingsIndex = "DoNotSerializeQueryStoreSettings";
         internal const string AlwaysEncryptedWizardMigrationIndex = "AlwaysEncryptedWizardMigration";
 
-        private static readonly AmbientData _defaultSettings;
+        internal static AmbientData _defaultSettings;
 
         static AmbientSettings()
         {
             _defaultSettings = new AmbientData();
-        }
+        }       
 
         /// <summary>
         /// Access to the default ambient settings.  Access to these settings is made available

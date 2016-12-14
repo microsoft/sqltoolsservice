@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -137,6 +138,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             bool shouldRety = policy.InvokeShouldRetryImpl(retryState);
             policy.DoOnIgnoreErrorOccurred(retryState);
             Assert.True(shouldRety);
+        }
+
+        [Fact]
+        public void FixedDelayPolicyExecuteActionTest()
+        {
+            TestFixedDelayPolicy policy = new TestFixedDelayPolicy(
+                strategy: new NetworkConnectivityErrorDetectionStrategy(),
+                maxRetryCount: 3, 
+                intervalBetweenRetries: TimeSpan.FromMilliseconds(20));
+
+            // execute an action that throws a retry limit exception
+            CancellationToken token = new CancellationToken();
+            Assert.Equal(policy.ExecuteAction<int>((s) => { throw new RetryLimitExceededException(); }, token), default(int));
+
+            // execute an action that throws a retry limit exeception with an inner exception 
+            Assert.Throws<Exception>(() => 
+            {
+                policy.ExecuteAction<int>((s) => 
+                { 
+                    var e = new RetryLimitExceededException("retry", new Exception());
+                    throw e; 
+                });
+            });
+        }
+
+        [Fact]
+        public void IsRetryableExceptionTest()
+        {
+            TestFixedDelayPolicy policy = new TestFixedDelayPolicy(
+                strategy: new NetworkConnectivityErrorDetectionStrategy(),
+                maxRetryCount: 3, 
+                intervalBetweenRetries: TimeSpan.FromMilliseconds(20));
+                
+            Assert.False(policy.IsRetryableException(new Exception()));
         }
 
         [Fact]
@@ -309,6 +344,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             bool isReadOnly = ReliableConnectionHelper.IsDatabaseReadonly(connectionBuilder);
             Assert.False(isReadOnly);
         }
+
+        /// <summary>
+        /// /// Tests ReliableConnectionHelper.IsDatabaseReadonly() with null builder parameter
+        /// </summary>
+        [Fact]
+        public void TestIsDatabaseReadonlyWithNullBuilder()
+        {
+            Assert.Throws<ArgumentNullException>(() => ReliableConnectionHelper.IsDatabaseReadonly(null));                        
+        }        
 
         /// <summary>
         /// Verify ANSI_NULL and QUOTED_IDENTIFIER settings can be set and retrieved for a session
@@ -594,6 +638,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
+        public void RaiseAmbientRetryMessageTest()
+        {
+            bool handlerCalled = false;
+            var data = new AmbientSettings.AmbientData();
+            data.ConnectionRetryMessageHandler = (a) => handlerCalled = true;
+            AmbientSettings._defaultSettings = data;
+            RetryPolicyUtils.RaiseAmbientRetryMessage(new RetryStateEx() { LastError = new Exception() }, 100);
+            Assert.True(handlerCalled);
+        }
+
+        [Fact]
+        public void RaiseAmbientIgnoreMessageTest()
+        {
+            bool handlerCalled = false;
+            var data = new AmbientSettings.AmbientData();
+            data.ConnectionRetryMessageHandler = (a) => handlerCalled = true;
+            AmbientSettings._defaultSettings = data;
+            RetryPolicyUtils.RaiseAmbientIgnoreMessage(new RetryStateEx() { LastError = new Exception() }, 100);
+            Assert.True(handlerCalled);
+        }
+
+        [Fact]
         public void RetryPolicyFactoryTest()
         {
             Assert.NotNull(RetryPolicyFactory.NoRetryPolicy);
@@ -848,6 +914,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Assert.NotNull(command.CreateParameter());
             command.Cancel();            
         }
+
+        [Fact]
+        public void ReliableConnectionResourcesTests()
+        {
+            Assert.NotNull(Resources.ConnectionPassedToIsCloudShouldBeOpen);
+            Assert.NotNull(Resources.ExceptionCannotBeRetried);
+            Assert.NotNull(Resources.FailedToCacheIsCloud);
+            Assert.NotNull(Resources.FailedToParseConnectionString);
+            Assert.NotNull(Resources.InvalidCommandType);
+            Assert.NotNull(Resources.InvalidConnectionType);
+            Assert.NotNull(Resources.OnlyReliableConnectionSupported);
+            Assert.NotNull(Resources.UnableToAssignValue);
+            Assert.NotNull(Resources.UnableToRetrieveAzureSessionId);
+        }
+
+        [Fact]
+        public void CalcExponentialRetryDelayWithSchemaDefaultsTest()
+        {
+            Assert.NotNull(RetryPolicyUtils.CalcExponentialRetryDelayWithSchemaDefaults(1));
+        }        
     }
 }
 
