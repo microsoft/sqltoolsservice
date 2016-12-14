@@ -206,7 +206,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "test_table";
+            string objectName = "spt_monitor";
+
             string schemaName = null;
             string objectType = "TABLE";
 
@@ -247,7 +248,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "test_table";
+            string objectName = "spt_monitor";
+
             string schemaName = "dbo";
             string objectType = "TABLE";
 
@@ -416,7 +418,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "SP1";
+            string objectName = "sp_MSrepl_startup";
+
             string schemaName = "dbo";
             string objectType = "PROCEDURE";
 
@@ -455,7 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "SP1";
+            string objectName = "sp_MSrepl_startup";
             string schemaName = null;
             string objectType = "PROCEDURE";
 

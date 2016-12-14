@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class SR
     {
-        protected SR()
+        internal SR()
         { }
 
         public static CultureInfo Culture
@@ -609,7 +609,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
 
 
-            private Keys()
+            internal Keys()
             { }
 
             public static CultureInfo Culture

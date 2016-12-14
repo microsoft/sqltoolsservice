@@ -292,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
         */
 
-        private static int? GetErrorNumber(Exception ex)
+        internal static int? GetErrorNumber(Exception ex)
         {
             SqlException sqlEx = ex as SqlException;
             if (sqlEx == null)

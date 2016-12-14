@@ -3,10 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
@@ -89,6 +91,59 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Workspace
             // ... The callback should not have been called
             Assert.Empty(workspace.GetOpenedFiles());
             Assert.False(callbackCalled);
+        }
+
+        [Fact]
+        public void BufferRangeNoneNotNull()
+        {
+            Assert.NotNull(BufferRange.None); 
+        }
+
+        [Fact]
+        public void BufferRangeStartGreaterThanEnd()
+        {
+            Assert.Throws<ArgumentException>(() => 
+                new BufferRange(new BufferPosition(2, 2), new BufferPosition(1, 1)));
+        }
+
+        [Fact]
+        public void BufferRangeEquals()
+        {
+            var range = new BufferRange(new BufferPosition(1, 1), new BufferPosition(2, 2));
+            Assert.False(range.Equals(null));
+            Assert.True(range.Equals(range));
+            Assert.NotNull(range.GetHashCode());
+        }
+
+        [Fact]
+        public void UnescapePath()
+        {
+            Assert.NotNull(Microsoft.SqlTools.ServiceLayer.Workspace.Workspace.UnescapePath("`/path/`"));
+        }
+
+        [Fact]
+        public void GetBaseFilePath()
+        {
+            TestUtils.RunIfWindows(() => 
+            {  
+                using (var workspace = new ServiceLayer.Workspace.Workspace())
+                {
+                    Assert.Throws<InvalidOperationException>(() => workspace.GetBaseFilePath("path"));
+                    Assert.NotNull(workspace.GetBaseFilePath(@"c:\path\file.sql"));
+                    Assert.Equal(workspace.GetBaseFilePath("tsqloutput://c:/path/file.sql"), workspace.WorkspacePath);
+                }
+            });
+        }
+
+        [Fact]
+        public void ResolveRelativeScriptPath()
+        {
+            TestUtils.RunIfWindows(() => 
+            { 
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                Assert.NotNull(workspace.ResolveRelativeScriptPath(null, @"c:\path\file.sql"));
+                Assert.NotNull(workspace.ResolveRelativeScriptPath(@"c:\path\", "file.sql"));
+            });
         }
     }
 }

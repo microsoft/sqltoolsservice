@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
-using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -217,10 +217,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
         public static ServerConnection InitLiveServerConnectionForDefinition(ConnectionInfo connInfo)
         {
-            string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-            SqlConnection sqlConn = new SqlConnection(connectionString);                    
-            sqlConn.Open();
-            // populate the binding context to work with the SMO metadata provider
+            SqlConnection sqlConn = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));                                
             return new ServerConnection(sqlConn);
         }
     }

@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             this.workspaceFiles.Remove(scriptFile.Id);
         }
 
-        private string GetBaseFilePath(string filePath)
+        internal string GetBaseFilePath(string filePath)
         {
             if (IsPathInMemory(filePath))
             {
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             return Path.GetDirectoryName(filePath); 
         }
 
-        private string ResolveRelativeScriptPath(string baseFilePath, string relativePath)
+        internal string ResolveRelativeScriptPath(string baseFilePath, string relativePath)
         {
             if (Path.IsPathRooted(relativePath))
             {
