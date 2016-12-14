@@ -214,17 +214,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         }
                     });
 
-                    var openTaskSql = Task.Run(async () => {
+                    var openTask = Task.Run(async () => {
                         await connectionInfo.SqlConnection.OpenAsync(source.Token);
-                    });
-
-                    var openTaskQuery = Task.Run(async () => {
                         await connectionInfo.QueryConnection.OpenAsync(source.Token);
                     });
 
                     // Open the connection
-                    await Task.WhenAny(openTaskSql, cancellationTask).Unwrap();
-                    await Task.WhenAny(openTaskQuery, cancellationTask).Unwrap();
+                    await Task.WhenAny(openTask, cancellationTask).Unwrap();
 
                     source.Cancel();
                 }
