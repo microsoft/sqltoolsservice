@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
     /// <summary>
     /// Tests for the language service peek definition/ go to definition feature
     /// </summary>
-    public class PeekDefinitionTests
+    public class PeekDefinitionTests 
     {
         private const int TaskTimeout = 30000;
 
@@ -116,6 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void DefinitionsHandlerWithNoConnectionTest()
         {
+            TestObjects.InitializeTestServices();
             InitializeTestObjects();
             // request the completion list
             Task handleCompletion = LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object);

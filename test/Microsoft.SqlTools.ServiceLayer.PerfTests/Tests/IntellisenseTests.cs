@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
             using (TestHelper testHelper = new TestHelper())
             {
-                await VerifyBindingLoadScenario(testHelper, TestServerType.OnPrem, Scripts.TestDbSimpleSelectQuery, false);
+                await VerifyBindingLoadScenario(testHelper, serverType, Scripts.TestDbSimpleSelectQuery, false);
             }
             
         }
@@ -170,10 +170,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheColdOnPremComplexQuery()
         {
-            TestServerType serverType = TestServerType.Azure;
+            TestServerType serverType = TestServerType.OnPrem;
             using (TestHelper testHelper = new TestHelper())
             {
-                await VerifyBindingLoadScenario(testHelper, TestServerType.OnPrem, Scripts.TestDbComplexSelectQueries, false);
+                await VerifyBindingLoadScenario(testHelper, serverType, Scripts.TestDbComplexSelectQueries, false);
             }
         }
 
