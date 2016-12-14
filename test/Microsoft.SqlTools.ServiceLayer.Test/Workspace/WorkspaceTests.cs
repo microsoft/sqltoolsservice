@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
@@ -123,20 +124,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Workspace
         [Fact]
         public void GetBaseFilePath()
         {
-            using (var workspace = new ServiceLayer.Workspace.Workspace())
-            {
-                Assert.Throws<InvalidOperationException>(() => workspace.GetBaseFilePath("path"));
-                Assert.NotNull(workspace.GetBaseFilePath(@"c:\path\file.sql"));
-                Assert.Equal(workspace.GetBaseFilePath("tsqloutput://c:/path/file.sql"), workspace.WorkspacePath);
-            }
+            TestUtils.RunIfWindows(() => 
+            {  
+                using (var workspace = new ServiceLayer.Workspace.Workspace())
+                {
+                    Assert.Throws<InvalidOperationException>(() => workspace.GetBaseFilePath("path"));
+                    Assert.NotNull(workspace.GetBaseFilePath(@"c:\path\file.sql"));
+                    Assert.Equal(workspace.GetBaseFilePath("tsqloutput://c:/path/file.sql"), workspace.WorkspacePath);
+                }
+            });
         }
 
         [Fact]
         public void ResolveRelativeScriptPath()
         {
-            var workspace = new ServiceLayer.Workspace.Workspace();
-            Assert.NotNull(workspace.ResolveRelativeScriptPath(null, @"c:\path\file.sql"));
-            Assert.NotNull(workspace.ResolveRelativeScriptPath(@"c:\path\", "file.sql"));
+            TestUtils.RunIfWindows(() => 
+            { 
+                var workspace = new ServiceLayer.Workspace.Workspace();
+                Assert.NotNull(workspace.ResolveRelativeScriptPath(null, @"c:\path\file.sql"));
+                Assert.NotNull(workspace.ResolveRelativeScriptPath(@"c:\path\", "file.sql"));
+            });
         }
     }
 }
