@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// All types supported by the server, stored as a hash set to provide O(1) lookup
         /// </summary>
-        private static readonly HashSet<string> AllServerDataTypes = new HashSet<string>
+        internal static readonly HashSet<string> AllServerDataTypes = new HashSet<string>
         {
             "bigint",
             "binary",
