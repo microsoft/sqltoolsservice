@@ -1,6 +1,10 @@
+# Note: This file isn't used in current setup. Instead its parts have been
+# set directly in the AppVeyor project settings - Environment, General, Build, Test sections.
+# This allows us to get Coveralls to run on PRs, but is more work than just using this file.
+# Preserving this here so that it's easy to replicate for others
 environment:
     COVERALLS_REPO_TOKEN:  
-       secure: Insert encrypted coveralls token here
+       secure: KjiClJjgj/eB1zo52GBz/CHCmdxj6ut+q6+LD5G3sYhy9Hi4kEF6CWi8vOQPH1oy
 
 # safelist
 branches:
