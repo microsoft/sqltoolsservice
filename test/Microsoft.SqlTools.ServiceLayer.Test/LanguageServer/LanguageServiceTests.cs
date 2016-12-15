@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+#define LIVE_CONNECTION_TESTS
 
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -303,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
                 },
                 Position = new Position
                 {
-                    Line = 1,
+                    Line = 0,
                     Character = queryWithFunction.Length
                 }
             };
