@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -959,6 +960,65 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // Then I expect an error message
             Assert.NotNull(errorMessage);
             Assert.NotEmpty(errorMessage);
+        }
+
+        /// <summary>
+        /// Check that connecting twice with the same URI doesn't create a duplicate
+        /// entry in the OwnerToConnectionMap. The expected behavior is that a new
+        /// entry is created and the old entry is removed.
+        /// </summary>
+        [Fact]
+        public async void ConectingWithTheSameUriUsesTheSameConnection()
+        {
+            // Setup the connect and disconnect params
+            var connectParamsSame1 = new ConnectParams()
+            {
+                OwnerUri = "connectParamsSame",
+                Connection = TestObjects.GetTestConnectionDetails()
+            };
+            var connectParamsSame2 = new ConnectParams()
+            {
+                OwnerUri = "connectParamsSame",
+                Connection = TestObjects.GetTestConnectionDetails()
+            };
+            var disconnectParamsSame = new DisconnectParams()
+            {
+                OwnerUri = connectParamsSame1.OwnerUri
+            };
+            var connectParamsDifferent = new ConnectParams()
+            {
+                OwnerUri = "connectParamsDifferent",
+                Connection = TestObjects.GetTestConnectionDetails()
+            };
+            var disconnectParamsDifferent = new DisconnectParams()
+            {
+                OwnerUri = connectParamsDifferent.OwnerUri
+            };
+
+            // Given a request to connect to a database, there should be no initial connections in the map
+            var service = TestObjects.GetTestConnectionService();
+            Dictionary<string, ConnectionInfo> ownerToConnectionMap = service.OwnerToConnectionMap;
+            Assert.Equal(0, ownerToConnectionMap.Count);
+
+            // If we connect to the service, there should be 1 connection
+            await service.Connect(connectParamsSame1);
+            Assert.Equal(1, ownerToConnectionMap.Count);
+
+            // If we connect again with the same URI, there should still be 1 connection
+            await service.Connect(connectParamsSame2);
+            Assert.Equal(1, ownerToConnectionMap.Count);
+
+            // If we connect with a different URI, there should be 2 connections
+            await service.Connect(connectParamsDifferent);
+            Assert.Equal(2, ownerToConnectionMap.Count);
+
+            // If we disconenct with the unique URI, there should be 1 connection
+            service.Disconnect(disconnectParamsDifferent);
+            Assert.Equal(1, ownerToConnectionMap.Count);
+
+            // If we disconenct with the duplicate URI, there should be 0 connections
+            service.Disconnect(disconnectParamsSame);
+            Assert.Equal(0, ownerToConnectionMap.Count);
         }
     }
 }
