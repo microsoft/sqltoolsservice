@@ -253,6 +253,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Don't actually execute if there aren't any batches to execute
             if (Batches.Length == 0)
             {
+                if (BatchMessage != null)
+                {
+                    await BatchMessage(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
+                }
                 return;
             }
 

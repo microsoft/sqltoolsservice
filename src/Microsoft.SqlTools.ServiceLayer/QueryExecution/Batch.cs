@@ -26,11 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Member Variables
 
         /// <summary>
-        /// The current index for a message being sent
-        /// </summary>
-        private int currentMessageIndex;
-
-        /// <summary>
         /// For IDisposable implementation, whether or not this has been disposed
         /// </summary>
         private bool disposed;
@@ -91,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Asynchronous handler for when a message is emitted by the sql connection
         /// </summary>
         /// <param name="message">The message that was emitted</param>
-        public delegate Task BatchAsyncMessageHandler(Batch batch, ResultMessage message);
+        public delegate Task BatchAsyncMessageHandler(ResultMessage message);
 
         /// <summary>
         /// Event that will be called when the batch has completed execution
@@ -379,9 +374,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Increment the index and take its original value in one atomic action
-            int messageIndex = currentMessageIndex++;
             messagesSent = true;
-            await BatchMessage(this, new ResultMessage(message, isError, messageIndex));
+            await BatchMessage(new ResultMessage(message, isError, Id));
         }
 
         /// <summary>

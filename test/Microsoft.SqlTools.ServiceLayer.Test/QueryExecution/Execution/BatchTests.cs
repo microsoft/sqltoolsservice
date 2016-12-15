@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                (b,m) => messages.Add(m),
+                m => messages.Add(m),
                 r => resultSetCalls++);
             await batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false)), CancellationToken.None);
 
@@ -79,10 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... The batch and the summary should be correctly assigned
             ValidateBatch(batch, 0);
             ValidateBatchSummary(batch);
-
-            // ... There should be a message for all results completing 
-            Assert.Equal(1, messages.Count);
-            Assert.All(messages, m => Assert.False(m.IsError));
+            ValidateMessages(batch, 1, messages);
         }
 
         [Fact]
@@ -105,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                (b,m) => messages.Add(m),
+                m => messages.Add(m),
                 r => resultSetCalls++);
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 
@@ -118,10 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... There should be exactly one result set
             ValidateBatch(batch, resultSets);
             ValidateBatchSummary(batch);
-
-            // ... There should be a message for how many rows were affected
-            Assert.Equal(resultSets, messages.Count);
-            Assert.All(messages, m => Assert.False(m.IsError));
+            ValidateMessages(batch, 1, messages);
         }
 
         [Fact]
@@ -144,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                (b,m) => messages.Add(m),
+                m => messages.Add(m),
                 r => resultSetCalls++);
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 
@@ -157,10 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... It should have executed without error
             ValidateBatch(batch, resultSets);
             ValidateBatchSummary(batch);
-
-            // ... There should have been two messages, none with error
-            Assert.Equal(1, messages.Count);
-            Assert.All(messages, m => {Assert.False(m.IsError);});
+            ValidateMessages(batch, 1, messages);
         }
 
         [Fact]
@@ -172,8 +163,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             int batchEndCalls = 0;
             List<ResultMessage> messages = new List<ResultMessage>();
 
-
-
             // If I execute a batch that is invalid
             var ci = Common.CreateTestConnectionInfo(null, true);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
@@ -181,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                (b, m) => messages.Add(m),
+                m => messages.Add(m),
                 r => { throw new Exception("ResultSet callback was called when it should not have been."); });
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 
@@ -194,9 +183,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             ValidateBatch(batch, 0);
             ValidateBatchSummary(batch);
 
-            // ... There should be plenty of messages for the error
-            Assert.NotEmpty(messages);
-            Assert.True(messages.Any(m => m.IsError));
+            // ... There should be one error message returned
+            Assert.Equal(1, messages.Count);
+            Assert.All(messages, m =>
+            {
+                Assert.True(m.IsError);
+                Assert.Equal(batch.Id, m.BatchId);
+            });
         }
 
         [Fact]
@@ -221,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => { throw new Exception("Batch start callback should not have been called"); },
                 b => { throw new Exception("Batch completion callback should not have been called"); },
-                (b, m) => { throw new Exception("Message callback should not have been called"); },
+                m => { throw new Exception("Message callback should not have been called"); },
                 null);
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => batch.Execute(GetConnection(ci), CancellationToken.None));
@@ -268,6 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             return info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
         }
 
+        [SuppressMessage("ReSharper", "UnusedParameter.Local")]
         private static void ValidateBatch(Batch batch, int expectedResultSets)
         {
             // The batch should be executed
@@ -297,8 +291,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.NotNull(batchSummary.ExecutionElapsed);
         }
 
+        [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+        private static void ValidateMessages(Batch batch, int expectedMessages, IList<ResultMessage> messages)
+        {
+            // There should be equal number of messages to result sets
+            Assert.Equal(expectedMessages, messages.Count);
+
+            // No messages should be errors
+            // All messages must have the batch ID
+            Assert.All(messages, m =>
+            {
+                Assert.False(m.IsError);
+                Assert.Equal(batch.Id, m.BatchId);
+            });
+        }
+
         private static void BatchCallbackHelper(Batch batch, Action<Batch> startCallback, Action<Batch> endCallback,
-            Action<Batch, ResultMessage> messageCallback, Action<ResultSet> resultCallback)
+            Action<ResultMessage> messageCallback, Action<ResultSet> resultCallback)
         {
             // Setup the callback for batch start
             batch.BatchStart += b =>
@@ -315,9 +324,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             };
 
             // Setup the callback for batch messages
-            batch.BatchMessage += (b, m) =>
+            batch.BatchMessage += (m) =>
             {
-                messageCallback?.Invoke(b, m);
+                messageCallback?.Invoke(m);
                 return Task.FromResult(0);
             };
 

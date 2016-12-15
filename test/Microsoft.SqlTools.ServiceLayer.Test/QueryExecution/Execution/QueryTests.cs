@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.Components.DictionaryAdapter;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -94,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(query,
                 b => batchStartCallbacksReceived++,
                 b => batchCompleteCallbacksReceived++,
-                (b,m) => batchMessageCallbacksReceived++);
+                m => batchMessageCallbacksReceived++);
 
             // ... I then execute the query
             query.Execute();
@@ -119,6 +120,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         [Fact]
         public void QueryExecuteSingleNoOpBatch()
         {
+            // Setup: Keep track of all the messages received
+            List<ResultMessage> messages = new List<ResultMessage>();
+
             // If:
             // ... I create a query from a single batch that does nothing
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
@@ -127,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(query,
                 b => { throw new Exception("Batch startup callback should not have been called."); },
                 b => { throw new Exception("Batch completion callback was called"); },
-                (b, m) => { throw new Exception("Batch message callback was called"); });
+                m => messages.Add(m));
 
             // If:
             // ... I Then execute the query
@@ -141,6 +145,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... The query should have completed successfully with no batch summaries returned
             Assert.True(query.HasExecuted);
             Assert.Empty(query.BatchSummaries);
+
+            // ... The message callback should have been called exactly once
+            // ... The message must not have a batch associated with it
+            Assert.Equal(1, messages.Count);
+            Assert.Null(messages[0].BatchId);
         }
 
         [Fact]
@@ -161,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(query,
                 b => batchStartCallbacksReceived++,
                 b => batchCompletedCallbacksReceived++,
-                (b,m) => batchMessageCallbacksReceived++);
+                m => batchMessageCallbacksReceived++);
 
             // ... I then execute the query
             query.Execute();
@@ -201,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(query, 
                 b => batchStartCallbacksReceived++,
                 b => batchCompletionCallbacksReceived++,
-                (b, m) => batchMessageCallbacksReceived++);
+                m => batchMessageCallbacksReceived++);
 
             // .. I then execute the query
             query.Execute();
@@ -228,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             // Setup:
             // ... Keep track of how many messages were sent
-            int batchMessageCallbacksReceived = 0;
+            List<ResultMessage> messages = new List<ResultMessage>();
 
             // If:
             // ... I create a query from a two batches (with separator)
@@ -239,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(query,
                 b => { throw new Exception("Batch start handler was called"); },
                 b => { throw new Exception("Batch completed handler was called"); },
-                (b, m) => batchMessageCallbacksReceived++);
+                m => messages.Add(m));
 
             // .. I then execute the query
             query.Execute();
@@ -254,7 +263,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Empty(query.BatchSummaries);
 
             // ... The message callback should have been called exactly once
-            Assert.Equal(1, batchMessageCallbacksReceived);
+            // ... The message must not have a batch associated with it
+            Assert.Equal(1, messages.Count);
+            Assert.Null(messages[0].BatchId);
         }
 
         [Fact]
@@ -274,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             BatchCallbackHelper(query,
                 b => batchStartCallbacksReceived++,
                 b => batchCompletionCallbacksReceived++,
-                (b,m) => messages.Add(m));
+                m => messages.Add(m));
 
             // ... I then execute the query
             query.Execute();
@@ -297,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         private static void BatchCallbackHelper(Query q, Action<Batch> startCallback, Action<Batch> endCallback,
-            Action<Batch, ResultMessage> messageCallback)
+            Action<ResultMessage> messageCallback)
         {
             // Setup the callback for batch start
             q.BatchStarted += b =>
@@ -314,9 +325,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             };
 
             // Setup the callback for batch messages
-            q.BatchMessage += (b, m) =>
+            q.BatchMessage += (m) =>
             {
-                messageCallback?.Invoke(b, m);
+                messageCallback?.Invoke(m);
                 return Task.FromResult(0);
             };
         }

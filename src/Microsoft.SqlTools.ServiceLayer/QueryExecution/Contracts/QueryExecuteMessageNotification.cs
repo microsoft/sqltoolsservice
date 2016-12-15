@@ -18,11 +18,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// ID of the batch this message should be associated with
-        /// </summary>
-        public int BatchId { get; set; }
-
-        /// <summary>
         /// The message that is being returned
         /// </summary>
         public ResultMessage Message { get; set; }

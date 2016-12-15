@@ -13,9 +13,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class ResultMessage
     {
         /// <summary>
-        /// ID of the message, the ordinal the ensure proper ordering
+        /// ID of the batch that generated this message. If null, this message
+        /// was not generated as part of a batch
         /// </summary>
-        public int Id { get; set; }
+        public int? BatchId { get; set; }
 
         /// <summary>
         /// Whether or not this message is an error
@@ -36,9 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Constructor with default "Now" time
         /// </summary>
-        public ResultMessage(string message, bool isError, int id)
+        public ResultMessage(string message, bool isError, int? batchId)
         {
-            Id = id;
+            BatchId = batchId;
             IsError = isError;
             Time = DateTime.Now.ToString("o");
             Message = message;
