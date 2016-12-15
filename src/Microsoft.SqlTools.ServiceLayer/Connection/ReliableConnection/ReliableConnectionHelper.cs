@@ -801,7 +801,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string DatabaseName;
         }
 
-        private static bool TryGetConnectionStringBuilder(string connectionString, out SqlConnectionStringBuilder builder)
+        internal static bool TryGetConnectionStringBuilder(string connectionString, out SqlConnectionStringBuilder builder)
         {
             builder = null;
 

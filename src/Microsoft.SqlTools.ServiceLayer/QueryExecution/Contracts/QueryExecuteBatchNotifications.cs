@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// Parameters to be sent back as part of a QueryExecuteBatchCompleteEvent to indicate that a
     /// batch of a query completed.
     /// </summary>
-    public class QueryExecuteBatchCompleteParams
+    public class QueryExecuteBatchNotificationParams
     {
         /// <summary>
         /// Summary of the batch that just completed
@@ -26,7 +26,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class QueryExecuteBatchCompleteEvent
     {
         public static readonly 
-            EventType<QueryExecuteBatchCompleteParams> Type =
-            EventType<QueryExecuteBatchCompleteParams>.Create("query/batchComplete");
+            EventType<QueryExecuteBatchNotificationParams> Type =
+            EventType<QueryExecuteBatchNotificationParams>.Create("query/batchComplete");
+    }
+
+    public class QueryExecuteBatchStartEvent
+    {
+        public static readonly
+            EventType<QueryExecuteBatchNotificationParams> Type =
+            EventType<QueryExecuteBatchNotificationParams>.Create("query/batchStart");
     }
 }

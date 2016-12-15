@@ -5,14 +5,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -371,12 +370,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="endColumn"></param>
         /// <param name="useLowerCase"></param>
         internal static CompletionItem[] GetDefaultCompletionItems(
-            int row, 
-            int startColumn, 
-            int endColumn,
-            bool useLowerCase,
-            string tokenText = null)
+            ScriptDocumentInfo scriptDocumentInfo,
+            bool useLowerCase)
         {
+            int row = scriptDocumentInfo.StartLine;
+            int startColumn = scriptDocumentInfo.StartColumn;
+            int endColumn = scriptDocumentInfo.EndColumn;
+            string tokenText = scriptDocumentInfo.TokenText;
             // determine how many default completion items there will be 
             int listSize = DefaultCompletionText.Length;
             if (!string.IsNullOrWhiteSpace(tokenText))

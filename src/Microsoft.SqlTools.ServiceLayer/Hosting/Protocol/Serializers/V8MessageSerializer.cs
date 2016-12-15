@@ -89,10 +89,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
                                 messageJson.GetValue("message"));
                         }
                     }
-                    else
-                    {
-                        // TODO: Parse error
-                    }
+                    // else
+                    // {
+                    //     // TODO: Parse error
+                    // }
 
                 }
                 else if (string.Equals("event", messageType, StringComparison.CurrentCultureIgnoreCase))
