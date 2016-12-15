@@ -3,8 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
@@ -147,6 +149,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             Assert.Null(signatureHelp);
         }
 
+        [Fact]
+        public void EmptyCompletionListTest()
+        {           
+            Assert.Equal(AutoCompleteHelper.EmptyCompletionList.Length, 0);
+        }
+
+        [Fact]
+        public void SetWorkspaceServiceInstanceTest()
+        {           
+            AutoCompleteHelper.WorkspaceServiceInstance = null;
+            // workspace will be recreated if it's set to null
+            Assert.NotNull(AutoCompleteHelper.WorkspaceServiceInstance);
+        }
+
+        internal class TestScriptDocumentInfo : ScriptDocumentInfo
+        {
+            public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo)
+                :base(textDocumentPosition, scriptFile, scriptParseInfo)
+            {
+                
+            }
+            
+            public override string TokenText
+            {
+                get
+                {
+                    return "doesntmatchanythingintheintellisensedefaultlist";
+                }
+            }
+        }
+
+        [Fact]
+        public void GetDefaultCompletionListWithNoMatchesTest()
+        {           
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("koko wants a bananas");
+
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = false };
+
+            var scriptDocumentInfo = new TestScriptDocumentInfo(
+                new TextDocumentPosition()
+                {
+                    TextDocument = new TextDocumentIdentifier() {  Uri = TestObjects.ScriptUri  },
+                    Position = new Position() { Line = 0, Character = 0 }
+                }, scriptFile, scriptInfo);
+      
+            AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
+
+        }
+
         #endregion
 
         #region "General Language Service tests"
@@ -170,11 +222,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
 
             connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
         }
-
+        
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
-        // Test is causing failures in build lab..investigating to reenable
         [Fact]
         public void ServiceInitialization()
         {
@@ -190,12 +241,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             Assert.True(LanguageService.ConnectionServiceInstance != null);
             Assert.True(LanguageService.Instance.CurrentSettings != null);
             Assert.True(LanguageService.Instance.CurrentWorkspace != null);
-        }        
+        }  
 
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
-        // Test is causing failures in build lab..investigating to reenable
         [Fact]
         public void PrepopulateCommonMetadata()
         {

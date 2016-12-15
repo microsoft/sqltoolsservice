@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class SR
     {
-        protected SR()
+        internal SR()
         { }
 
         public static CultureInfo Culture
@@ -341,6 +341,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string PeekDefinitionNoResultsError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionNoResultsError);
+            }
+        }
+
+        public static string PeekDefinitionNotConnectedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionNotConnectedError);
+            }
+        }
+
+        public static string PeekDefinitionTimedoutError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionTimedoutError);
+            }
+        }
+
+        public static string PeekDefinitionTypeNotSupportedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionTypeNotSupportedError);
+            }
+        }
+
         public static string WorkspaceServicePositionLineOutOfRange
         {
             get
@@ -384,6 +416,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceQueryFailed, message);
         }
 
+        public static string PeekDefinitionAzureError(string errorMessage)
+        {
+            return Keys.GetString(Keys.PeekDefinitionAzureError, errorMessage);
+        }
+
+        public static string PeekDefinitionError(string errorMessage)
+        {
+            return Keys.GetString(Keys.PeekDefinitionError, errorMessage);
+        }
+
         public static string WorkspaceServicePositionColumnOutOfRange(int line)
         {
             return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
@@ -397,7 +439,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager(typeof(SR));
+            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
 
@@ -540,6 +582,24 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceResultSetNoColumnSchema = "QueryServiceResultSetNoColumnSchema";
 
 
+            public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";
+
+
+            public const string PeekDefinitionError = "PeekDefinitionError";
+
+
+            public const string PeekDefinitionNoResultsError = "PeekDefinitionNoResultsError";
+
+
+            public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
+
+
+            public const string PeekDefinitionTimedoutError = "PeekDefinitionTimedoutError";
+
+
+            public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
+
+
             public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";
 
 
@@ -549,7 +609,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
 
 
-            private Keys()
+            internal Keys()
             { }
 
             public static CultureInfo Culture

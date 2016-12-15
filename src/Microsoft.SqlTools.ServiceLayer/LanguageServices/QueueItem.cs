@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets an event to signal when this queue item has been processed
         /// </summary>
-        public ManualResetEvent ItemProcessed { get; set; } 
+        public virtual ManualResetEvent ItemProcessed { get; set; } 
 
         /// <summary>
         /// Gets or sets the result of the queued task

@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
@@ -227,6 +229,12 @@ namespace Microsoft.SqlTools.Test.Utility
                     Character = 0
                 }
             };
+        }
+
+        public static ServerConnection InitLiveServerConnectionForDefinition(ConnectionInfo connInfo)
+        {
+            SqlConnection sqlConn = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));                                
+            return new ServerConnection(sqlConn);
         }
     }
 
