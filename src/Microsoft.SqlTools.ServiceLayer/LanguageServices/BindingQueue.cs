@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Queue a binding request item
         /// </summary>
-        public QueueItem QueueBindingOperation(
+        public virtual QueueItem QueueBindingOperation(
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,
             Func<IBindingContext, object> timeoutOperation = null,

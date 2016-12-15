@@ -236,6 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Store the SqlToolsContext for future use
             Context = context;
+
         }
 
         #endregion
@@ -317,11 +318,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ConnectionInfo connInfo;
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-
-                Location[] locations = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
-                if (locations != null)
-                {
-                    await requestContext.SendResult(locations);
+                DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                if (definitionResult != null)
+                {   
+                    if (definitionResult.IsErrorResult)
+                    {
+                        await requestContext.SendError( new DefinitionError { message = definitionResult.Message });
+                    }
+                    else
+                    {
+                        await requestContext.SendResult(definitionResult.Locations);
+                    }                    
                 }
             }
             DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
@@ -688,7 +695,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal Location[] GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
@@ -726,27 +733,57 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             int parserLine = textDocumentPosition.Position.Line + 1;
                             int parserColumn = textDocumentPosition.Position.Character + 1;
                             IEnumerable<Declaration> declarationItems = Resolver.FindCompletions(
-                                scriptParseInfo.ParseResult, 
-                                parserLine, parserColumn, 
+                                scriptParseInfo.ParseResult,
+                                parserLine, parserColumn,
                                 bindingContext.MetadataDisplayInfoProvider);
 
                             // Match token with the suggestions(declaration items) returned
-                            string schemaName = GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection);
-                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);                        
+
+                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
+                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
+                        },
+                        timeoutOperation: (bindingContext) =>
+                        {
+                            // return error result
+                            return new DefinitionResult
+                            {
+                                IsErrorResult = true,
+                                Message = SR.PeekDefinitionTimedoutError,
+                                Locations = null
+                            };
                         });
 
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
-                    return queueItem.GetResultAsT<Location[]>();
+                    return queueItem.GetResultAsT<DefinitionResult>();
+                }
+                catch (Exception ex)
+                {
+                    // if any exceptions are raised return error result with message
+                    Logger.Write(LogLevel.Error, "Exception in GetDefinition " + ex.ToString());
+                    return new DefinitionResult
+                    {
+                        IsErrorResult = true,
+                        Message = SR.PeekDefinitionError(ex.Message),
+                        Locations = null
+                    };
                 }
                 finally
                 {
                     Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                 }
             }
-
-            return null;
+            else
+            {
+                // User is not connected.
+                return new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = SR.PeekDefinitionNotConnectedError,
+                    Locations = null
+                };
+            }
         }
 
         /// <summary>
@@ -755,7 +792,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptParseInfo"></param>
         /// <param name="position"></param>
         /// <param name="scriptFile"></param>
-        /// <returns> schema nama</returns>
+        /// <returns> schema name</returns>
         private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
         {
             // Offset index by 1 for sql parser
