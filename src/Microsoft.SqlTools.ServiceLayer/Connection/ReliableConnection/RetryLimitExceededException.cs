@@ -34,5 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
     [Serializable]
     internal sealed class RetryLimitExceededException : Exception
     {
+        internal RetryLimitExceededException() : base()
+        {            
+        }
+
+        internal RetryLimitExceededException(string m, Exception e) : base(m, e)
+        {
+        }
     }
 }

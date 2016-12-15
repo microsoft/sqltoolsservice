@@ -1,0 +1,40 @@
+sudo: required
+dist: trusty
+
+os:
+  - linux
+  - osx
+
+dotnet: 1.0.0-preview2-003131
+
+# safelist
+branches:
+  only:
+    - master
+    - dev
+
+language: csharp
+solution: sqltoolsservice.sln
+
+before_install:
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then
+      sudo sh -c 'echo "deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list';
+      sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893;
+      sudo apt-get update;
+      sudo apt-get install dotnet-dev-1.0.0-preview2.1-003177;
+    else
+      brew update;
+      brew install openssl;
+      mkdir -p /usr/local/lib;
+      ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/;
+      ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/;
+      brew cask install dotnet;
+      export PATH="/usr/local/share/dotnet/:$PATH";
+    fi
+install:
+  - dotnet restore
+
+script:
+  - dotnet build src/Microsoft.SqlTools.ServiceLayer
+  - dotnet test test/Microsoft.SqlTools.ServiceLayer.Test
+  
