@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="sql"></param>
         /// <param name="startRow">parameter is 0-based</param>
         /// <param name="startColumn">parameter is 0-based</param>
-        /// <param name="tokenText">parameter is 0-based</param>
+        /// <param name="tokenText"></param>
         public static int PositionOfPrevDelimeter(string sql, int startRow, int startColumn)
         {            
             int prevNewLine;
