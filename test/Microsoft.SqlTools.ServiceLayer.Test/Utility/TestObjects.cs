@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.Test.Utility
             return connInfo;
         }
 
-        public static ServerConnection InitLiveConnectionInfoForDefinition()
+        public static ConnectionInfo InitLiveConnectionInfoForDefinition()
         {
             TestObjects.InitializeTestServices();
 
@@ -212,7 +212,11 @@ namespace Microsoft.SqlTools.Test.Utility
 
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
-            
+            return connInfo;
+        }
+
+        public static ServerConnection InitLiveServerConnectionForDefinition(ConnectionInfo connInfo)
+        {
             SqlConnection sqlConn = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));                                
             return new ServerConnection(sqlConn);
         }
