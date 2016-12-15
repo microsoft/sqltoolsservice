@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         {
             InsertText = GetCompletionItemInsertName();
             Label = DeclarationTitle;
-            if (StartsWithBracket(TokenText) || IsReservedWord(InsertText))
+            if (StartsWithBracket(TokenText) || AutoCompleteHelper.IsReservedWord(InsertText))
             {
                 Label = WithBracket(Label);
                 InsertText = WithBracket(InsertText);
@@ -202,13 +202,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             {
                 return text;
             }
-        }
-
-        private bool IsReservedWord(string text)
-        {
-            string[] ReservedWords = AutoCompleteHelper.GetReservedWordList();
-            int pos = Array.IndexOf(ReservedWords, text.ToLower());
-            return pos > -1 ? true : false;
         }
     }
 }
