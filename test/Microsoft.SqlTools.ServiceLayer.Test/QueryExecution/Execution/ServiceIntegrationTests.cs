@@ -4,7 +4,6 @@
 //
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
@@ -56,12 +55,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             Assert.Equal(1, completeParams.BatchSummaries.Length);
             Assert.Empty(completeParams.BatchSummaries[0].ResultSetSummaries);
-            Assert.NotEmpty(completeParams.BatchSummaries[0].Messages);
 
             // ... Batch start summary should not contain result sets, messages, but should contain owner URI
             Assert.NotNull(batchStartParams);
             Assert.NotNull(batchStartParams.BatchSummary);
-            Assert.Null(batchStartParams.BatchSummary.Messages);
             Assert.Null(batchStartParams.BatchSummary.ResultSetSummaries);
             Assert.Equal(Common.OwnerUri, batchStartParams.OwnerUri);
 
@@ -69,7 +66,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.NotNull(batchCompleteParams);
             Assert.NotNull(batchCompleteParams.BatchSummary);
             Assert.Empty(batchCompleteParams.BatchSummary.ResultSetSummaries);
-            Assert.NotEmpty(batchCompleteParams.BatchSummary.Messages);
             Assert.Equal(Common.OwnerUri, batchCompleteParams.OwnerUri);
 
             // ... There should be one active query
@@ -112,19 +108,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             Assert.Equal(1, completeParams.BatchSummaries.Length);
             Assert.NotEmpty(completeParams.BatchSummaries[0].ResultSetSummaries);
-            Assert.NotEmpty(completeParams.BatchSummaries[0].Messages);
-            Assert.False(completeParams.BatchSummaries[0].HasError);
 
             // ... Batch start summary should not contain result sets, messages, but should contain owner URI
             Assert.NotNull(batchStartParams);
             Assert.NotNull(batchStartParams.BatchSummary);
-            Assert.Null(batchStartParams.BatchSummary.Messages);
             Assert.Null(batchStartParams.BatchSummary.ResultSetSummaries);
             Assert.Equal(Common.OwnerUri, batchStartParams.OwnerUri);
 
             Assert.NotNull(batchCompleteParams);
             Assert.NotEmpty(batchCompleteParams.BatchSummary.ResultSetSummaries);
-            Assert.NotEmpty(batchCompleteParams.BatchSummary.Messages);
             Assert.Equal(Common.OwnerUri, batchCompleteParams.OwnerUri);
 
             Assert.NotNull(resultCompleteParams);
@@ -172,19 +164,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             Assert.Equal(1, completeParams.BatchSummaries.Length);
             Assert.NotEmpty(completeParams.BatchSummaries[0].ResultSetSummaries);
-            Assert.NotEmpty(completeParams.BatchSummaries[0].Messages);
-            Assert.False(completeParams.BatchSummaries[0].HasError);
 
             // ... Batch start summary should not contain result sets, messages, but should contain owner URI
             Assert.NotNull(batchStartParams);
             Assert.NotNull(batchStartParams.BatchSummary);
-            Assert.Null(batchStartParams.BatchSummary.Messages);
             Assert.Null(batchStartParams.BatchSummary.ResultSetSummaries);
             Assert.Equal(Common.OwnerUri, batchStartParams.OwnerUri);
 
             Assert.NotNull(batchCompleteParams);
             Assert.NotEmpty(batchCompleteParams.BatchSummary.ResultSetSummaries);
-            Assert.NotEmpty(batchCompleteParams.BatchSummary.Messages);
             Assert.Equal(Common.OwnerUri, batchCompleteParams.OwnerUri);
 
             Assert.Equal(2, resultCompleteParams.Count);
@@ -233,14 +221,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(2, completeParams.BatchSummaries.Length);
             Assert.Equal(1, completeParams.BatchSummaries[0].ResultSetSummaries.Length);
             Assert.Equal(1, completeParams.BatchSummaries[1].ResultSetSummaries.Length);
-            Assert.NotEmpty(completeParams.BatchSummaries[0].Messages);
-            Assert.NotEmpty(completeParams.BatchSummaries[1].Messages);
 
             // ... Two batch start events should have been fired
             Assert.Equal(2, batchStartParams.Count);
             foreach (var batch in batchStartParams)
             {
-                Assert.Null(batch.BatchSummary.Messages);
                 Assert.Null(batch.BatchSummary.ResultSetSummaries);
                 Assert.Equal(Common.OwnerUri, batch.OwnerUri);
             }
@@ -250,7 +235,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             foreach (var batch in batchCompleteParams)
             {
                 Assert.NotEmpty(batch.BatchSummary.ResultSetSummaries);
-                Assert.NotEmpty(batch.BatchSummary.Messages);
                 Assert.Equal(Common.OwnerUri, batch.OwnerUri);
             }
 
@@ -367,12 +351,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             VerifyQueryExecuteCallCount(secondRequestContext, Times.Once(), Times.Once(), Times.Once(), Times.Once(), Times.Never(), Times.Never());
             Assert.Null(result.Messages);
 
-            Assert.False(complete.BatchSummaries.Any(b => b.HasError));
             Assert.Equal(1, queryService.ActiveQueries.Count);
 
             Assert.NotNull(batchStart);
             Assert.NotNull(batchComplete);
-            Assert.False(batchComplete.BatchSummary.HasError);
             Assert.Equal(complete.OwnerUri, batchComplete.OwnerUri);
         }
 
@@ -438,18 +420,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Null(result.Messages);
 
             Assert.Equal(1, complete.BatchSummaries.Length);
-            Assert.True(complete.BatchSummaries[0].HasError);
-            Assert.NotEmpty(complete.BatchSummaries[0].Messages);
 
             Assert.NotNull(batchStart);
-            Assert.False(batchStart.BatchSummary.HasError);
-            Assert.Null(batchStart.BatchSummary.Messages);
             Assert.Null(batchStart.BatchSummary.ResultSetSummaries);
             Assert.Equal(Common.OwnerUri, batchStart.OwnerUri);
 
             Assert.NotNull(batchComplete);
-            Assert.True(batchComplete.BatchSummary.HasError);
-            Assert.NotEmpty(batchComplete.BatchSummary.Messages);
             Assert.Equal(Common.OwnerUri, batchComplete.OwnerUri);
         }
 
