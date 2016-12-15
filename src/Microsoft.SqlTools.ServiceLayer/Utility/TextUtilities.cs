@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     public static class TextUtilities
-    {       
+    {   
         /// <summary>
         /// Find the position of the cursor in the SQL script content buffer and return previous new line position
         /// </summary>

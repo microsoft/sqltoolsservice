@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -216,6 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
                 Logger.Write(LogLevel.Verbose, "Shutting down language service");
+                DeletePeekDefinitionScripts();
                 await Task.FromResult(0);
             });
 
@@ -1230,6 +1232,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             else
             {
                 return false;
+            }
+        }
+
+        internal void DeletePeekDefinitionScripts()
+        {
+            // Delete temp folder created to store peek definition scripts
+            if (FileUtils.SafeDirectoryExists(FileUtils.PeekDefinitionTempFolder))
+            {
+                FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
             }
         }
     }

@@ -10,8 +10,9 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -47,9 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             this.serverConnection = serverConnection;
             this.connectionInfo = connInfo;
-
-            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(Path.GetTempPath() + "mssql_definition");
-            this.tempPath = tempScriptDirectory.FullName;
+            this.tempPath = FileUtils.GetPeekDefinitionTempFolder();    
             Initialize();
         }
 

@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -194,6 +195,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.Equal(actualSchemaName, expectedSchemaName);
         }
 
+        /// <summary>
+        /// Test Deletion of peek definition scripts for a valid temp folder that exists
+        /// </summary>
+        [Fact]
+        public void DeletePeekDefinitionScriptsTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            var languageService = LanguageService.Instance;
+            Assert.True(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            languageService.DeletePeekDefinitionScripts();
+            Assert.False(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+        }
+
+        /// <summary>
+        /// Test Deletion of peek definition scripts for a temp folder that does not exist
+        /// </summary>
+        [Fact]
+        public void DeletePeekDefinitionScriptsWhenFolderDoesNotExistTest()
+        {
+            var languageService = LanguageService.Instance;
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
+            Assert.False(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            // Expected not to throw any exception
+            languageService.DeletePeekDefinitionScripts();        
+        }
+         
 #if LIVE_CONNECTION_TESTS
         /// <summary>
         /// Test get definition for a table object with active connection
