@@ -11,25 +11,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// Find the position of the cursor in the SQL script content buffer and return previous new line position
         /// </summary>
         /// <param name="sql"></param>
-        /// <param name="startRow"></param>
-        /// <param name="startColumn"></param>
-        /// <param name="prevNewLine"></param>
+        /// <param name="startRow">parameter is 0-based</param>
+        /// <param name="startColumn">parameter is 0-based</param>
+        /// <param name="prevNewLine">parameter is 0-based</param>
         public static int PositionOfCursor(string sql, int startRow, int startColumn, out int prevNewLine)
-        {
+        {            
             prevNewLine = 0;
             if (string.IsNullOrWhiteSpace(sql))
             {
                 return 1;
             }
-            
-            for (int i = 0; i < startRow; ++i)
-            {
-                while (prevNewLine < sql.Length && sql[prevNewLine] != '\n')
+
+            // if (startRow > 1)
+            // {        
+                for (int i = 0; i < startRow; ++i)
                 {
+                    while (prevNewLine < sql.Length && sql[prevNewLine] != '\n')
+                    {
+                        ++prevNewLine;
+                    }
                     ++prevNewLine;
                 }
-                ++prevNewLine;
-            }
+            //}
 
             return startColumn + prevNewLine;
         }
@@ -39,9 +42,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// SQL Parser may have similar functionality in which case we'll delete this method.
         /// </summary>
         /// <param name="sql"></param>
-        /// <param name="startRow"></param>
-        /// <param name="startColumn"></param>
-        /// <param name="tokenText"></param>
+        /// <param name="startRow">parameter is 0-based</param>
+        /// <param name="startColumn">parameter is 0-based</param>
+        /// <param name="tokenText">parameter is 0-based</param>
         public static int PositionOfPrevDelimeter(string sql, int startRow, int startColumn)
         {            
             int prevNewLine;
@@ -67,8 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// Find the position of the next delimeter for autocomplete token replacement.
         /// </summary>
         /// <param name="sql"></param>
-        /// <param name="startRow"></param>
-        /// <param name="startColumn"></param>
+        /// <param name="startRow">parameter is 0-based</param>
+        /// <param name="startColumn">parameter is 0-based</param>
         public static int PositionOfNextDelimeter(string sql, int startRow, int startColumn)
         {            
             int prevNewLine;
