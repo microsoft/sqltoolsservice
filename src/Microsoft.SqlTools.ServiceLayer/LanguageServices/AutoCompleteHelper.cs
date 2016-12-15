@@ -343,6 +343,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Retrieves the reserved word list 
+        /// </summary>
+        public static string[] GetReservedWordList()
+        {
+            return DefaultCompletionText;
+        }
+
+        /// <summary>
         /// Gets or sets the current workspace service instance
         /// Setter for internal testing purposes only
         /// </summary>
