@@ -1,0 +1,535 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  id: TextDocumentItem
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.LanguageId
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Text
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Uri
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Version
+  langs:
+  - csharp
+  - vb
+  name: TextDocumentItem
+  nameWithType: TextDocumentItem
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: TextDocumentItem
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+    startLine: 43
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  summary: "\nDefines a text document.\n"
+  example: []
+  syntax:
+    content: public class TextDocumentItem
+    content.vb: Public Class TextDocumentItem
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Uri
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Uri
+  id: Uri
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  langs:
+  - csharp
+  - vb
+  name: Uri
+  nameWithType: TextDocumentItem.Uri
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Uri
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Uri
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+    startLine: 50
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  summary: "\nGets or sets the URI which identifies the path of the\ntext document.\n"
+  example: []
+  syntax:
+    content: public string Uri { get; set; }
+    content.vb: Public Property Uri As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Uri*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.LanguageId
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.LanguageId
+  id: LanguageId
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  langs:
+  - csharp
+  - vb
+  name: LanguageId
+  nameWithType: TextDocumentItem.LanguageId
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.LanguageId
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: LanguageId
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+    startLine: 55
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  summary: "\nGets or sets the language of the document\n"
+  example: []
+  syntax:
+    content: public string LanguageId { get; set; }
+    content.vb: Public Property LanguageId As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.LanguageId*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Version
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Version
+  id: Version
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  langs:
+  - csharp
+  - vb
+  name: Version
+  nameWithType: TextDocumentItem.Version
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Version
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Version
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+    startLine: 60
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  summary: "\nGets or sets the version of the document\n"
+  example: []
+  syntax:
+    content: public int Version { get; set; }
+    content.vb: Public Property Version As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Version*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Text
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Text
+  id: Text
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  langs:
+  - csharp
+  - vb
+  name: Text
+  nameWithType: TextDocumentItem.Text
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Text
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Text
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/TextDocument.cs
+    startLine: 65
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  summary: "\nGets or sets the full content of the document.\n"
+  example: []
+  syntax:
+    content: public string Text { get; set; }
+    content.vb: Public Property Text As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Text*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Uri*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Uri
+  isExternal: false
+  name: Uri
+  nameWithType: TextDocumentItem.Uri
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Uri
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.LanguageId*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.LanguageId
+  isExternal: false
+  name: LanguageId
+  nameWithType: TextDocumentItem.LanguageId
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.LanguageId
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Version*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Version
+  isExternal: false
+  name: Version
+  nameWithType: TextDocumentItem.Version
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Version
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Text*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Text
+  isExternal: false
+  name: Text
+  nameWithType: TextDocumentItem.Text
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem.Text

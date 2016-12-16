@@ -1,0 +1,581 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+  id: PublishDiagnosticsNotification
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Diagnostics
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Type
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Uri
+  langs:
+  - csharp
+  - vb
+  name: PublishDiagnosticsNotification
+  nameWithType: PublishDiagnosticsNotification
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Diagnostics.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: PublishDiagnosticsNotification
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Diagnostics.cs
+    startLine: 10
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: public class PublishDiagnosticsNotification
+    content.vb: Public Class PublishDiagnosticsNotification
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Type
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Type
+  id: Type
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+  langs:
+  - csharp
+  - vb
+  name: Type
+  nameWithType: PublishDiagnosticsNotification.Type
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Type
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Diagnostics.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Type
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Diagnostics.cs
+    startLine: 13
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: public static readonly EventType<PublishDiagnosticsNotification> Type
+    content.vb: Public Shared ReadOnly Type As EventType(Of PublishDiagnosticsNotification)
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification}
+  modifiers.csharp:
+  - public
+  - static
+  - readonly
+  modifiers.vb:
+  - Public
+  - Shared
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Uri
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Uri
+  id: Uri
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+  langs:
+  - csharp
+  - vb
+  name: Uri
+  nameWithType: PublishDiagnosticsNotification.Uri
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Uri
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Diagnostics.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Uri
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Diagnostics.cs
+    startLine: 19
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  summary: "\nGets or sets the URI for which diagnostic information is reported.\n"
+  example: []
+  syntax:
+    content: public string Uri { get; set; }
+    content.vb: Public Property Uri As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Uri*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Diagnostics
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Diagnostics
+  id: Diagnostics
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+  langs:
+  - csharp
+  - vb
+  name: Diagnostics
+  nameWithType: PublishDiagnosticsNotification.Diagnostics
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Diagnostics
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Diagnostics.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Diagnostics
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Diagnostics.cs
+    startLine: 24
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  summary: "\nGets or sets the array of diagnostic information items.\n"
+  example: []
+  syntax:
+    content: public Diagnostic[] Diagnostics { get; set; }
+    content.vb: Public Property Diagnostics As Diagnostic()
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.Diagnostic[]
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Diagnostics*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  name: EventType<PublishDiagnosticsNotification>
+  nameWithType: EventType<PublishDiagnosticsNotification>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType<Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification>
+  nameWithType.vb: EventType(Of PublishDiagnosticsNotification)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification)
+  name.vb: EventType(Of PublishDiagnosticsNotification)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+    name: PublishDiagnosticsNotification
+    nameWithType: PublishDiagnosticsNotification
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+    name: PublishDiagnosticsNotification
+    nameWithType: PublishDiagnosticsNotification
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: EventType<TParams>
+  nameWithType: EventType<TParams>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType<TParams>
+  nameWithType.vb: EventType(Of TParams)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType(Of TParams)
+  name.vb: EventType(Of TParams)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TParams
+    nameWithType: TParams
+    fullName: TParams
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TParams
+    nameWithType: TParams
+    fullName: TParams
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Uri*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Uri
+  isExternal: false
+  name: Uri
+  nameWithType: PublishDiagnosticsNotification.Uri
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Uri
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Diagnostics*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Diagnostics
+  isExternal: false
+  name: Diagnostics
+  nameWithType: PublishDiagnosticsNotification.Diagnostics
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.PublishDiagnosticsNotification.Diagnostics
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.Diagnostic[]
+  name: Diagnostic[]
+  nameWithType: Diagnostic[]
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.Diagnostic[]
+  nameWithType.vb: Diagnostic()
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.Diagnostic()
+  name.vb: Diagnostic()
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.Diagnostic
+    name: Diagnostic
+    nameWithType: Diagnostic
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.Diagnostic
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.Diagnostic
+    name: Diagnostic
+    nameWithType: Diagnostic
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.Diagnostic
+  - name: ()
+    nameWithType: ()
+    fullName: ()

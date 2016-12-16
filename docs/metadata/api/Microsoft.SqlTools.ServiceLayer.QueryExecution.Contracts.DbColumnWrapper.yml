@@ -1,0 +1,1831 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  id: DbColumnWrapper
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor(System.Data.Common.DbColumn)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.AllowDBNull
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseCatalogName
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseColumnName
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseServerName
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseTableName
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnName
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnOrdinal
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnSize
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataType
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataTypeName
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAliased
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAutoIncrement
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsBytes
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsChars
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsExpression
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsHidden
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsIdentity
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsJson
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsKey
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsLong
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsReadOnly
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsSqlVariant
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUdt
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUnique
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsXml
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericPrecision
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericScale
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.UdtAssemblyQualifiedName
+  langs:
+  - csharp
+  - vb
+  name: DbColumnWrapper
+  nameWithType: DbColumnWrapper
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DbColumnWrapper
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nWrapper around a DbColumn, which provides extra functionality, but can be used as a\nregular DbColumn\n"
+  example: []
+  syntax:
+    content: 'public class DbColumnWrapper : DbColumn'
+    content.vb: >-
+      Public Class DbColumnWrapper
+          Inherits DbColumn
+  inheritance:
+  - System.Object
+  - System.Data.Common.DbColumn
+  inheritedMembers:
+  - System.Data.Common.DbColumn.BaseSchemaName
+  - System.Data.Common.DbColumn.Item(System.String)
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor(System.Data.Common.DbColumn)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor(System.Data.Common.DbColumn)
+  id: '#ctor(System.Data.Common.DbColumn)'
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: DbColumnWrapper(DbColumn)
+  nameWithType: DbColumnWrapper.DbColumnWrapper(DbColumn)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DbColumnWrapper(System.Data.Common.DbColumn)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 61
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nConstructor for a DbColumnWrapper\n"
+  remarks: Most of this logic is taken from SSMS ColumnInfo class
+  example: []
+  syntax:
+    content: public DbColumnWrapper(DbColumn column)
+    content.vb: Public Sub New(column As DbColumn)
+    parameters:
+    - id: column
+      type: System.Data.Common.DbColumn
+      description: The column we're wrapping around
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor
+  id: '#ctor'
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: DbColumnWrapper()
+  nameWithType: DbColumnWrapper.DbColumnWrapper()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DbColumnWrapper()
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 157
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nDefault constructor, used for deserializing JSON RPC only\n"
+  example: []
+  syntax:
+    content: public DbColumnWrapper()
+    content.vb: Public Sub New
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsBytes
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsBytes
+  id: IsBytes
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsBytes
+  nameWithType: DbColumnWrapper.IsBytes
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsBytes
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsBytes
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 166
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nWhether or not the column is bytes\n"
+  example: []
+  syntax:
+    content: public bool IsBytes { get; }
+    content.vb: Public ReadOnly Property IsBytes As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsBytes*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsChars
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsChars
+  id: IsChars
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsChars
+  nameWithType: DbColumnWrapper.IsChars
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsChars
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsChars
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 171
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nWhether or not the column is a character type\n"
+  example: []
+  syntax:
+    content: public bool IsChars { get; }
+    content.vb: Public ReadOnly Property IsChars As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsChars*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsLong
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsLong
+  id: IsLong
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsLong
+  nameWithType: DbColumnWrapper.IsLong
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsLong
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsLong
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 176
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nWhether or not the column is a long type (eg, varchar(MAX))\n"
+  example: []
+  syntax:
+    content: public bool IsLong { get; }
+    content.vb: Public ReadOnly Property IsLong As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsLong*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsSqlVariant
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsSqlVariant
+  id: IsSqlVariant
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsSqlVariant
+  nameWithType: DbColumnWrapper.IsSqlVariant
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsSqlVariant
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsSqlVariant
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 181
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nWhether or not the column is a SqlVariant type\n"
+  example: []
+  syntax:
+    content: public bool IsSqlVariant { get; }
+    content.vb: Public ReadOnly Property IsSqlVariant As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsSqlVariant*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUdt
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUdt
+  id: IsUdt
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsUdt
+  nameWithType: DbColumnWrapper.IsUdt
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUdt
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsUdt
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 186
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nWhether or not the column is a user-defined type\n"
+  example: []
+  syntax:
+    content: public bool IsUdt { get; }
+    content.vb: Public ReadOnly Property IsUdt As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUdt*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsXml
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsXml
+  id: IsXml
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsXml
+  nameWithType: DbColumnWrapper.IsXml
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsXml
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsXml
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 191
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nWhether or not the column is XML\n"
+  example: []
+  syntax:
+    content: public bool IsXml { get; set; }
+    content.vb: Public Property IsXml As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsXml*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsJson
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsJson
+  id: IsJson
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsJson
+  nameWithType: DbColumnWrapper.IsJson
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsJson
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsJson
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 196
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nWhether or not the column is JSON\n"
+  example: []
+  syntax:
+    content: public bool IsJson { get; set; }
+    content.vb: Public Property IsJson As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsJson*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnName
+  id: ColumnName
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: ColumnName
+  nameWithType: DbColumnWrapper.ColumnName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ColumnName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 205
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nOverride for column name, if null or empty, we default to a \"no column name\" value\n"
+  example: []
+  syntax:
+    content: public string ColumnName { get; }
+    content.vb: Public ReadOnly Property ColumnName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnName*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.AllowDBNull
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.AllowDBNull
+  id: AllowDBNull
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: AllowDBNull
+  nameWithType: DbColumnWrapper.AllowDBNull
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.AllowDBNull
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: AllowDBNull
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 215
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? AllowDBNull { get; }
+    content.vb: Public ReadOnly Property AllowDBNull As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.AllowDBNull*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseCatalogName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseCatalogName
+  id: BaseCatalogName
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: BaseCatalogName
+  nameWithType: DbColumnWrapper.BaseCatalogName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseCatalogName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: BaseCatalogName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 216
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public string BaseCatalogName { get; }
+    content.vb: Public ReadOnly Property BaseCatalogName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseCatalogName*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseColumnName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseColumnName
+  id: BaseColumnName
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: BaseColumnName
+  nameWithType: DbColumnWrapper.BaseColumnName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseColumnName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: BaseColumnName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 217
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public string BaseColumnName { get; }
+    content.vb: Public ReadOnly Property BaseColumnName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseColumnName*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseServerName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseServerName
+  id: BaseServerName
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: BaseServerName
+  nameWithType: DbColumnWrapper.BaseServerName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseServerName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: BaseServerName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 218
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public string BaseServerName { get; }
+    content.vb: Public ReadOnly Property BaseServerName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseServerName*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseTableName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseTableName
+  id: BaseTableName
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: BaseTableName
+  nameWithType: DbColumnWrapper.BaseTableName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseTableName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: BaseTableName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 219
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public string BaseTableName { get; }
+    content.vb: Public ReadOnly Property BaseTableName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseTableName*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnOrdinal
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnOrdinal
+  id: ColumnOrdinal
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: ColumnOrdinal
+  nameWithType: DbColumnWrapper.ColumnOrdinal
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnOrdinal
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ColumnOrdinal
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 220
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public int ? ColumnOrdinal { get; }
+    content.vb: Public ReadOnly Property ColumnOrdinal As Integer?
+    parameters: []
+    return:
+      type: System.Nullable{System.Int32}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnOrdinal*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnSize
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnSize
+  id: ColumnSize
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: ColumnSize
+  nameWithType: DbColumnWrapper.ColumnSize
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnSize
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ColumnSize
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 221
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public int ? ColumnSize { get; }
+    content.vb: Public ReadOnly Property ColumnSize As Integer?
+    parameters: []
+    return:
+      type: System.Nullable{System.Int32}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnSize*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAliased
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAliased
+  id: IsAliased
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsAliased
+  nameWithType: DbColumnWrapper.IsAliased
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAliased
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsAliased
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 222
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? IsAliased { get; }
+    content.vb: Public ReadOnly Property IsAliased As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAliased*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAutoIncrement
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAutoIncrement
+  id: IsAutoIncrement
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsAutoIncrement
+  nameWithType: DbColumnWrapper.IsAutoIncrement
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAutoIncrement
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsAutoIncrement
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 223
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? IsAutoIncrement { get; }
+    content.vb: Public ReadOnly Property IsAutoIncrement As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAutoIncrement*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsExpression
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsExpression
+  id: IsExpression
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsExpression
+  nameWithType: DbColumnWrapper.IsExpression
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsExpression
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsExpression
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 224
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? IsExpression { get; }
+    content.vb: Public ReadOnly Property IsExpression As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsExpression*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsHidden
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsHidden
+  id: IsHidden
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsHidden
+  nameWithType: DbColumnWrapper.IsHidden
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsHidden
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsHidden
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 225
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? IsHidden { get; }
+    content.vb: Public ReadOnly Property IsHidden As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsHidden*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsIdentity
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsIdentity
+  id: IsIdentity
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsIdentity
+  nameWithType: DbColumnWrapper.IsIdentity
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsIdentity
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsIdentity
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 226
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? IsIdentity { get; }
+    content.vb: Public ReadOnly Property IsIdentity As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsIdentity*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsKey
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsKey
+  id: IsKey
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsKey
+  nameWithType: DbColumnWrapper.IsKey
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsKey
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsKey
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 227
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? IsKey { get; }
+    content.vb: Public ReadOnly Property IsKey As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsKey*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsReadOnly
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsReadOnly
+  id: IsReadOnly
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsReadOnly
+  nameWithType: DbColumnWrapper.IsReadOnly
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsReadOnly
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsReadOnly
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 228
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? IsReadOnly { get; }
+    content.vb: Public ReadOnly Property IsReadOnly As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsReadOnly*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUnique
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUnique
+  id: IsUnique
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: IsUnique
+  nameWithType: DbColumnWrapper.IsUnique
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUnique
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsUnique
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 229
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public bool ? IsUnique { get; }
+    content.vb: Public ReadOnly Property IsUnique As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUnique*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericPrecision
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericPrecision
+  id: NumericPrecision
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: NumericPrecision
+  nameWithType: DbColumnWrapper.NumericPrecision
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericPrecision
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: NumericPrecision
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 230
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public int ? NumericPrecision { get; }
+    content.vb: Public ReadOnly Property NumericPrecision As Integer?
+    parameters: []
+    return:
+      type: System.Nullable{System.Int32}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericPrecision*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericScale
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericScale
+  id: NumericScale
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: NumericScale
+  nameWithType: DbColumnWrapper.NumericScale
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericScale
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: NumericScale
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 231
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public int ? NumericScale { get; }
+    content.vb: Public ReadOnly Property NumericScale As Integer?
+    parameters: []
+    return:
+      type: System.Nullable{System.Int32}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericScale*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.UdtAssemblyQualifiedName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.UdtAssemblyQualifiedName
+  id: UdtAssemblyQualifiedName
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: UdtAssemblyQualifiedName
+  nameWithType: DbColumnWrapper.UdtAssemblyQualifiedName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.UdtAssemblyQualifiedName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: UdtAssemblyQualifiedName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 232
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public string UdtAssemblyQualifiedName { get; }
+    content.vb: Public ReadOnly Property UdtAssemblyQualifiedName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.UdtAssemblyQualifiedName*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataType
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataType
+  id: DataType
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: DataType
+  nameWithType: DbColumnWrapper.DataType
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataType
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DataType
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 233
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public Type DataType { get; }
+    content.vb: Public ReadOnly Property DataType As Type
+    parameters: []
+    return:
+      type: System.Type
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataType*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataTypeName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataTypeName
+  id: DataTypeName
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  langs:
+  - csharp
+  - vb
+  name: DataTypeName
+  nameWithType: DbColumnWrapper.DataTypeName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataTypeName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DataTypeName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/DbColumnWrapper.cs
+    startLine: 234
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public string DataTypeName { get; }
+    content.vb: Public ReadOnly Property DataTypeName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataTypeName*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Data.Common.DbColumn
+  commentId: T:System.Data.Common.DbColumn
+  parent: System.Data.Common
+  isExternal: true
+  name: DbColumn
+  nameWithType: DbColumn
+  fullName: System.Data.Common.DbColumn
+- uid: System.Data.Common.DbColumn.BaseSchemaName
+  commentId: P:System.Data.Common.DbColumn.BaseSchemaName
+  parent: System.Data.Common.DbColumn
+  isExternal: true
+  name: BaseSchemaName
+  nameWithType: DbColumn.BaseSchemaName
+  fullName: System.Data.Common.DbColumn.BaseSchemaName
+- uid: System.Data.Common.DbColumn.Item(System.String)
+  commentId: P:System.Data.Common.DbColumn.Item(System.String)
+  parent: System.Data.Common.DbColumn
+  isExternal: true
+  name: Item[String]
+  nameWithType: DbColumn.Item[String]
+  fullName: System.Data.Common.DbColumn.Item[System.String]
+  nameWithType.vb: DbColumn.Item(String)
+  fullname.vb: System.Data.Common.DbColumn.Item(System.String)
+  name.vb: Item(String)
+  spec.csharp:
+  - uid: System.Data.Common.DbColumn.Item(System.String)
+    name: Item
+    nameWithType: DbColumn.Item
+    fullName: System.Data.Common.DbColumn.Item
+    isExternal: true
+  - name: '['
+    nameWithType: '['
+    fullName: '['
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ']'
+    nameWithType: ']'
+    fullName: ']'
+  spec.vb:
+  - uid: System.Data.Common.DbColumn.Item(System.String)
+    name: Item
+    nameWithType: DbColumn.Item
+    fullName: System.Data.Common.DbColumn.Item
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.Data.Common
+  commentId: N:System.Data.Common
+  isExternal: false
+  name: System.Data.Common
+  nameWithType: System.Data.Common
+  fullName: System.Data.Common
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.#ctor
+  isExternal: false
+  name: DbColumnWrapper
+  nameWithType: DbColumnWrapper.DbColumnWrapper
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DbColumnWrapper
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsBytes*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsBytes
+  isExternal: false
+  name: IsBytes
+  nameWithType: DbColumnWrapper.IsBytes
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsBytes
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsChars*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsChars
+  isExternal: false
+  name: IsChars
+  nameWithType: DbColumnWrapper.IsChars
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsChars
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsLong*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsLong
+  isExternal: false
+  name: IsLong
+  nameWithType: DbColumnWrapper.IsLong
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsLong
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsSqlVariant*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsSqlVariant
+  isExternal: false
+  name: IsSqlVariant
+  nameWithType: DbColumnWrapper.IsSqlVariant
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsSqlVariant
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUdt*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUdt
+  isExternal: false
+  name: IsUdt
+  nameWithType: DbColumnWrapper.IsUdt
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUdt
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsXml*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsXml
+  isExternal: false
+  name: IsXml
+  nameWithType: DbColumnWrapper.IsXml
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsXml
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsJson*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsJson
+  isExternal: false
+  name: IsJson
+  nameWithType: DbColumnWrapper.IsJson
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsJson
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnName
+  isExternal: false
+  name: ColumnName
+  nameWithType: DbColumnWrapper.ColumnName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnName
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.AllowDBNull*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.AllowDBNull
+  isExternal: false
+  name: AllowDBNull
+  nameWithType: DbColumnWrapper.AllowDBNull
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.AllowDBNull
+- uid: System.Nullable{System.Boolean}
+  commentId: T:System.Nullable{System.Boolean}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<Boolean>
+  nameWithType: Nullable<Boolean>
+  fullName: System.Nullable<System.Boolean>
+  nameWithType.vb: Nullable(Of Boolean)
+  fullname.vb: System.Nullable(Of System.Boolean)
+  name.vb: Nullable(Of Boolean)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullname.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseCatalogName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseCatalogName
+  isExternal: false
+  name: BaseCatalogName
+  nameWithType: DbColumnWrapper.BaseCatalogName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseCatalogName
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseColumnName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseColumnName
+  isExternal: false
+  name: BaseColumnName
+  nameWithType: DbColumnWrapper.BaseColumnName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseColumnName
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseServerName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseServerName
+  isExternal: false
+  name: BaseServerName
+  nameWithType: DbColumnWrapper.BaseServerName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseServerName
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseTableName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseTableName
+  isExternal: false
+  name: BaseTableName
+  nameWithType: DbColumnWrapper.BaseTableName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.BaseTableName
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnOrdinal*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnOrdinal
+  isExternal: false
+  name: ColumnOrdinal
+  nameWithType: DbColumnWrapper.ColumnOrdinal
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnOrdinal
+- uid: System.Nullable{System.Int32}
+  commentId: T:System.Nullable{System.Int32}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<Int32>
+  nameWithType: Nullable<Int32>
+  fullName: System.Nullable<System.Int32>
+  nameWithType.vb: Nullable(Of Int32)
+  fullname.vb: System.Nullable(Of System.Int32)
+  name.vb: Nullable(Of Int32)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnSize*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnSize
+  isExternal: false
+  name: ColumnSize
+  nameWithType: DbColumnWrapper.ColumnSize
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.ColumnSize
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAliased*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAliased
+  isExternal: false
+  name: IsAliased
+  nameWithType: DbColumnWrapper.IsAliased
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAliased
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAutoIncrement*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAutoIncrement
+  isExternal: false
+  name: IsAutoIncrement
+  nameWithType: DbColumnWrapper.IsAutoIncrement
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsAutoIncrement
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsExpression*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsExpression
+  isExternal: false
+  name: IsExpression
+  nameWithType: DbColumnWrapper.IsExpression
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsExpression
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsHidden*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsHidden
+  isExternal: false
+  name: IsHidden
+  nameWithType: DbColumnWrapper.IsHidden
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsHidden
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsIdentity*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsIdentity
+  isExternal: false
+  name: IsIdentity
+  nameWithType: DbColumnWrapper.IsIdentity
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsIdentity
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsKey*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsKey
+  isExternal: false
+  name: IsKey
+  nameWithType: DbColumnWrapper.IsKey
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsKey
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsReadOnly*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsReadOnly
+  isExternal: false
+  name: IsReadOnly
+  nameWithType: DbColumnWrapper.IsReadOnly
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUnique*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUnique
+  isExternal: false
+  name: IsUnique
+  nameWithType: DbColumnWrapper.IsUnique
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.IsUnique
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericPrecision*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericPrecision
+  isExternal: false
+  name: NumericPrecision
+  nameWithType: DbColumnWrapper.NumericPrecision
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericPrecision
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericScale*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericScale
+  isExternal: false
+  name: NumericScale
+  nameWithType: DbColumnWrapper.NumericScale
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.NumericScale
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.UdtAssemblyQualifiedName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.UdtAssemblyQualifiedName
+  isExternal: false
+  name: UdtAssemblyQualifiedName
+  nameWithType: DbColumnWrapper.UdtAssemblyQualifiedName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.UdtAssemblyQualifiedName
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataType*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataType
+  isExternal: false
+  name: DataType
+  nameWithType: DbColumnWrapper.DataType
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataType
+- uid: System.Type
+  commentId: T:System.Type
+  parent: System
+  isExternal: true
+  name: Type
+  nameWithType: Type
+  fullName: System.Type
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataTypeName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataTypeName
+  isExternal: false
+  name: DataTypeName
+  nameWithType: DbColumnWrapper.DataTypeName
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.DataTypeName

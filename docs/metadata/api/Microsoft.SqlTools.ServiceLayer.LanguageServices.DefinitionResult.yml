@@ -1,0 +1,494 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  id: DefinitionResult
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  children:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.IsErrorResult
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Locations
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Message
+  langs:
+  - csharp
+  - vb
+  name: DefinitionResult
+  nameWithType: DefinitionResult
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/PeekDefinitionResult.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DefinitionResult
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/PeekDefinitionResult.cs
+    startLine: 10
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\n/// Result object for PeekDefinition\n"
+  example: []
+  syntax:
+    content: public class DefinitionResult
+    content.vb: Public Class DefinitionResult
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.IsErrorResult
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.IsErrorResult
+  id: IsErrorResult
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  langs:
+  - csharp
+  - vb
+  name: IsErrorResult
+  nameWithType: DefinitionResult.IsErrorResult
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.IsErrorResult
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/PeekDefinitionResult.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsErrorResult
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/PeekDefinitionResult.cs
+    startLine: 15
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nTrue, if definition error occured\n"
+  example: []
+  syntax:
+    content: public bool IsErrorResult
+    content.vb: Public IsErrorResult As Boolean
+    return:
+      type: System.Boolean
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Message
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Message
+  id: Message
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  langs:
+  - csharp
+  - vb
+  name: Message
+  nameWithType: DefinitionResult.Message
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Message
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/PeekDefinitionResult.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Message
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/PeekDefinitionResult.cs
+    startLine: 20
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nError message, if any\n"
+  example: []
+  syntax:
+    content: public string Message { get; set; }
+    content.vb: Public Property Message As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Message*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Locations
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Locations
+  id: Locations
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  langs:
+  - csharp
+  - vb
+  name: Locations
+  nameWithType: DefinitionResult.Locations
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Locations
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/PeekDefinitionResult.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Locations
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/PeekDefinitionResult.cs
+    startLine: 25
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nLocation object representing the definition script file\n"
+  example: []
+  syntax:
+    content: public Location[] Locations
+    content.vb: Public Locations As Location()
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location[]
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Message*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Message
+  isExternal: false
+  name: Message
+  nameWithType: DefinitionResult.Message
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult.Message
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location[]
+  name: Location[]
+  nameWithType: Location[]
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location[]
+  nameWithType.vb: Location()
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location()
+  name.vb: Location()
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location
+    name: Location
+    nameWithType: Location
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location
+    name: Location
+    nameWithType: Location
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location
+  - name: ()
+    nameWithType: ()
+    fullName: ()

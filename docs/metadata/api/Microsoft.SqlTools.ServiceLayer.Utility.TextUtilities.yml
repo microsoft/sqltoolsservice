@@ -1,0 +1,571 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities
+  id: TextUtilities
+  parent: Microsoft.SqlTools.ServiceLayer.Utility
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor(System.String,System.Int32,System.Int32,System.Int32@)
+  - Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfNextDelimeter(System.String,System.Int32,System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfPrevDelimeter(System.String,System.Int32,System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.RemoveSquareBracketSyntax(System.String)
+  langs:
+  - csharp
+  - vb
+  name: TextUtilities
+  nameWithType: TextUtilities
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: TextUtilities
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+    startLine: 7
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  syntax:
+    content: public static class TextUtilities
+    content.vb: Public Module TextUtilities
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - static
+  - class
+  modifiers.vb:
+  - Public
+  - Module
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor(System.String,System.Int32,System.Int32,System.Int32@)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor(System.String,System.Int32,System.Int32,System.Int32@)
+  id: PositionOfCursor(System.String,System.Int32,System.Int32,System.Int32@)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities
+  langs:
+  - csharp
+  - vb
+  name: PositionOfCursor(String, Int32, Int32, out Int32)
+  nameWithType: TextUtilities.PositionOfCursor(String, Int32, Int32, out Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor(System.String, System.Int32, System.Int32, out System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: PositionOfCursor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nFind the position of the cursor in the SQL script content buffer and return previous new line position\n"
+  example: []
+  syntax:
+    content: public static int PositionOfCursor(string sql, int startRow, int startColumn, out int prevNewLine)
+    content.vb: Public Shared Function PositionOfCursor(sql As String, startRow As Integer, startColumn As Integer, ByRef prevNewLine As Integer) As Integer
+    parameters:
+    - id: sql
+      type: System.String
+      description: ''
+    - id: startRow
+      type: System.Int32
+      description: ''
+    - id: startColumn
+      type: System.Int32
+      description: ''
+    - id: prevNewLine
+      type: System.Int32
+      description: ''
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor*
+  nameWithType.vb: TextUtilities.PositionOfCursor(String, Int32, Int32, ByRef Int32)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor(System.String, System.Int32, System.Int32, ByRef System.Int32)
+  name.vb: PositionOfCursor(String, Int32, Int32, ByRef Int32)
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfPrevDelimeter(System.String,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfPrevDelimeter(System.String,System.Int32,System.Int32)
+  id: PositionOfPrevDelimeter(System.String,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities
+  langs:
+  - csharp
+  - vb
+  name: PositionOfPrevDelimeter(String, Int32, Int32)
+  nameWithType: TextUtilities.PositionOfPrevDelimeter(String, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfPrevDelimeter(System.String, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: PositionOfPrevDelimeter
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+    startLine: 44
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nFind the position of the previous delimeter for autocomplete token replacement.\nSQL Parser may have similar functionality in which case we'll delete this method.\n"
+  example: []
+  syntax:
+    content: public static int PositionOfPrevDelimeter(string sql, int startRow, int startColumn)
+    content.vb: Public Shared Function PositionOfPrevDelimeter(sql As String, startRow As Integer, startColumn As Integer) As Integer
+    parameters:
+    - id: sql
+      type: System.String
+      description: ''
+    - id: startRow
+      type: System.Int32
+      description: ''
+    - id: startColumn
+      type: System.Int32
+      description: ''
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfPrevDelimeter*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfNextDelimeter(System.String,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfNextDelimeter(System.String,System.Int32,System.Int32)
+  id: PositionOfNextDelimeter(System.String,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities
+  langs:
+  - csharp
+  - vb
+  name: PositionOfNextDelimeter(String, Int32, Int32)
+  nameWithType: TextUtilities.PositionOfNextDelimeter(String, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfNextDelimeter(System.String, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: PositionOfNextDelimeter
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+    startLine: 71
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nFind the position of the next delimeter for autocomplete token replacement.\n"
+  example: []
+  syntax:
+    content: public static int PositionOfNextDelimeter(string sql, int startRow, int startColumn)
+    content.vb: Public Shared Function PositionOfNextDelimeter(sql As String, startRow As Integer, startColumn As Integer) As Integer
+    parameters:
+    - id: sql
+      type: System.String
+      description: ''
+    - id: startRow
+      type: System.Int32
+      description: ''
+    - id: startColumn
+      type: System.Int32
+      description: ''
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfNextDelimeter*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.RemoveSquareBracketSyntax(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.RemoveSquareBracketSyntax(System.String)
+  id: RemoveSquareBracketSyntax(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities
+  langs:
+  - csharp
+  - vb
+  name: RemoveSquareBracketSyntax(String)
+  nameWithType: TextUtilities.RemoveSquareBracketSyntax(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.RemoveSquareBracketSyntax(System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: RemoveSquareBracketSyntax
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/TextUtilities.cs
+    startLine: 117
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nRemove square bracket syntax from a token string\n"
+  example: []
+  syntax:
+    content: public static string RemoveSquareBracketSyntax(string tokenText)
+    content.vb: Public Shared Function RemoveSquareBracketSyntax(tokenText As String) As String
+    parameters:
+    - id: tokenText
+      type: System.String
+      description: ''
+    return:
+      type: System.String
+      description: string with outer brackets removed
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.RemoveSquareBracketSyntax*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Utility
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Utility
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Utility
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor
+  isExternal: false
+  name: PositionOfCursor
+  nameWithType: TextUtilities.PositionOfCursor
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfCursor
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfPrevDelimeter*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfPrevDelimeter
+  isExternal: false
+  name: PositionOfPrevDelimeter
+  nameWithType: TextUtilities.PositionOfPrevDelimeter
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfPrevDelimeter
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfNextDelimeter*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfNextDelimeter
+  isExternal: false
+  name: PositionOfNextDelimeter
+  nameWithType: TextUtilities.PositionOfNextDelimeter
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.PositionOfNextDelimeter
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.RemoveSquareBracketSyntax*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.RemoveSquareBracketSyntax
+  isExternal: false
+  name: RemoveSquareBracketSyntax
+  nameWithType: TextUtilities.RemoveSquareBracketSyntax
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.TextUtilities.RemoveSquareBracketSyntax

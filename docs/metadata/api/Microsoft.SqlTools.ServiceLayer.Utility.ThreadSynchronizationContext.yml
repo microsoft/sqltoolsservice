@@ -1,0 +1,756 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext
+  id: ThreadSynchronizationContext
+  parent: Microsoft.SqlTools.ServiceLayer.Utility
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.EndLoop
+  - Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.Post(System.Threading.SendOrPostCallback,System.Object)
+  - Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.RunLoopOnCurrentThread
+  langs:
+  - csharp
+  - vb
+  name: ThreadSynchronizationContext
+  nameWithType: ThreadSynchronizationContext
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/ThreadSynchronizationContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ThreadSynchronizationContext
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/ThreadSynchronizationContext.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nProvides a SynchronizationContext implementation that can be used\nin console applications or any thread which doesn't have its\nown SynchronizationContext.\n"
+  example: []
+  syntax:
+    content: 'public class ThreadSynchronizationContext : SynchronizationContext'
+    content.vb: >-
+      Public Class ThreadSynchronizationContext
+          Inherits SynchronizationContext
+  inheritance:
+  - System.Object
+  - System.Threading.SynchronizationContext
+  inheritedMembers:
+  - System.Threading.SynchronizationContext.CreateCopy
+  - System.Threading.SynchronizationContext.OperationCompleted
+  - System.Threading.SynchronizationContext.OperationStarted
+  - System.Threading.SynchronizationContext.Send(System.Threading.SendOrPostCallback,System.Object)
+  - System.Threading.SynchronizationContext.SetSynchronizationContext(System.Threading.SynchronizationContext)
+  - System.Threading.SynchronizationContext.Current
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.Post(System.Threading.SendOrPostCallback,System.Object)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.Post(System.Threading.SendOrPostCallback,System.Object)
+  id: Post(System.Threading.SendOrPostCallback,System.Object)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext
+  langs:
+  - csharp
+  - vb
+  name: Post(SendOrPostCallback, Object)
+  nameWithType: ThreadSynchronizationContext.Post(SendOrPostCallback, Object)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.Post(System.Threading.SendOrPostCallback, System.Object)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/ThreadSynchronizationContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Post
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/ThreadSynchronizationContext.cs
+    startLine: 38
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nPosts a request for execution to the SynchronizationContext.\nThis will be executed on the SynchronizationContext's thread.\n"
+  example: []
+  syntax:
+    content: public override void Post(SendOrPostCallback callback, object state)
+    content.vb: Public Overrides Sub Post(callback As SendOrPostCallback, state As Object)
+    parameters:
+    - id: callback
+      type: System.Threading.SendOrPostCallback
+      description: "\nThe callback to be invoked on the SynchronizationContext's thread.\n"
+    - id: state
+      type: System.Object
+      description: "\nA state object to pass along to the callback when executed through\nthe SynchronizationContext.\n"
+  overridden: System.Threading.SynchronizationContext.Post(System.Threading.SendOrPostCallback,System.Object)
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.Post*
+  modifiers.csharp:
+  - public
+  - override
+  modifiers.vb:
+  - Public
+  - Overrides
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.RunLoopOnCurrentThread
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.RunLoopOnCurrentThread
+  id: RunLoopOnCurrentThread
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext
+  langs:
+  - csharp
+  - vb
+  name: RunLoopOnCurrentThread()
+  nameWithType: ThreadSynchronizationContext.RunLoopOnCurrentThread()
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.RunLoopOnCurrentThread()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/ThreadSynchronizationContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: RunLoopOnCurrentThread
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/ThreadSynchronizationContext.cs
+    startLine: 53
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nStarts the SynchronizationContext message loop on the current thread.\n"
+  example: []
+  syntax:
+    content: public void RunLoopOnCurrentThread()
+    content.vb: Public Sub RunLoopOnCurrentThread
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.RunLoopOnCurrentThread*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.EndLoop
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.EndLoop
+  id: EndLoop
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext
+  langs:
+  - csharp
+  - vb
+  name: EndLoop()
+  nameWithType: ThreadSynchronizationContext.EndLoop()
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.EndLoop()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/ThreadSynchronizationContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: EndLoop
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/ThreadSynchronizationContext.cs
+    startLine: 67
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nEnds the SynchronizationContext message loop.\n"
+  example: []
+  syntax:
+    content: public void EndLoop()
+    content.vb: Public Sub
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.EndLoop*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Utility
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Utility
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Utility
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Threading.SynchronizationContext
+  commentId: T:System.Threading.SynchronizationContext
+  parent: System.Threading
+  isExternal: true
+  name: SynchronizationContext
+  nameWithType: SynchronizationContext
+  fullName: System.Threading.SynchronizationContext
+- uid: System.Threading.SynchronizationContext.CreateCopy
+  commentId: M:System.Threading.SynchronizationContext.CreateCopy
+  parent: System.Threading.SynchronizationContext
+  isExternal: true
+  name: CreateCopy()
+  nameWithType: SynchronizationContext.CreateCopy()
+  fullName: System.Threading.SynchronizationContext.CreateCopy()
+  spec.csharp:
+  - uid: System.Threading.SynchronizationContext.CreateCopy
+    name: CreateCopy
+    nameWithType: SynchronizationContext.CreateCopy
+    fullName: System.Threading.SynchronizationContext.CreateCopy
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Threading.SynchronizationContext.CreateCopy
+    name: CreateCopy
+    nameWithType: SynchronizationContext.CreateCopy
+    fullName: System.Threading.SynchronizationContext.CreateCopy
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.SynchronizationContext.OperationCompleted
+  commentId: M:System.Threading.SynchronizationContext.OperationCompleted
+  parent: System.Threading.SynchronizationContext
+  isExternal: true
+  name: OperationCompleted()
+  nameWithType: SynchronizationContext.OperationCompleted()
+  fullName: System.Threading.SynchronizationContext.OperationCompleted()
+  spec.csharp:
+  - uid: System.Threading.SynchronizationContext.OperationCompleted
+    name: OperationCompleted
+    nameWithType: SynchronizationContext.OperationCompleted
+    fullName: System.Threading.SynchronizationContext.OperationCompleted
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Threading.SynchronizationContext.OperationCompleted
+    name: OperationCompleted
+    nameWithType: SynchronizationContext.OperationCompleted
+    fullName: System.Threading.SynchronizationContext.OperationCompleted
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.SynchronizationContext.OperationStarted
+  commentId: M:System.Threading.SynchronizationContext.OperationStarted
+  parent: System.Threading.SynchronizationContext
+  isExternal: true
+  name: OperationStarted()
+  nameWithType: SynchronizationContext.OperationStarted()
+  fullName: System.Threading.SynchronizationContext.OperationStarted()
+  spec.csharp:
+  - uid: System.Threading.SynchronizationContext.OperationStarted
+    name: OperationStarted
+    nameWithType: SynchronizationContext.OperationStarted
+    fullName: System.Threading.SynchronizationContext.OperationStarted
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Threading.SynchronizationContext.OperationStarted
+    name: OperationStarted
+    nameWithType: SynchronizationContext.OperationStarted
+    fullName: System.Threading.SynchronizationContext.OperationStarted
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.SynchronizationContext.Send(System.Threading.SendOrPostCallback,System.Object)
+  commentId: M:System.Threading.SynchronizationContext.Send(System.Threading.SendOrPostCallback,System.Object)
+  parent: System.Threading.SynchronizationContext
+  isExternal: true
+  name: Send(SendOrPostCallback, Object)
+  nameWithType: SynchronizationContext.Send(SendOrPostCallback, Object)
+  fullName: System.Threading.SynchronizationContext.Send(System.Threading.SendOrPostCallback, System.Object)
+  spec.csharp:
+  - uid: System.Threading.SynchronizationContext.Send(System.Threading.SendOrPostCallback,System.Object)
+    name: Send
+    nameWithType: SynchronizationContext.Send
+    fullName: System.Threading.SynchronizationContext.Send
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Threading.SendOrPostCallback
+    name: SendOrPostCallback
+    nameWithType: SendOrPostCallback
+    fullName: System.Threading.SendOrPostCallback
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Threading.SynchronizationContext.Send(System.Threading.SendOrPostCallback,System.Object)
+    name: Send
+    nameWithType: SynchronizationContext.Send
+    fullName: System.Threading.SynchronizationContext.Send
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Threading.SendOrPostCallback
+    name: SendOrPostCallback
+    nameWithType: SendOrPostCallback
+    fullName: System.Threading.SendOrPostCallback
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.SynchronizationContext.SetSynchronizationContext(System.Threading.SynchronizationContext)
+  commentId: M:System.Threading.SynchronizationContext.SetSynchronizationContext(System.Threading.SynchronizationContext)
+  parent: System.Threading.SynchronizationContext
+  isExternal: true
+  name: SetSynchronizationContext(SynchronizationContext)
+  nameWithType: SynchronizationContext.SetSynchronizationContext(SynchronizationContext)
+  fullName: System.Threading.SynchronizationContext.SetSynchronizationContext(System.Threading.SynchronizationContext)
+  spec.csharp:
+  - uid: System.Threading.SynchronizationContext.SetSynchronizationContext(System.Threading.SynchronizationContext)
+    name: SetSynchronizationContext
+    nameWithType: SynchronizationContext.SetSynchronizationContext
+    fullName: System.Threading.SynchronizationContext.SetSynchronizationContext
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Threading.SynchronizationContext
+    name: SynchronizationContext
+    nameWithType: SynchronizationContext
+    fullName: System.Threading.SynchronizationContext
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Threading.SynchronizationContext.SetSynchronizationContext(System.Threading.SynchronizationContext)
+    name: SetSynchronizationContext
+    nameWithType: SynchronizationContext.SetSynchronizationContext
+    fullName: System.Threading.SynchronizationContext.SetSynchronizationContext
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Threading.SynchronizationContext
+    name: SynchronizationContext
+    nameWithType: SynchronizationContext
+    fullName: System.Threading.SynchronizationContext
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.SynchronizationContext.Current
+  commentId: P:System.Threading.SynchronizationContext.Current
+  parent: System.Threading.SynchronizationContext
+  isExternal: true
+  name: Current
+  nameWithType: SynchronizationContext.Current
+  fullName: System.Threading.SynchronizationContext.Current
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.Threading
+  commentId: N:System.Threading
+  isExternal: false
+  name: System.Threading
+  nameWithType: System.Threading
+  fullName: System.Threading
+- uid: System.Threading.SynchronizationContext.Post(System.Threading.SendOrPostCallback,System.Object)
+  commentId: M:System.Threading.SynchronizationContext.Post(System.Threading.SendOrPostCallback,System.Object)
+  parent: System.Threading.SynchronizationContext
+  isExternal: true
+  name: Post(SendOrPostCallback, Object)
+  nameWithType: SynchronizationContext.Post(SendOrPostCallback, Object)
+  fullName: System.Threading.SynchronizationContext.Post(System.Threading.SendOrPostCallback, System.Object)
+  spec.csharp:
+  - uid: System.Threading.SynchronizationContext.Post(System.Threading.SendOrPostCallback,System.Object)
+    name: Post
+    nameWithType: SynchronizationContext.Post
+    fullName: System.Threading.SynchronizationContext.Post
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Threading.SendOrPostCallback
+    name: SendOrPostCallback
+    nameWithType: SendOrPostCallback
+    fullName: System.Threading.SendOrPostCallback
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Threading.SynchronizationContext.Post(System.Threading.SendOrPostCallback,System.Object)
+    name: Post
+    nameWithType: SynchronizationContext.Post
+    fullName: System.Threading.SynchronizationContext.Post
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Threading.SendOrPostCallback
+    name: SendOrPostCallback
+    nameWithType: SendOrPostCallback
+    fullName: System.Threading.SendOrPostCallback
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.Post*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.Post
+  isExternal: false
+  name: Post
+  nameWithType: ThreadSynchronizationContext.Post
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.Post
+- uid: System.Threading.SendOrPostCallback
+  commentId: T:System.Threading.SendOrPostCallback
+  parent: System.Threading
+  isExternal: true
+  name: SendOrPostCallback
+  nameWithType: SendOrPostCallback
+  fullName: System.Threading.SendOrPostCallback
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.RunLoopOnCurrentThread*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.RunLoopOnCurrentThread
+  isExternal: false
+  name: RunLoopOnCurrentThread
+  nameWithType: ThreadSynchronizationContext.RunLoopOnCurrentThread
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.RunLoopOnCurrentThread
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.EndLoop*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.EndLoop
+  isExternal: false
+  name: EndLoop
+  nameWithType: ThreadSynchronizationContext.EndLoop
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.ThreadSynchronizationContext.EndLoop

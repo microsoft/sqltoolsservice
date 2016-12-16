@@ -1,0 +1,228 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  id: IFileStreamFactory
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  langs:
+  - csharp
+  - vb
+  name: IFileStreamFactory
+  nameWithType: IFileStreamFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  type: Interface
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IFileStreamFactory
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+    startLine: 10
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  summary: "\nInterface for a factory that creates filesystem readers/writers\n"
+  example: []
+  syntax:
+    content: public interface IFileStreamFactory
+    content.vb: Public Interface IFileStreamFactory
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  id: CreateFile
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  langs:
+  - csharp
+  - vb
+  name: CreateFile()
+  nameWithType: IFileStreamFactory.CreateFile()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CreateFile
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+    startLine: 12
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: string CreateFile()
+    content.vb: Function CreateFile As String
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+  id: GetReader(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  langs:
+  - csharp
+  - vb
+  name: GetReader(String)
+  nameWithType: IFileStreamFactory.GetReader(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: GetReader
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+    startLine: 14
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: IFileStreamReader GetReader(string fileName)
+    content.vb: Function GetReader(fileName As String) As IFileStreamReader
+    parameters:
+    - id: fileName
+      type: System.String
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  id: GetWriter(System.String,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  langs:
+  - csharp
+  - vb
+  name: GetWriter(String, Int32, Int32)
+  nameWithType: IFileStreamFactory.GetWriter(String, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: GetWriter
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: IFileStreamWriter GetWriter(string fileName, int maxCharsToStore, int maxXmlCharsToStore)
+    content.vb: Function GetWriter(fileName As String, maxCharsToStore As Integer, maxXmlCharsToStore As Integer) As IFileStreamWriter
+    parameters:
+    - id: fileName
+      type: System.String
+    - id: maxCharsToStore
+      type: System.Int32
+    - id: maxXmlCharsToStore
+      type: System.Int32
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+  id: DisposeFile(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  langs:
+  - csharp
+  - vb
+  name: DisposeFile(String)
+  nameWithType: IFileStreamFactory.DisposeFile(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DisposeFile
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamFactory.cs
+    startLine: 18
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: void DisposeFile(string fileName)
+    content.vb: Sub DisposeFile(fileName As String)
+    parameters:
+    - id: fileName
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile*
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  isExternal: false
+  name: CreateFile
+  nameWithType: IFileStreamFactory.CreateFile
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader
+  isExternal: false
+  name: GetReader
+  nameWithType: IFileStreamFactory.GetReader
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: IFileStreamReader
+  nameWithType: IFileStreamReader
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter
+  isExternal: false
+  name: GetWriter
+  nameWithType: IFileStreamFactory.GetWriter
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: IFileStreamWriter
+  nameWithType: IFileStreamWriter
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile
+  isExternal: false
+  name: DisposeFile
+  nameWithType: IFileStreamFactory.DisposeFile
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile

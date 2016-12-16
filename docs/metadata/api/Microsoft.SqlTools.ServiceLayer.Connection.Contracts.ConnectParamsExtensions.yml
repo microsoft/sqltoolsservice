@@ -1,0 +1,422 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions
+  id: ConnectParamsExtensions
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams,System.String@)
+  langs:
+  - csharp
+  - vb
+  name: ConnectParamsExtensions
+  nameWithType: ConnectParamsExtensions
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectParamsExtensions.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectParamsExtensions
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectParamsExtensions.cs
+    startLine: 10
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nExtension methods to ConnectParams\n"
+  example: []
+  syntax:
+    content: public static class ConnectParamsExtensions
+    content.vb: Public Module ConnectParamsExtensions
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - static
+  - class
+  modifiers.vb:
+  - Public
+  - Module
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams,System.String@)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams,System.String@)
+  id: IsValid(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams,System.String@)
+  isExtensionMethod: true
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions
+  langs:
+  - csharp
+  - vb
+  name: IsValid(ConnectParams, out String)
+  nameWithType: ConnectParamsExtensions.IsValid(ConnectParams, out String)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams, out System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectParamsExtensions.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsValid
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectParamsExtensions.cs
+    startLine: 15
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nCheck that the fields in ConnectParams are all valid\n"
+  example: []
+  syntax:
+    content: public static bool IsValid(this ConnectParams parameters, out string errorMessage)
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function IsValid(parameters As ConnectParams, ByRef errorMessage As String) As Boolean
+    parameters:
+    - id: parameters
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+    - id: errorMessage
+      type: System.String
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid*
+  nameWithType.vb: ConnectParamsExtensions.IsValid(ConnectParams, ByRef String)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams, ByRef System.String)
+  name.vb: IsValid(ConnectParams, ByRef String)
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid
+  isExternal: false
+  name: IsValid
+  nameWithType: ConnectParamsExtensions.IsValid
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParamsExtensions.IsValid
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ConnectParams
+  nameWithType: ConnectParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean

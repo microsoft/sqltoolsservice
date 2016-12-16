@@ -1,0 +1,642 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  id: CompletionItemKind
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Class
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Color
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Constructor
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Enum
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Field
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.File
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Function
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Interface
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Keyword
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Method
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Module
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Property
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Reference
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Snippet
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Text
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Unit
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Value
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Variable
+  langs:
+  - csharp
+  - vb
+  name: CompletionItemKind
+  nameWithType: CompletionItemKind
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  type: Enum
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CompletionItemKind
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 25
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: public enum CompletionItemKind
+    content.vb: Public Enum CompletionItemKind
+  modifiers.csharp:
+  - public
+  - enum
+  modifiers.vb:
+  - Public
+  - Enum
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Text
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Text
+  id: Text
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Text
+  nameWithType: CompletionItemKind.Text
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Text
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Text
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 27
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Text = 1
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Method
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Method
+  id: Method
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Method
+  nameWithType: CompletionItemKind.Method
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Method
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Method
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 28
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Method = 2
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Function
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Function
+  id: Function
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Function
+  nameWithType: CompletionItemKind.Function
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Function
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Function
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 29
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Function = 3
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Constructor
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Constructor
+  id: Constructor
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Constructor
+  nameWithType: CompletionItemKind.Constructor
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Constructor
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Constructor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 30
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Constructor = 4
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Field
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Field
+  id: Field
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Field
+  nameWithType: CompletionItemKind.Field
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Field
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Field
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 31
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Field = 5
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Variable
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Variable
+  id: Variable
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Variable
+  nameWithType: CompletionItemKind.Variable
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Variable
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Variable
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 32
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Variable = 6
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Class
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Class
+  id: Class
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Class
+  nameWithType: CompletionItemKind.Class
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Class
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Class
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 33
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Class = 7
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Interface
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Interface
+  id: Interface
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Interface
+  nameWithType: CompletionItemKind.Interface
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Interface
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Interface
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 34
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Interface = 8
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Module
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Module
+  id: Module
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Module
+  nameWithType: CompletionItemKind.Module
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Module
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Module
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 35
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Module = 9
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Property
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Property
+  id: Property
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Property
+  nameWithType: CompletionItemKind.Property
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Property
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Property
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 36
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Property = 10
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Unit
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Unit
+  id: Unit
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Unit
+  nameWithType: CompletionItemKind.Unit
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Unit
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Unit
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 37
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Unit = 11
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Value
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Value
+  id: Value
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Value
+  nameWithType: CompletionItemKind.Value
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Value
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Value
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 38
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Value = 12
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Enum
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Enum
+  id: Enum
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Enum
+  nameWithType: CompletionItemKind.Enum
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Enum
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Enum
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 39
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Enum = 13
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Keyword
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Keyword
+  id: Keyword
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Keyword
+  nameWithType: CompletionItemKind.Keyword
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Keyword
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Keyword
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 40
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Keyword = 14
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Snippet
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Snippet
+  id: Snippet
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Snippet
+  nameWithType: CompletionItemKind.Snippet
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Snippet
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Snippet
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 41
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Snippet = 15
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Color
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Color
+  id: Color
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Color
+  nameWithType: CompletionItemKind.Color
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Color
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Color
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 42
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Color = 16
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.File
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.File
+  id: File
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: File
+  nameWithType: CompletionItemKind.File
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.File
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: File
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 43
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: File = 17
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Reference
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Reference
+  id: Reference
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  langs:
+  - csharp
+  - vb
+  name: Reference
+  nameWithType: CompletionItemKind.Reference
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind.Reference
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Reference
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/Completion.cs
+    startLine: 44
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Reference = 18
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  isExternal: false
+  name: CompletionItemKind
+  nameWithType: CompletionItemKind
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind

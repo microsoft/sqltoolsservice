@@ -1,0 +1,44 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  id: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.JsonRpcMessageSerializer
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.V8MessageSerializer
+  langs:
+  - csharp
+  - vb
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  type: Namespace
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  isExternal: false
+  name: IMessageSerializer
+  nameWithType: IMessageSerializer
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.JsonRpcMessageSerializer
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.JsonRpcMessageSerializer
+  isExternal: false
+  name: JsonRpcMessageSerializer
+  nameWithType: JsonRpcMessageSerializer
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.JsonRpcMessageSerializer
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.V8MessageSerializer
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.V8MessageSerializer
+  isExternal: false
+  name: V8MessageSerializer
+  nameWithType: V8MessageSerializer
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.V8MessageSerializer
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers

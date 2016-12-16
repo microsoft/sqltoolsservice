@@ -1,0 +1,126 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices
+  id: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  children:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.AutoCompleteHelper
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.DiagnosticsHelper
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.DocumentStatusHelper
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.QueueItem
+  langs:
+  - csharp
+  - vb
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  type: Namespace
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.AutoCompleteHelper
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.AutoCompleteHelper
+  isExternal: false
+  name: AutoCompleteHelper
+  nameWithType: AutoCompleteHelper
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.AutoCompleteHelper
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+  isExternal: false
+  name: BindingQueue<T>
+  nameWithType: BindingQueue<T>
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>
+  nameWithType.vb: BindingQueue(Of T)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T)
+  name.vb: BindingQueue(Of T)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+    name: BindingQueue
+    nameWithType: BindingQueue
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+    name: BindingQueue
+    nameWithType: BindingQueue
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext
+  isExternal: false
+  name: ConnectedBindingContext
+  nameWithType: ConnectedBindingContext
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue
+  isExternal: false
+  name: ConnectedBindingQueue
+  nameWithType: ConnectedBindingQueue
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.DiagnosticsHelper
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.DiagnosticsHelper
+  isExternal: false
+  name: DiagnosticsHelper
+  nameWithType: DiagnosticsHelper
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.DiagnosticsHelper
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.DocumentStatusHelper
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.DocumentStatusHelper
+  isExternal: false
+  name: DocumentStatusHelper
+  nameWithType: DocumentStatusHelper
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.DocumentStatusHelper
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  isExternal: false
+  name: IBindingContext
+  nameWithType: IBindingContext
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  isExternal: false
+  name: LanguageService
+  nameWithType: LanguageService
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+  isExternal: false
+  name: DefinitionResult
+  nameWithType: DefinitionResult
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.DefinitionResult
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.QueueItem
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.QueueItem
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  isExternal: false
+  name: QueueItem
+  nameWithType: QueueItem
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.QueueItem
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices

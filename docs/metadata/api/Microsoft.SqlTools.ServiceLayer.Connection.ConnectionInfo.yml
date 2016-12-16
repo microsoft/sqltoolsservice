@@ -1,0 +1,838 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  id: ConnectionInfo
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.#ctor(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory,System.String,Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionDetails
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionId
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.Factory
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IntellisenseMetrics
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IsAzure
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.OwnerUri
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.SqlConnection
+  langs:
+  - csharp
+  - vb
+  name: ConnectionInfo
+  nameWithType: ConnectionInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionInfo
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 14
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nInformation pertaining to a unique connection instance.\n"
+  example: []
+  syntax:
+    content: public class ConnectionInfo
+    content.vb: Public Class ConnectionInfo
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.#ctor(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory,System.String,Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.#ctor(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory,System.String,Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  id: '#ctor(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory,System.String,Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)'
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  langs:
+  - csharp
+  - vb
+  name: ConnectionInfo(ISqlConnectionFactory, String, ConnectionDetails)
+  nameWithType: ConnectionInfo.ConnectionInfo(ISqlConnectionFactory, String, ConnectionDetails)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionInfo(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory, System.String, Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 19
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nConstructor\n"
+  example: []
+  syntax:
+    content: public ConnectionInfo(ISqlConnectionFactory factory, string ownerUri, ConnectionDetails details)
+    content.vb: Public Sub New(factory As ISqlConnectionFactory, ownerUri As String, details As ConnectionDetails)
+    parameters:
+    - id: factory
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+    - id: ownerUri
+      type: System.String
+    - id: details
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionId
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionId
+  id: ConnectionId
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  langs:
+  - csharp
+  - vb
+  name: ConnectionId
+  nameWithType: ConnectionInfo.ConnectionId
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionId
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionId
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 31
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nUnique Id, helpful to identify a connection info object\n"
+  example: []
+  syntax:
+    content: public Guid ConnectionId { get; }
+    content.vb: Public ReadOnly Property ConnectionId As Guid
+    parameters: []
+    return:
+      type: System.Guid
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionId*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.OwnerUri
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.OwnerUri
+  id: OwnerUri
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  langs:
+  - csharp
+  - vb
+  name: OwnerUri
+  nameWithType: ConnectionInfo.OwnerUri
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.OwnerUri
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: OwnerUri
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 36
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nURI identifying the owner/user of the connection. Could be a file, service, resource, etc.\n"
+  example: []
+  syntax:
+    content: public string OwnerUri { get; }
+    content.vb: Public ReadOnly Property OwnerUri As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.OwnerUri*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.Factory
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.Factory
+  id: Factory
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  langs:
+  - csharp
+  - vb
+  name: Factory
+  nameWithType: ConnectionInfo.Factory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.Factory
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Factory
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 41
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nFactory used for creating the SQL connection associated with the connection info.\n"
+  example: []
+  syntax:
+    content: public ISqlConnectionFactory Factory { get; }
+    content.vb: Public ReadOnly Property Factory As ISqlConnectionFactory
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.Factory*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionDetails
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionDetails
+  id: ConnectionDetails
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  langs:
+  - csharp
+  - vb
+  name: ConnectionDetails
+  nameWithType: ConnectionInfo.ConnectionDetails
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionDetails
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionDetails
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 46
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nProperties used for creating/opening the SQL connection.\n"
+  example: []
+  syntax:
+    content: public ConnectionDetails ConnectionDetails { get; }
+    content.vb: Public ReadOnly Property ConnectionDetails As ConnectionDetails
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionDetails*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.SqlConnection
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.SqlConnection
+  id: SqlConnection
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  langs:
+  - csharp
+  - vb
+  name: SqlConnection
+  nameWithType: ConnectionInfo.SqlConnection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.SqlConnection
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SqlConnection
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 51
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nThe connection to the SQL database that commands will be run against.\n"
+  example: []
+  syntax:
+    content: public DbConnection SqlConnection { get; set; }
+    content.vb: Public Property SqlConnection As DbConnection
+    parameters: []
+    return:
+      type: System.Data.Common.DbConnection
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.SqlConnection*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IntellisenseMetrics
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IntellisenseMetrics
+  id: IntellisenseMetrics
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  langs:
+  - csharp
+  - vb
+  name: IntellisenseMetrics
+  nameWithType: ConnectionInfo.IntellisenseMetrics
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IntellisenseMetrics
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IntellisenseMetrics
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 56
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nIntellisense Metrics\n"
+  example: []
+  syntax:
+    content: public InteractionMetrics<double> IntellisenseMetrics { get; }
+    content.vb: Public ReadOnly Property IntellisenseMetrics As InteractionMetrics(Of Double)
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.InteractionMetrics{System.Double}
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IntellisenseMetrics*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IsAzure
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IsAzure
+  id: IsAzure
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  langs:
+  - csharp
+  - vb
+  name: IsAzure
+  nameWithType: ConnectionInfo.IsAzure
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IsAzure
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsAzure
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionInfo.cs
+    startLine: 61
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nReturns true is the db connection is to a SQL db\n"
+  example: []
+  syntax:
+    content: public bool IsAzure { get; set; }
+    content.vb: Public Property IsAzure As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IsAzure*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.#ctor
+  isExternal: false
+  name: ConnectionInfo
+  nameWithType: ConnectionInfo.ConnectionInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionInfo
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ISqlConnectionFactory
+  nameWithType: ISqlConnectionFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ConnectionDetails
+  nameWithType: ConnectionDetails
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionId*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionId
+  isExternal: false
+  name: ConnectionId
+  nameWithType: ConnectionInfo.ConnectionId
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionId
+- uid: System.Guid
+  commentId: T:System.Guid
+  parent: System
+  isExternal: true
+  name: Guid
+  nameWithType: Guid
+  fullName: System.Guid
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.OwnerUri*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.OwnerUri
+  isExternal: false
+  name: OwnerUri
+  nameWithType: ConnectionInfo.OwnerUri
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.OwnerUri
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.Factory*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.Factory
+  isExternal: false
+  name: Factory
+  nameWithType: ConnectionInfo.Factory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.Factory
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionDetails*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionDetails
+  isExternal: false
+  name: ConnectionDetails
+  nameWithType: ConnectionInfo.ConnectionDetails
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.ConnectionDetails
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.SqlConnection*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.SqlConnection
+  isExternal: false
+  name: SqlConnection
+  nameWithType: ConnectionInfo.SqlConnection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.SqlConnection
+- uid: System.Data.Common.DbConnection
+  commentId: T:System.Data.Common.DbConnection
+  parent: System.Data.Common
+  isExternal: true
+  name: DbConnection
+  nameWithType: DbConnection
+  fullName: System.Data.Common.DbConnection
+- uid: System.Data.Common
+  commentId: N:System.Data.Common
+  isExternal: false
+  name: System.Data.Common
+  nameWithType: System.Data.Common
+  fullName: System.Data.Common
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IntellisenseMetrics*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IntellisenseMetrics
+  isExternal: false
+  name: IntellisenseMetrics
+  nameWithType: ConnectionInfo.IntellisenseMetrics
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IntellisenseMetrics
+- uid: Microsoft.SqlTools.ServiceLayer.InteractionMetrics{System.Double}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.InteractionMetrics{System.Double}
+  parent: Microsoft.SqlTools.ServiceLayer
+  definition: Microsoft.SqlTools.ServiceLayer.InteractionMetrics`1
+  name: InteractionMetrics<Double>
+  nameWithType: InteractionMetrics<Double>
+  fullName: Microsoft.SqlTools.ServiceLayer.InteractionMetrics<System.Double>
+  nameWithType.vb: InteractionMetrics(Of Double)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.InteractionMetrics(Of System.Double)
+  name.vb: InteractionMetrics(Of Double)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.InteractionMetrics`1
+    name: InteractionMetrics
+    nameWithType: InteractionMetrics
+    fullName: Microsoft.SqlTools.ServiceLayer.InteractionMetrics
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Double
+    name: Double
+    nameWithType: Double
+    fullName: System.Double
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.InteractionMetrics`1
+    name: InteractionMetrics
+    nameWithType: InteractionMetrics
+    fullName: Microsoft.SqlTools.ServiceLayer.InteractionMetrics
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Double
+    name: Double
+    nameWithType: Double
+    fullName: System.Double
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.InteractionMetrics`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.InteractionMetrics`1
+  isExternal: false
+  name: InteractionMetrics<T>
+  nameWithType: InteractionMetrics<T>
+  fullName: Microsoft.SqlTools.ServiceLayer.InteractionMetrics<T>
+  nameWithType.vb: InteractionMetrics(Of T)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.InteractionMetrics(Of T)
+  name.vb: InteractionMetrics(Of T)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.InteractionMetrics`1
+    name: InteractionMetrics
+    nameWithType: InteractionMetrics
+    fullName: Microsoft.SqlTools.ServiceLayer.InteractionMetrics
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.InteractionMetrics`1
+    name: InteractionMetrics
+    nameWithType: InteractionMetrics
+    fullName: Microsoft.SqlTools.ServiceLayer.InteractionMetrics
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer
+  commentId: N:Microsoft.SqlTools.ServiceLayer
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer
+  nameWithType: Microsoft.SqlTools.ServiceLayer
+  fullName: Microsoft.SqlTools.ServiceLayer
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IsAzure*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IsAzure
+  isExternal: false
+  name: IsAzure
+  nameWithType: ConnectionInfo.IsAzure
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.IsAzure
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean

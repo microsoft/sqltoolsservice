@@ -1,0 +1,68 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler
+  id: ConnectionService.OnConnectionHandler
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  children: []
+  langs:
+  - csharp
+  - vb
+  name: ConnectionService.OnConnectionHandler
+  nameWithType: ConnectionService.OnConnectionHandler
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler
+  type: Delegate
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: OnConnectionHandler
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 91
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nCallback for onconnection handler\n"
+  example: []
+  syntax:
+    content: public delegate Task OnConnectionHandler(ConnectionInfo info);
+    content.vb: Public Delegate Function OnConnectionHandler(info As ConnectionInfo) As Task
+    parameters:
+    - id: info
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+    return:
+      type: System.Threading.Tasks.Task
+  modifiers.csharp:
+  - public
+  - delegate
+  modifiers.vb:
+  - Public
+  - Delegate
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ConnectionInfo
+  nameWithType: ConnectionInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks

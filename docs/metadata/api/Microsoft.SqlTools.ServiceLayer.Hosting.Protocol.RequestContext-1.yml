@@ -1,0 +1,702 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  id: RequestContext`1
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter)
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendError(System.Object)
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendEvent``1(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{``0},``0)
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendResult(`0)
+  langs:
+  - csharp
+  - vb
+  name: RequestContext<TResult>
+  nameWithType: RequestContext<TResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: RequestContext
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+    startLine: 11
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public class RequestContext<TResult>
+    content.vb: Public Class RequestContext(Of TResult)
+    typeParameters:
+    - id: TResult
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  nameWithType.vb: RequestContext(Of TResult)
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult)
+  name.vb: RequestContext(Of TResult)
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter)
+  id: '#ctor(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter)'
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  langs:
+  - csharp
+  - vb
+  name: RequestContext(Message, MessageWriter)
+  nameWithType: RequestContext<TResult>.RequestContext(Message, MessageWriter)
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>.RequestContext(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public RequestContext(Message requestMessage, MessageWriter messageWriter)
+    content.vb: Public Sub New(requestMessage As Message, messageWriter As MessageWriter)
+    parameters:
+    - id: requestMessage
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+    - id: messageWriter
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor*
+  nameWithType.vb: RequestContext(Of TResult).RequestContext(Message, MessageWriter)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult).RequestContext(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter)
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor
+  id: '#ctor'
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  langs:
+  - csharp
+  - vb
+  name: RequestContext()
+  nameWithType: RequestContext<TResult>.RequestContext()
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>.RequestContext()
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+    startLine: 22
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public RequestContext()
+    content.vb: Public Sub New
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor*
+  nameWithType.vb: RequestContext(Of TResult).RequestContext()
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult).RequestContext()
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendResult(`0)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendResult(`0)
+  id: SendResult(`0)
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  langs:
+  - csharp
+  - vb
+  name: SendResult(TResult)
+  nameWithType: RequestContext<TResult>.SendResult(TResult)
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>.SendResult(TResult)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SendResult
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+    startLine: 24
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public virtual Task SendResult(TResult resultDetails)
+    content.vb: Public Overridable Function SendResult(resultDetails As TResult) As Task
+    parameters:
+    - id: resultDetails
+      type: '{TResult}'
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendResult*
+  nameWithType.vb: RequestContext(Of TResult).SendResult(TResult)
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult).SendResult(TResult)
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendEvent``1(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{``0},``0)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendEvent``1(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{``0},``0)
+  id: SendEvent``1(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{``0},``0)
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  langs:
+  - csharp
+  - vb
+  name: SendEvent<TParams>(EventType<TParams>, TParams)
+  nameWithType: RequestContext<TResult>.SendEvent<TParams>(EventType<TParams>, TParams)
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>.SendEvent<TParams>(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType<TParams>, TParams)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SendEvent
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+    startLine: 32
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public virtual Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
+    content.vb: Public Overridable Function SendEvent(Of TParams)(eventType As EventType(Of TParams), eventParams As TParams) As Task
+    parameters:
+    - id: eventType
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{{TParams}}
+    - id: eventParams
+      type: '{TParams}'
+    typeParameters:
+    - id: TParams
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendEvent*
+  nameWithType.vb: RequestContext(Of TResult).SendEvent(Of TParams)(EventType(Of TParams), TParams)
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult).SendEvent(Of TParams)(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType(Of TParams), TParams)
+  name.vb: SendEvent(Of TParams)(EventType(Of TParams), TParams)
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendError(System.Object)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendError(System.Object)
+  id: SendError(System.Object)
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  langs:
+  - csharp
+  - vb
+  name: SendError(Object)
+  nameWithType: RequestContext<TResult>.SendError(Object)
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>.SendError(System.Object)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SendError
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/RequestContext.cs
+    startLine: 39
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public virtual Task SendError(object errorDetails)
+    content.vb: Public Overridable Function SendError(errorDetails As Object) As Task
+    parameters:
+    - id: errorDetails
+      type: System.Object
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendError*
+  nameWithType.vb: RequestContext(Of TResult).SendError(Object)
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult).SendError(System.Object)
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.#ctor
+  isExternal: false
+  name: RequestContext
+  nameWithType: RequestContext.RequestContext
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext.RequestContext
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: Message
+  nameWithType: Message
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: MessageWriter
+  nameWithType: MessageWriter
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageWriter
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendResult*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendResult
+  isExternal: false
+  name: SendResult
+  nameWithType: RequestContext.SendResult
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext.SendResult
+- uid: '{TResult}'
+  commentId: '!:TResult'
+  definition: TResult
+  name: TResult
+  nameWithType: TResult
+  fullName: TResult
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: TResult
+  isExternal: false
+  name: TResult
+  nameWithType: TResult
+  fullName: TResult
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendEvent*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendEvent
+  isExternal: false
+  name: SendEvent<TParams>
+  nameWithType: RequestContext.SendEvent<TParams>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext.SendEvent<TParams>
+  nameWithType.vb: RequestContext.SendEvent(Of TParams)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext.SendEvent(Of TParams)
+  name.vb: SendEvent(Of TParams)
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{{TParams}}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{``0}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  name: EventType<TParams>
+  nameWithType: EventType<TParams>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType<TParams>
+  nameWithType.vb: EventType(Of TParams)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType(Of TParams)
+  name.vb: EventType(Of TParams)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TParams
+    nameWithType: TParams
+    fullName: TParams
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TParams
+    nameWithType: TParams
+    fullName: TParams
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: '{TParams}'
+  commentId: '!:TParams'
+  definition: TParams
+  name: TParams
+  nameWithType: TParams
+  fullName: TParams
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: EventType<TParams>
+  nameWithType: EventType<TParams>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType<TParams>
+  nameWithType.vb: EventType(Of TParams)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType(Of TParams)
+  name.vb: EventType(Of TParams)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TParams
+    nameWithType: TParams
+    fullName: TParams
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TParams
+    nameWithType: TParams
+    fullName: TParams
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: TParams
+  isExternal: false
+  name: TParams
+  nameWithType: TParams
+  fullName: TParams
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendError*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1.SendError
+  isExternal: false
+  name: SendError
+  nameWithType: RequestContext.SendError
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext.SendError

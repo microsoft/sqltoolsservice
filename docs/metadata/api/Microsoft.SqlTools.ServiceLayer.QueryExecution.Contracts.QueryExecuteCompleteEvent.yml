@@ -1,0 +1,463 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteEvent
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteEvent
+  id: QueryExecuteCompleteEvent
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteEvent.Type
+  langs:
+  - csharp
+  - vb
+  name: QueryExecuteCompleteEvent
+  nameWithType: QueryExecuteCompleteEvent
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteEvent
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: QueryExecuteCompleteEvent
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteCompleteNotification.cs
+    startLine: 30
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public class QueryExecuteCompleteEvent
+    content.vb: Public Class QueryExecuteCompleteEvent
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteEvent.Type
+  commentId: F:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteEvent.Type
+  id: Type
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteEvent
+  langs:
+  - csharp
+  - vb
+  name: Type
+  nameWithType: QueryExecuteCompleteEvent.Type
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteEvent.Type
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Type
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteCompleteNotification.cs
+    startLine: 33
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public static readonly EventType<QueryExecuteCompleteParams> Type
+    content.vb: Public Shared ReadOnly Type As EventType(Of QueryExecuteCompleteParams)
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams}
+  modifiers.csharp:
+  - public
+  - static
+  - readonly
+  modifiers.vb:
+  - Public
+  - Shared
+  - ReadOnly
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  name: EventType<QueryExecuteCompleteParams>
+  nameWithType: EventType<QueryExecuteCompleteParams>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams>
+  nameWithType.vb: EventType(Of QueryExecuteCompleteParams)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams)
+  name.vb: EventType(Of QueryExecuteCompleteParams)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams
+    name: QueryExecuteCompleteParams
+    nameWithType: QueryExecuteCompleteParams
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams
+    name: QueryExecuteCompleteParams
+    nameWithType: QueryExecuteCompleteParams
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteCompleteParams
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: EventType<TParams>
+  nameWithType: EventType<TParams>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType<TParams>
+  nameWithType.vb: EventType(Of TParams)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType(Of TParams)
+  name.vb: EventType(Of TParams)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TParams
+    nameWithType: TParams
+    fullName: TParams
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType`1
+    name: EventType
+    nameWithType: EventType
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TParams
+    nameWithType: TParams
+    fullName: TParams
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts

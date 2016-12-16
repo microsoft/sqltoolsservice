@@ -1,0 +1,731 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  id: Validate
+  parent: Microsoft.SqlTools.ServiceLayer.Utility
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsGreaterThan(System.String,System.Int32,System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsLessThan(System.String,System.Int32,System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual``1(System.String,``0,``0)
+  - Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNull(System.String,System.Object)
+  - Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrEmptyString(System.String,System.String)
+  - Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrWhitespaceString(System.String,System.String)
+  - Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsWithinRange(System.String,System.Int32,System.Int32,System.Int32)
+  langs:
+  - csharp
+  - vb
+  name: Validate
+  nameWithType: Validate
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Validate
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+    startLine: 14
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nProvides common validation methods to simplify method\nparameter checks.\n"
+  example: []
+  syntax:
+    content: public static class Validate
+    content.vb: Public Module Validate
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - static
+  - class
+  modifiers.vb:
+  - Public
+  - Module
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNull(System.String,System.Object)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNull(System.String,System.Object)
+  id: IsNotNull(System.String,System.Object)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  langs:
+  - csharp
+  - vb
+  name: IsNotNull(String, Object)
+  nameWithType: Validate.IsNotNull(String, Object)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNull(System.String, System.Object)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsNotNull
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+    startLine: 21
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nThrows ArgumentNullException if value is null.\n"
+  example: []
+  syntax:
+    content: public static void IsNotNull(string parameterName, object valueToCheck)
+    content.vb: Public Shared Sub IsNotNull(parameterName As String, valueToCheck As Object)
+    parameters:
+    - id: parameterName
+      type: System.String
+      description: The name of the parameter being validated.
+    - id: valueToCheck
+      type: System.Object
+      description: The value of the parameter being validated.
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNull*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsWithinRange(System.String,System.Int32,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsWithinRange(System.String,System.Int32,System.Int32,System.Int32)
+  id: IsWithinRange(System.String,System.Int32,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  langs:
+  - csharp
+  - vb
+  name: IsWithinRange(String, Int32, Int32, Int32)
+  nameWithType: Validate.IsWithinRange(String, Int32, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsWithinRange(System.String, System.Int32, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsWithinRange
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+    startLine: 37
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nThrows ArgumentOutOfRangeException if the value is outside \nof the given lower and upper limits.\n"
+  example: []
+  syntax:
+    content: public static void IsWithinRange(string parameterName, int valueToCheck, int lowerLimit, int upperLimit)
+    content.vb: Public Shared Sub IsWithinRange(parameterName As String, valueToCheck As Integer, lowerLimit As Integer, upperLimit As Integer)
+    parameters:
+    - id: parameterName
+      type: System.String
+      description: The name of the parameter being validated.
+    - id: valueToCheck
+      type: System.Int32
+      description: The value of the parameter being validated.
+    - id: lowerLimit
+      type: System.Int32
+      description: The lower limit which the value should not be less than.
+    - id: upperLimit
+      type: System.Int32
+      description: The upper limit which the value should not be greater than.
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsWithinRange*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsLessThan(System.String,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsLessThan(System.String,System.Int32,System.Int32)
+  id: IsLessThan(System.String,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  langs:
+  - csharp
+  - vb
+  name: IsLessThan(String, Int32, Int32)
+  nameWithType: Validate.IsLessThan(String, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsLessThan(System.String, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsLessThan
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+    startLine: 64
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nThrows ArgumentOutOfRangeException if the value is greater than or equal \nto the given upper limit.\n"
+  example: []
+  syntax:
+    content: public static void IsLessThan(string parameterName, int valueToCheck, int upperLimit)
+    content.vb: Public Shared Sub IsLessThan(parameterName As String, valueToCheck As Integer, upperLimit As Integer)
+    parameters:
+    - id: parameterName
+      type: System.String
+      description: The name of the parameter being validated.
+    - id: valueToCheck
+      type: System.Int32
+      description: The value of the parameter being validated.
+    - id: upperLimit
+      type: System.Int32
+      description: The upper limit which the value should be less than.
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsLessThan*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsGreaterThan(System.String,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsGreaterThan(System.String,System.Int32,System.Int32)
+  id: IsGreaterThan(System.String,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  langs:
+  - csharp
+  - vb
+  name: IsGreaterThan(String, Int32, Int32)
+  nameWithType: Validate.IsGreaterThan(String, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsGreaterThan(System.String, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsGreaterThan
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+    startLine: 87
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nThrows ArgumentOutOfRangeException if the value is less than or equal \nto the given lower limit.\n"
+  example: []
+  syntax:
+    content: public static void IsGreaterThan(string parameterName, int valueToCheck, int lowerLimit)
+    content.vb: Public Shared Sub IsGreaterThan(parameterName As String, valueToCheck As Integer, lowerLimit As Integer)
+    parameters:
+    - id: parameterName
+      type: System.String
+      description: The name of the parameter being validated.
+    - id: valueToCheck
+      type: System.Int32
+      description: The value of the parameter being validated.
+    - id: lowerLimit
+      type: System.Int32
+      description: The lower limit which the value should be greater than.
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsGreaterThan*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual``1(System.String,``0,``0)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual``1(System.String,``0,``0)
+  id: IsNotEqual``1(System.String,``0,``0)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  langs:
+  - csharp
+  - vb
+  name: IsNotEqual<TValue>(String, TValue, TValue)
+  nameWithType: Validate.IsNotEqual<TValue>(String, TValue, TValue)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual<TValue>(System.String, TValue, TValue)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsNotEqual
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+    startLine: 110
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nThrows ArgumentException if the value is equal to the undesired value. \n"
+  example: []
+  syntax:
+    content: public static void IsNotEqual<TValue>(string parameterName, TValue valueToCheck, TValue undesiredValue)
+    content.vb: Public Shared Sub IsNotEqual(Of TValue)(parameterName As String, valueToCheck As TValue, undesiredValue As TValue)
+    parameters:
+    - id: parameterName
+      type: System.String
+      description: The name of the parameter being validated.
+    - id: valueToCheck
+      type: '{TValue}'
+      description: The value of the parameter being validated.
+    - id: undesiredValue
+      type: '{TValue}'
+      description: The value that valueToCheck should not equal.
+    typeParameters:
+    - id: TValue
+      description: The type of value to be validated.
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual*
+  nameWithType.vb: Validate.IsNotEqual(Of TValue)(String, TValue, TValue)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual(Of TValue)(System.String, TValue, TValue)
+  name.vb: IsNotEqual(Of TValue)(String, TValue, TValue)
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrEmptyString(System.String,System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrEmptyString(System.String,System.String)
+  id: IsNotNullOrEmptyString(System.String,System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  langs:
+  - csharp
+  - vb
+  name: IsNotNullOrEmptyString(String, String)
+  nameWithType: Validate.IsNotNullOrEmptyString(String, String)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrEmptyString(System.String, System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsNotNullOrEmptyString
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+    startLine: 131
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nThrows ArgumentException if the value is null or an empty string.\n"
+  example: []
+  syntax:
+    content: public static void IsNotNullOrEmptyString(string parameterName, string valueToCheck)
+    content.vb: Public Shared Sub IsNotNullOrEmptyString(parameterName As String, valueToCheck As String)
+    parameters:
+    - id: parameterName
+      type: System.String
+      description: The name of the parameter being validated.
+    - id: valueToCheck
+      type: System.String
+      description: The value of the parameter being validated.
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrEmptyString*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrWhitespaceString(System.String,System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrWhitespaceString(System.String,System.String)
+  id: IsNotNullOrWhitespaceString(System.String,System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.Validate
+  langs:
+  - csharp
+  - vb
+  name: IsNotNullOrWhitespaceString(String, String)
+  nameWithType: Validate.IsNotNullOrWhitespaceString(String, String)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrWhitespaceString(System.String, System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsNotNullOrWhitespaceString
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/Validate.cs
+    startLine: 147
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nThrows ArgumentException if the value is null, an empty string,\nor a string containing only whitespace.\n"
+  example: []
+  syntax:
+    content: public static void IsNotNullOrWhitespaceString(string parameterName, string valueToCheck)
+    content.vb: Public Shared Sub IsNotNullOrWhitespaceString(parameterName As String, valueToCheck As String)
+    parameters:
+    - id: parameterName
+      type: System.String
+      description: The name of the parameter being validated.
+    - id: valueToCheck
+      type: System.String
+      description: The value of the parameter being validated.
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrWhitespaceString*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Utility
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Utility
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Utility
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNull*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNull
+  isExternal: false
+  name: IsNotNull
+  nameWithType: Validate.IsNotNull
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNull
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsWithinRange*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsWithinRange
+  isExternal: false
+  name: IsWithinRange
+  nameWithType: Validate.IsWithinRange
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsWithinRange
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsLessThan*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsLessThan
+  isExternal: false
+  name: IsLessThan
+  nameWithType: Validate.IsLessThan
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsLessThan
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsGreaterThan*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsGreaterThan
+  isExternal: false
+  name: IsGreaterThan
+  nameWithType: Validate.IsGreaterThan
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsGreaterThan
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual
+  isExternal: false
+  name: IsNotEqual<TValue>
+  nameWithType: Validate.IsNotEqual<TValue>
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual<TValue>
+  nameWithType.vb: Validate.IsNotEqual(Of TValue)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotEqual(Of TValue)
+  name.vb: IsNotEqual(Of TValue)
+- uid: '{TValue}'
+  commentId: '!:TValue'
+  definition: TValue
+  name: TValue
+  nameWithType: TValue
+  fullName: TValue
+- uid: TValue
+  isExternal: false
+  name: TValue
+  nameWithType: TValue
+  fullName: TValue
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrEmptyString*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrEmptyString
+  isExternal: false
+  name: IsNotNullOrEmptyString
+  nameWithType: Validate.IsNotNullOrEmptyString
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrEmptyString
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrWhitespaceString*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrWhitespaceString
+  isExternal: false
+  name: IsNotNullOrWhitespaceString
+  nameWithType: Validate.IsNotNullOrWhitespaceString
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.Validate.IsNotNullOrWhitespaceString

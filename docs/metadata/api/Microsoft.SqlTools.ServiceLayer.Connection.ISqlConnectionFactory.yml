@@ -1,0 +1,109 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  id: ISqlConnectionFactory
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+  langs:
+  - csharp
+  - vb
+  name: ISqlConnectionFactory
+  nameWithType: ISqlConnectionFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  type: Interface
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ISqlConnectionFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ISqlConnectionFactory
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ISqlConnectionFactory.cs
+    startLine: 12
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nInterface for the SQL Connection factory\n"
+  example: []
+  syntax:
+    content: public interface ISqlConnectionFactory
+    content.vb: Public Interface ISqlConnectionFactory
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+  id: CreateSqlConnection(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  langs:
+  - csharp
+  - vb
+  name: CreateSqlConnection(String)
+  nameWithType: ISqlConnectionFactory.CreateSqlConnection(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ISqlConnectionFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CreateSqlConnection
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ISqlConnectionFactory.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nCreate a new SQL Connection object\n"
+  example: []
+  syntax:
+    content: DbConnection CreateSqlConnection(string connectionString)
+    content.vb: Function CreateSqlConnection(connectionString As String) As DbConnection
+    parameters:
+    - id: connectionString
+      type: System.String
+    return:
+      type: System.Data.Common.DbConnection
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection*
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection
+  isExternal: false
+  name: CreateSqlConnection
+  nameWithType: ISqlConnectionFactory.CreateSqlConnection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System.Data.Common.DbConnection
+  commentId: T:System.Data.Common.DbConnection
+  parent: System.Data.Common
+  isExternal: true
+  name: DbConnection
+  nameWithType: DbConnection
+  fullName: System.Data.Common.DbConnection
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.Data.Common
+  commentId: N:System.Data.Common
+  isExternal: false
+  name: System.Data.Common
+  nameWithType: System.Data.Common
+  fullName: System.Data.Common

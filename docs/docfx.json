@@ -33,7 +33,10 @@
           "toc.yml",
           "index.md",
           "api/index.md",
+<<<<<<< HEAD
           "design/index.md",
+=======
+>>>>>>> e3c080b... Add initial doxfx content
           "guide/**.md"
         ],
         "exclude": [

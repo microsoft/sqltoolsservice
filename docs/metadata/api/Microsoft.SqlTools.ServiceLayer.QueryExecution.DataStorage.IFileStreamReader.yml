@@ -1,0 +1,962 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  id: IFileStreamReader
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow(System.Int64,System.Collections.Generic.IEnumerable{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper})
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan(System.Int64)
+  langs:
+  - csharp
+  - vb
+  name: IFileStreamReader
+  nameWithType: IFileStreamReader
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  type: Interface
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IFileStreamReader
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 14
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  summary: "\nInterface for a object that reads from the filesystem\n"
+  example: []
+  syntax:
+    content: 'public interface IFileStreamReader : IDisposable'
+    content.vb: >-
+      Public Interface IFileStreamReader
+          Inherits IDisposable
+  inheritedMembers:
+  - System.IDisposable.Dispose
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow(System.Int64,System.Collections.Generic.IEnumerable{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow(System.Int64,System.Collections.Generic.IEnumerable{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper})
+  id: ReadRow(System.Int64,System.Collections.Generic.IEnumerable{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper})
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadRow(Int64, IEnumerable<DbColumnWrapper>)
+  nameWithType: IFileStreamReader.ReadRow(Int64, IEnumerable<DbColumnWrapper>)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow(System.Int64, System.Collections.Generic.IEnumerable<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadRow
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: IList<DbCellValue> ReadRow(long offset, IEnumerable<DbColumnWrapper> columns)
+    content.vb: Function ReadRow(offset As Long, columns As IEnumerable(Of DbColumnWrapper)) As IList(Of DbCellValue)
+    parameters:
+    - id: offset
+      type: System.Int64
+    - id: columns
+      type: System.Collections.Generic.IEnumerable{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper}
+    return:
+      type: System.Collections.Generic.IList{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue}
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow*
+  nameWithType.vb: IFileStreamReader.ReadRow(Int64, IEnumerable(Of DbColumnWrapper))
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow(System.Int64, System.Collections.Generic.IEnumerable(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper))
+  name.vb: ReadRow(Int64, IEnumerable(Of DbColumnWrapper))
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16(System.Int64)
+  id: ReadInt16(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadInt16(Int64)
+  nameWithType: IFileStreamReader.ReadInt16(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadInt16
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadInt16(long i64Offset)
+    content.vb: Function ReadInt16(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32(System.Int64)
+  id: ReadInt32(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadInt32(Int64)
+  nameWithType: IFileStreamReader.ReadInt32(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadInt32
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 18
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadInt32(long i64Offset)
+    content.vb: Function ReadInt32(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64(System.Int64)
+  id: ReadInt64(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadInt64(Int64)
+  nameWithType: IFileStreamReader.ReadInt64(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadInt64
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 19
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadInt64(long i64Offset)
+    content.vb: Function ReadInt64(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte(System.Int64)
+  id: ReadByte(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadByte(Int64)
+  nameWithType: IFileStreamReader.ReadByte(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadByte
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 20
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadByte(long i64Offset)
+    content.vb: Function ReadByte(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar(System.Int64)
+  id: ReadChar(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadChar(Int64)
+  nameWithType: IFileStreamReader.ReadChar(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadChar
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 21
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadChar(long i64Offset)
+    content.vb: Function ReadChar(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean(System.Int64)
+  id: ReadBoolean(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadBoolean(Int64)
+  nameWithType: IFileStreamReader.ReadBoolean(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadBoolean
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 22
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadBoolean(long i64Offset)
+    content.vb: Function ReadBoolean(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle(System.Int64)
+  id: ReadSingle(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadSingle(Int64)
+  nameWithType: IFileStreamReader.ReadSingle(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadSingle
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 23
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadSingle(long i64Offset)
+    content.vb: Function ReadSingle(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble(System.Int64)
+  id: ReadDouble(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadDouble(Int64)
+  nameWithType: IFileStreamReader.ReadDouble(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadDouble
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 24
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadDouble(long i64Offset)
+    content.vb: Function ReadDouble(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal(System.Int64)
+  id: ReadSqlDecimal(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadSqlDecimal(Int64)
+  nameWithType: IFileStreamReader.ReadSqlDecimal(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadSqlDecimal
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 25
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadSqlDecimal(long i64Offset)
+    content.vb: Function ReadSqlDecimal(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal(System.Int64)
+  id: ReadDecimal(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadDecimal(Int64)
+  nameWithType: IFileStreamReader.ReadDecimal(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadDecimal
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 26
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadDecimal(long i64Offset)
+    content.vb: Function ReadDecimal(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime(System.Int64)
+  id: ReadDateTime(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadDateTime(Int64)
+  nameWithType: IFileStreamReader.ReadDateTime(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadDateTime
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 27
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadDateTime(long i64Offset)
+    content.vb: Function ReadDateTime(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan(System.Int64)
+  id: ReadTimeSpan(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadTimeSpan(Int64)
+  nameWithType: IFileStreamReader.ReadTimeSpan(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadTimeSpan
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 28
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadTimeSpan(long i64Offset)
+    content.vb: Function ReadTimeSpan(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString(System.Int64)
+  id: ReadString(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadString(Int64)
+  nameWithType: IFileStreamReader.ReadString(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadString
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 29
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadString(long i64Offset)
+    content.vb: Function ReadString(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes(System.Int64)
+  id: ReadBytes(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadBytes(Int64)
+  nameWithType: IFileStreamReader.ReadBytes(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadBytes
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 30
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadBytes(long i64Offset)
+    content.vb: Function ReadBytes(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset(System.Int64)
+  id: ReadDateTimeOffset(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadDateTimeOffset(Int64)
+  nameWithType: IFileStreamReader.ReadDateTimeOffset(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadDateTimeOffset
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 31
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadDateTimeOffset(long i64Offset)
+    content.vb: Function ReadDateTimeOffset(i64Offset As Long) As FileStreamReadResult
+    parameters:
+    - id: i64Offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid(System.Int64)
+  id: ReadGuid(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadGuid(Int64)
+  nameWithType: IFileStreamReader.ReadGuid(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadGuid
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 32
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadGuid(long offset)
+    content.vb: Function ReadGuid(offset As Long) As FileStreamReadResult
+    parameters:
+    - id: offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney(System.Int64)
+  id: ReadMoney(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  langs:
+  - csharp
+  - vb
+  name: ReadMoney(Int64)
+  nameWithType: IFileStreamReader.ReadMoney(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadMoney
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs
+    startLine: 33
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: FileStreamReadResult ReadMoney(long offset)
+    content.vb: Function ReadMoney(offset As Long) As FileStreamReadResult
+    parameters:
+    - id: offset
+      type: System.Int64
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney*
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+- uid: System.IDisposable.Dispose
+  commentId: M:System.IDisposable.Dispose
+  parent: System.IDisposable
+  isExternal: true
+  name: Dispose()
+  nameWithType: IDisposable.Dispose()
+  fullName: System.IDisposable.Dispose()
+  spec.csharp:
+  - uid: System.IDisposable.Dispose
+    name: Dispose
+    nameWithType: IDisposable.Dispose
+    fullName: System.IDisposable.Dispose
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.IDisposable.Dispose
+    name: Dispose
+    nameWithType: IDisposable.Dispose
+    fullName: System.IDisposable.Dispose
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.IDisposable
+  commentId: T:System.IDisposable
+  parent: System
+  isExternal: true
+  name: IDisposable
+  nameWithType: IDisposable
+  fullName: System.IDisposable
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow
+  isExternal: false
+  name: ReadRow
+  nameWithType: IFileStreamReader.ReadRow
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  name: Int64
+  nameWithType: Int64
+  fullName: System.Int64
+- uid: System.Collections.Generic.IEnumerable{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper}
+  commentId: T:System.Collections.Generic.IEnumerable{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.IEnumerable`1
+  name: IEnumerable<DbColumnWrapper>
+  nameWithType: IEnumerable<DbColumnWrapper>
+  fullName: System.Collections.Generic.IEnumerable<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper>
+  nameWithType.vb: IEnumerable(Of DbColumnWrapper)
+  fullname.vb: System.Collections.Generic.IEnumerable(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper)
+  name.vb: IEnumerable(Of DbColumnWrapper)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+    name: DbColumnWrapper
+    nameWithType: DbColumnWrapper
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+    name: DbColumnWrapper
+    nameWithType: DbColumnWrapper
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic.IList{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue}
+  commentId: T:System.Collections.Generic.IList{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.IList`1
+  name: IList<DbCellValue>
+  nameWithType: IList<DbCellValue>
+  fullName: System.Collections.Generic.IList<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue>
+  nameWithType.vb: IList(Of DbCellValue)
+  fullname.vb: System.Collections.Generic.IList(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue)
+  name.vb: IList(Of DbCellValue)
+  spec.csharp:
+  - uid: System.Collections.Generic.IList`1
+    name: IList
+    nameWithType: IList
+    fullName: System.Collections.Generic.IList
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue
+    name: DbCellValue
+    nameWithType: DbCellValue
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IList`1
+    name: IList
+    nameWithType: IList
+    fullName: System.Collections.Generic.IList
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue
+    name: DbCellValue
+    nameWithType: DbCellValue
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbCellValue
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic.IEnumerable`1
+  commentId: T:System.Collections.Generic.IEnumerable`1
+  isExternal: true
+  name: IEnumerable<T>
+  nameWithType: IEnumerable<T>
+  fullName: System.Collections.Generic.IEnumerable<T>
+  nameWithType.vb: IEnumerable(Of T)
+  fullname.vb: System.Collections.Generic.IEnumerable(Of T)
+  name.vb: IEnumerable(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic
+  commentId: N:System.Collections.Generic
+  isExternal: false
+  name: System.Collections.Generic
+  nameWithType: System.Collections.Generic
+  fullName: System.Collections.Generic
+- uid: System.Collections.Generic.IList`1
+  commentId: T:System.Collections.Generic.IList`1
+  isExternal: true
+  name: IList<T>
+  nameWithType: IList<T>
+  fullName: System.Collections.Generic.IList<T>
+  nameWithType.vb: IList(Of T)
+  fullname.vb: System.Collections.Generic.IList(Of T)
+  name.vb: IList(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.IList`1
+    name: IList
+    nameWithType: IList
+    fullName: System.Collections.Generic.IList
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IList`1
+    name: IList
+    nameWithType: IList
+    fullName: System.Collections.Generic.IList
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16
+  isExternal: false
+  name: ReadInt16
+  nameWithType: IFileStreamReader.ReadInt16
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: FileStreamReadResult
+  nameWithType: FileStreamReadResult
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.FileStreamReadResult
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32
+  isExternal: false
+  name: ReadInt32
+  nameWithType: IFileStreamReader.ReadInt32
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64
+  isExternal: false
+  name: ReadInt64
+  nameWithType: IFileStreamReader.ReadInt64
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte
+  isExternal: false
+  name: ReadByte
+  nameWithType: IFileStreamReader.ReadByte
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar
+  isExternal: false
+  name: ReadChar
+  nameWithType: IFileStreamReader.ReadChar
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean
+  isExternal: false
+  name: ReadBoolean
+  nameWithType: IFileStreamReader.ReadBoolean
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle
+  isExternal: false
+  name: ReadSingle
+  nameWithType: IFileStreamReader.ReadSingle
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble
+  isExternal: false
+  name: ReadDouble
+  nameWithType: IFileStreamReader.ReadDouble
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal
+  isExternal: false
+  name: ReadSqlDecimal
+  nameWithType: IFileStreamReader.ReadSqlDecimal
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal
+  isExternal: false
+  name: ReadDecimal
+  nameWithType: IFileStreamReader.ReadDecimal
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime
+  isExternal: false
+  name: ReadDateTime
+  nameWithType: IFileStreamReader.ReadDateTime
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan
+  isExternal: false
+  name: ReadTimeSpan
+  nameWithType: IFileStreamReader.ReadTimeSpan
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString
+  isExternal: false
+  name: ReadString
+  nameWithType: IFileStreamReader.ReadString
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes
+  isExternal: false
+  name: ReadBytes
+  nameWithType: IFileStreamReader.ReadBytes
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset
+  isExternal: false
+  name: ReadDateTimeOffset
+  nameWithType: IFileStreamReader.ReadDateTimeOffset
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid
+  isExternal: false
+  name: ReadGuid
+  nameWithType: IFileStreamReader.ReadGuid
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney
+  isExternal: false
+  name: ReadMoney
+  nameWithType: IFileStreamReader.ReadMoney
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney

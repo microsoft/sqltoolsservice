@@ -1,0 +1,317 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  id: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferPosition
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification`1
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams`1
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeTextDocumentNotification
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeTextDocumentParams
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidCloseTextDocumentNotification
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidCloseTextDocumentParams
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidOpenTextDocumentNotification
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DocumentSymbolParams
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DocumentSymbolRequest
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileChange
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileChangeType
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileEvent
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FilePosition
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Position
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFileMarker
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFileMarkerLevel
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptRegion
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolInformation
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentChangeEvent
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentIdentifier
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.VersionedTextDocumentIdentifier
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.WorkspaceSymbolParams
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.WorkspaceSymbolRequest
+  langs:
+  - csharp
+  - vb
+  name: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  type: Namespace
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferPosition
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferPosition
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: BufferPosition
+  nameWithType: BufferPosition
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferPosition
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: BufferRange
+  nameWithType: BufferRange
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification`1
+  isExternal: false
+  name: DidChangeConfigurationNotification<TConfig>
+  nameWithType: DidChangeConfigurationNotification<TConfig>
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification<TConfig>
+  nameWithType.vb: DidChangeConfigurationNotification(Of TConfig)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification(Of TConfig)
+  name.vb: DidChangeConfigurationNotification(Of TConfig)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification`1
+    name: DidChangeConfigurationNotification
+    nameWithType: DidChangeConfigurationNotification
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TConfig
+    nameWithType: TConfig
+    fullName: TConfig
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification`1
+    name: DidChangeConfigurationNotification
+    nameWithType: DidChangeConfigurationNotification
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationNotification
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TConfig
+    nameWithType: TConfig
+    fullName: TConfig
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams`1
+  isExternal: false
+  name: DidChangeConfigurationParams<TConfig>
+  nameWithType: DidChangeConfigurationParams<TConfig>
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams<TConfig>
+  nameWithType.vb: DidChangeConfigurationParams(Of TConfig)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams(Of TConfig)
+  name.vb: DidChangeConfigurationParams(Of TConfig)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams`1
+    name: DidChangeConfigurationParams
+    nameWithType: DidChangeConfigurationParams
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TConfig
+    nameWithType: TConfig
+    fullName: TConfig
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams`1
+    name: DidChangeConfigurationParams
+    nameWithType: DidChangeConfigurationParams
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeConfigurationParams
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TConfig
+    nameWithType: TConfig
+    fullName: TConfig
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileChange
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileChange
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: FileChange
+  nameWithType: FileChange
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileChange
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FilePosition
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FilePosition
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: FilePosition
+  nameWithType: FilePosition
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FilePosition
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: ScriptFile
+  nameWithType: ScriptFile
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFileMarkerLevel
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFileMarkerLevel
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: ScriptFileMarkerLevel
+  nameWithType: ScriptFileMarkerLevel
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFileMarkerLevel
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFileMarker
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFileMarker
+  isExternal: false
+  name: ScriptFileMarker
+  nameWithType: ScriptFileMarker
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFileMarker
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptRegion
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptRegion
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: ScriptRegion
+  nameWithType: ScriptRegion
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptRegion
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentIdentifier
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentIdentifier
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: TextDocumentIdentifier
+  nameWithType: TextDocumentIdentifier
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentIdentifier
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: TextDocumentPosition
+  nameWithType: TextDocumentPosition
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: TextDocumentItem
+  nameWithType: TextDocumentItem
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentItem
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidOpenTextDocumentNotification
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidOpenTextDocumentNotification
+  isExternal: false
+  name: DidOpenTextDocumentNotification
+  nameWithType: DidOpenTextDocumentNotification
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidOpenTextDocumentNotification
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidCloseTextDocumentNotification
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidCloseTextDocumentNotification
+  isExternal: false
+  name: DidCloseTextDocumentNotification
+  nameWithType: DidCloseTextDocumentNotification
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidCloseTextDocumentNotification
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeTextDocumentNotification
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeTextDocumentNotification
+  isExternal: false
+  name: DidChangeTextDocumentNotification
+  nameWithType: DidChangeTextDocumentNotification
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeTextDocumentNotification
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidCloseTextDocumentParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidCloseTextDocumentParams
+  isExternal: false
+  name: DidCloseTextDocumentParams
+  nameWithType: DidCloseTextDocumentParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidCloseTextDocumentParams
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeTextDocumentParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeTextDocumentParams
+  isExternal: false
+  name: DidChangeTextDocumentParams
+  nameWithType: DidChangeTextDocumentParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DidChangeTextDocumentParams
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.VersionedTextDocumentIdentifier
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.VersionedTextDocumentIdentifier
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: VersionedTextDocumentIdentifier
+  nameWithType: VersionedTextDocumentIdentifier
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.VersionedTextDocumentIdentifier
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentChangeEvent
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentChangeEvent
+  isExternal: false
+  name: TextDocumentChangeEvent
+  nameWithType: TextDocumentChangeEvent
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentChangeEvent
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Position
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Position
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: Position
+  nameWithType: Position
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Position
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: Range
+  nameWithType: Range
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: Location
+  nameWithType: Location
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileChangeType
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileChangeType
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: FileChangeType
+  nameWithType: FileChangeType
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileChangeType
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileEvent
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileEvent
+  isExternal: false
+  name: FileEvent
+  nameWithType: FileEvent
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.FileEvent
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: SymbolKind
+  nameWithType: SymbolKind
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolInformation
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolInformation
+  isExternal: false
+  name: SymbolInformation
+  nameWithType: SymbolInformation
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolInformation
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DocumentSymbolRequest
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DocumentSymbolRequest
+  isExternal: false
+  name: DocumentSymbolRequest
+  nameWithType: DocumentSymbolRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DocumentSymbolRequest
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DocumentSymbolParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DocumentSymbolParams
+  isExternal: false
+  name: DocumentSymbolParams
+  nameWithType: DocumentSymbolParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.DocumentSymbolParams
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.WorkspaceSymbolRequest
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.WorkspaceSymbolRequest
+  isExternal: false
+  name: WorkspaceSymbolRequest
+  nameWithType: WorkspaceSymbolRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.WorkspaceSymbolRequest
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.WorkspaceSymbolParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.WorkspaceSymbolParams
+  isExternal: false
+  name: WorkspaceSymbolParams
+  nameWithType: WorkspaceSymbolParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.WorkspaceSymbolParams
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts

@@ -1,0 +1,1012 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  id: QueryExecutionService
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Dispose
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Finalize
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult})
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult})
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult})
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult})
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Instance
+  langs:
+  - csharp
+  - vb
+  name: QueryExecutionService
+  nameWithType: QueryExecutionService
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: QueryExecutionService
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 23
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  summary: "\nService for executing queries\n"
+  example: []
+  syntax:
+    content: 'public sealed class QueryExecutionService : IDisposable'
+    content.vb: >-
+      Public NotInheritable Class QueryExecutionService
+          Implements IDisposable
+  inheritance:
+  - System.Object
+  implements:
+  - System.IDisposable
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - sealed
+  - class
+  modifiers.vb:
+  - Public
+  - NotInheritable
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Instance
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Instance
+  id: Instance
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  langs:
+  - csharp
+  - vb
+  name: Instance
+  nameWithType: QueryExecutionService.Instance
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Instance
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Instance
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 32
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  summary: "\nSingleton instance of the query execution service\n"
+  example: []
+  syntax:
+    content: public static QueryExecutionService Instance { get; }
+    content.vb: Public Shared ReadOnly Property Instance As QueryExecutionService
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Instance*
+  modifiers.csharp:
+  - public
+  - static
+  - get
+  modifiers.vb:
+  - Public
+  - Shared
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost)
+  id: InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  langs:
+  - csharp
+  - vb
+  name: InitializeService(ServiceHost)
+  nameWithType: QueryExecutionService.InitializeService(ServiceHost)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: InitializeService
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 99
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  summary: "\nInitializes the service with the service host, registers request handlers and shutdown\nevent handler.\n"
+  example: []
+  syntax:
+    content: public void InitializeService(ServiceHost serviceHost)
+    content.vb: Public Sub InitializeService(serviceHost As ServiceHost)
+    parameters:
+    - id: serviceHost
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+      description: The service host instance to register with
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.InitializeService*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult})
+  id: HandleExecuteRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult})
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  langs:
+  - csharp
+  - vb
+  name: HandleExecuteRequest(QueryExecuteParams, RequestContext<QueryExecuteResult>)
+  nameWithType: QueryExecutionService.HandleExecuteRequest(QueryExecuteParams, RequestContext<QueryExecuteResult>)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleExecuteRequest
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 126
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  syntax:
+    content: public Task HandleExecuteRequest(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext)
+    content.vb: Public Function HandleExecuteRequest(executeParams As QueryExecuteParams, requestContext As RequestContext(Of QueryExecuteResult)) As Task
+    parameters:
+    - id: executeParams
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult}
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest*
+  nameWithType.vb: QueryExecutionService.HandleExecuteRequest(QueryExecuteParams, RequestContext(Of QueryExecuteResult))
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult))
+  name.vb: HandleExecuteRequest(QueryExecuteParams, RequestContext(Of QueryExecuteResult))
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult})
+  id: HandleResultSubsetRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult})
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  langs:
+  - csharp
+  - vb
+  name: HandleResultSubsetRequest(QueryExecuteSubsetParams, RequestContext<QueryExecuteSubsetResult>)
+  nameWithType: QueryExecutionService.HandleResultSubsetRequest(QueryExecuteSubsetParams, RequestContext<QueryExecuteSubsetResult>)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleResultSubsetRequest
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 136
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  syntax:
+    content: public Task HandleResultSubsetRequest(QueryExecuteSubsetParams subsetParams, RequestContext<QueryExecuteSubsetResult> requestContext)
+    content.vb: Public Function HandleResultSubsetRequest(subsetParams As QueryExecuteSubsetParams, requestContext As RequestContext(Of QueryExecuteSubsetResult)) As Task
+    parameters:
+    - id: subsetParams
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult}
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest*
+  nameWithType.vb: QueryExecutionService.HandleResultSubsetRequest(QueryExecuteSubsetParams, RequestContext(Of QueryExecuteSubsetResult))
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult))
+  name.vb: HandleResultSubsetRequest(QueryExecuteSubsetParams, RequestContext(Of QueryExecuteSubsetResult))
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult})
+  id: HandleDisposeRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult})
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  langs:
+  - csharp
+  - vb
+  name: HandleDisposeRequest(QueryDisposeParams, RequestContext<QueryDisposeResult>)
+  nameWithType: QueryExecutionService.HandleDisposeRequest(QueryDisposeParams, RequestContext<QueryDisposeResult>)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleDisposeRequest
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 184
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  syntax:
+    content: public Task HandleDisposeRequest(QueryDisposeParams disposeParams, RequestContext<QueryDisposeResult> requestContext)
+    content.vb: Public Function HandleDisposeRequest(disposeParams As QueryDisposeParams, requestContext As RequestContext(Of QueryDisposeResult)) As Task
+    parameters:
+    - id: disposeParams
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult}
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest*
+  nameWithType.vb: QueryExecutionService.HandleDisposeRequest(QueryDisposeParams, RequestContext(Of QueryDisposeResult))
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult))
+  name.vb: HandleDisposeRequest(QueryDisposeParams, RequestContext(Of QueryDisposeResult))
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult})
+  id: HandleCancelRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult})
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  langs:
+  - csharp
+  - vb
+  name: HandleCancelRequest(QueryCancelParams, RequestContext<QueryCancelResult>)
+  nameWithType: QueryExecutionService.HandleCancelRequest(QueryCancelParams, RequestContext<QueryCancelResult>)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleCancelRequest
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 215
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  syntax:
+    content: public Task HandleCancelRequest(QueryCancelParams cancelParams, RequestContext<QueryCancelResult> requestContext)
+    content.vb: Public Function HandleCancelRequest(cancelParams As QueryCancelParams, requestContext As RequestContext(Of QueryCancelResult)) As Task
+    parameters:
+    - id: cancelParams
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult}
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest*
+  nameWithType.vb: QueryExecutionService.HandleCancelRequest(QueryCancelParams, RequestContext(Of QueryCancelResult))
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult))
+  name.vb: HandleCancelRequest(QueryCancelParams, RequestContext(Of QueryCancelResult))
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Dispose
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Dispose
+  id: Dispose
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  langs:
+  - csharp
+  - vb
+  name: Dispose()
+  nameWithType: QueryExecutionService.Dispose()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Dispose()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Dispose
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 502
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  syntax:
+    content: public void Dispose()
+    content.vb: Public Sub Dispose
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Dispose*
+  implements:
+  - System.IDisposable.Dispose
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Finalize
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Finalize
+  id: Finalize
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  langs:
+  - csharp
+  - vb
+  name: Finalize()
+  nameWithType: QueryExecutionService.Finalize()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Finalize()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Finalize
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs
+    startLine: 540
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  syntax:
+    content: protected void Finalize()
+    content.vb: Protected Sub Finalize
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Finalize*
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.IDisposable
+  commentId: T:System.IDisposable
+  parent: System
+  isExternal: true
+  name: IDisposable
+  nameWithType: IDisposable
+  fullName: System.IDisposable
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Instance*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Instance
+  isExternal: false
+  name: Instance
+  nameWithType: QueryExecutionService.Instance
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Instance
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  isExternal: false
+  name: QueryExecutionService
+  nameWithType: QueryExecutionService
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.InitializeService*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.InitializeService
+  isExternal: false
+  name: InitializeService
+  nameWithType: QueryExecutionService.InitializeService
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.InitializeService
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: ServiceHost
+  nameWithType: ServiceHost
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest
+  isExternal: false
+  name: HandleExecuteRequest
+  nameWithType: QueryExecutionService.HandleExecuteRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleExecuteRequest
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: QueryExecuteParams
+  nameWithType: QueryExecuteParams
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteParams
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  name: RequestContext<QueryExecuteResult>
+  nameWithType: RequestContext<QueryExecuteResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult>
+  nameWithType.vb: RequestContext(Of QueryExecuteResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult)
+  name.vb: RequestContext(Of QueryExecuteResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult
+    name: QueryExecuteResult
+    nameWithType: QueryExecuteResult
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult
+    name: QueryExecuteResult
+    nameWithType: QueryExecuteResult
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  isExternal: false
+  name: RequestContext<TResult>
+  nameWithType: RequestContext<TResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>
+  nameWithType.vb: RequestContext(Of TResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult)
+  name.vb: RequestContext(Of TResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest
+  isExternal: false
+  name: HandleResultSubsetRequest
+  nameWithType: QueryExecutionService.HandleResultSubsetRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleResultSubsetRequest
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: QueryExecuteSubsetParams
+  nameWithType: QueryExecuteSubsetParams
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  name: RequestContext<QueryExecuteSubsetResult>
+  nameWithType: RequestContext<QueryExecuteSubsetResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult>
+  nameWithType.vb: RequestContext(Of QueryExecuteSubsetResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult)
+  name.vb: RequestContext(Of QueryExecuteSubsetResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult
+    name: QueryExecuteSubsetResult
+    nameWithType: QueryExecuteSubsetResult
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult
+    name: QueryExecuteSubsetResult
+    nameWithType: QueryExecuteSubsetResult
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest
+  isExternal: false
+  name: HandleDisposeRequest
+  nameWithType: QueryExecutionService.HandleDisposeRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleDisposeRequest
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: QueryDisposeParams
+  nameWithType: QueryDisposeParams
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeParams
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  name: RequestContext<QueryDisposeResult>
+  nameWithType: RequestContext<QueryDisposeResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult>
+  nameWithType.vb: RequestContext(Of QueryDisposeResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult)
+  name.vb: RequestContext(Of QueryDisposeResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult
+    name: QueryDisposeResult
+    nameWithType: QueryDisposeResult
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult
+    name: QueryDisposeResult
+    nameWithType: QueryDisposeResult
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryDisposeResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest
+  isExternal: false
+  name: HandleCancelRequest
+  nameWithType: QueryExecutionService.HandleCancelRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.HandleCancelRequest
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: QueryCancelParams
+  nameWithType: QueryCancelParams
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelParams
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  name: RequestContext<QueryCancelResult>
+  nameWithType: RequestContext<QueryCancelResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult>
+  nameWithType.vb: RequestContext(Of QueryCancelResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult)
+  name.vb: RequestContext(Of QueryCancelResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult
+    name: QueryCancelResult
+    nameWithType: QueryCancelResult
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult
+    name: QueryCancelResult
+    nameWithType: QueryCancelResult
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryCancelResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Dispose*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Dispose
+  isExternal: false
+  name: Dispose
+  nameWithType: QueryExecutionService.Dispose
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Dispose
+- uid: System.IDisposable.Dispose
+  commentId: M:System.IDisposable.Dispose
+  parent: System.IDisposable
+  isExternal: true
+  name: Dispose()
+  nameWithType: IDisposable.Dispose()
+  fullName: System.IDisposable.Dispose()
+  spec.csharp:
+  - uid: System.IDisposable.Dispose
+    name: Dispose
+    nameWithType: IDisposable.Dispose
+    fullName: System.IDisposable.Dispose
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.IDisposable.Dispose
+    name: Dispose
+    nameWithType: IDisposable.Dispose
+    fullName: System.IDisposable.Dispose
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Finalize*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Finalize
+  isExternal: false
+  name: Finalize
+  nameWithType: QueryExecutionService.Finalize
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Finalize

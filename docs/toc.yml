@@ -3,7 +3,10 @@
   homepage: guide/introduction.md
 - name: API Reference
   href: api/
+<<<<<<< HEAD
   homepage: api/index.md
 - name: Design
   href: design/
   homepage: design/index.md
+=======
+>>>>>>> e3c080b... Add initial doxfx content

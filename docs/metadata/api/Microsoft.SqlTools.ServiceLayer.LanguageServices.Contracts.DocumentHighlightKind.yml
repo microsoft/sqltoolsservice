@@ -1,0 +1,147 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  id: DocumentHighlightKind
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Read
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Text
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Write
+  langs:
+  - csharp
+  - vb
+  name: DocumentHighlightKind
+  nameWithType: DocumentHighlightKind
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  type: Enum
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/DocumentHighlight.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DocumentHighlightKind
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/DocumentHighlight.cs
+    startLine: 10
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: public enum DocumentHighlightKind
+    content.vb: Public Enum DocumentHighlightKind
+  modifiers.csharp:
+  - public
+  - enum
+  modifiers.vb:
+  - Public
+  - Enum
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Text
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Text
+  id: Text
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  langs:
+  - csharp
+  - vb
+  name: Text
+  nameWithType: DocumentHighlightKind.Text
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Text
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/DocumentHighlight.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Text
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/DocumentHighlight.cs
+    startLine: 12
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Text = 1
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Read
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Read
+  id: Read
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  langs:
+  - csharp
+  - vb
+  name: Read
+  nameWithType: DocumentHighlightKind.Read
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Read
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/DocumentHighlight.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Read
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/DocumentHighlight.cs
+    startLine: 13
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Read = 2
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Write
+  commentId: F:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Write
+  id: Write
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  langs:
+  - csharp
+  - vb
+  name: Write
+  nameWithType: DocumentHighlightKind.Write
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind.Write
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/DocumentHighlight.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Write
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Contracts/DocumentHighlight.cs
+    startLine: 14
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  syntax:
+    content: Write = 3
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  isExternal: false
+  name: DocumentHighlightKind
+  nameWithType: DocumentHighlightKind
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.DocumentHighlightKind

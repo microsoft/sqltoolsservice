@@ -1,0 +1,201 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace
+  id: Microsoft.SqlTools.ServiceLayer.Workspace
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Workspace
+  - Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1
+  - Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.ConfigChangeCallback
+  - Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocChangeCallback
+  - Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocCloseCallback
+  - Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocOpenCallback
+  langs:
+  - csharp
+  - vb
+  name: Microsoft.SqlTools.ServiceLayer.Workspace
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace
+  type: Namespace
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Workspace
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Workspace
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace
+  isExternal: false
+  name: Workspace
+  nameWithType: Workspace
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Workspace
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace
+  isExternal: false
+  name: WorkspaceService<TConfig>
+  nameWithType: WorkspaceService<TConfig>
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService<TConfig>
+  nameWithType.vb: WorkspaceService(Of TConfig)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService(Of TConfig)
+  name.vb: WorkspaceService(Of TConfig)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1
+    name: WorkspaceService
+    nameWithType: WorkspaceService
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TConfig
+    nameWithType: TConfig
+    fullName: TConfig
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1
+    name: WorkspaceService
+    nameWithType: WorkspaceService
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TConfig
+    nameWithType: TConfig
+    fullName: TConfig
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.ConfigChangeCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.ConfigChangeCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace
+  isExternal: false
+  name: WorkspaceService.ConfigChangeCallback<>
+  nameWithType: WorkspaceService.ConfigChangeCallback<>
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.ConfigChangeCallback<>
+  nameWithType.vb: WorkspaceService.ConfigChangeCallback(Of )
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.ConfigChangeCallback(Of )
+  name.vb: WorkspaceService.ConfigChangeCallback(Of )
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.ConfigChangeCallback
+    name: WorkspaceService.ConfigChangeCallback
+    nameWithType: WorkspaceService.ConfigChangeCallback
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.ConfigChangeCallback
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.ConfigChangeCallback
+    name: WorkspaceService.ConfigChangeCallback
+    nameWithType: WorkspaceService.ConfigChangeCallback
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.ConfigChangeCallback
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocChangeCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocChangeCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace
+  isExternal: false
+  name: WorkspaceService.TextDocChangeCallback<>
+  nameWithType: WorkspaceService.TextDocChangeCallback<>
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocChangeCallback<>
+  nameWithType.vb: WorkspaceService.TextDocChangeCallback(Of )
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocChangeCallback(Of )
+  name.vb: WorkspaceService.TextDocChangeCallback(Of )
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocChangeCallback
+    name: WorkspaceService.TextDocChangeCallback
+    nameWithType: WorkspaceService.TextDocChangeCallback
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocChangeCallback
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocChangeCallback
+    name: WorkspaceService.TextDocChangeCallback
+    nameWithType: WorkspaceService.TextDocChangeCallback
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocChangeCallback
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocOpenCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocOpenCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace
+  isExternal: false
+  name: WorkspaceService.TextDocOpenCallback<>
+  nameWithType: WorkspaceService.TextDocOpenCallback<>
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocOpenCallback<>
+  nameWithType.vb: WorkspaceService.TextDocOpenCallback(Of )
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocOpenCallback(Of )
+  name.vb: WorkspaceService.TextDocOpenCallback(Of )
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocOpenCallback
+    name: WorkspaceService.TextDocOpenCallback
+    nameWithType: WorkspaceService.TextDocOpenCallback
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocOpenCallback
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocOpenCallback
+    name: WorkspaceService.TextDocOpenCallback
+    nameWithType: WorkspaceService.TextDocOpenCallback
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocOpenCallback
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocCloseCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocCloseCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace
+  isExternal: false
+  name: WorkspaceService.TextDocCloseCallback<>
+  nameWithType: WorkspaceService.TextDocCloseCallback<>
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocCloseCallback<>
+  nameWithType.vb: WorkspaceService.TextDocCloseCallback(Of )
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocCloseCallback(Of )
+  name.vb: WorkspaceService.TextDocCloseCallback(Of )
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocCloseCallback
+    name: WorkspaceService.TextDocCloseCallback
+    nameWithType: WorkspaceService.TextDocCloseCallback
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocCloseCallback
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocCloseCallback
+    name: WorkspaceService.TextDocCloseCallback
+    nameWithType: WorkspaceService.TextDocCloseCallback
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService.TextDocCloseCallback
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Workspace
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace

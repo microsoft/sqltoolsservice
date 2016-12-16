@@ -1,0 +1,104 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocChangeCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService`1.TextDocChangeCallback
+  id: WorkspaceService`1.TextDocChangeCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace
+  children: []
+  langs:
+  - csharp
+  - vb
+  name: WorkspaceService<TConfig>.TextDocChangeCallback
+  nameWithType: WorkspaceService<TConfig>.TextDocChangeCallback
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService<TConfig>.TextDocChangeCallback
+  type: Delegate
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/WorkspaceService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: TextDocChangeCallback
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/WorkspaceService.cs
+    startLine: 79
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace
+  summary: "\nDelegate for callbacks that occur when the current text document changes\n"
+  example: []
+  syntax:
+    content: public delegate Task TextDocChangeCallback(ScriptFile[] changedFiles, EventContext eventContext);
+    content.vb: Public Delegate Function TextDocChangeCallback(changedFiles As ScriptFile(), eventContext As EventContext) As Task
+    parameters:
+    - id: changedFiles
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[]
+      description: Array of files that changed
+    - id: eventContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+      description: Context of the event raised for the changed files
+    return:
+      type: System.Threading.Tasks.Task
+  nameWithType.vb: WorkspaceService(Of TConfig).TextDocChangeCallback
+  modifiers.csharp:
+  - public
+  - delegate
+  modifiers.vb:
+  - Public
+  - Delegate
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Workspace.WorkspaceService(Of TConfig).TextDocChangeCallback
+  name.vb: WorkspaceService(Of TConfig).TextDocChangeCallback
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Workspace
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[]
+  name: ScriptFile[]
+  nameWithType: ScriptFile[]
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[]
+  nameWithType.vb: ScriptFile()
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile()
+  name.vb: ScriptFile()
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+    name: ScriptFile
+    nameWithType: ScriptFile
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+    name: ScriptFile
+    nameWithType: ScriptFile
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: EventContext
+  nameWithType: EventContext
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks

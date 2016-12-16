@@ -9,11 +9,15 @@ guidance on how to use it.
 
 ## [API Reference](api/index.md)
 
+<<<<<<< HEAD
 The .Net API Reference contains details about the .NET API.
 
 ## [Design](design/index.md)
 
 Design and implementation documentation for the SQL Tools Service SDK.
+=======
+The API Reference contains details about the .NET API.
+>>>>>>> e3c080b... Add initial doxfx content
 
 ## Getting Help
 
