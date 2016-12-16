@@ -434,7 +434,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
                 {
                     OwnerUri = executeParams.OwnerUri,
-                    Message = errorMessage              
+                    //Message = errorMessage              
                 };
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
@@ -482,16 +482,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             query.Execute();
 
             // Send back a result showing we were successful
-            string messages = null;
-            if (query.Batches.Length == 0)
-            {
-                // If there were no batches to execute, send back an informational message that the commands were completed successfully
-                messages = SR.QueryServiceCompletedSuccessfully;
-            }
-            await requestContext.SendResult(new QueryExecuteResult
-            {
-                Messages = messages
-            });
+            await requestContext.SendResult(new QueryExecuteResult());
         }
 
         #endregion
