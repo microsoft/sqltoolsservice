@@ -5,12 +5,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.SqlTypes;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATE column
-            DbColumn col = new TestDbColumn("col", "DaTe");
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTe"));
             
             foreach (DateTime value in testValues)
             {
@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME column
-            DbColumn col = new TestDbColumn("col", "DaTeTiMe");
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe"));
 
             foreach (DateTime value in testValues)
             {
@@ -299,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME column
-            DbColumn col = new TestDbColumn("col", "DaTeTiMe2", precision);
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe2", precision));
 
             foreach (DateTime value in testValues)
             {
@@ -311,6 +311,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
                 {
                     Assert.True(Regex.IsMatch(displayValue, $@"\.[\d]{{{precision}}}$"));
                 }
+            }
+        }
+
+        [Fact]
+        public void DateTime2InvalidScaleTest()
+        {
+            // Setup: Create some test values
+            // NOTE: We are doing these here instead of InlineData because DateTime values can't be written as constant expressions
+            DateTime[] testValues =
+            {
+                DateTime.Now, DateTime.UtcNow, DateTime.MinValue, DateTime.MaxValue
+            };
+
+            // Setup: Create a DATETIME2 column
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe", 255));
+
+            foreach (DateTime value in testValues)
+            {
+                string displayValue = VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteDateTime(val), reader => reader.ReadDateTime(0, col));
+
+                // Make sure the display value has a time string with 7 milliseconds
+                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{7}$"));
             }
         }
 
