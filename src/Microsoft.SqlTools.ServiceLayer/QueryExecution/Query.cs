@@ -257,6 +257,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     await BatchMessage(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
                 }
+                if (QueryCompleted != null)
+                {
+                    await QueryCompleted(this);
+                }
                 return;
             }
 
