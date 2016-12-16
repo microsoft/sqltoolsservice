@@ -1,0 +1,161 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.InitializeCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.InitializeCallback
+  id: ServiceHost.InitializeCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting
+  children: []
+  langs:
+  - csharp
+  - vb
+  name: ServiceHost.InitializeCallback
+  nameWithType: ServiceHost.InitializeCallback
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.InitializeCallback
+  type: Delegate
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/ServiceHost.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: InitializeCallback
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/ServiceHost.cs
+    startLine: 83
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting
+  summary: "\nDelegate definition for the host initialization event\n"
+  example: []
+  syntax:
+    content: public delegate Task InitializeCallback(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
+    content.vb: Public Delegate Function InitializeCallback(startupParams As InitializeRequest, requestContext As RequestContext(Of InitializeResult)) As Task
+    parameters:
+    - id: startupParams
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeRequest
+      description: ''
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult}
+      description: ''
+    return:
+      type: System.Threading.Tasks.Task
+  modifiers.csharp:
+  - public
+  - delegate
+  modifiers.vb:
+  - Public
+  - Delegate
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeRequest
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeRequest
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  isExternal: false
+  name: InitializeRequest
+  nameWithType: InitializeRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeRequest
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  name: RequestContext<InitializeResult>
+  nameWithType: RequestContext<InitializeResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult>
+  nameWithType.vb: RequestContext(Of InitializeResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult)
+  name.vb: RequestContext(Of InitializeResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult
+    name: InitializeResult
+    nameWithType: InitializeResult
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult
+    name: InitializeResult
+    nameWithType: InitializeResult
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.InitializeResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  isExternal: false
+  name: RequestContext<TResult>
+  nameWithType: RequestContext<TResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>
+  nameWithType.vb: RequestContext(Of TResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult)
+  name.vb: RequestContext(Of TResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks

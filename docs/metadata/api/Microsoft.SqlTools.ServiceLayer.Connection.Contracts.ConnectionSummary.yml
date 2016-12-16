@@ -1,0 +1,560 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  id: ConnectionSummary
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.DatabaseName
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.ServerName
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.UserName
+  langs:
+  - csharp
+  - vb
+  name: ConnectionSummary
+  nameWithType: ConnectionSummary
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionSummary.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionSummary
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionSummary.cs
+    startLine: 10
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nProvides high level information about a connection.\n"
+  example: []
+  syntax:
+    content: public class ConnectionSummary
+    content.vb: Public Class ConnectionSummary
+  inheritance:
+  - System.Object
+  derivedClasses:
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  extensionMethods:
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.ServerName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.ServerName
+  id: ServerName
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  langs:
+  - csharp
+  - vb
+  name: ServerName
+  nameWithType: ConnectionSummary.ServerName
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.ServerName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionSummary.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ServerName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionSummary.cs
+    startLine: 15
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nGets or sets the connection server name\n"
+  example: []
+  syntax:
+    content: public string ServerName { get; set; }
+    content.vb: Public Property ServerName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.ServerName*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.DatabaseName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.DatabaseName
+  id: DatabaseName
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  langs:
+  - csharp
+  - vb
+  name: DatabaseName
+  nameWithType: ConnectionSummary.DatabaseName
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.DatabaseName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionSummary.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DatabaseName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionSummary.cs
+    startLine: 20
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nGets or sets the connection database name\n"
+  example: []
+  syntax:
+    content: public string DatabaseName { get; set; }
+    content.vb: Public Property DatabaseName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.DatabaseName*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.UserName
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.UserName
+  id: UserName
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  langs:
+  - csharp
+  - vb
+  name: UserName
+  nameWithType: ConnectionSummary.UserName
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.UserName
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionSummary.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: UserName
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionSummary.cs
+    startLine: 25
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nGets or sets the connection user name\n"
+  example: []
+  syntax:
+    content: public string UserName { get; set; }
+    content.vb: Public Property UserName As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.UserName*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions
+  definition: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary)
+  name: Clone()
+  nameWithType: ConnectionSummaryExtensions.Clone()
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone()
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone
+    name: Clone
+    nameWithType: ConnectionSummaryExtensions.Clone
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone
+    name: Clone
+    nameWithType: ConnectionSummaryExtensions.Clone
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary)
+  isExternal: false
+  name: Clone(ConnectionSummary)
+  nameWithType: ConnectionSummaryExtensions.Clone(ConnectionSummary)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary)
+    name: Clone
+    nameWithType: ConnectionSummaryExtensions.Clone
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+    name: ConnectionSummary
+    nameWithType: ConnectionSummary
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary)
+    name: Clone
+    nameWithType: ConnectionSummaryExtensions.Clone
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions.Clone
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+    name: ConnectionSummary
+    nameWithType: ConnectionSummary
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ConnectionSummaryExtensions
+  nameWithType: ConnectionSummaryExtensions
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummaryExtensions
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.ServerName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.ServerName
+  isExternal: false
+  name: ServerName
+  nameWithType: ConnectionSummary.ServerName
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.ServerName
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.DatabaseName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.DatabaseName
+  isExternal: false
+  name: DatabaseName
+  nameWithType: ConnectionSummary.DatabaseName
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.DatabaseName
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.UserName*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.UserName
+  isExternal: false
+  name: UserName
+  nameWithType: ConnectionSummary.UserName
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.UserName

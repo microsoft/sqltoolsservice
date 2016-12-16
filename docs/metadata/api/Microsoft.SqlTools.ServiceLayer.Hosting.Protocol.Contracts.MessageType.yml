@@ -1,0 +1,182 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  id: MessageType
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Event
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Request
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Response
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Unknown
+  langs:
+  - csharp
+  - vb
+  name: MessageType
+  nameWithType: MessageType
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  type: Enum
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: MessageType
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+    startLine: 13
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  summary: "\nDefines all possible message types.\n"
+  example: []
+  syntax:
+    content: public enum MessageType
+    content.vb: Public Enum MessageType
+  modifiers.csharp:
+  - public
+  - enum
+  modifiers.vb:
+  - Public
+  - Enum
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Unknown
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Unknown
+  id: Unknown
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  langs:
+  - csharp
+  - vb
+  name: Unknown
+  nameWithType: MessageType.Unknown
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Unknown
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Unknown
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+    startLine: 15
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  syntax:
+    content: Unknown = 0
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Request
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Request
+  id: Request
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  langs:
+  - csharp
+  - vb
+  name: Request
+  nameWithType: MessageType.Request
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Request
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Request
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  syntax:
+    content: Request = 1
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Response
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Response
+  id: Response
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  langs:
+  - csharp
+  - vb
+  name: Response
+  nameWithType: MessageType.Response
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Response
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Response
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  syntax:
+    content: Response = 2
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Event
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Event
+  id: Event
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  langs:
+  - csharp
+  - vb
+  name: Event
+  nameWithType: MessageType.Event
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType.Event
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Event
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Contracts/Message.cs
+    startLine: 18
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  syntax:
+    content: Event = 3
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: MessageType
+  nameWithType: MessageType
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.MessageType

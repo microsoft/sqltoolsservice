@@ -1,0 +1,1214 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue
+  id: ConnectedBindingQueue
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  children:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.AddConnectionContext(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  langs:
+  - csharp
+  - vb
+  name: ConnectedBindingQueue
+  nameWithType: ConnectedBindingQueue
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/ConnectedBindingQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectedBindingQueue
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/ConnectedBindingQueue.cs
+    startLine: 21
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nConnectedBindingQueue class for processing online binding requests\n"
+  example: []
+  syntax:
+    content: 'public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>'
+    content.vb: >-
+      Public Class ConnectedBindingQueue
+          Inherits BindingQueue(Of ConnectedBindingContext)
+  inheritance:
+  - System.Object
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}
+  inheritedMembers:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.StopQueueProcessor(System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.GetOrCreateBindingContext(System.String)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.BindingContextExists(System.String)
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.AddConnectionContext(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.AddConnectionContext(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  id: AddConnectionContext(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue
+  langs:
+  - csharp
+  - vb
+  name: AddConnectionContext(ConnectionInfo)
+  nameWithType: ConnectedBindingQueue.AddConnectionContext(ConnectionInfo)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.AddConnectionContext(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/ConnectedBindingQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: AddConnectionContext
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/ConnectedBindingQueue.cs
+    startLine: 54
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nUse a ConnectionInfo item to create a connected binding context\n"
+  example: []
+  syntax:
+    content: public virtual string AddConnectionContext(ConnectionInfo connInfo)
+    content.vb: Public Overridable Function AddConnectionContext(connInfo As ConnectionInfo) As String
+    parameters:
+    - id: connInfo
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+      description: ''
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.AddConnectionContext*
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  definition: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+  name: BindingQueue<ConnectedBindingContext>
+  nameWithType: BindingQueue<ConnectedBindingContext>
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>
+  nameWithType.vb: BindingQueue(Of ConnectedBindingContext)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext)
+  name.vb: BindingQueue(Of ConnectedBindingContext)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+    name: BindingQueue
+    nameWithType: BindingQueue
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext
+    name: ConnectedBindingContext
+    nameWithType: ConnectedBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+    name: BindingQueue
+    nameWithType: BindingQueue
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext
+    name: ConnectedBindingContext
+    nameWithType: ConnectedBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.StopQueueProcessor(System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.StopQueueProcessor(System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}
+  definition: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor(System.Int32)
+  name: StopQueueProcessor(Int32)
+  nameWithType: BindingQueue<ConnectedBindingContext>.StopQueueProcessor(Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>.StopQueueProcessor(System.Int32)
+  nameWithType.vb: BindingQueue(Of ConnectedBindingContext).StopQueueProcessor(Int32)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext).StopQueueProcessor(System.Int32)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor(System.Int32)
+    name: StopQueueProcessor
+    nameWithType: BindingQueue<ConnectedBindingContext>.StopQueueProcessor
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>.StopQueueProcessor
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor(System.Int32)
+    name: StopQueueProcessor
+    nameWithType: BindingQueue(Of ConnectedBindingContext).StopQueueProcessor
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext).StopQueueProcessor
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}
+  definition: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+  name: QueueBindingOperation(String, Func<IBindingContext, CancellationToken, Object>, Func<IBindingContext, Object>, Nullable<Int32>, Nullable<Int32>)
+  nameWithType: BindingQueue<ConnectedBindingContext>.QueueBindingOperation(String, Func<IBindingContext, CancellationToken, Object>, Func<IBindingContext, Object>, Nullable<Int32>, Nullable<Int32>)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>.QueueBindingOperation(System.String, System.Func<Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext, System.Threading.CancellationToken, System.Object>, System.Func<Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext, System.Object>, System.Nullable<System.Int32>, System.Nullable<System.Int32>)
+  nameWithType.vb: BindingQueue(Of ConnectedBindingContext).QueueBindingOperation(String, Func(Of IBindingContext, CancellationToken, Object), Func(Of IBindingContext, Object), Nullable(Of Int32), Nullable(Of Int32))
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext).QueueBindingOperation(System.String, System.Func(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext, System.Threading.CancellationToken, System.Object), System.Func(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext, System.Object), System.Nullable(Of System.Int32), System.Nullable(Of System.Int32))
+  name.vb: QueueBindingOperation(String, Func(Of IBindingContext, CancellationToken, Object), Func(Of IBindingContext, Object), Nullable(Of Int32), Nullable(Of Int32))
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+    name: QueueBindingOperation
+    nameWithType: BindingQueue<ConnectedBindingContext>.QueueBindingOperation
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>.QueueBindingOperation
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`3
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+    name: IBindingContext
+    nameWithType: IBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Threading.CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: System.Threading.CancellationToken
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+    name: IBindingContext
+    nameWithType: IBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+    name: QueueBindingOperation
+    nameWithType: BindingQueue(Of ConnectedBindingContext).QueueBindingOperation
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext).QueueBindingOperation
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`3
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+    name: IBindingContext
+    nameWithType: IBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Threading.CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: System.Threading.CancellationToken
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+    name: IBindingContext
+    nameWithType: IBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.GetOrCreateBindingContext(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.GetOrCreateBindingContext(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}
+  definition: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext(System.String)
+  name: GetOrCreateBindingContext(String)
+  nameWithType: BindingQueue<ConnectedBindingContext>.GetOrCreateBindingContext(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>.GetOrCreateBindingContext(System.String)
+  nameWithType.vb: BindingQueue(Of ConnectedBindingContext).GetOrCreateBindingContext(String)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext).GetOrCreateBindingContext(System.String)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext(System.String)
+    name: GetOrCreateBindingContext
+    nameWithType: BindingQueue<ConnectedBindingContext>.GetOrCreateBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>.GetOrCreateBindingContext
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext(System.String)
+    name: GetOrCreateBindingContext
+    nameWithType: BindingQueue(Of ConnectedBindingContext).GetOrCreateBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext).GetOrCreateBindingContext
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.BindingContextExists(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}.BindingContextExists(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue{Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext}
+  definition: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists(System.String)
+  name: BindingContextExists(String)
+  nameWithType: BindingQueue<ConnectedBindingContext>.BindingContextExists(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>.BindingContextExists(System.String)
+  nameWithType.vb: BindingQueue(Of ConnectedBindingContext).BindingContextExists(String)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext).BindingContextExists(System.String)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists(System.String)
+    name: BindingContextExists
+    nameWithType: BindingQueue<ConnectedBindingContext>.BindingContextExists
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext>.BindingContextExists
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists(System.String)
+    name: BindingContextExists
+    nameWithType: BindingQueue(Of ConnectedBindingContext).BindingContextExists
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingContext).BindingContextExists
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+  isExternal: false
+  name: BindingQueue<T>
+  nameWithType: BindingQueue<T>
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>
+  nameWithType.vb: BindingQueue(Of T)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T)
+  name.vb: BindingQueue(Of T)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+    name: BindingQueue
+    nameWithType: BindingQueue
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1
+    name: BindingQueue
+    nameWithType: BindingQueue
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor(System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor(System.Int32)
+  isExternal: true
+  name: StopQueueProcessor(Int32)
+  nameWithType: BindingQueue<T>.StopQueueProcessor(Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>.StopQueueProcessor(System.Int32)
+  nameWithType.vb: BindingQueue(Of T).StopQueueProcessor(Int32)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T).StopQueueProcessor(System.Int32)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor(System.Int32)
+    name: StopQueueProcessor
+    nameWithType: BindingQueue<T>.StopQueueProcessor
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>.StopQueueProcessor
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor(System.Int32)
+    name: StopQueueProcessor
+    nameWithType: BindingQueue(Of T).StopQueueProcessor
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T).StopQueueProcessor
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+  isExternal: true
+  name: QueueBindingOperation(String, Func<IBindingContext, CancellationToken, Object>, Func<IBindingContext, Object>, Nullable<Int32>, Nullable<Int32>)
+  nameWithType: BindingQueue<T>.QueueBindingOperation(String, Func<IBindingContext, CancellationToken, Object>, Func<IBindingContext, Object>, Nullable<Int32>, Nullable<Int32>)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>.QueueBindingOperation(System.String, System.Func<Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext, System.Threading.CancellationToken, System.Object>, System.Func<Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext, System.Object>, System.Nullable<System.Int32>, System.Nullable<System.Int32>)
+  nameWithType.vb: BindingQueue(Of T).QueueBindingOperation(String, Func(Of IBindingContext, CancellationToken, Object), Func(Of IBindingContext, Object), Nullable(Of Int32), Nullable(Of Int32))
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T).QueueBindingOperation(System.String, System.Func(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext, System.Threading.CancellationToken, System.Object), System.Func(Of Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext, System.Object), System.Nullable(Of System.Int32), System.Nullable(Of System.Int32))
+  name.vb: QueueBindingOperation(String, Func(Of IBindingContext, CancellationToken, Object), Func(Of IBindingContext, Object), Nullable(Of Int32), Nullable(Of Int32))
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+    name: QueueBindingOperation
+    nameWithType: BindingQueue<T>.QueueBindingOperation
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>.QueueBindingOperation
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`3
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+    name: IBindingContext
+    nameWithType: IBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Threading.CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: System.Threading.CancellationToken
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+    name: IBindingContext
+    nameWithType: IBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})
+    name: QueueBindingOperation
+    nameWithType: BindingQueue(Of T).QueueBindingOperation
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T).QueueBindingOperation
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`3
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+    name: IBindingContext
+    nameWithType: IBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Threading.CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: System.Threading.CancellationToken
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+    name: IBindingContext
+    nameWithType: IBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext(System.String)
+  isExternal: true
+  name: GetOrCreateBindingContext(String)
+  nameWithType: BindingQueue<T>.GetOrCreateBindingContext(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>.GetOrCreateBindingContext(System.String)
+  nameWithType.vb: BindingQueue(Of T).GetOrCreateBindingContext(String)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T).GetOrCreateBindingContext(System.String)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext(System.String)
+    name: GetOrCreateBindingContext
+    nameWithType: BindingQueue<T>.GetOrCreateBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>.GetOrCreateBindingContext
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext(System.String)
+    name: GetOrCreateBindingContext
+    nameWithType: BindingQueue(Of T).GetOrCreateBindingContext
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T).GetOrCreateBindingContext
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists(System.String)
+  isExternal: true
+  name: BindingContextExists(String)
+  nameWithType: BindingQueue<T>.BindingContextExists(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>.BindingContextExists(System.String)
+  nameWithType.vb: BindingQueue(Of T).BindingContextExists(String)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T).BindingContextExists(System.String)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists(System.String)
+    name: BindingContextExists
+    nameWithType: BindingQueue<T>.BindingContextExists
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue<T>.BindingContextExists
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists(System.String)
+    name: BindingContextExists
+    nameWithType: BindingQueue(Of T).BindingContextExists
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue(Of T).BindingContextExists
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.AddConnectionContext*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.AddConnectionContext
+  isExternal: false
+  name: AddConnectionContext
+  nameWithType: ConnectedBindingQueue.AddConnectionContext
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.AddConnectionContext
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ConnectionInfo
+  nameWithType: ConnectionInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Connection
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection

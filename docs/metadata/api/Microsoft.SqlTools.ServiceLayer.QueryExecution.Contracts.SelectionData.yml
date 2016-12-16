@@ -1,0 +1,700 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  id: SelectionData
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor(System.Int32,System.Int32,System.Int32,System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndColumn
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndLine
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.FromBufferRange(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartColumn
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartLine
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.ToBufferRange
+  langs:
+  - csharp
+  - vb
+  name: SelectionData
+  nameWithType: SelectionData
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SelectionData
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 12
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nContainer class for a selection range from file \n"
+  example: []
+  syntax:
+    content: public class SelectionData
+    content.vb: Public Class SelectionData
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor
+  id: '#ctor'
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  langs:
+  - csharp
+  - vb
+  name: SelectionData()
+  nameWithType: SelectionData.SelectionData()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.SelectionData()
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 14
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public SelectionData()
+    content.vb: Public Sub New
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor(System.Int32,System.Int32,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor(System.Int32,System.Int32,System.Int32,System.Int32)
+  id: '#ctor(System.Int32,System.Int32,System.Int32,System.Int32)'
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  langs:
+  - csharp
+  - vb
+  name: SelectionData(Int32, Int32, Int32, Int32)
+  nameWithType: SelectionData.SelectionData(Int32, Int32, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.SelectionData(System.Int32, System.Int32, System.Int32, System.Int32)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public SelectionData(int startLine, int startColumn, int endLine, int endColumn)
+    content.vb: Public Sub New(startLine As Integer, startColumn As Integer, endLine As Integer, endColumn As Integer)
+    parameters:
+    - id: startLine
+      type: System.Int32
+    - id: startColumn
+      type: System.Int32
+    - id: endLine
+      type: System.Int32
+    - id: endColumn
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndColumn
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndColumn
+  id: EndColumn
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  langs:
+  - csharp
+  - vb
+  name: EndColumn
+  nameWithType: SelectionData.EndColumn
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndColumn
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: EndColumn
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 26
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public int EndColumn { get; set; }
+    content.vb: Public Property EndColumn As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndColumn*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndLine
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndLine
+  id: EndLine
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  langs:
+  - csharp
+  - vb
+  name: EndLine
+  nameWithType: SelectionData.EndLine
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndLine
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: EndLine
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 28
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public int EndLine { get; set; }
+    content.vb: Public Property EndLine As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndLine*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartColumn
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartColumn
+  id: StartColumn
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  langs:
+  - csharp
+  - vb
+  name: StartColumn
+  nameWithType: SelectionData.StartColumn
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartColumn
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: StartColumn
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 30
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public int StartColumn { get; set; }
+    content.vb: Public Property StartColumn As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartColumn*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartLine
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartLine
+  id: StartLine
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  langs:
+  - csharp
+  - vb
+  name: StartLine
+  nameWithType: SelectionData.StartLine
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartLine
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: StartLine
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 31
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public int StartLine { get; set; }
+    content.vb: Public Property StartLine As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartLine*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.ToBufferRange
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.ToBufferRange
+  id: ToBufferRange
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  langs:
+  - csharp
+  - vb
+  name: ToBufferRange()
+  nameWithType: SelectionData.ToBufferRange()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.ToBufferRange()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ToBufferRange
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 35
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public BufferRange ToBufferRange()
+    content.vb: Public Function ToBufferRange As BufferRange
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.ToBufferRange*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.FromBufferRange(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.FromBufferRange(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange)
+  id: FromBufferRange(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  langs:
+  - csharp
+  - vb
+  name: FromBufferRange(BufferRange)
+  nameWithType: SelectionData.FromBufferRange(BufferRange)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.FromBufferRange(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: FromBufferRange
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SelectionData.cs
+    startLine: 40
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  syntax:
+    content: public static SelectionData FromBufferRange(BufferRange range)
+    content.vb: Public Shared Function FromBufferRange(range As BufferRange) As SelectionData
+    parameters:
+    - id: range
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.FromBufferRange*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.#ctor
+  isExternal: false
+  name: SelectionData
+  nameWithType: SelectionData.SelectionData
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.SelectionData
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndColumn*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndColumn
+  isExternal: false
+  name: EndColumn
+  nameWithType: SelectionData.EndColumn
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndColumn
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndLine*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndLine
+  isExternal: false
+  name: EndLine
+  nameWithType: SelectionData.EndLine
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.EndLine
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartColumn*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartColumn
+  isExternal: false
+  name: StartColumn
+  nameWithType: SelectionData.StartColumn
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartColumn
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartLine*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartLine
+  isExternal: false
+  name: StartLine
+  nameWithType: SelectionData.StartLine
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.StartLine
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.ToBufferRange*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.ToBufferRange
+  isExternal: false
+  name: ToBufferRange
+  nameWithType: SelectionData.ToBufferRange
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.ToBufferRange
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: BufferRange
+  nameWithType: BufferRange
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.BufferRange
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.FromBufferRange*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.FromBufferRange
+  isExternal: false
+  name: FromBufferRange
+  nameWithType: SelectionData.FromBufferRange
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData.FromBufferRange
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: SelectionData
+  nameWithType: SelectionData
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SelectionData

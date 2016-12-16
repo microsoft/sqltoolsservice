@@ -1,0 +1,69 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Batch.BatchAsyncEventHandler
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Batch.BatchAsyncEventHandler
+  id: Batch.BatchAsyncEventHandler
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  children: []
+  langs:
+  - csharp
+  - vb
+  name: Batch.BatchAsyncEventHandler
+  nameWithType: Batch.BatchAsyncEventHandler
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Batch.BatchAsyncEventHandler
+  type: Delegate
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Batch.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: BatchAsyncEventHandler
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Batch.cs
+    startLine: 83
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  summary: "\nAsynchronous handler for when batches are completed\n"
+  example: []
+  syntax:
+    content: public delegate Task BatchAsyncEventHandler(Batch batch);
+    content.vb: Public Delegate Function BatchAsyncEventHandler(batch As Batch) As Task
+    parameters:
+    - id: batch
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.Batch
+      description: The batch that completed
+    return:
+      type: System.Threading.Tasks.Task
+  modifiers.csharp:
+  - public
+  - delegate
+  modifiers.vb:
+  - Public
+  - Delegate
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Batch
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Batch
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution
+  isExternal: false
+  name: Batch
+  nameWithType: Batch
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Batch
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks

@@ -1,0 +1,54 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting
+  id: Microsoft.SqlTools.ServiceLayer.Hosting
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+  - Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.InitializeCallback
+  - Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.ShutdownCallback
+  - Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHostBase
+  langs:
+  - csharp
+  - vb
+  name: Microsoft.SqlTools.ServiceLayer.Hosting
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting
+  type: Namespace
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: ServiceHost
+  nameWithType: ServiceHost
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.ShutdownCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.ShutdownCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: ServiceHost.ShutdownCallback
+  nameWithType: ServiceHost.ShutdownCallback
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.ShutdownCallback
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.InitializeCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.InitializeCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: ServiceHost.InitializeCallback
+  nameWithType: ServiceHost.InitializeCallback
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.InitializeCallback
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHostBase
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHostBase
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: ServiceHostBase
+  nameWithType: ServiceHostBase
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHostBase
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting

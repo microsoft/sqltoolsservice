@@ -1,0 +1,163 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.ShutdownCallback
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.ShutdownCallback
+  id: ServiceHost.ShutdownCallback
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting
+  children: []
+  langs:
+  - csharp
+  - vb
+  name: ServiceHost.ShutdownCallback
+  nameWithType: ServiceHost.ShutdownCallback
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.ShutdownCallback
+  type: Delegate
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/ServiceHost.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ShutdownCallback
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/ServiceHost.cs
+    startLine: 76
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting
+  summary: "\nDelegate definition for the host shutdown event\n"
+  example: []
+  syntax:
+    content: public delegate Task ShutdownCallback(object shutdownParams, RequestContext<object> shutdownRequestContext);
+    content.vb: Public Delegate Function ShutdownCallback(shutdownParams As Object, shutdownRequestContext As RequestContext(Of Object)) As Task
+    parameters:
+    - id: shutdownParams
+      type: System.Object
+      description: ''
+    - id: shutdownRequestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Object}
+      description: ''
+    return:
+      type: System.Threading.Tasks.Task
+  modifiers.csharp:
+  - public
+  - delegate
+  modifiers.vb:
+  - Public
+  - Delegate
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Object}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Object}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  name: RequestContext<Object>
+  nameWithType: RequestContext<Object>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<System.Object>
+  nameWithType.vb: RequestContext(Of Object)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of System.Object)
+  name.vb: RequestContext(Of Object)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  isExternal: false
+  name: RequestContext<TResult>
+  nameWithType: RequestContext<TResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>
+  nameWithType.vb: RequestContext(Of TResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult)
+  name.vb: RequestContext(Of TResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks

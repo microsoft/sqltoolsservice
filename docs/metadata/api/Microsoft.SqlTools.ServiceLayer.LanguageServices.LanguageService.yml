@@ -1,0 +1,954 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  id: LanguageService
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  children:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition,Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[],Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary,System.String)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  langs:
+  - csharp
+  - vb
+  name: LanguageService
+  nameWithType: LanguageService
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: LanguageService
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 34
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nMain class for Language Service functionality including anything that requires knowledge of\nthe language to perform, such as definitions, intellisense, etc.\n"
+  example: []
+  syntax:
+    content: public sealed class LanguageService
+    content.vb: Public NotInheritable Class LanguageService
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - sealed
+  - class
+  modifiers.vb:
+  - Public
+  - NotInheritable
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance
+  id: Instance
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: Instance
+  nameWithType: LanguageService.Instance
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Instance
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 123
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nGets the singleton instance object\n"
+  example: []
+  syntax:
+    content: public static LanguageService Instance { get; }
+    content.vb: Public Shared ReadOnly Property Instance As LanguageService
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance*
+  modifiers.csharp:
+  - public
+  - static
+  - get
+  modifiers.vb:
+  - Public
+  - Shared
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext)
+  id: InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: InitializeService(ServiceHost, SqlToolsContext)
+  nameWithType: LanguageService.InitializeService(ServiceHost, SqlToolsContext)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost, Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: InitializeService
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 200
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nInitializes the Language Service instance\n"
+  example: []
+  syntax:
+    content: public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
+    content.vb: Public Sub InitializeService(serviceHost As ServiceHost, context As SqlToolsContext)
+    parameters:
+    - id: serviceHost
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+      description: ''
+    - id: context
+      type: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext
+      description: ''
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  id: HandleDidOpenTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: HandleDidOpenTextDocumentNotification(ScriptFile, EventContext)
+  nameWithType: LanguageService.HandleDidOpenTextDocumentNotification(ScriptFile, EventContext)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleDidOpenTextDocumentNotification
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 409
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nHandle the file open notification \n"
+  example: []
+  syntax:
+    content: public Task HandleDidOpenTextDocumentNotification(ScriptFile scriptFile, EventContext eventContext)
+    content.vb: Public Function HandleDidOpenTextDocumentNotification(scriptFile As ScriptFile, eventContext As EventContext) As Task
+    parameters:
+    - id: scriptFile
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+      description: ''
+    - id: eventContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+      description: ''
+    return:
+      type: System.Threading.Tasks.Task
+      description: ''
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[],Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[],Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  id: HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[],Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: HandleDidChangeTextDocumentNotification(ScriptFile[], EventContext)
+  nameWithType: LanguageService.HandleDidChangeTextDocumentNotification(ScriptFile[], EventContext)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[], Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleDidChangeTextDocumentNotification
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 430
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nHandles text document change events \n"
+  example: []
+  syntax:
+    content: public Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles, EventContext eventContext)
+    content.vb: Public Function HandleDidChangeTextDocumentNotification(changedFiles As ScriptFile(), eventContext As EventContext) As Task
+    parameters:
+    - id: changedFiles
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[]
+    - id: eventContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+      description: ''
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification*
+  nameWithType.vb: LanguageService.HandleDidChangeTextDocumentNotification(ScriptFile(), EventContext)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile(), Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  name.vb: HandleDidChangeTextDocumentNotification(ScriptFile(), EventContext)
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  id: HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: HandleDidChangeConfigurationNotification(SqlToolsSettings, SqlToolsSettings, EventContext)
+  nameWithType: LanguageService.HandleDidChangeConfigurationNotification(SqlToolsSettings, SqlToolsSettings, EventContext)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings, Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleDidChangeConfigurationNotification
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 448
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nHandle the file configuration change notification\n"
+  example: []
+  syntax:
+    content: public Task HandleDidChangeConfigurationNotification(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+    content.vb: Public Function HandleDidChangeConfigurationNotification(newSettings As SqlToolsSettings, oldSettings As SqlToolsSettings, eventContext As EventContext) As Task
+    parameters:
+    - id: newSettings
+      type: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+      description: ''
+    - id: oldSettings
+      type: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+      description: ''
+    - id: eventContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+      description: ''
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary,System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary,System.String)
+  id: RemoveAutoCompleteCacheUriReference(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary,System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: RemoveAutoCompleteCacheUriReference(ConnectionSummary, String)
+  nameWithType: LanguageService.RemoveAutoCompleteCacheUriReference(ConnectionSummary, String)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary, System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: RemoveAutoCompleteCacheUriReference
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 491
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nRemove a reference to an autocomplete cache from a URI. If\nit is the last URI connected to a particular connection,\nthen remove the cache.\n"
+  example: []
+  syntax:
+    content: public Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary, string ownerUri)
+    content.vb: Public Function RemoveAutoCompleteCacheUriReference(summary As ConnectionSummary, ownerUri As String) As Task
+    parameters:
+    - id: summary
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+    - id: ownerUri
+      type: System.String
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  id: ParseAndBind(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: ParseAndBind(ScriptFile, ConnectionInfo)
+  nameWithType: LanguageService.ParseAndBind(ScriptFile, ConnectionInfo)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ParseAndBind
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 506
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nParses the SQL text and binds it to the SMO metadata provider if connected \n"
+  example: []
+  syntax:
+    content: public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
+    content.vb: Public Function ParseAndBind(scriptFile As ScriptFile, connInfo As ConnectionInfo) As ParseResult
+    parameters:
+    - id: scriptFile
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+    - id: connInfo
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+    return:
+      type: Microsoft.SqlServer.Management.SqlParser.Parser.ParseResult
+      description: The ParseResult instance returned from SQL Parser
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  id: UpdateLanguageServiceOnConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: UpdateLanguageServiceOnConnection(ConnectionInfo)
+  nameWithType: LanguageService.UpdateLanguageServiceOnConnection(ConnectionInfo)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: UpdateLanguageServiceOnConnection
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 590
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nUpdate the autocomplete metadata provider when the user connects to a database\n"
+  example: []
+  syntax:
+    content: public Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
+    content.vb: Public Function UpdateLanguageServiceOnConnection(info As ConnectionInfo) As Task
+    parameters:
+    - id: info
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+      description: ''
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition,Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition,Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  id: GetCompletionItems(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition,Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  langs:
+  - csharp
+  - vb
+  name: GetCompletionItems(TextDocumentPosition, ScriptFile, ConnectionInfo)
+  nameWithType: LanguageService.GetCompletionItems(TextDocumentPosition, ScriptFile, ConnectionInfo)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition, Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile, Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: GetCompletionItems
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs
+    startLine: 961
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  summary: "\nReturn the completion item list for the current text position.\nThis method does not await cache builds since it expects to return quickly\n"
+  example: []
+  syntax:
+    content: public CompletionItem[] GetCompletionItems(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+    content.vb: Public Function GetCompletionItems(textDocumentPosition As TextDocumentPosition, scriptFile As ScriptFile, connInfo As ConnectionInfo) As CompletionItem()
+    parameters:
+    - id: textDocumentPosition
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition
+      description: ''
+    - id: scriptFile
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+    - id: connInfo
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem[]
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance
+  isExternal: false
+  name: Instance
+  nameWithType: LanguageService.Instance
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices
+  isExternal: false
+  name: LanguageService
+  nameWithType: LanguageService
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService
+  isExternal: false
+  name: InitializeService
+  nameWithType: LanguageService.InitializeService
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: ServiceHost
+  nameWithType: ServiceHost
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost
+- uid: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext
+  commentId: T:Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext
+  parent: Microsoft.SqlTools.ServiceLayer.SqlContext
+  isExternal: false
+  name: SqlToolsContext
+  nameWithType: SqlToolsContext
+  fullName: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting
+- uid: Microsoft.SqlTools.ServiceLayer.SqlContext
+  commentId: N:Microsoft.SqlTools.ServiceLayer.SqlContext
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.SqlContext
+  nameWithType: Microsoft.SqlTools.ServiceLayer.SqlContext
+  fullName: Microsoft.SqlTools.ServiceLayer.SqlContext
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification
+  isExternal: false
+  name: HandleDidOpenTextDocumentNotification
+  nameWithType: LanguageService.HandleDidOpenTextDocumentNotification
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: ScriptFile
+  nameWithType: ScriptFile
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: EventContext
+  nameWithType: EventContext
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification
+  isExternal: false
+  name: HandleDidChangeTextDocumentNotification
+  nameWithType: LanguageService.HandleDidChangeTextDocumentNotification
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[]
+  name: ScriptFile[]
+  nameWithType: ScriptFile[]
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[]
+  nameWithType.vb: ScriptFile()
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile()
+  name.vb: ScriptFile()
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+    name: ScriptFile
+    nameWithType: ScriptFile
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+    name: ScriptFile
+    nameWithType: ScriptFile
+    fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification
+  isExternal: false
+  name: HandleDidChangeConfigurationNotification
+  nameWithType: LanguageService.HandleDidChangeConfigurationNotification
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification
+- uid: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+  commentId: T:Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+  parent: Microsoft.SqlTools.ServiceLayer.SqlContext
+  isExternal: false
+  name: SqlToolsSettings
+  nameWithType: SqlToolsSettings
+  fullName: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference
+  isExternal: false
+  name: RemoveAutoCompleteCacheUriReference
+  nameWithType: LanguageService.RemoveAutoCompleteCacheUriReference
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ConnectionSummary
+  nameWithType: ConnectionSummary
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind
+  isExternal: false
+  name: ParseAndBind
+  nameWithType: LanguageService.ParseAndBind
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ConnectionInfo
+  nameWithType: ConnectionInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+- uid: Microsoft.SqlServer.Management.SqlParser.Parser.ParseResult
+  commentId: T:Microsoft.SqlServer.Management.SqlParser.Parser.ParseResult
+  parent: Microsoft.SqlServer.Management.SqlParser.Parser
+  isExternal: true
+  name: ParseResult
+  nameWithType: ParseResult
+  fullName: Microsoft.SqlServer.Management.SqlParser.Parser.ParseResult
+- uid: Microsoft.SqlTools.ServiceLayer.Connection
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection
+- uid: Microsoft.SqlServer.Management.SqlParser.Parser
+  commentId: N:Microsoft.SqlServer.Management.SqlParser.Parser
+  isExternal: false
+  name: Microsoft.SqlServer.Management.SqlParser.Parser
+  nameWithType: Microsoft.SqlServer.Management.SqlParser.Parser
+  fullName: Microsoft.SqlServer.Management.SqlParser.Parser
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection
+  isExternal: false
+  name: UpdateLanguageServiceOnConnection
+  nameWithType: LanguageService.UpdateLanguageServiceOnConnection
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems
+  isExternal: false
+  name: GetCompletionItems
+  nameWithType: LanguageService.GetCompletionItems
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: TextDocumentPosition
+  nameWithType: TextDocumentPosition
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem[]
+  name: CompletionItem[]
+  nameWithType: CompletionItem[]
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem[]
+  nameWithType.vb: CompletionItem()
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem()
+  name.vb: CompletionItem()
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem
+    name: CompletionItem
+    nameWithType: CompletionItem
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem
+    name: CompletionItem
+    nameWithType: CompletionItem
+    fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem
+  - name: ()
+    nameWithType: ()
+    fullName: ()

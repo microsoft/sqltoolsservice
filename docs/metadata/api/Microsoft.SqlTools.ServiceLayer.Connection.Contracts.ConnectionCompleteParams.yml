@@ -1,0 +1,681 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  id: ConnectionCompleteParams
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionId
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionSummary
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorMessage
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorNumber
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.Messages
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.OwnerUri
+  - Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ServerInfo
+  langs:
+  - csharp
+  - vb
+  name: ConnectionCompleteParams
+  nameWithType: ConnectionCompleteParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionCompleteParams
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+    startLine: 12
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nParameters to be sent back with a connection complete event\n"
+  example: []
+  syntax:
+    content: public class ConnectionCompleteParams
+    content.vb: Public Class ConnectionCompleteParams
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.OwnerUri
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.OwnerUri
+  id: OwnerUri
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  langs:
+  - csharp
+  - vb
+  name: OwnerUri
+  nameWithType: ConnectionCompleteParams.OwnerUri
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.OwnerUri
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: OwnerUri
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+    startLine: 18
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nA URI identifying the owner of the connection. This will most commonly be a file in the workspace\nor a virtual file representing an object in a database.         \n"
+  example: []
+  syntax:
+    content: public string OwnerUri { get; set; }
+    content.vb: Public Property OwnerUri As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.OwnerUri*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionId
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionId
+  id: ConnectionId
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  langs:
+  - csharp
+  - vb
+  name: ConnectionId
+  nameWithType: ConnectionCompleteParams.ConnectionId
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionId
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionId
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+    startLine: 23
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nA GUID representing a unique connection ID\n"
+  example: []
+  syntax:
+    content: public string ConnectionId { get; set; }
+    content.vb: Public Property ConnectionId As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionId*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.Messages
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.Messages
+  id: Messages
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  langs:
+  - csharp
+  - vb
+  name: Messages
+  nameWithType: ConnectionCompleteParams.Messages
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.Messages
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Messages
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+    startLine: 28
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nGets or sets any detailed connection error messages.\n"
+  example: []
+  syntax:
+    content: public string Messages { get; set; }
+    content.vb: Public Property Messages As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.Messages*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorMessage
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorMessage
+  id: ErrorMessage
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  langs:
+  - csharp
+  - vb
+  name: ErrorMessage
+  nameWithType: ConnectionCompleteParams.ErrorMessage
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorMessage
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ErrorMessage
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+    startLine: 33
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nError message returned from the engine for a connection failure reason, if any.\n"
+  example: []
+  syntax:
+    content: public string ErrorMessage { get; set; }
+    content.vb: Public Property ErrorMessage As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorMessage*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorNumber
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorNumber
+  id: ErrorNumber
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  langs:
+  - csharp
+  - vb
+  name: ErrorNumber
+  nameWithType: ConnectionCompleteParams.ErrorNumber
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorNumber
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ErrorNumber
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+    startLine: 38
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nError number returned from the engine for connection failure reason, if any.\n"
+  example: []
+  syntax:
+    content: public int ErrorNumber { get; set; }
+    content.vb: Public Property ErrorNumber As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorNumber*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ServerInfo
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ServerInfo
+  id: ServerInfo
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  langs:
+  - csharp
+  - vb
+  name: ServerInfo
+  nameWithType: ConnectionCompleteParams.ServerInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ServerInfo
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ServerInfo
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+    startLine: 43
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nInformation about the connected server.\n"
+  example: []
+  syntax:
+    content: public ServerInfo ServerInfo { get; set; }
+    content.vb: Public Property ServerInfo As ServerInfo
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ServerInfo
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ServerInfo*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionSummary
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionSummary
+  id: ConnectionSummary
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  langs:
+  - csharp
+  - vb
+  name: ConnectionSummary
+  nameWithType: ConnectionCompleteParams.ConnectionSummary
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionSummary
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionSummary
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionCompleteNotification.cs
+    startLine: 48
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  summary: "\nGets or sets the actual Connection established, including Database Name\n"
+  example: []
+  syntax:
+    content: public ConnectionSummary ConnectionSummary { get; set; }
+    content.vb: Public Property ConnectionSummary As ConnectionSummary
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionSummary*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.OwnerUri*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.OwnerUri
+  isExternal: false
+  name: OwnerUri
+  nameWithType: ConnectionCompleteParams.OwnerUri
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.OwnerUri
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionId*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionId
+  isExternal: false
+  name: ConnectionId
+  nameWithType: ConnectionCompleteParams.ConnectionId
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionId
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.Messages*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.Messages
+  isExternal: false
+  name: Messages
+  nameWithType: ConnectionCompleteParams.Messages
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.Messages
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorMessage*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorMessage
+  isExternal: false
+  name: ErrorMessage
+  nameWithType: ConnectionCompleteParams.ErrorMessage
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorMessage
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorNumber*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorNumber
+  isExternal: false
+  name: ErrorNumber
+  nameWithType: ConnectionCompleteParams.ErrorNumber
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ErrorNumber
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ServerInfo*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ServerInfo
+  isExternal: false
+  name: ServerInfo
+  nameWithType: ConnectionCompleteParams.ServerInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ServerInfo
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ServerInfo
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ServerInfo
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ServerInfo
+  nameWithType: ServerInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ServerInfo
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionSummary*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionSummary
+  isExternal: false
+  name: ConnectionSummary
+  nameWithType: ConnectionCompleteParams.ConnectionSummary
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams.ConnectionSummary
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ConnectionSummary
+  nameWithType: ConnectionSummary
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary

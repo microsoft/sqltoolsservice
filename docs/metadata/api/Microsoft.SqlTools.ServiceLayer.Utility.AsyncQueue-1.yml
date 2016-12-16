@@ -1,0 +1,822 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1
+  id: AsyncQueue`1
+  parent: Microsoft.SqlTools.ServiceLayer.Utility
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor
+  - Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor(System.Collections.Generic.IEnumerable{`0})
+  - Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync
+  - Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync(System.Threading.CancellationToken)
+  - Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.EnqueueAsync(`0)
+  - Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.IsEmpty
+  langs:
+  - csharp
+  - vb
+  name: AsyncQueue<T>
+  nameWithType: AsyncQueue<T>
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue<T>
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: AsyncQueue
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nProvides a synchronized queue which can be used from within async\noperations.  This is primarily used for producer/consumer scenarios.\n"
+  example: []
+  syntax:
+    content: public class AsyncQueue<T>
+    content.vb: Public Class AsyncQueue(Of T)
+    typeParameters:
+    - id: T
+      description: The type of item contained in the queue.
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  nameWithType.vb: AsyncQueue(Of T)
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue(Of T)
+  name.vb: AsyncQueue(Of T)
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.IsEmpty
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.IsEmpty
+  id: IsEmpty
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1
+  langs:
+  - csharp
+  - vb
+  name: IsEmpty
+  nameWithType: AsyncQueue<T>.IsEmpty
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue<T>.IsEmpty
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IsEmpty
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+    startLine: 32
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nReturns true if the queue is currently empty.\n"
+  example: []
+  syntax:
+    content: public bool IsEmpty { get; }
+    content.vb: Public ReadOnly Property IsEmpty As Boolean
+    parameters: []
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.IsEmpty*
+  nameWithType.vb: AsyncQueue(Of T).IsEmpty
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue(Of T).IsEmpty
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor
+  id: '#ctor'
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1
+  langs:
+  - csharp
+  - vb
+  name: AsyncQueue()
+  nameWithType: AsyncQueue<T>.AsyncQueue()
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue<T>.AsyncQueue()
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+    startLine: 41
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nInitializes an empty instance of the AsyncQueue class.\n"
+  example: []
+  syntax:
+    content: public AsyncQueue()
+    content.vb: Public Sub New
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor*
+  nameWithType.vb: AsyncQueue(Of T).AsyncQueue()
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue(Of T).AsyncQueue()
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor(System.Collections.Generic.IEnumerable{`0})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor(System.Collections.Generic.IEnumerable{`0})
+  id: '#ctor(System.Collections.Generic.IEnumerable{`0})'
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1
+  langs:
+  - csharp
+  - vb
+  name: AsyncQueue(IEnumerable<T>)
+  nameWithType: AsyncQueue<T>.AsyncQueue(IEnumerable<T>)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue<T>.AsyncQueue(System.Collections.Generic.IEnumerable<T>)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+    startLine: 53
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nInitializes an instance of the AsyncQueue class, pre-populated\nwith the given collection of items.\n"
+  example: []
+  syntax:
+    content: public AsyncQueue(IEnumerable<T> initialItems)
+    content.vb: Public Sub New(initialItems As IEnumerable(Of T))
+    parameters:
+    - id: initialItems
+      type: System.Collections.Generic.IEnumerable{{T}}
+      description: "\nAn IEnumerable containing the initial items with which the queue will\nbe populated.\n"
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor*
+  nameWithType.vb: AsyncQueue(Of T).AsyncQueue(IEnumerable(Of T))
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue(Of T).AsyncQueue(System.Collections.Generic.IEnumerable(Of T))
+  name.vb: AsyncQueue(IEnumerable(Of T))
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.EnqueueAsync(`0)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.EnqueueAsync(`0)
+  id: EnqueueAsync(`0)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1
+  langs:
+  - csharp
+  - vb
+  name: EnqueueAsync(T)
+  nameWithType: AsyncQueue<T>.EnqueueAsync(T)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue<T>.EnqueueAsync(T)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: EnqueueAsync
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+    startLine: 71
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nEnqueues an item onto the end of the queue.\n"
+  example: []
+  syntax:
+    content: public Task EnqueueAsync(T item)
+    content.vb: Public Function EnqueueAsync(item As T) As Task
+    parameters:
+    - id: item
+      type: '{T}'
+      description: The item to be added to the queue.
+    return:
+      type: System.Threading.Tasks.Task
+      description: "\nA Task which can be awaited until the synchronized enqueue\noperation completes.\n"
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.EnqueueAsync*
+  nameWithType.vb: AsyncQueue(Of T).EnqueueAsync(T)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue(Of T).EnqueueAsync(T)
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync
+  id: DequeueAsync
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1
+  langs:
+  - csharp
+  - vb
+  name: DequeueAsync()
+  nameWithType: AsyncQueue<T>.DequeueAsync()
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue<T>.DequeueAsync()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DequeueAsync
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+    startLine: 103
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nDequeues an item from the queue or waits asynchronously\nuntil an item is available.\n"
+  example: []
+  syntax:
+    content: public Task<T> DequeueAsync()
+    content.vb: Public Function DequeueAsync As Task(Of T)
+    return:
+      type: System.Threading.Tasks.Task{{T}}
+      description: "\nA Task which can be awaited until a value can be dequeued.\n"
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync*
+  nameWithType.vb: AsyncQueue(Of T).DequeueAsync()
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue(Of T).DequeueAsync()
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync(System.Threading.CancellationToken)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync(System.Threading.CancellationToken)
+  id: DequeueAsync(System.Threading.CancellationToken)
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1
+  langs:
+  - csharp
+  - vb
+  name: DequeueAsync(CancellationToken)
+  nameWithType: AsyncQueue<T>.DequeueAsync(CancellationToken)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue<T>.DequeueAsync(System.Threading.CancellationToken)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DequeueAsync
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/AsyncQueue.cs
+    startLine: 119
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nDequeues an item from the queue or waits asynchronously\nuntil an item is available.  The wait can be cancelled\nusing the given CancellationToken.\n"
+  example: []
+  syntax:
+    content: public Task<T> DequeueAsync(CancellationToken cancellationToken)
+    content.vb: Public Function DequeueAsync(cancellationToken As CancellationToken) As Task(Of T)
+    parameters:
+    - id: cancellationToken
+      type: System.Threading.CancellationToken
+      description: "\nA CancellationToken with which a dequeue wait can be cancelled.\n"
+    return:
+      type: System.Threading.Tasks.Task{{T}}
+      description: "\nA Task which can be awaited until a value can be dequeued.\n"
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync*
+  nameWithType.vb: AsyncQueue(Of T).DequeueAsync(CancellationToken)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue(Of T).DequeueAsync(System.Threading.CancellationToken)
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Utility
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Utility
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Utility
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.IsEmpty*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.IsEmpty
+  isExternal: false
+  name: IsEmpty
+  nameWithType: AsyncQueue<T>.IsEmpty
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue<T>.IsEmpty
+  nameWithType.vb: AsyncQueue(Of T).IsEmpty
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue(Of T).IsEmpty
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.#ctor
+  isExternal: false
+  name: AsyncQueue
+  nameWithType: AsyncQueue.AsyncQueue
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue.AsyncQueue
+- uid: System.Collections.Generic.IEnumerable{{T}}
+  commentId: T:System.Collections.Generic.IEnumerable{`0}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.IEnumerable`1
+  name: IEnumerable<T>
+  nameWithType: IEnumerable<T>
+  fullName: System.Collections.Generic.IEnumerable<T>
+  nameWithType.vb: IEnumerable(Of T)
+  fullname.vb: System.Collections.Generic.IEnumerable(Of T)
+  name.vb: IEnumerable(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic.IEnumerable`1
+  commentId: T:System.Collections.Generic.IEnumerable`1
+  isExternal: true
+  name: IEnumerable<T>
+  nameWithType: IEnumerable<T>
+  fullName: System.Collections.Generic.IEnumerable<T>
+  nameWithType.vb: IEnumerable(Of T)
+  fullname.vb: System.Collections.Generic.IEnumerable(Of T)
+  name.vb: IEnumerable(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic
+  commentId: N:System.Collections.Generic
+  isExternal: false
+  name: System.Collections.Generic
+  nameWithType: System.Collections.Generic
+  fullName: System.Collections.Generic
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.EnqueueAsync*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.EnqueueAsync
+  isExternal: false
+  name: EnqueueAsync
+  nameWithType: AsyncQueue.EnqueueAsync
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue.EnqueueAsync
+- uid: '{T}'
+  commentId: '!:T'
+  definition: T
+  name: T
+  nameWithType: T
+  fullName: T
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: T
+  isExternal: false
+  name: T
+  nameWithType: T
+  fullName: T
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue`1.DequeueAsync
+  isExternal: false
+  name: DequeueAsync
+  nameWithType: AsyncQueue.DequeueAsync
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.AsyncQueue.DequeueAsync
+- uid: System.Threading.Tasks.Task{{T}}
+  commentId: T:System.Threading.Tasks.Task{`0}
+  parent: System.Threading.Tasks
+  definition: System.Threading.Tasks.Task`1
+  name: Task<T>
+  nameWithType: Task<T>
+  fullName: System.Threading.Tasks.Task<T>
+  nameWithType.vb: Task(Of T)
+  fullname.vb: System.Threading.Tasks.Task(Of T)
+  name.vb: Task(Of T)
+  spec.csharp:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.Tasks.Task`1
+  commentId: T:System.Threading.Tasks.Task`1
+  isExternal: true
+  name: Task<TResult>
+  nameWithType: Task<TResult>
+  fullName: System.Threading.Tasks.Task<TResult>
+  nameWithType.vb: Task(Of TResult)
+  fullname.vb: System.Threading.Tasks.Task(Of TResult)
+  name.vb: Task(Of TResult)
+  spec.csharp:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.CancellationToken
+  commentId: T:System.Threading.CancellationToken
+  parent: System.Threading
+  isExternal: true
+  name: CancellationToken
+  nameWithType: CancellationToken
+  fullName: System.Threading.CancellationToken
+- uid: System.Threading
+  commentId: N:System.Threading
+  isExternal: false
+  name: System.Threading
+  nameWithType: System.Threading
+  fullName: System.Threading

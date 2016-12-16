@@ -1,0 +1,947 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1
+  id: LongList`1.LongListEnumerator`1
+  parent: Microsoft.SqlTools.ServiceLayer.Utility
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.#ctor(Microsoft.SqlTools.ServiceLayer.Utility.LongList{`1})
+  - Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Current
+  - Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Dispose
+  - Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.MoveNext
+  - Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Reset
+  - Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.System#Collections#IEnumerator#Current
+  langs:
+  - csharp
+  - vb
+  name: LongList<T>.LongListEnumerator<TEt>
+  nameWithType: LongList<T>.LongListEnumerator<TEt>
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: LongListEnumerator
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+    startLine: 199
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  syntax:
+    content: 'public class LongListEnumerator<TEt> : IEnumerator<TEt>, IEnumerator, IDisposable'
+    content.vb: >-
+      Public Class LongListEnumerator(Of TEt)
+          Implements IEnumerator(Of TEt), IEnumerator, IDisposable
+    typeParameters:
+    - id: TEt
+  inheritance:
+  - System.Object
+  implements:
+  - System.Collections.Generic.IEnumerator{{TEt}}
+  - System.Collections.IEnumerator
+  - System.IDisposable
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt)
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt)
+  name.vb: LongList(Of T).LongListEnumerator(Of TEt)
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.#ctor(Microsoft.SqlTools.ServiceLayer.Utility.LongList{`1})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.#ctor(Microsoft.SqlTools.ServiceLayer.Utility.LongList{`1})
+  id: '#ctor(Microsoft.SqlTools.ServiceLayer.Utility.LongList{`1})'
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1
+  langs:
+  - csharp
+  - vb
+  name: LongListEnumerator(LongList<TEt>)
+  nameWithType: LongList<T>.LongListEnumerator<TEt>.LongListEnumerator(LongList<TEt>)
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>.LongListEnumerator(Microsoft.SqlTools.ServiceLayer.Utility.LongList<TEt>)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+    startLine: 219
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nConstructs a new enumerator for a given LongList\n"
+  example: []
+  syntax:
+    content: public LongListEnumerator(LongList<TEt> list)
+    content.vb: Public Sub New(list As LongList(Of TEt))
+    parameters:
+    - id: list
+      type: Microsoft.SqlTools.ServiceLayer.Utility.LongList{{TEt}}
+      description: The list to enumerate
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.#ctor*
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt).LongListEnumerator(LongList(Of TEt))
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt).LongListEnumerator(Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of TEt))
+  name.vb: LongListEnumerator(LongList(Of TEt))
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Current
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Current
+  id: Current
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1
+  langs:
+  - csharp
+  - vb
+  name: Current
+  nameWithType: LongList<T>.LongListEnumerator<TEt>.Current
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>.Current
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Current
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+    startLine: 231
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nReturns the current item in the enumeration\n"
+  example: []
+  syntax:
+    content: public TEt Current { get; }
+    content.vb: Public ReadOnly Property Current As TEt
+    parameters: []
+    return:
+      type: '{TEt}'
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Current*
+  implements:
+  - System.Collections.Generic.IEnumerator{{TEt}}.Current
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt).Current
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt).Current
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.System#Collections#IEnumerator#Current
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.System#Collections#IEnumerator#Current
+  id: System#Collections#IEnumerator#Current
+  isEii: true
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1
+  langs:
+  - csharp
+  - vb
+  name: IEnumerator.Current
+  nameWithType: LongList<T>.LongListEnumerator<TEt>.IEnumerator.Current
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>.System.Collections.IEnumerator.Current
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: System.Collections.IEnumerator.Current
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+    startLine: 233
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  syntax:
+    content: object IEnumerator.Current { get; }
+    content.vb: ReadOnly WriteOnly Property System.Collections.IEnumerator.Current As Object Implements IEnumerator.Current
+    parameters: []
+    return:
+      type: System.Object
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.System#Collections#IEnumerator#Current*
+  implements:
+  - System.Collections.IEnumerator.Current
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt).System.Collections.IEnumerator.Current
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt).System.Collections.IEnumerator.Current
+  name.vb: System.Collections.IEnumerator.Current
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.MoveNext
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.MoveNext
+  id: MoveNext
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1
+  langs:
+  - csharp
+  - vb
+  name: MoveNext()
+  nameWithType: LongList<T>.LongListEnumerator<TEt>.MoveNext()
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>.MoveNext()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: MoveNext
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+    startLine: 242
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nMoves to the next item in the list we're iterating over\n"
+  example: []
+  syntax:
+    content: public bool MoveNext()
+    content.vb: Public Function MoveNext As Boolean
+    return:
+      type: System.Boolean
+      description: Whether or not the move was successful
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.MoveNext*
+  implements:
+  - System.Collections.IEnumerator.MoveNext
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt).MoveNext()
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt).MoveNext()
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Reset
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Reset
+  id: Reset
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1
+  langs:
+  - csharp
+  - vb
+  name: Reset()
+  nameWithType: LongList<T>.LongListEnumerator<TEt>.Reset()
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>.Reset()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Reset
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+    startLine: 257
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nResets the enumeration\n"
+  example: []
+  syntax:
+    content: public void Reset()
+    content.vb: Public Sub Reset
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Reset*
+  implements:
+  - System.Collections.IEnumerator.Reset
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt).Reset()
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt).Reset()
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Dispose
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Dispose
+  id: Dispose
+  parent: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1
+  langs:
+  - csharp
+  - vb
+  name: Dispose()
+  nameWithType: LongList<T>.LongListEnumerator<TEt>.Dispose()
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>.Dispose()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Dispose
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Utility/LongList.cs
+    startLine: 266
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Utility
+  summary: "\nDisposal method. Does nothing.\n"
+  example: []
+  syntax:
+    content: public void Dispose()
+    content.vb: Public Sub Dispose
+  overload: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Dispose*
+  implements:
+  - System.IDisposable.Dispose
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt).Dispose()
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt).Dispose()
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Utility
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Utility
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Utility
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Utility
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Collections.Generic.IEnumerator{{TEt}}
+  commentId: T:System.Collections.Generic.IEnumerator{`1}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.IEnumerator`1
+  name: IEnumerator<TEt>
+  nameWithType: IEnumerator<TEt>
+  fullName: System.Collections.Generic.IEnumerator<TEt>
+  nameWithType.vb: IEnumerator(Of TEt)
+  fullname.vb: System.Collections.Generic.IEnumerator(Of TEt)
+  name.vb: IEnumerator(Of TEt)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerator`1
+    name: IEnumerator
+    nameWithType: IEnumerator
+    fullName: System.Collections.Generic.IEnumerator
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TEt
+    nameWithType: TEt
+    fullName: TEt
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerator`1
+    name: IEnumerator
+    nameWithType: IEnumerator
+    fullName: System.Collections.Generic.IEnumerator
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TEt
+    nameWithType: TEt
+    fullName: TEt
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.IEnumerator
+  commentId: T:System.Collections.IEnumerator
+  parent: System.Collections
+  isExternal: true
+  name: IEnumerator
+  nameWithType: IEnumerator
+  fullName: System.Collections.IEnumerator
+- uid: System.IDisposable
+  commentId: T:System.IDisposable
+  parent: System
+  isExternal: true
+  name: IDisposable
+  nameWithType: IDisposable
+  fullName: System.IDisposable
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.Collections.Generic.IEnumerator`1
+  commentId: T:System.Collections.Generic.IEnumerator`1
+  isExternal: true
+  name: IEnumerator<T>
+  nameWithType: IEnumerator<T>
+  fullName: System.Collections.Generic.IEnumerator<T>
+  nameWithType.vb: IEnumerator(Of T)
+  fullname.vb: System.Collections.Generic.IEnumerator(Of T)
+  name.vb: IEnumerator(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerator`1
+    name: IEnumerator
+    nameWithType: IEnumerator
+    fullName: System.Collections.Generic.IEnumerator
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerator`1
+    name: IEnumerator
+    nameWithType: IEnumerator
+    fullName: System.Collections.Generic.IEnumerator
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic
+  commentId: N:System.Collections.Generic
+  isExternal: false
+  name: System.Collections.Generic
+  nameWithType: System.Collections.Generic
+  fullName: System.Collections.Generic
+- uid: System.Collections
+  commentId: N:System.Collections
+  isExternal: false
+  name: System.Collections
+  nameWithType: System.Collections
+  fullName: System.Collections
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.#ctor
+  isExternal: false
+  name: LongListEnumerator
+  nameWithType: LongList.LongListEnumerator.LongListEnumerator
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList.LongListEnumerator.LongListEnumerator
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList{{TEt}}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Utility.LongList{`1}
+  parent: Microsoft.SqlTools.ServiceLayer.Utility
+  definition: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1
+  name: LongList<TEt>
+  nameWithType: LongList<TEt>
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<TEt>
+  nameWithType.vb: LongList(Of TEt)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of TEt)
+  name.vb: LongList(Of TEt)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1
+    name: LongList
+    nameWithType: LongList
+    fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TEt
+    nameWithType: TEt
+    fullName: TEt
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1
+    name: LongList
+    nameWithType: LongList
+    fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TEt
+    nameWithType: TEt
+    fullName: TEt
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1
+  isExternal: false
+  name: LongList<T>
+  nameWithType: LongList<T>
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>
+  nameWithType.vb: LongList(Of T)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T)
+  name.vb: LongList(Of T)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1
+    name: LongList
+    nameWithType: LongList
+    fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1
+    name: LongList
+    nameWithType: LongList
+    fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Current*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Current
+  isExternal: false
+  name: Current
+  nameWithType: LongList<T>.LongListEnumerator<TEt>.Current
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>.Current
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt).Current
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt).Current
+- uid: System.Collections.Generic.IEnumerator{{TEt}}.Current
+  commentId: P:System.Collections.Generic.IEnumerator{`1}.Current
+  parent: System.Collections.Generic.IEnumerator{{TEt}}
+  definition: System.Collections.Generic.IEnumerator`1.Current
+  name: Current
+  nameWithType: IEnumerator<TEt>.Current
+  fullName: System.Collections.Generic.IEnumerator<TEt>.Current
+  nameWithType.vb: IEnumerator(Of TEt).Current
+  fullname.vb: System.Collections.Generic.IEnumerator(Of TEt).Current
+- uid: '{TEt}'
+  commentId: '!:TEt'
+  definition: TEt
+  name: TEt
+  nameWithType: TEt
+  fullName: TEt
+- uid: System.Collections.Generic.IEnumerator`1.Current
+  commentId: P:System.Collections.Generic.IEnumerator`1.Current
+  isExternal: true
+  name: Current
+  nameWithType: IEnumerator<T>.Current
+  fullName: System.Collections.Generic.IEnumerator<T>.Current
+  nameWithType.vb: IEnumerator(Of T).Current
+  fullname.vb: System.Collections.Generic.IEnumerator(Of T).Current
+- uid: TEt
+  commentId: '!:TEt'
+  isExternal: false
+  name: TEt
+  nameWithType: TEt
+  fullName: TEt
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.System#Collections#IEnumerator#Current*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.System#Collections#IEnumerator#Current
+  isExternal: false
+  name: IEnumerator.Current
+  nameWithType: LongList<T>.LongListEnumerator<TEt>.IEnumerator.Current
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList<T>.LongListEnumerator<TEt>.System.Collections.IEnumerator.Current
+  nameWithType.vb: LongList(Of T).LongListEnumerator(Of TEt).System.Collections.IEnumerator.Current
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Utility.LongList(Of T).LongListEnumerator(Of TEt).System.Collections.IEnumerator.Current
+  name.vb: System.Collections.IEnumerator.Current
+- uid: System.Collections.IEnumerator.Current
+  commentId: P:System.Collections.IEnumerator.Current
+  parent: System.Collections.IEnumerator
+  isExternal: true
+  name: Current
+  nameWithType: IEnumerator.Current
+  fullName: System.Collections.IEnumerator.Current
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.MoveNext*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.MoveNext
+  isExternal: false
+  name: MoveNext
+  nameWithType: LongList.LongListEnumerator.MoveNext
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList.LongListEnumerator.MoveNext
+- uid: System.Collections.IEnumerator.MoveNext
+  commentId: M:System.Collections.IEnumerator.MoveNext
+  parent: System.Collections.IEnumerator
+  isExternal: true
+  name: MoveNext()
+  nameWithType: IEnumerator.MoveNext()
+  fullName: System.Collections.IEnumerator.MoveNext()
+  spec.csharp:
+  - uid: System.Collections.IEnumerator.MoveNext
+    name: MoveNext
+    nameWithType: IEnumerator.MoveNext
+    fullName: System.Collections.IEnumerator.MoveNext
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Collections.IEnumerator.MoveNext
+    name: MoveNext
+    nameWithType: IEnumerator.MoveNext
+    fullName: System.Collections.IEnumerator.MoveNext
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Reset*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Reset
+  isExternal: false
+  name: Reset
+  nameWithType: LongList.LongListEnumerator.Reset
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList.LongListEnumerator.Reset
+- uid: System.Collections.IEnumerator.Reset
+  commentId: M:System.Collections.IEnumerator.Reset
+  parent: System.Collections.IEnumerator
+  isExternal: true
+  name: Reset()
+  nameWithType: IEnumerator.Reset()
+  fullName: System.Collections.IEnumerator.Reset()
+  spec.csharp:
+  - uid: System.Collections.IEnumerator.Reset
+    name: Reset
+    nameWithType: IEnumerator.Reset
+    fullName: System.Collections.IEnumerator.Reset
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Collections.IEnumerator.Reset
+    name: Reset
+    nameWithType: IEnumerator.Reset
+    fullName: System.Collections.IEnumerator.Reset
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Dispose*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Utility.LongList`1.LongListEnumerator`1.Dispose
+  isExternal: false
+  name: Dispose
+  nameWithType: LongList.LongListEnumerator.Dispose
+  fullName: Microsoft.SqlTools.ServiceLayer.Utility.LongList.LongListEnumerator.Dispose
+- uid: System.IDisposable.Dispose
+  commentId: M:System.IDisposable.Dispose
+  parent: System.IDisposable
+  isExternal: true
+  name: Dispose()
+  nameWithType: IDisposable.Dispose()
+  fullName: System.IDisposable.Dispose()
+  spec.csharp:
+  - uid: System.IDisposable.Dispose
+    name: Dispose
+    nameWithType: IDisposable.Dispose
+    fullName: System.IDisposable.Dispose
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.IDisposable.Dispose
+    name: Dispose
+    nameWithType: IDisposable.Dispose
+    fullName: System.IDisposable.Dispose
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )

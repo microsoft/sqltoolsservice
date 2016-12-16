@@ -1,0 +1,634 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader
+  id: MessageReader
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.#ctor(System.IO.Stream,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer,System.Text.Encoding)
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.BufferResizeTrigger
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.DefaultBufferSize
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.ReadMessage
+  langs:
+  - csharp
+  - vb
+  name: MessageReader
+  nameWithType: MessageReader
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: MessageReader
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public class MessageReader
+    content.vb: Public Class MessageReader
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.DefaultBufferSize
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.DefaultBufferSize
+  id: DefaultBufferSize
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader
+  langs:
+  - csharp
+  - vb
+  name: DefaultBufferSize
+  nameWithType: MessageReader.DefaultBufferSize
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.DefaultBufferSize
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DefaultBufferSize
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+    startLine: 21
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public const int DefaultBufferSize = 8192
+    content.vb: Public Const DefaultBufferSize As Integer = 8192
+    return:
+      type: System.Int32
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.BufferResizeTrigger
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.BufferResizeTrigger
+  id: BufferResizeTrigger
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader
+  langs:
+  - csharp
+  - vb
+  name: BufferResizeTrigger
+  nameWithType: MessageReader.BufferResizeTrigger
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.BufferResizeTrigger
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: BufferResizeTrigger
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+    startLine: 22
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public const double BufferResizeTrigger = 0.25
+    content.vb: Public Const BufferResizeTrigger As Double = 0.25
+    return:
+      type: System.Double
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.#ctor(System.IO.Stream,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer,System.Text.Encoding)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.#ctor(System.IO.Stream,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer,System.Text.Encoding)
+  id: '#ctor(System.IO.Stream,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer,System.Text.Encoding)'
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader
+  langs:
+  - csharp
+  - vb
+  name: MessageReader(Stream, IMessageSerializer, Encoding)
+  nameWithType: MessageReader.MessageReader(Stream, IMessageSerializer, Encoding)
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.MessageReader(System.IO.Stream, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer, System.Text.Encoding)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+    startLine: 51
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public MessageReader(Stream inputStream, IMessageSerializer messageSerializer, Encoding messageEncoding = null)
+    content.vb: Public Sub New(inputStream As Stream, messageSerializer As IMessageSerializer, messageEncoding As Encoding = Nothing)
+    parameters:
+    - id: inputStream
+      type: System.IO.Stream
+    - id: messageSerializer
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+    - id: messageEncoding
+      type: System.Text.Encoding
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.ReadMessage
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.ReadMessage
+  id: ReadMessage
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader
+  langs:
+  - csharp
+  - vb
+  name: ReadMessage()
+  nameWithType: MessageReader.ReadMessage()
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.ReadMessage()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReadMessage
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/MessageReader.cs
+    startLine: 75
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  syntax:
+    content: public Task<Message> ReadMessage()
+    content.vb: Public Function ReadMessage As Task(Of Message)
+    return:
+      type: System.Threading.Tasks.Task{Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message}
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.ReadMessage*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: System.Double
+  commentId: T:System.Double
+  parent: System
+  isExternal: true
+  name: Double
+  nameWithType: Double
+  fullName: System.Double
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.#ctor
+  isExternal: false
+  name: MessageReader
+  nameWithType: MessageReader.MessageReader
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.MessageReader
+- uid: System.IO.Stream
+  commentId: T:System.IO.Stream
+  parent: System.IO
+  isExternal: true
+  name: Stream
+  nameWithType: Stream
+  fullName: System.IO.Stream
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  isExternal: false
+  name: IMessageSerializer
+  nameWithType: IMessageSerializer
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+- uid: System.Text.Encoding
+  commentId: T:System.Text.Encoding
+  parent: System.Text
+  isExternal: true
+  name: Encoding
+  nameWithType: Encoding
+  fullName: System.Text.Encoding
+- uid: System.IO
+  commentId: N:System.IO
+  isExternal: false
+  name: System.IO
+  nameWithType: System.IO
+  fullName: System.IO
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+- uid: System.Text
+  commentId: N:System.Text
+  isExternal: false
+  name: System.Text
+  nameWithType: System.Text
+  fullName: System.Text
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.ReadMessage*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.ReadMessage
+  isExternal: false
+  name: ReadMessage
+  nameWithType: MessageReader.ReadMessage
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.MessageReader.ReadMessage
+- uid: System.Threading.Tasks.Task{Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message}
+  commentId: T:System.Threading.Tasks.Task{Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message}
+  parent: System.Threading.Tasks
+  definition: System.Threading.Tasks.Task`1
+  name: Task<Message>
+  nameWithType: Task<Message>
+  fullName: System.Threading.Tasks.Task<Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message>
+  nameWithType.vb: Task(Of Message)
+  fullname.vb: System.Threading.Tasks.Task(Of Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message)
+  name.vb: Task(Of Message)
+  spec.csharp:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+    name: Message
+    nameWithType: Message
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+    name: Message
+    nameWithType: Message
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.Tasks.Task`1
+  commentId: T:System.Threading.Tasks.Task`1
+  isExternal: true
+  name: Task<TResult>
+  nameWithType: Task<TResult>
+  fullName: System.Threading.Tasks.Task<TResult>
+  nameWithType.vb: Task(Of TResult)
+  fullname.vb: System.Threading.Tasks.Task(Of TResult)
+  name.vb: Task(Of TResult)
+  spec.csharp:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks

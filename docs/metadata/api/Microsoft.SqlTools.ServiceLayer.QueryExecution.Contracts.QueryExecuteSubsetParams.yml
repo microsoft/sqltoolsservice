@@ -1,0 +1,579 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  id: QueryExecuteSubsetParams
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.BatchIndex
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.OwnerUri
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.ResultSetIndex
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsCount
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsStartIndex
+  langs:
+  - csharp
+  - vb
+  name: QueryExecuteSubsetParams
+  nameWithType: QueryExecuteSubsetParams
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: QueryExecuteSubsetParams
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+    startLine: 12
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nParameters for a query result subset retrieval request\n"
+  example: []
+  syntax:
+    content: public class QueryExecuteSubsetParams
+    content.vb: Public Class QueryExecuteSubsetParams
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.OwnerUri
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.OwnerUri
+  id: OwnerUri
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  langs:
+  - csharp
+  - vb
+  name: OwnerUri
+  nameWithType: QueryExecuteSubsetParams.OwnerUri
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.OwnerUri
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: OwnerUri
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nURI for the file that owns the query to look up the results for\n"
+  example: []
+  syntax:
+    content: public string OwnerUri { get; set; }
+    content.vb: Public Property OwnerUri As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.OwnerUri*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.BatchIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.BatchIndex
+  id: BatchIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  langs:
+  - csharp
+  - vb
+  name: BatchIndex
+  nameWithType: QueryExecuteSubsetParams.BatchIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.BatchIndex
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: BatchIndex
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+    startLine: 22
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nIndex of the batch to get the results from\n"
+  example: []
+  syntax:
+    content: public int BatchIndex { get; set; }
+    content.vb: Public Property BatchIndex As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.BatchIndex*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.ResultSetIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.ResultSetIndex
+  id: ResultSetIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  langs:
+  - csharp
+  - vb
+  name: ResultSetIndex
+  nameWithType: QueryExecuteSubsetParams.ResultSetIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.ResultSetIndex
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ResultSetIndex
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+    startLine: 27
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nIndex of the result set to get the results from\n"
+  example: []
+  syntax:
+    content: public int ResultSetIndex { get; set; }
+    content.vb: Public Property ResultSetIndex As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.ResultSetIndex*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsStartIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsStartIndex
+  id: RowsStartIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  langs:
+  - csharp
+  - vb
+  name: RowsStartIndex
+  nameWithType: QueryExecuteSubsetParams.RowsStartIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsStartIndex
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: RowsStartIndex
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+    startLine: 33
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nBeginning index of the rows to return from the selected resultset. This index will be\nincluded in the results.\n"
+  example: []
+  syntax:
+    content: public int RowsStartIndex { get; set; }
+    content.vb: Public Property RowsStartIndex As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsStartIndex*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsCount
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsCount
+  id: RowsCount
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams
+  langs:
+  - csharp
+  - vb
+  name: RowsCount
+  nameWithType: QueryExecuteSubsetParams.RowsCount
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsCount
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: RowsCount
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/QueryExecuteSubsetRequest.cs
+    startLine: 40
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nNumber of rows to include in the result of this request. If the number of the rows \nexceeds the number of rows available after the start index, all available rows after\nthe start index will be returned.\n"
+  example: []
+  syntax:
+    content: public int RowsCount { get; set; }
+    content.vb: Public Property RowsCount As Integer
+    parameters: []
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsCount*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.OwnerUri*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.OwnerUri
+  isExternal: false
+  name: OwnerUri
+  nameWithType: QueryExecuteSubsetParams.OwnerUri
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.OwnerUri
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.BatchIndex*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.BatchIndex
+  isExternal: false
+  name: BatchIndex
+  nameWithType: QueryExecuteSubsetParams.BatchIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.BatchIndex
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.ResultSetIndex*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.ResultSetIndex
+  isExternal: false
+  name: ResultSetIndex
+  nameWithType: QueryExecuteSubsetParams.ResultSetIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.ResultSetIndex
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsStartIndex*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsStartIndex
+  isExternal: false
+  name: RowsStartIndex
+  nameWithType: QueryExecuteSubsetParams.RowsStartIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsStartIndex
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsCount*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsCount
+  isExternal: false
+  name: RowsCount
+  nameWithType: QueryExecuteSubsetParams.RowsCount
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.QueryExecuteSubsetParams.RowsCount

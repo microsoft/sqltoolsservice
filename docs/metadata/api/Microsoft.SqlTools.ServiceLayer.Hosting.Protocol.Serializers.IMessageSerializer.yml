@@ -1,0 +1,153 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  id: IMessageSerializer
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.DeserializeMessage(Newtonsoft.Json.Linq.JObject)
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.SerializeMessage(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message)
+  langs:
+  - csharp
+  - vb
+  name: IMessageSerializer
+  nameWithType: IMessageSerializer
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  type: Interface
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Serializers/IMessageSerializer.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IMessageSerializer
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Serializers/IMessageSerializer.cs
+    startLine: 13
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  summary: "\nDefines a common interface for message serializers.\n"
+  example: []
+  syntax:
+    content: public interface IMessageSerializer
+    content.vb: Public Interface IMessageSerializer
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.SerializeMessage(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.SerializeMessage(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message)
+  id: SerializeMessage(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message)
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  langs:
+  - csharp
+  - vb
+  name: SerializeMessage(Message)
+  nameWithType: IMessageSerializer.SerializeMessage(Message)
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.SerializeMessage(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Serializers/IMessageSerializer.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SerializeMessage
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Serializers/IMessageSerializer.cs
+    startLine: 20
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  summary: "\nSerializes a Message to a JObject.\n"
+  example: []
+  syntax:
+    content: JObject SerializeMessage(Message message)
+    content.vb: Function SerializeMessage(message As Message) As JObject
+    parameters:
+    - id: message
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+      description: The message to be serialized.
+    return:
+      type: Newtonsoft.Json.Linq.JObject
+      description: A JObject which contains the JSON representation of the message.
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.SerializeMessage*
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.DeserializeMessage(Newtonsoft.Json.Linq.JObject)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.DeserializeMessage(Newtonsoft.Json.Linq.JObject)
+  id: DeserializeMessage(Newtonsoft.Json.Linq.JObject)
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer
+  langs:
+  - csharp
+  - vb
+  name: DeserializeMessage(JObject)
+  nameWithType: IMessageSerializer.DeserializeMessage(JObject)
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.DeserializeMessage(Newtonsoft.Json.Linq.JObject)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Serializers/IMessageSerializer.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DeserializeMessage
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Protocol/Serializers/IMessageSerializer.cs
+    startLine: 27
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  summary: "\nDeserializes a JObject to a Messsage.\n"
+  example: []
+  syntax:
+    content: Message DeserializeMessage(JObject messageJson)
+    content.vb: Function DeserializeMessage(messageJson As JObject) As Message
+    parameters:
+    - id: messageJson
+      type: Newtonsoft.Json.Linq.JObject
+      description: The JObject containing the JSON representation of the message.
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+      description: The Message that was represented by the JObject.
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.DeserializeMessage*
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.SerializeMessage*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.SerializeMessage
+  isExternal: false
+  name: SerializeMessage
+  nameWithType: IMessageSerializer.SerializeMessage
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.SerializeMessage
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: Message
+  nameWithType: Message
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message
+- uid: Newtonsoft.Json.Linq.JObject
+  commentId: T:Newtonsoft.Json.Linq.JObject
+  parent: Newtonsoft.Json.Linq
+  isExternal: true
+  name: JObject
+  nameWithType: JObject
+  fullName: Newtonsoft.Json.Linq.JObject
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+- uid: Newtonsoft.Json.Linq
+  commentId: N:Newtonsoft.Json.Linq
+  isExternal: false
+  name: Newtonsoft.Json.Linq
+  nameWithType: Newtonsoft.Json.Linq
+  fullName: Newtonsoft.Json.Linq
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.DeserializeMessage*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.DeserializeMessage
+  isExternal: false
+  name: DeserializeMessage
+  nameWithType: IMessageSerializer.DeserializeMessage
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers.IMessageSerializer.DeserializeMessage

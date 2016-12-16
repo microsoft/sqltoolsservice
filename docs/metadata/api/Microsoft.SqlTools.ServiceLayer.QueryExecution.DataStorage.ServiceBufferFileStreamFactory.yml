@@ -1,0 +1,765 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory
+  id: ServiceBufferFileStreamFactory
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.CreateFile
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.DisposeFile(System.String)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetReader(System.String)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  langs:
+  - csharp
+  - vb
+  name: ServiceBufferFileStreamFactory
+  nameWithType: ServiceBufferFileStreamFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ServiceBufferFileStreamFactory
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+    startLine: 12
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  summary: "\nFactory that creates file reader/writers that process rows in an internal, non-human readable file format\n"
+  example: []
+  syntax:
+    content: 'public class ServiceBufferFileStreamFactory : IFileStreamFactory'
+    content.vb: >-
+      Public Class ServiceBufferFileStreamFactory
+          Implements IFileStreamFactory
+  inheritance:
+  - System.Object
+  implements:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.CreateFile
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.CreateFile
+  id: CreateFile
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory
+  langs:
+  - csharp
+  - vb
+  name: CreateFile()
+  nameWithType: ServiceBufferFileStreamFactory.CreateFile()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.CreateFile()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CreateFile
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+    startLine: 18
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  summary: "\nCreates a new temporary file\n"
+  example: []
+  syntax:
+    content: public string CreateFile()
+    content.vb: Public Function CreateFile As String
+    return:
+      type: System.String
+      description: The name of the temporary file
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.CreateFile*
+  implements:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetReader(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetReader(System.String)
+  id: GetReader(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory
+  langs:
+  - csharp
+  - vb
+  name: GetReader(String)
+  nameWithType: ServiceBufferFileStreamFactory.GetReader(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetReader(System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: GetReader
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+    startLine: 29
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  summary: "\nCreates a new <xref href=\"Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamReader\" data-throw-if-not-resolved=\"false\"></xref> for reading values back from\nan SSMS formatted buffer file\n"
+  example: []
+  syntax:
+    content: public IFileStreamReader GetReader(string fileName)
+    content.vb: Public Function GetReader(fileName As String) As IFileStreamReader
+    parameters:
+    - id: fileName
+      type: System.String
+      description: The file to read values from
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+      description: A <xref href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamReader" data-throw-if-not-resolved="false"></xref>
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetReader*
+  implements:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  id: GetWriter(System.String,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory
+  langs:
+  - csharp
+  - vb
+  name: GetWriter(String, Int32, Int32)
+  nameWithType: ServiceBufferFileStreamFactory.GetWriter(String, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetWriter(System.String, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: GetWriter
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+    startLine: 42
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  summary: "\nCreates a new <xref href=\"Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter\" data-throw-if-not-resolved=\"false\"></xref> for writing values out to an\nSSMS formatted buffer file\n"
+  example: []
+  syntax:
+    content: public IFileStreamWriter GetWriter(string fileName, int maxCharsToStore, int maxXmlCharsToStore)
+    content.vb: Public Function GetWriter(fileName As String, maxCharsToStore As Integer, maxXmlCharsToStore As Integer) As IFileStreamWriter
+    parameters:
+    - id: fileName
+      type: System.String
+      description: The file to write values to
+    - id: maxCharsToStore
+      type: System.Int32
+      description: The maximum number of characters to store from long text fields
+    - id: maxXmlCharsToStore
+      type: System.Int32
+      description: The maximum number of characters to store from xml fields
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+      description: A <xref href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter" data-throw-if-not-resolved="false"></xref>
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetWriter*
+  implements:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.DisposeFile(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.DisposeFile(System.String)
+  id: DisposeFile(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory
+  langs:
+  - csharp
+  - vb
+  name: DisposeFile(String)
+  nameWithType: ServiceBufferFileStreamFactory.DisposeFile(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.DisposeFile(System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DisposeFile
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamFactory.cs
+    startLine: 51
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  summary: "\nDisposes of a file created via this factory\n"
+  example: []
+  syntax:
+    content: public void DisposeFile(string fileName)
+    content.vb: Public Sub DisposeFile(fileName As String)
+    parameters:
+    - id: fileName
+      type: System.String
+      description: The file to dispose of
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.DisposeFile*
+  implements:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: IFileStreamFactory
+  nameWithType: IFileStreamFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.CreateFile*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.CreateFile
+  isExternal: false
+  name: CreateFile
+  nameWithType: ServiceBufferFileStreamFactory.CreateFile
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.CreateFile
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  isExternal: false
+  name: CreateFile()
+  nameWithType: IFileStreamFactory.CreateFile()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile()
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+    name: CreateFile
+    nameWithType: IFileStreamFactory.CreateFile
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+    name: CreateFile
+    nameWithType: IFileStreamFactory.CreateFile
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.CreateFile
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamReader
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamReader
+  isExternal: false
+  name: ServiceBufferFileStreamReader
+  nameWithType: ServiceBufferFileStreamReader
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamReader
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetReader*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetReader
+  isExternal: false
+  name: GetReader
+  nameWithType: ServiceBufferFileStreamFactory.GetReader
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetReader
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  isExternal: true
+  name: GetReader(String)
+  nameWithType: IFileStreamFactory.GetReader(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+    name: GetReader
+    nameWithType: IFileStreamFactory.GetReader
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader(System.String)
+    name: GetReader
+    nameWithType: IFileStreamFactory.GetReader
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetReader
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: IFileStreamReader
+  nameWithType: IFileStreamReader
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter
+  isExternal: false
+  name: ServiceBufferFileStreamWriter
+  nameWithType: ServiceBufferFileStreamWriter
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetWriter*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetWriter
+  isExternal: false
+  name: GetWriter
+  nameWithType: ServiceBufferFileStreamFactory.GetWriter
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.GetWriter
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  isExternal: true
+  name: GetWriter(String, Int32, Int32)
+  nameWithType: IFileStreamFactory.GetWriter(String, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String, System.Int32, System.Int32)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+    name: GetWriter
+    nameWithType: IFileStreamFactory.GetWriter
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter(System.String,System.Int32,System.Int32)
+    name: GetWriter
+    nameWithType: IFileStreamFactory.GetWriter
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.GetWriter
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: IFileStreamWriter
+  nameWithType: IFileStreamWriter
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.DisposeFile*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.DisposeFile
+  isExternal: false
+  name: DisposeFile
+  nameWithType: ServiceBufferFileStreamFactory.DisposeFile
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamFactory.DisposeFile
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory
+  isExternal: true
+  name: DisposeFile(String)
+  nameWithType: IFileStreamFactory.DisposeFile(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+    name: DisposeFile
+    nameWithType: IFileStreamFactory.DisposeFile
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile(System.String)
+    name: DisposeFile
+    nameWithType: IFileStreamFactory.DisposeFile
+    fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamFactory.DisposeFile
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )

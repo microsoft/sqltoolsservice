@@ -1,0 +1,891 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  id: SqlCompletionItem
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  children:
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor(Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration,System.String)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor(System.String,Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType,System.String)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem(System.Int32,System.Int32,System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem(System.String,System.String,System.String,Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind,System.Int32,System.Int32,System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationTitle
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationType
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Detail
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.InsertText
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Kind
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Label
+  - Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.TokenText
+  langs:
+  - csharp
+  - vb
+  name: SqlCompletionItem
+  nameWithType: SqlCompletionItem
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SqlCompletionItem
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCreates a completion item from SQL parser declaration item\n"
+  example: []
+  syntax:
+    content: public class SqlCompletionItem
+    content.vb: Public Class SqlCompletionItem
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor(Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration,System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor(Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration,System.String)
+  id: '#ctor(Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration,System.String)'
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: SqlCompletionItem(Declaration, String)
+  nameWithType: SqlCompletionItem.SqlCompletionItem(Declaration, String)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.SqlCompletionItem(Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration, System.String)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 24
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCreate new instance given the SQL parser declaration\n"
+  example: []
+  syntax:
+    content: public SqlCompletionItem(Declaration declaration, string tokenText)
+    content.vb: Public Sub New(declaration As Declaration, tokenText As String)
+    parameters:
+    - id: declaration
+      type: Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration
+    - id: tokenText
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor(System.String,Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType,System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor(System.String,Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType,System.String)
+  id: '#ctor(System.String,Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType,System.String)'
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: SqlCompletionItem(String, DeclarationType, String)
+  nameWithType: SqlCompletionItem.SqlCompletionItem(String, DeclarationType, String)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.SqlCompletionItem(System.String, Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType, System.String)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 32
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCreates new instance given declaration title and type\n"
+  example: []
+  syntax:
+    content: public SqlCompletionItem(string declarationTitle, DeclarationType declarationType, string tokenText)
+    content.vb: Public Sub New(declarationTitle As String, declarationType As DeclarationType, tokenText As String)
+    parameters:
+    - id: declarationTitle
+      type: System.String
+    - id: declarationType
+      type: Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType
+    - id: tokenText
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationTitle
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationTitle
+  id: DeclarationTitle
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: DeclarationTitle
+  nameWithType: SqlCompletionItem.DeclarationTitle
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationTitle
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DeclarationTitle
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 90
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nDeclaration Title\n"
+  example: []
+  syntax:
+    content: public string DeclarationTitle { get; }
+    content.vb: Public ReadOnly Property DeclarationTitle As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationTitle*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.TokenText
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.TokenText
+  id: TokenText
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: TokenText
+  nameWithType: SqlCompletionItem.TokenText
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.TokenText
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: TokenText
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 95
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nToken text from the editor\n"
+  example: []
+  syntax:
+    content: public string TokenText { get; }
+    content.vb: Public ReadOnly Property TokenText As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.TokenText*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationType
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationType
+  id: DeclarationType
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: DeclarationType
+  nameWithType: SqlCompletionItem.DeclarationType
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationType
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DeclarationType
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 100
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nSQL declaration type\n"
+  example: []
+  syntax:
+    content: public DeclarationType DeclarationType { get; }
+    content.vb: Public ReadOnly Property DeclarationType As DeclarationType
+    parameters: []
+    return:
+      type: Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationType*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Label
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Label
+  id: Label
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: Label
+  nameWithType: SqlCompletionItem.Label
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Label
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Label
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 105
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCompletion item label\n"
+  example: []
+  syntax:
+    content: public string Label { get; }
+    content.vb: Public ReadOnly Property Label As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Label*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Kind
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Kind
+  id: Kind
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: Kind
+  nameWithType: SqlCompletionItem.Kind
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Kind
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Kind
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 110
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCompletion item kind\n"
+  example: []
+  syntax:
+    content: public CompletionItemKind Kind { get; }
+    content.vb: Public ReadOnly Property Kind As CompletionItemKind
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Kind*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.InsertText
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.InsertText
+  id: InsertText
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: InsertText
+  nameWithType: SqlCompletionItem.InsertText
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.InsertText
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: InsertText
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 115
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCompletion insert text\n"
+  example: []
+  syntax:
+    content: public string InsertText { get; }
+    content.vb: Public ReadOnly Property InsertText As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.InsertText*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Detail
+  commentId: P:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Detail
+  id: Detail
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: Detail
+  nameWithType: SqlCompletionItem.Detail
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Detail
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Detail
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 120
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCompletion item detail\n"
+  example: []
+  syntax:
+    content: public string Detail { get; }
+    content.vb: Public ReadOnly Property Detail As String
+    parameters: []
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Detail*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem(System.Int32,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem(System.Int32,System.Int32,System.Int32)
+  id: CreateCompletionItem(System.Int32,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: CreateCompletionItem(Int32, Int32, Int32)
+  nameWithType: SqlCompletionItem.CreateCompletionItem(Int32, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem(System.Int32, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CreateCompletionItem
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 125
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCreates a completion item given the editor info\n"
+  example: []
+  syntax:
+    content: public CompletionItem CreateCompletionItem(int row, int startColumn, int endColumn)
+    content.vb: Public Function CreateCompletionItem(row As Integer, startColumn As Integer, endColumn As Integer) As CompletionItem
+    parameters:
+    - id: row
+      type: System.Int32
+    - id: startColumn
+      type: System.Int32
+    - id: endColumn
+      type: System.Int32
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem(System.String,System.String,System.String,Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind,System.Int32,System.Int32,System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem(System.String,System.String,System.String,Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind,System.Int32,System.Int32,System.Int32)
+  id: CreateCompletionItem(System.String,System.String,System.String,Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind,System.Int32,System.Int32,System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem
+  langs:
+  - csharp
+  - vb
+  name: CreateCompletionItem(String, String, String, CompletionItemKind, Int32, Int32, Int32)
+  nameWithType: SqlCompletionItem.CreateCompletionItem(String, String, String, CompletionItemKind, Int32, Int32, Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem(System.String, System.String, System.String, Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind, System.Int32, System.Int32, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CreateCompletionItem
+    path: ../src/Microsoft.SqlTools.ServiceLayer/LanguageServices/Completion/SqlCompletionItem.cs
+    startLine: 136
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  summary: "\nCreates a completion item\n"
+  example: []
+  syntax:
+    content: public static CompletionItem CreateCompletionItem(string label, string detail, string insertText, CompletionItemKind kind, int row, int startColumn, int endColumn)
+    content.vb: Public Shared Function CreateCompletionItem(label As String, detail As String, insertText As String, kind As CompletionItemKind, row As Integer, startColumn As Integer, endColumn As Integer) As CompletionItem
+    parameters:
+    - id: label
+      type: System.String
+    - id: detail
+      type: System.String
+    - id: insertText
+      type: System.String
+    - id: kind
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+    - id: row
+      type: System.Int32
+    - id: startColumn
+      type: System.Int32
+    - id: endColumn
+      type: System.Int32
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem
+  overload: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.#ctor
+  isExternal: false
+  name: SqlCompletionItem
+  nameWithType: SqlCompletionItem.SqlCompletionItem
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.SqlCompletionItem
+- uid: Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration
+  commentId: T:Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration
+  parent: Microsoft.SqlServer.Management.SqlParser.Intellisense
+  isExternal: true
+  name: Declaration
+  nameWithType: Declaration
+  fullName: Microsoft.SqlServer.Management.SqlParser.Intellisense.Declaration
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlServer.Management.SqlParser.Intellisense
+  commentId: N:Microsoft.SqlServer.Management.SqlParser.Intellisense
+  isExternal: false
+  name: Microsoft.SqlServer.Management.SqlParser.Intellisense
+  nameWithType: Microsoft.SqlServer.Management.SqlParser.Intellisense
+  fullName: Microsoft.SqlServer.Management.SqlParser.Intellisense
+- uid: Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType
+  commentId: T:Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType
+  parent: Microsoft.SqlServer.Management.SqlParser.Intellisense
+  isExternal: true
+  name: DeclarationType
+  nameWithType: DeclarationType
+  fullName: Microsoft.SqlServer.Management.SqlParser.Intellisense.DeclarationType
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationTitle*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationTitle
+  isExternal: false
+  name: DeclarationTitle
+  nameWithType: SqlCompletionItem.DeclarationTitle
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationTitle
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.TokenText*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.TokenText
+  isExternal: false
+  name: TokenText
+  nameWithType: SqlCompletionItem.TokenText
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.TokenText
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationType*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationType
+  isExternal: false
+  name: DeclarationType
+  nameWithType: SqlCompletionItem.DeclarationType
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.DeclarationType
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Label*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Label
+  isExternal: false
+  name: Label
+  nameWithType: SqlCompletionItem.Label
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Label
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Kind*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Kind
+  isExternal: false
+  name: Kind
+  nameWithType: SqlCompletionItem.Kind
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Kind
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  isExternal: false
+  name: CompletionItemKind
+  nameWithType: CompletionItemKind
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItemKind
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.InsertText*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.InsertText
+  isExternal: false
+  name: InsertText
+  nameWithType: SqlCompletionItem.InsertText
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.InsertText
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Detail*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Detail
+  isExternal: false
+  name: Detail
+  nameWithType: SqlCompletionItem.Detail
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.Detail
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem
+  isExternal: false
+  name: CreateCompletionItem
+  nameWithType: SqlCompletionItem.CreateCompletionItem
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.SqlCompletionItem.CreateCompletionItem
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem
+  commentId: T:Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem
+  parent: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
+  isExternal: false
+  name: CompletionItem
+  nameWithType: CompletionItem
+  fullName: Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem

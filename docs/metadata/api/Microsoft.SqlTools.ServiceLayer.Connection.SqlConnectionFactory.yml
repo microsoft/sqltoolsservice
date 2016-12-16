@@ -1,0 +1,461 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory
+  id: SqlConnectionFactory
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory.CreateSqlConnection(System.String)
+  langs:
+  - csharp
+  - vb
+  name: SqlConnectionFactory
+  nameWithType: SqlConnectionFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/SqlConnectionFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SqlConnectionFactory
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/SqlConnectionFactory.cs
+    startLine: 15
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nFactory class to create SqlClientConnections\nThe purpose of the factory is to make it easier to mock out the database\nin 'offline' unit test scenarios.\n"
+  example: []
+  syntax:
+    content: 'public class SqlConnectionFactory : ISqlConnectionFactory'
+    content.vb: >-
+      Public Class SqlConnectionFactory
+          Implements ISqlConnectionFactory
+  inheritance:
+  - System.Object
+  implements:
+  - Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory.CreateSqlConnection(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory.CreateSqlConnection(System.String)
+  id: CreateSqlConnection(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory
+  langs:
+  - csharp
+  - vb
+  name: CreateSqlConnection(String)
+  nameWithType: SqlConnectionFactory.CreateSqlConnection(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory.CreateSqlConnection(System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/SqlConnectionFactory.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CreateSqlConnection
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/SqlConnectionFactory.cs
+    startLine: 20
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nCreates a new SqlConnection object\n"
+  example: []
+  syntax:
+    content: public DbConnection CreateSqlConnection(string connectionString)
+    content.vb: Public Function CreateSqlConnection(connectionString As String) As DbConnection
+    parameters:
+    - id: connectionString
+      type: System.String
+    return:
+      type: System.Data.Common.DbConnection
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory.CreateSqlConnection*
+  implements:
+  - Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ISqlConnectionFactory
+  nameWithType: ISqlConnectionFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory.CreateSqlConnection*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory.CreateSqlConnection
+  isExternal: false
+  name: CreateSqlConnection
+  nameWithType: SqlConnectionFactory.CreateSqlConnection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.SqlConnectionFactory.CreateSqlConnection
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  isExternal: true
+  name: CreateSqlConnection(String)
+  nameWithType: ISqlConnectionFactory.CreateSqlConnection(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+    name: CreateSqlConnection
+    nameWithType: ISqlConnectionFactory.CreateSqlConnection
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection(System.String)
+    name: CreateSqlConnection
+    nameWithType: ISqlConnectionFactory.CreateSqlConnection
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory.CreateSqlConnection
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System.Data.Common.DbConnection
+  commentId: T:System.Data.Common.DbConnection
+  parent: System.Data.Common
+  isExternal: true
+  name: DbConnection
+  nameWithType: DbConnection
+  fullName: System.Data.Common.DbConnection
+- uid: System.Data.Common
+  commentId: N:System.Data.Common
+  isExternal: false
+  name: System.Data.Common
+  nameWithType: System.Data.Common
+  fullName: System.Data.Common

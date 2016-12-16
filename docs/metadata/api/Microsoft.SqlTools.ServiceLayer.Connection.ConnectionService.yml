@@ -1,0 +1,1542 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  id: ConnectionService
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.BuildConnectionString(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.CancelConnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ChangeConnectionDatabaseContext(System.String,System.String)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Connect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionFactory
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Disconnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse})
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Instance
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ListDatabases(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnConnectionTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnDisconnectTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler)
+  - Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection(System.String,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo@)
+  langs:
+  - csharp
+  - vb
+  name: ConnectionService
+  nameWithType: ConnectionService
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionService
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 27
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nMain class for the Connection Management services\n"
+  example: []
+  syntax:
+    content: public class ConnectionService
+    content.vb: Public Class ConnectionService
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Instance
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Instance
+  id: Instance
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: Instance
+  nameWithType: ConnectionService.Instance
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Instance
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Instance
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 38
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nGets the singleton service instance\n"
+  example: []
+  syntax:
+    content: public static ConnectionService Instance { get; }
+    content.vb: Public Shared ReadOnly Property Instance As ConnectionService
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Instance*
+  modifiers.csharp:
+  - public
+  - static
+  - get
+  modifiers.vb:
+  - Public
+  - Shared
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor
+  id: '#ctor'
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: ConnectionService()
+  nameWithType: ConnectionService.ConnectionService()
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionService()
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 83
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nDefault constructor should be private since it's a singleton class, but we need a constructor\nfor use in unit test mocking.\n"
+  example: []
+  syntax:
+    content: public ConnectionService()
+    content.vb: Public Sub New
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionFactory
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionFactory
+  id: ConnectionFactory
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: ConnectionFactory
+  nameWithType: ConnectionService.ConnectionFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionFactory
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ConnectionFactory
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 111
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nGets the SQL connection factory instance\n"
+  example: []
+  syntax:
+    content: public ISqlConnectionFactory ConnectionFactory { get; }
+    content.vb: Public ReadOnly Property ConnectionFactory As ISqlConnectionFactory
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionFactory*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory)
+  id: '#ctor(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory)'
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: ConnectionService(ISqlConnectionFactory)
+  nameWithType: ConnectionService.ConnectionService(ISqlConnectionFactory)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionService(Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory)
+  type: Constructor
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: .ctor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 127
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nTest constructor that injects dependency interfaces\n"
+  example: []
+  syntax:
+    content: public ConnectionService(ISqlConnectionFactory testFactory)
+    content.vb: Public Sub New(testFactory As ISqlConnectionFactory)
+    parameters:
+    - id: testFactory
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+      description: ''
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection(System.String,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo@)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection(System.String,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo@)
+  id: TryFindConnection(System.String,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo@)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: TryFindConnection(String, out ConnectionInfo)
+  nameWithType: ConnectionService.TryFindConnection(String, out ConnectionInfo)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection(System.String, out Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: TryFindConnection
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 133
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  syntax:
+    content: public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo)
+    content.vb: Public Overridable Function TryFindConnection(ownerUri As String, ByRef connectionInfo As ConnectionInfo) As Boolean
+    parameters:
+    - id: ownerUri
+      type: System.String
+    - id: connectionInfo
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection*
+  nameWithType.vb: ConnectionService.TryFindConnection(String, ByRef ConnectionInfo)
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection(System.String, ByRef Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)
+  name.vb: TryFindConnection(String, ByRef ConnectionInfo)
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Connect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Connect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams)
+  id: Connect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: Connect(ConnectParams)
+  nameWithType: ConnectionService.Connect(ConnectParams)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Connect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Connect
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 142
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nOpen a connection with the specified connection details\n"
+  example: []
+  syntax:
+    content: public Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
+    content.vb: Public Function Connect(connectionParams As ConnectParams) As Task(Of ConnectionCompleteParams)
+    parameters:
+    - id: connectionParams
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+      description: ''
+    return:
+      type: System.Threading.Tasks.Task{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams}
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Connect*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.CancelConnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.CancelConnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams)
+  id: CancelConnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: CancelConnect(CancelConnectParams)
+  nameWithType: ConnectionService.CancelConnect(CancelConnectParams)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.CancelConnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CancelConnect
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 308
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nCancel a connection that is in the process of opening.\n"
+  example: []
+  syntax:
+    content: public bool CancelConnect(CancelConnectParams cancelParams)
+    content.vb: Public Function CancelConnect(cancelParams As CancelConnectParams) As Boolean
+    parameters:
+    - id: cancelParams
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.CancelConnect*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Disconnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Disconnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams)
+  id: Disconnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: Disconnect(DisconnectParams)
+  nameWithType: ConnectionService.Disconnect(DisconnectParams)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Disconnect(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Disconnect
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 339
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nClose a connection with the specified connection details.\n"
+  example: []
+  syntax:
+    content: public bool Disconnect(DisconnectParams disconnectParams)
+    content.vb: Public Function Disconnect(disconnectParams As DisconnectParams) As Boolean
+    parameters:
+    - id: disconnectParams
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams
+    return:
+      type: System.Boolean
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Disconnect*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ListDatabases(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ListDatabases(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams)
+  id: ListDatabases(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: ListDatabases(ListDatabasesParams)
+  nameWithType: ConnectionService.ListDatabases(ListDatabasesParams)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ListDatabases(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ListDatabases
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 403
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nList all databases on the server specified\n"
+  example: []
+  syntax:
+    content: public ListDatabasesResponse ListDatabases(ListDatabasesParams listDatabasesParams)
+    content.vb: Public Function ListDatabases(listDatabasesParams As ListDatabasesParams) As ListDatabasesResponse
+    parameters:
+    - id: listDatabasesParams
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ListDatabases*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint)
+  id: InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: InitializeService(IProtocolEndpoint)
+  nameWithType: ConnectionService.InitializeService(IProtocolEndpoint)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: InitializeService
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 455
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  syntax:
+    content: public void InitializeService(IProtocolEndpoint serviceHost)
+    content.vb: Public Sub InitializeService(serviceHost As IProtocolEndpoint)
+    parameters:
+    - id: serviceHost
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.InitializeService*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnConnectionTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnConnectionTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler)
+  id: RegisterOnConnectionTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: RegisterOnConnectionTask(ConnectionService.OnConnectionHandler)
+  nameWithType: ConnectionService.RegisterOnConnectionTask(ConnectionService.OnConnectionHandler)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnConnectionTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: RegisterOnConnectionTask
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 473
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nAdd a new method to be called when the onconnection request is submitted \n"
+  example: []
+  syntax:
+    content: public void RegisterOnConnectionTask(ConnectionService.OnConnectionHandler activity)
+    content.vb: Public Sub RegisterOnConnectionTask(activity As ConnectionService.OnConnectionHandler)
+    parameters:
+    - id: activity
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler
+      description: ''
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnConnectionTask*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnDisconnectTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnDisconnectTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler)
+  id: RegisterOnDisconnectTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: RegisterOnDisconnectTask(ConnectionService.OnDisconnectHandler)
+  nameWithType: ConnectionService.RegisterOnDisconnectTask(ConnectionService.OnDisconnectHandler)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnDisconnectTask(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: RegisterOnDisconnectTask
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 481
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nAdd a new method to be called when the ondisconnect request is submitted\n"
+  example: []
+  syntax:
+    content: public void RegisterOnDisconnectTask(ConnectionService.OnDisconnectHandler activity)
+    content.vb: Public Sub RegisterOnDisconnectTask(activity As ConnectionService.OnDisconnectHandler)
+    parameters:
+    - id: activity
+      type: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnDisconnectTask*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  id: HandleConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: HandleConnectRequest(ConnectParams, RequestContext<Boolean>)
+  nameWithType: ConnectionService.HandleConnectRequest(ConnectParams, RequestContext<Boolean>)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<System.Boolean>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleConnectRequest
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 492
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nHandle new connection requests\n"
+  example: []
+  syntax:
+    content: protected Task HandleConnectRequest(ConnectParams connectParams, RequestContext<bool> requestContext)
+    content.vb: Protected Function HandleConnectRequest(connectParams As ConnectParams, requestContext As RequestContext(Of Boolean)) As Task
+    parameters:
+    - id: connectParams
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean}
+      description: ''
+    return:
+      type: System.Threading.Tasks.Task
+      description: ''
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest*
+  nameWithType.vb: ConnectionService.HandleConnectRequest(ConnectParams, RequestContext(Of Boolean))
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of System.Boolean))
+  name.vb: HandleConnectRequest(ConnectParams, RequestContext(Of Boolean))
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  id: HandleCancelConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: HandleCancelConnectRequest(CancelConnectParams, RequestContext<Boolean>)
+  nameWithType: ConnectionService.HandleCancelConnectRequest(CancelConnectParams, RequestContext<Boolean>)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<System.Boolean>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleCancelConnectRequest
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 534
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nHandle cancel connect requests\n"
+  example: []
+  syntax:
+    content: protected Task HandleCancelConnectRequest(CancelConnectParams cancelParams, RequestContext<bool> requestContext)
+    content.vb: Protected Function HandleCancelConnectRequest(cancelParams As CancelConnectParams, requestContext As RequestContext(Of Boolean)) As Task
+    parameters:
+    - id: cancelParams
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean}
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest*
+  nameWithType.vb: ConnectionService.HandleCancelConnectRequest(CancelConnectParams, RequestContext(Of Boolean))
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of System.Boolean))
+  name.vb: HandleCancelConnectRequest(CancelConnectParams, RequestContext(Of Boolean))
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  id: HandleDisconnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean})
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: HandleDisconnectRequest(DisconnectParams, RequestContext<Boolean>)
+  nameWithType: ConnectionService.HandleDisconnectRequest(DisconnectParams, RequestContext<Boolean>)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<System.Boolean>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleDisconnectRequest
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 554
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nHandle disconnect requests\n"
+  example: []
+  syntax:
+    content: protected Task HandleDisconnectRequest(DisconnectParams disconnectParams, RequestContext<bool> requestContext)
+    content.vb: Protected Function HandleDisconnectRequest(disconnectParams As DisconnectParams, requestContext As RequestContext(Of Boolean)) As Task
+    parameters:
+    - id: disconnectParams
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean}
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest*
+  nameWithType.vb: ConnectionService.HandleDisconnectRequest(DisconnectParams, RequestContext(Of Boolean))
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of System.Boolean))
+  name.vb: HandleDisconnectRequest(DisconnectParams, RequestContext(Of Boolean))
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse})
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse})
+  id: HandleListDatabasesRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse})
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: HandleListDatabasesRequest(ListDatabasesParams, RequestContext<ListDatabasesResponse>)
+  nameWithType: ConnectionService.HandleListDatabasesRequest(ListDatabasesParams, RequestContext<ListDatabasesResponse>)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse>)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleListDatabasesRequest
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 575
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nHandle requests to list databases on the current server\n"
+  example: []
+  syntax:
+    content: protected Task HandleListDatabasesRequest(ListDatabasesParams listDatabasesParams, RequestContext<ListDatabasesResponse> requestContext)
+    content.vb: Protected Function HandleListDatabasesRequest(listDatabasesParams As ListDatabasesParams, requestContext As RequestContext(Of ListDatabasesResponse)) As Task
+    parameters:
+    - id: listDatabasesParams
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams
+    - id: requestContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse}
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest*
+  nameWithType.vb: ConnectionService.HandleListDatabasesRequest(ListDatabasesParams, RequestContext(Of ListDatabasesResponse))
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse))
+  name.vb: HandleListDatabasesRequest(ListDatabasesParams, RequestContext(Of ListDatabasesResponse))
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  id: HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: HandleDidChangeConfigurationNotification(SqlToolsSettings, SqlToolsSettings, EventContext)
+  nameWithType: ConnectionService.HandleDidChangeConfigurationNotification(SqlToolsSettings, SqlToolsSettings, EventContext)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings, Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings, Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HandleDidChangeConfigurationNotification
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 592
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  syntax:
+    content: public Task HandleDidChangeConfigurationNotification(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+    content.vb: Public Function HandleDidChangeConfigurationNotification(newSettings As SqlToolsSettings, oldSettings As SqlToolsSettings, eventContext As EventContext) As Task
+    parameters:
+    - id: newSettings
+      type: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+    - id: oldSettings
+      type: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+    - id: eventContext
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+    return:
+      type: System.Threading.Tasks.Task
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDidChangeConfigurationNotification*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.BuildConnectionString(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.BuildConnectionString(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  id: BuildConnectionString(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: BuildConnectionString(ConnectionDetails)
+  nameWithType: ConnectionService.BuildConnectionString(ConnectionDetails)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.BuildConnectionString(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: BuildConnectionString
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 604
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nBuild a connection string from a connection details instance\n"
+  example: []
+  syntax:
+    content: public static string BuildConnectionString(ConnectionDetails connectionDetails)
+    content.vb: Public Shared Function BuildConnectionString(connectionDetails As ConnectionDetails) As String
+    parameters:
+    - id: connectionDetails
+      type: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+      description: ''
+    return:
+      type: System.String
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.BuildConnectionString*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ChangeConnectionDatabaseContext(System.String,System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ChangeConnectionDatabaseContext(System.String,System.String)
+  id: ChangeConnectionDatabaseContext(System.String,System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  langs:
+  - csharp
+  - vb
+  name: ChangeConnectionDatabaseContext(String, String)
+  nameWithType: ConnectionService.ChangeConnectionDatabaseContext(String, String)
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ChangeConnectionDatabaseContext(System.String, System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ChangeConnectionDatabaseContext
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+    startLine: 736
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Connection
+  summary: "\nChange the database context of a connection.\n"
+  example: []
+  syntax:
+    content: public void ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName)
+    content.vb: Public Sub ChangeConnectionDatabaseContext(ownerUri As String, newDatabaseName As String)
+    parameters:
+    - id: ownerUri
+      type: System.String
+      description: URI of the owner of the connection
+    - id: newDatabaseName
+      type: System.String
+      description: Name of the database to change the connection to
+  overload: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ChangeConnectionDatabaseContext*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Connection
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Instance*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Instance
+  isExternal: false
+  name: Instance
+  nameWithType: ConnectionService.Instance
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Instance
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ConnectionService
+  nameWithType: ConnectionService
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.#ctor
+  isExternal: false
+  name: ConnectionService
+  nameWithType: ConnectionService.ConnectionService
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionService
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionFactory*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionFactory
+  isExternal: false
+  name: ConnectionFactory
+  nameWithType: ConnectionService.ConnectionFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ConnectionFactory
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ISqlConnectionFactory
+  nameWithType: ISqlConnectionFactory
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ISqlConnectionFactory
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection
+  isExternal: false
+  name: TryFindConnection
+  nameWithType: ConnectionService.TryFindConnection
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.TryFindConnection
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ConnectionInfo
+  nameWithType: ConnectionInfo
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Connect*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Connect
+  isExternal: false
+  name: Connect
+  nameWithType: ConnectionService.Connect
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Connect
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ConnectParams
+  nameWithType: ConnectParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectParams
+- uid: System.Threading.Tasks.Task{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams}
+  commentId: T:System.Threading.Tasks.Task{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams}
+  parent: System.Threading.Tasks
+  definition: System.Threading.Tasks.Task`1
+  name: Task<ConnectionCompleteParams>
+  nameWithType: Task<ConnectionCompleteParams>
+  fullName: System.Threading.Tasks.Task<Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams>
+  nameWithType.vb: Task(Of ConnectionCompleteParams)
+  fullname.vb: System.Threading.Tasks.Task(Of Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams)
+  name.vb: Task(Of ConnectionCompleteParams)
+  spec.csharp:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+    name: ConnectionCompleteParams
+    nameWithType: ConnectionCompleteParams
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+    name: ConnectionCompleteParams
+    nameWithType: ConnectionCompleteParams
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionCompleteParams
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+- uid: System.Threading.Tasks.Task`1
+  commentId: T:System.Threading.Tasks.Task`1
+  isExternal: true
+  name: Task<TResult>
+  nameWithType: Task<TResult>
+  fullName: System.Threading.Tasks.Task<TResult>
+  nameWithType.vb: Task(Of TResult)
+  fullname.vb: System.Threading.Tasks.Task(Of TResult)
+  name.vb: Task(Of TResult)
+  spec.csharp:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Threading.Tasks.Task`1
+    name: Task
+    nameWithType: Task
+    fullName: System.Threading.Tasks.Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.Tasks
+  commentId: N:System.Threading.Tasks
+  isExternal: false
+  name: System.Threading.Tasks
+  nameWithType: System.Threading.Tasks
+  fullName: System.Threading.Tasks
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.CancelConnect*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.CancelConnect
+  isExternal: false
+  name: CancelConnect
+  nameWithType: ConnectionService.CancelConnect
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.CancelConnect
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: CancelConnectParams
+  nameWithType: CancelConnectParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.CancelConnectParams
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Disconnect*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Disconnect
+  isExternal: false
+  name: Disconnect
+  nameWithType: ConnectionService.Disconnect
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.Disconnect
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: DisconnectParams
+  nameWithType: DisconnectParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.DisconnectParams
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ListDatabases*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ListDatabases
+  isExternal: false
+  name: ListDatabases
+  nameWithType: ConnectionService.ListDatabases
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ListDatabases
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ListDatabasesParams
+  nameWithType: ListDatabasesParams
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesParams
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ListDatabasesResponse
+  nameWithType: ListDatabasesResponse
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.InitializeService*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.InitializeService
+  isExternal: false
+  name: InitializeService
+  nameWithType: ConnectionService.InitializeService
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.InitializeService
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: IProtocolEndpoint
+  nameWithType: IProtocolEndpoint
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.IProtocolEndpoint
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnConnectionTask*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnConnectionTask
+  isExternal: false
+  name: RegisterOnConnectionTask
+  nameWithType: ConnectionService.RegisterOnConnectionTask
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnConnectionTask
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ConnectionService.OnConnectionHandler
+  nameWithType: ConnectionService.OnConnectionHandler
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnConnectionHandler
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnDisconnectTask*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnDisconnectTask
+  isExternal: false
+  name: RegisterOnDisconnectTask
+  nameWithType: ConnectionService.RegisterOnDisconnectTask
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.RegisterOnDisconnectTask
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler
+  parent: Microsoft.SqlTools.ServiceLayer.Connection
+  isExternal: false
+  name: ConnectionService.OnDisconnectHandler
+  nameWithType: ConnectionService.OnDisconnectHandler
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.OnDisconnectHandler
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest
+  isExternal: false
+  name: HandleConnectRequest
+  nameWithType: ConnectionService.HandleConnectRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleConnectRequest
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{System.Boolean}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  name: RequestContext<Boolean>
+  nameWithType: RequestContext<Boolean>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<System.Boolean>
+  nameWithType.vb: RequestContext(Of Boolean)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of System.Boolean)
+  name.vb: RequestContext(Of Boolean)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Threading.Tasks.Task
+  commentId: T:System.Threading.Tasks.Task
+  parent: System.Threading.Tasks
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: System.Threading.Tasks.Task
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  isExternal: false
+  name: RequestContext<TResult>
+  nameWithType: RequestContext<TResult>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<TResult>
+  nameWithType.vb: RequestContext(Of TResult)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of TResult)
+  name.vb: RequestContext(Of TResult)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest
+  isExternal: false
+  name: HandleCancelConnectRequest
+  nameWithType: ConnectionService.HandleCancelConnectRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleCancelConnectRequest
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest
+  isExternal: false
+  name: HandleDisconnectRequest
+  nameWithType: ConnectionService.HandleDisconnectRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDisconnectRequest
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest
+  isExternal: false
+  name: HandleListDatabasesRequest
+  nameWithType: ConnectionService.HandleListDatabasesRequest
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleListDatabasesRequest
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse}
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext{Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse}
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  definition: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+  name: RequestContext<ListDatabasesResponse>
+  nameWithType: RequestContext<ListDatabasesResponse>
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext<Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse>
+  nameWithType.vb: RequestContext(Of ListDatabasesResponse)
+  fullname.vb: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext(Of Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse)
+  name.vb: RequestContext(Of ListDatabasesResponse)
+  spec.csharp:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse
+    name: ListDatabasesResponse
+    nameWithType: ListDatabasesResponse
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext`1
+    name: RequestContext
+    nameWithType: RequestContext
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.RequestContext
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse
+    name: ListDatabasesResponse
+    nameWithType: ListDatabasesResponse
+    fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ListDatabasesResponse
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDidChangeConfigurationNotification*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDidChangeConfigurationNotification
+  isExternal: false
+  name: HandleDidChangeConfigurationNotification
+  nameWithType: ConnectionService.HandleDidChangeConfigurationNotification
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.HandleDidChangeConfigurationNotification
+- uid: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+  commentId: T:Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+  parent: Microsoft.SqlTools.ServiceLayer.SqlContext
+  isExternal: false
+  name: SqlToolsSettings
+  nameWithType: SqlToolsSettings
+  fullName: Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+  isExternal: false
+  name: EventContext
+  nameWithType: EventContext
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext
+- uid: Microsoft.SqlTools.ServiceLayer.SqlContext
+  commentId: N:Microsoft.SqlTools.ServiceLayer.SqlContext
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.SqlContext
+  nameWithType: Microsoft.SqlTools.ServiceLayer.SqlContext
+  fullName: Microsoft.SqlTools.ServiceLayer.SqlContext
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.BuildConnectionString*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.BuildConnectionString
+  isExternal: false
+  name: BuildConnectionString
+  nameWithType: ConnectionService.BuildConnectionString
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.BuildConnectionString
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+  parent: Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+  isExternal: false
+  name: ConnectionDetails
+  nameWithType: ConnectionDetails
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionDetails
+- uid: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ChangeConnectionDatabaseContext*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ChangeConnectionDatabaseContext
+  isExternal: false
+  name: ChangeConnectionDatabaseContext
+  nameWithType: ConnectionService.ChangeConnectionDatabaseContext
+  fullName: Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService.ChangeConnectionDatabaseContext

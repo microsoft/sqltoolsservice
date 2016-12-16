@@ -1,0 +1,1011 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  id: IFileStreamWriter
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  children:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.FlushBuffer
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBoolean(System.Boolean)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteByte(System.Byte)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes(System.Byte[])
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteChar(System.Char)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTime(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper,System.DateTime)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTimeOffset(System.DateTimeOffset)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDecimal(System.Decimal)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDouble(System.Double)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteGuid(System.Guid)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt16(System.Int16)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt32(System.Int32)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt64(System.Int64)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteMoney(System.Data.SqlTypes.SqlMoney)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteNull
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteRow(Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSingle(System.Single)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSqlDecimal(System.Data.SqlTypes.SqlDecimal)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteString(System.String)
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteTimeSpan(System.TimeSpan)
+  langs:
+  - csharp
+  - vb
+  name: IFileStreamWriter
+  nameWithType: IFileStreamWriter
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  type: Interface
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: IFileStreamWriter
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 14
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  summary: "\nInterface for a object that writes to a filesystem wrapper\n"
+  example: []
+  syntax:
+    content: 'public interface IFileStreamWriter : IDisposable'
+    content.vb: >-
+      Public Interface IFileStreamWriter
+          Inherits IDisposable
+  inheritedMembers:
+  - System.IDisposable.Dispose
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteRow(Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteRow(Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader)
+  id: WriteRow(Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteRow(StorageDataReader)
+  nameWithType: IFileStreamWriter.WriteRow(StorageDataReader)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteRow(Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteRow
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteRow(StorageDataReader dataReader)
+    content.vb: Function WriteRow(dataReader As StorageDataReader) As Integer
+    parameters:
+    - id: dataReader
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteRow*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteNull
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteNull
+  id: WriteNull
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteNull()
+  nameWithType: IFileStreamWriter.WriteNull()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteNull()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteNull
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteNull()
+    content.vb: Function WriteNull As Integer
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteNull*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt16(System.Int16)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt16(System.Int16)
+  id: WriteInt16(System.Int16)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteInt16(Int16)
+  nameWithType: IFileStreamWriter.WriteInt16(Int16)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt16(System.Int16)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteInt16
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 18
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteInt16(short val)
+    content.vb: Function WriteInt16(val As Short) As Integer
+    parameters:
+    - id: val
+      type: System.Int16
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt16*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt32(System.Int32)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt32(System.Int32)
+  id: WriteInt32(System.Int32)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteInt32(Int32)
+  nameWithType: IFileStreamWriter.WriteInt32(Int32)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt32(System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteInt32
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 19
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteInt32(int val)
+    content.vb: Function WriteInt32(val As Integer) As Integer
+    parameters:
+    - id: val
+      type: System.Int32
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt32*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt64(System.Int64)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt64(System.Int64)
+  id: WriteInt64(System.Int64)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteInt64(Int64)
+  nameWithType: IFileStreamWriter.WriteInt64(Int64)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt64(System.Int64)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteInt64
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 20
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteInt64(long val)
+    content.vb: Function WriteInt64(val As Long) As Integer
+    parameters:
+    - id: val
+      type: System.Int64
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt64*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteByte(System.Byte)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteByte(System.Byte)
+  id: WriteByte(System.Byte)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteByte(Byte)
+  nameWithType: IFileStreamWriter.WriteByte(Byte)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteByte(System.Byte)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteByte
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 21
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteByte(byte val)
+    content.vb: Function WriteByte(val As Byte) As Integer
+    parameters:
+    - id: val
+      type: System.Byte
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteByte*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteChar(System.Char)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteChar(System.Char)
+  id: WriteChar(System.Char)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteChar(Char)
+  nameWithType: IFileStreamWriter.WriteChar(Char)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteChar(System.Char)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteChar
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 22
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteChar(char val)
+    content.vb: Function WriteChar(val As Char) As Integer
+    parameters:
+    - id: val
+      type: System.Char
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteChar*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBoolean(System.Boolean)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBoolean(System.Boolean)
+  id: WriteBoolean(System.Boolean)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteBoolean(Boolean)
+  nameWithType: IFileStreamWriter.WriteBoolean(Boolean)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBoolean(System.Boolean)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteBoolean
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 23
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteBoolean(bool val)
+    content.vb: Function WriteBoolean(val As Boolean) As Integer
+    parameters:
+    - id: val
+      type: System.Boolean
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBoolean*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSingle(System.Single)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSingle(System.Single)
+  id: WriteSingle(System.Single)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteSingle(Single)
+  nameWithType: IFileStreamWriter.WriteSingle(Single)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSingle(System.Single)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteSingle
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 24
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteSingle(float val)
+    content.vb: Function WriteSingle(val As Single) As Integer
+    parameters:
+    - id: val
+      type: System.Single
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSingle*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDouble(System.Double)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDouble(System.Double)
+  id: WriteDouble(System.Double)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteDouble(Double)
+  nameWithType: IFileStreamWriter.WriteDouble(Double)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDouble(System.Double)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteDouble
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 25
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteDouble(double val)
+    content.vb: Function WriteDouble(val As Double) As Integer
+    parameters:
+    - id: val
+      type: System.Double
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDouble*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDecimal(System.Decimal)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDecimal(System.Decimal)
+  id: WriteDecimal(System.Decimal)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteDecimal(Decimal)
+  nameWithType: IFileStreamWriter.WriteDecimal(Decimal)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDecimal(System.Decimal)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteDecimal
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 26
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteDecimal(decimal val)
+    content.vb: Function WriteDecimal(val As Decimal) As Integer
+    parameters:
+    - id: val
+      type: System.Decimal
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDecimal*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSqlDecimal(System.Data.SqlTypes.SqlDecimal)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSqlDecimal(System.Data.SqlTypes.SqlDecimal)
+  id: WriteSqlDecimal(System.Data.SqlTypes.SqlDecimal)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteSqlDecimal(SqlDecimal)
+  nameWithType: IFileStreamWriter.WriteSqlDecimal(SqlDecimal)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSqlDecimal(System.Data.SqlTypes.SqlDecimal)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteSqlDecimal
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 27
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteSqlDecimal(SqlDecimal val)
+    content.vb: Function WriteSqlDecimal(val As SqlDecimal) As Integer
+    parameters:
+    - id: val
+      type: System.Data.SqlTypes.SqlDecimal
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSqlDecimal*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTime(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper,System.DateTime)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTime(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper,System.DateTime)
+  id: WriteDateTime(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper,System.DateTime)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteDateTime(DbColumnWrapper, DateTime)
+  nameWithType: IFileStreamWriter.WriteDateTime(DbColumnWrapper, DateTime)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTime(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper, System.DateTime)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteDateTime
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 28
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteDateTime(DbColumnWrapper column, DateTime val)
+    content.vb: Function WriteDateTime(column As DbColumnWrapper, val As Date) As Integer
+    parameters:
+    - id: column
+      type: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+    - id: val
+      type: System.DateTime
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTime*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTimeOffset(System.DateTimeOffset)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTimeOffset(System.DateTimeOffset)
+  id: WriteDateTimeOffset(System.DateTimeOffset)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteDateTimeOffset(DateTimeOffset)
+  nameWithType: IFileStreamWriter.WriteDateTimeOffset(DateTimeOffset)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTimeOffset(System.DateTimeOffset)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteDateTimeOffset
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 29
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteDateTimeOffset(DateTimeOffset dtoVal)
+    content.vb: Function WriteDateTimeOffset(dtoVal As DateTimeOffset) As Integer
+    parameters:
+    - id: dtoVal
+      type: System.DateTimeOffset
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTimeOffset*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteTimeSpan(System.TimeSpan)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteTimeSpan(System.TimeSpan)
+  id: WriteTimeSpan(System.TimeSpan)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteTimeSpan(TimeSpan)
+  nameWithType: IFileStreamWriter.WriteTimeSpan(TimeSpan)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteTimeSpan(System.TimeSpan)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteTimeSpan
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 30
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteTimeSpan(TimeSpan val)
+    content.vb: Function WriteTimeSpan(val As TimeSpan) As Integer
+    parameters:
+    - id: val
+      type: System.TimeSpan
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteTimeSpan*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteString(System.String)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteString(System.String)
+  id: WriteString(System.String)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteString(String)
+  nameWithType: IFileStreamWriter.WriteString(String)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteString(System.String)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteString
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 31
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteString(string val)
+    content.vb: Function WriteString(val As String) As Integer
+    parameters:
+    - id: val
+      type: System.String
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteString*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes(System.Byte[])
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes(System.Byte[])
+  id: WriteBytes(System.Byte[])
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteBytes(Byte[])
+  nameWithType: IFileStreamWriter.WriteBytes(Byte[])
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes(System.Byte[])
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteBytes
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 32
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteBytes(byte[] bytes)
+    content.vb: Function WriteBytes(bytes As Byte()) As Integer
+    parameters:
+    - id: bytes
+      type: System.Byte[]
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes*
+  nameWithType.vb: IFileStreamWriter.WriteBytes(Byte())
+  fullName.vb: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes(System.Byte())
+  name.vb: WriteBytes(Byte())
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteGuid(System.Guid)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteGuid(System.Guid)
+  id: WriteGuid(System.Guid)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteGuid(Guid)
+  nameWithType: IFileStreamWriter.WriteGuid(Guid)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteGuid(System.Guid)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteGuid
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 33
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteGuid(Guid val)
+    content.vb: Function WriteGuid(val As Guid) As Integer
+    parameters:
+    - id: val
+      type: System.Guid
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteGuid*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteMoney(System.Data.SqlTypes.SqlMoney)
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteMoney(System.Data.SqlTypes.SqlMoney)
+  id: WriteMoney(System.Data.SqlTypes.SqlMoney)
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: WriteMoney(SqlMoney)
+  nameWithType: IFileStreamWriter.WriteMoney(SqlMoney)
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteMoney(System.Data.SqlTypes.SqlMoney)
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WriteMoney
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 34
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: int WriteMoney(SqlMoney val)
+    content.vb: Function WriteMoney(val As SqlMoney) As Integer
+    parameters:
+    - id: val
+      type: System.Data.SqlTypes.SqlMoney
+    return:
+      type: System.Int32
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteMoney*
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.FlushBuffer
+  commentId: M:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.FlushBuffer
+  id: FlushBuffer
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter
+  langs:
+  - csharp
+  - vb
+  name: FlushBuffer()
+  nameWithType: IFileStreamWriter.FlushBuffer()
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.FlushBuffer()
+  type: Method
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: FlushBuffer
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamWriter.cs
+    startLine: 35
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  syntax:
+    content: void FlushBuffer()
+    content.vb: Sub FlushBuffer
+  overload: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.FlushBuffer*
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+- uid: System.IDisposable.Dispose
+  commentId: M:System.IDisposable.Dispose
+  parent: System.IDisposable
+  isExternal: true
+  name: Dispose()
+  nameWithType: IDisposable.Dispose()
+  fullName: System.IDisposable.Dispose()
+  spec.csharp:
+  - uid: System.IDisposable.Dispose
+    name: Dispose
+    nameWithType: IDisposable.Dispose
+    fullName: System.IDisposable.Dispose
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.IDisposable.Dispose
+    name: Dispose
+    nameWithType: IDisposable.Dispose
+    fullName: System.IDisposable.Dispose
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.IDisposable
+  commentId: T:System.IDisposable
+  parent: System
+  isExternal: true
+  name: IDisposable
+  nameWithType: IDisposable
+  fullName: System.IDisposable
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteRow*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteRow
+  isExternal: false
+  name: WriteRow
+  nameWithType: IFileStreamWriter.WriteRow
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteRow
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
+  isExternal: false
+  name: StorageDataReader
+  nameWithType: StorageDataReader
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteNull*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteNull
+  isExternal: false
+  name: WriteNull
+  nameWithType: IFileStreamWriter.WriteNull
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteNull
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt16*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt16
+  isExternal: false
+  name: WriteInt16
+  nameWithType: IFileStreamWriter.WriteInt16
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt16
+- uid: System.Int16
+  commentId: T:System.Int16
+  parent: System
+  isExternal: true
+  name: Int16
+  nameWithType: Int16
+  fullName: System.Int16
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt32*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt32
+  isExternal: false
+  name: WriteInt32
+  nameWithType: IFileStreamWriter.WriteInt32
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt32
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt64*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt64
+  isExternal: false
+  name: WriteInt64
+  nameWithType: IFileStreamWriter.WriteInt64
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteInt64
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  name: Int64
+  nameWithType: Int64
+  fullName: System.Int64
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteByte*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteByte
+  isExternal: false
+  name: WriteByte
+  nameWithType: IFileStreamWriter.WriteByte
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteByte
+- uid: System.Byte
+  commentId: T:System.Byte
+  parent: System
+  isExternal: true
+  name: Byte
+  nameWithType: Byte
+  fullName: System.Byte
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteChar*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteChar
+  isExternal: false
+  name: WriteChar
+  nameWithType: IFileStreamWriter.WriteChar
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteChar
+- uid: System.Char
+  commentId: T:System.Char
+  parent: System
+  isExternal: true
+  name: Char
+  nameWithType: Char
+  fullName: System.Char
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBoolean*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBoolean
+  isExternal: false
+  name: WriteBoolean
+  nameWithType: IFileStreamWriter.WriteBoolean
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBoolean
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSingle*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSingle
+  isExternal: false
+  name: WriteSingle
+  nameWithType: IFileStreamWriter.WriteSingle
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSingle
+- uid: System.Single
+  commentId: T:System.Single
+  parent: System
+  isExternal: true
+  name: Single
+  nameWithType: Single
+  fullName: System.Single
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDouble*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDouble
+  isExternal: false
+  name: WriteDouble
+  nameWithType: IFileStreamWriter.WriteDouble
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDouble
+- uid: System.Double
+  commentId: T:System.Double
+  parent: System
+  isExternal: true
+  name: Double
+  nameWithType: Double
+  fullName: System.Double
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDecimal*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDecimal
+  isExternal: false
+  name: WriteDecimal
+  nameWithType: IFileStreamWriter.WriteDecimal
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDecimal
+- uid: System.Decimal
+  commentId: T:System.Decimal
+  parent: System
+  isExternal: true
+  name: Decimal
+  nameWithType: Decimal
+  fullName: System.Decimal
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSqlDecimal*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSqlDecimal
+  isExternal: false
+  name: WriteSqlDecimal
+  nameWithType: IFileStreamWriter.WriteSqlDecimal
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteSqlDecimal
+- uid: System.Data.SqlTypes.SqlDecimal
+  commentId: T:System.Data.SqlTypes.SqlDecimal
+  parent: System.Data.SqlTypes
+  isExternal: true
+  name: SqlDecimal
+  nameWithType: SqlDecimal
+  fullName: System.Data.SqlTypes.SqlDecimal
+- uid: System.Data.SqlTypes
+  commentId: N:System.Data.SqlTypes
+  isExternal: false
+  name: System.Data.SqlTypes
+  nameWithType: System.Data.SqlTypes
+  fullName: System.Data.SqlTypes
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTime*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTime
+  isExternal: false
+  name: WriteDateTime
+  nameWithType: IFileStreamWriter.WriteDateTime
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTime
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: DbColumnWrapper
+  nameWithType: DbColumnWrapper
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper
+- uid: System.DateTime
+  commentId: T:System.DateTime
+  parent: System
+  isExternal: true
+  name: DateTime
+  nameWithType: DateTime
+  fullName: System.DateTime
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTimeOffset*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTimeOffset
+  isExternal: false
+  name: WriteDateTimeOffset
+  nameWithType: IFileStreamWriter.WriteDateTimeOffset
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteDateTimeOffset
+- uid: System.DateTimeOffset
+  commentId: T:System.DateTimeOffset
+  parent: System
+  isExternal: true
+  name: DateTimeOffset
+  nameWithType: DateTimeOffset
+  fullName: System.DateTimeOffset
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteTimeSpan*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteTimeSpan
+  isExternal: false
+  name: WriteTimeSpan
+  nameWithType: IFileStreamWriter.WriteTimeSpan
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteTimeSpan
+- uid: System.TimeSpan
+  commentId: T:System.TimeSpan
+  parent: System
+  isExternal: true
+  name: TimeSpan
+  nameWithType: TimeSpan
+  fullName: System.TimeSpan
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteString*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteString
+  isExternal: false
+  name: WriteString
+  nameWithType: IFileStreamWriter.WriteString
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteString
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes
+  isExternal: false
+  name: WriteBytes
+  nameWithType: IFileStreamWriter.WriteBytes
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteBytes
+- uid: System.Byte[]
+  name: Byte[]
+  nameWithType: Byte[]
+  fullName: System.Byte[]
+  nameWithType.vb: Byte()
+  fullname.vb: System.Byte()
+  name.vb: Byte()
+  spec.csharp:
+  - uid: System.Byte
+    name: Byte
+    nameWithType: Byte
+    fullName: System.Byte
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  spec.vb:
+  - uid: System.Byte
+    name: Byte
+    nameWithType: Byte
+    fullName: System.Byte
+    isExternal: true
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteGuid*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteGuid
+  isExternal: false
+  name: WriteGuid
+  nameWithType: IFileStreamWriter.WriteGuid
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteGuid
+- uid: System.Guid
+  commentId: T:System.Guid
+  parent: System
+  isExternal: true
+  name: Guid
+  nameWithType: Guid
+  fullName: System.Guid
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteMoney*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteMoney
+  isExternal: false
+  name: WriteMoney
+  nameWithType: IFileStreamWriter.WriteMoney
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.WriteMoney
+- uid: System.Data.SqlTypes.SqlMoney
+  commentId: T:System.Data.SqlTypes.SqlMoney
+  parent: System.Data.SqlTypes
+  isExternal: true
+  name: SqlMoney
+  nameWithType: SqlMoney
+  fullName: System.Data.SqlTypes.SqlMoney
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.FlushBuffer*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.FlushBuffer
+  isExternal: false
+  name: FlushBuffer
+  nameWithType: IFileStreamWriter.FlushBuffer
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.FlushBuffer

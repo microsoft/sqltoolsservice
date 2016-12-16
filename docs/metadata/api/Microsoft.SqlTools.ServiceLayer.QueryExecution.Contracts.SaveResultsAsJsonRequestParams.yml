@@ -1,0 +1,419 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsAsJsonRequestParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsAsJsonRequestParams
+  id: SaveResultsAsJsonRequestParams
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  children: []
+  langs:
+  - csharp
+  - vb
+  name: SaveResultsAsJsonRequestParams
+  nameWithType: SaveResultsAsJsonRequestParams
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsAsJsonRequestParams
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SaveResultsRequest.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SaveResultsAsJsonRequestParams
+    path: ../src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Contracts/SaveResultsRequest.cs
+    startLine: 71
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  summary: "\nParameters to save results as JSON\n"
+  example: []
+  syntax:
+    content: 'public class SaveResultsAsJsonRequestParams : SaveResultsRequestParams'
+    content.vb: >-
+      Public Class SaveResultsAsJsonRequestParams
+          Inherits SaveResultsRequestParams
+  inheritance:
+  - System.Object
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  inheritedMembers:
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.FilePath
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.BatchIndex
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ResultSetIndex
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.OwnerUri
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.RowStartIndex
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.RowEndIndex
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ColumnStartIndex
+  - Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ColumnEndIndex
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  commentId: T:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+  isExternal: false
+  name: SaveResultsRequestParams
+  nameWithType: SaveResultsRequestParams
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.FilePath
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.FilePath
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  isExternal: false
+  name: FilePath
+  nameWithType: SaveResultsRequestParams.FilePath
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.FilePath
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.BatchIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.BatchIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  isExternal: false
+  name: BatchIndex
+  nameWithType: SaveResultsRequestParams.BatchIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.BatchIndex
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ResultSetIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ResultSetIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  isExternal: false
+  name: ResultSetIndex
+  nameWithType: SaveResultsRequestParams.ResultSetIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ResultSetIndex
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.OwnerUri
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.OwnerUri
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  isExternal: false
+  name: OwnerUri
+  nameWithType: SaveResultsRequestParams.OwnerUri
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.OwnerUri
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.RowStartIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.RowStartIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  isExternal: false
+  name: RowStartIndex
+  nameWithType: SaveResultsRequestParams.RowStartIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.RowStartIndex
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.RowEndIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.RowEndIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  isExternal: false
+  name: RowEndIndex
+  nameWithType: SaveResultsRequestParams.RowEndIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.RowEndIndex
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ColumnStartIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ColumnStartIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  isExternal: false
+  name: ColumnStartIndex
+  nameWithType: SaveResultsRequestParams.ColumnStartIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ColumnStartIndex
+- uid: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ColumnEndIndex
+  commentId: P:Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ColumnEndIndex
+  parent: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams
+  isExternal: false
+  name: ColumnEndIndex
+  nameWithType: SaveResultsRequestParams.ColumnEndIndex
+  fullName: Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.SaveResultsRequestParams.ColumnEndIndex
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System

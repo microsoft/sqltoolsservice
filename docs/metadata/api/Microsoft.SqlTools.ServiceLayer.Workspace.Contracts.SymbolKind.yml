@@ -1,0 +1,642 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  id: SymbolKind
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Array
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Boolean
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Class
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Constant
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Constructor
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Enum
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Field
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.File
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Function
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Interface
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Method
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Module
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Namespace
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Number
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Package
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Property
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.String
+  - Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Variable
+  langs:
+  - csharp
+  - vb
+  name: SymbolKind
+  nameWithType: SymbolKind
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  type: Enum
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SymbolKind
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 9
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: public enum SymbolKind
+    content.vb: Public Enum SymbolKind
+  modifiers.csharp:
+  - public
+  - enum
+  modifiers.vb:
+  - Public
+  - Enum
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.File
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.File
+  id: File
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: File
+  nameWithType: SymbolKind.File
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.File
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: File
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 11
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: File = 1
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Module
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Module
+  id: Module
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Module
+  nameWithType: SymbolKind.Module
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Module
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Module
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 12
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Module = 2
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Namespace
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Namespace
+  id: Namespace
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Namespace
+  nameWithType: SymbolKind.Namespace
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Namespace
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Namespace
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 13
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Namespace = 3
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Package
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Package
+  id: Package
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Package
+  nameWithType: SymbolKind.Package
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Package
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Package
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 14
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Package = 4
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Class
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Class
+  id: Class
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Class
+  nameWithType: SymbolKind.Class
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Class
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Class
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 15
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Class = 5
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Method
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Method
+  id: Method
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Method
+  nameWithType: SymbolKind.Method
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Method
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Method
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 16
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Method = 6
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Property
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Property
+  id: Property
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Property
+  nameWithType: SymbolKind.Property
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Property
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Property
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Property = 7
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Field
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Field
+  id: Field
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Field
+  nameWithType: SymbolKind.Field
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Field
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Field
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 18
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Field = 8
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Constructor
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Constructor
+  id: Constructor
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Constructor
+  nameWithType: SymbolKind.Constructor
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Constructor
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Constructor
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 19
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Constructor = 9
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Enum
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Enum
+  id: Enum
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Enum
+  nameWithType: SymbolKind.Enum
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Enum
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Enum
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 20
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Enum = 10
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Interface
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Interface
+  id: Interface
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Interface
+  nameWithType: SymbolKind.Interface
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Interface
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Interface
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 21
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Interface = 11
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Function
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Function
+  id: Function
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Function
+  nameWithType: SymbolKind.Function
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Function
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Function
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 22
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Function = 12
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Variable
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Variable
+  id: Variable
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Variable
+  nameWithType: SymbolKind.Variable
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Variable
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Variable
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 23
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Variable = 13
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Constant
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Constant
+  id: Constant
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Constant
+  nameWithType: SymbolKind.Constant
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Constant
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Constant
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 24
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Constant = 14
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.String
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.String
+  id: String
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: String
+  nameWithType: SymbolKind.String
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.String
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: String
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 25
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: String = 15
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Number
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Number
+  id: Number
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Number
+  nameWithType: SymbolKind.Number
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Number
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Number
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 26
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Number = 16
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Boolean
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Boolean
+  id: Boolean
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Boolean
+  nameWithType: SymbolKind.Boolean
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Boolean
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Boolean
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 27
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Boolean = 17
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Array
+  commentId: F:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Array
+  id: Array
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  langs:
+  - csharp
+  - vb
+  name: Array
+  nameWithType: SymbolKind.Array
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind.Array
+  type: Field
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: Array
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Workspace/Contracts/WorkspaceSymbols.cs
+    startLine: 28
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  syntax:
+    content: Array = 18
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+- uid: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind
+  parent: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+  isExternal: false
+  name: SymbolKind
+  nameWithType: SymbolKind
+  fullName: Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.SymbolKind

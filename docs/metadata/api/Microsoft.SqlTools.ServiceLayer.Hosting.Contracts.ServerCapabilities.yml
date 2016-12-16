@@ -1,0 +1,860 @@
+### YamlMime:ManagedReference
+items:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  id: ServerCapabilities
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  children:
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.CompletionProvider
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DefinitionProvider
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentHighlightProvider
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentSymbolProvider
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.HoverProvider
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.ReferencesProvider
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.SignatureHelpProvider
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.TextDocumentSync
+  - Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.WorkspaceSymbolProvider
+  langs:
+  - csharp
+  - vb
+  name: ServerCapabilities
+  nameWithType: ServerCapabilities
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  type: Class
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ServerCapabilities
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 7
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public class ServerCapabilities
+    content.vb: Public Class ServerCapabilities
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.TextDocumentSync
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.TextDocumentSync
+  id: TextDocumentSync
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: TextDocumentSync
+  nameWithType: ServerCapabilities.TextDocumentSync
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.TextDocumentSync
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: TextDocumentSync
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 9
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public TextDocumentSyncKind? TextDocumentSync { get; set; }
+    content.vb: Public Property TextDocumentSync As TextDocumentSyncKind?
+    parameters: []
+    return:
+      type: System.Nullable{Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind}
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.TextDocumentSync*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.HoverProvider
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.HoverProvider
+  id: HoverProvider
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: HoverProvider
+  nameWithType: ServerCapabilities.HoverProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.HoverProvider
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: HoverProvider
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 11
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public bool ? HoverProvider { get; set; }
+    content.vb: Public Property HoverProvider As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.HoverProvider*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.CompletionProvider
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.CompletionProvider
+  id: CompletionProvider
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: CompletionProvider
+  nameWithType: ServerCapabilities.CompletionProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.CompletionProvider
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: CompletionProvider
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 13
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public CompletionOptions CompletionProvider { get; set; }
+    content.vb: Public Property CompletionProvider As CompletionOptions
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.CompletionOptions
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.CompletionProvider*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.SignatureHelpProvider
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.SignatureHelpProvider
+  id: SignatureHelpProvider
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: SignatureHelpProvider
+  nameWithType: ServerCapabilities.SignatureHelpProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.SignatureHelpProvider
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: SignatureHelpProvider
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 15
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public SignatureHelpOptions SignatureHelpProvider { get; set; }
+    content.vb: Public Property SignatureHelpProvider As SignatureHelpOptions
+    parameters: []
+    return:
+      type: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.SignatureHelpOptions
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.SignatureHelpProvider*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DefinitionProvider
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DefinitionProvider
+  id: DefinitionProvider
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: DefinitionProvider
+  nameWithType: ServerCapabilities.DefinitionProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DefinitionProvider
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DefinitionProvider
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 17
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public bool ? DefinitionProvider { get; set; }
+    content.vb: Public Property DefinitionProvider As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DefinitionProvider*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.ReferencesProvider
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.ReferencesProvider
+  id: ReferencesProvider
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: ReferencesProvider
+  nameWithType: ServerCapabilities.ReferencesProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.ReferencesProvider
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: ReferencesProvider
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 19
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public bool ? ReferencesProvider { get; set; }
+    content.vb: Public Property ReferencesProvider As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.ReferencesProvider*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentHighlightProvider
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentHighlightProvider
+  id: DocumentHighlightProvider
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: DocumentHighlightProvider
+  nameWithType: ServerCapabilities.DocumentHighlightProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentHighlightProvider
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DocumentHighlightProvider
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 21
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public bool ? DocumentHighlightProvider { get; set; }
+    content.vb: Public Property DocumentHighlightProvider As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentHighlightProvider*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentSymbolProvider
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentSymbolProvider
+  id: DocumentSymbolProvider
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: DocumentSymbolProvider
+  nameWithType: ServerCapabilities.DocumentSymbolProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentSymbolProvider
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: DocumentSymbolProvider
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 23
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public bool ? DocumentSymbolProvider { get; set; }
+    content.vb: Public Property DocumentSymbolProvider As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentSymbolProvider*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.WorkspaceSymbolProvider
+  commentId: P:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.WorkspaceSymbolProvider
+  id: WorkspaceSymbolProvider
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities
+  langs:
+  - csharp
+  - vb
+  name: WorkspaceSymbolProvider
+  nameWithType: ServerCapabilities.WorkspaceSymbolProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.WorkspaceSymbolProvider
+  type: Property
+  source:
+    remote:
+      path: src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+      branch: master
+      repo: https://kburtram:67c6623fc506400046096af249535f684d9ea40b@github.com/Microsoft/sqltoolsservice.git
+    id: WorkspaceSymbolProvider
+    path: ../src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/ServerCapabilities.cs
+    startLine: 25
+  assemblies:
+  - Microsoft.SqlTools.ServiceLayer
+  namespace: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  syntax:
+    content: public bool ? WorkspaceSymbolProvider { get; set; }
+    content.vb: Public Property WorkspaceSymbolProvider As Boolean?
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+  overload: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.WorkspaceSymbolProvider*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+references:
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  commentId: N:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  isExternal: false
+  name: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  nameWithType: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: false
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.TextDocumentSync*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.TextDocumentSync
+  isExternal: false
+  name: TextDocumentSync
+  nameWithType: ServerCapabilities.TextDocumentSync
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.TextDocumentSync
+- uid: System.Nullable{Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind}
+  commentId: T:System.Nullable{Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<TextDocumentSyncKind>
+  nameWithType: Nullable<TextDocumentSyncKind>
+  fullName: System.Nullable<Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind>
+  nameWithType.vb: Nullable(Of TextDocumentSyncKind)
+  fullname.vb: System.Nullable(Of Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind)
+  name.vb: Nullable(Of TextDocumentSyncKind)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind
+    name: TextDocumentSyncKind
+    nameWithType: TextDocumentSyncKind
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind
+    name: TextDocumentSyncKind
+    nameWithType: TextDocumentSyncKind
+    fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.TextDocumentSyncKind
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullname.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.HoverProvider*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.HoverProvider
+  isExternal: false
+  name: HoverProvider
+  nameWithType: ServerCapabilities.HoverProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.HoverProvider
+- uid: System.Nullable{System.Boolean}
+  commentId: T:System.Nullable{System.Boolean}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<Boolean>
+  nameWithType: Nullable<Boolean>
+  fullName: System.Nullable<System.Boolean>
+  nameWithType.vb: Nullable(Of Boolean)
+  fullname.vb: System.Nullable(Of System.Boolean)
+  name.vb: Nullable(Of Boolean)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.CompletionProvider*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.CompletionProvider
+  isExternal: false
+  name: CompletionProvider
+  nameWithType: ServerCapabilities.CompletionProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.CompletionProvider
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.CompletionOptions
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.CompletionOptions
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  isExternal: false
+  name: CompletionOptions
+  nameWithType: CompletionOptions
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.CompletionOptions
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.SignatureHelpProvider*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.SignatureHelpProvider
+  isExternal: false
+  name: SignatureHelpProvider
+  nameWithType: ServerCapabilities.SignatureHelpProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.SignatureHelpProvider
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.SignatureHelpOptions
+  commentId: T:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.SignatureHelpOptions
+  parent: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+  isExternal: false
+  name: SignatureHelpOptions
+  nameWithType: SignatureHelpOptions
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.SignatureHelpOptions
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DefinitionProvider*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DefinitionProvider
+  isExternal: false
+  name: DefinitionProvider
+  nameWithType: ServerCapabilities.DefinitionProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DefinitionProvider
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.ReferencesProvider*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.ReferencesProvider
+  isExternal: false
+  name: ReferencesProvider
+  nameWithType: ServerCapabilities.ReferencesProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.ReferencesProvider
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentHighlightProvider*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentHighlightProvider
+  isExternal: false
+  name: DocumentHighlightProvider
+  nameWithType: ServerCapabilities.DocumentHighlightProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentHighlightProvider
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentSymbolProvider*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentSymbolProvider
+  isExternal: false
+  name: DocumentSymbolProvider
+  nameWithType: ServerCapabilities.DocumentSymbolProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.DocumentSymbolProvider
+- uid: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.WorkspaceSymbolProvider*
+  commentId: Overload:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.WorkspaceSymbolProvider
+  isExternal: false
+  name: WorkspaceSymbolProvider
+  nameWithType: ServerCapabilities.WorkspaceSymbolProvider
+  fullName: Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ServerCapabilities.WorkspaceSymbolProvider
