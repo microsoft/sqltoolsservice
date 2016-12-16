@@ -2,13 +2,16 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-#define LIVE_CONNECTION_TESTS
+//#define LIVE_CONNECTION_TESTS
 
+using System;
+using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
@@ -287,11 +290,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
         /// provide signature help.
         /// </summary>
         [Fact]
-        public async void GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
+        public void GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
         {
             // When we make a connection to a live database
             ScriptFile scriptFile;
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            ConnectionInfo info = TestObjects.InitLiveConnectionInfo(out scriptFile);
 
             // And we place the cursor after a function that should prompt for signature help
             string queryWithFunction = "EXEC sys.fn_isrolemember ";
@@ -309,10 +312,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
                 }
             };
 
-            // If we have a valid ScriptParseInfo and the SQL has already been parsed
+            // If we have a valid ScriptParseInfo
             var service = LanguageService.Instance;
-            ScriptParseInfo parseInfo = service.GetScriptParseInfo(scriptFile.ClientFilePath);
-            await service.UpdateLanguageServiceOnConnection(connInfo);
+            ScriptParseInfo scriptInfo = service.GetScriptParseInfo(scriptFile.ClientFilePath);
+
+            // And we parse the SQL 
+            // (this will perform the same operations as UpdateLanguageServiceOnConnection, but without
+            // the ServiceHost.Instance.SendEvent, which will throw in a test environment) 
+            var bindingQueue = LanguageService.Instance.BindingQueue;
+            if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+            {
+                scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(info);
+                scriptInfo.IsConnected = true;
+                Monitor.Exit(scriptInfo.BuildingMetadataLock);
+            }
+            AutoCompleteHelper.PrepopulateCommonMetadata(info, scriptInfo, bindingQueue);
 
             // We should get back a non-null SignatureHelp 
             SignatureHelp signatureHelp = service.GetSignatureHelp(textDocument, scriptFile);
