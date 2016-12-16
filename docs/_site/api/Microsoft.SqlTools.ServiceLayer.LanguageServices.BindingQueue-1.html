@@ -10,43 +10,45 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class BindingQueue&lt;T&gt;
    ">
-    <meta name="generator" content="docfx 1.0.0.0">
     
-    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
-    <link rel="stylesheet" href="../styles/docfx.css">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/style.css">
     <meta property="docfx:navrel" content="../toc.html">
     <meta property="docfx:tocrel" content="toc.html">
-    
-  </head>
-  <body data-spy="scroll" data-target="#affix">
+    <!--
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-63735192-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+    -->
+  </head>  <body data-spy="scroll" data-target="#affix">
     <div id="wrapper">
       <header>
         
-        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
-          <div class="container">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              
-              <a class="navbar-brand" href="../index.html">
-                <img id="logo" class="svg" src="../logo.svg" alt="">
-              </a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar">
-              <form class="navbar-form navbar-right" role="search" id="search">
-                <div class="form-group">
-                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
-                </div>
-              </form>
-            </div>
-          </div>
-        </nav>
+        <nav class="navbar navbar-inverse">
+             <div class="container">
+               <a href="../"><img height="50px" src="../images/sqlserver.png" style="float:right;"></a>
+               <div class="navbar-header ">
+                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                   <span class="sr-only">Toggle navigation</span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                 </button>
+                 <a class="navbar-brand" href="../"><span class="dotnet">SQL Tools Service</span></a>
+               </div>
+               <div id="navbar" class="collapse navbar-collapse">
+               </div><!--/.nav-collapse -->
+             </div>
+           </nav>
         
         <div class="subnav navbar navbar-default">
           <div class="container hide-when-search" id="breadcrumb">
@@ -68,7 +70,8 @@
           <div class="col-md-10">
             <article class="content wrap" id="_content">
               
-              
+              <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue%601%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="pull-right mobile-hide"><span class="fa fa-github"></span>Improve this Doc</a>
+              <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/BindingQueue.cs/#L17" class="pull-right mobile-hide">View Source</a>
               <h1 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1">Class BindingQueue&lt;T&gt;
               </h1>
               <div class="markdown level0 summary"><p>Main class for the Binding Queue</p>
@@ -78,31 +81,6 @@
                 <h5>Inheritance</h5>
                   <div class="level0"><span class="xref">System.Object</span></div>
                   <div class="level1"><span class="xref">BindingQueue&lt;T&gt;</span></div>
-                  <div class="level2"><a class="xref" href="Microsoft.SqlTools.ServiceLayer.LanguageServices.ConnectedBindingQueue.html">ConnectedBindingQueue</a></div>
-              </div>
-              <div class="inheritedMembers">
-                <h5>Inherited Members</h5>
-                <div>
-                  <span class="xref">System.Object.Equals(System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.GetHashCode()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.GetType()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.MemberwiseClone()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.ToString()</span>
-                </div>
               </div>
               <h6><strong>Namespace</strong>:Microsoft.SqlTools.ServiceLayer.LanguageServices</h6>
               <h6><strong>Assembly</strong>:Microsoft.SqlTools.ServiceLayer.dll</h6>
@@ -111,21 +89,6 @@
                 <pre><code class="lang-csharp hljs">public class BindingQueue&lt;T&gt;
     where T : IBindingContext, new ()</code></pre>
               </div>
-              <h5 class="typeParameters">Type Parameters</h5>
-              <table class="table table-bordered table-striped table-condensed">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><span class="parametername">T</span></td>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
               <h3 id="constructors">Constructors
               </h3>
               <span class="small pull-right mobile-hide">
@@ -135,7 +98,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/BindingQueue.cs/#L40">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1__ctor_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.#ctor*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1__ctor" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.#ctor">BindingQueue()</h4>
               <div class="markdown level1 summary"><p>Constructor for a binding queue instance</p>
 </div>
@@ -153,7 +115,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/BindingQueue.cs/#L118">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1_BindingContextExists_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1_BindingContextExists_System_String_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.BindingContextExists(System.String)">BindingContextExists(String)</h4>
               <div class="markdown level1 summary"><p>Checks if a binding context already exists for the provided context key</p>
 </div>
@@ -174,7 +135,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.String</span></td>
-                    <td><span class="parametername">key</span></td>
+                    <td><em>key</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -201,7 +162,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/BindingQueue.cs/#L96">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1_GetOrCreateBindingContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1_GetOrCreateBindingContext_System_String_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.GetOrCreateBindingContext(System.String)">GetOrCreateBindingContext(String)</h4>
               <div class="markdown level1 summary"><p>Gets or creates a binding context for the provided context key</p>
 </div>
@@ -222,7 +182,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.String</span></td>
-                    <td><span class="parametername">key</span></td>
+                    <td><em>key</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -249,7 +209,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/BindingQueue.cs/#L60">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1_QueueBindingOperation_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1_QueueBindingOperation_System_String_System_Func_Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_System_Threading_CancellationToken_System_Object__System_Func_Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_System_Object__System_Nullable_System_Int32__System_Nullable_System_Int32__" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.QueueBindingOperation(System.String,System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Threading.CancellationToken,System.Object},System.Func{Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext,System.Object},System.Nullable{System.Int32},System.Nullable{System.Int32})">QueueBindingOperation(String, Func&lt;IBindingContext, CancellationToken, Object&gt;, Func&lt;IBindingContext, Object&gt;, Nullable&lt;Int32&gt;, Nullable&lt;Int32&gt;)</h4>
               <div class="markdown level1 summary"><p>Queue a binding request item</p>
 </div>
@@ -270,27 +229,27 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.String</span></td>
-                    <td><span class="parametername">key</span></td>
+                    <td><em>key</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><span class="xref">System.Func</span>&lt;<a class="xref" href="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.html">IBindingContext</a>, <span class="xref">System.Threading.CancellationToken</span>, <span class="xref">System.Object</span>&gt;</td>
-                    <td><span class="parametername">bindOperation</span></td>
+                    <td><em>bindOperation</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><span class="xref">System.Func</span>&lt;<a class="xref" href="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.html">IBindingContext</a>, <span class="xref">System.Object</span>&gt;</td>
-                    <td><span class="parametername">timeoutOperation</span></td>
+                    <td><em>timeoutOperation</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
-                    <td><span class="parametername">bindingTimeout</span></td>
+                    <td><em>bindingTimeout</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
-                    <td><span class="parametername">waitForLockTimeout</span></td>
+                    <td><em>waitForLockTimeout</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -317,7 +276,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/BindingQueue.cs/#L51">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1_StopQueueProcessor_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_BindingQueue_1_StopQueueProcessor_System_Int32_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.BindingQueue`1.StopQueueProcessor(System.Int32)">StopQueueProcessor(Int32)</h4>
               <div class="markdown level1 summary"><p>Stops the binding queue by sending cancellation request</p>
 </div>
@@ -338,7 +296,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int32</span></td>
-                    <td><span class="parametername">timeout</span></td>
+                    <td><em>timeout</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -382,16 +340,9 @@
       </div>
       
       <footer>
-        <div class="grad-bottom"></div>
-        <div class="footer">
-          <div class="container">
-            <span class="pull-right">
-              <a href="#top">Back to top</a>
-            </span>
-            
-            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+        <div class="inner-footer">
+          <p>© Microsoft &nbsp;//&nbsp; Generated with <a href="https://github.com/dotnet/docfx">DocFX</a></p>
           </div>
-        </div>
       </footer>
     </div>
     

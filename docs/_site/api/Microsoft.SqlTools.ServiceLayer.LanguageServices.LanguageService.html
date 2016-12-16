@@ -10,43 +10,45 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class LanguageService
    ">
-    <meta name="generator" content="docfx 1.0.0.0">
     
-    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
-    <link rel="stylesheet" href="../styles/docfx.css">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/style.css">
     <meta property="docfx:navrel" content="../toc.html">
     <meta property="docfx:tocrel" content="toc.html">
-    
-  </head>
-  <body data-spy="scroll" data-target="#affix">
+    <!--
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-63735192-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+    -->
+  </head>  <body data-spy="scroll" data-target="#affix">
     <div id="wrapper">
       <header>
         
-        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
-          <div class="container">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              
-              <a class="navbar-brand" href="../index.html">
-                <img id="logo" class="svg" src="../logo.svg" alt="">
-              </a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar">
-              <form class="navbar-form navbar-right" role="search" id="search">
-                <div class="form-group">
-                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
-                </div>
-              </form>
-            </div>
-          </div>
-        </nav>
+        <nav class="navbar navbar-inverse">
+             <div class="container">
+               <a href="../"><img height="50px" src="../images/sqlserver.png" style="float:right;"></a>
+               <div class="navbar-header ">
+                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                   <span class="sr-only">Toggle navigation</span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                 </button>
+                 <a class="navbar-brand" href="../"><span class="dotnet">SQL Tools Service</span></a>
+               </div>
+               <div id="navbar" class="collapse navbar-collapse">
+               </div><!--/.nav-collapse -->
+             </div>
+           </nav>
         
         <div class="subnav navbar navbar-default">
           <div class="container hide-when-search" id="breadcrumb">
@@ -68,7 +70,8 @@
           <div class="col-md-10">
             <article class="content wrap" id="_content">
               
-              
+              <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="pull-right mobile-hide"><span class="fa fa-github"></span>Improve this Doc</a>
+              <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L35" class="pull-right mobile-hide">View Source</a>
               <h1 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService">Class LanguageService
               </h1>
               <div class="markdown level0 summary"><p>Main class for Language Service functionality including anything that requires knowledge of
@@ -79,30 +82,6 @@ the language to perform, such as definitions, intellisense, etc.</p>
                 <h5>Inheritance</h5>
                   <div class="level0"><span class="xref">System.Object</span></div>
                   <div class="level1"><span class="xref">LanguageService</span></div>
-              </div>
-              <div class="inheritedMembers">
-                <h5>Inherited Members</h5>
-                <div>
-                  <span class="xref">System.Object.Equals(System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.GetHashCode()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.GetType()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.MemberwiseClone()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.ToString()</span>
-                </div>
               </div>
               <h6><strong>Namespace</strong>:Microsoft.SqlTools.ServiceLayer.LanguageServices</h6>
               <h6><strong>Assembly</strong>:Microsoft.SqlTools.ServiceLayer.dll</h6>
@@ -119,7 +98,6 @@ the language to perform, such as definitions, intellisense, etc.</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L124">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_Instance_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_Instance" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance">Instance</h4>
               <div class="markdown level1 summary"><p>Gets the singleton instance object</p>
 </div>
@@ -128,7 +106,7 @@ the language to perform, such as definitions, intellisense, etc.</p>
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">public static LanguageService Instance { get; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -152,7 +130,6 @@ the language to perform, such as definitions, intellisense, etc.</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L962">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_GetCompletionItems_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_GetCompletionItems_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_TextDocumentPosition_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition,Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)">GetCompletionItems(TextDocumentPosition, ScriptFile, ConnectionInfo)</h4>
               <div class="markdown level1 summary"><p>Return the completion item list for the current text position.
 This method does not await cache builds since it expects to return quickly</p>
@@ -174,17 +151,17 @@ This method does not await cache builds since it expects to return quickly</p>
                 <tbody>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition.html">TextDocumentPosition</a></td>
-                    <td><span class="parametername">textDocumentPosition</span></td>
+                    <td><em>textDocumentPosition</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile.html">ScriptFile</a></td>
-                    <td><span class="parametername">scriptFile</span></td>
+                    <td><em>scriptFile</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.html">ConnectionInfo</a></td>
-                    <td><span class="parametername">connInfo</span></td>
+                    <td><em>connInfo</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -211,7 +188,6 @@ This method does not await cache builds since it expects to return quickly</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L449">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeConfigurationNotification_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeConfigurationNotification_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsSettings_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsSettings_Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)">HandleDidChangeConfigurationNotification(SqlToolsSettings, SqlToolsSettings, EventContext)</h4>
               <div class="markdown level1 summary"><p>Handle the file configuration change notification</p>
 </div>
@@ -232,17 +208,17 @@ This method does not await cache builds since it expects to return quickly</p>
                 <tbody>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings.html">SqlToolsSettings</a></td>
-                    <td><span class="parametername">newSettings</span></td>
+                    <td><em>newSettings</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings.html">SqlToolsSettings</a></td>
-                    <td><span class="parametername">oldSettings</span></td>
+                    <td><em>oldSettings</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext.html">EventContext</a></td>
-                    <td><span class="parametername">eventContext</span></td>
+                    <td><em>eventContext</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -269,7 +245,6 @@ This method does not await cache builds since it expects to return quickly</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L431">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeTextDocumentNotification_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeTextDocumentNotification_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile___Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[],Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)">HandleDidChangeTextDocumentNotification(ScriptFile[], EventContext)</h4>
               <div class="markdown level1 summary"><p>Handles text document change events </p>
 </div>
@@ -290,12 +265,12 @@ This method does not await cache builds since it expects to return quickly</p>
                 <tbody>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile.html">ScriptFile</a>[]</td>
-                    <td><span class="parametername">changedFiles</span></td>
+                    <td><em>changedFiles</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext.html">EventContext</a></td>
-                    <td><span class="parametername">eventContext</span></td>
+                    <td><em>eventContext</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -322,7 +297,6 @@ This method does not await cache builds since it expects to return quickly</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L410">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidOpenTextDocumentNotification_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidOpenTextDocumentNotification_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)">HandleDidOpenTextDocumentNotification(ScriptFile, EventContext)</h4>
               <div class="markdown level1 summary"><p>Handle the file open notification </p>
 </div>
@@ -343,12 +317,12 @@ This method does not await cache builds since it expects to return quickly</p>
                 <tbody>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile.html">ScriptFile</a></td>
-                    <td><span class="parametername">scriptFile</span></td>
+                    <td><em>scriptFile</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext.html">EventContext</a></td>
-                    <td><span class="parametername">eventContext</span></td>
+                    <td><em>eventContext</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -375,7 +349,6 @@ This method does not await cache builds since it expects to return quickly</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L201">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_InitializeService_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_InitializeService_Microsoft_SqlTools_ServiceLayer_Hosting_ServiceHost_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext)">InitializeService(ServiceHost, SqlToolsContext)</h4>
               <div class="markdown level1 summary"><p>Initializes the Language Service instance</p>
 </div>
@@ -396,12 +369,12 @@ This method does not await cache builds since it expects to return quickly</p>
                 <tbody>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.html">ServiceHost</a></td>
-                    <td><span class="parametername">serviceHost</span></td>
+                    <td><em>serviceHost</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext.html">SqlToolsContext</a></td>
-                    <td><span class="parametername">context</span></td>
+                    <td><em>context</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -413,7 +386,6 @@ This method does not await cache builds since it expects to return quickly</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L507">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_ParseAndBind_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_ParseAndBind_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)">ParseAndBind(ScriptFile, ConnectionInfo)</h4>
               <div class="markdown level1 summary"><p>Parses the SQL text and binds it to the SMO metadata provider if connected </p>
 </div>
@@ -434,12 +406,12 @@ This method does not await cache builds since it expects to return quickly</p>
                 <tbody>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile.html">ScriptFile</a></td>
-                    <td><span class="parametername">scriptFile</span></td>
+                    <td><em>scriptFile</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.html">ConnectionInfo</a></td>
-                    <td><span class="parametername">connInfo</span></td>
+                    <td><em>connInfo</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -467,7 +439,6 @@ This method does not await cache builds since it expects to return quickly</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L492">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_RemoveAutoCompleteCacheUriReference_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_RemoveAutoCompleteCacheUriReference_Microsoft_SqlTools_ServiceLayer_Connection_Contracts_ConnectionSummary_System_String_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary,System.String)">RemoveAutoCompleteCacheUriReference(ConnectionSummary, String)</h4>
               <div class="markdown level1 summary"><p>Remove a reference to an autocomplete cache from a URI. If
 it is the last URI connected to a particular connection,
@@ -490,12 +461,12 @@ then remove the cache.</p>
                 <tbody>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.html">ConnectionSummary</a></td>
-                    <td><span class="parametername">summary</span></td>
+                    <td><em>summary</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><span class="xref">System.String</span></td>
-                    <td><span class="parametername">ownerUri</span></td>
+                    <td><em>ownerUri</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -522,7 +493,6 @@ then remove the cache.</p>
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L591">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_UpdateLanguageServiceOnConnection_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_UpdateLanguageServiceOnConnection_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)">UpdateLanguageServiceOnConnection(ConnectionInfo)</h4>
               <div class="markdown level1 summary"><p>Update the autocomplete metadata provider when the user connects to a database</p>
 </div>
@@ -543,7 +513,7 @@ then remove the cache.</p>
                 <tbody>
                   <tr>
                     <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.html">ConnectionInfo</a></td>
-                    <td><span class="parametername">info</span></td>
+                    <td><em>info</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -587,16 +557,9 @@ then remove the cache.</p>
       </div>
       
       <footer>
-        <div class="grad-bottom"></div>
-        <div class="footer">
-          <div class="container">
-            <span class="pull-right">
-              <a href="#top">Back to top</a>
-            </span>
-            
-            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+        <div class="inner-footer">
+          <p>© Microsoft &nbsp;//&nbsp; Generated with <a href="https://github.com/dotnet/docfx">DocFX</a></p>
           </div>
-        </div>
       </footer>
     </div>
     

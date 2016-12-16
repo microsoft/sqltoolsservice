@@ -10,43 +10,45 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Interface IBindingContext
    ">
-    <meta name="generator" content="docfx 1.0.0.0">
     
-    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
-    <link rel="stylesheet" href="../styles/docfx.css">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/style.css">
     <meta property="docfx:navrel" content="../toc.html">
     <meta property="docfx:tocrel" content="toc.html">
-    
-  </head>
-  <body data-spy="scroll" data-target="#affix">
+    <!--
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-63735192-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+    -->
+  </head>  <body data-spy="scroll" data-target="#affix">
     <div id="wrapper">
       <header>
         
-        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
-          <div class="container">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              
-              <a class="navbar-brand" href="../index.html">
-                <img id="logo" class="svg" src="../logo.svg" alt="">
-              </a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar">
-              <form class="navbar-form navbar-right" role="search" id="search">
-                <div class="form-group">
-                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
-                </div>
-              </form>
-            </div>
-          </div>
-        </nav>
+        <nav class="navbar navbar-inverse">
+             <div class="container">
+               <a href="../"><img height="50px" src="../images/sqlserver.png" style="float:right;"></a>
+               <div class="navbar-header ">
+                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                   <span class="sr-only">Toggle navigation</span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                 </button>
+                 <a class="navbar-brand" href="../"><span class="dotnet">SQL Tools Service</span></a>
+               </div>
+               <div id="navbar" class="collapse navbar-collapse">
+               </div><!--/.nav-collapse -->
+             </div>
+           </nav>
         
         <div class="subnav navbar navbar-default">
           <div class="container hide-when-search" id="breadcrumb">
@@ -68,7 +70,8 @@
           <div class="col-md-10">
             <article class="content wrap" id="_content">
               
-              
+              <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="pull-right mobile-hide"><span class="fa fa-github"></span>Improve this Doc</a>
+              <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L19" class="pull-right mobile-hide">View Source</a>
               <h1 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext">Interface IBindingContext
               </h1>
               <div class="markdown level0 summary"><p>The context used for binding requests</p>
@@ -89,7 +92,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L44">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_Binder_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.Binder*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_Binder" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.Binder">Binder</h4>
               <div class="markdown level1 summary"><p>Gets or sets the binder</p>
 </div>
@@ -98,7 +100,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">IBinder Binder { get; set; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -120,7 +122,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L49">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_BindingLock_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.BindingLock*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_BindingLock" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.BindingLock">BindingLock</h4>
               <div class="markdown level1 summary"><p>Gets the binding lock object</p>
 </div>
@@ -129,7 +130,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">ManualResetEvent BindingLock { get; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -151,7 +152,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L54">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_BindingTimeout_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.BindingTimeout*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_BindingTimeout" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.BindingTimeout">BindingTimeout</h4>
               <div class="markdown level1 summary"><p>Gets or sets the binding operation timeout in milliseconds</p>
 </div>
@@ -160,7 +160,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">int BindingTimeout { get; set; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -182,7 +182,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L79">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_DatabaseCompatibilityLevel_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.DatabaseCompatibilityLevel*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_DatabaseCompatibilityLevel" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.DatabaseCompatibilityLevel">DatabaseCompatibilityLevel</h4>
               <div class="markdown level1 summary"><p>Gets or sets the database compatibility level</p>
 </div>
@@ -191,7 +190,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">DatabaseCompatibilityLevel DatabaseCompatibilityLevel { get; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -213,7 +212,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L69">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_DatabaseEngineType_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.DatabaseEngineType*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_DatabaseEngineType" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.DatabaseEngineType">DatabaseEngineType</h4>
               <div class="markdown level1 summary"><p>Gets or sets the database engine type</p>
 </div>
@@ -222,7 +220,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">DatabaseEngineType DatabaseEngineType { get; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -244,7 +242,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L24">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_IsConnected_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.IsConnected*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_IsConnected" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.IsConnected">IsConnected</h4>
               <div class="markdown level1 summary"><p>Gets or sets a flag indicating if the context is connected</p>
 </div>
@@ -253,7 +250,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">bool IsConnected { get; set; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -275,7 +272,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L34">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_MetadataDisplayInfoProvider_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.MetadataDisplayInfoProvider*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_MetadataDisplayInfoProvider" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.MetadataDisplayInfoProvider">MetadataDisplayInfoProvider</h4>
               <div class="markdown level1 summary"><p>Gets or sets the metadata display info provider</p>
 </div>
@@ -284,7 +280,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -306,7 +302,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L59">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_ParseOptions_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.ParseOptions*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_ParseOptions" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.ParseOptions">ParseOptions</h4>
               <div class="markdown level1 summary"><p>Gets or sets the current connection parse options</p>
 </div>
@@ -315,7 +310,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">ParseOptions ParseOptions { get; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -337,7 +332,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L29">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_ServerConnection_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.ServerConnection*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_ServerConnection" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.ServerConnection">ServerConnection</h4>
               <div class="markdown level1 summary"><p>Gets or sets the binding server connection</p>
 </div>
@@ -346,7 +340,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">ServerConnection ServerConnection { get; set; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -368,7 +362,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L64">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_ServerVersion_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.ServerVersion*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_ServerVersion" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.ServerVersion">ServerVersion</h4>
               <div class="markdown level1 summary"><p>Gets or sets the current connection server version</p>
 </div>
@@ -377,7 +370,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">ServerVersion ServerVersion { get; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -399,7 +392,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L39">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_SmoMetadataProvider_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.SmoMetadataProvider*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_SmoMetadataProvider" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.SmoMetadataProvider">SmoMetadataProvider</h4>
               <div class="markdown level1 summary"><p>Gets or sets the SMO metadata provider</p>
 </div>
@@ -408,7 +400,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">SmoMetadataProvider SmoMetadataProvider { get; set; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -430,7 +422,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/IBindingContext.cs/#L74">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_TransactSqlVersion_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.TransactSqlVersion*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_IBindingContext_TransactSqlVersion" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.IBindingContext.TransactSqlVersion">TransactSqlVersion</h4>
               <div class="markdown level1 summary"><p>Gets or sets the T-SQL version</p>
 </div>
@@ -439,7 +430,7 @@
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">TransactSqlVersion TransactSqlVersion { get; }</code></pre>
               </div>
-              <h5 class="propertyValue">Property Value</h5>
+              <h5 class="propertyValue"></h5>
               <table class="table table-bordered table-striped table-condensed">
                 <thead>
                   <tr>
@@ -478,16 +469,9 @@
       </div>
       
       <footer>
-        <div class="grad-bottom"></div>
-        <div class="footer">
-          <div class="container">
-            <span class="pull-right">
-              <a href="#top">Back to top</a>
-            </span>
-            
-            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+        <div class="inner-footer">
+          <p>© Microsoft &nbsp;//&nbsp; Generated with <a href="https://github.com/dotnet/docfx">DocFX</a></p>
           </div>
-        </div>
       </footer>
     </div>
     

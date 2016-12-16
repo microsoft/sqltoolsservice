@@ -10,43 +10,45 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Interface IFileStreamReader
    ">
-    <meta name="generator" content="docfx 1.0.0.0">
     
-    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
-    <link rel="stylesheet" href="../styles/docfx.css">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/style.css">
     <meta property="docfx:navrel" content="../toc.html">
     <meta property="docfx:tocrel" content="toc.html">
-    
-  </head>
-  <body data-spy="scroll" data-target="#affix">
+    <!--
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-63735192-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+    -->
+  </head>  <body data-spy="scroll" data-target="#affix">
     <div id="wrapper">
       <header>
         
-        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
-          <div class="container">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              
-              <a class="navbar-brand" href="../index.html">
-                <img id="logo" class="svg" src="../logo.svg" alt="">
-              </a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar">
-              <form class="navbar-form navbar-right" role="search" id="search">
-                <div class="form-group">
-                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
-                </div>
-              </form>
-            </div>
-          </div>
-        </nav>
+        <nav class="navbar navbar-inverse">
+             <div class="container">
+               <a href="../"><img height="50px" src="../images/sqlserver.png" style="float:right;"></a>
+               <div class="navbar-header ">
+                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                   <span class="sr-only">Toggle navigation</span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                 </button>
+                 <a class="navbar-brand" href="../"><span class="dotnet">SQL Tools Service</span></a>
+               </div>
+               <div id="navbar" class="collapse navbar-collapse">
+               </div><!--/.nav-collapse -->
+             </div>
+           </nav>
         
         <div class="subnav navbar navbar-default">
           <div class="container hide-when-search" id="breadcrumb">
@@ -68,18 +70,13 @@
           <div class="col-md-10">
             <article class="content wrap" id="_content">
               
-              
+              <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="pull-right mobile-hide"><span class="fa fa-github"></span>Improve this Doc</a>
+              <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L15" class="pull-right mobile-hide">View Source</a>
               <h1 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader">Interface IFileStreamReader
               </h1>
               <div class="markdown level0 summary"><p>Interface for a object that reads from the filesystem</p>
 </div>
               <div class="markdown level0 conceptual"></div>
-              <div class="inheritedMembers">
-                <h5>Inherited Members</h5>
-                <div>
-                  <span class="xref">System.IDisposable.Dispose()</span>
-                </div>
-              </div>
               <h6><strong>Namespace</strong>:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage</h6>
               <h6><strong>Assembly</strong>:Microsoft.SqlTools.ServiceLayer.dll</h6>
               <h5 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_syntax">Syntax</h5>
@@ -95,7 +92,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L23">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadBoolean_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadBoolean_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBoolean(System.Int64)">ReadBoolean(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -115,7 +111,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -142,7 +138,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L21">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadByte_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadByte_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadByte(System.Int64)">ReadByte(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -162,7 +157,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -189,7 +184,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L31">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadBytes_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadBytes_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadBytes(System.Int64)">ReadBytes(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -209,7 +203,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -236,7 +230,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L22">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadChar_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadChar_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadChar(System.Int64)">ReadChar(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -256,7 +249,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -283,7 +276,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L28">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadDateTime_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadDateTime_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTime(System.Int64)">ReadDateTime(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -303,7 +295,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -330,7 +322,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L32">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadDateTimeOffset_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadDateTimeOffset_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDateTimeOffset(System.Int64)">ReadDateTimeOffset(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -350,7 +341,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -377,7 +368,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L27">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadDecimal_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadDecimal_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDecimal(System.Int64)">ReadDecimal(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -397,7 +387,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -424,7 +414,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L25">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadDouble_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadDouble_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadDouble(System.Int64)">ReadDouble(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -444,7 +433,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -471,7 +460,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L33">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadGuid_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadGuid_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadGuid(System.Int64)">ReadGuid(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -491,7 +479,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">offset</span></td>
+                    <td><em>offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -518,7 +506,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L18">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadInt16_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadInt16_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt16(System.Int64)">ReadInt16(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -538,7 +525,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -565,7 +552,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L19">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadInt32_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadInt32_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt32(System.Int64)">ReadInt32(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -585,7 +571,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -612,7 +598,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L20">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadInt64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadInt64_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadInt64(System.Int64)">ReadInt64(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -632,7 +617,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -659,7 +644,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L34">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadMoney_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadMoney_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadMoney(System.Int64)">ReadMoney(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -679,7 +663,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">offset</span></td>
+                    <td><em>offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -706,7 +690,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L17">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadRow_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadRow_System_Int64_System_Collections_Generic_IEnumerable_Microsoft_SqlTools_ServiceLayer_QueryExecution_Contracts_DbColumnWrapper__" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadRow(System.Int64,System.Collections.Generic.IEnumerable{Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper})">ReadRow(Int64, IEnumerable&lt;DbColumnWrapper&gt;)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -726,12 +709,12 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">offset</span></td>
+                    <td><em>offset</em></td>
                     <td></td>
                   </tr>
                   <tr>
                     <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.html">DbColumnWrapper</a>&gt;</td>
-                    <td><span class="parametername">columns</span></td>
+                    <td><em>columns</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -758,7 +741,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L24">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadSingle_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadSingle_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSingle(System.Int64)">ReadSingle(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -778,7 +760,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -805,7 +787,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L26">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadSqlDecimal_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadSqlDecimal_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadSqlDecimal(System.Int64)">ReadSqlDecimal(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -825,7 +806,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -852,7 +833,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L30">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadString_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadString_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadString(System.Int64)">ReadString(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -872,7 +852,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -899,7 +879,6 @@
               <span class="small pull-right mobile-hide">
                 <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/IFileStreamReader.cs/#L29">View Source</a>
               </span>
-              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadTimeSpan_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan*"></a>
               <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamReader_ReadTimeSpan_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamReader.ReadTimeSpan(System.Int64)">ReadTimeSpan(Int64)</h4>
               <div class="markdown level1 summary"></div>
               <div class="markdown level1 conceptual"></div>
@@ -919,7 +898,7 @@
                 <tbody>
                   <tr>
                     <td><span class="xref">System.Int64</span></td>
-                    <td><span class="parametername">i64Offset</span></td>
+                    <td><em>i64Offset</em></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -963,16 +942,9 @@
       </div>
       
       <footer>
-        <div class="grad-bottom"></div>
-        <div class="footer">
-          <div class="container">
-            <span class="pull-right">
-              <a href="#top">Back to top</a>
-            </span>
-            
-            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+        <div class="inner-footer">
+          <p>© Microsoft &nbsp;//&nbsp; Generated with <a href="https://github.com/dotnet/docfx">DocFX</a></p>
           </div>
-        </div>
       </footer>
     </div>
     

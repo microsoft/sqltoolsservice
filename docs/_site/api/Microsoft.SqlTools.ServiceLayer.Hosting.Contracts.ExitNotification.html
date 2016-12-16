@@ -10,43 +10,45 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class ExitNotification
    ">
-    <meta name="generator" content="docfx 1.0.0.0">
     
-    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
-    <link rel="stylesheet" href="../styles/docfx.css">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/style.css">
     <meta property="docfx:navrel" content="../toc.html">
     <meta property="docfx:tocrel" content="toc.html">
-    
-  </head>
-  <body data-spy="scroll" data-target="#affix">
+    <!--
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-63735192-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+    -->
+  </head>  <body data-spy="scroll" data-target="#affix">
     <div id="wrapper">
       <header>
         
-        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
-          <div class="container">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              
-              <a class="navbar-brand" href="../index.html">
-                <img id="logo" class="svg" src="../logo.svg" alt="">
-              </a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar">
-              <form class="navbar-form navbar-right" role="search" id="search">
-                <div class="form-group">
-                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
-                </div>
-              </form>
-            </div>
-          </div>
-        </nav>
+        <nav class="navbar navbar-inverse">
+             <div class="container">
+               <a href="../"><img height="50px" src="../images/sqlserver.png" style="float:right;"></a>
+               <div class="navbar-header ">
+                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                   <span class="sr-only">Toggle navigation</span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                   <span class="icon-bar"></span>
+                 </button>
+                 <a class="navbar-brand" href="../"><span class="dotnet">SQL Tools Service</span></a>
+               </div>
+               <div id="navbar" class="collapse navbar-collapse">
+               </div><!--/.nav-collapse -->
+             </div>
+           </nav>
         
         <div class="subnav navbar navbar-default">
           <div class="container hide-when-search" id="breadcrumb">
@@ -68,7 +70,8 @@
           <div class="col-md-10">
             <article class="content wrap" id="_content">
               
-              
+              <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_Hosting_Contracts_ExitNotification.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ExitNotification%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="pull-right mobile-hide"><span class="fa fa-github"></span>Improve this Doc</a>
+              <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/Hosting/Contracts/Shutdown.cs/#L25" class="pull-right mobile-hide">View Source</a>
               <h1 id="Microsoft_SqlTools_ServiceLayer_Hosting_Contracts_ExitNotification" data-uid="Microsoft.SqlTools.ServiceLayer.Hosting.Contracts.ExitNotification">Class ExitNotification
               </h1>
               <div class="markdown level0 summary"><p>Defines an event that is sent from the client to notify that
@@ -79,30 +82,6 @@ the client is exiting and the server should as well.</p>
                 <h5>Inheritance</h5>
                   <div class="level0"><span class="xref">System.Object</span></div>
                   <div class="level1"><span class="xref">ExitNotification</span></div>
-              </div>
-              <div class="inheritedMembers">
-                <h5>Inherited Members</h5>
-                <div>
-                  <span class="xref">System.Object.Equals(System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.GetHashCode()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.GetType()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.MemberwiseClone()</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
-                </div>
-                <div>
-                  <span class="xref">System.Object.ToString()</span>
-                </div>
               </div>
               <h6><strong>Namespace</strong>:Microsoft.SqlTools.ServiceLayer.Hosting.Contracts</h6>
               <h6><strong>Assembly</strong>:Microsoft.SqlTools.ServiceLayer.dll</h6>
@@ -126,21 +105,6 @@ the client is exiting and the server should as well.</p>
               <div class="codewrapper">
                 <pre><code class="lang-csharp hljs">public static readonly EventType&lt;object&gt; Type</code></pre>
               </div>
-              <h5 class="fieldValue">Field Value</h5>
-              <table class="table table-bordered table-striped table-condensed">
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.EventType-1.html">EventType</a>&lt;<span class="xref">System.Object</span>&gt;</td>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
             </article>
           </div>
           
@@ -165,16 +129,9 @@ the client is exiting and the server should as well.</p>
       </div>
       
       <footer>
-        <div class="grad-bottom"></div>
-        <div class="footer">
-          <div class="container">
-            <span class="pull-right">
-              <a href="#top">Back to top</a>
-            </span>
-            
-            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+        <div class="inner-footer">
+          <p>© Microsoft &nbsp;//&nbsp; Generated with <a href="https://github.com/dotnet/docfx">DocFX</a></p>
           </div>
-        </div>
       </footer>
     </div>
     
