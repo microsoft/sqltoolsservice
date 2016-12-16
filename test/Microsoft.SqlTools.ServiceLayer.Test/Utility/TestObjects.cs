@@ -215,6 +215,22 @@ namespace Microsoft.SqlTools.Test.Utility
             return connInfo;
         }
 
+        /// <summary>
+        /// Creates and returns a dummy TextDocumentPosition
+        /// </summary>
+        public static TextDocumentPosition GetTestDocPosition()
+        {
+            return new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = ScriptUri },
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = 0
+                }
+            };
+        }
+
         public static ServerConnection InitLiveServerConnectionForDefinition(ConnectionInfo connInfo)
         {
             SqlConnection sqlConn = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));                                
