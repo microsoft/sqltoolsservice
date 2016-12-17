@@ -9,10 +9,12 @@ using System.Data.SqlTypes;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
+<<<<<<< HEAD
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+=======
+>>>>>>> a41977b... Revert "Adding Milliseconds to DateTime fields (#173)" (#197)
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Xunit;
 
@@ -237,7 +239,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         }
 
         [Fact]
+<<<<<<< HEAD
         public void DateTest()
+=======
+        public void DateTimeTest()
+>>>>>>> a41977b... Revert "Adding Milliseconds to DateTime fields (#173)" (#197)
         {
             // Setup: Create some test values
             // NOTE: We are doing these here instead of InlineData because DateTime values can't be written as constant expressions
@@ -251,6 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             
             foreach (DateTime value in testValues)
             {
+<<<<<<< HEAD
                 string displayValue = VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteDateTime(val), reader => reader.ReadDateTime(0, col));
 
                 // Make sure the display value does not have a time string
@@ -354,6 +361,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
 
                 // Make sure the display value has a time string with 7 milliseconds
                 Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{7}$"));
+=======
+                VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteDateTime(val), reader => reader.ReadDateTime(0));
+>>>>>>> a41977b... Revert "Adding Milliseconds to DateTime fields (#173)" (#197)
             }
         }
 
