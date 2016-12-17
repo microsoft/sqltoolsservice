@@ -181,12 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
                     else
                     {
-                        if (!ci.IsLong)
-                        {
-                            // not a long field 
-                            values[i] = reader.GetValue(i);
-                        }
-                        else
+                        if (ci.IsLong.HasValue && ci.IsLong.Value)
                         {
                             // this is a long field
                             if (ci.IsBytes)
@@ -209,6 +204,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                                 // we should never get here
                                 Debug.Assert(false);
                             }
+                        }
+                        else
+                        {
+                            // not a long field 
+                            values[i] = reader.GetValue(i);
                         }
                     }
                 }
