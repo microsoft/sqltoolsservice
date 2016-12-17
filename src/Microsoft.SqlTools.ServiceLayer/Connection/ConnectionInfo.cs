@@ -4,7 +4,10 @@
 //
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -45,17 +48,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Properties used for creating/opening the SQL connection.
         /// </summary>
         public ConnectionDetails ConnectionDetails { get; private set; }
-        
+
+        /*
         /// <summary>
         /// The connection to the SQL database that commands will be run against.
         /// </summary>
         public DbConnection SqlConnection { get; set; }
+        */
 
         /// <summary>
-        /// The connection to the SQL database that queries will be run against.
-        /// A single instance is created and re-used after the first query is run 
+        /// A map containing all connections to the database that are associated with OwnerUri.
         /// </summary>
-        public DbConnection QueryConnection { get; set; }
+        public readonly Dictionary<ConnectionType, DbConnection> ConnectionTypeToConnectionMap = new Dictionary<ConnectionType, DbConnection>();
+
+        /// <summary>
+        /// A map containing all CancellationTokenSource objects that are associated with a ConnectionType. 
+        /// </summary>
+        public readonly ConcurrentDictionary<ConnectionType, CancellationTokenSource> ConnectionTypeToCancellationTokenSourceMap = new ConcurrentDictionary<ConnectionType, CancellationTokenSource>();
 
         /// <summary>
         /// Intellisense Metrics

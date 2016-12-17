@@ -15,5 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// or a virtual file representing an object in a database.         
         /// </summary>
         public string OwnerUri { get; set; }
+
+        public ConnectionType Type { get; set; } = ConnectionType.AllConnections;
     }
 }

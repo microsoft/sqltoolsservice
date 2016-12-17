@@ -51,8 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
            
         private readonly Dictionary<string, ConnectionInfo> ownerToConnectionMap = new Dictionary<string, ConnectionInfo>();
 
-        private readonly ConcurrentDictionary<string, CancellationTokenSource> ownerToCancellationTokenSourceMap = new ConcurrentDictionary<string, CancellationTokenSource>();
-
         private readonly object cancellationTokenSourceLock = new object();
 
         /// <summary>
@@ -136,14 +134,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return this.ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
         }
 
-        /// <summary>
-        /// Open a connection with the specified connection details
-        /// </summary>
-        /// <param name="connectionParams"></param>
-        public async Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
+        public ConnectionCompleteParams InitializeConnectionInfo(ConnectParams connectionParams)
         {
-            // Validate parameters
+            ConnectionInfo connectionInfo;
             string paramValidationErrorMessage;
+
+            // Validate parameters
+            if (ownerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
+            {
+                // TODO change this:
+                // return null if there is already a ConnectionInfo
+                return null;
+            }
             if (connectionParams == null)
             {
                 return new ConnectionCompleteParams
@@ -160,30 +162,66 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 };
             }
 
-            // Resolve if it is an existing connection
-            // Disconnect active connection if the URI is already connected
+            connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
+            ownerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
+
+            // TODO change this:
+            // return null upon success
+            return null;
+        }
+
+        public async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams)
+        {
+            return null;
+            // TODO
+            //return Connect(connectParams.OwnerUri).Result;
+        }
+
+        /// <summary>
+        /// Open a connection with the specified connection details
+        /// </summary>
+        /// <param name="ownerUri"></param>
+        /// <param name="connectionType"></param>
+        public async Task<ConnectionCompleteParams> Connect(string ownerUri, ConnectionType connectionType = ConnectionType.Default)
+        {
+            // verify connectionInfo
             ConnectionInfo connectionInfo;
-            if (ownerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo) )
+            if (!ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
+            {
+                // TODO
+                return new ConnectionCompleteParams();
+            }
+
+            // Resolve if it is an existing connection
+            // Disconnect active connection if the URI is already connected for this connection type
+            DbConnection existingConnection;
+            if (connectionInfo.ConnectionTypeToConnectionMap.TryGetValue(connectionType, out existingConnection))
             {
                 var disconnectParams = new DisconnectParams()
                 {
-                    OwnerUri = connectionParams.OwnerUri
+                    OwnerUri = ownerUri, 
+                    Type = connectionType
                 };
                 Disconnect(disconnectParams);
             }
-            connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
 
             // try to connect
-            var response = new ConnectionCompleteParams {OwnerUri = connectionParams.OwnerUri};
+            DbConnection connection;
             CancellationTokenSource source = null;
+            ConnectionCompleteParams response = new ConnectionCompleteParams
+            {
+                OwnerUri = connectionInfo.OwnerUri,
+                Type = connectionType
+            };
+
             try
             {
                 // build the connection string from the input parameters
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance
-                connectionInfo.SqlConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
-                connectionInfo.QueryConnection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+                connection = connectionInfo.Factory.CreateSqlConnection(connectionString);
+                connectionInfo.ConnectionTypeToConnectionMap[connectionType] = connection;
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
                 using (source = new CancellationTokenSource())
@@ -193,11 +231,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         // If the URI is currently connecting from a different request, cancel it before we try to connect
                         CancellationTokenSource currentSource;
-                        if (ownerToCancellationTokenSourceMap.TryGetValue(connectionParams.OwnerUri, out currentSource))
+                        if (connectionInfo.ConnectionTypeToCancellationTokenSourceMap.TryGetValue(connectionType, out currentSource))
                         {
                             currentSource.Cancel();
                         }
-                        ownerToCancellationTokenSourceMap[connectionParams.OwnerUri] = source;
+                        connectionInfo.ConnectionTypeToCancellationTokenSourceMap[connectionType] = source;
                     }
 
                     // Create a task to handle cancellation requests
@@ -214,14 +252,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         }
                     });
 
-                    var openTask = Task.Run(async () => {
-                        await connectionInfo.SqlConnection.OpenAsync(source.Token);
-                        await connectionInfo.QueryConnection.OpenAsync(source.Token);
+                    var openTask = Task.Run(async () =>
+                    {
+                        await connection.OpenAsync(source.Token);
                     });
-
+                    
                     // Open the connection
                     await Task.WhenAny(openTask, cancellationTask).Unwrap();
-
                     source.Cancel();
                 }
             }
@@ -252,18 +289,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     // Only remove the token from the map if it is the same one created by this request
                     CancellationTokenSource sourceValue;
-                    if (ownerToCancellationTokenSourceMap.TryGetValue(connectionParams.OwnerUri, out sourceValue) && sourceValue == source)
+                    if (connectionInfo.ConnectionTypeToCancellationTokenSourceMap.TryGetValue(connectionType, out sourceValue) && sourceValue == source)
                     {
-                        ownerToCancellationTokenSourceMap.TryRemove(connectionParams.OwnerUri, out sourceValue);
+                        connectionInfo.ConnectionTypeToCancellationTokenSourceMap.TryRemove(connectionType, out sourceValue);
                     }
                 }
             }
 
-            ownerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
-
             // Update with the actual database name in connectionInfo and result
             // Doing this here as we know the connection is open - expect to do this only on connecting
-            connectionInfo.ConnectionDetails.DatabaseName = connectionInfo.SqlConnection.Database;
+            connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
             response.ConnectionSummary = new ConnectionSummary
             {
                 ServerName = connectionInfo.ConnectionDetails.ServerName,
@@ -277,10 +312,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // try to get information about the connected SQL Server instance
             try
             {
-                var reliableConnection = connectionInfo.SqlConnection as ReliableSqlConnection;
-                DbConnection connection = reliableConnection != null ? reliableConnection.GetUnderlyingConnection() : connectionInfo.SqlConnection;
+                var reliableConnection = connection as ReliableSqlConnection;
+                DbConnection underlyingConnection = reliableConnection != null ? reliableConnection.GetUnderlyingConnection() : connection;
                 
-                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(underlyingConnection);
                 response.ServerInfo = new ServerInfo
                 {
                     ServerMajorVersion = serverInfo.ServerMajorVersion,
@@ -317,9 +352,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return false;
             }
 
+            // Get ConnectionInfo
+            ConnectionInfo connectionInfo;
+            if (!ownerToConnectionMap.TryGetValue(cancelParams.OwnerUri, out connectionInfo))
+            {
+                return false;
+            }
+
             // Cancel any current connection attempts for this URI
             CancellationTokenSource source;
-            if (ownerToCancellationTokenSourceMap.TryGetValue(cancelParams.OwnerUri, out source))
+            if (connectionInfo.ConnectionTypeToCancellationTokenSourceMap.TryGetValue(cancelParams.Type, out source))
             {
                 try
                 {
@@ -349,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Cancel if we are in the middle of connecting
-            if (CancelConnect(new CancelConnectParams() { OwnerUri = disconnectParams.OwnerUri }))
+            if (CancelConnect(new CancelConnectParams() { OwnerUri = disconnectParams.OwnerUri, Type = disconnectParams.Type }))
             {
                 return false;
             }
@@ -359,6 +401,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (!ownerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
             {
                 return false;
+            }
+
+            // If we are disconnecting all existing connections for the provided URI
+            if (disconnectParams.Type == ConnectionType.AllConnections)
+            {
+                foreach (KeyValuePair<ConnectionType, DbConnection> entry in info.ConnectionTypeToConnectionMap)
+                {
+                    entry.Value.Close();
+                }
+
+                info.ConnectionTypeToConnectionMap.Clear();
+                ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
+            }
+            else
+            {
+                // Make sure there is an existing connection of this type
+                DbConnection connection;
+                if (!info.ConnectionTypeToConnectionMap.TryGetValue(disconnectParams.Type, out connection))
+                {
+                    return false;
+                }
+
+                // Close the connection and remove Type mapping 
+                connection.Close();
+                info.ConnectionTypeToConnectionMap.Remove(disconnectParams.Type);
+
+                // Remove URI mapping if there are no more connections in the type ConnectionTypeToConnectionMap
+                if (info.ConnectionTypeToConnectionMap.Count == 0)
+                {
+                    ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
+                }
             }
 
             if (ServiceHost != null)
@@ -377,13 +450,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     }
                 });
             }
-
-            // Close the connection            
-            info.SqlConnection.Close();
-            info.QueryConnection.Close();
-
-            // Remove URI mapping
-            ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
 
             // Invoke callback notifications
             foreach (var activity in this.onDisconnectActivities)
@@ -511,8 +577,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
+                    // create a ConnectionInfo if one does not already exist
+                    ConnectionInfo connectionInfo;
+                    ConnectionCompleteParams result;
+                    if (!ownerToConnectionMap.TryGetValue(connectParams.OwnerUri, out connectionInfo))
+                    {
+                        // if result is not null, there was an error with the params - do not connect
+                        result = InitializeConnectionInfo(connectParams);
+                        if (result != null)
+                        {
+                            await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                            return;
+                        }
+                    }
+
                     // open connection based on request details
-                    ConnectionCompleteParams result = await Instance.Connect(connectParams);
+                    result = await Instance.Connect(connectParams.OwnerUri);
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
                 catch (Exception ex)
@@ -738,14 +818,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    if (info.SqlConnection.State == ConnectionState.Open)
+                    foreach (KeyValuePair<ConnectionType, DbConnection> entry in info.ConnectionTypeToConnectionMap)
                     {
-                        info.SqlConnection.ChangeDatabase(newDatabaseName);
+                        DbConnection connection = entry.Value;
+
+                        if (connection.State == ConnectionState.Open)
+                        {
+                            connection.ChangeDatabase(newDatabaseName);
+                        }
                     }
-                    if (info.QueryConnection.State == ConnectionState.Open)
-                    {
-                        info.QueryConnection.ChangeDatabase(newDatabaseName);
-                    }
+
                     info.ConnectionDetails.DatabaseName = newDatabaseName;
 
                     // Fire a connection changed event

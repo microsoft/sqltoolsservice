@@ -30,12 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I create a query with a udt column in the result set
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            Query query = new Query(Common.UdtQuery, connectionInfo, new QueryExecutionSettings(), Common.GetFileStreamFactory());
+            Query query = new Query(Common.UdtQuery, connectionInfo, new QueryExecutionSettings(), Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
 
             // If:
             // ... I then execute the query
             DateTime startTime = DateTime.Now;
-            query.Execute().Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
 
             // Then:
             // ... The query should complete within 2 seconds since retry logic should not kick in
@@ -118,12 +119,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
-            // If I run a "BEGIN TRANSACTION" query
+            // If I run a query creating a temp table
             Query createTempQuery = new Query(createTempText, connInfo, new QueryExecutionSettings(), fileStreamFactory);
             createTempQuery.Execute();
             createTempQuery.ExecutionTask.Wait();
 
-            // Then I run a "ROLLBACK TRANSACTION" query
+            // Then I run a different query using that temp table
             Query insertTempQuery = new Query(insertTempText, connInfo, new QueryExecutionSettings(), fileStreamFactory);
             insertTempQuery.Execute();
             insertTempQuery.ExecutionTask.Wait();

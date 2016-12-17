@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Smo;
@@ -14,6 +15,7 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -39,25 +41,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                if (this.connectionInfo.SqlConnection != null)
+                try
                 {
-                    try
+                    DbConnection connection;
+                    if (!connectionInfo.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Default, out connection))
                     {
-                        // Get server object from connection
-                        string connectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails);
-                        SqlConnection sqlConn = new SqlConnection(connectionString);                    
-                        sqlConn.Open();
-                        ServerConnection serverConn = new ServerConnection(sqlConn); 
-                        Server server = new Server(serverConn);
-                        return server.Databases[this.connectionInfo.SqlConnection.Database];
-                    }
-                    catch(Exception ex)
-                    {
-                        Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
                         return null;
-                    }                   
+                    }
+
+                    // TODO make sure this is not creating a new connection every time
+                    string connectionString = ConnectionService.BuildConnectionString(connectionInfo.ConnectionDetails);
+                    SqlConnection sqlConn = new SqlConnection(connectionString);
+                    sqlConn.Open();
+                    ServerConnection serverConn = new ServerConnection(sqlConn);
+                    Server server = new Server(serverConn);
+                    return server.Databases[connection.Database];
                 }
-                return null;
+                catch (Exception ex)
+                {
+                    Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
+                    return null;
+                }
             }
         }
 

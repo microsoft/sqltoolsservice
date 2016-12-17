@@ -51,6 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private bool hasExecuteBeenCalled;
 
+        private string newDatabase;
+
         #endregion
 
         /// <summary>
@@ -245,27 +247,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Mark that we've internally executed
             hasExecuteBeenCalled = true;
 
+            newDatabase = null;
+
             // Don't actually execute if there aren't any batches to execute
             if (Batches.Length == 0)
             {
                 return;
             }
 
-            try
+            DbConnection queryConnection;
+            if (!editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection))
             {
-                await editorConnection.QueryConnection.OpenAsync();
-            }
-            catch (Exception exception)
-            {
-                this.HasExecuted = true;
-                if (QueryConnectionException != null)
-                {
-                    await QueryConnectionException(exception.Message);
-                }
-                return;
+                await ConnectionService.Instance.Connect(editorConnection.OwnerUri, ConnectionType.Query);
+                editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection);
             }
 
-            ReliableSqlConnection sqlConn = editorConnection.QueryConnection as ReliableSqlConnection;
+            ReliableSqlConnection sqlConn = queryConnection as ReliableSqlConnection;
             if (sqlConn != null)
             {
                 // Subscribe to database informational messages
@@ -280,13 +277,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     b.BatchStart += BatchStarted;
                     b.BatchCompletion += BatchCompleted;
                     b.ResultSetCompletion += ResultSetCompleted;
-                    await b.Execute(editorConnection.QueryConnection, cancellationSource.Token);
+                    await b.Execute(queryConnection, cancellationSource.Token);
                 }
 
                 // Call the query execution callback
                 if (QueryCompleted != null)
                 {
                     await QueryCompleted(this);
+                }
+                if (newDatabase != null)
+                {
+                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabase);
                 }
             }
             catch (Exception)
@@ -323,7 +324,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Did the database context change (error code 5701)?
                 if (error.Number == DatabaseContextChangeErrorNumber)
                 {
-                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
+                    newDatabase = conn.Database;
+                    //ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
                 }
             }
         }
