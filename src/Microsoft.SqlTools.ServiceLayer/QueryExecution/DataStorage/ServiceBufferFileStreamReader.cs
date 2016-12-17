@@ -297,9 +297,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     // of milliseconds (for DATETIME, it is fixed at 3, but returned as null)
                     // If for some strange reason a scale > 7 is sent, we will cap it at 7 to avoid
                     // an exception from invalid date/time formatting
-                    int numericPrecision = Math.Min(col.NumericScale ?? 3, 7);
-                    string millisecondString = new string('f', numericPrecision);
-                    formatString = $"{DateFormatString} {TimeFormatString}.{millisecondString}";
+                    int scale = Math.Min(col.NumericScale ?? 3, 7);
+                    formatString = $"{DateFormatString} {TimeFormatString}";
+                    if (scale > 0)
+                    {
+                        string millisecondString = new string('f', scale);
+                        formatString += $".{millisecondString}";
+                    }
                 }
                 else
                 {

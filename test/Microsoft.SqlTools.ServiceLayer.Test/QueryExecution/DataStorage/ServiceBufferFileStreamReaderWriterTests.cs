@@ -281,7 +281,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         }
 
         [Theory]
-        [InlineData(0)]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(3)]
@@ -315,6 +314,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         }
 
         [Fact]
+        public void DateTime2ZeroScaleTest()
+        {
+            // Setup: Create some test values
+            // NOTE: We are doing these here instead of InlineData because DateTime values can't be written as constant expressions
+            DateTime[] testValues =
+            {
+                DateTime.Now, DateTime.UtcNow, DateTime.MinValue, DateTime.MaxValue
+            };
+
+            // Setup: Create a DATETIME2 column
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe2", 0));
+
+            foreach (DateTime value in testValues)
+            {
+                string displayValue = VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteDateTime(val), reader => reader.ReadDateTime(0, col));
+
+                // Make sure the display value has a time string with 0 milliseconds
+                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}$"));
+            }
+        }
+
+        [Fact]
         public void DateTime2InvalidScaleTest()
         {
             // Setup: Create some test values
@@ -325,7 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME2 column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe", 255));
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe2", 255));
 
             foreach (DateTime value in testValues)
             {
