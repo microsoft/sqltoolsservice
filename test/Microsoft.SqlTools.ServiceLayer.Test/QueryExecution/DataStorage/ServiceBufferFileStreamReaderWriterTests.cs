@@ -8,9 +8,7 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Text;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Xunit;
 
@@ -231,21 +229,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             }
         }
 
-        [Theory]
-        [InlineData(3)] // Scale 3 = DATETIME
-        [InlineData(7)] // Scale 7 = DATETIME2
-        public void DateTimeTest(int scale)
+        [Fact]
+        public void DateTimeTest()
         {
-            // Setup: Create some test values and a column with scale set
+            // Setup: Create some test values
             // NOTE: We are doing these here instead of InlineData because DateTime values can't be written as constant expressions
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("dbcol", scale));
             DateTime[] testValues = 
             {
                 DateTime.Now, DateTime.UtcNow, DateTime.MinValue, DateTime.MaxValue
             };
             foreach (DateTime value in testValues)
             {
-                VerifyReadWrite(sizeof(long) + sizeof(int) + 1, value, (writer, val) => writer.WriteDateTime(col, val), reader => reader.ReadDateTime(0));
+                VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteDateTime(val), reader => reader.ReadDateTime(0));
             }
         }
 
