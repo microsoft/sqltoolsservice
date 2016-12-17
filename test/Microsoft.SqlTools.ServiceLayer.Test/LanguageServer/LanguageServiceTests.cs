@@ -128,7 +128,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             Assert.Equal(10, fileMarkers[1].ScriptRegion.EndColumnNumber);
             Assert.Equal(3, fileMarkers[1].ScriptRegion.EndLineNumber);
         }
-        
+
+        /// <summary>
+        /// Verify that GetSignatureHelp returns null when the provided TextDocumentPosition
+        /// has no associated ScriptParseInfo.
+        /// </summary>
         [Fact]
         public void GetSignatureHelpReturnsNullIfParseInfoNotInitialized()
         {
@@ -139,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             scriptFile.SetFileContents(docContent);
 
             // When requesting SignatureHelp
-            SignatureHelp signatureHelp = service.GetSignatureHelp(CreateDummyDocPosition(), scriptFile);
+            SignatureHelp signatureHelp = service.GetSignatureHelp(TestObjects.GetTestDocPosition(), scriptFile);
             
             // Then null is returned as no parse info can be used to find the signature
             Assert.Null(signatureHelp);
@@ -194,20 +198,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
 
         }
-
-        private TextDocumentPosition CreateDummyDocPosition()
-        {
-            return new TextDocumentPosition
-            {
-                TextDocument = new TextDocumentIdentifier { Uri = TestObjects.ScriptUri },
-                Position = new Position
-                {
-                    Line = 0,
-                    Character = 0
-                }
-            };
-        }
-
 
         #endregion
 
@@ -288,6 +278,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
                 connInfo);
 
             Assert.True(completions.Length > 0);
+        }
+
+        /// <summary>
+        /// Verify that GetSignatureHelp returns not null when the provided TextDocumentPosition
+        /// has an associated ScriptParseInfo and the provided query has a function that should
+        /// provide signature help.
+        /// </summary>
+        [Fact]
+        public async void GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
+        {
+            // When we make a connection to a live database
+            ScriptFile scriptFile;
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+
+            // And we place the cursor after a function that should prompt for signature help
+            string queryWithFunction = "EXEC sys.fn_isrolemember ";
+            scriptFile.Contents = queryWithFunction;
+            TextDocumentPosition textDocument = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier
+                {
+                    Uri = scriptFile.ClientFilePath
+                },
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = queryWithFunction.Length
+                }
+            };
+
+            // If we have a valid ScriptParseInfo and the SQL has already been parsed
+            var service = LanguageService.Instance;
+            ScriptParseInfo parseInfo = service.GetScriptParseInfo(scriptFile.ClientFilePath);
+            await service.UpdateLanguageServiceOnConnection(connInfo);
+
+            // We should get back a non-null SignatureHelp 
+            SignatureHelp signatureHelp = service.GetSignatureHelp(textDocument, scriptFile);
+            Assert.NotNull(signatureHelp);
         }
 
 #endif
