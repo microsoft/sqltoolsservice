@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// <summary>
     /// Internal representation of an active query
     /// </summary>
-    public class Query
+    public class Query : IDisposable
     {
         /// <summary>
         /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
