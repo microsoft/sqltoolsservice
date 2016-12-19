@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // Read the columns into a set of wrappers
             Columns = DbDataReader.GetColumnSchema().Select(column => new DbColumnWrapper(column)).ToArray();
-            HasLongColumns = Columns.Any(column => column.IsLong);
+            HasLongColumns = Columns.Any(column => column.IsLong.HasValue && column.IsLong.Value);
         }
 
         #region Properties
