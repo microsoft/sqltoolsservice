@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
 {
@@ -27,6 +28,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
 
         private Dictionary<string, TaskCompletionSource<Message>> pendingRequests =
             new Dictionary<string, TaskCompletionSource<Message>>();
+
+        /// <summary>
+        /// When true, SendEvent will ignore exceptions and write them
+        /// to the log instead. Intended to be used for test scenarios
+        /// where SendEvent throws exceptions unrelated to what is
+        /// being tested.
+        /// </summary>
+        internal static bool SendEventIgnoreExceptions = false;
 
         /// <summary>
         /// Gets the MessageDispatcher which allows registration of
@@ -194,37 +203,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
             EventType<TParams> eventType,
             TParams eventParams)
         {
-            if (!this.protocolChannel.IsConnected)
+            try
             {
-                throw new InvalidOperationException("SendEvent called when ProtocolChannel was not yet connected");
+                if (!this.protocolChannel.IsConnected)
+                {
+                    throw new InvalidOperationException("SendEvent called when ProtocolChannel was not yet connected");
+                }
+
+                // Some events could be raised from a different thread.
+                // To ensure that messages are written serially, dispatch
+                // dispatch the SendEvent call to the message loop thread.
+
+                if (!this.MessageDispatcher.InMessageLoopThread)
+                {
+                    TaskCompletionSource<bool> writeTask = new TaskCompletionSource<bool>();
+
+                    this.MessageDispatcher.SynchronizationContext.Post(
+                        async (obj) =>
+                        {
+                            await this.protocolChannel.MessageWriter.WriteEvent(
+                                eventType,
+                                eventParams);
+
+                            writeTask.SetResult(true);
+                        }, null);
+
+                    return writeTask.Task;
+                }
+                else
+                {
+                    return this.protocolChannel.MessageWriter.WriteEvent(
+                        eventType,
+                        eventParams);
+                }
             }
-
-            // Some events could be raised from a different thread.
-            // To ensure that messages are written serially, dispatch
-            // dispatch the SendEvent call to the message loop thread.
-
-            if (!this.MessageDispatcher.InMessageLoopThread)
+            catch (Exception ex)
             {
-                TaskCompletionSource<bool> writeTask = new TaskCompletionSource<bool>();
-
-                this.MessageDispatcher.SynchronizationContext.Post(
-                    async (obj) =>
-                    {
-                        await this.protocolChannel.MessageWriter.WriteEvent(
-                            eventType,
-                            eventParams);
-
-                        writeTask.SetResult(true);
-                    }, null);
-
-                return writeTask.Task;
+                if (SendEventIgnoreExceptions)
+                {
+                    Logger.Write(LogLevel.Verbose, "Exception in SendEvent " + ex.ToString());
+                }
+                else
+                {
+                    throw;
+                }
             }
-            else
-            {
-                return this.protocolChannel.MessageWriter.WriteEvent(
-                    eventType,
-                    eventParams);
-            }
+            return Task.FromResult(false);
         }
 
         #endregion
