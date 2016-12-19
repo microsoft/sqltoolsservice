@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var cancelRequest = new EventFlowValidator<QueryCancelResult>()
                 .AddResultValidation(r =>
                 {
-                    Assert.Null(r.Messages);
+                    Assert.False(string.IsNullOrWhiteSpace(r.Messages));
                 }).Complete();
             await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
             cancelRequest.Validate();
