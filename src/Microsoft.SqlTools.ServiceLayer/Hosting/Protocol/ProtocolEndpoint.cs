@@ -30,12 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
             new Dictionary<string, TaskCompletionSource<Message>>();
 
         /// <summary>
-        /// When true, SendEvent will ingnore exceptions and write them
+        /// When true, SendEvent will ignore exceptions and write them
         /// to the log instead. Intended to be used for test scenarios
         /// where SendEvent throws exceptions unrelated to what is
         /// being tested.
         /// </summary>
-        public static bool SendEventIgnoreExceptions = false;
+        internal static bool SendEventIgnoreExceptions = false;
 
         /// <summary>
         /// Gets the MessageDispatcher which allows registration of
@@ -248,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
                     throw;
                 }
             }
-            return null;
+            return Task.FromResult(false);
         }
 
         #endregion
