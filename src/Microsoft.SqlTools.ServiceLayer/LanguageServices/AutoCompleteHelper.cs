@@ -343,17 +343,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Retrieves the reserved word list 
-        /// </summary>
-        internal static string[] GetReservedWordList
-        {
-            get 
-            {
-                return AutoCompleteHelper.DefaultCompletionText;   
-            }
-        }
-
-        /// <summary>
         /// Checks whether a given word is in the reserved
         /// word list or not
         /// </summary>
