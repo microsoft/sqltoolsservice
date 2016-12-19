@@ -48,13 +48,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddResultValidation<TParams>(Action<TParams> paramValidation)
+        public EventFlowValidator<TRequestContext> AddResultValidation(Action<TRequestContext> paramValidation)
         {
             // Add the expected event
             expectedEvents.Add(new ExpectedEvent
             {
                 EventType = EventTypes.Result,
-                ParamType = typeof(TParams),
+                ParamType = typeof(TRequestContext),
                 Validator = paramValidation
             });
 

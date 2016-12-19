@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
-                .AddResultValidation<QueryExecuteResult>(p =>
+                .AddResultValidation(p =>
                 {
                     Assert.False(string.IsNullOrWhiteSpace(p.Messages));
                 })
@@ -291,11 +291,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
     public static class EventFlowValidatorExtensions
     {
-        public static EventFlowValidator<TRequestContext> AddStandardQueryResultValidator<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv)
+        public static EventFlowValidator<QueryExecuteResult> AddStandardQueryResultValidator(
+            this EventFlowValidator<QueryExecuteResult> efv)
         {
             // We just need to makes sure we get a result back, there's no params to validate
-            return efv.AddResultValidation<QueryExecuteResult>(r =>
+            return efv.AddResultValidation(r =>
             {
                 Assert.Null(r.Messages);
             });
