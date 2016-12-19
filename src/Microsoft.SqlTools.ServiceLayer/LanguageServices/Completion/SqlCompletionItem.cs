@@ -47,7 +47,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 
         private void Init()
         {
-            InsertText = GetCompletionItemInsertName();
+            InsertText = DeclarationTitle;
+            if (!string.IsNullOrEmpty(DeclarationTitle) && 
+                (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText)))
+            {
+                InsertText = WithDelimitedIdentifier(BracketeIidentifiers, DeclarationTitle);
+            }
             Label = DeclarationTitle;
             DelimitedIdentifier delimitedIdentifier = GetDelimitedIdentifier(TokenText);
             if (delimitedIdentifier != null)
