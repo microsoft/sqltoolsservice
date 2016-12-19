@@ -3,14 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Threading;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
@@ -293,6 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
         {
             // When we make a connection to a live database
             ScriptFile scriptFile;
+            Hosting.ServiceHost.SendEventIgnoreExceptions = true;
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
 
             // And we place the cursor after a function that should prompt for signature help
@@ -311,11 +308,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
                 }
             };
 
-            // If we have a valid ScriptParseInfo and the SQL has already been parsed
+            // If the SQL has already been parsed
             var service = LanguageService.Instance;
             await service.UpdateLanguageServiceOnConnection(connInfo);
 
-            // We should get back a non-null SignatureHelp 
+            // We should get back a non-null ScriptParseInfo
+            ScriptParseInfo parseInfo = service.GetScriptParseInfo(scriptFile.ClientFilePath);
+            Assert.NotNull(parseInfo);
+
+            // And we should get back a non-null SignatureHelp
             SignatureHelp signatureHelp = service.GetSignatureHelp(textDocument, scriptFile);
             Assert.NotNull(signatureHelp);
         }
