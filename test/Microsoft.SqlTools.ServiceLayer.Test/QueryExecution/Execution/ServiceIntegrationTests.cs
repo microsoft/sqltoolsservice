@@ -24,14 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
-                .AddStandardQueryResultValidator()
-                .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
+                .AddResultValidation<QueryExecuteResult>(p =>
                 {
-                    // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                    Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(0, p.BatchSummaries.Length);
-                }).Complete();
+                    Assert.False(string.IsNullOrWhiteSpace(p.Messages));
+                })
+                .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
@@ -55,13 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardBatchCompleteValidator()
-                .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
-                {
-                    // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                    Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(1, p.BatchSummaries.Length);
-                }).Complete();
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
 
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -87,13 +79,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
                 .AddStandardBatchCompleteValidator()
-                .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
-                {
-                    // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                    Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(1, p.BatchSummaries.Length);
-                }).Complete();
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
             
             // Then:
@@ -119,13 +106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
                 .AddStandardResultSetValidator()
-                .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
-                {
-                    // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                    Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(1, p.BatchSummaries.Length);
-                }).Complete();
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
@@ -154,13 +136,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardBatchCompleteValidator()
                 .AddStandardResultSetValidator()
                 .AddStandardBatchCompleteValidator()
-                .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
-                {
-                    // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                    Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(2, p.BatchSummaries.Length);
-                }).Complete();
+                .AddStandardQueryCompleteValidator(2)
+                .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
@@ -240,13 +217,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardBatchCompleteValidator()
-                .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
-                {
-                    // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                    Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(1, p.BatchSummaries.Length);
-                }).Complete();
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
 
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -296,13 +268,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardBatchCompleteValidator()
-                .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
-                {
-                    // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                    Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(1, p.BatchSummaries.Length);
-                }).Complete();
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
 
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -328,7 +295,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             this EventFlowValidator<TRequestContext> efv)
         {
             // We just need to makes sure we get a result back, there's no params to validate
-            return efv.AddResultValidation<QueryExecuteResult>(null);
+            return efv.AddResultValidation<QueryExecuteResult>(r =>
+            {
+                Assert.Null(r.Messages);
+            });
         }
 
         public static EventFlowValidator<TRequestContext> AddStandardBatchStartValidator<TRequestContext>(
@@ -361,6 +331,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 // Validate OwnerURI and result summary are returned
                 Assert.Equal(Common.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.ResultSetSummary);
+            });
+        }
+
+        public static EventFlowValidator<TRequestContext> AddStandardQueryCompleteValidator<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv, int expectedBatches)
+        {
+            return efv.AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
+            {
+                Assert.True(string.IsNullOrWhiteSpace(p.Message));
+                Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                Assert.NotNull(p.BatchSummaries);
+                Assert.Equal(expectedBatches, p.BatchSummaries.Length);
             });
         }
     }
