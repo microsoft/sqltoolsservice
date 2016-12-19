@@ -49,12 +49,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
                 .AddResultValidation(r =>
                 {
+                    // Then: Messages should be null
                     Assert.Null(r.Messages);
                 }).Complete();
             await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
 
             // Then:
             // ... And the active queries should be empty
+            disposeRequest.Validate();
             Assert.Empty(queryService.ActiveQueries);
         }
 
@@ -70,10 +72,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
                 .AddResultValidation(r =>
                 {
+                    // Then: Messages should not be null
                     Assert.NotNull(r.Messages);
                     Assert.NotEmpty(r.Messages);
                 }).Complete();
             await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
+            disposeRequest.Validate();
         }
 
         [Fact]

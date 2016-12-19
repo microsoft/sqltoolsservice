@@ -41,6 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Then:
             // ... The query should not have been disposed
             Assert.Equal(1, queryService.ActiveQueries.Count);
+            cancelRequest.Validate();
         }
 
         [Fact]
@@ -69,6 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Then:
             // ... The query should not have been disposed
             Assert.NotEmpty(queryService.ActiveQueries);
+            cancelRequest.Validate();
         }
 
         [Fact]
@@ -86,6 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     Assert.Null(r.Messages);
                 }).Complete();
             await queryService.HandleCancelRequest(cancelParams, cancelRequest.Object);
+            cancelRequest.Validate();
         }
     }
 }
