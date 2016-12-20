@@ -7,11 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
@@ -140,17 +138,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            QueryExecuteSubsetResult result = null;
-            var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
+            var subsetRequest = new EventFlowValidator<QueryExecuteSubsetResult>()
+                .AddResultValidation(r =>
+                {
+                    // Then: Messages should be null and subset should not be null
+                    Assert.Null(r.Message);
+                    Assert.NotNull(r.ResultSubset);
+                }).Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-
-            // Then:
-            // ... I should have a successful result
-            // ... There should be rows there (other test validate that the rows are correct)
-            // ... There should not be any error calls
-            VerifyQuerySubsetCallCount(subsetRequest, Times.Once(), Times.Never());
-            Assert.Null(result.Message);
-            Assert.NotNull(result.ResultSubset);
+            subsetRequest.Validate();
         }
 
         [Fact]
@@ -161,17 +157,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            QueryExecuteSubsetResult result = null;
-            var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
+            var subsetRequest = new EventFlowValidator<QueryExecuteSubsetResult>()
+                .AddResultValidation(r =>
+                {
+                    // Then: Messages should not be null and the subset should be null
+                    Assert.NotNull(r.Message);
+                    Assert.Null(r.ResultSubset);
+                }).Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-
-            // Then:
-            // ... I should have an error result
-            // ... There should be no rows in the result set
-            // ... There should not be any error calls
-            VerifyQuerySubsetCallCount(subsetRequest, Times.Once(), Times.Never());
-            Assert.NotNull(result.Message);
-            Assert.Null(result.ResultSubset);
+            subsetRequest.Validate();
         }
 
         [Fact]
@@ -189,21 +183,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            QueryExecuteSubsetResult result = null;
-            var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
+            var subsetRequest = new EventFlowValidator<QueryExecuteSubsetResult>()
+                .AddResultValidation(r =>
+                {
+                    // Then: There should not be a subset and message should not be null
+                    Assert.NotNull(r.Message);
+                    Assert.Null(r.ResultSubset);
+                }).Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-
-            // Then:
-            // ... I should get an error result
-            // ... There should not be rows 
-            // ... There should not be any error calls
-            VerifyQuerySubsetCallCount(subsetRequest, Times.Once(), Times.Never());
-            Assert.NotNull(result.Message);
-            Assert.Null(result.ResultSubset);
+            subsetRequest.Validate();
         }
 
         [Fact]
-        public async void SubsetServiceOutOfRangeSubsetTest()
+        public async Task SubsetServiceOutOfRangeSubsetTest()
         {
             // If:
             // ... I have a query that doesn't have any result sets
@@ -216,39 +208,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // ... And I then ask for a set of results from it
             var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            QueryExecuteSubsetResult result = null;
-            var subsetRequest = GetQuerySubsetResultContextMock(qesr => result = qesr, null);
-            queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object).Wait();
-
-            // Then:
-            // ... I should get an error result
-            // ... There should not be rows 
-            // ... There should not be any error calls
-            VerifyQuerySubsetCallCount(subsetRequest, Times.Once(), Times.Never());
-            Assert.NotNull(result.Message);
-            Assert.Null(result.ResultSubset);
+            var subsetRequest = new EventFlowValidator<QueryExecuteSubsetResult>()
+                .AddResultValidation(r =>
+                {
+                    // Then: There should be an error message and no subset
+                    Assert.NotNull(r.Message);
+                    Assert.Null(r.ResultSubset);
+                }).Complete();
+            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
+            subsetRequest.Validate();
         }
 
         #endregion
-
-        #region Mocking
-
-        private static Mock<RequestContext<QueryExecuteSubsetResult>> GetQuerySubsetResultContextMock(
-            Action<QueryExecuteSubsetResult> resultCallback,
-            Action<object> errorCallback)
-        {
-            return RequestContextMocks.Create(resultCallback)
-                .AddErrorHandling(errorCallback);
-        }
-
-        private static void VerifyQuerySubsetCallCount(Mock<RequestContext<QueryExecuteSubsetResult>> mock, Times sendResultCalls,
-            Times sendErrorCalls)
-        {
-            mock.Verify(rc => rc.SendResult(It.IsAny<QueryExecuteSubsetResult>()), sendResultCalls);
-            mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
-        }
-
-        #endregion
-
     }
 }
