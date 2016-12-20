@@ -3,3 +3,5 @@
   homepage: guide/introduction.md
 - name: API Reference
   href: api/
+- name: Design
+  href: design/
