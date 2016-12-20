@@ -33,6 +33,7 @@
           "toc.yml",
           "index.md",
           "api/index.md",
+          "design/index.md",
           "guide/**.md"
         ],
         "exclude": [

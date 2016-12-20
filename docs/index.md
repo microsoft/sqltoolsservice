@@ -9,7 +9,11 @@ guidance on how to use it.
 
 ## [API Reference](api/index.md)
 
-The API Reference contains details about the .NET API.
+The .Net API Reference contains details about the .NET API.
+
+## [Design](design/index.md)
+
+Design and implementation documentation for the SQL Tools Service SDK.
 
 ## Getting Help
 
