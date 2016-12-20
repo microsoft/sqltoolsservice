@@ -3,16 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Xunit;
 
@@ -38,69 +35,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Fact]
         public async void DisposeExecutedQuery()
         {
-            // Set up file for returning the query
-            var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns("doesn't matter");
-            // Set up workspace mock
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
-                .Returns(fileMock.Object);
             // If:
             // ... I request a query (doesn't matter what kind)
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService.Object);
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
-            var executeRequest = RequestContextMocks.SetupRequestContextMock<QueryExecuteResult, QueryExecuteCompleteParams>(null, QueryExecuteCompleteEvent.Type, null, null);
+            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
             // ... And then I dispose of the query
             var disposeParams = new QueryDisposeParams {OwnerUri = Common.OwnerUri};
-            QueryDisposeResult result = null;
-            var disposeRequest = GetQueryDisposeResultContextMock(qdr => {
-                result = qdr;
-            }, null);
+            var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
+                .AddResultValidation(r =>
+                {
+                    // Then: Messages should be null
+                    Assert.Null(r.Messages);
+                }).Complete();
             await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
 
             // Then:
-            // ... I should have seen a successful result
             // ... And the active queries should be empty
-            VerifyQueryDisposeCallCount(disposeRequest, Times.Once(), Times.Never());
-            Assert.Null(result.Messages);
+            disposeRequest.Validate();
             Assert.Empty(queryService.ActiveQueries);
         }
 
         [Fact]
         public async void QueryDisposeMissingQuery()
         {
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             // If:
             // ... I attempt to dispose a query that doesn't exist
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             var queryService = Common.GetPrimedExecutionService(null, false, false, workspaceService.Object);
             var disposeParams = new QueryDisposeParams {OwnerUri = Common.OwnerUri};
-            QueryDisposeResult result = null;
-            var disposeRequest = GetQueryDisposeResultContextMock(qdr => result = qdr, null);
-            await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
 
-            // Then:
-            // ... I should have gotten an error result
-            VerifyQueryDisposeCallCount(disposeRequest, Times.Once(), Times.Never());
-            Assert.NotNull(result.Messages);
-            Assert.NotEmpty(result.Messages);
+            var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
+                .AddResultValidation(r =>
+                {
+                    // Then: Messages should not be null
+                    Assert.NotNull(r.Messages);
+                    Assert.NotEmpty(r.Messages);
+                }).Complete();
+            await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
+            disposeRequest.Validate();
         }
 
         [Fact]
         public async Task ServiceDispose()
         {
             // Setup:
-            // ... We need a workspace service that returns a file
-            var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
-            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
-            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
-                .Returns(fileMock.Object);
             // ... We need a query service
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService.Object);
-
+            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
 
             // If:
             // ... I execute some bogus query
@@ -119,44 +105,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... There should no longer be an active query
             Assert.Empty(queryService.ActiveQueries);
         }
-
-        #region Mocking
-
-        private Mock<RequestContext<QueryDisposeResult>> GetQueryDisposeResultContextMock(
-            Action<QueryDisposeResult> resultCallback,
-            Action<object> errorCallback)
-        {
-            var requestContext = new Mock<RequestContext<QueryDisposeResult>>();
-
-            // Setup the mock for SendResult
-            var sendResultFlow = requestContext
-                .Setup(rc => rc.SendResult(It.IsAny<QueryDisposeResult>()))
-                .Returns(Task.FromResult(0));
-            if (resultCallback != null)
-            {
-                sendResultFlow.Callback(resultCallback);
-            }
-
-            // Setup the mock for SendError
-            var sendErrorFlow = requestContext
-                .Setup(rc => rc.SendError(It.IsAny<object>()))
-                .Returns(Task.FromResult(0));
-            if (errorCallback != null)
-            {
-                sendErrorFlow.Callback(errorCallback);
-            }
-
-            return requestContext;
-        }
-
-        private void VerifyQueryDisposeCallCount(Mock<RequestContext<QueryDisposeResult>> mock, Times sendResultCalls,
-            Times sendErrorCalls)
-        {
-            mock.Verify(rc => rc.SendResult(It.IsAny<QueryDisposeResult>()), sendResultCalls);
-            mock.Verify(rc => rc.SendError(It.IsAny<object>()), sendErrorCalls);
-        }
-
-        #endregion
-
     }
 }
