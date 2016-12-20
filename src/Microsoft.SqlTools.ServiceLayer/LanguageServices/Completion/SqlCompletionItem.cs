@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -45,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         {
             InsertText = GetCompletionItemInsertName();
             Label = DeclarationTitle;
-            if (StartsWithBracket(TokenText))
+            if (StartsWithBracket(TokenText) || AutoCompleteHelper.IsReservedWord(InsertText))
             {
                 Label = WithBracket(Label);
                 InsertText = WithBracket(InsertText);
@@ -142,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
            int row,
            int startColumn,
            int endColumn)
-        {
+        {   
             CompletionItem item = new CompletionItem()
             {
                 Label = label,
