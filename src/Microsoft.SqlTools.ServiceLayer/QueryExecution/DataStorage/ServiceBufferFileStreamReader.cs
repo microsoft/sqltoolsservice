@@ -55,35 +55,35 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Create the methods that will be used to read back
             readMethods = new Dictionary<Type, Func<long, DbColumnWrapper, FileStreamReadResult>>
             {
-                {typeof(string), ReadString},
-                {typeof(short), ReadInt16},
-                {typeof(int), ReadInt32},
-                {typeof(long), ReadInt64},
-                {typeof(byte), ReadByte},
-                {typeof(char), ReadChar},
-                {typeof(bool), ReadBoolean},
-                {typeof(double), ReadDouble},
-                {typeof(float), ReadSingle},
-                {typeof(decimal), ReadDecimal},
-                {typeof(DateTime), ReadDateTime},
-                {typeof(DateTimeOffset), ReadDateTimeOffset},
-                {typeof(TimeSpan), ReadTimeSpan},
-                {typeof(byte[]), ReadBytes},
+                {typeof(string),         (o, col) => ReadString(o)},
+                {typeof(short),          (o, col) => ReadInt16(o)},
+                {typeof(int),            (o, col) => ReadInt32(o)},
+                {typeof(long),           (o, col) => ReadInt64(o)},
+                {typeof(byte),           (o, col) => ReadByte(o)},
+                {typeof(char),           (o, col) => ReadChar(o)},
+                {typeof(bool),           (o, col) => ReadBoolean(o)},
+                {typeof(double),         (o, col) => ReadDouble(o)},
+                {typeof(float),          (o, col) => ReadSingle(o)},
+                {typeof(decimal),        (o, col) => ReadDecimal(o)},
+                {typeof(DateTime),       ReadDateTime},
+                {typeof(DateTimeOffset), (o, col) => ReadDateTimeOffset(o)},
+                {typeof(TimeSpan),       (o, col) => ReadTimeSpan(o)},
+                {typeof(byte[]),         (o, col) => ReadBytes(o)},
 
-                {typeof(SqlString), ReadString},
-                {typeof(SqlInt16), ReadInt16},
-                {typeof(SqlInt32), ReadInt32},
-                {typeof(SqlInt64), ReadInt64},
-                {typeof(SqlByte), ReadByte},
-                {typeof(SqlBoolean), ReadBoolean},
-                {typeof(SqlDouble), ReadDouble},
-                {typeof(SqlSingle), ReadSingle},
-                {typeof(SqlDecimal), ReadSqlDecimal},
-                {typeof(SqlDateTime), ReadDateTime},
-                {typeof(SqlBytes), ReadBytes},
-                {typeof(SqlBinary), ReadBytes},
-                {typeof(SqlGuid), ReadGuid},
-                {typeof(SqlMoney), ReadMoney},
+                {typeof(SqlString),      (o, col) => ReadString(o)},
+                {typeof(SqlInt16),       (o, col) => ReadInt16(o)},
+                {typeof(SqlInt32),       (o, col) => ReadInt32(o)},
+                {typeof(SqlInt64),       (o, col) => ReadInt64(o)},
+                {typeof(SqlByte),        (o, col) => ReadByte(o)},
+                {typeof(SqlBoolean),     (o, col) => ReadBoolean(o)},
+                {typeof(SqlDouble),      (o, col) => ReadDouble(o)},
+                {typeof(SqlSingle),      (o, col) => ReadSingle(o)},
+                {typeof(SqlDecimal),     (o, col) => ReadSqlDecimal(o)},
+                {typeof(SqlDateTime),    ReadDateTime},
+                {typeof(SqlBytes),       (o, col) => ReadBytes(o)},
+                {typeof(SqlBinary),      (o, col) => ReadBytes(o)},
+                {typeof(SqlGuid),        (o, col) => ReadGuid(o)},
+                {typeof(SqlMoney),       (o, col) => ReadMoney(o)},
             };
         }
 
@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 if (column.IsSqlVariant)
                 {
                     // For SQL Variant columns, the type is written first in string format
-                    FileStreamReadResult sqlVariantTypeResult = ReadString(currentFileOffset, column);
+                    FileStreamReadResult sqlVariantTypeResult = ReadString(currentFileOffset);
                     currentFileOffset += sqlVariantTypeResult.TotalLength;
                     string sqlVariantType = (string)sqlVariantTypeResult.Value.RawObject;
 
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 if(!readMethods.TryGetValue(colType, out readFunc))
                 {
                     // Treat everything else as a string
-                    readFunc = ReadString;
+                    readFunc = readMethods[typeof(string)];
                 } 
                 FileStreamReadResult result = readFunc(currentFileOffset, column);
                 currentFileOffset += result.TotalLength;
@@ -154,9 +154,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a short from the file at the offset provided
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the short from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A short</returns>
-        public FileStreamReadResult ReadInt16(long fileOffset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadInt16(long fileOffset)
         {
             return ReadCellHelper(fileOffset, length => BitConverter.ToInt16(buffer, 0));
         }
@@ -165,9 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a int from the file at the offset provided
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the int from</param>
-        /// <param name="col">Not used</param>
         /// <returns>An int</returns>
-        public FileStreamReadResult ReadInt32(long fileOffset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadInt32(long fileOffset)
         {
             return ReadCellHelper(fileOffset, length => BitConverter.ToInt32(buffer, 0));
         }
@@ -176,9 +174,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a long from the file at the offset provided
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the long from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A long</returns>
-        public FileStreamReadResult ReadInt64(long fileOffset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadInt64(long fileOffset)
         {
             return ReadCellHelper(fileOffset, length => BitConverter.ToInt64(buffer, 0));
         }
@@ -187,9 +184,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a byte from the file at the offset provided
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the byte from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A byte</returns>
-        public FileStreamReadResult ReadByte(long fileOffset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadByte(long fileOffset)
         {
             return ReadCellHelper(fileOffset, length => buffer[0]);
         }
@@ -198,9 +194,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a char from the file at the offset provided
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the char from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A char</returns>
-        public FileStreamReadResult ReadChar(long fileOffset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadChar(long fileOffset)
         {
             return ReadCellHelper(fileOffset, length => BitConverter.ToChar(buffer, 0));
         }
@@ -209,9 +204,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a bool from the file at the offset provided
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the bool from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A bool</returns>
-        public FileStreamReadResult ReadBoolean(long fileOffset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadBoolean(long fileOffset)
         {
             return ReadCellHelper(fileOffset, length => buffer[0] == 0x1);
         }
@@ -220,9 +214,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a single from the file at the offset provided
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the single from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A single</returns>
-        public FileStreamReadResult ReadSingle(long fileOffset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadSingle(long fileOffset)
         {
             return ReadCellHelper(fileOffset, length => BitConverter.ToSingle(buffer, 0));
         }
@@ -231,9 +224,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a double from the file at the offset provided
         /// </summary>
         /// <param name="fileOffset">Offset into the file to read the double from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A double</returns>
-        public FileStreamReadResult ReadDouble(long fileOffset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadDouble(long fileOffset)
         {
             return ReadCellHelper(fileOffset, length => BitConverter.ToDouble(buffer, 0));
         }
@@ -242,9 +234,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a SqlDecimal from the file at the offset provided
         /// </summary>
         /// <param name="offset">Offset into the file to read the SqlDecimal from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A SqlDecimal</returns>
-        public FileStreamReadResult ReadSqlDecimal(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadSqlDecimal(long offset)
         {
             return ReadCellHelper(offset, length =>
             {
@@ -258,9 +249,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a decimal from the file at the offset provided
         /// </summary>
         /// <param name="offset">Offset into the file to read the decimal from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A decimal</returns>
-        public FileStreamReadResult ReadDecimal(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadDecimal(long offset)
         {
             return ReadCellHelper(offset, length =>
             {
@@ -276,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="offset">Offset into the file to read the DateTime from</param>
         /// <param name="col">Column metadata, used for determining what precision to output</param>
         /// <returns>A DateTime</returns>
-        public FileStreamReadResult ReadDateTime(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadDateTime(long offset, DbColumnWrapper col)
         {
             return ReadCellHelper(offset, length =>
             {
@@ -319,9 +309,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a DateTimeOffset from the file at the offset provided
         /// </summary>
         /// <param name="offset">Offset into the file to read the DateTimeOffset from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A DateTimeOffset</returns>
-        public FileStreamReadResult ReadDateTimeOffset(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadDateTimeOffset(long offset)
         {
             // DateTimeOffset is represented by DateTime.Ticks followed by TimeSpan.Ticks
             // both as Int64 values
@@ -336,9 +325,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a TimeSpan from the file at the offset provided
         /// </summary>
         /// <param name="offset">Offset into the file to read the TimeSpan from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A TimeSpan</returns>
-        public FileStreamReadResult ReadTimeSpan(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadTimeSpan(long offset)
         {
             return ReadCellHelper(offset, length =>
             {
@@ -351,9 +339,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a string from the file at the offset provided
         /// </summary>
         /// <param name="offset">Offset into the file to read the string from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A string</returns>
-        public FileStreamReadResult ReadString(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadString(long offset)
         {
             return ReadCellHelper(offset, length =>
                 length > 0
@@ -365,9 +352,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads bytes from the file at the offset provided
         /// </summary>
         /// <param name="offset">Offset into the file to read the bytes from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A byte array</returns>
-        public FileStreamReadResult ReadBytes(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadBytes(long offset)
         {
             return ReadCellHelper(offset, length =>
             {
@@ -390,9 +376,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads the bytes that make up a GUID at the offset provided
         /// </summary>
         /// <param name="offset">Offset into the file to read the bytes from</param>
-        /// <param name="col">Not used</param>
         /// <returns>A guid type object</returns>
-        public FileStreamReadResult ReadGuid(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadGuid(long offset)
         {
             return ReadCellHelper(offset, length =>
             {
@@ -407,9 +392,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// into a 
         /// </summary>
         /// <param name="offset">Offset into the file to read the value</param>
-        /// <param name="col">Not used</param>
         /// <returns>A sql money type object</returns>
-        public FileStreamReadResult ReadMoney(long offset, DbColumnWrapper col)
+        internal FileStreamReadResult ReadMoney(long offset)
         {
             return ReadCellHelper(offset, length =>
             {

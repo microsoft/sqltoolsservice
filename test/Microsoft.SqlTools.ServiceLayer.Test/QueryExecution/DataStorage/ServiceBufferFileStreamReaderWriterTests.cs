@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(short.MinValue)]    // Negative two byte number
         public void Int16(short value)
         {
-            VerifyReadWrite(sizeof(short) + 1, value, (writer, val) => writer.WriteInt16(val), reader => reader.ReadInt16(0, null));
+            VerifyReadWrite(sizeof(short) + 1, value, (writer, val) => writer.WriteInt16(val), reader => reader.ReadInt16(0));
         }
 
         [Theory]
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(int.MinValue)]      // Negative four byte number
         public void Int32(int value)
         {
-            VerifyReadWrite(sizeof(int) + 1, value, (writer, val) => writer.WriteInt32(val), reader => reader.ReadInt32(0, null));
+            VerifyReadWrite(sizeof(int) + 1, value, (writer, val) => writer.WriteInt32(val), reader => reader.ReadInt32(0));
         }
 
         [Theory]
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(long.MinValue)]     // Negative eight byte number
         public void Int64(long value)
         {
-            VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteInt64(val), reader => reader.ReadInt64(0, null));
+            VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteInt64(val), reader => reader.ReadInt64(0));
         }
 
         [Theory]
@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(10)]
         public void Byte(byte value)
         {
-            VerifyReadWrite(sizeof(byte) + 1, value, (writer, val) => writer.WriteByte(val), reader => reader.ReadByte(0, null));
+            VerifyReadWrite(sizeof(byte) + 1, value, (writer, val) => writer.WriteByte(val), reader => reader.ReadByte(0));
         }
 
         [Theory]
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData((char)0x9152)]  // Test something in the UTF-16 space
         public void Char(char value)
         {
-            VerifyReadWrite(sizeof(char) + 1, value, (writer, val) => writer.WriteChar(val), reader => reader.ReadChar(0, null));
+            VerifyReadWrite(sizeof(char) + 1, value, (writer, val) => writer.WriteChar(val), reader => reader.ReadChar(0));
         }
 
         [Theory]
@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(false)]
         public void Boolean(bool value)
         {
-            VerifyReadWrite(sizeof(bool) + 1, value, (writer, val) => writer.WriteBoolean(val), reader => reader.ReadBoolean(0, null));
+            VerifyReadWrite(sizeof(bool) + 1, value, (writer, val) => writer.WriteBoolean(val), reader => reader.ReadBoolean(0));
         }
 
         [Theory]
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(float.NegativeInfinity)]
         public void Single(float value)
         {
-            VerifyReadWrite(sizeof(float) + 1, value, (writer, val) => writer.WriteSingle(val), reader => reader.ReadSingle(0, null));
+            VerifyReadWrite(sizeof(float) + 1, value, (writer, val) => writer.WriteSingle(val), reader => reader.ReadSingle(0));
         }
 
         [Theory]
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [InlineData(double.MaxValue)]
         public void Double(double value)
         {
-            VerifyReadWrite(sizeof(double) + 1, value, (writer, val) => writer.WriteDouble(val), reader => reader.ReadDouble(0, null));
+            VerifyReadWrite(sizeof(double) + 1, value, (writer, val) => writer.WriteDouble(val), reader => reader.ReadDouble(0));
         }
 
         [Fact]
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             foreach (SqlDecimal value in testValues)
             {
                 int valueLength = 4 + value.BinData.Length;
-                VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteSqlDecimal(val), reader => reader.ReadSqlDecimal(0, null));
+                VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteSqlDecimal(val), reader => reader.ReadSqlDecimal(0));
             }
         }
 
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             foreach (decimal value in testValues)
             {
                 int valueLength = decimal.GetBits(value).Length*4 + 1;
-                VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteDecimal(val), reader => reader.ReadDecimal(0, null));
+                VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteDecimal(val), reader => reader.ReadDecimal(0));
             }
         }
 
@@ -368,7 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (DateTimeOffset value in testValues)
             {
-                VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val), reader => reader.ReadDateTimeOffset(0, null));
+                VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val), reader => reader.ReadDateTimeOffset(0));
             }
         }
 
@@ -383,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (TimeSpan value in testValues)
             {
-                VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteTimeSpan(val), reader => reader.ReadTimeSpan(0, null));
+                VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteTimeSpan(val), reader => reader.ReadTimeSpan(0));
             }
         }
 
@@ -421,7 +421,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             }
             string value = sb.ToString();
             int lengthLength = length == 0 || length > 255 ? 5 : 1;
-            VerifyReadWrite(sizeof(char)*length + lengthLength, value, (writer, val) => writer.WriteString(value), reader => reader.ReadString(0, null));
+            VerifyReadWrite(sizeof(char)*length + lengthLength, value, (writer, val) => writer.WriteString(value), reader => reader.ReadString(0));
         }
 
         [Fact]
@@ -459,7 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             byte[] value = sb.ToArray();
             int lengthLength = length == 0 || length > 255 ? 5 : 1;
             int valueLength = sizeof(byte)*length + lengthLength;
-            VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteBytes(value), reader => reader.ReadBytes(0, null));
+            VerifyReadWrite(valueLength, value, (writer, val) => writer.WriteBytes(value), reader => reader.ReadBytes(0));
         }
 
         [Fact]
@@ -474,7 +474,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (Guid guid in guids)
             {
-                VerifyReadWrite(guid.ToByteArray().Length + 1, new SqlGuid(guid), (writer, val) => writer.WriteGuid(guid), reader => reader.ReadGuid(0, null));
+                VerifyReadWrite(guid.ToByteArray().Length + 1, new SqlGuid(guid), (writer, val) => writer.WriteGuid(guid), reader => reader.ReadGuid(0));
             }
         }
 
@@ -489,7 +489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             };
             foreach (SqlMoney money in monies)
             {
-                VerifyReadWrite(sizeof(decimal) + 1, money, (writer, val) => writer.WriteMoney(money), reader => reader.ReadMoney(0, null));
+                VerifyReadWrite(sizeof(decimal) + 1, money, (writer, val) => writer.WriteMoney(money), reader => reader.ReadMoney(0));
             }
         }
     }
