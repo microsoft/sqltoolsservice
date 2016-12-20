@@ -182,16 +182,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             return item;
         }
 
-        private string GetCompletionItemInsertName()
-        {
-            string insertText = DeclarationTitle;
-            if (!string.IsNullOrEmpty(DeclarationTitle) && !ValidSqlNameRegex.IsMatch(DeclarationTitle))
-            {
-                insertText = WithDelimitedIdentifier(BracketeIidentifiers, DeclarationTitle);
-            }
-            return insertText;
-        }
-
         private bool HasDelimitedIdentifier(DelimitedIdentifier delimiteIidentifier, string text)
         {
             return text != null && delimiteIidentifier != null && text.StartsWith(delimiteIidentifier.Start) 

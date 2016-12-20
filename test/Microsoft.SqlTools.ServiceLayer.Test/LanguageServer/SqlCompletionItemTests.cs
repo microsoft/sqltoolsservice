@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -322,6 +323,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
             Assert.True(completionItem.InsertText.StartsWith("[") && completionItem.InsertText.EndsWith("]"));
+        }
+
+        [Fact]
+        public void ConstructorShouldThrowExceptionGivenEmptyDeclarionType()
+        {
+            string declarationTitle = "";
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "";
+            Assert.Throws<ArgumentException>(() => new SqlCompletionItem(declarationTitle, declarationType, tokenText));
         }
 
         [Fact]
