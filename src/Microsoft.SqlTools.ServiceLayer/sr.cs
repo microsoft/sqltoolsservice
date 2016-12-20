@@ -365,6 +365,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string PeekDefinitionNoResultsError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionNoResultsError);
+            }
+        }
+
+        public static string PeekDefinitionNotConnectedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionNotConnectedError);
+            }
+        }
+
+        public static string PeekDefinitionTimedoutError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionTimedoutError);
+            }
+        }
+
+        public static string PeekDefinitionTypeNotSupportedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionTypeNotSupportedError);
+            }
+        }
+
         public static string WorkspaceServicePositionLineOutOfRange
         {
             get
@@ -411,6 +443,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string QueryServiceSaveAsFail(string fileName, string message)
         {
             return Keys.GetString(Keys.QueryServiceSaveAsFail, fileName, message);
+        }
+
+        public static string PeekDefinitionAzureError(string errorMessage)
+        {
+            return Keys.GetString(Keys.PeekDefinitionAzureError, errorMessage);
+        }
+
+        public static string PeekDefinitionError(string errorMessage)
+        {
+            return Keys.GetString(Keys.PeekDefinitionError, errorMessage);
         }
 
         public static string WorkspaceServicePositionColumnOutOfRange(int line)
@@ -579,6 +621,24 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetNoColumnSchema = "QueryServiceResultSetNoColumnSchema";
+
+
+            public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";
+
+
+            public const string PeekDefinitionError = "PeekDefinitionError";
+
+
+            public const string PeekDefinitionNoResultsError = "PeekDefinitionNoResultsError";
+
+
+            public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
+
+
+            public const string PeekDefinitionTimedoutError = "PeekDefinitionTimedoutError";
+
+
+            public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
 
 
             public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";

@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -216,6 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
                 Logger.Write(LogLevel.Verbose, "Shutting down language service");
+                DeletePeekDefinitionScripts();
                 await Task.FromResult(0);
             });
 
@@ -236,6 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Store the SqlToolsContext for future use
             Context = context;
+
         }
 
         #endregion
@@ -282,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        private static async Task HandleCompletionResolveRequest(
+        internal static async Task HandleCompletionResolveRequest(
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
@@ -300,28 +303,37 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
+            // Send a notification to signal that definition is sent
+            await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+            {
+                Params = new TelemetryProperties
+                {
+                    EventName = TelemetryEventNames.PeekDefinitionRequested
+                }
+            });
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, TelemetryEventNames.PeekDefinitionRequested);
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
             {
                 // Retrieve document and connection
                 ConnectionInfo connInfo;
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-
-                Location[] locations = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
-                if (locations != null)
-                {
-                    await requestContext.SendResult(locations);
-
-                    // Send a notification to signal that definition is sent
-                    await ServiceHost.Instance.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                if (definitionResult != null)
+                {   
+                    if (definitionResult.IsErrorResult)
                     {
-                        Params = new TelemetryProperties
-                        {
-                            EventName = TelemetryEventNames.PeekDefinitionRequested
-                        }
-                    });
+                        await requestContext.SendError( new DefinitionError { message = definitionResult.Message });
+                    }
+                    else
+                    {
+                        await requestContext.SendResult(definitionResult.Locations);
+                    }                    
                 }
             }
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
 // turn off this code until needed (10/28/2016)
@@ -341,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 #endif
 
-        private static async Task HandleSignatureHelpRequest(
+        internal static async Task HandleSignatureHelpRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
@@ -685,7 +697,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal Location[] GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
@@ -723,27 +735,57 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             int parserLine = textDocumentPosition.Position.Line + 1;
                             int parserColumn = textDocumentPosition.Position.Character + 1;
                             IEnumerable<Declaration> declarationItems = Resolver.FindCompletions(
-                                scriptParseInfo.ParseResult, 
-                                parserLine, parserColumn, 
+                                scriptParseInfo.ParseResult,
+                                parserLine, parserColumn,
                                 bindingContext.MetadataDisplayInfoProvider);
 
                             // Match token with the suggestions(declaration items) returned
-                            string schemaName = GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection);
-                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);                        
+
+                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
+                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
+                        },
+                        timeoutOperation: (bindingContext) =>
+                        {
+                            // return error result
+                            return new DefinitionResult
+                            {
+                                IsErrorResult = true,
+                                Message = SR.PeekDefinitionTimedoutError,
+                                Locations = null
+                            };
                         });
 
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
-                    return queueItem.GetResultAsT<Location[]>();
+                    return queueItem.GetResultAsT<DefinitionResult>();
+                }
+                catch (Exception ex)
+                {
+                    // if any exceptions are raised return error result with message
+                    Logger.Write(LogLevel.Error, "Exception in GetDefinition " + ex.ToString());
+                    return new DefinitionResult
+                    {
+                        IsErrorResult = true,
+                        Message = SR.PeekDefinitionError(ex.Message),
+                        Locations = null
+                    };
                 }
                 finally
                 {
                     Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                 }
             }
-
-            return null;
+            else
+            {
+                // User is not connected.
+                return new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = SR.PeekDefinitionNotConnectedError,
+                    Locations = null
+                };
+            }
         }
 
         /// <summary>
@@ -752,7 +794,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptParseInfo"></param>
         /// <param name="position"></param>
         /// <param name="scriptFile"></param>
-        /// <returns> schema nama</returns>
+        /// <returns> schema name</returns>
         private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
         {
             // Offset index by 1 for sql parser
@@ -1038,11 +1080,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception e)
             {
-                Logger.Write(
-                    LogLevel.Error,
-                    string.Format(
-                        "Exception while cancelling analysis task:\n\n{0}",
-                        e.ToString()));
+                Logger.Write(LogLevel.Error, string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
 
                 TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
                 cancelTask.SetCanceled();
@@ -1166,7 +1204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private bool RemoveScriptParseInfo(string uri)
+        internal bool RemoveScriptParseInfo(string uri)
         {
             lock (this.parseMapLock)
             {
@@ -1185,7 +1223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Returns a flag indicating if the ScriptFile refers to the output window.
         /// </summary>
         /// <param name="scriptFile"></param>
-        private bool IsPreviewWindow(ScriptFile scriptFile)
+        internal bool IsPreviewWindow(ScriptFile scriptFile)
         {
             if (scriptFile != null && !string.IsNullOrWhiteSpace(scriptFile.ClientFilePath))
             {
@@ -1194,6 +1232,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             else
             {
                 return false;
+            }
+        }
+
+        internal void DeletePeekDefinitionScripts()
+        {
+            // Delete temp folder created to store peek definition scripts
+            if (FileUtils.SafeDirectoryExists(FileUtils.PeekDefinitionTempFolder))
+            {
+                FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
             }
         }
     }

@@ -150,6 +150,21 @@ QueryServiceResultSetRowCountOutOfRange = Row count must be a positive integer
 QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for result set
 
 ############################################################################
+# Language Service
+
+PeekDefinitionAzureError(string errorMessage) = This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}
+
+PeekDefinitionError(string errorMessage) = An unexpected error occurred during Peek Definition execution: {0}
+
+PeekDefinitionNoResultsError = No results were found.
+
+PeekDefinitionNotConnectedError = Please connect to a server.
+
+PeekDefinitionTimedoutError = Operation timed out.
+
+PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
+
+############################################################################
 # Workspace Service
 
 WorkspaceServicePositionLineOutOfRange = Position is outside of file line range

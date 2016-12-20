@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Functions to use for writing various types to a file
         /// </summary>
-        private readonly Dictionary<Type, Func<object, DbColumnWrapper, int>> writeMethods;
+        private readonly Dictionary<Type, Func<object, int>> writeMethods;
 
         #endregion
 
@@ -74,78 +74,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             this.maxXmlCharsToStore = maxXmlCharsToStore;
 
             // Define what methods to use to write a type to the file
-            writeMethods = new Dictionary<Type, Func<object, DbColumnWrapper, int>>
+            writeMethods = new Dictionary<Type, Func<object, int>>
             {
-                {typeof(string),         (val, col) => WriteString((string) val)},
-                {typeof(short),          (val, col) => WriteInt16((short) val)},
-                {typeof(int),            (val, col) => WriteInt32((int) val)},
-                {typeof(long),           (val, col) => WriteInt64((long) val)},
-                {typeof(byte),           (val, col) => WriteByte((byte) val)},
-                {typeof(char),           (val, col) => WriteChar((char) val)},
-                {typeof(bool),           (val, col) => WriteBoolean((bool) val)},
-                {typeof(double),         (val, col) => WriteDouble((double) val) },
-                {typeof(float),          (val, col) => WriteSingle((float) val) },
-                {typeof(decimal),        (val, col) => WriteDecimal((decimal) val) },
-                {typeof(DateTime),       (val, col) => WriteDateTime(col, (DateTime) val) },
-                {typeof(DateTimeOffset), (val, col) => WriteDateTimeOffset((DateTimeOffset) val) },
-                {typeof(TimeSpan),       (val, col) => WriteTimeSpan((TimeSpan) val) },
-                {typeof(byte[]),         (val, col) => WriteBytes((byte[]) val)},
+                {typeof(string), val => WriteString((string) val)},
+                {typeof(short), val => WriteInt16((short) val)},
+                {typeof(int), val => WriteInt32((int) val)},
+                {typeof(long), val => WriteInt64((long) val)},
+                {typeof(byte), val => WriteByte((byte) val)},
+                {typeof(char), val => WriteChar((char) val)},
+                {typeof(bool), val => WriteBoolean((bool) val)},
+                {typeof(double), val => WriteDouble((double) val) },
+                {typeof(float), val => WriteSingle((float) val) },
+                {typeof(decimal), val => WriteDecimal((decimal) val) },
+                {typeof(DateTime), val => WriteDateTime((DateTime) val) },
+                {typeof(DateTimeOffset), val => WriteDateTimeOffset((DateTimeOffset) val) },
+                {typeof(TimeSpan), val => WriteTimeSpan((TimeSpan) val) },
+                {typeof(byte[]), val => WriteBytes((byte[]) val)},
 
-                {
-                    typeof(SqlString),
-                    (val, col) => WriteNullable((SqlString) val, obj => WriteString((string) obj))
-                },
-                {
-                    typeof(SqlInt16),
-                    (val, col) => WriteNullable((SqlInt16) val, obj => WriteInt16((short) obj))
-                },
-                {
-                    typeof(SqlInt32),
-                    (val, col) => WriteNullable((SqlInt32) val, obj => WriteInt32((int) obj))
-                },
-                {
-                    typeof(SqlInt64),
-                    (val, col) => WriteNullable((SqlInt64) val, obj => WriteInt64((long) obj))
-                },
-                {
-                    typeof(SqlByte),
-                    (val, col) => WriteNullable((SqlByte) val, obj => WriteByte((byte) obj))
-                },
-                {
-                    typeof(SqlBoolean),
-                    (val, col) => WriteNullable((SqlBoolean) val, obj => WriteBoolean((bool) obj)) },
-                {
-                    typeof(SqlDouble),
-                    (val, col) => WriteNullable((SqlDouble) val, obj => WriteDouble((double) obj))
-                },
-                {
-                    typeof(SqlSingle),
-                    (val, col) => WriteNullable((SqlSingle) val, obj => WriteSingle((float) obj))
-                },
-                {
-                    typeof(SqlDecimal),
-                    (val, col) => WriteNullable((SqlDecimal) val, obj => WriteSqlDecimal((SqlDecimal) obj))
-                },
-                {
-                    typeof(SqlDateTime),
-                    (val, col) => WriteNullable((SqlDateTime) val, obj => WriteDateTime(col, (DateTime) obj))
-                },
-                {
-                    typeof(SqlBytes),
-                    (val, col) => WriteNullable((SqlBytes) val, obj => WriteBytes((byte[]) obj))
-                },
-                {
-                    typeof(SqlBinary),
-                    (val, col) => WriteNullable((SqlBinary) val, obj => WriteBytes((byte[]) obj))
-                },
-                {
-                    typeof(SqlGuid),
-                    (val, col) => WriteNullable((SqlGuid) val, obj => WriteGuid((Guid) obj))
-                },
-                {
-                    typeof(SqlMoney),
-                    (val, col) => WriteNullable((SqlMoney) val, obj => WriteMoney((SqlMoney) obj))
-                }
+                {typeof(SqlString), val => WriteNullable((SqlString) val, obj => WriteString((string) obj))},
+                {typeof(SqlInt16), val => WriteNullable((SqlInt16) val, obj => WriteInt16((short) obj))},
+                {typeof(SqlInt32), val => WriteNullable((SqlInt32) val, obj => WriteInt32((int) obj))},
+                {typeof(SqlInt64), val => WriteNullable((SqlInt64) val, obj => WriteInt64((long) obj)) },
+                {typeof(SqlByte), val => WriteNullable((SqlByte) val, obj => WriteByte((byte) obj)) },
+                {typeof(SqlBoolean), val => WriteNullable((SqlBoolean) val, obj => WriteBoolean((bool) obj)) },
+                {typeof(SqlDouble), val => WriteNullable((SqlDouble) val, obj => WriteDouble((double) obj)) },
+                {typeof(SqlSingle), val => WriteNullable((SqlSingle) val, obj => WriteSingle((float) obj)) },
+                {typeof(SqlDecimal), val => WriteNullable((SqlDecimal) val, obj => WriteSqlDecimal((SqlDecimal) obj)) },
+                {typeof(SqlDateTime), val => WriteNullable((SqlDateTime) val, obj => WriteDateTime((DateTime) obj)) },
+                {typeof(SqlBytes), val => WriteNullable((SqlBytes) val, obj => WriteBytes((byte[]) obj)) },
+                {typeof(SqlBinary), val => WriteNullable((SqlBinary) val, obj => WriteBytes((byte[]) obj)) },
+                {typeof(SqlGuid), val => WriteNullable((SqlGuid) val, obj => WriteGuid((Guid) obj)) },
+                {typeof(SqlMoney), val => WriteNullable((SqlMoney) val, obj => WriteMoney((SqlMoney) obj)) }
             };
         }
 
@@ -181,12 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
                     else
                     {
-                        if (!ci.IsLong)
-                        {
-                            // not a long field 
-                            values[i] = reader.GetValue(i);
-                        }
-                        else
+                        if (ci.IsLong.HasValue && ci.IsLong.Value)
                         {
                             // this is a long field
                             if (ci.IsBytes)
@@ -210,6 +164,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                                 Debug.Assert(false);
                             }
                         }
+                        else
+                        {
+                            // not a long field 
+                            values[i] = reader.GetValue(i);
+                        }
                     }
                 }
 
@@ -231,10 +190,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
 
                     // Use the appropriate writing method for the type
-                    Func<object, DbColumnWrapper, int> writeMethod;
+                    Func<object, int> writeMethod;
                     if (writeMethods.TryGetValue(tVal, out writeMethod))
                     {
-                        rowBytes += writeMethod(values[i], ci);
+                        rowBytes += writeMethod(values[i]);
                     }
                     else
                     {
@@ -413,25 +372,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Writes a DateTime to the file as precision and ticks
+        /// Writes a DateTime to the file
         /// </summary>
         /// <returns>Number of bytes used to store the DateTime</returns>
-        public int WriteDateTime(DbColumnWrapper col, DateTime dtVal)
+        public int WriteDateTime(DateTime dtVal)
         {
-            // Length
-            var length = WriteLength(12);
-
-            // Precision
-            intBuffer[0] = col.NumericScale ?? 3;
-            Buffer.BlockCopy(intBuffer, 0, byteBuffer, 0, 4);
-
-            // Ticks
-            longBuffer[0] = dtVal.Ticks;
-            Buffer.BlockCopy(longBuffer, 0, byteBuffer, 4, 8);
-
-            length += FileUtils.WriteWithLength(fileStream, byteBuffer, 12);
-
-            return length;
+            return WriteInt64(dtVal.Ticks);
         }
 
         /// <summary>

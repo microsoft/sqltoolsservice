@@ -17,7 +17,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     public class ServiceBufferFileStreamReader : IFileStreamReader
     {
+
+        #region Constants
+
         private const int DefaultBufferSize = 8192;
+        private const string DateFormatString = "yyyy-MM-dd";
+        private const string TimeFormatString = "HH:mm:ss";
+
+        #endregion
 
         #region Member Variables
 
@@ -25,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private readonly Stream fileStream;
 
-        private readonly Dictionary<Type, Func<long, FileStreamReadResult>> readMethods;
+        private readonly Dictionary<Type, Func<long, DbColumnWrapper, FileStreamReadResult>> readMethods;
 
         #endregion
 
@@ -46,37 +53,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             buffer = new byte[DefaultBufferSize];
 
             // Create the methods that will be used to read back
-            readMethods = new Dictionary<Type, Func<long, FileStreamReadResult>>
+            readMethods = new Dictionary<Type, Func<long, DbColumnWrapper, FileStreamReadResult>>
             {
-                {typeof(string), ReadString},
-                {typeof(short), ReadInt16},
-                {typeof(int), ReadInt32},
-                {typeof(long), ReadInt64},
-                {typeof(byte), ReadByte},
-                {typeof(char), ReadChar},
-                {typeof(bool), ReadBoolean},
-                {typeof(double), ReadDouble},
-                {typeof(float), ReadSingle},
-                {typeof(decimal), ReadDecimal},
-                {typeof(DateTime), ReadDateTime},
-                {typeof(DateTimeOffset), ReadDateTimeOffset},
-                {typeof(TimeSpan), ReadTimeSpan},
-                {typeof(byte[]), ReadBytes},
+                {typeof(string),         (o, col) => ReadString(o)},
+                {typeof(short),          (o, col) => ReadInt16(o)},
+                {typeof(int),            (o, col) => ReadInt32(o)},
+                {typeof(long),           (o, col) => ReadInt64(o)},
+                {typeof(byte),           (o, col) => ReadByte(o)},
+                {typeof(char),           (o, col) => ReadChar(o)},
+                {typeof(bool),           (o, col) => ReadBoolean(o)},
+                {typeof(double),         (o, col) => ReadDouble(o)},
+                {typeof(float),          (o, col) => ReadSingle(o)},
+                {typeof(decimal),        (o, col) => ReadDecimal(o)},
+                {typeof(DateTime),       ReadDateTime},
+                {typeof(DateTimeOffset), (o, col) => ReadDateTimeOffset(o)},
+                {typeof(TimeSpan),       (o, col) => ReadTimeSpan(o)},
+                {typeof(byte[]),         (o, col) => ReadBytes(o)},
 
-                {typeof(SqlString), ReadString},
-                {typeof(SqlInt16), ReadInt16},
-                {typeof(SqlInt32), ReadInt32},
-                {typeof(SqlInt64), ReadInt64},
-                {typeof(SqlByte), ReadByte},
-                {typeof(SqlBoolean), ReadBoolean},
-                {typeof(SqlDouble), ReadDouble},
-                {typeof(SqlSingle), ReadSingle},
-                {typeof(SqlDecimal), ReadSqlDecimal},
-                {typeof(SqlDateTime), ReadDateTime},
-                {typeof(SqlBytes), ReadBytes},
-                {typeof(SqlBinary), ReadBytes},
-                {typeof(SqlGuid), ReadGuid},
-                {typeof(SqlMoney), ReadMoney},
+                {typeof(SqlString),      (o, col) => ReadString(o)},
+                {typeof(SqlInt16),       (o, col) => ReadInt16(o)},
+                {typeof(SqlInt32),       (o, col) => ReadInt32(o)},
+                {typeof(SqlInt64),       (o, col) => ReadInt64(o)},
+                {typeof(SqlByte),        (o, col) => ReadByte(o)},
+                {typeof(SqlBoolean),     (o, col) => ReadBoolean(o)},
+                {typeof(SqlDouble),      (o, col) => ReadDouble(o)},
+                {typeof(SqlSingle),      (o, col) => ReadSingle(o)},
+                {typeof(SqlDecimal),     (o, col) => ReadSqlDecimal(o)},
+                {typeof(SqlDateTime),    ReadDateTime},
+                {typeof(SqlBytes),       (o, col) => ReadBytes(o)},
+                {typeof(SqlBinary),      (o, col) => ReadBytes(o)},
+                {typeof(SqlGuid),        (o, col) => ReadGuid(o)},
+                {typeof(SqlMoney),       (o, col) => ReadMoney(o)},
             };
         }
 
@@ -129,13 +136,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
 
                 // Use the right read function for the type to read the data from the file
-                Func<long, FileStreamReadResult> readFunc;
+                Func<long, DbColumnWrapper, FileStreamReadResult> readFunc;
                 if(!readMethods.TryGetValue(colType, out readFunc))
                 {
                     // Treat everything else as a string
-                    readFunc = ReadString;
+                    readFunc = readMethods[typeof(string)];
                 } 
-                FileStreamReadResult result = readFunc(currentFileOffset);
+                FileStreamReadResult result = readFunc(currentFileOffset, column);
                 currentFileOffset += result.TotalLength;
                 results.Add(result.Value);
             }
@@ -309,29 +316,45 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a DateTime from the file at the offset provided
         /// </summary>
         /// <param name="offset">Offset into the file to read the DateTime from</param>
+        /// <param name="col">Column metadata, used for determining what precision to output</param>
         /// <returns>A DateTime</returns>
-        internal FileStreamReadResult ReadDateTime(long offset)
+        internal FileStreamReadResult ReadDateTime(long offset, DbColumnWrapper col)
         {
-            int precision = 0;
-
-            return ReadCellHelper(offset,
-                length =>
+            return ReadCellHelper(offset, length =>
+            {
+                long ticks = BitConverter.ToInt64(buffer, 0);
+                return new DateTime(ticks);
+            }, null, dt =>
+            {
+                // Switch based on the type of column
+                string formatString;
+                if (col.DataTypeName.Equals("DATE", StringComparison.OrdinalIgnoreCase))
                 {
-                    precision = BitConverter.ToInt32(buffer, 0);
-                    long ticks = BitConverter.ToInt64(buffer, 4);
-                    return new DateTime(ticks);
-                }, null,
-                time =>
+                    // DATE columns should only show the date
+                    formatString = DateFormatString;
+                }
+                else if (col.DataTypeName.StartsWith("DATETIME", StringComparison.OrdinalIgnoreCase))
                 {
-                    string format = "yyyy-MM-dd HH:mm:ss";
-                    if (precision > 0)
+                    // DATETIME and DATETIME2 columns should show date, time, and a variable number
+                    // of milliseconds (for DATETIME, it is fixed at 3, but returned as null)
+                    // If for some strange reason a scale > 7 is sent, we will cap it at 7 to avoid
+                    // an exception from invalid date/time formatting
+                    int scale = Math.Min(col.NumericScale ?? 3, 7);
+                    formatString = $"{DateFormatString} {TimeFormatString}";
+                    if (scale > 0)
                     {
-                        // Output the number milliseconds equivalent to the precision
-                        // NOTE: string('f', precision) will output ffff for precision=4
-                        format += "." + new string('f', precision);
+                        string millisecondString = new string('f', scale);
+                        formatString += $".{millisecondString}";
                     }
-                    return time.ToString(format);
-                });
+                }
+                else
+                {
+                    // For anything else that returns as a CLR DateTime, just show date and time
+                    formatString = $"{DateFormatString} {TimeFormatString}";
+                }
+
+                return dt.ToString(formatString);
+            });
         }
 
         /// <summary>
@@ -420,7 +443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Reads a SqlMoney type from the offset provided
         /// into a 
         /// </summary>
-        /// <param name="offset"></param>
+        /// <param name="offset">Offset into the file to read the value</param>
         /// <returns>A sql money type object</returns>
         internal FileStreamReadResult ReadMoney(long offset)
         {
