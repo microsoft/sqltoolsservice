@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public delegate Task OnConnectionHandler(ConnectionInfo info);
 
         /// <summary>
-        // Callback for ondisconnect handler
+        /// Callback for ondisconnect handler
         /// </summary>
         public delegate Task OnDisconnectHandler(ConnectionSummary summary, string ownerUri);
 

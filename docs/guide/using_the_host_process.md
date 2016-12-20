@@ -1,6 +1,6 @@
-# Using the SQL Tools Service JSON-RPC API
+# Using the JSON-RPC API
 
-The SQL Tools Service JSON-RPC API provides an host-agnostic interface for
+The JSON-RPC API provides an host-agnostic interface for
 leveraging the core .NET API.
 
 ## Launching the Host Process
@@ -16,8 +16,6 @@ string since different parts of the message format could be sent with different 
 It is expected that an editor will launch one instance of the host process for each SQL
 'workspace' that the user has opened.  Generally this would map to a single top-level folder
 which contains all of the user's SQL script files for a given project.
-
-
 
 ## Messages overview
 
