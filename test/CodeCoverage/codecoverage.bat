@@ -18,6 +18,7 @@ dotnet build %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json 
 REM run the tests through OpenCover and generate a report
 dotnet build %WORKINGDIR%..\..\test\Microsoft.SqlTools.ServiceLayer.Test\project.json %DOTNETCONFIG% 
 dotnet build %WORKINGDIR%..\..\test\Microsoft.SqlTools.ServiceLayer.TestDriver\project.json %DOTNETCONFIG%
+dotnet build %WORKINGDIR%..\..\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\project.json %DOTNETCONFIG% 
 
 SET TEST_SERVER=localhost
 SET SQLTOOLSSERVICE_EXE=%WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp1.0\win7-x64\Microsoft.SqlTools.ServiceLayer.exe
