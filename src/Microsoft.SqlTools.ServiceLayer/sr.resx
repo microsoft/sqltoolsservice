@@ -296,7 +296,7 @@
     <value>Result cannot be saved until query execution has completed</value>
     <comment></comment>
   </data>
-  <data name="QueryServiceSaveAsMscStartingError" xml:space="preserve">
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
     <value>Internal error occurred while starting save task</value>
     <comment></comment>
   </data>

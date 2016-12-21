@@ -486,7 +486,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             };
             ResultSet.SaveAsFailureAsyncEventHandler errorHandler = async (parameters, reason) =>
             {
-                // TODO: Put this into the strings file
                 string message = SR.QueryServiceSaveAsFail(Path.GetFileName(parameters.FilePath), reason);
                 await requestContext.SendError(new SaveResultRequestError { message = message });
             };

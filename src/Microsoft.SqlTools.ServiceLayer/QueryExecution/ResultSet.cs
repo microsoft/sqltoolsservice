@@ -301,7 +301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // The task has completed, so let's attempt to remove it
                     if (!SaveTasks.TryRemove(saveParams.FilePath, out existingTask))
                     {
-                        throw new InvalidOperationException(SR.QueryServiceSaveAsMscStartingError);
+                        throw new InvalidOperationException(SR.QueryServiceSaveAsMiscStartingError);
                     }
                 }
                 else
@@ -355,7 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // If saving the task fails, return a failure
             if (!SaveTasks.TryAdd(saveParams.FilePath, saveAsTask))
             {
-                throw new InvalidOperationException(SR.QueryServiceSaveAsMscStartingError);
+                throw new InvalidOperationException(SR.QueryServiceSaveAsMiscStartingError);
             }
 
             // Task was saved, so start up the task

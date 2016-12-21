@@ -317,11 +317,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string QueryServiceSaveAsMscStartingError
+        public static string QueryServiceSaveAsMiscStartingError
         {
             get
             {
-                return Keys.GetString(Keys.QueryServiceSaveAsMscStartingError);
+                return Keys.GetString(Keys.QueryServiceSaveAsMiscStartingError);
             }
         }
 
@@ -602,7 +602,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceSaveAsResultSetNotComplete = "QueryServiceSaveAsResultSetNotComplete";
 
 
-            public const string QueryServiceSaveAsMscStartingError = "QueryServiceSaveAsMscStartingError";
+            public const string QueryServiceSaveAsMiscStartingError = "QueryServiceSaveAsMiscStartingError";
 
 
             public const string QueryServiceSaveAsInProgress = "QueryServiceSaveAsInProgress";
