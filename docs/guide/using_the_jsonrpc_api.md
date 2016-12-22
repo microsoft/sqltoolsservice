@@ -1,4 +1,4 @@
-# Using the JSON-RPC API
+# Using the SQL Tools JSON-RPC API
 
 > NOTE: The [API Reference](../api/index.md) is the best starting point for working directly with
 > the .NET API.
