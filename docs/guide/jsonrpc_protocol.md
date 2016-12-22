@@ -58,6 +58,9 @@ Language Service
 
 Connection Management
 
+* :leftwards_arrow_with_hook: [connection/cancelconnect](#connect_cancelconnect)
+* :arrow_right: [connection/connectionchanged](#connection_connectionchanged)
+
 Query Execution
 
 
@@ -1413,4 +1416,48 @@ Right now, language and debugging service generally run separately.
 ## Language Service
 
 `started` event, etc
+
+## Connection Management
+
+### <a name="connect_cancelconnect"></a>Cancel Connection
+
+Cancel an active connection request.
+
+Request
+
+```typescript
+    public class CancelConnectParams
+    {
+        /// <summary>
+        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
+        /// or a virtual file representing an object in a database.         
+        /// </summary>
+        public string OwnerUri { get; set;  }
+    }
+```
+
+Response
+
+```typescript
+    bool
+```
+
+### <a name="connection_connectionchanged"></a>Connection Changed
+
+Connection changed notification
+
+```typescript
+    public class ConnectionChangedParams
+    {
+        /// <summary>
+        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
+        /// or a virtual file representing an object in a database.         
+        /// </summary>
+        public string OwnerUri { get; set; }
+        /// <summary>
+        /// Contains the high-level properties about the connection, for display to the user.
+        /// </summary>
+        public ConnectionSummary Connection { get; set; }
+    }
+```
 
