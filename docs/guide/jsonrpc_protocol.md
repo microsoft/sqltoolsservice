@@ -1,4 +1,4 @@
-# Using the JSON-RPC API
+# JSON-RPC Protocol
 
 The JSON-RPC API provides an host-agnostic interface for
 leveraging the core .NET API.
@@ -19,28 +19,31 @@ which contains all of the user's SQL script files for a given project.
 
 ## Messages overview
 
+The SQL Tools Service implements portions of the 
+[language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md)
+defined by VS Code.  Some portions of this protocol reference have been duplicated here for 
+convenience.  
+
+It additionally implements several other API to provide database management
+services such as connection management or query execution.
+
+This document provides the protocol specification for all the service's JSON-RPC APIs.
+
 General
 
 * :leftwards_arrow_with_hook: [initialize](#initialize) 
 * :leftwards_arrow_with_hook: [shutdown](#shutdown) 
 * :arrow_right: [exit](#exit) 
 * :arrow_right: [$/cancelRequest](#cancelRequest)
+* :arrow_right: [workspace/didChangeConfiguration](#workspace_didChangeConfiguration) 
+* :arrow_right: [workspace/didChangeWatchedFiles](#workspace_didChangeWatchedFiles) 
 
-Window
+Language Service
 
 * :arrow_left: [window/showMessage](#window_showMessage) 
 * :arrow_right_hook: [window/showMessageRequest](#window_showMessageRequest) 
 * :arrow_left: [window/logMessage](#window_logMessage) 
 * :arrow_left: [telemetry/event](#telemetry_event) 
-
-Workspace
-
-* :arrow_right: [workspace/didChangeConfiguration](#workspace_didChangeConfiguration) 
-* :arrow_right: [workspace/didChangeWatchedFiles](#workspace_didChangeWatchedFiles) 
-* :leftwards_arrow_with_hook: [workspace/symbol](#workspace_symbol) 
-
-Document
-
 * :arrow_left: [textDocument/publishDiagnostics](#textDocument_publishDiagnostics) 
 * :arrow_right: [textDocument/didChange](#textDocument_didChange)  
 * :arrow_right: [textDocument/didClose](#textDocument_didClose) 
@@ -51,18 +54,12 @@ Document
 * :leftwards_arrow_with_hook: [textDocument/hover](#textDocument_hover) 
 * :leftwards_arrow_with_hook: [textDocument/signatureHelp](#textDocument_signatureHelp) 
 * :leftwards_arrow_with_hook: [textDocument/references](#textDocument_references) 
-* :leftwards_arrow_with_hook: [textDocument/documentHighlight](#textDocument_documentHighlight) 
-* :leftwards_arrow_with_hook: [textDocument/documentSymbol](#textDocument_documentSymbol) 
-* :leftwards_arrow_with_hook: [textDocument/formatting](#textDocument_formatting) 
-* :leftwards_arrow_with_hook: [textDocument/rangeFormatting](#textDocument_rangeFormatting) 
-* :leftwards_arrow_with_hook: [textDocument/onTypeFormatting](#textDocument_onTypeFormatting) 
 * :leftwards_arrow_with_hook: [textDocument/definition](#textDocument_definition) 
-* :leftwards_arrow_with_hook: [textDocument/codeAction](#textDocument_codeAction) 
-* :leftwards_arrow_with_hook: [textDocument/codeLens](#textDocument_codeLens) 
-* :leftwards_arrow_with_hook: [codeLens/resolve](#codeLens_resolve) 
-* :leftwards_arrow_with_hook: [textDocument/documentLink](#textDocument_documentLink) 
-* :leftwards_arrow_with_hook: [documentLink/resolve](#documentLink_resolve) 
-* :leftwards_arrow_with_hook: [textDocument/rename](#textDocument_rename) 
+
+Connection Management
+
+Query Execution
+
 
 # Message Protocol
 
