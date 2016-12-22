@@ -31,13 +31,14 @@ This document provides the protocol specification for all the service's JSON-RPC
 
 ### Connection Management
 
+* :leftwards_arrow_with_hook: [connection/connect](#connect_connect)
 * :leftwards_arrow_with_hook: [connection/cancelconnect](#connect_cancelconnect)
 * :arrow_right: [connection/connectionchanged](#connection_connectionchanged)
 * :arrow_right: [connection/complete](#connection_complete)
+* :arrow_right: [connection/disconnect](#connection_disconnect)
 
 ### Query Execution
 * :leftwards_arrow_with_hook: [query/execute](#query_execute)
-
 
 ### Language Service Protocol
 
@@ -312,6 +313,36 @@ functionaltiy provided by the SQL Tools Service.
 
 ## Connection Management
 
+### <a name="connection_connect"></a>`connection/connect`
+
+Establish a connection to a database server.
+
+#### Request
+
+```typescript
+    public class ConnectParams
+    {
+        /// <summary>
+        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
+        /// or a virtual file representing an object in a database.         
+        /// </summary>
+        public string OwnerUri { get; set;  }
+        /// <summary>
+        /// Contains the required parameters to initialize a connection to a database.
+        /// A connection will identified by its server name, database name and user name.
+        /// This may be changed in the future to support multiple connections with different 
+        /// connection properties to the same database.
+        /// </summary>
+        public ConnectionDetails Connection { get; set; }
+    }
+```
+
+#### Response
+
+```typescript
+    bool
+```
+
 ### <a name="connect_cancelconnect"></a>`connect/cancelconnect`
 
 Cancel an active connection request.
@@ -403,10 +434,58 @@ Connection complete event.
     }
 ```
 
+### <a name="connection_disconnect"></a>`connection/disconnect`
+
+Disconnect the connection specified in the request.
+
+#### Request
+
+```typescript
+    public class DisconnectParams
+    {
+        /// <summary>
+        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
+        /// or a virtual file representing an object in a database.         
+        /// </summary>
+        public string OwnerUri { get; set; }
+    }
+```
+
+#### Response
+
+```typescript
+    bool
+```
+
+### <a name="connection_listdatabases"></a>`connection/listdatabases`
+
+Return a list of databases on the server associated with the active connection.
+
+#### Request
+
+```typescript
+    public class ListDatabasesParams
+    {
+        /// <summary>
+        /// URI of the owner of the connection requesting the list of databases.
+        /// </summary>
+        public string OwnerUri { get; set; }
+    }
+```
+
+#### Response
+
+```typescript
+    public class ListDatabasesResponse
+    {
+        /// <summary>
+        /// Gets or sets the list of database names.
+        /// </summary>
+        public string[] DatabaseNames { get; set; }
+    }
+```
+
 ## Query Execution
-
-
-
 
 ### <a name="query_execute"></a>`query/execute`
 
