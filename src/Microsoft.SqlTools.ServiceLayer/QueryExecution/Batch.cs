@@ -368,6 +368,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return targetResultSet.GetSubset(startRow, rowCount);
         }
 
+        /// <summary>
+        /// Saves a result to a file format selected by the user
+        /// </summary>
+        /// <param name="saveParams">Parameters for the save as request</param>
+        /// <param name="fileFactory">
+        /// Factory for creating the reader/writer pair for outputing to the selected format
+        /// </param>
+        /// <param name="successHandler">Delegate to call when request successfully completes</param>
+        /// <param name="failureHandler">Delegate to call if the request fails</param>
+        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
+            ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
+        {
+            // Get the result set to save
+            ResultSet resultSet;
+            lock (resultSets)
+            {
+                // Sanity check to make sure we have a valid result set
+                if (saveParams.ResultSetIndex < 0 || saveParams.ResultSetIndex >= resultSets.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(saveParams.BatchIndex), SR.QueryServiceSubsetResultSetOutOfRange);
+                }
+
+
+                resultSet = resultSets[saveParams.ResultSetIndex];
+            }
+            resultSet.SaveAs(saveParams, fileFactory, successHandler, failureHandler);
+        }
+
         #endregion
 
         #region Private Helpers

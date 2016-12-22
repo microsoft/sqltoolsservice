@@ -82,6 +82,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        internal static int WriteWithLength(Stream stream, byte[] buffer, int length)
+        {
+            stream.Write(buffer, 0, length);
+            return length;
+        }
+
         /// <summary>
         /// Checks if file exists and swallows exceptions, if any
         /// </summary>

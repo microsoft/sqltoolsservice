@@ -150,6 +150,58 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return results;
         }
 
+        #endregion
+
+        #region Private Helpers
+
+        /// <summary>
+        /// Creates a new buffer that is of the specified length if the buffer is not already
+        /// at least as long as specified.
+        /// </summary>
+        /// <param name="newBufferLength">The minimum buffer size</param>
+        private void AssureBufferLength(int newBufferLength)
+        {
+            if (buffer.Length < newBufferLength)
+            {
+                buffer = new byte[newBufferLength];
+            }
+        }
+
+        /// <summary>
+        /// Reads the value of a cell from the file wrapper, checks to see if it null using
+        /// <paramref name="isNullFunc"/>, and converts it to the proper output type using
+        /// <paramref name="convertFunc"/>.
+        /// </summary>
+        /// <param name="offset">Offset into the file to read from</param>
+        /// <param name="convertFunc">Function to use to convert the buffer to the target type</param>
+        /// <param name="isNullFunc">
+        /// If provided, this function will be used to determine if the value is null
+        /// </param>
+        /// <param name="toStringFunc">Optional function to use to convert the object to a string.</param>
+        /// <typeparam name="T">The expected type of the cell. Used to keep the code honest</typeparam>
+        /// <returns>The object, a display value, and the length of the value + its length</returns>
+        private FileStreamReadResult ReadCellHelper<T>(long offset, Func<int, T> convertFunc, Func<int, bool> isNullFunc = null, Func<T, string> toStringFunc = null)
+        {
+            LengthResult length = ReadLength(offset);
+            DbCellValue result = new DbCellValue();
+
+            if (isNullFunc == null ? length.ValueLength == 0 : isNullFunc(length.TotalLength))
+            {
+                result.RawObject = null;
+                result.DisplayValue = null;
+            }
+            else
+            {
+                AssureBufferLength(length.ValueLength);
+                fileStream.Read(buffer, 0, length.ValueLength);
+                T resultObject = convertFunc(length.ValueLength);
+                result.RawObject = resultObject;
+                result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);
+            }
+
+            return new FileStreamReadResult(result, length.TotalLength);
+        }
+
         /// <summary>
         /// Reads a short from the file at the offset provided
         /// </summary>
@@ -317,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return ReadCellHelper(offset, length => {
                 long dtTicks = BitConverter.ToInt64(buffer, 0);
                 long dtOffset = BitConverter.ToInt64(buffer, 8);
-                return new DateTimeOffset(new DateTime(dtTicks), new TimeSpan(dtOffset)); 
+                return new DateTimeOffset(new DateTime(dtTicks), new TimeSpan(dtOffset));
             });
         }
 
@@ -408,7 +460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the field length from</param>
         /// <returns>A LengthResult</returns>
-        internal LengthResult ReadLength(long offset)
+        private LengthResult ReadLength(long offset)
         {
             // read in length information
             int lengthValue;
@@ -428,59 +480,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 lengthValue = BitConverter.ToInt32(buffer, 0);
             }
 
-            return new LengthResult {LengthLength = lengthLength, ValueLength = lengthValue};
-        }
-
-        #endregion
-
-        #region Private Helpers
-
-        /// <summary>
-        /// Creates a new buffer that is of the specified length if the buffer is not already
-        /// at least as long as specified.
-        /// </summary>
-        /// <param name="newBufferLength">The minimum buffer size</param>
-        private void AssureBufferLength(int newBufferLength)
-        {
-            if (buffer.Length < newBufferLength)
-            {
-                buffer = new byte[newBufferLength];
-            }
-        }
-
-        /// <summary>
-        /// Reads the value of a cell from the file wrapper, checks to see if it null using
-        /// <paramref name="isNullFunc"/>, and converts it to the proper output type using
-        /// <paramref name="convertFunc"/>.
-        /// </summary>
-        /// <param name="offset">Offset into the file to read from</param>
-        /// <param name="convertFunc">Function to use to convert the buffer to the target type</param>
-        /// <param name="isNullFunc">
-        /// If provided, this function will be used to determine if the value is null
-        /// </param>
-        /// <param name="toStringFunc">Optional function to use to convert the object to a string.</param>
-        /// <typeparam name="T">The expected type of the cell. Used to keep the code honest</typeparam>
-        /// <returns>The object, a display value, and the length of the value + its length</returns>
-        private FileStreamReadResult ReadCellHelper<T>(long offset, Func<int, T> convertFunc, Func<int, bool> isNullFunc = null, Func<T, string> toStringFunc = null)
-        {
-            LengthResult length = ReadLength(offset);
-            DbCellValue result = new DbCellValue();
-
-            if (isNullFunc == null ? length.ValueLength == 0 : isNullFunc(length.TotalLength))
-            {
-                result.RawObject = null;
-                result.DisplayValue = null;
-            }
-            else
-            {
-                AssureBufferLength(length.ValueLength);
-                fileStream.Read(buffer, 0, length.ValueLength);
-                T resultObject = convertFunc(length.ValueLength);
-                result.RawObject = resultObject;
-                result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);
-            }
-
-            return new FileStreamReadResult(result, length.TotalLength);
+            return new LengthResult { LengthLength = lengthLength, ValueLength = lengthValue };
         }
 
         #endregion

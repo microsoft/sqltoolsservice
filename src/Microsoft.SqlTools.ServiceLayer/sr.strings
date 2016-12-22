@@ -129,7 +129,17 @@ QueryServiceMessageSenderNotSql = Sender for OnInfoMessage event must be a SqlCo
 
 QueryServiceResultSetReaderNull = Reader cannot be null
 
-### MSC
+### Save As Requests
+
+QueryServiceSaveAsResultSetNotComplete = Result cannot be saved until query execution has completed
+
+QueryServiceSaveAsMiscStartingError = Internal error occurred while starting save task
+
+QueryServiceSaveAsInProgress = A save request to the same path is in progress
+
+QueryServiceSaveAsFail(string fileName, string message) = Failed to save {0}: {1}
+
+### MISC
 
 QueryServiceResultSetNotRead = Cannot read subset unless the results have been read from the server
 

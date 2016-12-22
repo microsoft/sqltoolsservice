@@ -292,6 +292,23 @@
     <value>Reader cannot be null</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>Result cannot be saved until query execution has completed</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>Internal error occurred while starting save task</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>A save request to the same path is in progress</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>Failed to save {0}: {1}</value>
+    <comment>.
+ Parameters: 0 - fileName (string), 1 - message (string) </comment>
+  </data>
   <data name="QueryServiceResultSetNotRead" xml:space="preserve">
     <value>Cannot read subset unless the results have been read from the server</value>
     <comment></comment>
