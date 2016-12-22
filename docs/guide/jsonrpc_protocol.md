@@ -17,7 +17,7 @@ It is expected that an editor will launch one instance of the host process for e
 'workspace' that the user has opened.  Generally this would map to a single top-level folder
 which contains all of the user's SQL script files for a given project.
 
-## Messages overview
+## Messages Overview
 
 The SQL Tools Service implements portions of the 
 [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md)
