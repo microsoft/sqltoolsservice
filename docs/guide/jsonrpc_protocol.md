@@ -34,16 +34,11 @@ General
 * :leftwards_arrow_with_hook: [initialize](#initialize) 
 * :leftwards_arrow_with_hook: [shutdown](#shutdown) 
 * :arrow_right: [exit](#exit) 
-* :arrow_right: [$/cancelRequest](#cancelRequest)
 * :arrow_right: [workspace/didChangeConfiguration](#workspace_didChangeConfiguration) 
 * :arrow_right: [workspace/didChangeWatchedFiles](#workspace_didChangeWatchedFiles) 
 
 Language Service
 
-* :arrow_left: [window/showMessage](#window_showMessage) 
-* :arrow_right_hook: [window/showMessageRequest](#window_showMessageRequest) 
-* :arrow_left: [window/logMessage](#window_logMessage) 
-* :arrow_left: [telemetry/event](#telemetry_event) 
 * :arrow_left: [textDocument/publishDiagnostics](#textDocument_publishDiagnostics) 
 * :arrow_right: [textDocument/didChange](#textDocument_didChange)  
 * :arrow_right: [textDocument/didClose](#textDocument_didClose) 
@@ -60,9 +55,10 @@ Connection Management
 
 * :leftwards_arrow_with_hook: [connection/cancelconnect](#connect_cancelconnect)
 * :arrow_right: [connection/connectionchanged](#connection_connectionchanged)
+* :arrow_right: [connection/connectionchanged](#connection_complete)
 
 Query Execution
-
+* :leftwards_arrow_with_hook: [query/execute](#query_execute)
 
 # Message Protocol
 
@@ -116,12 +112,6 @@ An event gets sent by the host process when
 - `event`: The name of the event type to which this event relates
 - `body`: A JSON object body for the event, varies per each `event` type
 
-
-
-
-
-
-
 ## Base Protocol
 
 The base protocol consists of a header and a content part (comparable to HTTP). The header and content part are
@@ -148,7 +138,6 @@ The header part is encoded using the 'ascii' encoding. This includes the '\r\n' 
 ### Content Part
 
 Contains the actual content of the message. The content part of a message uses [JSON-RPC](http://www.jsonrpc.org/) to describe requests, responses and notifications. The content part is encoded using the charset provided in the Content-Type field. It defaults to 'utf8', which is the only encoding supported right now. 
-
 
 ### Example:
 
@@ -271,24 +260,6 @@ interface NotificationMessage extends Message {
 }
 ```
 
-#### <a name="cancelRequest"></a> Cancellation Support
-
->**New:** The base protocol now offers support for request cancellation. To cancel a request, a notification message with the following properties is sent:
- 
-_Notification_:
-* method: '$/cancelRequest'
-* params: `CancelParams` defined as follows:
-```typescript
-interface CancelParams {
-	/**
-	 * The request id to cancel.
-	 */
-	id: number | string;
-}
-```
-
-A request that got canceled still needs to return from the server and send a response back. It can not be left open / hanging. This is in line with the JSON RPC protocol that requires that every request sends a response back. In addition it allows for returning partial results on cancel.
-
 ## Language Server Protocol
 
 The language server protocol defines a set of JSON-RPC request, response and notification messages which are exchanged using the above base protocol. This section starts describing the basic JSON structures used in the protocol. The document uses TypeScript interfaces to describe these. Based on the basic JSON structures, the actual requests with their responses and the notifications are described.
@@ -312,7 +283,6 @@ scheme     authority       path        query   fragment
 ```
 
 We also maintain a node module to parse a string into `scheme`, `authority`, `path`, `query`, and `fragment` URI components. The GitHub repository is [https://github.com/Microsoft/vscode-uri](https://github.com/Microsoft/vscode-uri) the npm module is [https://www.npmjs.com/package/vscode-uri](https://www.npmjs.com/package/vscode-uri).
-
 
 #### Position
 
@@ -358,14 +328,6 @@ interface Location {
 	range: Range;
 }
 ```
-
-
-
-
-
-
-
-
 
 
 
@@ -423,7 +385,7 @@ No response is needed for this command.
 
 ### `change`
 
-This request is sent by the editor when the user changes the contents of a PowerShell file that has previously
+This request is sent by the editor when the user changes the contents of a SQL file that has previously
 been opened in the language service.  Depending on how the request arguments are specified, the file change could
 either be an arbitrary-length string insertion, region delete, or region replacement.
 
@@ -446,7 +408,7 @@ inserted.  In the specified range.
       "type": "request",
       "command": "change",
       "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1",
+        "file": "c:/Users/UserName/Documents/test.sql",
         "line": 39,
         "offset": 5,
         "endLine": 39,
@@ -460,33 +422,6 @@ inserted.  In the specified range.
 
 No response is needed for this command.
 
-### `geterr`
-
-This request causes script diagnostics to be performed on a list of script file paths.  The editor
-will typically send this request after every successful `change` request (though it is best to throttle
-these requests on the editor side so that it doesn't overwhelm the host).  Responses will be sent back
-as `syntaxDiag` and `semanticDiag` events.
-
-#### Request
-
-The arguments for this request specify the list of `files` to be analyzed (sorted by those most recently changed)
-and a millisecond `delay` value which instructs the language service to wait for some period before performing
-diagnostics.  If another `geterr` request is sent before the specified `delay` expires, the original request will
-be cancelled server-side and a new delay period will start.
-
-```json
-    {
-      "seq": 1,
-      "type": "request",
-      "command": "geterr",
-      "arguments": {
-        "delay": 750,
-        "files": [
-          "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1"
-        ]
-      }
-    }
-```
 
 ## Code Completions
 
@@ -637,51 +572,6 @@ be cancelled server-side and a new delay period will start.
     }
 ````
 
-## Symbol Operations
-
-### `definition`
-
-#### Request
-
-```json
-    {
-      "seq": 20,
-      "type": "request",
-      "command": "definition",
-      "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/StopTest.ps1",
-        "line": 8,
-        "offset": 10
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 20,
-      "success": true,
-      "command": "definition",
-      "message": null,
-      "body": [
-        {
-          "file": "c:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\Stop-Process2.ps1",
-          "start": {
-            "line": 11,
-            "offset": 10
-          },
-          "end": {
-            "line": 11,
-            "offset": 23
-          }
-        }
-      ],
-      "seq": 0,
-      "type": "response"
-    }
-```
-
 ### `references`
 
 #### Request
@@ -732,619 +622,7 @@ be cancelled server-side and a new delay period will start.
     }
 ```
 
-### `occurrences`
-
-#### Request
-
-```json
-    {
-      "seq": 53,
-      "type": "request",
-      "command": "occurrences",
-      "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1",
-        "line": 32,
-        "offset": 17
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 53,
-      "success": true,
-      "command": "occurrences",
-      "message": null,
-      "body": [
-        {
-          "isWriteAccess": true,
-          "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1",
-          "start": {
-            "line": 32,
-            "offset": 13
-          },
-          "end": {
-            "line": 32,
-            "offset": 21
-          }
-        },
-        {
-          "isWriteAccess": true,
-          "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1",
-          "start": {
-            "line": 35,
-            "offset": 11
-          },
-          "end": {
-            "line": 35,
-            "offset": 19
-          }
-        },
-
-        ... more occurrences ...
-
-      ],
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-## Debugger Operations
-
-### `initialize`
-
-### `launch`
-
-This request is sent by the editor when the user wants to launch a given script file in the
-debugger.
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 3,
-      "command": "launch",
-      "arguments": {
-        "program": "c:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\DebugTest.ps1",
-        "stopOnEntry": false,
-        "arguments": null,
-        "workingDirectory": "c:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples",
-        "runtimeExecutable": null,
-        "runtimeArguments": null
-      }
-    }
-```
-
-```json
-    {
-      "request_seq": 3,
-      "success": true,
-      "command": "launch",
-      "message": null,
-      "body": null,
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `disconnect`
-
-This request is sent by the editor when the user wants to terminate the debugging session before
-the script completes.  When this message is received, execution of the script is aborted and the
-instance of the host process is aborted.
-
-*NOTE: For now, it is assumed that debugging will be performed in a separate instance of the
- host process.  This will change in the next couple of minor releases.*
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 22,
-      "command": "disconnect",
-      "arguments": {
-        "extensionHostData": {
-          "restart": false
-        }
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 0,
-      "success": false,
-      "command": "disconnect",
-      "message": null,
-      "body": null,
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `setBreakpoints`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 2,
-      "command": "setBreakpoints",
-      "arguments": {
-        "source": {
-          "path": "c:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\DebugTest.ps1"
-        },
-        "lines": [
-          10
-        ]
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 2,
-      "success": true,
-      "command": "setBreakpoints",
-      "message": null,
-      "body": {
-        "breakpoints": [
-          {
-            "verified": true,
-            "line": 10
-          }
-        ]
-      },
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `pause`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 4,
-      "command": "pause"
-    }
-```
-
-#### Response
-
-No response needed for this command.  The debugging service will send a `stopped` event
-when execution is stopped due to this request.
-
-### `continue`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 9,
-      "command": "continue"
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 9,
-      "success": true,
-      "command": "continue",
-      "message": null,
-      "body": null,
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `next`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 9,
-      "command": "next"
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 9,
-      "success": true,
-      "command": "next",
-      "message": null,
-      "body": null,
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `stepIn`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 13,
-      "command": "stepIn"
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 13,
-      "success": true,
-      "command": "stepIn",
-      "message": null,
-      "body": null,
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `stepOut`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 17,
-      "command": "stepOut"
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 17,
-      "success": true,
-      "command": "stepOut",
-      "message": null,
-      "body": null,
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `threads`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 5,
-      "command": "threads"
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 5,
-      "success": true,
-      "command": "threads",
-      "message": null,
-      "body": {
-        "threads": [
-          {
-            "id": 1,
-            "name": "Main Thread"
-          }
-        ]
-      },
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `scopes`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 7,
-      "command": "scopes",
-      "arguments": {
-        "frameId": 1
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 7,
-      "success": true,
-      "command": "scopes",
-      "message": null,
-      "body": {
-        "scopes": [
-          {
-            "name": "Locals",
-            "variablesReference": 1,
-            "expensive": false
-          }
-        ]
-      },
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `variables`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 8,
-      "command": "variables",
-      "arguments": {
-        "variablesReference": 1
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 8,
-      "success": true,
-      "command": "variables",
-      "message": null,
-      "body": {
-        "variables": [
-          {
-            "name": "?",
-            "value": "True",
-            "variablesReference": 0
-          },
-          {
-            "name": "args",
-            "value": " ",
-            "variablesReference": 11
-          },
-          {
-            "name": "ConsoleFileName",
-            "value": "",
-            "variablesReference": 0
-          },
-          {
-            "name": "ExecutionContext",
-            "value": " ",
-            "variablesReference": 13
-          },
-          {
-            "name": "false",
-            "value": "False",
-            "variablesReference": 0
-          },
-          {
-            "name": "HOME",
-            "value": "C:\\Users\\daviwil",
-            "variablesReference": 0
-          },
-
-          ... more variables ...
-
-        ]
-      },
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `stackTrace`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 6,
-      "command": "stackTrace",
-      "arguments": {
-        "threadId": 1,
-        "levels": 20
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 6,
-      "success": true,
-      "command": "stackTrace",
-      "message": null,
-      "body": {
-        "stackFrames": [
-          {
-            "id": 1,
-            "name": "Write-Item",
-            "source": {
-              "name": null,
-              "path": "C:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\DebugTest.ps1",
-              "sourceReference": null
-            },
-            "line": 10,
-            "column": 9
-          },
-          {
-            "id": 2,
-            "name": "Do-Work",
-            "source": {
-              "name": null,
-              "path": "C:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\DebugTest.ps1",
-              "sourceReference": null
-            },
-            "line": 18,
-            "column": 5
-          },
-          {
-            "id": 3,
-            "name": "<ScriptBlock>",
-            "source": {
-              "name": null,
-              "path": "C:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\DebugTest.ps1",
-              "sourceReference": null
-            },
-            "line": 23,
-            "column": 1
-          }
-        ]
-      },
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `evaluate`
-
-#### Request
-
-```json
-    {
-      "type": "request",
-      "seq": 13,
-      "command": "evaluate",
-      "arguments": {
-        "expression": "i",
-        "frameId": 1
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 13,
-      "success": true,
-      "command": "evaluate",
-      "message": null,
-      "body": {
-        "result": "2",
-        "variablesReference": 0
-      },
-      "seq": 0,
-      "type": "response"
-    }
-```
-
 # Event Types
-
-## Script Diagnostics
-
-### `syntaxDiag`
-
-```json
-    {
-      "event": "syntaxDiag",
-      "body": {
-        "file": "c:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\DebugTest.ps1",
-        "diagnostics": [
-          {
-            "start": {
-              "line": 3,
-              "offset": 1
-            },
-            "end": {
-              "line": 3,
-              "offset": 2
-            },
-            "text": "Missing closing '}' in statement block or type definition.",
-            "severity": 2
-          }
-        ]
-      },
-      "seq": 0,
-      "type": "event"
-    }
-```
-
-### `semanticDiag`
-
-```json
-    {
-      "event": "semanticDiag",
-      "body": {
-        "file": "c:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\DebugTest.ps1",
-        "diagnostics": [
-          {
-            "start": {
-              "line": 14,
-              "offset": 1
-            },
-            "end": {
-              "line": 21,
-              "offset": 2
-            },
-            "text": "The cmdlet 'Do-Work' uses an unapproved verb.",
-            "severity": 1
-          },
-          {
-            "start": {
-              "line": 20,
-              "offset": 5
-            },
-            "end": {
-              "line": 20,
-              "offset": 23
-            },
-            "text": "File '' uses Write-Host. This is not recommended because it may not work in some hosts or there may even be no hosts at all. Use Write-Output instead.",
-            "severity": 1
-          },
-          {
-            "start": {
-              "line": 18,
-              "offset": 16
-            },
-            "end": {
-              "line": 18,
-              "offset": 26
-            },
-            "text": "Variable 'workcount' is not initialized. Non-global variables must be initialized. To fix a violation of this rule, please initialize non-global variables.",
-            "severity": 1
-          }
-        ]
-      },
-      "seq": 0,
-      "type": "event"
-    }
-```
 
 ## Language Service Events
 
@@ -1363,63 +641,14 @@ has no body and will always be `null`.
     }
 ```
 
-## Debugger Events
+# Database Management Protocol
 
-### `initialized`
-
-```json
-    {
-      "event": "initialized",
-      "body": null,
-      "seq": 0,
-      "type": "event"
-    }
-```
-
-### `stopped`
-
-```json
-    {
-      "event": "stopped",
-      "body": {
-        "reason": "breakpoint",
-        "threadId": 1,
-        "source": {
-          "name": null,
-          "path": "C:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\DebugTest.ps1",
-          "sourceReference": null
-        },
-        "line": 10,
-        "column": 9,
-        "text": null
-      },
-      "seq": 0,
-      "type": "event"
-    }
-```
-
-### `terminated`
-
-```json
-    {
-      "event": "terminated",
-      "body": null,
-      "seq": 0,
-      "type": "event"
-    }
-```
-
-# Host Process Lifecycle
-
-Right now, language and debugging service generally run separately.
-
-## Language Service
-
-`started` event, etc
+The follow section describes the message protocol format for the common database management 
+functionaltiy provided by the SQL Tools Service.
 
 ## Connection Management
 
-### <a name="connect_cancelconnect"></a>Cancel Connection
+### <a name="connect_cancelconnect"></a>`connect/cancelconnect`
 
 Cancel an active connection request.
 
@@ -1442,7 +671,7 @@ Response
     bool
 ```
 
-### <a name="connection_connectionchanged"></a>Connection Changed
+### <a name="connection_connectionchanged"></a>`connection/connectionchanged`
 
 Connection changed notification
 
@@ -1461,3 +690,85 @@ Connection changed notification
     }
 ```
 
+### <a name="connection_complete"></a>`connection/complete`
+
+Connection complete event.
+
+```typescript
+    public class ConnectionCompleteParams
+    {
+        /// <summary>
+        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
+        /// or a virtual file representing an object in a database.         
+        /// </summary>
+        public string OwnerUri { get; set;  }
+
+        /// <summary>
+        /// A GUID representing a unique connection ID
+        /// </summary>
+        public string ConnectionId { get; set; }
+
+        /// <summary>
+        /// Gets or sets any detailed connection error messages.
+        /// </summary>
+        public string Messages { get; set; }
+
+        /// <summary>
+        /// Error message returned from the engine for a connection failure reason, if any.
+        /// </summary>
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Error number returned from the engine for connection failure reason, if any.
+        /// </summary>
+        public int ErrorNumber { get; set; }
+
+        /// <summary>
+        /// Information about the connected server.
+        /// </summary>
+        public ServerInfo ServerInfo { get; set; }
+
+        /// <summary>
+        /// Gets or sets the actual Connection established, including Database Name
+        /// </summary>
+        public ConnectionSummary ConnectionSummary { get; set; }
+    }
+```
+
+## Query Execution
+
+
+
+
+### <a name="query_execute"></a>`query/execute`
+
+Execute a SQL script.
+
+Request
+
+```typescript
+    public class QueryExecuteParams
+    {
+        /// <summary>
+        /// The selection from the document
+        /// </summary>
+        public SelectionData QuerySelection { get; set; }
+
+        /// <summary>
+        /// URI for the editor that is asking for the query execute
+        /// </summary>
+        public string OwnerUri { get; set; }
+    }
+```
+
+Response
+
+```typescript
+    public class QueryExecuteResult
+    {
+        /// <summary>
+        /// Informational messages from the query runner. Optional, can be set to null.
+        /// </summary>
+        public string Messages { get; set; }
+    }
+```
