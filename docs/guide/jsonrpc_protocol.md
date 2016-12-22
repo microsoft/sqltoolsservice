@@ -1,7 +1,7 @@
-# JSON-RPC Protocol
+# SQL Tools JSON-RPC Protocol
 
-The JSON-RPC API provides an host-agnostic interface for
-leveraging the core .NET API.
+The SQL Tools JSON-RPC API provides an host-agnostic interface for the SQL Tools Service functionality.
+The API provides easily consumable operations that allow simple integration into tools applications.
 
 ## Launching the Host Process
 
@@ -29,36 +29,38 @@ services such as connection management or query execution.
 
 This document provides the protocol specification for all the service's JSON-RPC APIs.
 
-General
-
-* :leftwards_arrow_with_hook: [initialize](#initialize) 
-* :leftwards_arrow_with_hook: [shutdown](#shutdown) 
-* :arrow_right: [exit](#exit) 
-* :arrow_right: [workspace/didChangeConfiguration](#workspace_didChangeConfiguration) 
-* :arrow_right: [workspace/didChangeWatchedFiles](#workspace_didChangeWatchedFiles) 
-
-Language Service
-
-* :arrow_left: [textDocument/publishDiagnostics](#textDocument_publishDiagnostics) 
-* :arrow_right: [textDocument/didChange](#textDocument_didChange)  
-* :arrow_right: [textDocument/didClose](#textDocument_didClose) 
-* :arrow_right: [textDocument/didOpen](#textDocument_didOpen) 
-* :arrow_right: [textDocument/didSave](#textDocument_didSave) 
-* :leftwards_arrow_with_hook: [textDocument/completion](#textDocument_completion) 
-* :leftwards_arrow_with_hook: [completionItem/resolve](#completionItem_resolve) 
-* :leftwards_arrow_with_hook: [textDocument/hover](#textDocument_hover) 
-* :leftwards_arrow_with_hook: [textDocument/signatureHelp](#textDocument_signatureHelp) 
-* :leftwards_arrow_with_hook: [textDocument/references](#textDocument_references) 
-* :leftwards_arrow_with_hook: [textDocument/definition](#textDocument_definition) 
-
-Connection Management
+### Connection Management
 
 * :leftwards_arrow_with_hook: [connection/cancelconnect](#connect_cancelconnect)
 * :arrow_right: [connection/connectionchanged](#connection_connectionchanged)
-* :arrow_right: [connection/connectionchanged](#connection_complete)
+* :arrow_right: [connection/complete](#connection_complete)
 
-Query Execution
+### Query Execution
 * :leftwards_arrow_with_hook: [query/execute](#query_execute)
+
+
+### Language Service Protocol
+
+Documentation for the Language Service Protocol is available at 
+[language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md).
+The SQL Tools Service implements the following portion Language Service Protocol.
+
+* :leftwards_arrow_with_hook: [initialize](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#initialize) 
+* :leftwards_arrow_with_hook: [shutdown](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#shutdown) 
+* :arrow_right: [exit](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#exit) 
+* :arrow_right: [workspace/didChangeConfiguration](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#workspace_didChangeConfiguration) 
+* :arrow_right: [workspace/didChangeWatchedFiles](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#workspace_didChangeWatchedFiles) 
+* :arrow_left: [textDocument/publishDiagnostics](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_publishDiagnostics) 
+* :arrow_right: [textDocument/didChange](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didChange)  
+* :arrow_right: [textDocument/didClose](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didClose) 
+* :arrow_right: [textDocument/didOpen](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didOpen) 
+* :arrow_right: [textDocument/didSave](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didSave) 
+* :leftwards_arrow_with_hook: [textDocument/completion](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_completion) 
+* :leftwards_arrow_with_hook: [completionItem/resolve](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#completionItem_resolve) 
+* :leftwards_arrow_with_hook: [textDocument/hover](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_hover) 
+* :leftwards_arrow_with_hook: [textDocument/signatureHelp](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_signatureHelp) 
+* :leftwards_arrow_with_hook: [textDocument/references](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_references) 
+* :leftwards_arrow_with_hook: [textDocument/definition](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_definition) 
 
 # Message Protocol
 
@@ -260,130 +262,13 @@ interface NotificationMessage extends Message {
 }
 ```
 
-## Language Server Protocol
+## Example Request and Response Message
 
-The language server protocol defines a set of JSON-RPC request, response and notification messages which are exchanged using the above base protocol. This section starts describing the basic JSON structures used in the protocol. The document uses TypeScript interfaces to describe these. Based on the basic JSON structures, the actual requests with their responses and the notifications are described.
+See the [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md) 
+for more details on the protocol formats for these Langauge Service events.  Below is an example of the JSON-RPC
+message format for the `textDocument/didChange` message.
 
-The protocol currently assumes that one server serves one tool. There is currently no support in the protocol to share one server between different tools. Such a sharing would require additional protocol to either lock a document to support concurrent editing.
-
-### Basic JSON Structures
-
-#### URI
-
-URI's are transferred as strings. The URI's format is defined in [http://tools.ietf.org/html/rfc3986](http://tools.ietf.org/html/rfc3986)
-
-```
-  foo://example.com:8042/over/there?name=ferret#nose
-  \_/   \______________/\_________/ \_________/ \__/
-   |           |            |            |        |
-scheme     authority       path        query   fragment
-   |   _____________________|__
-  / \ /                        \
-  urn:example:animal:ferret:nose
-```
-
-We also maintain a node module to parse a string into `scheme`, `authority`, `path`, `query`, and `fragment` URI components. The GitHub repository is [https://github.com/Microsoft/vscode-uri](https://github.com/Microsoft/vscode-uri) the npm module is [https://www.npmjs.com/package/vscode-uri](https://www.npmjs.com/package/vscode-uri).
-
-#### Position
-
-Position in a text document expressed as zero-based line and character offset. A position is between two characters like an 'insert' cursor in a editor.
-
-```typescript
-interface Position {
-	/**
-	 * Line position in a document (zero-based).
-	 */
-	line: number;
-
-	/**
-	 * Character offset on a line in a document (zero-based).
-	 */
-	character: number;
-}
-```
-#### Range
-
-A range in a text document expressed as (zero-based) start and end positions. A range is comparable to a selection in an editor. Therefore the end position is exclusive.
-
-```typescript
-interface Range {
-	/**
-	 * The range's start position.
-	 */
-	start: Position;
-
-	/**
-	 * The range's end position.
-	 */
-	end: Position;
-}
-```
-
-#### Location
-
-Represents a location inside a resource, such as a line inside a text file.
-```typescript
-interface Location {
-	uri: string;
-	range: Range;
-}
-```
-
-
-
-# Request and Response Types
-
-## File Management
-
-### `open`
-
-This request is sent by the editor when the user opens a file with a known PowerShell extension.  It causes
-the file to be opened by the language service and parsed for syntax errors.
-
-#### Request
-
-The arguments object specifies the absolute file path to be loaded.
-
-```json
-    {
-      "seq": 0,
-      "type": "request",
-      "command": "open",
-      "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1"
-      }
-    }
-```
-
-#### Response
-
-No response is needed for this command.
-
-### `close`
-
-This request is sent by the editor when the user closes a file with a known PowerShell extension which was
-previously opened in the language service.
-
-#### Request
-
-The arguments object specifies the absolute file path to be closed.
-
-```json
-    {
-      "seq": 3,
-      "type": "request",
-      "command": "close",
-      "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1"
-      }
-    }
-```
-
-#### Response
-
-No response is needed for this command.
-
-### `change`
+### `textDocument/didChange`
 
 This request is sent by the editor when the user changes the contents of a SQL file that has previously
 been opened in the language service.  Depending on how the request arguments are specified, the file change could
@@ -399,8 +284,6 @@ The arguments for this request specify the absolute path of the `file` being cha
 of the edit that the user performed.  The `line`/`endLine` and `offset`/`endOffset` (column) numbers indicate the
 1-based range of the file that is being replaced.  The `insertString` field indicates the string that will be
 inserted.  In the specified range.
-
-*NOTE: In the very near future, all file locations will be specified with zero-based coordinates.*
 
 ```json
     {
@@ -422,225 +305,6 @@ inserted.  In the specified range.
 
 No response is needed for this command.
 
-
-## Code Completions
-
-### `completions`
-
-### Request
-
-```json
-    {
-      "seq": 34,
-      "type": "request",
-      "command": "completions",
-      "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1",
-        "line": 34,
-        "offset": 9
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 34,
-      "success": true,
-      "command": "completions",
-      "message": null,
-      "body": [
-        {
-          "name": "Get-Acl",
-          "kind": "method",
-          "kindModifiers": null,
-          "sortText": null
-        },
-        {
-          "name": "Get-Alias",
-          "kind": "method",
-          "kindModifiers": null,
-          "sortText": null
-        },
-        {
-          "name": "Get-AliasPattern",
-          "kind": "method",
-          "kindModifiers": null,
-          "sortText": null
-        },
-        {
-          "name": "Get-AppLockerFileInformation",
-          "kind": "method",
-          "kindModifiers": null,
-          "sortText": null
-        },
-        {
-          "name": "Get-AppLockerPolicy",
-          "kind": "method",
-          "kindModifiers": null,
-          "sortText": null
-        },
-        {
-          "name": "Get-AppxDefaultVolume",
-          "kind": "method",
-          "kindModifiers": null,
-          "sortText": null
-        },
-
-        ... many more completions ...
-
-      ],
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `completionEntryDetails`
-
-#### Request
-
-```json
-    {
-      "seq": 37,
-      "type": "request",
-      "command": "completionEntryDetails",
-      "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1",
-        "line": 34,
-        "offset": 9,
-        "entryNames": [
-          "Get-Acl"
-        ]
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 37,
-      "success": true,
-      "command": "completionEntryDetails",
-      "message": null,
-      "body": [
-        {
-          "name": null,
-          "kind": null,
-          "kindModifiers": null,
-          "displayParts": null,
-          "documentation": null,
-          "docString": null
-        }
-      ],
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-### `signatureHelp`
-
-#### Request
-
-```json
-    {
-      "seq": 36,
-      "type": "request",
-      "command": "signatureHelp",
-      "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1",
-        "line": 34,
-        "offset": 9
-      }
-    }
-```
-
-#### Response
-
-** TODO: This is a bad example, find another**
-
-```json
-    {
-      "request_seq": 36,
-      "success": true,
-      "command": "signatureHelp",
-      "message": null,
-      "body": null,
-      "seq": 0,
-      "type": "response"
-    }
-````
-
-### `references`
-
-#### Request
-
-```json
-    {
-      "seq": 2,
-      "type": "request",
-      "command": "references",
-      "arguments": {
-        "file": "c:/Users/daviwil/.vscode/extensions/vscode-powershell/examples/Stop-Process2.ps1",
-        "line": 38,
-        "offset": 12
-      }
-    }
-```
-
-#### Response
-
-```json
-    {
-      "request_seq": 2,
-      "success": true,
-      "command": "references",
-      "message": null,
-      "body": {
-        "refs": [
-          {
-            "lineText": "\t\t\tforeach ($process in $processes)",
-            "isWriteAccess": true,
-            "file": "c:\\Users\\daviwil\\.vscode\\extensions\\vscode-powershell\\examples\\Stop-Process2.ps1",
-            "start": {
-              "line": 32,
-              "offset": 13
-            },
-            "end": {
-              "line": 32,
-              "offset": 21
-            }
-          }
-        ],
-        "symbolName": "$process",
-        "symbolStartOffest": 690,
-        "symbolDisplayString": "$process"
-      },
-      "seq": 0,
-      "type": "response"
-    }
-```
-
-# Event Types
-
-## Language Service Events
-
-### `started`
-
-This message is sent as soon as the language service finishes initializing.  The editor will
-wait for this message to be received before it starts sending requests to the host.  This event
-has no body and will always be `null`.
-
-```json
-    {
-      "event": "started",
-      "body": null,
-      "seq": 0,
-      "type": "event"
-    }
-```
-
 # Database Management Protocol
 
 The follow section describes the message protocol format for the common database management 
@@ -652,7 +316,7 @@ functionaltiy provided by the SQL Tools Service.
 
 Cancel an active connection request.
 
-Request
+#### Request
 
 ```typescript
     public class CancelConnectParams
@@ -665,7 +329,7 @@ Request
     }
 ```
 
-Response
+#### Response
 
 ```typescript
     bool
@@ -674,6 +338,8 @@ Response
 ### <a name="connection_connectionchanged"></a>`connection/connectionchanged`
 
 Connection changed notification
+
+#### Request
 
 ```typescript
     public class ConnectionChangedParams
@@ -693,6 +359,8 @@ Connection changed notification
 ### <a name="connection_complete"></a>`connection/complete`
 
 Connection complete event.
+
+#### Request
 
 ```typescript
     public class ConnectionCompleteParams
@@ -744,7 +412,7 @@ Connection complete event.
 
 Execute a SQL script.
 
-Request
+#### Request
 
 ```typescript
     public class QueryExecuteParams
@@ -761,7 +429,7 @@ Request
     }
 ```
 
-Response
+#### Response
 
 ```typescript
     public class QueryExecuteResult
