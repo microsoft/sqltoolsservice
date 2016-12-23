@@ -68,6 +68,9 @@ A connection is required to work with many language service and query execution 
 ([src link](https://github.com/Microsoft/sqltoolsservice/blob/dev/src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs)) 
 is the class that implements the connection management protocol.
 
+
+<img src='../images/connectionservice.png' width='650px' />
+
 ## Query Execution
 The Query Execution component provides the ability to execute SQL scripts against SQL Server instances.
 This functionality builds onto the support in System.Data to provide features batch processing support 
