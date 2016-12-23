@@ -1,6 +1,6 @@
 # SQL Tools JSON-RPC Protocol
 
-The SQL Tools JSON-RPC API provides an host-agnostic interface for the SQL Tools Service functionality.
+The SQL Tools JSON-RPC API provides a host-agnostic interface for the SQL Tools Service functionality.
 The API provides easily consumable operations that allow simple integration into tools applications.
 
 ## Launching the Host Process
@@ -17,7 +17,7 @@ It is expected that an editor will launch one instance of the host process for e
 'workspace' that the user has opened.  Generally this would map to a single top-level folder
 which contains all of the user's SQL script files for a given project.
 
-## Messages overview
+## Messages Overview
 
 The SQL Tools Service implements portions of the 
 [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md)
@@ -39,6 +39,9 @@ This document provides the protocol specification for all the service's JSON-RPC
 
 ### Query Execution
 * :leftwards_arrow_with_hook: [query/execute](#query_execute)
+* :leftwards_arrow_with_hook: [query/subset](#query_subset)
+* :leftwards_arrow_with_hook: [query/saveCsv](#query_saveCsv)
+* :leftwards_arrow_with_hook: [query/saveJson](#query_saveJson)
 
 ### Language Service Protocol
 
@@ -82,7 +85,7 @@ The common fields shared between all message types are as follows:
 
 - `seq`: A sequence number that increases with each message sent from the editor to the host.
   Even though this field shows up on all message types, it is generally only used to correlate
-  reponse messages to the initial request that caused it.
+  response messages to the initial request that caused it.
 - `type`: The type of message being transmitted, either `request`, `response`, or `event`.
 
 ### Request Fields
@@ -263,10 +266,10 @@ interface NotificationMessage extends Message {
 }
 ```
 
-## Example Request and Response Message
+## Example JSON-RPC Message Format
 
 See the [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md) 
-for more details on the protocol formats for these Langauge Service events.  Below is an example of the JSON-RPC
+for more details on the protocol formats for these Language Service events.  Below is an example of the JSON-RPC
 message format for the `textDocument/didChange` message.
 
 ### `textDocument/didChange`
@@ -309,7 +312,9 @@ No response is needed for this command.
 # Database Management Protocol
 
 The follow section describes the message protocol format for the common database management 
-functionaltiy provided by the SQL Tools Service.
+functionality provided by the SQL Tools Service.  The message formats are described as 
+C# classes.  These classes are packaged inside the common message structures documented above
+and serialized to JSON using JSON.Net.
 
 ## Connection Management
 
@@ -515,6 +520,226 @@ Execute a SQL script.
     {
         /// <summary>
         /// Informational messages from the query runner. Optional, can be set to null.
+        /// </summary>
+        public string Messages { get; set; }
+    }
+```
+
+### <a name="query_subset"></a>`query/subset`
+
+Retrieve a subset of a query results.
+
+#### Request
+
+```typescript
+    public class QueryExecuteSubsetParams
+    {
+        /// <summary>
+        /// URI for the file that owns the query to look up the results for
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Index of the batch to get the results from
+        /// </summary>
+        public int BatchIndex { get; set; }
+
+        /// <summary>
+        /// Index of the result set to get the results from
+        /// </summary>
+        public int ResultSetIndex { get; set; }
+
+        /// <summary>
+        /// Beginning index of the rows to return from the selected resultset. This index will be
+        /// included in the results.
+        /// </summary>
+        public int RowsStartIndex { get; set; }
+
+        /// <summary>
+        /// Number of rows to include in the result of this request. If the number of the rows 
+        /// exceeds the number of rows available after the start index, all available rows after
+        /// the start index will be returned.
+        /// </summary>
+        public int RowsCount { get; set; }
+    }
+```
+
+#### Response
+
+```typescript
+    public class QueryExecuteSubsetResult
+    {
+        /// <summary>
+        /// Subset request error messages. Optional, can be set to null to indicate no errors
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
+        /// The requested subset of results. Optional, can be set to null to indicate an error
+        /// </summary>
+        public ResultSetSubset ResultSubset { get; set; }
+    }
+```
+
+### <a name="query_saveCsv"></a>`query/saveCsv`
+
+Save a resultset as CSV to a file.
+
+#### Request
+
+```typescript
+    public class SaveResultsRequestParams
+    {
+        /// <summary>
+        /// The path of the file to save results in
+        /// </summary>
+        public string FilePath { get; set; }
+
+        /// <summary>
+        /// Index of the batch to get the results from
+        /// </summary>
+        public int BatchIndex { get; set; }
+
+        /// <summary>
+        /// Index of the result set to get the results from
+        /// </summary>
+        public int ResultSetIndex { get; set; }
+
+        /// <summary>
+        /// URI for the editor that called save results
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Start index of the selected rows (inclusive)
+        /// </summary>
+        public int? RowStartIndex { get; set; }
+
+        /// <summary>
+        /// End index of the selected rows (inclusive)
+        /// </summary>
+        public int? RowEndIndex { get; set; }
+        
+        /// <summary>
+        /// Start index of the selected columns (inclusive)
+        /// </summary>
+        /// <returns></returns>
+        public int? ColumnStartIndex { get; set; }
+
+        /// <summary>
+        /// End index of the selected columns (inclusive)
+        /// </summary>
+        /// <returns></returns>
+        public int? ColumnEndIndex { get; set; }
+
+        /// <summary>
+        /// Check if request is a subset of result set or whole result set
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsSaveSelection
+        {
+            get
+            {
+                return ColumnStartIndex.HasValue && ColumnEndIndex.HasValue
+                       && RowStartIndex.HasValue && RowEndIndex.HasValue;
+            }
+        }
+    }
+
+    public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams
+    {
+        /// <summary>
+        /// Include headers of columns in CSV
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+    }
+```
+
+#### Response
+
+```typescript
+    public class SaveResultRequestResult
+    {
+        /// <summary>
+        /// Error messages for saving to file. 
+        /// </summary>
+        public string Messages { get; set; }
+    }
+```
+
+### <a name="query_saveJson"></a>`query/saveJson`
+
+Save a resultset as JSON to a file.
+
+#### Request
+
+```typescript
+    public class SaveResultsRequestParams
+    {
+        /// <summary>
+        /// The path of the file to save results in
+        /// </summary>
+        public string FilePath { get; set; }
+
+        /// <summary>
+        /// Index of the batch to get the results from
+        /// </summary>
+        public int BatchIndex { get; set; }
+
+        /// <summary>
+        /// Index of the result set to get the results from
+        /// </summary>
+        public int ResultSetIndex { get; set; }
+
+        /// <summary>
+        /// URI for the editor that called save results
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Start index of the selected rows (inclusive)
+        /// </summary>
+        public int? RowStartIndex { get; set; }
+
+        /// <summary>
+        /// End index of the selected rows (inclusive)
+        /// </summary>
+        public int? RowEndIndex { get; set; }
+        
+        /// <summary>
+        /// Start index of the selected columns (inclusive)
+        /// </summary>
+        /// <returns></returns>
+        public int? ColumnStartIndex { get; set; }
+
+        /// <summary>
+        /// End index of the selected columns (inclusive)
+        /// </summary>
+        /// <returns></returns>
+        public int? ColumnEndIndex { get; set; }
+
+        /// <summary>
+        /// Check if request is a subset of result set or whole result set
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsSaveSelection
+        {
+            get
+            {
+                return ColumnStartIndex.HasValue && ColumnEndIndex.HasValue
+                       && RowStartIndex.HasValue && RowEndIndex.HasValue;
+            }
+        }
+    }
+```
+
+#### Response
+
+```typescript
+    public class SaveResultRequestResult
+    {
+        /// <summary>
+        /// Error messages for saving to file. 
         /// </summary>
         public string Messages { get; set; }
     }

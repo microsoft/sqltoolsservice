@@ -72,7 +72,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// <summary>
     /// Parameters to save results as CSV
     /// </summary>
-    public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams{
+    public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams
+    {
         /// <summary>
         /// Include headers of columns in CSV
         /// </summary>
@@ -82,7 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// <summary>
     /// Parameters to save results as JSON
     /// </summary>
-    public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams{
+    public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams
+    {
         //TODO: define config for save as JSON
     }
 
