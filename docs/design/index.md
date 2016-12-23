@@ -69,7 +69,7 @@ A connection is required to work with many language service and query execution 
 is the class that implements the connection management protocol.
 
 
-<img src='../images/connectionservice.png' width='650px' />
+<img src='../images/connectionservice.png' width='600px' />
 
 ## Query Execution
 The Query Execution component provides the ability to execute SQL scripts against SQL Server instances.
