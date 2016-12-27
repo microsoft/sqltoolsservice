@@ -335,6 +335,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
         }
 
         [Fact]
+        public void ConstructorShouldThrowExceptionGivenNullDeclarion()
+        {
+            string tokenText = "";
+            Assert.Throws<ArgumentException>(() => new SqlCompletionItem(null, tokenText));
+        }
+
+        [Fact]
         public void InsertTextShouldIncludeBracketGivenNameWithSpecialCharacter()
         {
             string declarationTitle = "name @";

@@ -164,17 +164,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
 
         internal class TestScriptDocumentInfo : ScriptDocumentInfo
         {
-            public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo)
+            public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo, 
+                string tokenText = null)
                 :base(textDocumentPosition, scriptFile, scriptParseInfo)
             {
-                
+                this.tokenText = string.IsNullOrEmpty(tokenText) ? "doesntmatchanythingintheintellisensedefaultlist" : tokenText;
             }
+
+            private string tokenText;
             
             public override string TokenText
             {
                 get
                 {
-                    return "doesntmatchanythingintheintellisensedefaultlist";
+                    return this.tokenText;
                 }
             }
         }
@@ -195,6 +198,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
                 }, scriptFile, scriptInfo);
       
             AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
+
+        }
+
+        [Fact]
+        public void GetDefaultCompletionListWithMatchesTest()
+        {
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("koko wants a bananas");
+
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = false };
+
+            var scriptDocumentInfo = new TestScriptDocumentInfo(
+                new TextDocumentPosition()
+                {
+                    TextDocument = new TextDocumentIdentifier() { Uri = TestObjects.ScriptUri },
+                    Position = new Position() { Line = 0, Character = 0 }
+                }, scriptFile, scriptInfo, "all");
+
+            CompletionItem[] result = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
+            Assert.Equal(result.Length, 1);
 
         }
 
