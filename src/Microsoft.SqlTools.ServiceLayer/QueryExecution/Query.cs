@@ -78,6 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 BatchSeparator = settings.BatchSeparator
             });
+
             // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
             var batchSelection = parseResult.Script.Batches
                 .Where(batch => batch.Statements.Count > 0)
@@ -89,7 +90,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             batch.EndLocation.LineNumber - 1,
                             batch.EndLocation.ColumnNumber - 1),
                         index, outputFactory));
-            Batches = batchSelection.ToArray();
+
+
+            // Turn on Actual Execution Showplan settings 
+            if (settings.ReturnActualExecutionPlan == true) {
+                //Turn on settings by creating a new batch and concatinating the queries to it (not copying previous queries)
+                batchSelection = new[] {new Batch("set statistics XML on", new SelectionData(0,0,0,0), 0, outputFactory)}.Concat(batchSelection);
+                
+                // //Turn off settings by concatinating a new batch to the end of the queries (not copying previous queries)
+                batchSelection = batchSelection.Concat(new[] {new Batch("set statistics XML off", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)});
+           }
+
+           // Filling the Batches array 
+           Batches = batchSelection.ToArray();
+
+           // Reseting query IDs for proper output 
+           for (int index = 0; index < Batches.Length; index++) {
+               Batches[index].Id = index;
+           }
+
         }
 
         #region Events

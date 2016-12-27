@@ -26,6 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         private const int DefaultMaxXmlCharsToStore = 2097152; // 2 MB - QE default
 
+        /// <summary>
+        /// Default selection of returning an actual XML showplan with all batches
+        /// </summary>
+        private const bool DefaultReturnActualExecutionPlan = false; // do not return actual execution plan by default
+
         #endregion
 
         #region Member Variables
@@ -35,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private int? maxCharsToStore;
 
         private int? maxXmlCharsToStore;
+
+        private bool? returnActualExecutionPlan;
 
         #endregion
 
@@ -61,6 +68,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             set { maxXmlCharsToStore = value; }
         }
 
+        public bool ReturnActualExecutionPlan
+        {
+            get { return returnActualExecutionPlan ?? DefaultReturnActualExecutionPlan; }
+            set { returnActualExecutionPlan = value; }
+        }
+
         #endregion
 
         #region Public Methods
@@ -74,6 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             BatchSeparator = newSettings.BatchSeparator;
             MaxCharsToStore = newSettings.MaxCharsToStore;
             MaxXmlCharsToStore = newSettings.MaxXmlCharsToStore;
+            ReturnActualExecutionPlan = newSettings.ReturnActualExecutionPlan;
         }
 
         #endregion

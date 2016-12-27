@@ -21,6 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// URI for the editor that is asking for the query execute
         /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Settings for return the actual exection plan for a run query
+        /// </summary>
+        public bool ReturnActualExecutionPlan { get; set; }
     }
 
     /// <summary>
