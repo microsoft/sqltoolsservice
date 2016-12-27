@@ -140,12 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
                     else
                     {
-                        if (!ci.IsLong)
-                        {
-                            // not a long field 
-                            values[i] = reader.GetValue(i);
-                        }
-                        else
+                        if (ci.IsLong.HasValue && ci.IsLong.Value)
                         {
                             // this is a long field
                             if (ci.IsBytes)
@@ -168,6 +163,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                                 // we should never get here
                                 Debug.Assert(false);
                             }
+                        }
+                        else
+                        {
+                            // not a long field 
+                            values[i] = reader.GetValue(i);
                         }
                     }
                 }
@@ -207,115 +207,133 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return rowBytes;
         }
 
+        [Obsolete]
+        public void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        {
+            throw new InvalidOperationException("This type of writer is meant to write values from a DbDataReader only.");
+        }
+
+        /// <summary>
+        /// Flushes the internal buffer to the file stream
+        /// </summary>
+        public void FlushBuffer()
+        {
+            fileStream.Flush();
+        }
+
+        #endregion
+
+        #region Private Helpers
+
         /// <summary>
         /// Writes null to the file as one 0x00 byte
         /// </summary>
         /// <returns>Number of bytes used to store the null</returns>
-        public int WriteNull()
+        internal int WriteNull()
         {
             byteBuffer[0] = 0x00;
-            return WriteHelper(byteBuffer, 1);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 1);
         }
 
         /// <summary>
         /// Writes a short to the file
         /// </summary>
         /// <returns>Number of bytes used to store the short</returns>
-        public int WriteInt16(short val)
+        internal int WriteInt16(short val)
         {
             byteBuffer[0] = 0x02; // length
             shortBuffer[0] = val;
             Buffer.BlockCopy(shortBuffer, 0, byteBuffer, 1, 2);
-            return WriteHelper(byteBuffer, 3);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 3);
         }
 
         /// <summary>
         /// Writes a int to the file
         /// </summary>
         /// <returns>Number of bytes used to store the int</returns>
-        public int WriteInt32(int val)
+        internal int WriteInt32(int val)
         {
             byteBuffer[0] = 0x04; // length
             intBuffer[0] = val;
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return WriteHelper(byteBuffer, 5);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 5);
         }
 
         /// <summary>
         /// Writes a long to the file
         /// </summary>
         /// <returns>Number of bytes used to store the long</returns>
-        public int WriteInt64(long val)
+        internal int WriteInt64(long val)
         {
             byteBuffer[0] = 0x08; // length
             longBuffer[0] = val;
             Buffer.BlockCopy(longBuffer, 0, byteBuffer, 1, 8);
-            return WriteHelper(byteBuffer, 9);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 9);
         }
 
         /// <summary>
         /// Writes a char to the file
         /// </summary>
         /// <returns>Number of bytes used to store the char</returns>
-        public int WriteChar(char val)
+        internal int WriteChar(char val)
         {
             byteBuffer[0] = 0x02; // length
             charBuffer[0] = val;
             Buffer.BlockCopy(charBuffer, 0, byteBuffer, 1, 2);
-            return WriteHelper(byteBuffer, 3);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 3);
         }
 
         /// <summary>
         /// Writes a bool to the file
         /// </summary>
         /// <returns>Number of bytes used to store the bool</returns>
-        public int WriteBoolean(bool val)
+        internal int WriteBoolean(bool val)
         {
             byteBuffer[0] = 0x01; // length
             byteBuffer[1] = (byte) (val ? 0x01 : 0x00);
-            return WriteHelper(byteBuffer, 2);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 2);
         }
 
         /// <summary>
         /// Writes a byte to the file
         /// </summary>
         /// <returns>Number of bytes used to store the byte</returns>
-        public int WriteByte(byte val)
+        internal int WriteByte(byte val)
         {
             byteBuffer[0] = 0x01; // length
             byteBuffer[1] = val;
-            return WriteHelper(byteBuffer, 2);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 2);
         }
 
         /// <summary>
         /// Writes a float to the file
         /// </summary>
         /// <returns>Number of bytes used to store the float</returns>
-        public int WriteSingle(float val)
+        internal int WriteSingle(float val)
         {
             byteBuffer[0] = 0x04; // length
             floatBuffer[0] = val;
             Buffer.BlockCopy(floatBuffer, 0, byteBuffer, 1, 4);
-            return WriteHelper(byteBuffer, 5);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 5);
         }
 
         /// <summary>
         /// Writes a double to the file
         /// </summary>
         /// <returns>Number of bytes used to store the double</returns>
-        public int WriteDouble(double val)
+        internal int WriteDouble(double val)
         {
             byteBuffer[0] = 0x08; // length
             doubleBuffer[0] = val;
             Buffer.BlockCopy(doubleBuffer, 0, byteBuffer, 1, 8);
-            return WriteHelper(byteBuffer, 9);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 9);
         }
 
         /// <summary>
         /// Writes a SqlDecimal to the file
         /// </summary>
         /// <returns>Number of bytes used to store the SqlDecimal</returns>
-        public int WriteSqlDecimal(SqlDecimal val)
+        internal int WriteSqlDecimal(SqlDecimal val)
         {
             int[] arrInt32 = val.Data;
             int iLen = 3 + (arrInt32.Length * 4);
@@ -332,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             // data value
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 3, iLen - 3);
-            iTotalLen += WriteHelper(byteBuffer, iLen);
+            iTotalLen += FileUtils.WriteWithLength(fileStream, byteBuffer, iLen);
             return iTotalLen; // len+data
         }
 
@@ -340,7 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a decimal to the file
         /// </summary>
         /// <returns>Number of bytes used to store the decimal</returns>
-        public int WriteDecimal(decimal val)
+        internal int WriteDecimal(decimal val)
         {
             int[] arrInt32 = decimal.GetBits(val);
 
@@ -348,7 +366,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             int iTotalLen = WriteLength(iLen); // length
 
             Buffer.BlockCopy(arrInt32, 0, byteBuffer, 0, iLen);
-            iTotalLen += WriteHelper(byteBuffer, iLen);
+            iTotalLen += FileUtils.WriteWithLength(fileStream, byteBuffer, iLen);
 
             return iTotalLen; // len+data
         }
@@ -366,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a DateTimeOffset to the file
         /// </summary>
         /// <returns>Number of bytes used to store the DateTimeOffset</returns>
-        public int WriteDateTimeOffset(DateTimeOffset dtoVal)
+        internal int WriteDateTimeOffset(DateTimeOffset dtoVal)
         {
             // Write the length, which is the 2*sizeof(long)
             byteBuffer[0] = 0x10; // length (16)
@@ -376,14 +394,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             longBufferOffset[0] = dtoVal.Ticks;
             longBufferOffset[1] = dtoVal.Offset.Ticks;
             Buffer.BlockCopy(longBufferOffset, 0, byteBuffer, 1, 16);
-            return WriteHelper(byteBuffer, 17);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 17);
         }
 
         /// <summary>
         /// Writes a TimeSpan to the file
         /// </summary>
         /// <returns>Number of bytes used to store the TimeSpan</returns>
-        public int WriteTimeSpan(TimeSpan timeSpan)
+        internal int WriteTimeSpan(TimeSpan timeSpan)
         {
             return WriteInt64(timeSpan.Ticks);
         }
@@ -392,7 +410,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a string to the file
         /// </summary>
         /// <returns>Number of bytes used to store the string</returns>
-        public int WriteString(string sVal)
+        internal int WriteString(string sVal)
         {
             Validate.IsNotNull(nameof(sVal), sVal);
 
@@ -408,7 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byteBuffer[3] = 0x00;
                 byteBuffer[4] = 0x00;
 
-                iTotalLen = WriteHelper(byteBuffer, 5);
+                iTotalLen = FileUtils.WriteWithLength(fileStream, byteBuffer, 5);
             }
             else
             {
@@ -417,7 +435,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 // convert char array into byte array and write it out							
                 iTotalLen = WriteLength(bytes.Length);
-                iTotalLen += WriteHelper(bytes, bytes.Length);
+                iTotalLen += FileUtils.WriteWithLength(fileStream, bytes, bytes.Length);
             }
             return iTotalLen; // len+data
         }
@@ -426,7 +444,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a byte[] to the file
         /// </summary>
         /// <returns>Number of bytes used to store the byte[]</returns>
-        public int WriteBytes(byte[] bytesVal)
+        internal int WriteBytes(byte[] bytesVal)
         {
             Validate.IsNotNull(nameof(bytesVal), bytesVal);
 
@@ -440,12 +458,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byteBuffer[3] = 0x00;
                 byteBuffer[4] = 0x00;
 
-                iTotalLen = WriteHelper(byteBuffer, 5);
+                iTotalLen = FileUtils.WriteWithLength(fileStream, byteBuffer, 5);
             }
             else
             {
                 iTotalLen = WriteLength(bytesVal.Length);
-                iTotalLen += WriteHelper(bytesVal, bytesVal.Length);
+                iTotalLen += FileUtils.WriteWithLength(fileStream, bytesVal, bytesVal.Length);
             }
             return iTotalLen; // len+data
         }
@@ -455,7 +473,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="val">The GUID to write to the file</param>
         /// <returns>Number of bytes written to the file</returns>
-        public int WriteGuid(Guid val)
+        internal int WriteGuid(Guid val)
         {
             byte[] guidBytes = val.ToByteArray();
             return WriteBytes(guidBytes);
@@ -466,22 +484,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="val">The SqlMoney value to write to the file</param>
         /// <returns>Number of bytes written to the file</returns>
-        public int WriteMoney(SqlMoney val)
+        internal int WriteMoney(SqlMoney val)
         {
             return WriteDecimal(val.Value);
         }
-
-        /// <summary>
-        /// Flushes the internal buffer to the file stream
-        /// </summary>
-        public void FlushBuffer()
-        {
-            fileStream.Flush();
-        }
-
-        #endregion
-
-        #region Private Helpers
 
         /// <summary>
         /// Creates a new buffer that is of the specified length if the buffer is not already
@@ -509,7 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 int iTmp = iLen & 0x000000FF;
 
                 byteBuffer[0] = Convert.ToByte(iTmp);
-                return WriteHelper(byteBuffer, 1);
+                return FileUtils.WriteWithLength(fileStream, byteBuffer, 1);
             }
             // The length won't fit in 1 byte, so we need to use 1 byte to signify that the length
             // is a full 4 bytes.
@@ -518,7 +524,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // convert int32 into array of bytes
             intBuffer[0] = iLen;
             Buffer.BlockCopy(intBuffer, 0, byteBuffer, 1, 4);
-            return WriteHelper(byteBuffer, 5);
+            return FileUtils.WriteWithLength(fileStream, byteBuffer, 5);
         }
 
         /// <summary>
@@ -532,12 +538,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private int WriteNullable(INullable val, Func<object, int> valueWriteFunc)
         {
             return val.IsNull ? WriteNull() : valueWriteFunc(val);
-        }
-
-        private int WriteHelper(byte[] buffer, int length)
-        {
-            fileStream.Write(buffer, 0, length);
-            return length;
         }
 
         #endregion

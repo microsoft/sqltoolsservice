@@ -24,15 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     {
         #region Constants
 
-        private const int DefaultMaxCharsToStore = 65535; // 64 KB - QE default
-
-        // xml is a special case so number of chars to store is usually greater than for other long types
-        private const int DefaultMaxXmlCharsToStore = 2097152; // 2 MB - QE default
-
         // Column names of 'for xml' and 'for json' queries
         private const string NameOfForXMLColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
-
 
         #endregion
 
@@ -74,11 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly string outputFileName;
 
-        /// <summary>
-        /// All save tasks currently saving this ResultSet
-        /// </summary>
-        private readonly ConcurrentDictionary<string, Task> saveTasks;
-
         #endregion
 
         /// <summary>
@@ -104,10 +93,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Store the factory
             fileStreamFactory = factory;
             hasBeenRead = false;
-            saveTasks = new ConcurrentDictionary<string, Task>();
+            SaveTasks = new ConcurrentDictionary<string, Task>();
         }
 
         #region Properties
+
+        /// <summary>
+        /// Asynchronous handler for when saving query results succeeds
+        /// </summary>
+        /// <param name="parameters">Request parameters for identifying the request</param>
+        public delegate Task SaveAsAsyncEventHandler(SaveResultsRequestParams parameters);
+
+        /// <summary>
+        /// Asynchronous handler for when saving query results fails
+        /// </summary>
+        /// <param name="parameters">Request parameters for identifying the request</param>
+        /// <param name="message">Message to send back describing why the request failed</param>
+        public delegate Task SaveAsFailureAsyncEventHandler(SaveResultsRequestParams parameters, string message);
 
         /// <summary>
         /// Asynchronous handler for when a resultset has completed
@@ -142,19 +144,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public int BatchId { get; private set; }
 
         /// <summary>
-        /// Maximum number of characters to store for a field
-        /// </summary>
-        public int MaxCharsToStore { get { return DefaultMaxCharsToStore; } }
-
-        /// <summary>
-        /// Maximum number of characters to store for an XML field
-        /// </summary>
-        public int MaxXmlCharsToStore { get { return DefaultMaxXmlCharsToStore; } }
-
-        /// <summary>
         /// The number of rows for this result set
         /// </summary>
         public long RowCount { get; private set; }
+
+        /// <summary>
+        /// All save tasks currently saving this ResultSet
+        /// </summary>
+        internal ConcurrentDictionary<string, Task> SaveTasks { get; set; }
 
         /// <summary>
         /// Generates a summary of this result set
@@ -251,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 hasBeenRead = true;
 
                 // Open a writer for the file
-                var fileWriter = fileStreamFactory.GetWriter(outputFileName, MaxCharsToStore, MaxCharsToStore);
+                var fileWriter = fileStreamFactory.GetWriter(outputFileName);
                 using (fileWriter)
                 {
                     // If we can initialize the columns using the column schema, use that
@@ -282,6 +279,89 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
+            SaveAsAsyncEventHandler successHandler, SaveAsFailureAsyncEventHandler failureHandler)
+        {
+            // Sanity check the save params and file factory
+            Validate.IsNotNull(nameof(saveParams), saveParams);
+            Validate.IsNotNull(nameof(fileFactory), fileFactory);
+
+            // Make sure the resultset has finished being read
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException(SR.QueryServiceSaveAsResultSetNotComplete);
+            }
+
+            // Make sure there isn't a task for this file already
+            Task existingTask;
+            if (SaveTasks.TryGetValue(saveParams.FilePath, out existingTask))
+            {
+                if (existingTask.IsCompleted)
+                {
+                    // The task has completed, so let's attempt to remove it
+                    if (!SaveTasks.TryRemove(saveParams.FilePath, out existingTask))
+                    {
+                        throw new InvalidOperationException(SR.QueryServiceSaveAsMiscStartingError);
+                    }
+                }
+                else
+                {
+                    // The task hasn't completed, so we shouldn't continue
+                    throw new InvalidOperationException(SR.QueryServiceSaveAsInProgress);
+                }
+            }
+
+            // Create the new task
+            Task saveAsTask = new Task(async () =>
+            {
+                try
+                {
+                    // Set row counts depending on whether save request is for entire set or a subset
+                    long rowEndIndex = RowCount;
+                    int rowStartIndex = 0;
+                    if (saveParams.IsSaveSelection)
+                    {
+                        // ReSharper disable PossibleInvalidOperationException  IsSaveSelection verifies these values exist
+                        rowEndIndex = saveParams.RowEndIndex.Value + 1;
+                        rowStartIndex = saveParams.RowStartIndex.Value;
+                        // ReSharper restore PossibleInvalidOperationException
+                    }
+
+                    using (var fileReader = fileFactory.GetReader(outputFileName))
+                    using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath))
+                    {
+                        // Iterate over the rows that are in the selected row set
+                        for (long i = rowStartIndex; i < rowEndIndex; ++i)
+                        {
+                            var row = fileReader.ReadRow(fileOffsets[i], Columns);
+                            fileWriter.WriteRow(row, Columns);
+                        }
+                        if (successHandler != null)
+                        {
+                            await successHandler(saveParams);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    fileFactory.DisposeFile(saveParams.FilePath);
+                    if (failureHandler != null)
+                    {
+                        await failureHandler(saveParams, e.Message);
+                    }
+                }
+            });
+
+            // If saving the task fails, return a failure
+            if (!SaveTasks.TryAdd(saveParams.FilePath, saveAsTask))
+            {
+                throw new InvalidOperationException(SR.QueryServiceSaveAsMiscStartingError);
+            }
+
+            // Task was saved, so start up the task
+            saveAsTask.Start();
+        }
+
         #endregion
 
         #region IDisposable Implementation
@@ -301,10 +381,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             IsBeingDisposed = true;
             // Check if saveTasks are running for this ResultSet
-            if (!saveTasks.IsEmpty)
+            if (!SaveTasks.IsEmpty)
             {
                 // Wait for tasks to finish before disposing ResultSet
-                Task.WhenAll(saveTasks.Values.ToArray()).ContinueWith((antecedent) =>
+                Task.WhenAll(SaveTasks.Values.ToArray()).ContinueWith((antecedent) =>
                 {
                     if (disposing)
                     {
@@ -356,26 +436,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        #endregion
-
-        #region Internal Methods to Add and Remove save tasks
-        internal void AddSaveTask(string key, Task saveTask)
-        {
-            saveTasks.TryAdd(key, saveTask);
-        }
-
-        internal void RemoveSaveTask(string key)
-        {
-            Task completedTask;
-            saveTasks.TryRemove(key, out completedTask);
-        }
-
-        internal Task GetSaveTask(string key)
-        {
-            Task completedTask;
-            saveTasks.TryRemove(key, out completedTask);
-            return completedTask;
-        }
         #endregion
     }
 }
