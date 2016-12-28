@@ -176,6 +176,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     return;
                 }
 
+                // Increment Index if batch was run with 
+
                 // Retrieve the requested subset and return it
                 var result = new QueryExecuteSubsetResult
                 {
@@ -423,7 +425,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
-                await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
+
+                // Batch results should only be setup for explicit user defined batches
+                if (b.UserDefined) 
+                {
+                    await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
+                }
             };
             query.BatchStarted += batchStartCallback;
 
@@ -434,7 +441,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
-                await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
+
+                // Batch results should only be return for explicit user defined batches 
+                if (b.UserDefined) 
+                {
+                    await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
+                }
             };
             query.BatchCompleted += batchCompleteCallback;
 

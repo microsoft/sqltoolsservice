@@ -93,21 +93,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
 
             // Turn on Actual Execution Showplan settings 
-            if (settings.ReturnActualExecutionPlan == true) {
+            if (settings.ReturnActualExecutionPlan == true) 
+            {
                 //Turn on settings by creating a new batch and concatinating the queries to it (not copying previous queries)
-                batchSelection = new[] {new Batch("set statistics XML on", new SelectionData(0,0,0,0), 0, outputFactory)}.Concat(batchSelection);
+                batchSelection = new[] {new Batch("set statistics XML on", new SelectionData(0,0,0,0), 0, outputFactory, false)}.Concat(batchSelection);
                 
                 // //Turn off settings by concatinating a new batch to the end of the queries (not copying previous queries)
-                batchSelection = batchSelection.Concat(new[] {new Batch("set statistics XML off", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)});
+                batchSelection = batchSelection.Concat(new[] {new Batch("set statistics XML off", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory, false)});
            }
 
            // Filling the Batches array 
            Batches = batchSelection.ToArray();
-
-           // Reseting query IDs for proper output 
-           for (int index = 0; index < Batches.Length; index++) {
-               Batches[index].Id = index;
-           }
 
         }
 
@@ -175,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     throw new InvalidOperationException("Query has not been executed.");
                 }
-                return Batches.Select(b => b.Summary).ToArray();
+                return this.UserBatches().Select(b => b.Summary).ToArray();
             }
         }
 
@@ -247,13 +243,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check to make sure that the batch is within bounds
-            if (batchIndex < 0 || batchIndex >= Batches.Length)
+            if (batchIndex < 0 || batchIndex >= this.UserBatches().Length)
             {
                 throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
             }
 
-            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
+
+
+            return this.UserBatches()[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
+
+
+        /// <summary>
+        /// Helper function to retrieve all batches which are part of showplan 
+        /// (all batches which were explicitly run by the user)
+        /// </summary>
+        public Batch[] UserBatches()
+        {
+            return Batches.Where(b => b.UserDefined).ToArray();
+        }
+
 
         /// <summary>
         /// Saves the requested results to a file format of the user's choice
