@@ -91,19 +91,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             batch.EndLocation.ColumnNumber - 1),
                         index, outputFactory));
 
+            Batches = batchSelection.ToArray();
+
 
             // Turn on Actual Execution Showplan settings 
             if (settings.ReturnActualExecutionPlan == true) 
             {
-                //Turn on settings by creating a new batch and concatinating the queries to it (not copying previous queries)
-                batchSelection = new[] {new Batch("set statistics XML on", new SelectionData(0,0,0,0), 0, outputFactory, false)}.Concat(batchSelection);
+                // Turn on showpan by putting in the before batches
+                beforeBatches = new[] {new Batch("set statistics XML on", new SelectionData(0,0,0,0), 0, outputFactory)};
                 
-                // //Turn off settings by concatinating a new batch to the end of the queries (not copying previous queries)
-                batchSelection = batchSelection.Concat(new[] {new Batch("set statistics XML off", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory, false)});
+                // Turn off showplan by putting it in the after batches
+                afterBatches = new[] {new Batch("set statistics XML off", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)};
            }
-
-           // Filling the Batches array 
-           Batches = batchSelection.ToArray();
 
         }
 
@@ -156,9 +155,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public delegate Task QueryAsyncEventHandler(Query q);
 
         /// <summary>
+        /// The batches which should run before the user batches 
+        /// </summary>
+        internal Batch[] beforeBatches { get; set; }
+
+        /// <summary>
         /// The batches underneath this query
         /// </summary>
         internal Batch[] Batches { get; set; }
+
+        /// <summary>
+        /// The batches which should run after the user batches 
+        /// </summary>
+        internal Batch[] afterBatches { get; set; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
@@ -171,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     throw new InvalidOperationException("Query has not been executed.");
                 }
-                return this.UserBatches().Select(b => b.Summary).ToArray();
+                return Batches.Select(b => b.Summary).ToArray();
             }
         }
 
@@ -243,24 +252,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public Task<ResultSetSubset> GetSubset(int batchIndex, int resultSetIndex, int startRow, int rowCount)
         {
             // Sanity check to make sure that the batch is within bounds
-            if (batchIndex < 0 || batchIndex >= this.UserBatches().Length)
+            if (batchIndex < 0 || batchIndex >= Batches.Length)
             {
                 throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
             }
 
 
 
-            return this.UserBatches()[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
-        }
-
-
-        /// <summary>
-        /// Helper function to retrieve all batches which are part of showplan 
-        /// (all batches which were explicitly run by the user)
-        /// </summary>
-        public Batch[] UserBatches()
-        {
-            return Batches.Where(b => b.UserDefined).ToArray();
+            return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
 
 
@@ -331,12 +330,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 try
                 {
+
+                    foreach (Batch b in beforeBatches)
+                    {
+                        await b.Execute(conn, cancellationSource.Token);
+                    }
+
                     // We need these to execute synchronously, otherwise the user will be very unhappy
                     foreach (Batch b in Batches)
                     {
                         b.BatchStart += BatchStarted;
                         b.BatchCompletion += BatchCompleted;
                         b.ResultSetCompletion += ResultSetCompleted;
+                        await b.Execute(conn, cancellationSource.Token);
+                    }
+
+                    foreach (Batch b in afterBatches)
+                    {
                         await b.Execute(conn, cancellationSource.Token);
                     }
 

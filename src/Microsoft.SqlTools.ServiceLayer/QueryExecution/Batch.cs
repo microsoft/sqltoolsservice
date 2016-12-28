@@ -55,14 +55,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly List<ResultSet> resultSets;
 
-        /// <summary>
-        /// Is this batch user defined?
-        /// </summary>
-        private bool userDefined;
-
         #endregion
 
-        internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory, bool userDefined = true)
+        internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
@@ -78,7 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             resultSets = new List<ResultSet>();
             resultMessages = new List<ResultMessage>();
             this.outputFileFactory = outputFileFactory;
-            this.userDefined = userDefined;
         }
 
         #region Events
@@ -151,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Ordinal of the batch in the query
         /// </summary>
-        public int Id { get; set; }
+        public int Id { get; private set; }
 
         /// <summary>
         /// Messages that have come back from the server
@@ -211,14 +205,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 return summary;
             }
-        }
-
-        /// <summary>
-        /// Should a message my returned for this batch
-        /// </summary>
-        public bool UserDefined
-        {
-            get { return userDefined; }
         }
 
         /// <summary>
