@@ -29,5 +29,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Details about the columns that are provided as solutions
         /// </summary>
         public DbColumnWrapper[] ColumnInfo { get; set; }
+
+        /// <summary>
+        /// An attached Actual Showplan in XML, if there was one
+        /// </summary>
+        public string actualXMLShowplan { get; set; }
     }
 }

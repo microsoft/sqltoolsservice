@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Column names of 'for xml' and 'for json' queries
         private const string NameOfForXMLColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
+        private const string NameOfForShowplanColumn = "XML Showplan";
 
         #endregion
 
@@ -149,6 +150,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public long RowCount { get; private set; }
 
         /// <summary>
+        /// The full actuall XML showplan results
+        /// </summary>
+        public string actualXMLShowplan { get; set; }
+
+        /// <summary>
         /// All save tasks currently saving this ResultSet
         /// </summary>
         internal ConcurrentDictionary<string, Task> SaveTasks { get; set; }
@@ -165,7 +171,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ColumnInfo = Columns,
                     Id = Id,
                     BatchId = BatchId,
-                    RowCount = RowCount
+                    RowCount = RowCount,
+                    actualXMLShowplan = actualXMLShowplan,
+                    
                 };
             }
         }
@@ -434,6 +442,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     RowCount = 1;
                 }
             }
+        }
+
+        public bool IsActualXMLShowplan()
+        {
+            if (dataReader.Columns?.Length == 1 && dataReader.Columns[0].ColumnName.Contains(NameOfForShowplanColumn))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public string GetXMLShowPlan()
+        {
+            if (this.IsActualXMLShowplan())
+            {
+                return dataReader.Columns[0].ToString();
+            }
+            
+            return "";
         }
 
         #endregion

@@ -331,6 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 try
                 {
 
+                    // Execute beforeBatches synchronously, before the user defined batches 
                     foreach (Batch b in beforeBatches)
                     {
                         await b.Execute(conn, cancellationSource.Token);
@@ -339,12 +340,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // We need these to execute synchronously, otherwise the user will be very unhappy
                     foreach (Batch b in Batches)
                     {
+                        // Attach extension callbacks to the these batches because the user explicity ran them
                         b.BatchStart += BatchStarted;
                         b.BatchCompletion += BatchCompleted;
                         b.ResultSetCompletion += ResultSetCompleted;
                         await b.Execute(conn, cancellationSource.Token);
                     }
 
+                    // Execute afterBatches synchronously, after the user defined batches
                     foreach (Batch b in afterBatches)
                     {
                         await b.Execute(conn, cancellationSource.Token);
