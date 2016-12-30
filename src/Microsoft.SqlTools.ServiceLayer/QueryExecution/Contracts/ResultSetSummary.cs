@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// An attached Actual Showplan in XML, if there was one
         /// </summary>
-        public int actualXMLShowplanForResultId { get; set; }
+        public int? ActualXMLShowplanForResultId { get; set; }
+
     }
 }

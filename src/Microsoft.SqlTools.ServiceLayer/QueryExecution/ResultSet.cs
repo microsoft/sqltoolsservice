@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The result ID which this showplan belongs to (if it is a showplan)
         /// </summary>
-        public int actualXMLShowplanForResultId;
+        public int? actualXMLShowplanForResultId;
 
         #endregion
 
@@ -99,9 +99,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             fileStreamFactory = factory;
             hasBeenRead = false;
             SaveTasks = new ConcurrentDictionary<string, Task>();
-
-            // Set default showplan ID
-            actualXMLShowplanForResultId = -1;
         }
 
         #region Properties
@@ -174,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    actualXMLShowplanForResultId = actualXMLShowplanForResultId
+                    ActualXMLShowplanForResultId = actualXMLShowplanForResultId
                     
                 };
             }
@@ -446,6 +443,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// If the result set represented by this class is an Actual XML Showplan 
+        /// then we return true 
+        /// </summary>
         public bool IsActualXMLShowplan() 
         {           
             // Check if this result set is a showplan 

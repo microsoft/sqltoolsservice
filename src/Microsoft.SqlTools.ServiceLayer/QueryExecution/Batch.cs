@@ -285,13 +285,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             ResultSet resultSet = new ResultSet(reader, resultSetOrdinal, Id, outputFileFactory);
                             resultSet.ResultCompletion += ResultSetCompletion;
 
-                            // Add the result set to the results of the query if it is not a special case (such an xml showplan)
+                            // Add the result set to the results of the query
                             lock (resultSet)
                             {
-                                // If this result set is a showplan then attach to the previous result set id to it
+                                // If this result set is a showplan then attach the result set it define's Id
                                 if (resultSet.IsActualXMLShowplan())
                                 {
-                                    resultSet.actualXMLShowplanForResultID = resultSets[resultSetOrdinal - 1].Id;
+                                    resultSet.actualXMLShowplanForResultId = resultSets[resultSetOrdinal - 1].Id;
                                 }
 
                                 resultSets.Add(resultSet);

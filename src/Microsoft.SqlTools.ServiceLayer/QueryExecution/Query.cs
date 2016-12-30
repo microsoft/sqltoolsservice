@@ -78,7 +78,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 BatchSeparator = settings.BatchSeparator
             });
-
             // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
             var batchSelection = parseResult.Script.Batches
                 .Where(batch => batch.Statements.Count > 0)
@@ -93,15 +92,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             Batches = batchSelection.ToArray();
 
-
             // Turn on Actual Execution Showplan settings 
             if (settings.ReturnActualExecutionPlan == true) 
             {
                 // Turn on showpan by putting in the before batches
-                beforeBatches = new[] {new Batch("set statistics XML on", new SelectionData(0,0,0,0), 0, outputFactory)};
+                BeforeBatches = new[] {new Batch("set statistics XML on", new SelectionData(0,0,0,0), 0, outputFactory)};
                 
                 // Turn off showplan by putting it in the after batches
-                afterBatches = new[] {new Batch("set statistics XML off", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)};
+                AfterBatches = new[] {new Batch("set statistics XML off", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)};
            }
 
         }
@@ -157,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The batches which should run before the user batches 
         /// </summary>
-        internal Batch[] beforeBatches { get; set; }
+        internal Batch[] BeforeBatches { get; set; }
 
         /// <summary>
         /// The batches underneath this query
@@ -167,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The batches which should run after the user batches 
         /// </summary>
-        internal Batch[] afterBatches { get; set; }
+        internal Batch[] AfterBatches { get; set; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
@@ -257,11 +255,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
             }
 
-
-
             return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
         }
-
 
         /// <summary>
         /// Saves the requested results to a file format of the user's choice
@@ -332,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
 
                     // Execute beforeBatches synchronously, before the user defined batches 
-                    foreach (Batch b in beforeBatches)
+                    foreach (Batch b in BeforeBatches)
                     {
                         await b.Execute(conn, cancellationSource.Token);
                     }
@@ -348,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
 
                     // Execute afterBatches synchronously, after the user defined batches
-                    foreach (Batch b in afterBatches)
+                    foreach (Batch b in AfterBatches)
                     {
                         await b.Execute(conn, cancellationSource.Token);
                     }
