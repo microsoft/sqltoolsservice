@@ -27,7 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Column names of 'for xml' and 'for json' queries
         private const string NameOfForXMLColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
-        private const string NameOfForShowplanColumn = "XML Showplan";
 
         #endregion
 
@@ -69,6 +68,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly string outputFileName;
 
+        /// <summary>
+        /// The result ID which this showplan belongs to (if it is a showplan)
+        /// </summary>
+        public int actualXMLShowplanForResultId;
+
         #endregion
 
         /// <summary>
@@ -95,6 +99,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             fileStreamFactory = factory;
             hasBeenRead = false;
             SaveTasks = new ConcurrentDictionary<string, Task>();
+
+            // Set default showplan ID
+            actualXMLShowplanForResultId = -1;
         }
 
         #region Properties
@@ -150,11 +157,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public long RowCount { get; private set; }
 
         /// <summary>
-        /// The full actuall XML showplan results
-        /// </summary>
-        public string actualXMLShowplan { get; set; }
-
-        /// <summary>
         /// All save tasks currently saving this ResultSet
         /// </summary>
         internal ConcurrentDictionary<string, Task> SaveTasks { get; set; }
@@ -172,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    actualXMLShowplan = actualXMLShowplan,
+                    actualXMLShowplanForResultId = actualXMLShowplanForResultId
                     
                 };
             }
@@ -444,24 +446,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        public bool IsActualXMLShowplan()
-        {
-            if (dataReader.Columns?.Length == 1 && dataReader.Columns[0].ColumnName.Contains(NameOfForShowplanColumn))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public string GetXMLShowPlan()
-        {
-            if (this.IsActualXMLShowplan())
-            {
-                return dataReader.Columns[0].ToString();
-            }
-            
-            return "";
+        public bool IsActualXMLShowplan() 
+        {           
+            // Check if this result set is a showplan 
+            return (dataReader.Columns?.Length == 1 && dataReader.Columns[0].IsShowplanXml);
         }
 
         #endregion

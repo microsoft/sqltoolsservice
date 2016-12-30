@@ -55,11 +55,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly List<ResultSet> resultSets;
 
-        /// <summary>
-        /// Actual Showplan if the setting is enabled
-        /// </summary>
-        private readonly string actualShowPlan;
-
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
@@ -293,16 +288,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // Add the result set to the results of the query if it is not a special case (such an xml showplan)
                             lock (resultSet)
                             {
-                                // If this result set is a showplan then attach to the previous result set in the same batch
+                                // If this result set is a showplan then attach to the previous result set id to it
                                 if (resultSet.IsActualXMLShowplan())
                                 {
-                                    resultSets[resultSetOrdinal - 1].actualXMLShowplan = resultSet.GetXMLShowPlan();
+                                    resultSet.actualXMLShowplanForResultID = resultSets[resultSetOrdinal - 1].Id;
                                 }
-                                else
-                                {
-                                    resultSets.Add(resultSet);
-                                    resultSetOrdinal++;
-                                }
+
+                                resultSets.Add(resultSet);
+                                resultSetOrdinal++;
                             }
 
                             // Read until we hit the end of the result set
