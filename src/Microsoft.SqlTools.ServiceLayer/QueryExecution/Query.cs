@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -258,8 +259,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             DbConnection queryConnection;
             if (!editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection))
             {
-                await ConnectionService.Instance.Connect(editorConnection.OwnerUri, ConnectionType.Query);
-                editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection);
+                ConnectParams connectParams = new ConnectParams();
+                connectParams.OwnerUri = editorConnection.OwnerUri;
+                connectParams.Connection = editorConnection.ConnectionDetails;
+                connectParams.Type = ConnectionType.Query;
+
+                await ConnectionService.Instance.Connect(connectParams);
+                if(!editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection))
+                {
+                    // TODO what do we do when the connection fails?
+                }
             }
 
             ReliableSqlConnection sqlConn = queryConnection as ReliableSqlConnection;

@@ -16,6 +16,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// </summary>
         public string OwnerUri { get; set; }
 
-        public ConnectionType Type { get; set; } = ConnectionType.AllConnections;
+        /// <summary>
+        /// The type of connection we are disconnecting. Ifs null, we will disconnect all
+        /// connections. This is null by default.  
+        /// </summary>
+        public ConnectionType? Type { get; set; } = null;
     }
 }

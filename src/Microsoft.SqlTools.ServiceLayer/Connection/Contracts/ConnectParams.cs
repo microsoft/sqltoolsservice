@@ -22,5 +22,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// connection properties to the same database.
         /// </summary>
         public ConnectionDetails Connection { get; set; }
+
+        /// <summary>
+        /// The ConnectionType of this connection. By default, this is set to ConnectionType.Default.
+        /// </summary>
+        public ConnectionType Type { get; set; } = ConnectionType.Default;
     }
 }

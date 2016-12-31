@@ -49,22 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         public ConnectionDetails ConnectionDetails { get; private set; }
 
-        /*
         /// <summary>
-        /// The connection to the SQL database that commands will be run against.
-        /// </summary>
-        public DbConnection SqlConnection { get; set; }
-        */
-
-        /// <summary>
-        /// A map containing all connections to the database that are associated with OwnerUri.
+        /// A map containing all connections to the database that are associated with 
+        /// this ConnectionInfo's OwnerUri.
         /// </summary>
         public readonly Dictionary<ConnectionType, DbConnection> ConnectionTypeToConnectionMap = new Dictionary<ConnectionType, DbConnection>();
-
-        /// <summary>
-        /// A map containing all CancellationTokenSource objects that are associated with a ConnectionType. 
-        /// </summary>
-        public readonly ConcurrentDictionary<ConnectionType, CancellationTokenSource> ConnectionTypeToCancellationTokenSourceMap = new ConcurrentDictionary<ConnectionType, CancellationTokenSource>();
 
         /// <summary>
         /// Intellisense Metrics

@@ -16,6 +16,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// </summary>
         public string OwnerUri { get; set; }
 
+        /// <summary>
+        /// The type of connection we are trying to cancel
+        /// </summary>
         public ConnectionType Type { get; set; } = ConnectionType.Default;
     }
 }
