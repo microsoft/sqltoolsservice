@@ -218,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IsJson { get; set; }
 
         /// <summary>
-        /// Whether or not the column is XML
+        /// Whether or not the column is an XML Showplan
         /// </summary>
         public bool IsXmlShowplan { get; set; }
 

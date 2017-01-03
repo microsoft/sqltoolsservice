@@ -184,7 +184,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-
                 // Batch summary with information available at start
                 BatchSummary summary = new BatchSummary
                 {
@@ -286,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             resultSet.ResultCompletion += ResultSetCompletion;
 
                             // Add the result set to the results of the query
-                            lock (resultSet)
+                            lock (resultSets)
                             {
                                 resultSets.Add(resultSet);
                                 resultSetOrdinal++;
