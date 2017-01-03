@@ -1,6 +1,9 @@
 ﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
     /// <summary>
@@ -29,12 +32,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Default selection of returning an actual XML showplan with all batches
         /// </summary>
-        private const bool DefaultReturnActualShowplan = false; // do not return actual execution plan by default
-
-        /// <summary>
-        /// Default selection of returning an actual XML showplan with all batches
-        /// </summary>
-        private const bool DefaultReturnEstimatedShowplan = false; // do not return actual execution plan by default
+        private ExecutionPlanOptions DefaultExecutionPlanOptions = new ExecutionPlanOptions() { 
+            IncludeActualExecutionPlan = false,
+            IncludeEstimatedExecutionPlan = false
+        }; // do not return any execution plan by default
 
         #endregion
 
@@ -46,9 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 
         private int? maxXmlCharsToStore;
 
-        private bool? returnActualShowplan;
-
-        private bool? returnEstimatedShowplan;
+        private ExecutionPlanOptions? executionPlanOptions;
 
         #endregion
 
@@ -75,16 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             set { maxXmlCharsToStore = value; }
         }
 
-        public bool ReturnActualShowplan
+        public ExecutionPlanOptions ExecutionPlanOptions
         {
-            get { return returnActualShowplan ?? DefaultReturnActualShowplan; }
-            set { returnActualShowplan = value; }
-        }
-
-        public bool ReturnEstimatedShowplan
-        {
-            get { return returnEstimatedShowplan ?? DefaultReturnEstimatedShowplan; }
-            set { returnEstimatedShowplan = value; }
+            get { return executionPlanOptions ?? DefaultExecutionPlanOptions; }
+            set { executionPlanOptions = value; }
         }
 
         #endregion
@@ -100,8 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             BatchSeparator = newSettings.BatchSeparator;
             MaxCharsToStore = newSettings.MaxCharsToStore;
             MaxXmlCharsToStore = newSettings.MaxXmlCharsToStore;
-            ReturnActualShowplan = newSettings.ReturnActualShowplan;
-            ReturnEstimatedShowplan = newSettings.ReturnEstimatedShowplan;
+            ExecutionPlanOptions = newSettings.ExecutionPlanOptions;
         }
 
         #endregion

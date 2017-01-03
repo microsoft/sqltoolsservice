@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    IsXmlShowplan = this.IsXmlShowplan()
+                    IsXmlExecutionPlan = this.IsXmlExecutionPlan()
                     
                 };
             }
@@ -442,10 +442,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// If the result set represented by this class is an Actual XML Showplan 
         /// then we return true 
         /// </summary>
-        private bool IsXmlShowplan() 
+        private bool IsXmlExecutionPlan() 
         {           
             // Check if this result set is a showplan 
-            return (dataReader.Columns?.Length == 1 && dataReader.Columns[0].IsXmlShowplan);
+            return (dataReader.Columns?.Length == 1 && dataReader.Columns[0].IsXmlExecutionPlan);
         }
 
         #endregion

@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -92,23 +93,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             Batches = batchSelection.ToArray();
 
-            // Turn on Estimated Execution Showplan settings (estimated takes precedent over actual)
-            if (settings.ReturnEstimatedShowplan) 
+
+            // Create our batch lists
+            BeforeBatches = new List<Batch>();
+            AfterBatches = new List<Batch>();
+
+            // Turn on Estimated Execution Showplan settings
+            if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlan) 
             {
                 // Turn on showplan by putting in the before batches
-                BeforeBatches = new[] {new Batch("SET SHOWPLAN_XML ON", new SelectionData(0,0,0,0), 0, outputFactory)};
+                addBatch("SET SHOWPLAN_XML ON", BeforeBatches, outputFactory);
                 
                 // Turn off showplan by putting it in the after batches
-                AfterBatches = new[] {new Batch("SET SHOWPLAN_XML OFF", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)};
+                addBatch("SET SHOWPLAN_XML OFF", AfterBatches, outputFactory);
             }
             // Turn on Actual Execution Showplan settings 
-            else if (settings.ReturnActualShowplan) 
+            else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlan) 
             {
-                // Turn on showpan by putting in the before batches
-                BeforeBatches = new[] {new Batch("SET STATISTICS XML ON", new SelectionData(0,0,0,0), 0, outputFactory)};
+                // Turn on showplan by putting in the before batches
+                addBatch("SET STATISTICS XML ON", BeforeBatches, outputFactory);
                 
                 // Turn off showplan by putting it in the after batches
-                AfterBatches = new[] {new Batch("SET STATISTICS XML OFF", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)};
+                addBatch("SET STATISTICS XML OFF", AfterBatches, outputFactory);
            }
 
         }
@@ -164,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The batches which should run before the user batches 
         /// </summary>
-        internal Batch[] BeforeBatches { get; set; }
+        internal List<Batch> BeforeBatches { get; set; }
 
         /// <summary>
         /// The batches underneath this query
@@ -174,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The batches which should run after the user batches 
         /// </summary>
-        internal Batch[] AfterBatches { get; set; }
+        internal List<Batch> AfterBatches { get; set; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
@@ -403,6 +409,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
                 }
             }
+        }
+
+        /// <summary>
+        /// Function to add a new batch to a Batch set
+        /// </summary>
+        private void addBatch(string query, List<Batch> batchSet, IFileStreamFactory outputFactory)
+        {
+            batchSet.Add(new Batch(query, new SelectionData(0,0,0,0), 0, outputFactory));
         }
 
         #endregion

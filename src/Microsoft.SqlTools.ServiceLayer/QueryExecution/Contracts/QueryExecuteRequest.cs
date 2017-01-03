@@ -23,14 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// Settings for return the actual exection plan for a run query
+        /// Execution plan options
         /// </summary>
-        public bool ReturnActualShowplan { get; set; }
+        public ExecutionPlanOptions ExecutionPlanOptions { get; set; }
 
-        /// <summary>
-        /// Settings for return the actual exection plan for a run query
-        /// </summary>
-        public bool ReturnEstimatedShowplan { get; set; }
     }
 
     /// <summary>
