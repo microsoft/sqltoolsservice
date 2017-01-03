@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// All types supported by the server, stored as a hash set to provide O(1) lookup
         /// </summary>
-        private static readonly HashSet<string> AllServerDataTypes = new HashSet<string>
+        internal static readonly HashSet<string> AllServerDataTypes = new HashSet<string>
         {
             "bigint",
             "binary",
@@ -52,8 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             "datetime2"
         };
 
-        private readonly DbColumn internalColumn;
-
         /// <summary>
         /// Constructor for a DbColumnWrapper
         /// </summary>
@@ -61,7 +59,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <param name="column">The column we're wrapping around</param>
         public DbColumnWrapper(DbColumn column)
         {
-            internalColumn = column;
+            // Set all the fields for the base
+            AllowDBNull = column.AllowDBNull;
+            BaseCatalogName = column.BaseCatalogName;
+            BaseColumnName = column.BaseColumnName;
+            BaseSchemaName = column.BaseSchemaName;
+            BaseServerName = column.BaseServerName;
+            BaseTableName = column.BaseTableName;
+            ColumnOrdinal = column.ColumnOrdinal;
+            ColumnSize = column.ColumnSize;
+            IsAliased = column.IsAliased;
+            IsAutoIncrement = column.IsAutoIncrement;
+            IsExpression = column.IsExpression;
+            IsHidden = column.IsHidden;
+            IsIdentity = column.IsIdentity;
+            IsKey = column.IsKey;
+            IsLong = column.IsLong;
+            IsReadOnly = column.IsLong;
+            IsUnique = column.IsUnique;
+            NumericPrecision = column.NumericPrecision;
+            NumericScale = column.NumericScale;
+            UdtAssemblyQualifiedName = column.UdtAssemblyQualifiedName;
+            DataType = column.DataType;
+            DataTypeName = column.DataTypeName;
+
+            // We want the display name for the column to always exist
+            ColumnName = string.IsNullOrEmpty(column.ColumnName)
+                ? SR.QueryServiceColumnNull
+                : column.ColumnName;
 
             switch (column.DataTypeName)
             {
@@ -78,8 +103,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                         //This is not the best fix that we could do but we are trying to minimize code impact
                         //at this point. Post Yukon we should review this code again and avoid
                         //hard-coding special column name in multiple places.
-                        const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
-                        if (column.ColumnName == YukonXmlShowPlanColumn)
+                        const string yukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
+                        if (column.ColumnName == yukonXmlShowPlanColumn)
                         {
                             // Indicate that this is xml to apply the right size limit
                             // Note we leave chars type as well to use the right retrieval mechanism.
@@ -133,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             {
                 // udtassemblyqualifiedname property is used to find if the datatype is of hierarchyid assembly type 
                 // Internally hiearchyid is sqlbinary so providerspecific type and type is changed to sqlbinarytype
-                object assemblyQualifiedName = internalColumn.UdtAssemblyQualifiedName;
+                object assemblyQualifiedName = column.UdtAssemblyQualifiedName;
                 const string hierarchyId = "MICROSOFT.SQLSERVER.TYPES.SQLHIERARCHYID";
 
                 if (assemblyQualifiedName != null &&
@@ -172,11 +197,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IsChars { get; private set; }
 
         /// <summary>
-        /// Whether or not the column is a long type (eg, varchar(MAX))
-        /// </summary>
-        public new bool IsLong { get; private set; }
-
-        /// <summary>
         /// Whether or not the column is a SqlVariant type
         /// </summary>
         public bool IsSqlVariant { get; private set; }
@@ -198,42 +218,5 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 
         #endregion
 
-        #region DbColumn Fields
-
-        /// <summary>
-        /// Override for column name, if null or empty, we default to a "no column name" value
-        /// </summary>
-        public new string ColumnName
-        {
-            get
-            {
-                return string.IsNullOrEmpty(internalColumn.ColumnName)
-                    ? SR.QueryServiceColumnNull
-                    : internalColumn.ColumnName;
-            }
-        }
-
-        public new bool? AllowDBNull { get { return internalColumn.AllowDBNull; } }
-        public new string BaseCatalogName { get { return internalColumn.BaseCatalogName; } }
-        public new string BaseColumnName { get { return internalColumn.BaseColumnName; } }
-        public new string BaseServerName { get { return internalColumn.BaseServerName; } }
-        public new string BaseTableName { get { return internalColumn.BaseTableName; } }
-        public new int? ColumnOrdinal { get { return internalColumn.ColumnOrdinal; } }
-        public new int? ColumnSize { get { return internalColumn.ColumnSize; } }
-        public new bool? IsAliased { get { return internalColumn.IsAliased; } }
-        public new bool? IsAutoIncrement { get { return internalColumn.IsAutoIncrement; } }
-        public new bool? IsExpression { get { return internalColumn.IsExpression; } }
-        public new bool? IsHidden { get { return internalColumn.IsHidden; } }
-        public new bool? IsIdentity { get { return internalColumn.IsIdentity; } }
-        public new bool? IsKey { get { return internalColumn.IsKey; } }
-        public new bool? IsReadOnly { get { return internalColumn.IsReadOnly; } }
-        public new bool? IsUnique { get { return internalColumn.IsUnique; } }
-        public new int? NumericPrecision { get { return internalColumn.NumericPrecision; } }
-        public new int? NumericScale { get { return internalColumn.NumericScale; } }
-        public new string UdtAssemblyQualifiedName { get { return internalColumn.UdtAssemblyQualifiedName; } }
-        public new Type DataType { get; private set; }
-        public new string DataTypeName { get { return internalColumn.DataTypeName; } }
-
-        #endregion
     }
 }

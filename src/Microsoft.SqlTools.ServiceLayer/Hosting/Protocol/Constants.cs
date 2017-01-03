@@ -13,6 +13,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
         public const string ContentLengthFormatString = "Content-Length: {0}\r\n\r\n";
         public static readonly JsonSerializerSettings JsonSerializerSettings;
 
+        public static readonly string SqlLoginAuthenticationType = "SqlLogin";
+
         static Constants()
         {
             JsonSerializerSettings = new JsonSerializerSettings();

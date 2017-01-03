@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Internal representation of the messages so we can modify internally
         /// </summary>
-        private readonly List<ResultMessage> resultMessages;
+        internal readonly List<ResultMessage> resultMessages;
 
         /// <summary>
         /// Internal representation of the result sets so we can modify internally
@@ -368,6 +368,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return targetResultSet.GetSubset(startRow, rowCount);
         }
 
+        /// <summary>
+        /// Saves a result to a file format selected by the user
+        /// </summary>
+        /// <param name="saveParams">Parameters for the save as request</param>
+        /// <param name="fileFactory">
+        /// Factory for creating the reader/writer pair for outputing to the selected format
+        /// </param>
+        /// <param name="successHandler">Delegate to call when request successfully completes</param>
+        /// <param name="failureHandler">Delegate to call if the request fails</param>
+        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
+            ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
+        {
+            // Get the result set to save
+            ResultSet resultSet;
+            lock (resultSets)
+            {
+                // Sanity check to make sure we have a valid result set
+                if (saveParams.ResultSetIndex < 0 || saveParams.ResultSetIndex >= resultSets.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(saveParams.BatchIndex), SR.QueryServiceSubsetResultSetOutOfRange);
+                }
+
+
+                resultSet = resultSets[saveParams.ResultSetIndex];
+            }
+            resultSet.SaveAs(saveParams, fileFactory, successHandler, failureHandler);
+        }
+
         #endregion
 
         #region Private Helpers
@@ -379,7 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="sender">Sender of the event</param>
         /// <param name="args">Arguments for the event</param>
-        private void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
+        internal void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
         {
             // Add a message for the number of rows the query returned
             string message;
@@ -414,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// cannot be converted to SqlException, the message is written to the messages list.
         /// </summary>
         /// <param name="dbe">The exception to unwrap</param>
-        private void UnwrapDbException(DbException dbe)
+        internal void UnwrapDbException(DbException dbe)
         {
             SqlException se = dbe as SqlException;
             if (se != null)
