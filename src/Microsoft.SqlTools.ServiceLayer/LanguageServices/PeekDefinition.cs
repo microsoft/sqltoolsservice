@@ -7,12 +7,13 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.SqlClient;
-using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -23,7 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     internal class PeekDefinition
     {
+        private bool error;
+        private string errorMessage;
+        private ServerConnection serverConnection;
         private ConnectionInfo connectionInfo;
+        private Database database;
         private string tempPath;
 
         internal delegate StringCollection ScriptGetter(string objectName, string schemaName);
@@ -35,38 +40,54 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
 
+        /// <summary>
+        /// Initialize a Peek Definition helper object
+        /// </summary>
+        /// <param name="serverConnection">SMO Server connection</param>
+        internal PeekDefinition(ServerConnection serverConnection, ConnectionInfo connInfo)
+        {
+            this.serverConnection = serverConnection;
+            this.connectionInfo = connInfo;
+            this.tempPath = FileUtils.GetPeekDefinitionTempFolder();    
+            Initialize();
+        }
+
         private Database Database
         {
             get
             {
-                if (this.connectionInfo.SqlConnection != null)
+                if (this.database == null)
                 {
-                    try
+                    if (this.serverConnection != null && !string.IsNullOrEmpty(this.serverConnection.DatabaseName))
                     {
-                        // Get server object from connection
-                        string connectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails);
-                        SqlConnection sqlConn = new SqlConnection(connectionString);                    
-                        sqlConn.Open();
-                        ServerConnection serverConn = new ServerConnection(sqlConn); 
-                        Server server = new Server(serverConn);
-                        return server.Databases[this.connectionInfo.SqlConnection.Database];
+                        try
+                        {
+                            // Get server object from connection
+                            SqlConnection sqlConn = new SqlConnection(this.serverConnection.ConnectionString);
+                            sqlConn.Open();
+                            ServerConnection peekConnection = new ServerConnection(sqlConn);
+                            Server server = new Server(peekConnection);
+                            this.database = new Database(server, peekConnection.DatabaseName);
+                        }
+                        catch (ConnectionFailureException cfe)
+                        {
+                            Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + cfe.Message);
+                            this.error = true;
+                            this.errorMessage = (connectionInfo != null && connectionInfo.IsAzure)? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message);
+                            return null;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
+                            this.error = true;
+                            this.errorMessage = SR.PeekDefinitionError(ex.Message);
+                            return null;
+                        }
                     }
-                    catch(Exception ex)
-                    {
-                        Logger.Write(LogLevel.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
-                        return null;
-                    }                   
-                }
-                return null;
-            }
-        }
 
-        internal PeekDefinition(ConnectionInfo connInfo)
-        {
-            this.connectionInfo = connInfo;
-            DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(Path.GetTempPath() + "mssql_definition");
-            this.tempPath = tempScriptDirectory.FullName;
-            Initialize();
+                }
+                return this.database;
+            }
         }
 
         /// <summary>
@@ -103,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (Path.DirectorySeparatorChar.Equals('/'))
             {
-                tempFileName = "file:" + tempFileName;                 
+                tempFileName = "file:" + tempFileName;
             }
             else
             {
@@ -129,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string[] lines = script.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             for (int lineNumber = 0; lineNumber < lines.Length; lineNumber++)
             {
-                if (lines[lineNumber].IndexOf( createString, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (lines[lineNumber].IndexOf(createString, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     return lineNumber;
                 }
@@ -144,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="tokenText"></param>
         /// <param name="schemaName"></param>
         /// <returns>Location object of the script file</returns>
-        internal Location[] GetScript(IEnumerable<Declaration> declarationItems, string tokenText, string schemaName)
+        internal DefinitionResult GetScript(IEnumerable<Declaration> declarationItems, string tokenText, string schemaName)
         {
             foreach (Declaration declarationItem in declarationItems)
             {
@@ -156,29 +177,38 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (declarationItem.Title.Equals(tokenText))
                 {
                     // Script object using SMO based on type
-                    DeclarationType type  = declarationItem.Type;
+                    DeclarationType type = declarationItem.Type;
                     if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
                     {
                         // On *nix and mac systems, the defaultSchema property throws an Exception when accessed.
                         // This workaround ensures that a schema name is present by attempting 
                         // to get the schema name from the declaration item 
                         // If all fails, the default schema name is assumed to be "dbo"
-                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && string.IsNullOrEmpty(schemaName))
+                        if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
                         {
                             string fullObjectName = declarationItem.DatabaseQualifiedName;
                             schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
                         }
-                        return GetSqlObjectDefinition(
+                        Location[] locations = GetSqlObjectDefinition(
                                     sqlScriptGetters[type],
                                     tokenText,
                                     schemaName,
                                     sqlObjectTypes[type]
                                 );
+                        DefinitionResult result = new DefinitionResult
+                        {
+                            IsErrorResult = this.error,
+                            Message = this.errorMessage,
+                            Locations = locations
+                        };
+                        return result;
                     }
-                    return null;
+                    // sql object type is currently not supported
+                    return GetDefinitionErrorResult(SR.PeekDefinitionTypeNotSupportedError);
                 }
             }
-            return null;
+            // no definition found
+            return GetDefinitionErrorResult(SR.PeekDefinitionNoResultsError);
         }
 
         /// <summary>
@@ -192,9 +222,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string[] tokens = fullObjectName.Split('.');
             for (int i = tokens.Length - 1; i > 0; i--)
             {
-                if(tokens[i].Equals(objectName))
+                if (tokens[i].Equals(objectName))
                 {
-                    return tokens[i-1];
+                    return tokens[i - 1];
                 }
             }
             return "dbo";
@@ -208,8 +238,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>String collection of scripts</returns>
         internal StringCollection GetTableScripts(string tableName, string schemaName)
         {
-            return (schemaName != null) ? Database?.Tables[tableName, schemaName]?.Script()
-                    : Database?.Tables[tableName]?.Script();
+            try
+            {
+                Table table = string.IsNullOrEmpty(schemaName)
+                    ? new Table(this.Database, tableName)
+                    : new Table(this.Database, tableName, schemaName);
+
+                table.Refresh();
+
+                return table.Script();
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Exception at PeekDefinition GetTableScripts : " + ex.Message);
+                return null;
+            }
         }
 
         /// <summary>
@@ -220,8 +263,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>String collection of scripts</returns>
         internal StringCollection GetViewScripts(string viewName, string schemaName)
         {
-            return (schemaName != null) ? Database?.Views[viewName, schemaName]?.Script()
-                    : Database?.Views[viewName]?.Script();
+            try
+            {
+                View view = string.IsNullOrEmpty(schemaName)
+                    ? new View(this.Database, viewName)
+                    : new View(this.Database, viewName, schemaName);
+
+                view.Refresh();
+
+                return view.Script();
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Exception at PeekDefinition GetViewScripts : " + ex.Message);
+                return null;
+            }
         }
 
         /// <summary>
@@ -230,10 +286,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="storedProcedureName">Stored Procedure name</param>
         /// <param name="schemaName">Schema Name</param>
         /// <returns>String collection of scripts</returns>
-        internal StringCollection GetStoredProcedureScripts(string viewName, string schemaName)
+        internal StringCollection GetStoredProcedureScripts(string sprocName, string schemaName)
         {
-            return (schemaName != null) ? Database?.StoredProcedures[viewName, schemaName]?.Script()
-                    : Database?.StoredProcedures[viewName]?.Script();
+            try
+            {
+                StoredProcedure sproc = string.IsNullOrEmpty(schemaName)
+                    ? new StoredProcedure(this.Database, sprocName)
+                    : new StoredProcedure(this.Database, sprocName, schemaName);
+
+                sproc.Refresh();
+
+                return sproc.Script();
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(LogLevel.Error, "Exception at PeekDefinition GetStoredProcedureScripts : " + ex.Message);
+                return null;
+            }
         }
 
         /// <summary>
@@ -250,30 +319,49 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 string schemaName,
                 string objectType)
         {
-                StringCollection scripts = sqlScriptGetter(objectName, schemaName);
-                string tempFileName = (schemaName != null) ?  Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
-                                                    : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
+            StringCollection scripts = sqlScriptGetter(objectName, schemaName);
+            string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
+                                                : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
-                if (scripts != null)
+            if (scripts != null)
+            {
+                int lineNumber = 0;
+                using (StreamWriter scriptFile = new StreamWriter(File.Open(tempFileName, FileMode.Create, FileAccess.ReadWrite)))
                 {
-                    int lineNumber = 0;
-                    using (StreamWriter scriptFile = new StreamWriter(File.Open(tempFileName, FileMode.Create, FileAccess.ReadWrite)))
-                    {
 
-                        foreach (string script in scripts)
+                    foreach (string script in scripts)
+                    {
+                        string createSyntax = string.Format("CREATE {0}", objectType);
+                        if (script.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0)
                         {
-                            string createSyntax = string.Format("CREATE {0}", objectType);
-                            if (script.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                scriptFile.WriteLine(script);
-                                lineNumber = GetStartOfCreate(script, createSyntax);
-                            }
+                            scriptFile.WriteLine(script);
+                            lineNumber = GetStartOfCreate(script, createSyntax);
                         }
                     }
-                    return GetLocationFromFile(tempFileName, lineNumber);
                 }
+                return GetLocationFromFile(tempFileName, lineNumber);
+            }
+            else
+            {
+                this.error = true;
+                this.errorMessage = SR.PeekDefinitionNoResultsError;
+                return null;
+            }
+        }
 
-            return null;
+        /// <summary>
+        /// Helper method to create definition error result object
+        /// </summary>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns> DefinitionResult</returns>
+        internal DefinitionResult GetDefinitionErrorResult(string errorMessage)
+        {
+            return new DefinitionResult
+            {
+                IsErrorResult = true,
+                Message = errorMessage,
+                Locations = null
+            };
         }
     }
 }

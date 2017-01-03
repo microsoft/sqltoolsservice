@@ -332,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         /// <summary>
         /// Gets a static instance of an empty completion list to avoid
-        // unneeded memory allocations
+        /// unneeded memory allocations
         /// </summary>
         internal static CompletionItem[] EmptyCompletionList
         {
@@ -340,6 +340,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 return AutoCompleteHelper.emptyCompletionList;
             }
+        }
+
+        /// <summary>
+        /// Checks whether a given word is in the reserved
+        /// word list or not
+        /// </summary>
+        internal static bool IsReservedWord(string text)
+        {
+            int pos = Array.IndexOf(DefaultCompletionText, text.ToLower());
+            return pos > -1;
         }
 
         /// <summary>

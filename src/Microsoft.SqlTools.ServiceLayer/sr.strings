@@ -129,7 +129,17 @@ QueryServiceMessageSenderNotSql = Sender for OnInfoMessage event must be a SqlCo
 
 QueryServiceResultSetReaderNull = Reader cannot be null
 
-### MSC
+### Save As Requests
+
+QueryServiceSaveAsResultSetNotComplete = Result cannot be saved until query execution has completed
+
+QueryServiceSaveAsMiscStartingError = Internal error occurred while starting save task
+
+QueryServiceSaveAsInProgress = A save request to the same path is in progress
+
+QueryServiceSaveAsFail(string fileName, string message) = Failed to save {0}: {1}
+
+### MISC
 
 QueryServiceResultSetNotRead = Cannot read subset unless the results have been read from the server
 
@@ -138,6 +148,21 @@ QueryServiceResultSetStartRowOutOfRange = Start row cannot be less than 0 or gre
 QueryServiceResultSetRowCountOutOfRange = Row count must be a positive integer
 
 QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for result set
+
+############################################################################
+# Language Service
+
+PeekDefinitionAzureError(string errorMessage) = This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}
+
+PeekDefinitionError(string errorMessage) = An unexpected error occurred during Peek Definition execution: {0}
+
+PeekDefinitionNoResultsError = No results were found.
+
+PeekDefinitionNotConnectedError = Please connect to a server.
+
+PeekDefinitionTimedoutError = Operation timed out.
+
+PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
 
 ############################################################################
 # Workspace Service

@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         IFileStreamReader GetReader(string fileName);
 
-        IFileStreamWriter GetWriter(string fileName, int maxCharsToStore, int maxXmlCharsToStore);
+        IFileStreamWriter GetWriter(string fileName);
 
         void DisposeFile(string fileName);
 

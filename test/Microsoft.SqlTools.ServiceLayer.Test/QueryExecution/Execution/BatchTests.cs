@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -254,8 +255,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // Then:
             // ... It should throw an exception
             Assert.Throws<ArgumentOutOfRangeException>(() => new Batch("stuff", Common.SubsectionDocument, -1, Common.GetFileStreamFactory(null)));
-        }
+        }        
 
+        [Fact]
+        public void StatementCompletedHandlerTest()
+        {
+            // If:
+            // ... I call the StatementCompletedHandler
+            Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory(null));
+            int messageCalls = 0;
+            batch.BatchMessage += args =>
+            {
+                messageCalls++;
+                return null;
+            };
+
+            // Then:
+            // ... The message handler for the batch should havve been called twice
+            batch.StatementCompletedHandler(null, new StatementCompletedEventArgs(1));
+            Assert.True(messageCalls == 1);
+            batch.StatementCompletedHandler(null, new StatementCompletedEventArgs(2));
+            Assert.True(messageCalls == 2);
+        }     
+      
         private static DbConnection GetConnection(ConnectionInfo info)
         {
             return info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
