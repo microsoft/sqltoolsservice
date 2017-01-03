@@ -29,7 +29,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Default selection of returning an actual XML showplan with all batches
         /// </summary>
-        private const bool DefaultReturnActualExecutionPlan = false; // do not return actual execution plan by default
+        private const bool DefaultReturnActualShowplan = false; // do not return actual execution plan by default
+
+        /// <summary>
+        /// Default selection of returning an actual XML showplan with all batches
+        /// </summary>
+        private const bool DefaultReturnEstimatedShowplan = false; // do not return actual execution plan by default
 
         #endregion
 
@@ -41,7 +46,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 
         private int? maxXmlCharsToStore;
 
-        private bool? returnActualExecutionPlan;
+        private bool? returnActualShowplan;
+
+        private bool? returnEstimatedShowplan;
 
         #endregion
 
@@ -68,10 +75,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             set { maxXmlCharsToStore = value; }
         }
 
-        public bool ReturnActualExecutionPlan
+        public bool ReturnActualShowplan
         {
-            get { return returnActualExecutionPlan ?? DefaultReturnActualExecutionPlan; }
-            set { returnActualExecutionPlan = value; }
+            get { return returnActualShowplan ?? DefaultReturnActualShowplan; }
+            set { returnActualShowplan = value; }
+        }
+
+        public bool ReturnEstimatedShowplan
+        {
+            get { return returnEstimatedShowplan ?? DefaultReturnEstimatedShowplan; }
+            set { returnEstimatedShowplan = value; }
         }
 
         #endregion
@@ -87,7 +100,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             BatchSeparator = newSettings.BatchSeparator;
             MaxCharsToStore = newSettings.MaxCharsToStore;
             MaxXmlCharsToStore = newSettings.MaxXmlCharsToStore;
-            ReturnActualExecutionPlan = newSettings.ReturnActualExecutionPlan;
+            ReturnActualShowplan = newSettings.ReturnActualShowplan;
+            ReturnEstimatedShowplan = newSettings.ReturnEstimatedShowplan;
         }
 
         #endregion
