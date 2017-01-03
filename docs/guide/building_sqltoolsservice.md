@@ -43,7 +43,7 @@ xUnit.net .NET CLI test runner (64-bit win10-x64)
 SUMMARY: Total: 1 targets, Passed: 1, Failed: 0.
 ```
 
-### Collecting Code coverage
+### Collecting Code Coverage
 
 > Code coverage requires a SQL Server instance installed on the localhost with Integrated Authentication 
 > configured for the current user executing the test suite.
