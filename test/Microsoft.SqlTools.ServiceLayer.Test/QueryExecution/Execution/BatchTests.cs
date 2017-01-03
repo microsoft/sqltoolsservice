@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             batch.BatchMessage += args =>
             {
                 messageCalls++;
-                return null;
+                return Task.FromResult(0);
             };
 
             // Then:
