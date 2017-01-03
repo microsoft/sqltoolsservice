@@ -55,6 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
+<<<<<<< HEAD
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
@@ -64,6 +65,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                     Assert.NotNull(p.BatchSummaries);
                     Assert.Equal(1, p.BatchSummaries.Length);
                 }).Complete();
+=======
+                .AddStandardBatchCompleteValidator()
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
+>>>>>>> dev
 
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -88,6 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
+<<<<<<< HEAD
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
@@ -97,6 +104,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                     Assert.NotNull(p.BatchSummaries);
                     Assert.Equal(1, p.BatchSummaries.Length);
                 }).Complete();
+=======
+                .AddStandardBatchCompleteValidator()
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
+>>>>>>> dev
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
             
             // Then:
@@ -122,6 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
                 .AddStandardResultSetValidator()
+<<<<<<< HEAD
                 .AddStandardMessageValidator()
                 .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
                 {
@@ -130,6 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                     Assert.NotNull(p.BatchSummaries);
                     Assert.Equal(1, p.BatchSummaries.Length);
                 }).Complete();
+=======
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
+>>>>>>> dev
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
@@ -154,6 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
+<<<<<<< HEAD
                 .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardBatchCompleteValidator()
@@ -167,6 +185,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                     Assert.NotNull(p.BatchSummaries);
                     Assert.Equal(2, p.BatchSummaries.Length);
                 }).Complete();
+=======
+                .AddStandardBatchCompleteValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddStandardResultSetValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddStandardQueryCompleteValidator(2)
+                .Complete();
+>>>>>>> dev
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
@@ -246,6 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardBatchCompleteValidator()
+<<<<<<< HEAD
                 .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
                 {
                     // Validate OwnerURI matches
@@ -253,6 +280,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                     Assert.NotNull(p.BatchSummaries);
                     Assert.Equal(1, p.BatchSummaries.Length);
                 }).Complete();
+=======
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
+>>>>>>> dev
 
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -302,6 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardBatchCompleteValidator()
+<<<<<<< HEAD
                 .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
                 {
                     // Validate OwnerURI matches
@@ -309,6 +341,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                     Assert.NotNull(p.BatchSummaries);
                     Assert.Equal(1, p.BatchSummaries.Length);
                 }).Complete();
+=======
+                .AddStandardQueryCompleteValidator(1)
+                .Complete();
+>>>>>>> dev
 
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -318,6 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // ... There should not be an active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
+<<<<<<< HEAD
         }
 
         private static WorkspaceService<SqlToolsSettings> GetDefaultWorkspaceService(string query)
@@ -362,6 +399,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         public static EventFlowValidator<TRequestContext> AddStandardResultSetValidator<TRequestContext>(
             this EventFlowValidator<TRequestContext> efv)
         {
+=======
+        }
+
+        private static WorkspaceService<SqlToolsSettings> GetDefaultWorkspaceService(string query)
+        {
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
+            var workspaceService = Common.GetPrimedWorkspaceService(query);
+            return workspaceService;
+        }
+    }
+
+    public static class EventFlowValidatorExtensions
+    {
+        public static EventFlowValidator<QueryExecuteResult> AddStandardQueryResultValidator(
+            this EventFlowValidator<QueryExecuteResult> efv)
+        {
+            // We just need to makes sure we get a result back, there's no params to validate
+            return efv.AddResultValidation(r =>
+            {
+                Assert.Null(r.Messages);
+            });
+        }
+
+        public static EventFlowValidator<TRequestContext> AddStandardBatchStartValidator<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv)
+        {
+            return efv.AddEventValidation(QueryExecuteBatchStartEvent.Type, p =>
+            {
+                // Validate OwnerURI and batch summary is returned
+                Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                Assert.NotNull(p.BatchSummary);
+            });
+        }
+
+        public static EventFlowValidator<TRequestContext> AddStandardBatchCompleteValidator<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv)
+        {
+            return efv.AddEventValidation(QueryExecuteBatchCompleteEvent.Type, p =>
+            {
+                // Validate OwnerURI and batch summary are returned
+                Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                Assert.NotNull(p.BatchSummary);
+            });
+        }
+
+        public static EventFlowValidator<TRequestContext> AddStandardResultSetValidator<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv)
+        {
+>>>>>>> dev
             return efv.AddEventValidation(QueryExecuteResultSetCompleteEvent.Type, p =>
             {
                 // Validate OwnerURI and result summary are returned
@@ -370,6 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             });
         }
 
+<<<<<<< HEAD
         public static EventFlowValidator<TRequestContext> AddStandardMessageValidator<TRequestContext>(
             this EventFlowValidator<TRequestContext> efv)
         {
@@ -378,6 +465,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 // Validate OwnerURI and message are returned
                 Assert.Equal(Common.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.Message);
+=======
+        public static EventFlowValidator<TRequestContext> AddStandardQueryCompleteValidator<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv, int expectedBatches)
+        {
+            return efv.AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
+            {
+                Assert.True(string.IsNullOrWhiteSpace(p.Message));
+                Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                Assert.NotNull(p.BatchSummaries);
+                Assert.Equal(expectedBatches, p.BatchSummaries.Length);
+>>>>>>> dev
             });
         }
     }

@@ -1,0 +1,31 @@
+# Note: This file isn't used in current setup. Instead its parts have been
+# set directly in the AppVeyor project settings - Environment, General, Build, Test sections.
+# This allows us to get Coveralls to run on PRs, but is more work than just using this file.
+# Preserving this here so that it's easy to replicate for others
+environment:
+    COVERALLS_REPO_TOKEN:  
+       secure: KjiClJjgj/eB1zo52GBz/CHCmdxj6ut+q6+LD5G3sYhy9Hi4kEF6CWi8vOQPH1oy
+
+# safelist
+branches:
+  only:
+    - master
+    - dev
+
+before_build:
+- appveyor-retry dotnet restore -v Minimal
+
+build_script:
+  - dotnet build src/Microsoft.SqlTools.ServiceLayer
+
+test_script:
+  - dotnet test test/Microsoft.SqlTools.ServiceLayer.Test
+
+after_test:
+  - cd test/CodeCoverage
+  - npm install -g gulp-cli
+  - runintegration.bat
+  - cmd: packages\coveralls.io.1.3.4\tools\coveralls.net.exe --opencover coverage.xml
+
+cache:
+- '%USERPROFILE%\.nuget\packages'

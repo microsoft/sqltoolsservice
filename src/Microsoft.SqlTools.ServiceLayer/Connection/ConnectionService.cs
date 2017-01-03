@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public delegate Task OnConnectionHandler(ConnectionInfo info);
 
         /// <summary>
-        // Callback for ondisconnect handler
+        /// Callback for ondisconnect handler
         /// </summary>
         public delegate Task OnDisconnectHandler(ConnectionSummary summary, string ownerUri);
 
@@ -360,19 +360,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             if (ServiceHost != null)
             {
-                // Send a telemetry notification for intellisense performance metrics
-                ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                try
                 {
-                    Params = new TelemetryProperties
+                    // Send a telemetry notification for intellisense performance metrics
+                    ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                     {
-                        Properties = new Dictionary<string, string>
-                    {
-                        { "IsAzure", info.IsAzure ? "1" : "0" }
-                    },
-                        EventName = TelemetryEventNames.IntellisenseQuantile,
-                        Measures = info.IntellisenseMetrics.Quantile
-                    }
-                });
+                        Params = new TelemetryProperties
+                        {
+                            Properties = new Dictionary<string, string>
+                        {
+                            { "IsAzure", info.IsAzure ? "1" : "0" }
+                        },
+                            EventName = TelemetryEventNames.IntellisenseQuantile,
+                            Measures = info.IntellisenseMetrics.Quantile
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write(LogLevel.Verbose, "Could not send Connection telemetry event " + ex.ToString());
+                }
             }
 
             // Close the connection            

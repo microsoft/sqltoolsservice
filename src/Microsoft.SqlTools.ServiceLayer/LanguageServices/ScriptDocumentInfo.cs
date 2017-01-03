@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         /// <summary>
         /// The token text in the file content used for completion list
         /// </summary>
-        public string TokenText
+        public virtual string TokenText
         {
             get
             {

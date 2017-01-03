@@ -1,4 +1,9 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -48,13 +53,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddResultValidation<TParams>(Action<TParams> paramValidation)
+        public EventFlowValidator<TRequestContext> AddResultValidation(Action<TRequestContext> paramValidation)
         {
             // Add the expected event
             expectedEvents.Add(new ExpectedEvent
             {
                 EventType = EventTypes.Result,
-                ParamType = typeof(TParams),
+                ParamType = typeof(TRequestContext),
                 Validator = paramValidation
             });
 

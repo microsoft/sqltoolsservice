@@ -214,6 +214,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             cancellationSource.Cancel();
         }
 
+        /// <summary>
+        /// Launches the asynchronous process for executing the query
+        /// </summary>
         public void Execute()
         {
             ExecutionTask = Task.Run(ExecuteInternal);
@@ -236,6 +239,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
+        }
+
+        /// <summary>
+        /// Saves the requested results to a file format of the user's choice
+        /// </summary>
+        /// <param name="saveParams">Parameters for the save as request</param>
+        /// <param name="fileFactory">
+        /// Factory for creating the reader/writer pair for the requested output format
+        /// </param>
+        /// <param name="successHandler">Delegate to call when the request completes successfully</param>
+        /// <param name="failureHandler">Delegate to call if the request fails</param>
+        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory, 
+            ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
+        {
+            // Sanity check to make sure that the batch is within bounds
+            if (saveParams.BatchIndex < 0 || saveParams.BatchIndex >= Batches.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(saveParams.BatchIndex), SR.QueryServiceSubsetBatchOutOfRange);
+            }
+
+            Batches[saveParams.BatchIndex].SaveAs(saveParams, fileFactory, successHandler, failureHandler);
         }
 
         #endregion

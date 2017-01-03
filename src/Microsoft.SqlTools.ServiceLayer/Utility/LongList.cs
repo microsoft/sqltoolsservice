@@ -20,15 +20,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
     /// </remarks>
     /// <typeparam name="T">Type of the values to store</typeparam>
     public class LongList<T> : IEnumerable<T>
-    {
+    {        
         #region Member Variables
-
+        
+        private int expandListSize = int.MaxValue;
         private List<List<T>> expandedList;
         private readonly List<T> shortList;
 
         #endregion
 
-        /// <summary>
+        /// <summary>   
         /// Creates a new long list
         /// </summary>
         public LongList()
@@ -46,7 +47,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         public T this[long index]
         {
-            get { return GetItem(index); }
+            get 
+            { 
+                return GetItem(index); 
+            }
+        }
+
+        public int ExpandListSize
+        {
+            get 
+            { 
+                return this.expandListSize; 
+            }
+            internal set 
+            { 
+                this.expandListSize = value; 
+            }
         }
 
         #endregion
@@ -60,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <returns>Index of the item that was just added</returns>
         public long Add(T val)
         {
-            if (Count <= int.MaxValue)
+            if (Count <= this.ExpandListSize)
             {
                 shortList.Add(val);
             }
@@ -73,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     expandedList = new List<List<T>> {shortList};
                 }
 
-                int arrayIndex = (int)(Count/int.MaxValue); // 0 based
+                int arrayIndex = (int)(Count / this.ExpandListSize); // 0 based
 
                 List<T> arr;
                 if (expandedList.Count <= arrayIndex) // need to make a new array
@@ -99,19 +115,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         {
             T val = default(T);
 
-            if (Count <= int.MaxValue)
+            if (Count <= this.ExpandListSize)
             {
                 int i32Index = Convert.ToInt32(index);
                 val = shortList[i32Index];
             }
             else
             {
-                int iArray32Index = (int) (Count/int.MaxValue);
+                int iArray32Index = (int) (Count / this.ExpandListSize);
                 if (expandedList.Count > iArray32Index)
                 {
                     List<T> arr = expandedList[iArray32Index];
 
-                    int i32Index = (int) (Count%int.MaxValue);
+                    int i32Index = (int) (Count % this.ExpandListSize);
                     if (arr.Count > i32Index)
                     {
                         val = arr[i32Index];
@@ -128,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="index">The index to remove from the list</param>
         public void RemoveAt(long index)
         {
-            if (Count <= int.MaxValue)
+            if (Count <= this.ExpandListSize)
             {
                 int iArray32MemberIndex = Convert.ToInt32(index); // 0 based
                 shortList.RemoveAt(iArray32MemberIndex);
@@ -136,21 +152,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             else // handle the case of multiple arrays
             {
                 // find out which array it is in
-                int arrayIndex = (int) (index/int.MaxValue);
+                int arrayIndex = (int) (index / this.ExpandListSize);
                 List<T> arr = expandedList[arrayIndex];
 
                 // find out index into this array
-                int iArray32MemberIndex = (int) (index%int.MaxValue);
+                int iArray32MemberIndex = (int) (index % this.ExpandListSize);
                 arr.RemoveAt(iArray32MemberIndex);
 
                 // now shift members of the array back one
-                int iArray32TotalIndex = (int) (Count/Int32.MaxValue);
+                int iArray32TotalIndex = (int) (Count / this.ExpandListSize);
                 for (int i = arrayIndex + 1; i < iArray32TotalIndex; i++)
                 {
                     List<T> arr1 = expandedList[i - 1];
                     List<T> arr2 = expandedList[i];
 
-                    arr1.Add(arr2[int.MaxValue - 1]);
+                    arr1.Add(arr2[this.ExpandListSize - 1]);
                     arr2.RemoveAt(0);
                 }
             }
