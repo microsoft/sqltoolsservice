@@ -92,14 +92,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             Batches = batchSelection.ToArray();
 
-            // Turn on Actual Execution Showplan settings 
-            if (settings.ReturnActualExecutionPlan == true) 
+            // Turn on Estimated Execution Showplan settings (estimated takes precedent over actual)
+            if (settings.ReturnEstimatedShowplan) 
             {
-                // Turn on showpan by putting in the before batches
-                BeforeBatches = new[] {new Batch("set statistics XML on", new SelectionData(0,0,0,0), 0, outputFactory)};
+                // Turn on showplan by putting in the before batches
+                BeforeBatches = new[] {new Batch("SET SHOWPLAN_XML ON", new SelectionData(0,0,0,0), 0, outputFactory)};
                 
                 // Turn off showplan by putting it in the after batches
-                AfterBatches = new[] {new Batch("set statistics XML off", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)};
+                AfterBatches = new[] {new Batch("SET SHOWPLAN_XML OFF", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)};
+            }
+            // Turn on Actual Execution Showplan settings 
+            else if (settings.ReturnActualShowplan) 
+            {
+                // Turn on showpan by putting in the before batches
+                BeforeBatches = new[] {new Batch("SET STATISTICS XML ON", new SelectionData(0,0,0,0), 0, outputFactory)};
+                
+                // Turn off showplan by putting it in the after batches
+                AfterBatches = new[] {new Batch("SET STATISTICS XML OFF", new SelectionData(0,0,0,0), batchSelection.Count(), outputFactory)};
            }
 
         }

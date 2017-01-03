@@ -288,12 +288,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // Add the result set to the results of the query
                             lock (resultSet)
                             {
-                                // If this result set is a showplan then attach the result set it define's Id
-                                if (resultSet.IsActualXMLShowplan())
-                                {
-                                    resultSet.actualXMLShowplanForResultId = resultSets[resultSetOrdinal - 1].Id;
-                                }
-
                                 resultSets.Add(resultSet);
                                 resultSetOrdinal++;
                             }

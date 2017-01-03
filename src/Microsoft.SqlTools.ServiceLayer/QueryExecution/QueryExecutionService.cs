@@ -333,7 +333,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Retrieve the current settings for executing the query with
                 QueryExecutionSettings settings = WorkspaceService.CurrentSettings.QueryExecutionSettings;
-                settings.ReturnActualExecutionPlan = executeParams.ReturnActualExecutionPlan;
+
+                // Apply execution parameter settings 
+                settings.ReturnActualShowplan = executeParams.ReturnActualShowplan;
+                settings.ReturnEstimatedShowplan = executeParams.ReturnEstimatedShowplan;
 
                 // Get query text from the workspace.
                 ScriptFile queryFile = WorkspaceService.Workspace.GetFile(executeParams.OwnerUri);

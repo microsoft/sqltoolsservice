@@ -68,11 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly string outputFileName;
 
-        /// <summary>
-        /// The result ID which this showplan belongs to (if it is a showplan)
-        /// </summary>
-        public int? actualXMLShowplanForResultId;
-
         #endregion
 
         /// <summary>
@@ -171,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    ActualXMLShowplanForResultId = actualXMLShowplanForResultId
+                    IsXmlShowplan = this.IsXmlShowplan()
                     
                 };
             }
@@ -447,10 +442,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// If the result set represented by this class is an Actual XML Showplan 
         /// then we return true 
         /// </summary>
-        public bool IsActualXMLShowplan() 
+        private bool IsXmlShowplan() 
         {           
             // Check if this result set is a showplan 
-            return (dataReader.Columns?.Length == 1 && dataReader.Columns[0].IsShowplanXml);
+            return (dataReader.Columns?.Length == 1 && dataReader.Columns[0].IsXmlShowplan);
         }
 
         #endregion
