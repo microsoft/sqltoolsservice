@@ -280,7 +280,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
-
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
@@ -324,20 +323,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             return efv.AddEventValidation(QueryExecuteBatchCompleteEvent.Type, p =>
             {
-                // Validate OwnerURI and batch summary are returned
-                Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                Assert.NotNull(p.BatchSummary);
-            });
-        }
-
-        public static EventFlowValidator<TRequestContext> AddStandardResultSetValidator<TRequestContext>(
-            this EventFlowValidator<TRequestContext> efv)
-        {
-            return efv.AddEventValidation(QueryExecuteResultSetCompleteEvent.Type, p =>
-            {
                 // Validate OwnerURI and result summary are returned
                 Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                Assert.NotNull(p.ResultSetSummary);
+                Assert.NotNull(p.BatchSummary);
             });
         }
 
@@ -349,6 +337,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 // Validate OwnerURI and message are returned
                 Assert.Equal(Common.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.Message);
+            });
+        }
+
+        public static EventFlowValidator<TRequestContext> AddStandardResultSetValidator<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv)
+        {
+            return efv.AddEventValidation(QueryExecuteResultSetCompleteEvent.Type, p =>
+            {
+                // Validate OwnerURI and summary are returned
+                Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                Assert.NotNull(p.ResultSetSummary);
             });
         }
 
