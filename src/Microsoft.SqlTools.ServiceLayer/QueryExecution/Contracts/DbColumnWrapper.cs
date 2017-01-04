@@ -109,7 +109,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                             // Indicate that this is xml to apply the right size limit
                             // Note we leave chars type as well to use the right retrieval mechanism.
                             IsXml = true;
-                            IsXmlExecutionPlan = true;
                         }
                         IsLong = true;
                     }
@@ -216,11 +215,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Whether or not the column is JSON
         /// </summary>
         public bool IsJson { get; set; }
-
-        /// <summary>
-        /// Whether or not the column is an XML Showplan
-        /// </summary>
-        public bool IsXmlExecutionPlan { get; set; }
 
         #endregion
 

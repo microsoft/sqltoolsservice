@@ -55,6 +55,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly List<ResultSet> resultSets;
 
+        public enum BatchSpecialAction
+        {
+            None = 0x0, 
+            ExpectActualExecutionPlan = 0x1, 
+            ExpectEstimatedExecutionPlan = 0x2,
+            ExpectActualYukonXmlShowPlan = 0x4,
+            ExpectEstimatedYukonXmlShowPlan	= 0x8,
+            ExecuteWithDebugging = 0x10,
+            ExecuteLivePlan = 0x20,
+            HideYukonXMLShowPlan = 0x40,
+            ExpectYukonXmlShowPlan  = ExpectActualYukonXmlShowPlan | ExpectEstimatedYukonXmlShowPlan,
+            ShowPlanMask = ExpectYukonXmlShowPlan | ExpectActualExecutionPlan | ExpectEstimatedExecutionPlan
+        }
+
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
@@ -172,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 lock (resultSets)
                 {
-                    return resultSets.Select(set => set.Summary).ToArray();
+                    return resultSets.Select((set) => set.Summary).ToArray();
                 }
             }
         }
@@ -200,6 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     summary.Messages = ResultMessages.ToArray();
                     summary.ExecutionEnd = ExecutionEndTimeStamp;
                     summary.ExecutionElapsed = ExecutionElapsedTime;
+                    summary.BatchSpecialAction = processResultSetsSpecialActions();
                 }
 
                 return summary;
@@ -472,6 +487,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 resultMessages.Add(new ResultMessage(dbe.Message));
             }
+        }
+
+
+        private BatchSpecialAction processResultSetsSpecialActions()
+        {
+            BatchSpecialAction batchSpecialAction = BatchSpecialAction.None;
+            foreach (ResultSet resultSet in resultSets) 
+            {
+                batchSpecialAction |= resultSet.Summary.SpecialAction;
+            }
+
+            return batchSpecialAction;
         }
 
         #endregion

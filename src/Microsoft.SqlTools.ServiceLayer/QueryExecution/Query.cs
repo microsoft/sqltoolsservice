@@ -148,6 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             bool isSqlDw = false;
             bool multiServerConnection = false;
 
+            // should i also cover the Sql Server CE case?
             
             if (!isSqlDw)
             {

@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// An attached Actual Showplan in XML, if there was one
         /// </summary>
-        public bool IsXmlExecutionPlan { get; set; }
+        public Batch.BatchSpecialAction SpecialAction { get; set; }
 
     }
 }

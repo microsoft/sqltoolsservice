@@ -27,6 +27,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Column names of 'for xml' and 'for json' queries
         private const string NameOfForXMLColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
+        private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
+
+        //array of column names that indicate that we got result set with pre-Yukon showplan
+        protected static String[] s_PreYukonShowPlanColumns = new String[] 
+        {
+            "Rows",
+            "Executes",
+            "StmtText",
+            "StmtId",
+            "NodeId",
+            "Parent",
+            "PhysicalOp",
+            "LogicalOp",
+            "Argument",
+            "DefinedValues",
+            "EstimateRows",
+            "EstimateIO",
+            "EstimateCPU",
+            "AvgRowSize",
+            "TotalSubtreeCost",
+            "OutputList",
+            "Warnings",
+            "Type",
+            "Parallel",
+            "EstimateExecutions"
+        };
 
         #endregion
 
@@ -166,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    IsXmlExecutionPlan = this.IsXmlExecutionPlan()
+                    SpecialAction = processSpecialAction()
                     
                 };
             }
@@ -439,13 +465,39 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// If the result set represented by this class is an Actual XML Showplan 
-        /// then we return true 
+        /// Determine the special action if any for this result set
         /// </summary>
-        private bool IsXmlExecutionPlan() 
+        private Batch.BatchSpecialAction processSpecialAction() 
         {           
+
             // Check if this result set is a showplan 
-            return (dataReader.Columns?.Length == 1 && dataReader.Columns[0].IsXmlExecutionPlan);
+            if (dataReader.Columns.Length == 1 && String.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return Batch.BatchSpecialAction.ExpectYukonXmlShowPlan;
+            }
+            // Compare column names to see if it is pre-Yukon actual execution plan
+            else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length)
+            {
+                for (int i = 2; i < dataReader.Columns.Length; i++)
+                {
+                    if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
+                        return Batch.BatchSpecialAction.None;
+                }
+
+                return Batch.BatchSpecialAction.ExpectActualExecutionPlan;
+            }
+            // Compare column names to see if it is pre-Yukon estimated execution plan
+            else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length + 2)
+            {
+                for (int i = 2; i < dataReader.Columns.Length; i++)
+                {
+                    if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
+                        return Batch.BatchSpecialAction.None;
+                }
+                return Batch.BatchSpecialAction.ExpectEstimatedExecutionPlan;
+            } 
+
+            return Batch.BatchSpecialAction.None; 
         }
 
         #endregion

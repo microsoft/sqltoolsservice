@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
@@ -49,5 +51,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// The summaries of the result sets inside the batch
         /// </summary>
         public ResultSetSummary[] ResultSetSummaries { get; set; }
+
+        /// <summary>
+        /// The summaries of the result sets inside the batch
+        /// </summary>
+        public Batch.BatchSpecialAction BatchSpecialAction { get; set; }
     }
 }
