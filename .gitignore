@@ -282,6 +282,10 @@ Session.vim
 # Visual Studio Code
 .vscode/
 
+# docfx generated files
+_site
+metadata
+
 # Stuff from cake
 /artifacts/
 /.tools/

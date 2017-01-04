@@ -54,12 +54,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         /// <returns></returns>
         public int? ColumnEndIndex { get; set; }
+
+        /// <summary>
+        /// Check if request is a subset of result set or whole result set
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsSaveSelection
+        {
+            get
+            {
+                return ColumnStartIndex.HasValue && ColumnEndIndex.HasValue
+                       && RowStartIndex.HasValue && RowEndIndex.HasValue;
+            }
+        }
     }
 
     /// <summary>
     /// Parameters to save results as CSV
     /// </summary>
-    public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams{
+    public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams
+    {
         /// <summary>
         /// Include headers of columns in CSV
         /// </summary>
@@ -69,7 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// <summary>
     /// Parameters to save results as JSON
     /// </summary>
-    public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams{
+    public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams
+    {
         //TODO: define config for save as JSON
     }
 
