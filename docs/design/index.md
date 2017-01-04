@@ -15,6 +15,29 @@ The SQL Tools Service is built on top of the SMO SDK for .Net Core and System.Da
 to provide rich SQL Server support that runs on Windows, Mac OS, and Linux operating systems.  The service can work with on-prem SQL Server,
 SQL DB, and Azure SQL DW instances.
 
+## Message Dispatcher
+
+The JSON-RPC mechanism is build on a message dispatcher.  Messages are read from stdio and serialized\deserialized
+using JSON.Net.  Message handlers are registered with the dispatcher.  Ass the messages are processed by
+the dispatcher queue they are routed to any registered handlers.  The dispatch queue processes messages 
+serially.
+
+<img src='../images/msgdispatch.png' width='650px' />
+
+Messages are handled by services that register with the message processing component.  The dispatch table maps
+JSON-RPC message names to callbacks in the various services.  Currently these services are hard-coded into
+the service layer executable.  A future refactor will move to a MEF-based dynamic discovery design such as
+the below diagram illustrates.
+
+<img src='../images/serviceregistration.png' width='650px' />
+
+The below sequence diagram show an example of how the language service may process a error checking diagnostics
+workflow.  In this example the editor hosts a language service client that responds to user initiated editing events.
+The user actions are translated into a sequence of request\response pairs and one-way event notifications. 
+Messages can be initiated from either the server or the client.
+
+<img src='../images/msgdispatchexample.png' width='800px' />
+
 ## Language Service
 The SQL Tools Service implements the [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md) 
 implemented by VS Code.  This includes support for the following operations.
@@ -37,21 +60,16 @@ The binding queue is implemented in @Microsoft.SqlTools.ServiceLayer.LanguageSer
   
 <img src='../images/connected_bind.png' width='800px' />
 
-## Message Dispatcher
+## Connection Management
+The Connection Management component provides functionality to establish connections to SQL Server instances.
+A connection is required to work with many language service and query execution APIs.
 
-The JSON-RPC mechanism is build on a message dispatcher.  Messages are read from stdio and serialized\deserialized
-using JSON.Net.  Message handlers are registered with the dispatcher.  Ass the messages are processed by
-the dispatcher queue they are routed to any registered handlers.  The dispatch queue processes messages 
-serially.
+@Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
+([src link](https://github.com/Microsoft/sqltoolsservice/blob/dev/src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs)) 
+is the class that implements the connection management protocol.
 
-<img src='../images/msgdispatch.png' width='650px' />
 
-The below sequence diagram show an example of how the language service may process a error checking diagnostics
-workflow.  In this example the editor hosts a language service client that responds to user initiated editing events.
-The user actions are translated into a sequence of request\response pairs and one-way event notifications. 
-Messages can be initiated from either the server or the client.
-
-<img src='../images/msgdispatchexample.png' width='800px' />
+<img src='../images/connectionservice.png' width='600px' />
 
 ## Query Execution
 The Query Execution component provides the ability to execute SQL scripts against SQL Server instances.
@@ -61,4 +79,3 @@ and a file-backed cache for large resultsets.
 @Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService
 ([src link](https://github.com/Microsoft/sqltoolsservice/blob/dev/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/QueryExecutionService.cs)) 
 is the class that implements the query execution protocol.
-
