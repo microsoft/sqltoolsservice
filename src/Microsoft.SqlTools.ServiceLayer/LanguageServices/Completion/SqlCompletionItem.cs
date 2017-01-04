@@ -19,9 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     public class SqlCompletionItem
     {
         private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
-        private static DelimitedIdentifier BracketeIdentifiers = new DelimitedIdentifier { Start = "[", End = "]"};
+        private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]"};
         private static DelimitedIdentifier[] DelimitedIdentifiers =
-            new DelimitedIdentifier[] { BracketeIdentifiers, new DelimitedIdentifier {Start = "\"", End = "\"" } };
+            new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier {Start = "\"", End = "\"" } };
 
         /// <summary>
         /// Create new instance given the SQL parser declaration
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             if (delimitedIdentifier == null && !string.IsNullOrEmpty(DeclarationTitle) && 
                 (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText)))
             {
-                InsertText = WithDelimitedIdentifier(BracketeIdentifiers, DeclarationTitle);
+                InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
             }
             if (delimitedIdentifier != null)
             {
