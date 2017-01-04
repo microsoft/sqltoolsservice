@@ -777,9 +777,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 var detectionStrategy2 = new TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy();
                 Assert.NotNull(detectionStrategy2.InvokeCanRetrySqlException(sqlException));
                 Assert.NotNull(detectionStrategy2.InvokeShouldIgnoreSqlException(sqlException));
-
-                Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory(null));
-                batch.UnwrapDbException(sqlException);
             }
 
             var unknownCodeReason = RetryPolicy.ThrottlingReason.FromReasonCode(-1);
