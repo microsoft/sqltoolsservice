@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly List<ResultSet> resultSets;
 
-        public enum BatchSpecialAction
+        public enum SpecialAction
         {
             None = 0x0, 
             ExpectActualExecutionPlan = 0x1, 
@@ -490,9 +490,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
 
-        private BatchSpecialAction processResultSetsSpecialActions()
+        private SpecialAction processResultSetsSpecialActions()
         {
-            BatchSpecialAction batchSpecialAction = BatchSpecialAction.None;
+            SpecialAction batchSpecialAction = SpecialAction.None;
             foreach (ResultSet resultSet in resultSets) 
             {
                 batchSpecialAction |= resultSet.Summary.SpecialAction;

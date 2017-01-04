@@ -467,13 +467,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Determine the special action if any for this result set
         /// </summary>
-        private Batch.BatchSpecialAction processSpecialAction() 
+        private Batch.SpecialAction processSpecialAction() 
         {           
 
             // Check if this result set is a showplan 
             if (dataReader.Columns.Length == 1 && String.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return Batch.BatchSpecialAction.ExpectYukonXmlShowPlan;
+                return Batch.SpecialAction.ExpectYukonXmlShowPlan;
             }
             // Compare column names to see if it is pre-Yukon actual execution plan
             else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length)
@@ -481,10 +481,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 for (int i = 2; i < dataReader.Columns.Length; i++)
                 {
                     if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
-                        return Batch.BatchSpecialAction.None;
+                        return Batch.SpecialAction.None;
                 }
 
-                return Batch.BatchSpecialAction.ExpectActualExecutionPlan;
+                return Batch.SpecialAction.ExpectActualExecutionPlan;
             }
             // Compare column names to see if it is pre-Yukon estimated execution plan
             else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length + 2)
@@ -492,12 +492,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 for (int i = 2; i < dataReader.Columns.Length; i++)
                 {
                     if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
-                        return Batch.BatchSpecialAction.None;
+                        return Batch.SpecialAction.None;
                 }
-                return Batch.BatchSpecialAction.ExpectEstimatedExecutionPlan;
+                return Batch.SpecialAction.ExpectEstimatedExecutionPlan;
             } 
 
-            return Batch.BatchSpecialAction.None; 
+            return Batch.SpecialAction.None; 
         }
 
         #endregion
