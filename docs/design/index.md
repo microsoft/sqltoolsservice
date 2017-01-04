@@ -24,6 +24,13 @@ serially.
 
 <img src='../images/msgdispatch.png' width='650px' />
 
+Messages are handled by services that register with the message processing component.  The dispatch table maps
+JSON-RPC message names to callbacks in the various services.  Currently these services are hard-coded into
+the service layer executable.  A future refactor will move to a MEF-based dynamic discovery design such as
+the below diagram illustrates.
+
+<img src='../images/serviceregistration.png' width='650px' />
+
 The below sequence diagram show an example of how the language service may process a error checking diagnostics
 workflow.  In this example the editor hosts a language service client that responds to user initiated editing events.
 The user actions are translated into a sequence of request\response pairs and one-way event notifications. 
@@ -60,6 +67,9 @@ A connection is required to work with many language service and query execution 
 @Microsoft.SqlTools.ServiceLayer.Connection.ConnectionService
 ([src link](https://github.com/Microsoft/sqltoolsservice/blob/dev/src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs)) 
 is the class that implements the connection management protocol.
+
+
+<img src='../images/connectionservice.png' width='600px' />
 
 ## Query Execution
 The Query Execution component provides the ability to execute SQL scripts against SQL Server instances.
