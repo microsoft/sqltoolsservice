@@ -972,7 +972,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// entry is created and the old entry is removed.
         /// </summary>
         [Fact]
-        public async void ConectingWithTheSameUriUsesTheSameConnection()
+        public async void ConectingWithTheSameUriDoesNotCreateAnotherConnection()
         {
             // Setup the connect and disconnect params
             var connectParamsSame1 = new ConnectParams()
