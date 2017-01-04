@@ -20,6 +20,10 @@ using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 {
@@ -262,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // Verify that the disconnect failed (since it caused a cancellation)
             Assert.False(disconnectResult);
         }
-
+        
         /// <summary>
         /// Verify that we can connect to the default database when no database name is
         /// provided as a parameter.
@@ -1020,5 +1024,212 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             service.Disconnect(disconnectParamsSame);
             Assert.Equal(0, ownerToConnectionMap.Count);
         }
+
+        [Fact]
+        public async void DbConnectionDoesntLeakUponDisconnect()
+        {
+            // If we connect with a single URI and 2 connection types
+            var connectParamsDefault = new ConnectParams()
+            {
+                OwnerUri = "connectParams",
+                Connection = TestObjects.GetTestConnectionDetails(),
+                Type = ConnectionType.Default
+            };
+            var connectParamsQuery = new ConnectParams()
+            {
+                OwnerUri = "connectParams",
+                Connection = TestObjects.GetTestConnectionDetails(),
+                Type = ConnectionType.Query
+            };
+            var disconnectParams = new DisconnectParams()
+            {
+                OwnerUri = connectParamsDefault.OwnerUri
+            };
+            var service = TestObjects.GetTestConnectionService();
+            await service.Connect(connectParamsDefault);
+            await service.Connect(connectParamsQuery);
+
+            // We should have one ConnectionInfo and 2 DbConnections 
+            ConnectionInfo connectionInfo = service.OwnerToConnectionMap[connectParamsDefault.OwnerUri];
+            Assert.Equal(2, connectionInfo.ConnectionTypeToConnectionMap.Count);
+            Assert.Equal(1, service.OwnerToConnectionMap.Count);
+
+            // If we record when the Default connecton calls Close()
+            bool defaultDisconnectCalled = false;
+            var mockDefaultConnection = new Mock<DbConnection> { CallBase = true };
+            mockDefaultConnection.Setup(x => x.Close())
+                .Callback(() =>
+                {
+                    defaultDisconnectCalled = true;
+                });
+            connectionInfo.ConnectionTypeToConnectionMap[ConnectionType.Default] = mockDefaultConnection.Object;
+
+            // And when the Query connecton calls Close()
+            bool queryDisconnectCalled = false;
+            var mockQueryConnection = new Mock<DbConnection> { CallBase = true };
+            mockQueryConnection.Setup(x => x.Close())
+                .Callback(() =>
+                {
+                    queryDisconnectCalled = true;
+                });
+            connectionInfo.ConnectionTypeToConnectionMap[ConnectionType.Query] = mockQueryConnection.Object;
+
+            // If we disconnect all open connections with the same URI as used above 
+            service.Disconnect(disconnectParams);
+
+            // Close() should have gotten called for both DbConnections
+            Assert.True(defaultDisconnectCalled);
+            Assert.True(queryDisconnectCalled);
+
+            // And the maps that hold connection data should be empty
+            Assert.Equal(0, connectionInfo.ConnectionTypeToConnectionMap.Count);
+            Assert.Equal(0, service.OwnerToConnectionMap.Count);
+        }
+
+        // TODO test this with a live connection and move it into the new dll
+        [Fact]
+        public void RunningMultipleQueriesCreatesOnlyOneConnection()
+        {
+            // Connect/disconnect twice to ensure reconnection can occur
+            ConnectionService service = ConnectionService.Instance;
+            for (int i = 0; i < 2; i++)
+            { 
+                ScriptFile scriptFile;
+                ConnectionInfo connectionInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+                string uri = connectionInfo.OwnerUri;
+
+                // We should see one ConnectionInfo and one DbConnection
+                Assert.Equal(1, connectionInfo.ConnectionTypeToConnectionMap.Count);
+                Assert.Equal(1, service.OwnerToConnectionMap.Count);
+
+                // If we run a query
+                var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+                Query query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
+                query.Execute();
+                query.ExecutionTask.Wait();
+
+                // We should see two DbConnections
+                Assert.Equal(2, connectionInfo.ConnectionTypeToConnectionMap.Count);
+
+                // If we run another query
+                query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
+                query.Execute();
+                query.ExecutionTask.Wait();
+
+                // We should still have 2 DbConnections
+                Assert.Equal(2, connectionInfo.ConnectionTypeToConnectionMap.Count);
+
+                // If we disconnect, we should remain in a consistant state to do it over again
+                // e.g. loop and do it over again
+                service.Disconnect(new DisconnectParams() { OwnerUri = connectionInfo.OwnerUri });
+
+                // We should be left with an empty connection map
+                Assert.Equal(0, service.OwnerToConnectionMap.Count);
+            }
+        }
+
+        // TODO test this with a live connection and move it into the new dll
+        [Fact]
+        public void DatabaseChangesAffectAllConnections()
+        {
+            // If we make a connection to a live database 
+            ConnectionService service = ConnectionService.Instance;
+            ScriptFile scriptFile;
+            ConnectionInfo connectionInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            ConnectionDetails details = TestObjects.GetIntegratedTestConnectionDetails();
+            string uri = connectionInfo.OwnerUri;
+            string initialDatabaseName = details.DatabaseName;
+            string newDatabaseName = "tempdb";
+            string changeDatabaseQuery = "use " + newDatabaseName;
+
+            // Then run any query to create a query DbConectio
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            Query query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
+            query.Execute();
+            query.ExecutionTask.Wait();
+
+            // All open DbConnections (Query and Default) should have initialDatabaseName as their database
+            foreach (KeyValuePair<ConnectionType, DbConnection> entry in connectionInfo.ConnectionTypeToConnectionMap)
+            {
+                Assert.Equal(entry.Value.Database, initialDatabaseName);
+            }
+
+            // If we run a query to change the database
+            query = new Query(changeDatabaseQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
+            query.Execute();
+            query.ExecutionTask.Wait();
+
+            // All open DbConnections (Query and Default) should have newDatabaseName as their database
+            foreach (KeyValuePair<ConnectionType, DbConnection> entry in connectionInfo.ConnectionTypeToConnectionMap)
+            {
+                Assert.Equal(entry.Value.Database, newDatabaseName);
+            }
+        }
+
+        [Fact]
+        public void CallingDisconnectCancelsAllPendingConnections()
+        {
+            var testFile = "file:///my/test/file.sql";
+
+            // Given a connection that times out and responds to cancellation
+            var mockConnection = new Mock<DbConnection> { CallBase = true };
+            CancellationToken token;
+            bool ready = false;
+            mockConnection.Setup(x => x.OpenAsync(Moq.It.IsAny<CancellationToken>()))
+                .Callback<CancellationToken>(t =>
+                {
+                    // Pass the token to the return handler and signal the main thread to cancel
+                    token = t;
+                    ready = true;
+                })
+                .Returns(() =>
+                {
+                    if (TestUtils.WaitFor(() => token.IsCancellationRequested))
+                    {
+                        throw new OperationCanceledException();
+                    }
+                    else
+                    {
+                        return Task.FromResult(true);
+                    }
+                });
+
+            var mockFactory = new Mock<ISqlConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
+                .Returns(mockConnection.Object);
+
+
+            var connectionService = new ConnectionService(mockFactory.Object);
+
+            // Connect the connection asynchronously in a background thread
+            var connectionDetails = TestObjects.GetTestConnectionDetails();
+            var connectTask = Task.Run(async () =>
+            {
+                return await connectionService
+                    .Connect(new ConnectParams()
+                    {
+                        OwnerUri = testFile,
+                        Connection = connectionDetails
+                    });
+            });
+
+            // Wait for the connection to call OpenAsync()
+            Assert.True(TestUtils.WaitFor(() => ready));
+
+
+
+
+            int test = 0;
+
+
+
+
+
+
+
+
+
+        }
+
     }
 }
