@@ -401,7 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Increment the index and take its original value in one atomic action
+            // State that we've sent any message, and send it
             messagesSent = true;
             await BatchMessage(new ResultMessage(message, isError, Id));
         }

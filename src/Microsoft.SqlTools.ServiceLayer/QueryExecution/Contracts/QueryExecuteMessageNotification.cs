@@ -27,6 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             EventType<QueryExecuteMessageParams> Type =
-            EventType<QueryExecuteMessageParams>.Create("query/complete");
+            EventType<QueryExecuteMessageParams>.Create("query/message");
     }
 }
