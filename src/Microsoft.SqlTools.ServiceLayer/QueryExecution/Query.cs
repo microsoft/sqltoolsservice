@@ -52,6 +52,51 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private bool hasExecuteBeenCalled;
 
+        /// <summary>
+        /// ON keyword
+        /// </summary>
+        private static string s_On = "ON";
+
+        /// <summary>
+        /// OFF keyword
+        /// </summary>
+        private static string s_Off = "OFF";
+ 
+        /// <summary>
+        /// showplan_text statement
+        /// </summary>
+        private static string s_SetShowplanText = "SET SHOWPLAN_TEXT {0}";
+
+        /// <summary>
+        /// statistics time statement
+        /// </summary>
+        private static string s_SetStatisticsTime = "SET STATISTICS TIME {0}";
+
+        /// <summary>
+        /// statistics IO statement
+        /// </summary>
+        private static string s_SetStatisticsIO = "SET STATISTICS IO {0}";
+
+        /// <summary>
+        /// statistics profile statement
+        /// </summary>
+        private static string s_SetStatisticsProfile = "SET STATISTICS PROFILE {0}";
+ 
+        /// <summary>
+        /// showplan_all statement
+        /// </summary>
+		private static string s_SetShowPlanAll = "SET SHOWPLAN_ALL {0}";
+
+        /// <summary>
+        /// showplan_xml statement
+        /// </summary>
+		private static string s_SetShowPlanXml = "SET SHOWPLAN_XML {0}";
+
+        /// <summary>
+        /// statistics_all statement
+        /// </summary>
+        private static string s_SetStatisticsXml = "SET STATISTICS XML {0}";
+
         #endregion
 
         /// <summary>
@@ -98,26 +143,60 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
 
-            // Turn on Estimated Execution Showplan settings
-            if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlan) 
-            {
-                // Turn on showplan by putting in the before batches
-                addBatch("SET SHOWPLAN_XML ON", BeforeBatches, outputFactory);
-                
-                // Turn off showplan by putting it in the after batches
-                addBatch("SET SHOWPLAN_XML OFF", AfterBatches, outputFactory);
-            }
-            // Turn on Actual Execution Showplan settings 
-            else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlan) 
-            {
-                // Turn on showplan by putting in the before batches
-                addBatch("SET STATISTICS XML ON", BeforeBatches, outputFactory);
-                
-                // Turn off showplan by putting it in the after batches
-                addBatch("SET STATISTICS XML OFF", AfterBatches, outputFactory);
-           }
+            // place holders until implemented
+            int majorVersion = Int32.Parse(connection.SqlConnection.ServerVersion.Split('.')[0]);
+            bool isSqlDw = false;
+            bool multiServerConnection = false;
 
+            
+            if (!isSqlDw)
+            {
+                // Client statistics and showplan are not shown for multi-server connections.  If we do decide to show
+                // showplan or statistics for multi-server connections, each child server connection will need
+                // its own setting because the child servers do not have to be the same version.
+                if (!multiServerConnection)
+                {
+                    //showplan specified via UI corresponds to execOptions.WithShowPlan option and takes precedence
+                    //over all other showplan related settings that might have been specified via Connection Settings
+                    //UI
+                    if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlan) 
+                    {
+                        if (majorVersion >= 9)
+                        {
+                            // Enable set showplan xml
+                            addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
+                            addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
+                        }
+                        else
+                        {
+                            // Enable set showplan all
+                            addBatch(string.Format(s_SetShowPlanAll, s_On), BeforeBatches, outputFactory);
+                            addBatch(string.Format(s_SetShowPlanAll, s_Off), AfterBatches, outputFactory);
+                        }
+                    }
+                    // check for the actual exectuion plan (statistics xml)
+                    else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlan)
+                    {
+                        if (majorVersion >= 9)
+                        {
+                            // enable set statistics xml
+                            addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
+                            addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
+                        
+                            // live showplan enabling goes here in the future
+                        } 
+                        else
+                        {
+                            // enable set statistics profile
+                            addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
+                            addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
+                        }
+                    }
+                }
+            }
         }
+
+
 
         #region Events
 
