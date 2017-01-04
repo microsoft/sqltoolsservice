@@ -1167,69 +1167,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public void CallingDisconnectCancelsAllPendingConnections()
+        public async void ClosingQueryConnectionShouldLeaveDefaultConnectionOpen()
         {
-            var testFile = "file:///my/test/file.sql";
-
-            // Given a connection that times out and responds to cancellation
-            var mockConnection = new Mock<DbConnection> { CallBase = true };
-            CancellationToken token;
-            bool ready = false;
-            mockConnection.Setup(x => x.OpenAsync(Moq.It.IsAny<CancellationToken>()))
-                .Callback<CancellationToken>(t =>
-                {
-                    // Pass the token to the return handler and signal the main thread to cancel
-                    token = t;
-                    ready = true;
-                })
-                .Returns(() =>
-                {
-                    if (TestUtils.WaitFor(() => token.IsCancellationRequested))
-                    {
-                        throw new OperationCanceledException();
-                    }
-                    else
-                    {
-                        return Task.FromResult(true);
-                    }
-                });
-
-            var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
-                .Returns(mockConnection.Object);
-
-
-            var connectionService = new ConnectionService(mockFactory.Object);
-
-            // Connect the connection asynchronously in a background thread
-            var connectionDetails = TestObjects.GetTestConnectionDetails();
-            var connectTask = Task.Run(async () =>
+            // Setup the connect and disconnect params
+            var connectParamsDefault = new ConnectParams()
             {
-                return await connectionService
-                    .Connect(new ConnectParams()
-                    {
-                        OwnerUri = testFile,
-                        Connection = connectionDetails
-                    });
-            });
+                OwnerUri = "connectParamsSame",
+                Connection = TestObjects.GetTestConnectionDetails(),
+                Type = ConnectionType.Default
+            };
+            var connectParamsQuery = new ConnectParams()
+            {
+                OwnerUri = connectParamsDefault.OwnerUri,
+                Connection = TestObjects.GetTestConnectionDetails(),
+                Type = ConnectionType.Query
+            };
+            var disconnectParamsQuery = new DisconnectParams()
+            {
+                OwnerUri = connectParamsDefault.OwnerUri,
+                Type = connectParamsQuery.Type
+            };
 
-            // Wait for the connection to call OpenAsync()
-            Assert.True(TestUtils.WaitFor(() => ready));
+            // If I connect a Default and a Query connection
+            var service = TestObjects.GetTestConnectionService();
+            Dictionary<string, ConnectionInfo> ownerToConnectionMap = service.OwnerToConnectionMap;
+            await service.Connect(connectParamsDefault);
+            await service.Connect(connectParamsQuery);
+            ConnectionInfo connectionInfo = service.OwnerToConnectionMap[connectParamsDefault.OwnerUri];
 
+            // There should be 2 connections in the map
+            Assert.Equal(2, connectionInfo.ConnectionTypeToConnectionMap.Count);
 
+            // If I Disconnect only the Query connection, there should be 1 connection in the map
+            service.Disconnect(disconnectParamsQuery);
+            Assert.Equal(1, connectionInfo.ConnectionTypeToConnectionMap.Count);
 
-
-            int test = 0;
-
-
-
-
-
-
-
-
-
+            // If I reconnect, there should be 2 again
+            await service.Connect(connectParamsQuery);
+            Assert.Equal(2, connectionInfo.ConnectionTypeToConnectionMap.Count);
         }
-
     }
 }

@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Entries in this map correspond to DbConnection instances that are in the process of connecting. 
         /// Tuple is used here becasue of it's predictable hash code behavior. 
         /// </summary>
-        public readonly ConcurrentDictionary<Tuple<string, ConnectionType>, CancellationTokenSource> CancelTupleToCancellationTokenSourceMap = 
+        private readonly ConcurrentDictionary<Tuple<string, ConnectionType>, CancellationTokenSource> CancelTupleToCancellationTokenSourceMap = 
                     new ConcurrentDictionary<Tuple<string, ConnectionType>, CancellationTokenSource>();
 
         private readonly object cancellationTokenSourceLock = new object();
@@ -456,7 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     info.ConnectionTypeToConnectionMap.Clear();
                     ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
                 }
-                // If there were errors, we will remove the only connections that successfully closed
+                // If there were errors, we will remove only the connections that successfully closed
                 else
                 {
                     foreach(ConnectionType type in connectionsToRemove)
@@ -493,10 +493,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     return false;
                 }
 
-                // Close the connection and remove Type mapping 
-                // TODO try catch here 
+                // Try to close the connection
+                try
+                {
+                    connection.Close();
+                }
+                catch (System.Data.Common.DbException e)
+                {
+                    return false;
+                }
 
-                connection.Close();
+                // If successful, remove Type mapping 
                 info.ConnectionTypeToConnectionMap.Remove(connectionType);
 
                 // Remove URI mapping if there are no more connections in the type ConnectionTypeToConnectionMap
