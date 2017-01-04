@@ -1,5 +1,5 @@
 {
-  "name": "Microsoft.SqlTools.ServiceLayer.Test",
+  "name": "Microsoft.SqlTools.ServiceLayer.IntegrationTests",
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable"
@@ -8,8 +8,7 @@
     "Integration": {
       "buildOptions": {
         "define": [
-          "WINDOWS_ONLY_BUILD"
-        ]
+          "WINDOWS_ONLY_BUILD"        ]
       }
     }
   },
@@ -27,7 +26,8 @@
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
     },
-    "Moq": "4.6.36-alpha"
+    "Moq": "4.6.36-alpha",
+    "Microsoft.SqlTools.ServiceLayer.Test": "1.0.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {
