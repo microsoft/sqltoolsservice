@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Event that will be called when a message has been emitted
         /// </summary>
-        public event BatchAsyncMessageHandler BatchMessage;
+        public event BatchAsyncMessageHandler BatchMessageSent;
 
         /// <summary>
         /// Event to call when the batch has started execution
@@ -396,14 +396,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private async Task SendMessage(string message, bool isError)
         {
             // If the message event is null, this is a no-op
-            if (BatchMessage == null)
+            if (BatchMessageSent == null)
             {
                 return;
             }
 
             // State that we've sent any message, and send it
             messagesSent = true;
-            await BatchMessage(new ResultMessage(message, isError, Id));
+            await BatchMessageSent(new ResultMessage(message, isError, Id));
         }
 
         /// <summary>

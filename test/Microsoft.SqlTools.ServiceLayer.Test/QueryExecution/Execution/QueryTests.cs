@@ -325,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             };
 
             // Setup the callback for batch messages
-            q.BatchMessage += (m) =>
+            q.BatchMessageSent += (m) =>
             {
                 messageCallback?.Invoke(m);
                 return Task.FromResult(0);

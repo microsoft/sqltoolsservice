@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Event that will be called when a message has been emitted
         /// </summary>
-        public event Batch.BatchAsyncMessageHandler BatchMessage;
+        public event Batch.BatchAsyncMessageHandler BatchMessageSent;
 
         /// <summary>
         /// Event to be called when a batch starts execution.
@@ -277,9 +277,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Don't actually execute if there aren't any batches to execute
             if (Batches.Length == 0)
             {
-                if (BatchMessage != null)
+                if (BatchMessageSent != null)
                 {
-                    await BatchMessage(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
+                    await BatchMessageSent(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
                 }
                 if (QueryCompleted != null)
                 {
@@ -321,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         b.BatchStart += BatchStarted;
                         b.BatchCompletion += BatchCompleted;
-                        b.BatchMessage += BatchMessage;
+                        b.BatchMessageSent += BatchMessageSent;
                         b.ResultSetCompletion += ResultSetCompleted;
                         await b.Execute(conn, cancellationSource.Token);
                     }

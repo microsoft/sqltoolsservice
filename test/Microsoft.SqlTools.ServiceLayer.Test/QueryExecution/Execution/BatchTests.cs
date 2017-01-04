@@ -264,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I call the StatementCompletedHandler
             Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory(null));
             int messageCalls = 0;
-            batch.BatchMessage += args =>
+            batch.BatchMessageSent += args =>
             {
                 messageCalls++;
                 return Task.FromResult(0);
@@ -346,7 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             };
 
             // Setup the callback for batch messages
-            batch.BatchMessage += (m) =>
+            batch.BatchMessageSent += (m) =>
             {
                 messageCallback?.Invoke(m);
                 return Task.FromResult(0);

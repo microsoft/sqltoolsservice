@@ -449,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
                 await requestContext.SendEvent(QueryExecuteMessageEvent.Type, eventParams);
             };
-            query.BatchMessage += batchMessageCallback;
+            query.BatchMessageSent += batchMessageCallback;
 
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
