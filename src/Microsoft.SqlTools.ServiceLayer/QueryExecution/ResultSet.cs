@@ -265,6 +265,44 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// Generates a subset of the rows from the result set
+        /// </summary>
+        /// <param name="startRow">The starting row of the results</param>
+        /// <param name="rowCount">How many rows to retrieve</param>
+        /// <returns>A subset of results</returns>
+        public Task<ExecutionPlan> GetExecutionPlan()
+        {
+            return Task.Factory.StartNew(() =>
+            {
+
+                string executionPlanContent;
+
+
+                using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                {
+                    // If result set is 'for xml' or 'for json',
+                    // Concatenate all the rows together into one row
+                    if (this.processSpecialAction() != Batch.SpecialAction.None)
+                    {
+                        // Iterate over all the rows and process them into a list of string builders
+                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
+                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
+                        executionPlanContent = string.Join(string.Empty, rowValues);
+                    }
+                    else
+                    {
+                        executionPlanContent = "";
+                    }
+                }
+                return new ExecutionPlan
+                {
+                    Format = "xml",
+                    Content = executionPlanContent
+                };
+            });
+        }
+
+        /// <summary>
         /// Reads from the reader until there are no more results to read
         /// </summary>
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>

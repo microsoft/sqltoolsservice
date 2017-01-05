@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System.Collections.Generic;
+using Microsoft.SqlServer.Management.Common; 
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -144,9 +145,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             AfterBatches = new List<Batch>();
 
             // place holders until implemented
-            int majorVersion = Int32.Parse(connection.SqlConnection.ServerVersion.Split('.')[0]);
-            bool isSqlDw = false;
-            bool multiServerConnection = false;
+            ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection.SqlConnection);
+            bool isSqlDw = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
 
             // should i also cover the Sql Server CE case?
             
@@ -155,43 +155,41 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Client statistics and showplan are not shown for multi-server connections.  If we do decide to show
                 // showplan or statistics for multi-server connections, each child server connection will need
                 // its own setting because the child servers do not have to be the same version.
-                if (!multiServerConnection)
+                // TODO: support multiServerConnection
+                //showplan specified via UI corresponds to execOptions.WithShowPlan option and takes precedence
+                //over all other showplan related settings that might have been specified via Connection Settings
+                //UI
+                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlan) 
                 {
-                    //showplan specified via UI corresponds to execOptions.WithShowPlan option and takes precedence
-                    //over all other showplan related settings that might have been specified via Connection Settings
-                    //UI
-                    if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlan) 
+                    if (serverInfo.ServerMajorVersion >= 9)
                     {
-                        if (majorVersion >= 9)
-                        {
-                            // Enable set showplan xml
-                            addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
-                            addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
-                        }
-                        else
-                        {
-                            // Enable set showplan all
-                            addBatch(string.Format(s_SetShowPlanAll, s_On), BeforeBatches, outputFactory);
-                            addBatch(string.Format(s_SetShowPlanAll, s_Off), AfterBatches, outputFactory);
-                        }
+                        // Enable set showplan xml
+                        addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
+                        addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
                     }
-                    // check for the actual exectuion plan (statistics xml)
-                    else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlan)
+                    else
                     {
-                        if (majorVersion >= 9)
-                        {
-                            // enable set statistics xml
-                            addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
-                            addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
-                        
-                            // live showplan enabling goes here in the future
-                        } 
-                        else
-                        {
-                            // enable set statistics profile
-                            addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
-                            addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
-                        }
+                        // Enable set showplan all
+                        addBatch(string.Format(s_SetShowPlanAll, s_On), BeforeBatches, outputFactory);
+                        addBatch(string.Format(s_SetShowPlanAll, s_Off), AfterBatches, outputFactory);
+                    }
+                }
+                // check for the actual exectuion plan (statistics xml)
+                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlan)
+                {
+                    if (serverInfo.ServerMajorVersion >= 9)
+                    {
+                        // enable set statistics xml
+                        addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
+                        addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
+                    
+                        // live showplan enabling goes here in the future
+                    } 
+                    else
+                    {
+                        // enable set statistics profile
+                        addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
+                        addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
                     }
                 }
             }
@@ -351,6 +349,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             return Batches[batchIndex].GetSubset(resultSetIndex, startRow, rowCount);
+        }
+
+        /// <summary>
+        /// Retrieves a subset of the result sets
+        /// </summary>
+        /// <param name="batchIndex">The index for selecting the batch item</param>
+        /// <param name="resultSetIndex">The index for selecting the result set</param>
+        /// <returns>The Execution Plan, if the result set has one</returns>
+        public Task<ExecutionPlan> GetExecutionPlan(int batchIndex, int resultSetIndex)
+        {
+            // Sanity check to make sure that the batch is within bounds
+            if (batchIndex < 0 || batchIndex >= Batches.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
+            }
+
+            return Batches[batchIndex].GetExecutionPlan(resultSetIndex);
         }
 
         /// <summary>

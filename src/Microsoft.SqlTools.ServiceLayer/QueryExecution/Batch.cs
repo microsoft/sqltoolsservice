@@ -384,6 +384,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// Generates an execution plan
+        /// </summary>
+        /// <param name="resultSetIndex">The index for selecting the result set</param>
+        /// <returns>An exeuction plan object</returns>
+        public Task<ExecutionPlan> GetExecutionPlan(int resultSetIndex)
+        {
+            ResultSet targetResultSet;
+            lock (resultSets)
+            {
+                // Sanity check to make sure we have valid numbers
+                if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(resultSetIndex),
+                        SR.QueryServiceSubsetResultSetOutOfRange);
+                }
+
+                targetResultSet = resultSets[resultSetIndex];
+            }
+
+            // Retrieve the result set
+            return targetResultSet.GetExecutionPlan();
+        }
+
+        /// <summary>
         /// Saves a result to a file format selected by the user
         /// </summary>
         /// <param name="saveParams">Parameters for the save as request</param>
