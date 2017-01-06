@@ -8,7 +8,6 @@
     "Integration": {
       "buildOptions": {
         "define": [
-          "LIVE_CONNECTION_TESTS",
           "WINDOWS_ONLY_BUILD"
         ]
       }
@@ -19,7 +18,7 @@
     "System.Runtime.Serialization.Primitives": "4.1.1",
     "System.Data.Common": "4.1.0",
     "System.Data.SqlClient": "4.4.0-sqltools-24613-04",
-    "Microsoft.SqlServer.Smo": "140.1.11",
+    "Microsoft.SqlServer.Smo": "140.1.12",
     "System.Security.SecureString": "4.0.0",
     "System.Collections.Specialized": "4.0.1",
     "System.ComponentModel.TypeConverter": "4.1.0",

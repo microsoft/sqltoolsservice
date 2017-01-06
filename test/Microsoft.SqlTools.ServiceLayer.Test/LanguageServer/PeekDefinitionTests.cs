@@ -2,24 +2,31 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.IO;
 using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using Moq;
 using Xunit;
+using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 {
@@ -45,10 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         private TextDocumentPosition textDocument;
 
         private const string OwnerUri = "testFile1";
-
-        private const string ViewOwnerUri = "testFile2";
-
-        private const string TriggerOwnerUri = "testFile3";
 
         private void InitializeTestObjects()
         {
@@ -92,6 +95,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             requestContext = new Mock<RequestContext<Location[]>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<Location[]>()))
                 .Returns(Task.FromResult(0));
+            requestContext.Setup(rc => rc.SendError(It.IsAny<DefinitionError>())).Returns(Task.FromResult(0));;
+            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.FromResult(0));;
+            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.FromResult(0));;
 
             // setup the IBinder mock
             binder = new Mock<IBinder>();
@@ -102,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             var testScriptParseInfo = new ScriptParseInfo();
             LanguageService.Instance.AddOrUpdateScriptParseInfo(this.testScriptUri, testScriptParseInfo);
-            testScriptParseInfo.IsConnected = true;
+            testScriptParseInfo.IsConnected = false;
             testScriptParseInfo.ConnectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(connectionInfo);
 
             // setup the binding context object
@@ -114,166 +120,106 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
 
         /// <summary>
-        /// Tests the definition event handler. When called with no active connection, no definition is sent
+        /// Tests the definition event handler. When called with no active connection, an error is sent
         /// </summary>
         [Fact]
-        public void DefinitionsHandlerWithNoConnectionTest()
+        public async Task DefinitionsHandlerWithNoConnectionTest()
         {
+            TestObjects.InitializeTestServices();
             InitializeTestObjects();
-            // request the completion list
-            Task handleCompletion = LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object);
-            handleCompletion.Wait(TaskTimeout);
-
-            // verify that send result was not called
+            // request definition
+            var definitionTask = await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
+            await definitionTask;
+            // verify that send result was not called and send error was called
             requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
-
+            requestContext.Verify(m => m.SendError(It.IsAny<DefinitionError>()), Times.Once());
         }
 
-#if LIVE_CONNECTION_TESTS
         /// <summary>
-        /// Test get definition for a table object with active connection
+        /// Tests creating location objects on windows and non-windows systems
         /// </summary>
         [Fact]
-        public void GetTableDefinitionTest()
+        public void GetLocationFromFileForValidFilePathTest()
         {
-            // Get live connectionInfo
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
+            String filePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:\\test\\script.sql" : "/test/script.sql";
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Location[] locations = peekDefinition.GetLocationFromFile(filePath, 0);
+
+            String expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
+            Assert.Equal(locations[0].Uri, expectedFilePath);
+        }
+
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a valid database name
+        /// </summary>
+        [Fact]
+        public void GetSchemaFromDatabaseQualifiedNameWithValidNameTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string validDatabaseQualifiedName = "master.test.test_table";
             string objectName = "test_table";
-            string schemaName = null;
-            string objectType = "TABLE";
+            string expectedSchemaName = "test";
 
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
-            Assert.NotNull(locations);
-            Cleanup(locations);
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
         }
 
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a valid object name and no schema
+        /// </summary>
+
         [Fact]
-        public void GetUnsupportedDefinitionForFullScript()
+        public void GetSchemaFromDatabaseQualifiedNameWithNoSchemaTest()
         {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string validDatabaseQualifiedName = "test_table";
+            string objectName = "test_table";
+            string expectedSchemaName = "dbo";
 
-            ScriptFile scriptFile;
-            TextDocumentPosition textDocument = new TextDocumentPosition
-            {
-                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
-                Position = new Position
-                {
-                    Line = 0,
-                    Character = 20
-                }
-            };
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-            scriptFile.Contents = "select * from dbo.func ()";
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
+        }
 
+        /// <summary>
+        /// Test PeekDefinition.GetSchemaFromDatabaseQualifiedName with a invalid database name
+        /// </summary>
+        [Fact]
+        public void GetSchemaFromDatabaseQualifiedNameWithInvalidNameTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string validDatabaseQualifiedName = "x.y.z";
+            string objectName = "test_table";
+            string expectedSchemaName = "dbo";
+
+            string actualSchemaName = peekDefinition.GetSchemaFromDatabaseQualifiedName(validDatabaseQualifiedName, objectName);
+            Assert.Equal(actualSchemaName, expectedSchemaName);
+        }
+
+        /// <summary>
+        /// Test Deletion of peek definition scripts for a valid temp folder that exists
+        /// </summary>
+        [Fact]
+        public void DeletePeekDefinitionScriptsTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
             var languageService = LanguageService.Instance;
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
-
-            var locations = languageService.GetDefinition(textDocument, scriptFile, connInfo);
-            Assert.Null(locations);
+            Assert.True(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            languageService.DeletePeekDefinitionScripts();
+            Assert.False(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
         }
 
         /// <summary>
-        /// Test get definition for a view object with active connection
+        /// Test Deletion of peek definition scripts for a temp folder that does not exist
         /// </summary>
         [Fact]
-        public void GetViewDefinitionTest()
+        public void DeletePeekDefinitionScriptsWhenFolderDoesNotExistTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "objects";
-            string schemaName = "sys";
-            string objectType = "VIEW";
-
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetViewScripts, objectName, schemaName, objectType);
-            Assert.NotNull(locations);
-            Cleanup(locations);
+            var languageService = LanguageService.Instance;
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
+            Assert.False(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            // Expected not to throw any exception
+            languageService.DeletePeekDefinitionScripts();        
         }
-
-        /// <summary>
-        /// Test get definition for an invalid view object with no schema name and with active connection
-        /// </summary>
-        [Fact]
-        public void GetViewDefinitionInvalidObjectTest()
-        {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "objects";
-            string schemaName = null;
-            string objectType = "VIEW";
-
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetViewScripts, objectName, schemaName, objectType);
-            Assert.Null(locations);
-        }
-
-        /// <summary>
-        /// Test get definition for a stored procedure object with active connection
-        /// </summary>
-        [Fact]
-        public void GetStoredProcedureDefinitionTest()
-        {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "SP1";
-            string schemaName = "dbo";
-            string objectType = "PROCEDURE";
-
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
-            Assert.NotNull(locations);
-            Cleanup(locations);
-        }
-
-        /// <summary>
-        /// Test get definition for a stored procedure object that does not exist with active connection
-        /// </summary>
-        [Fact]
-        public void GetStoredProcedureDefinitionFailureTest()
-        {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "SP2";
-            string schemaName = "dbo";
-            string objectType = "PROCEDURE";
-
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
-            Assert.Null(locations);
-        }
-
-        /// <summary>
-        /// Test get definition for a stored procedure object with active connection and no schema
-        /// </summary>
-        [Fact]
-        public void GetStoredProcedureDefinitionWithoutSchemaTest()
-        {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-            string objectName = "SP1";
-            string schemaName = null;
-            string objectType = "PROCEDURE";
-
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
-            Assert.NotNull(locations);
-            Cleanup(locations);
-        }
-
-        /// <summary>
-        /// Helper method to clean up script files
-        /// </summary>
-        private void Cleanup(Location[] locations)
-        {
-            Uri fileUri = new Uri(locations[0].Uri);
-            if (File.Exists(fileUri.LocalPath))
-            {
-                try
-                {
-                    File.Delete(fileUri.LocalPath);
-                }
-                catch(Exception)
-                {
-
-                }
-            }
-        }
-#endif
     }
 }

@@ -5,6 +5,8 @@
 
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
@@ -16,9 +18,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
-        #region "Diagnostics tests"
-
-
         /// <summary>
         /// Verify that the latest SqlParser (2016 as of this writing) is used by default
         /// </summary>
@@ -126,91 +125,97 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
             Assert.Equal(3, fileMarkers[1].ScriptRegion.EndLineNumber);
         }
 
-        #endregion
-
-        #region "General Language Service tests"
-
-#if LIVE_CONNECTION_TESTS
-
-        private static void GetLiveAutoCompleteTestObjects(
-            out TextDocumentPosition textDocument,
-            out ScriptFile scriptFile,
-            out ConnectionInfo connInfo)
+        /// <summary>
+        /// Verify that GetSignatureHelp returns null when the provided TextDocumentPosition
+        /// has no associated ScriptParseInfo.
+        /// </summary>
+        [Fact]
+        public void GetSignatureHelpReturnsNullIfParseInfoNotInitialized()
         {
-            textDocument = new TextDocumentPosition
+            // Given service doesn't have parseinfo intialized for a document
+            const string docContent = "SELECT * FROM sys.objects";
+            LanguageService service = TestObjects.GetTestLanguageService();
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents(docContent);
+
+            // When requesting SignatureHelp
+            SignatureHelp signatureHelp = service.GetSignatureHelp(TestObjects.GetTestDocPosition(), scriptFile);
+            
+            // Then null is returned as no parse info can be used to find the signature
+            Assert.Null(signatureHelp);
+        }
+
+        [Fact]
+        public void EmptyCompletionListTest()
+        {           
+            Assert.Equal(AutoCompleteHelper.EmptyCompletionList.Length, 0);
+        }
+
+        [Fact]
+        public void SetWorkspaceServiceInstanceTest()
+        {           
+            AutoCompleteHelper.WorkspaceServiceInstance = null;
+            // workspace will be recreated if it's set to null
+            Assert.NotNull(AutoCompleteHelper.WorkspaceServiceInstance);
+        }
+
+        internal class TestScriptDocumentInfo : ScriptDocumentInfo
+        {
+            public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo, 
+                string tokenText = null)
+                :base(textDocumentPosition, scriptFile, scriptParseInfo)
             {
-                TextDocument = new TextDocumentIdentifier {Uri = TestObjects.ScriptUri},
-                Position = new Position
+                this.tokenText = string.IsNullOrEmpty(tokenText) ? "doesntmatchanythingintheintellisensedefaultlist" : tokenText;
+            }
+
+            private string tokenText;
+            
+            public override string TokenText
+            {
+                get
                 {
-                    Line = 0,
-                    Character = 0
+                    return this.tokenText;
                 }
-            };
-
-            connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-        }
-
-        /// <summary>
-        /// Test the service initialization code path and verify nothing throws
-        /// </summary>
-        // Test is causing failures in build lab..investigating to reenable
-        [Fact]
-        public void ServiceInitialization()
-        {
-            try
-            {
-                TestObjects.InitializeTestServices();
             }
-            catch (System.ArgumentException)
-            {
-
-            }
-            Assert.True(LanguageService.Instance.Context != null);
-            Assert.True(LanguageService.ConnectionServiceInstance != null);
-            Assert.True(LanguageService.Instance.CurrentSettings != null);
-            Assert.True(LanguageService.Instance.CurrentWorkspace != null);
-        }        
-
-        /// <summary>
-        /// Test the service initialization code path and verify nothing throws
-        /// </summary>
-        // Test is causing failures in build lab..investigating to reenable
-        [Fact]
-        public void PrepopulateCommonMetadata()
-        {
-            ScriptFile scriptFile;
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-
-            ScriptParseInfo scriptInfo = new ScriptParseInfo {IsConnected = true};
-
-            AutoCompleteHelper.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
         }
 
-        // This test currently requires a live database connection to initialize 
-        // SMO connected metadata provider.  Since we don't want a live DB dependency
-        // in the CI unit tests this scenario is currently disabled.
         [Fact]
-        public void AutoCompleteFindCompletions()
-        {
-            TextDocumentPosition textDocument;
-            ConnectionInfo connInfo;
-            ScriptFile scriptFile;
-            GetLiveAutoCompleteTestObjects(out textDocument, out scriptFile, out connInfo);
+        public void GetDefaultCompletionListWithNoMatchesTest()
+        {           
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("koko wants a bananas");
 
-            textDocument.Position.Character = 7;
-            scriptFile.Contents = "select ";
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = false };
 
-            var autoCompleteService = LanguageService.Instance;
-            var completions = autoCompleteService.GetCompletionItems(
-                textDocument, 
-                scriptFile,
-                connInfo);
+            var scriptDocumentInfo = new TestScriptDocumentInfo(
+                new TextDocumentPosition()
+                {
+                    TextDocument = new TextDocumentIdentifier() {  Uri = TestObjects.ScriptUri  },
+                    Position = new Position() { Line = 0, Character = 0 }
+                }, scriptFile, scriptInfo);
+      
+            AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
 
-            Assert.True(completions.Length > 0);
         }
 
-#endif
+        [Fact]
+        public void GetDefaultCompletionListWithMatchesTest()
+        {
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("koko wants a bananas");
 
-        #endregion
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = false };
+
+            var scriptDocumentInfo = new TestScriptDocumentInfo(
+                new TextDocumentPosition()
+                {
+                    TextDocument = new TextDocumentIdentifier() { Uri = TestObjects.ScriptUri },
+                    Position = new Position() { Line = 0, Character = 0 }
+                }, scriptFile, scriptInfo, "all");
+
+            CompletionItem[] result = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
+            Assert.Equal(result.Length, 1);
+
+        }
     }
 }

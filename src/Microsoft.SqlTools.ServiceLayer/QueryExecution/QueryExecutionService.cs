@@ -4,6 +4,7 @@
 //
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -64,8 +65,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private IFileStreamFactory BufferFileFactory
         {
-            get { return BufferFileStreamFactory ?? (BufferFileStreamFactory = new ServiceBufferFileStreamFactory()); }
+            get
+            {
+                return BufferFileStreamFactory ?? (BufferFileStreamFactory = new ServiceBufferFileStreamFactory
+                {
+                    MaxCharsToStore = Settings.SqlTools.QueryExecutionSettings.MaxCharsToStore,
+                    MaxXmlCharsToStore = Settings.SqlTools.QueryExecutionSettings.MaxXmlCharsToStore
+                });
+            }
         }
+
+        /// <summary>
+        /// File factory to be used to create CSV files from result sets. Set to internal in order
+        /// to allow overriding in unit testing
+        /// </summary>
+        internal IFileStreamFactory CsvFileFactory { get; set; }
+
+        /// <summary>
+        /// File factory to be used to create JSON files from result sets. Set to internal in order
+        /// to allow overriding in unit testing
+        /// </summary>
+        internal IFileStreamFactory JsonFileFactory { get; set; }
 
         /// <summary>
         /// The collection of active queries
@@ -124,6 +144,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Request Handlers
 
+        /// <summary>
+        /// Handles request to execute the query
+        /// </summary>
         public async Task HandleExecuteRequest(QueryExecuteParams executeParams,
             RequestContext<QueryExecuteResult> requestContext)
         {
@@ -131,9 +154,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Query newQuery = await CreateAndActivateNewQuery(executeParams, requestContext);
 
             // Execute the query -- asynchronously
-            await ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
+            ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
         }
 
+        /// <summary>
+        /// Handles a request to get a subset of the results of this query
+        /// </summary>
         public async Task HandleResultSubsetRequest(QueryExecuteSubsetParams subsetParams,
             RequestContext<QueryExecuteSubsetResult> requestContext)
         {
@@ -182,6 +208,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Handles a request to dispose of this query
+        /// </summary>
         public async Task HandleDisposeRequest(QueryDisposeParams disposeParams,
             RequestContext<QueryDisposeResult> requestContext)
         {
@@ -213,6 +242,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Handles a request to cancel this query if it is in progress
+        /// </summary>
         public async Task HandleCancelRequest(QueryCancelParams cancelParams,
             RequestContext<QueryCancelResult> requestContext)
         {
@@ -253,43 +285,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
-            // retrieve query for OwnerUri
-            Query result;
-            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            // Use the default CSV file factory if we haven't overridden it
+            IFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
             {
-                await requestContext.SendResult(new SaveResultRequestResult
-                {
-                    Messages = SR.QueryServiceRequestsNoQuery
-                });
-                return;
-            }
-
-
-            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            if (!selectedResultSet.IsBeingDisposed)
-            {
-                // Create SaveResults object and add success and error handlers to respective events
-                SaveResults saveAsCsv = new SaveResults();
-
-                SaveResults.AsyncSaveEventHandler successHandler = async message =>
-                {
-                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
-                };
-                saveAsCsv.SaveCompleted += successHandler;
-                SaveResults.AsyncSaveEventHandler errorHandler = async message =>
-                {
-                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendError(new SaveResultRequestError { message = message });
-                };
-                saveAsCsv.SaveFailed += errorHandler;
-
-                saveAsCsv.SaveResultSetAsCsv(saveParams, requestContext, result);
-
-                // Associate the ResultSet with the save task
-                selectedResultSet.AddSaveTask(saveParams.FilePath, saveAsCsv.SaveTask);
-
-            }
+                SaveRequestParams = saveParams
+            };
+            await SaveResultsHelper(saveParams, requestContext, csvFactory);
         }
 
         /// <summary>
@@ -298,41 +299,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
-            // retrieve query for OwnerUri
-            Query result;
-            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out result))
+            // Use the default JSON file factory if we haven't overridden it
+            IFileStreamFactory jsonFactory = JsonFileFactory ?? new SaveAsJsonFileStreamFactory
             {
-                await requestContext.SendResult(new SaveResultRequestResult
-                {
-                    Messages = "Failed to save results, ID not found."
-                });
-                return;
-            }
-
-            ResultSet selectedResultSet = result.Batches[saveParams.BatchIndex].ResultSets[saveParams.ResultSetIndex];
-            if (!selectedResultSet.IsBeingDisposed)
-            {
-                // Create SaveResults object and add success and error handlers to respective events
-                SaveResults saveAsJson = new SaveResults();
-                SaveResults.AsyncSaveEventHandler successHandler = async message =>
-                {
-                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendResult(new SaveResultRequestResult { Messages = message });
-                };
-                saveAsJson.SaveCompleted += successHandler;
-                SaveResults.AsyncSaveEventHandler errorHandler = async message =>
-                {
-                    selectedResultSet.RemoveSaveTask(saveParams.FilePath);
-                    await requestContext.SendError(new SaveResultRequestError { message = message });
-                };
-                saveAsJson.SaveFailed += errorHandler;
-
-                saveAsJson.SaveResultSetAsJson(saveParams, requestContext, result);
-
-                // Associate the ResultSet with the save task
-                selectedResultSet.AddSaveTask(saveParams.FilePath, saveAsJson.SaveTask);
-            }
-
+                SaveRequestParams = saveParams
+            };
+            await SaveResultsHelper(saveParams, requestContext, jsonFactory);
         }
 
         #endregion
@@ -397,6 +369,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     return null;
                 }
 
+                // Send the result stating that the query was successfully started
+                await requestContext.SendResult(new QueryExecuteResult
+                {
+                    Messages = newQuery.Batches.Length == 0 ? SR.QueryServiceCompletedSuccessfully : null
+                });
+
                 return newQuery;
             }
             catch (Exception e)
@@ -404,10 +382,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendError(e.Message);
                 return null;
             }
-            // Any other exceptions will fall through here and be collected at the end
         }
 
-        private static async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
+        private static void ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
         {
             // Skip processing if the query is null
             if (query == null)
@@ -443,17 +420,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             query.QueryFailed += callback;
             query.QueryConnectionException += errorCallback;
 
-            // Setup the batch completion callback
-            Batch.BatchAsyncEventHandler batchCallback = async b =>
+            // Setup the batch callbacks
+            Batch.BatchAsyncEventHandler batchStartCallback = async b =>
             {
-                QueryExecuteBatchCompleteParams eventParams = new QueryExecuteBatchCompleteParams
+                QueryExecuteBatchNotificationParams eventParams = new QueryExecuteBatchNotificationParams
+                {
+                    BatchSummary = b.Summary,
+                    OwnerUri = executeParams.OwnerUri
+                };
+                await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
+            };
+            query.BatchStarted += batchStartCallback;
+
+            Batch.BatchAsyncEventHandler batchCompleteCallback = async b =>
+            {
+                QueryExecuteBatchNotificationParams eventParams = new QueryExecuteBatchNotificationParams
                 {
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
                 await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
             };
-            query.BatchCompleted += batchCallback;
+            query.BatchCompleted += batchCompleteCallback;
 
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
@@ -469,18 +457,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Launch this as an asynchronous task
             query.Execute();
+        }
 
-            // Send back a result showing we were successful
-            string messages = null;
-            if (query.Batches.Length == 0)
+        private async Task SaveResultsHelper(SaveResultsRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext, IFileStreamFactory fileFactory)
+        {
+            // retrieve query for OwnerUri
+            Query query;
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out query))
             {
-                // If there were no batches to execute, send back an informational message that the commands were completed successfully
-                messages = SR.QueryServiceCompletedSuccessfully;
+                await requestContext.SendError(new SaveResultRequestError
+                {
+                    message = SR.QueryServiceQueryInvalidOwnerUri
+                });
+                return;
             }
-            await requestContext.SendResult(new QueryExecuteResult
+
+            //Setup the callback for completion of the save task
+            ResultSet.SaveAsAsyncEventHandler successHandler = async parameters =>
             {
-                Messages = messages
-            });
+                await requestContext.SendResult(new SaveResultRequestResult());
+            };
+            ResultSet.SaveAsFailureAsyncEventHandler errorHandler = async (parameters, reason) =>
+            {
+                string message = SR.QueryServiceSaveAsFail(Path.GetFileName(parameters.FilePath), reason);
+                await requestContext.SendError(new SaveResultRequestError { message = message });
+            };
+
+            try
+            {
+                // Launch the task
+                query.SaveAs(saveParams, fileFactory, successHandler, errorHandler);
+            }
+            catch (Exception e)
+            {
+                await errorHandler(saveParams, e.Message);
+            }
         }
 
         #endregion

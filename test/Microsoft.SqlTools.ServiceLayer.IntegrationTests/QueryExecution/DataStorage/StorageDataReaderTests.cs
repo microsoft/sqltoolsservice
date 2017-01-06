@@ -3,8 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#if LIVE_CONNECTION_TESTS
-
+using System;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
@@ -12,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
+namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataStorage
 {
     public class StorageDataReaderTests
     {
@@ -60,8 +59,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             reader.Read();
             Assert.False(storageReader.IsDBNull(0));
 
+            Assert.NotNull(storageReader.GetValue(0));
+
             string shortName = storageReader.GetCharsWithMaxCapacity(0, 2);
             Assert.True(shortName.Length == 2);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => storageReader.GetBytesWithMaxCapacity(0, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => storageReader.GetCharsWithMaxCapacity(0, 0));     
         }
 
         /// <summary>
@@ -88,12 +92,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         [Fact]
         public void StringWriterWithMaxCapacityTest()
         {
-            var writer = new StorageDataReader.StringWriterWithMaxCapacity(null, 100);
+            var writer = new StorageDataReader.StringWriterWithMaxCapacity(null, 4);
             string output = "...";
             writer.Write(output);
             Assert.True(writer.ToString().Equals(output));
+            writer.Write('.');
+            Assert.True(writer.ToString().Equals(output + '.'));       
+            writer.Write(output);
+            writer.Write('.');
+            Assert.True(writer.ToString().Equals(output + '.'));
         }       
     }
 }
-
-#endif

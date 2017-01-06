@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
             using (TestHelper testHelper = new TestHelper())
             {
-                await VerifyBindingLoadScenario(testHelper, TestServerType.OnPrem, Scripts.TestDbSimpleSelectQuery, false);
+                await VerifyBindingLoadScenario(testHelper, serverType, Scripts.TestDbSimpleSelectQuery, false);
             }
             
         }
@@ -170,10 +170,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         [CreateTestDb(TestServerType.Azure)]
         public async Task BindingCacheColdOnPremComplexQuery()
         {
-            TestServerType serverType = TestServerType.Azure;
+            TestServerType serverType = TestServerType.OnPrem;
             using (TestHelper testHelper = new TestHelper())
             {
-                await VerifyBindingLoadScenario(testHelper, TestServerType.OnPrem, Scripts.TestDbComplexSelectQueries, false);
+                await VerifyBindingLoadScenario(testHelper, serverType, Scripts.TestDbComplexSelectQueries, false);
             }
         }
 
@@ -257,7 +257,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 {
                     string query = Scripts.SelectQuery;
                     CompletionItem[] completions = await testHelper.RequestCompletion(ownerUri, query, 0, query.Length + 1);
-                    return completions != null && completions.Any(x => x.Label == databaseName);
+                    return completions != null && 
+                    (completions.Any(x => string.Compare(x.Label, databaseName, StringComparison.OrdinalIgnoreCase) == 0 || 
+                    string.Compare(x.Label, $"[{databaseName}]", StringComparison.OrdinalIgnoreCase) == 0 ||
+                    string.Compare(x.Label, $"\"{databaseName}\"", StringComparison.OrdinalIgnoreCase) == 0));
                 }
                 else
                 {

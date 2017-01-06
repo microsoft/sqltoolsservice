@@ -18,8 +18,10 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -215,6 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
                 Logger.Write(LogLevel.Verbose, "Shutting down language service");
+                DeletePeekDefinitionScripts();
                 await Task.FromResult(0);
             });
 
@@ -235,6 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Store the SqlToolsContext for future use
             Context = context;
+
         }
 
         #endregion
@@ -281,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="completionItem"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        private static async Task HandleCompletionResolveRequest(
+        internal static async Task HandleCompletionResolveRequest(
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
@@ -299,19 +303,37 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
+            // Send a notification to signal that definition is sent
+            await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+            {
+                Params = new TelemetryProperties
+                {
+                    EventName = TelemetryEventNames.PeekDefinitionRequested
+                }
+            });
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, TelemetryEventNames.PeekDefinitionRequested);
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
             {
                 // Retrieve document and connection
                 ConnectionInfo connInfo;
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
-
-                Location[] locations = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
-                if (locations != null)
-                {
-                    await requestContext.SendResult(locations);
+                DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                if (definitionResult != null)
+                {   
+                    if (definitionResult.IsErrorResult)
+                    {
+                        await requestContext.SendError( new DefinitionError { message = definitionResult.Message });
+                    }
+                    else
+                    {
+                        await requestContext.SendResult(definitionResult.Locations);
+                    }                    
                 }
             }
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
 // turn off this code until needed (10/28/2016)
@@ -331,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 #endif
 
-        private static async Task HandleSignatureHelpRequest(
+        internal static async Task HandleSignatureHelpRequest(
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
@@ -675,7 +697,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal Location[] GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
@@ -690,7 +712,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Get token from selected text
-            Token selectedToken = GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
+            Token selectedToken = ScriptDocumentInfo.GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
             if (selectedToken == null)
             {
                 return null;
@@ -713,29 +735,57 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             int parserLine = textDocumentPosition.Position.Line + 1;
                             int parserColumn = textDocumentPosition.Position.Character + 1;
                             IEnumerable<Declaration> declarationItems = Resolver.FindCompletions(
-                                scriptParseInfo.ParseResult, 
-                                parserLine, parserColumn, 
+                                scriptParseInfo.ParseResult,
+                                parserLine, parserColumn,
                                 bindingContext.MetadataDisplayInfoProvider);
 
                             // Match token with the suggestions(declaration items) returned
-                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                            PeekDefinition peekDefinition = new PeekDefinition(connInfo);
-                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
-                            
 
+                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
+                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
+                        },
+                        timeoutOperation: (bindingContext) =>
+                        {
+                            // return error result
+                            return new DefinitionResult
+                            {
+                                IsErrorResult = true,
+                                Message = SR.PeekDefinitionTimedoutError,
+                                Locations = null
+                            };
                         });
 
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
-                    return queueItem.GetResultAsT<Location[]>();
+                    return queueItem.GetResultAsT<DefinitionResult>();
+                }
+                catch (Exception ex)
+                {
+                    // if any exceptions are raised return error result with message
+                    Logger.Write(LogLevel.Error, "Exception in GetDefinition " + ex.ToString());
+                    return new DefinitionResult
+                    {
+                        IsErrorResult = true,
+                        Message = SR.PeekDefinitionError(ex.Message),
+                        Locations = null
+                    };
                 }
                 finally
                 {
                     Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                 }
             }
-
-            return null;
+            else
+            {
+                // User is not connected.
+                return new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = SR.PeekDefinitionNotConnectedError,
+                    Locations = null
+                };
+            }
         }
 
         /// <summary>
@@ -744,7 +794,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptParseInfo"></param>
         /// <param name="position"></param>
         /// <param name="scriptFile"></param>
-        /// <returns> schema nama</returns>
+        /// <returns> schema name</returns>
         private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
         {
             // Offset index by 1 for sql parser
@@ -837,6 +887,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
 
+            if (scriptParseInfo == null)
+            {
+                // Cache not set up yet - skip and wait until later
+                return null;
+            }
+
             ConnectionInfo connInfo;
             LanguageService.ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientFilePath, 
@@ -848,7 +904,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 ParseAndBind(scriptFile, connInfo);
             }
 
-            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
+            if (scriptParseInfo.ParseResult != null)
             {
                 if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
@@ -871,12 +927,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                    startLine + 1,
                                    endColumn + 1,
                                    bindingContext.MetadataDisplayInfoProvider);
-                                
-                                // convert from the parser format to the VS Code wire format
-                                return AutoCompleteHelper.ConvertMethodHelpTextListToSignatureHelp(methods, 
-                                    methodLocations,
-                                    startLine + 1,
-                                    endColumn + 1);
+
+                                if (methodLocations != null)
+                                {
+                                    // convert from the parser format to the VS Code wire format
+                                    return AutoCompleteHelper.ConvertMethodHelpTextListToSignatureHelp(methods,
+                                        methodLocations,
+                                        startLine + 1,
+                                        endColumn + 1);
+                                }
+                                else
+                                {
+                                    return null;
+                                }
                             });
                                         
                         queueItem.ItemProcessed.WaitOne();  
@@ -900,165 +963,48 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="textDocumentPosition"></param>
         public CompletionItem[] GetCompletionItems(
             TextDocumentPosition textDocumentPosition,
-            ScriptFile scriptFile, 
+            ScriptFile scriptFile,
             ConnectionInfo connInfo)
         {
             // initialize some state to parse and bind the current script file
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
-            string filePath = textDocumentPosition.TextDocument.Uri;
-            int startLine = textDocumentPosition.Position.Line;
-            int parserLine = textDocumentPosition.Position.Line + 1;
-            int startColumn = TextUtilities.PositionOfPrevDelimeter(
-                                scriptFile.Contents,    
-                                textDocumentPosition.Position.Line,
-                                textDocumentPosition.Position.Character);
-            int endColumn = TextUtilities.PositionOfNextDelimeter(
-                                scriptFile.Contents,    
-                                textDocumentPosition.Position.Line,
-                                textDocumentPosition.Position.Character);
-            int parserColumn = textDocumentPosition.Position.Character + 1;
+            CompletionService completionService = new CompletionService(BindingQueue);
             bool useLowerCaseSuggestions = this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value;
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            
             if (scriptParseInfo == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(
-                    startLine, 
-                    startColumn, 
-                    endColumn, 
-                    useLowerCaseSuggestions);
+                return AutoCompleteHelper.GetDefaultCompletionItems(ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile), useLowerCaseSuggestions);
             }
 
+            ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            
             // reparse and bind the SQL statement if needed
             if (RequiresReparse(scriptParseInfo, scriptFile))
-            {       
+            {
                 ParseAndBind(scriptFile, connInfo);
             }
 
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
-                return AutoCompleteHelper.GetDefaultCompletionItems(
-                    startLine, 
-                    startColumn, 
-                    endColumn, 
-                    useLowerCaseSuggestions);
+                return AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
             }
-            
-            // need to adjust line & column for base-1 parser indices
-            Token token = GetToken(scriptParseInfo, parserLine, parserColumn);
-            string tokenText = token != null ? token.Text : null;
+            AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+            // cache the current script parse info object to resolve completions later
+            this.currentCompletionParseInfo = scriptParseInfo;
+            resultCompletionItems = result.CompletionItems;
 
-            // check if the file is connected and the file lock is available
-            if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
-            {         
-                try
-                {    
-                    // queue the completion task with the binding queue    
-                    QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
-                        key: scriptParseInfo.ConnectionKey,
-                        bindingTimeout: LanguageService.BindingTimeout,
-                        bindOperation: (bindingContext, cancelToken) =>
-                        {
-                            // get the completion list from SQL Parser
-                            scriptParseInfo.CurrentSuggestions = Resolver.FindCompletions(
-                                scriptParseInfo.ParseResult, 
-                                parserLine, 
-                                parserColumn, 
-                                bindingContext.MetadataDisplayInfoProvider); 
-
-                            // cache the current script parse info object to resolve completions later
-                            this.currentCompletionParseInfo = scriptParseInfo;
-                            
-                            // convert the suggestion list to the VS Code format
-                            return AutoCompleteHelper.ConvertDeclarationsToCompletionItems(
-                                scriptParseInfo.CurrentSuggestions, 
-                                startLine, 
-                                startColumn, 
-                                endColumn);
-                        },
-                        timeoutOperation: (bindingContext) =>
-                        {
-                            // return the default list if the connected bind fails
-                            return AutoCompleteHelper.GetDefaultCompletionItems(
-                                startLine, 
-                                startColumn, 
-                                endColumn, 
-                                useLowerCaseSuggestions,
-                                tokenText);
-                        });
-
-                    // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
-
-                    var completionItems = queueItem.GetResultAsT<CompletionItem[]>();
-                    if (completionItems != null && completionItems.Length > 0)
-                    {
-                        resultCompletionItems = completionItems;
-                    }
-                    else if (!ShouldShowCompletionList(token))
-                    {
-                        resultCompletionItems = AutoCompleteHelper.EmptyCompletionList;
-                    }
-                }
-                finally
-                {
-                    Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
-                }
-            }
-            
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)
             {
-                resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(
-                    startLine, 
-                    startColumn, 
-                    endColumn, 
-                    useLowerCaseSuggestions,
-                    tokenText);
+                resultCompletionItems = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, useLowerCaseSuggestions);
             }
 
             return resultCompletionItems;
-        }
-
-        private static Token GetToken(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
-        {
-            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
-            {
-                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
-                if (tokenIndex >= 0)
-                {
-                    // return the current token
-                    int currentIndex = 0;
-                    foreach (var token in scriptParseInfo.ParseResult.Script.Tokens)
-                    {
-                        if (currentIndex == tokenIndex)
-                        {
-                            return token;
-                        }
-                        ++currentIndex;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private static bool ShouldShowCompletionList(Token token)
-        {
-            bool result = true;
-            if (token != null)
-            {
-                switch (token.Id)
-                {
-                    case (int)Tokens.LEX_MULTILINE_COMMENT:
-                    case (int)Tokens.LEX_END_OF_LINE_COMMENT:
-                        result = false;
-                        break;
-                }
-            }
-            return result;
         }
 
         #endregion
@@ -1134,11 +1080,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception e)
             {
-                Logger.Write(
-                    LogLevel.Error,
-                    string.Format(
-                        "Exception while cancelling analysis task:\n\n{0}",
-                        e.ToString()));
+                Logger.Write(LogLevel.Error, string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
 
                 TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
                 cancelTask.SetCanceled();
@@ -1262,7 +1204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private bool RemoveScriptParseInfo(string uri)
+        internal bool RemoveScriptParseInfo(string uri)
         {
             lock (this.parseMapLock)
             {
@@ -1281,7 +1223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Returns a flag indicating if the ScriptFile refers to the output window.
         /// </summary>
         /// <param name="scriptFile"></param>
-        private bool IsPreviewWindow(ScriptFile scriptFile)
+        internal bool IsPreviewWindow(ScriptFile scriptFile)
         {
             if (scriptFile != null && !string.IsNullOrWhiteSpace(scriptFile.ClientFilePath))
             {
@@ -1290,6 +1232,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             else
             {
                 return false;
+            }
+        }
+
+        internal void DeletePeekDefinitionScripts()
+        {
+            // Delete temp folder created to store peek definition scripts
+            if (FileUtils.SafeDirectoryExists(FileUtils.PeekDefinitionTempFolder))
+            {
+                FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
             }
         }
     }

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -91,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public delegate Task OnConnectionHandler(ConnectionInfo info);
 
         /// <summary>
-        // Callback for ondisconnect handler
+        /// Callback for ondisconnect handler
         /// </summary>
         public delegate Task OnDisconnectHandler(ConnectionSummary summary, string ownerUri);
 
@@ -290,6 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion
                 };
+                connectionInfo.IsAzure = serverInfo.IsCloud;
             }
             catch(Exception ex)
             {
@@ -354,6 +356,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (!ownerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
             {
                 return false;
+            }
+
+            if (ServiceHost != null)
+            {
+                try
+                {
+                    // Send a telemetry notification for intellisense performance metrics
+                    ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                    {
+                        Params = new TelemetryProperties
+                        {
+                            Properties = new Dictionary<string, string>
+                        {
+                            { "IsAzure", info.IsAzure ? "1" : "0" }
+                        },
+                            EventName = TelemetryEventNames.IntellisenseQuantile,
+                            Measures = info.IntellisenseMetrics.Quantile
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write(LogLevel.Verbose, "Could not send Connection telemetry event " + ex.ToString());
+                }
             }
 
             // Close the connection            

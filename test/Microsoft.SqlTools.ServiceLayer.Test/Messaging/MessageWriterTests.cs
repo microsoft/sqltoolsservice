@@ -7,7 +7,9 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Messaging
@@ -19,6 +21,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Messaging
         public MessageWriterTests()
         {
             this.messageSerializer = new V8MessageSerializer();
+        }
+
+        [Fact]
+        public void SerializeMessageTest()
+        {
+            // serialize\deserialize a request
+            var message = new Message();
+            message.MessageType = MessageType.Request;
+            message.Id = "id";            
+            message.Method = "method";
+            message.Contents = null;
+            var serializedMessage = this.messageSerializer.SerializeMessage(message);
+            Assert.NotNull(serializedMessage);
+            var deserializedMessage = this.messageSerializer.DeserializeMessage(serializedMessage);
+            Assert.Equal(message.Id, deserializedMessage.Id);
+
+            // serialize\deserialize a response
+            message.MessageType = MessageType.Response;
+            serializedMessage = this.messageSerializer.SerializeMessage(message);
+            Assert.NotNull(serializedMessage);
+            deserializedMessage = this.messageSerializer.DeserializeMessage(serializedMessage);
+            Assert.Equal(message.Id, deserializedMessage.Id);
+
+            // serialize\deserialize a response with an error
+            message.Error = JToken.FromObject("error");
+            serializedMessage = this.messageSerializer.SerializeMessage(message);
+            Assert.NotNull(serializedMessage);
+            deserializedMessage = this.messageSerializer.DeserializeMessage(serializedMessage);
+            Assert.Equal(message.Error, deserializedMessage.Error);
+
+            // serialize\deserialize an unknown response type
+            serializedMessage.Remove("type");
+            serializedMessage.Add("type", JToken.FromObject("dontknowthisone"));
+            Assert.Equal(this.messageSerializer.DeserializeMessage(serializedMessage).MessageType, MessageType.Unknown);
         }
 
         [Fact]

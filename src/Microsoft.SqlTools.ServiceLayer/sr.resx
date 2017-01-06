@@ -292,6 +292,23 @@
     <value>Reader cannot be null</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>Result cannot be saved until query execution has completed</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>Internal error occurred while starting save task</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>A save request to the same path is in progress</value>
+    <comment></comment>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>Failed to save {0}: {1}</value>
+    <comment>.
+ Parameters: 0 - fileName (string), 1 - message (string) </comment>
+  </data>
   <data name="QueryServiceResultSetNotRead" xml:space="preserve">
     <value>Cannot read subset unless the results have been read from the server</value>
     <comment></comment>
@@ -306,6 +323,32 @@
   </data>
   <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
     <value>Could not retrieve column schema for result set</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>An unexpected error occurred during Peek Definition execution: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>No results were found.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Please connect to a server.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>Operation timed out.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>This object type is currently not supported by this feature.</value>
     <comment></comment>
   </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
