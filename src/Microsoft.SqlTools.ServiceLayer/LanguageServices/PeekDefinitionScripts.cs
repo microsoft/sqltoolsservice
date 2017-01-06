@@ -6,7 +6,9 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
 	internal partial class PeekDefinition
@@ -18,6 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 			AddSupportedType(DeclarationType.View, GetViewScripts, "View");
 			AddSupportedType(DeclarationType.StoredProcedure, GetStoredProcedureScripts, "Procedure");
 		}
+
 		/// <summary>
 		/// Script a Table using SMO
 		/// </summary>
@@ -26,8 +29,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 		/// <returns>String collection of scripts</returns>
 		internal StringCollection GetTableScripts(string objectName, string schemaName)
 		{
-			return (schemaName != null) ? Database?.Tables[objectName, schemaName]?.Script(): Database?.Tables[objectName]?.Script();
+			try
+			{
+				Table smoObject = string.IsNullOrEmpty(schemaName) ? new Table(this.Database, objectName) : new Table(this.Database, objectName, schemaName); 
+				smoObject.Refresh();
+				return smoObject.Script();
+			}
+			catch (Exception ex)
+			{
+				Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetTableScripts : " + ex.Message));
+				return null;
+			}
 		}
+
 		/// <summary>
 		/// Script a View using SMO
 		/// </summary>
@@ -36,8 +50,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 		/// <returns>String collection of scripts</returns>
 		internal StringCollection GetViewScripts(string objectName, string schemaName)
 		{
-			return (schemaName != null) ? Database?.Views[objectName, schemaName]?.Script(): Database?.Views[objectName]?.Script();
+			try
+			{
+				View smoObject = string.IsNullOrEmpty(schemaName) ? new View(this.Database, objectName) : new View(this.Database, objectName, schemaName); 
+				smoObject.Refresh();
+				return smoObject.Script();
+			}
+			catch (Exception ex)
+			{
+				Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetViewScripts : " + ex.Message));
+				return null;
+			}
 		}
+
 		/// <summary>
 		/// Script a StoredProcedure using SMO
 		/// </summary>
@@ -46,8 +71,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 		/// <returns>String collection of scripts</returns>
 		internal StringCollection GetStoredProcedureScripts(string objectName, string schemaName)
 		{
-			return (schemaName != null) ? Database?.StoredProcedures[objectName, schemaName]?.Script(): Database?.StoredProcedures[objectName]?.Script();
+			try
+			{
+				StoredProcedure smoObject = string.IsNullOrEmpty(schemaName) ? new StoredProcedure(this.Database, objectName) : new StoredProcedure(this.Database, objectName, schemaName); 
+				smoObject.Refresh();
+				return smoObject.Script();
+			}
+			catch (Exception ex)
+			{
+				Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetStoredProcedureScripts : " + ex.Message));
+				return null;
+			}
 		}
+
 	}
 }
 	

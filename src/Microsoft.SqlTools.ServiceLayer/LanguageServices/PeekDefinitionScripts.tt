@@ -15,7 +15,9 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
 	internal partial class PeekDefinition
@@ -37,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 						string functionCall = string.Format("\t\t\tAddSupportedType(DeclarationType.{0}, Get{0}Scripts, \"{1}\");", typeProperty["Name"], typeProperty["CreateSyntax"]);
 						WriteLine(functionCall);
 				}
-				WriteLine("\t\t}");
+				WriteLine("\t\t}\n");
 
 				///
 				/// Generate scriptGetters
@@ -55,17 +57,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
 					WriteLine(string.Format("\t\tinternal StringCollection Get{0}Scripts(string objectName, string schemaName)", typeProperty["Name"]));
 					WriteLine("\t\t{");
-					string statement;
-					if(typeProperty["SupportsSchemaQuery"].IndexOf("true", StringComparison.OrdinalIgnoreCase) >= 0)
-					{
-						statement = string.Format("\t\t\treturn (schemaName != null) ? Database?.{0}[objectName, schemaName]?.Script(): Database?.{0}[objectName]?.Script();", typeProperty["AccessMethod"]);
-					}
-					else
-					{
-						statement = string.Format("\t\t\treturn Database?.{0}[objectName]?.Script();", typeProperty["AccessMethod"]);
-					}
-					WriteLine(statement);
-					WriteLine("\t\t}");
+
+					// Write try block to retrieve object and return script
+					WriteLine("\t\t\t" + "try");
+					WriteLine("\t\t\t{");
+					string statement = string.Format("{0} smoObject = string.IsNullOrEmpty(schemaName) ? new {0}(this.Database, objectName) : new {0}(this.Database, objectName, schemaName); ", typeProperty["Name"]);
+					WriteLine("\t\t\t\t" + statement);
+					WriteLine("\t\t\t\t" + "smoObject.Refresh();");
+					WriteLine("\t\t\t\t" + "return smoObject.Script();");
+					WriteLine("\t\t\t}");
+
+					// Write catch block to catch and log exceptions
+					WriteLine("\t\t\tcatch (Exception ex)");
+					WriteLine("\t\t\t{");
+					statement = string.Format("LogLevel.Error,\"Exception at PeekDefinition Get{0}Scripts : \" + ex.Message", typeProperty["Name"]);
+					WriteLine("\t\t\t\tLogger.Write(" + statement + "));");
+					WriteLine("\t\t\t\treturn null;");
+					WriteLine("\t\t\t}");
+					WriteLine("\t\t}\n");
 				}
 			}
 		#>
