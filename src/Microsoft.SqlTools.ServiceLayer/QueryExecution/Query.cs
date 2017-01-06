@@ -280,19 +280,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
+            // Locate the query connection
             DbConnection queryConnection;
             if (!editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection))
             {
-                ConnectParams connectParams = new ConnectParams();
-                connectParams.OwnerUri = editorConnection.OwnerUri;
-                connectParams.Connection = editorConnection.ConnectionDetails;
-                connectParams.Type = ConnectionType.Query;
-
-                await ConnectionService.Instance.Connect(connectParams);
-                if(!editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection))
+                // If a query connection does not exist, try to create one
+                ConnectParams connectParams = new ConnectParams()
                 {
-                    // TODO what do we do when the connection fails?
-                }
+                    OwnerUri = editorConnection.OwnerUri,
+                    Connection = editorConnection.ConnectionDetails,
+                    Type = ConnectionType.Query
+                };
+                ConnectionCompleteParams results = await ConnectionService.Instance.Connect(connectParams);
+                editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection);
             }
 
             ReliableSqlConnection sqlConn = queryConnection as ReliableSqlConnection;

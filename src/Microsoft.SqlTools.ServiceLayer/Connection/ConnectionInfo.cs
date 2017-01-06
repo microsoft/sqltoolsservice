@@ -4,10 +4,8 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection

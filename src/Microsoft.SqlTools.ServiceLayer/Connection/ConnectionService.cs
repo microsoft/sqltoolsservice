@@ -125,6 +125,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
                 return this.connectionFactory;
             }
+
+            internal set { this.connectionFactory = value; }
         }
        
         /// <summary>

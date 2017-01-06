@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
@@ -16,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {

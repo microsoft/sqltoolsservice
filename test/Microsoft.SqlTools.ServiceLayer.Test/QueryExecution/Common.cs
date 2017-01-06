@@ -183,6 +183,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, StandardConnectionDetails);
         }
 
+        public static ConnectionInfo CreateConnectedConnectionInfo(Dictionary<string, string>[][] data, bool throwOnRead, ConnectionType type = ConnectionType.Default)
+        {
+            ConnectionService connectionService = ConnectionService.Instance;
+            connectionService.OwnerToConnectionMap.Clear();
+            connectionService.ConnectionFactory = CreateMockFactory(data, throwOnRead);
+
+            ConnectParams connectParams = new ConnectParams()
+            {
+                Connection = StandardConnectionDetails,
+                OwnerUri = Common.OwnerUri,
+                Type = type
+            };
+
+            connectionService.Connect(connectParams).Wait();
+            return connectionService.OwnerToConnectionMap[OwnerUri];
+        }
+
         #endregion
 
         #region Service Mocking
@@ -194,12 +211,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Create a place for the temp "files" to be written
             storage = new Dictionary<string, byte[]>();
 
-            // Create the connection factory with the dataset
-            var factory = CreateTestConnectionInfo(data, throwOnRead).Factory;
-
             // Mock the connection service
             var connectionService = new Mock<ConnectionService>();
-            ConnectionInfo ci = new ConnectionInfo(factory, OwnerUri, StandardConnectionDetails);
+            ConnectionInfo ci = CreateConnectedConnectionInfo(data, throwOnRead);
             ConnectionInfo outValMock;
             connectionService
                 .Setup(service => service.TryFindConnection(It.IsAny<string>(), out outValMock))
