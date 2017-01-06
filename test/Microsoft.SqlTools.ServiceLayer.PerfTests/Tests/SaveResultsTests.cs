@@ -4,9 +4,8 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Tests;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
+using Microsoft.SqlTools.ServiceLayer.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
@@ -20,15 +19,15 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
                 const string query = Scripts.MasterBasicQuery;
 
                 // Execute a query
-                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath, Common.MasterDatabaseName);
-                await testHelper.RunQuery(queryTempFile.FilePath, query);
-                await Common.CalculateRunTime(() => testHelper.SaveAsCsv(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), true);
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+                await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query);
+                await testService.CalculateRunTime(() => testService.SaveAsCsv(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), true);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -39,15 +38,15 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
                 const string query = Scripts.MasterBasicQuery;
 
                 // Execute a query
-                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath, Common.MasterDatabaseName);
-                await testHelper.RunQuery(queryTempFile.FilePath, query);
-                await Common.CalculateRunTime(() => testHelper.SaveAsJson(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), true);
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+                await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query);
+                await testService.CalculateRunTime(() => testService.SaveAsJson(queryTempFile.FilePath, outputTempFile.FilePath, 0, 0), true);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 

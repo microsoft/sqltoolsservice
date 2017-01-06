@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 {
@@ -23,6 +24,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             }
         }
         
+        public static async Task RunIfWindowsAsync(Func<Task> test)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                await test();
+            }
+        }
         public static void RunIfWindows(Action test)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

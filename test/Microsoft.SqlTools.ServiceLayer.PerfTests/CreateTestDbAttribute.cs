@@ -5,7 +5,8 @@
 
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
+using Microsoft.SqlTools.ServiceLayer.Common;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit.Sdk;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public TestServerType ServerType { get; set; }
         public override void Before(MethodInfo methodUnderTest)
         {
-            Task task = Common.CreateTestDatabase(ServerType);
+            Task task = SqlTestDb.CreateNew(ServerType, keep: true, databaseName: Common.PerfTestDatabaseName, query: Scripts.CreateDatabaseObjectsQuery);
             task.Wait();
         }
 

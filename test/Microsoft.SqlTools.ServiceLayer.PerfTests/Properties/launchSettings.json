@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Microsoft.SqlTools.ServiceLayer.PerfTests": {
+      "commandName": "Project",
+      "commandLineArgs": "IntellisenseTests"
+    }
+  }
+}

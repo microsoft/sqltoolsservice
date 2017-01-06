@@ -7,10 +7,12 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts
+namespace Microsoft.SqlTools.ServiceLayer.Common
 {
     public class Scripts
     {
+        private const string ResourceNameRefix = "Microsoft.SqlTools.ServiceLayer.Test.Common.Scripts.";
+
         public const string MasterBasicQuery = "SELECT * FROM sys.all_columns"; //basic queries should return at least 10000 rows
 
         public const string DelayQuery = "WAITFOR DELAY '00:01:00'";
@@ -18,6 +20,24 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts
         public const string TestDbSimpleSelectQuery = "SELECT * FROM [Person].[Address]";
 
         public const string SelectQuery = "SELECT * FROM ";
+
+        public const string DropDatabaseIfExist = @"
+IF EXISTS (SELECT 1 FROM [sys].[databases] WHERE [name] = '{0}') 
+BEGIN
+    ALTER DATABASE [{0}]
+    SET READ_WRITE;
+    ALTER DATABASE [{0}]
+    SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [{0}];
+END
+";
+
+        public const string DropDatabaseIfExistAzure = @"
+IF EXISTS (SELECT 1 FROM [sys].[databases] WHERE [name] = '{0}') 
+BEGIN
+    DROP DATABASE [{0}];
+END
+";
 
         public static string CreateDatabaseObjectsQuery { get { return CreateDatabaseObjectsQueryInstance.Value; } }
 
@@ -27,17 +47,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts
 
         private static readonly Lazy<string> CreateDatabaseObjectsQueryInstance = new Lazy<string>(() =>
         {
-            return GetScriptFileContent("Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts.CreateTestDatabaseObjects.sql");
+            return GetScriptFileContent(ResourceNameRefix + "CreateTestDatabaseObjects.sql");
         });
 
         private static readonly Lazy<string> CreateDatabaseQueryInstance = new Lazy<string>(() =>
         {
-            return GetScriptFileContent("Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts.CreateTestDatabase.sql");
+            return GetScriptFileContent(ResourceNameRefix + "CreateTestDatabase.sql");
         });
 
         private static readonly Lazy<string> TestDbSelectQueriesInstance = new Lazy<string>(() =>
         {
-            return GetScriptFileContent("Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts.TestDbTableQueries.sql");
+            return GetScriptFileContent(ResourceNameRefix + "TestDbTableQueries.sql");
         });
 
         private static string GetScriptFileContent(string fileName)

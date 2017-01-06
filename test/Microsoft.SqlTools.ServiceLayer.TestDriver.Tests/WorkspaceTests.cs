@@ -6,6 +6,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task InitializeRequestTest()
         {
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
                 InitializeRequest initializeRequest = new InitializeRequest()
                 {
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Capabilities = new ClientCapabilities()
                 };                   
                        
-                InitializeResult result = await testHelper.Driver.SendRequest(InitializeRequest.Type, initializeRequest);
+                InitializeResult result = await testService.Driver.SendRequest(InitializeRequest.Type, initializeRequest);
                 Assert.NotNull(result);
             }
         }

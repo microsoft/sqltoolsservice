@@ -7,9 +7,10 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
@@ -34,10 +35,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
                 // Connect
-                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testService.Connect(TestServerType.OnPrem, string.Empty, queryTempFile.FilePath);
                 Assert.True(connected, "Connection was not successful");
 
                 Thread.Sleep(10000); // Wait for intellisense to warm up
@@ -82,19 +83,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                             }
                         };
 
-                        await testHelper.RequestChangeTextDocumentNotification(changeParams);
+                        await testService.RequestChangeTextDocumentNotification(changeParams);
 
                         Thread.Sleep(50);
 
                         // If we just typed a space, request/resolve completion
                         if (textToType[i] == ' ')
                         {
-                            var completions = await testHelper.RequestCompletion(queryTempFile.FilePath, textToType.Substring(0, i + 1), 0, i + 1);
+                            var completions = await testService.RequestCompletion(queryTempFile.FilePath, textToType.Substring(0, i + 1), 0, i + 1);
                             Assert.True(completions != null && completions.Length > 0, "Completion items list was null or empty");
 
                             Thread.Sleep(50);
 
-                            var item = await testHelper.RequestResolveCompletion(completions[0]);
+                            var item = await testService.RequestResolveCompletion(completions[0]);
 
                             Assert.NotNull(item);
                         }
@@ -133,10 +134,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                         }
                     };
 
-                    await testHelper.RequestChangeTextDocumentNotification(changeParams2);
+                    await testService.RequestChangeTextDocumentNotification(changeParams2);
                 }
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -152,10 +153,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                                       "SELECT COUNT(*) FROM sys.objects";
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
                 // Connect
-                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testService.Connect(TestServerType.OnPrem, string.Empty, queryTempFile.FilePath);
                 Assert.True(connected, "Connection is successful");
 
                 // Run queries repeatedly
@@ -163,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 stopwatch.Start();
                 while (stopwatch.Elapsed < TimeSpan.FromMinutes(60))
                 {
-                    var queryResult = await testHelper.RunQuery(queryTempFile.FilePath, queryToRun, 10000);
+                    var queryResult = await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, queryToRun, 10000);
 
                     Assert.NotNull(queryResult);
                     Assert.NotNull(queryResult.BatchSummaries);
@@ -173,15 +174,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Assert.NotNull(queryResult.BatchSummaries[2].ResultSetSummaries);
                     Assert.NotNull(queryResult.BatchSummaries[3].ResultSetSummaries);
 
-                    Assert.NotNull(await testHelper.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 7));
-                    Assert.NotNull(await testHelper.ExecuteSubset(queryTempFile.FilePath, 1, 0, 0, 7));
-                    Assert.NotNull(await testHelper.ExecuteSubset(queryTempFile.FilePath, 2, 0, 0, 7));
-                    Assert.NotNull(await testHelper.ExecuteSubset(queryTempFile.FilePath, 3, 0, 0, 1));
+                    Assert.NotNull(await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 7));
+                    Assert.NotNull(await testService.ExecuteSubset(queryTempFile.FilePath, 1, 0, 0, 7));
+                    Assert.NotNull(await testService.ExecuteSubset(queryTempFile.FilePath, 2, 0, 0, 7));
+                    Assert.NotNull(await testService.ExecuteSubset(queryTempFile.FilePath, 3, 0, 0, 1));
 
                     Thread.Sleep(500);
                 }
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -193,22 +194,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             string ownerUri = "file:///my/test/file.sql";
 
-            var connection = ConnectionTestUtils.LocalhostConnection;
-            connection.Connection.Pooling = false;
 
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
+                var connection = await testService.GetConnectionParametersAsync(TestServerType.OnPrem);
+                connection.Connection.Pooling = false;
+
                 // Connect/disconnect repeatedly
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
                 while (stopwatch.Elapsed < TimeSpan.FromMinutes(60))
                 {
                     // Connect
-                    bool connected = await testHelper.Connect(ownerUri, connection);
+                    bool connected = await testService.Connect(ownerUri, connection);
                     Assert.True(connected, "Connection is successful");
 
                     // Disconnect
-                    bool disconnected = await testHelper.Disconnect(ownerUri);
+                    bool disconnected = await testService.Disconnect(ownerUri);
                     Assert.True(disconnected, "Disconnect is successful");
                 }
             }

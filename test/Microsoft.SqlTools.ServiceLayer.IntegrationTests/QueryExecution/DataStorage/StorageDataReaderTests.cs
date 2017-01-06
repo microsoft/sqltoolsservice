@@ -5,6 +5,7 @@
 
 using System;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -15,14 +16,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
 {
     public class StorageDataReaderTests
     {
-        private StorageDataReader GetTestStorageDataReader(out DbDataReader reader, string query)
+        private async Task<StorageDataReader> GetTestStorageDataReader(string query)
         {
-            ScriptFile scriptFile;
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
 
-            var command = connInfo.SqlConnection.CreateCommand();
+            var command = result.ConnectionInfo.SqlConnection.CreateCommand();
             command.CommandText = query;
-            reader = command.ExecuteReader();
+            DbDataReader reader = command.ExecuteReader();
 
             return new StorageDataReader(reader);
         }
@@ -31,12 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetBytesWithMaxCapacity
         /// </summary>
         [Fact]
-        public void GetBytesWithMaxCapacityTest()
+        public async void GetBytesWithMaxCapacityTest()
         {
-            DbDataReader reader;
-            var storageReader = GetTestStorageDataReader(
-                out reader,
+            var storageReader = await GetTestStorageDataReader(
                 "SELECT CAST([name] as TEXT) As TextName FROM sys.all_columns");
+            DbDataReader reader = storageReader.DbDataReader;
 
             reader.Read();
             Assert.False(storageReader.IsDBNull(0));
@@ -49,12 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetCharsWithMaxCapacity
         /// </summary>
         [Fact]
-        public void GetCharsWithMaxCapacityTest()
+        public async void GetCharsWithMaxCapacityTest()
         {
-            DbDataReader reader;
-            var storageReader = GetTestStorageDataReader(
-                out reader,
+            var storageReader = await GetTestStorageDataReader(
                 "SELECT name FROM sys.all_columns");
+            DbDataReader reader = storageReader.DbDataReader;
 
             reader.Read();
             Assert.False(storageReader.IsDBNull(0));
@@ -72,12 +70,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetXmlWithMaxCapacity
         /// </summary>
         [Fact]
-        public void GetXmlWithMaxCapacityTest()
+        public async void GetXmlWithMaxCapacityTest()
         {
-            DbDataReader reader;
-            var storageReader = GetTestStorageDataReader(
-                out reader,
+            var storageReader = await GetTestStorageDataReader(
                 "SELECT CAST('<xml>Test XML context</xml>' AS XML) As XmlColumn");
+            DbDataReader reader = storageReader.DbDataReader;
 
             reader.Read();
             Assert.False(storageReader.IsDBNull(0));

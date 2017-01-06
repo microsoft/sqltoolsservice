@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         }
 
 
-        private Credential ReadCredential(Credential credential)
+        internal Credential ReadCredential(Credential credential)
         {
             Credential.ValidateForLookup(credential);
 

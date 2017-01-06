@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
+
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     /// <summary>
     /// The model to deserialize the server names json
@@ -21,5 +22,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         None,
         Azure,
         OnPrem
+    }
+
+    public enum AuthenticationType
+    {
+        Integrated,
+        SqlLogin
     }
 }

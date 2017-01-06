@@ -8,10 +8,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Common;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Tests;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 
@@ -24,14 +23,14 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task HoverTestOnPrem()
         {
             TestServerType serverType = TestServerType.OnPrem;
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 const string query = Scripts.TestDbSimpleSelectQuery;
-                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath, Common.PerfTestDatabaseName);
-                Hover hover = await Common.CalculateRunTime(() => testHelper.RequestHover(queryTempFile.FilePath, query, 0, Scripts.TestDbComplexSelectQueries.Length + 1), true);
+                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                Hover hover = await testService.CalculateRunTime(() => testService.RequestHover(queryTempFile.FilePath, query, 0, Scripts.TestDbComplexSelectQueries.Length + 1), true);
                 Assert.NotNull(hover);
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -40,14 +39,14 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task SuggestionsTest()
         {
             TestServerType serverType = TestServerType.OnPrem;
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 const string query = Scripts.TestDbSimpleSelectQuery;
-                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath, Common.PerfTestDatabaseName);
-                await ValidateCompletionResponse(testHelper, queryTempFile.FilePath, false, Common.PerfTestDatabaseName, true);
-                await ValidateCompletionResponse(testHelper, queryTempFile.FilePath, true, Common.PerfTestDatabaseName, false);
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                await ValidateCompletionResponse(testService, queryTempFile.FilePath, false, Common.PerfTestDatabaseName, true);
+                await ValidateCompletionResponse(testService, queryTempFile.FilePath, true, Common.PerfTestDatabaseName, false);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -56,12 +55,12 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task DiagnosticsTests()
         {
             TestServerType serverType = TestServerType.OnPrem;
-            await Common.CreateTestDatabase(serverType);
+            await SqlTestDb.CreateNew(serverType, keep: true, databaseName: Common.PerfTestDatabaseName, query: Scripts.CreateDatabaseObjectsQuery);
 
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                await Common.ConnectAsync(testHelper, serverType, Scripts.TestDbSimpleSelectQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                await testService.ConnectForQuery(serverType, Scripts.TestDbSimpleSelectQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
 
                 Thread.Sleep(500);
                 var contentChanges = new TextDocumentChangeEvent[1];
@@ -94,13 +93,13 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 };
 
                 TestTimer timer = new TestTimer() { PrintResult = true };
-                await testHelper.RequestChangeTextDocumentNotification(changeParams);
-                await Common.ExecuteWithTimeout(timer, 60000, async () =>
+                await testService.RequestChangeTextDocumentNotification(changeParams);
+                await testService.ExecuteWithTimeout(timer, 60000, async () =>
                 {
-                    var completeEvent = await testHelper.Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
+                    var completeEvent = await testService.Driver.WaitForEvent(PublishDiagnosticsNotification.Type, 15000);
                     return completeEvent?.Diagnostics != null && completeEvent.Diagnostics.Length > 0;
                 });
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -109,9 +108,9 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task BindingCacheColdAzureSimpleQuery()
         {
             TestServerType serverType = TestServerType.Azure;
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
-                await VerifyBindingLoadScenario(testHelper, serverType, Scripts.TestDbSimpleSelectQuery, false);
+                await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbSimpleSelectQuery, false);
             }
         }
 
@@ -120,9 +119,9 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task BindingCacheColdOnPremSimpleQuery()
         {
             TestServerType serverType = TestServerType.OnPrem;
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
-                await VerifyBindingLoadScenario(testHelper, serverType, Scripts.TestDbSimpleSelectQuery, false);
+                await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbSimpleSelectQuery, false);
             }
             
         }
@@ -132,11 +131,11 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task BindingCacheWarmAzureSimpleQuery()
         {
             TestServerType serverType = TestServerType.Azure;
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 const string query = Scripts.TestDbSimpleSelectQuery;
-                await VerifyBindingLoadScenario(testHelper, serverType, query, true);
+                await VerifyBindingLoadScenario(testService, serverType, query, true);
             }
         }
 
@@ -146,11 +145,11 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         {
             TestServerType serverType = TestServerType.OnPrem;
 
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 const string query = Scripts.TestDbSimpleSelectQuery;
-                await VerifyBindingLoadScenario(testHelper, serverType, query, true);
+                await VerifyBindingLoadScenario(testService, serverType, query, true);
             }
         }
 
@@ -160,9 +159,9 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         {
             TestServerType serverType = TestServerType.Azure;
 
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
-                await VerifyBindingLoadScenario(testHelper, serverType, Scripts.TestDbComplexSelectQueries,false);
+                await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbComplexSelectQueries,false);
             }
         }
 
@@ -171,9 +170,9 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task BindingCacheColdOnPremComplexQuery()
         {
             TestServerType serverType = TestServerType.OnPrem;
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
-                await VerifyBindingLoadScenario(testHelper, serverType, Scripts.TestDbComplexSelectQueries, false);
+                await VerifyBindingLoadScenario(testService, serverType, Scripts.TestDbComplexSelectQueries, false);
             }
         }
 
@@ -182,11 +181,11 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task BindingCacheWarmAzureComplexQuery()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
                 string query = Scripts.TestDbComplexSelectQueries; 
                 const TestServerType serverType = TestServerType.Azure;
-                await VerifyBindingLoadScenario(testHelper, serverType, query, true);
+                await VerifyBindingLoadScenario(testService, serverType, query, true);
             }
         }
 
@@ -195,18 +194,18 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task BindingCacheWarmOnPremComplexQuery()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
             {
                 string query = Scripts.TestDbComplexSelectQueries;
                 const TestServerType serverType = TestServerType.OnPrem;
-                await VerifyBindingLoadScenario(testHelper, serverType, query, true);
+                await VerifyBindingLoadScenario(testService, serverType, query, true);
             }
         }
 
         #region Private Helper Methods
 
         private async Task VerifyBindingLoadScenario(
-            TestHelper testHelper, 
+            TestServiceDriverProvier testService, 
             TestServerType serverType, 
             string query, 
             bool preLoad, 
@@ -215,16 +214,16 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             string databaseName = Common.PerfTestDatabaseName;
             if (preLoad)
             {
-                await VerifyCompletationLoaded(testHelper, serverType, Scripts.TestDbSimpleSelectQuery, 
+                await VerifyCompletationLoaded(testService, serverType, Scripts.TestDbSimpleSelectQuery, 
                     databaseName, printResult: false, testName: testName);
                 Console.WriteLine("Intellisense cache loaded.");
             }
-            await VerifyCompletationLoaded(testHelper, serverType, query, databaseName, 
+            await VerifyCompletationLoaded(testService, serverType, query, databaseName, 
                 printResult: true, testName: testName);
         }
 
         private  async Task VerifyCompletationLoaded(
-            TestHelper testHelper, 
+            TestServiceDriverProvier testService, 
             TestServerType serverType, 
             string query, 
             string databaseName,
@@ -233,16 +232,16 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         {
             using (SelfCleaningTempFile testTempFile = new SelfCleaningTempFile())
             {
-                testHelper.WriteToFile(testTempFile.FilePath, query);
-                await Common.ConnectAsync(testHelper, serverType, query, testTempFile.FilePath, databaseName);
-                await ValidateCompletionResponse(testHelper, testTempFile.FilePath, printResult, databaseName, 
+                testService.WriteToFile(testTempFile.FilePath, query);
+                await testService.ConnectForQuery(serverType, query, testTempFile.FilePath, databaseName);
+                await ValidateCompletionResponse(testService, testTempFile.FilePath, printResult, databaseName, 
                     waitForIntelliSense: true, testName: testName);
-                await testHelper.Disconnect(testTempFile.FilePath);
+                await testService.Disconnect(testTempFile.FilePath);
             }
         }
 
         private static async Task ValidateCompletionResponse(
-            TestHelper testHelper, 
+            TestServiceDriverProvier testService, 
             string ownerUri, 
             bool printResult, 
             string databaseName, 
@@ -251,12 +250,12 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         {
             TestTimer timer = new TestTimer() { PrintResult = printResult };
             bool isReady = !waitForIntelliSense;
-            await Common.ExecuteWithTimeout(timer, 150000, async () =>
+            await testService.ExecuteWithTimeout(timer, 150000, async () =>
             {
                 if (isReady)
                 {
                     string query = Scripts.SelectQuery;
-                    CompletionItem[] completions = await testHelper.RequestCompletion(ownerUri, query, 0, query.Length + 1);
+                    CompletionItem[] completions = await testService.RequestCompletion(ownerUri, query, 0, query.Length + 1);
                     return completions != null && 
                     (completions.Any(x => string.Compare(x.Label, databaseName, StringComparison.OrdinalIgnoreCase) == 0 || 
                     string.Compare(x.Label, $"[{databaseName}]", StringComparison.OrdinalIgnoreCase) == 0 ||
@@ -264,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 }
                 else
                 {
-                    var completeEvent = await testHelper.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 100000);
+                    var completeEvent = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 100000);
                     isReady = completeEvent.OwnerUri == ownerUri;
                     if (isReady)
                     {

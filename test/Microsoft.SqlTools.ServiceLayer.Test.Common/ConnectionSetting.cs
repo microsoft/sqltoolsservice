@@ -4,16 +4,16 @@
 //
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
 using Newtonsoft.Json;
 
-namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     /// <summary>
     /// The model for deserializing settings.json
     /// </summary>
-    public class Setting
+    public class ConnectionSetting
     {
         [JsonProperty("mssql.connections")]
         public List<ConnectionProfile> Connections { get; set; }
@@ -55,6 +55,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
         public string ProfileName { get; set; }
 
         public TestServerType ServerType { get; set; }
+
+        public AuthenticationType AuthenticationType { get; set; }
 
 
         public string formatCredentialId(string itemType = "Profile")
