@@ -15,12 +15,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Settings for return the actual exection plan for a run query
         /// </summary>
-        public bool IncludeActualExecutionPlan { get; set; }
+        public bool IncludeActualExecutionPlanXml { get; set; }
 
         /// <summary>
         /// Settings for return the actual exection plan for a run query
         /// </summary>
-        public bool IncludeEstimatedExecutionPlan { get; set; }
+        public bool IncludeEstimatedExecutionPlanXml { get; set; }
+
+        /// <summary>
+        /// Settings for return the actual exection plan for a run query
+        /// </summary>
+        public bool IncludeActualExecutionPlanText { get; set; }
+
+        /// <summary>
+        /// Settings for return the actual exection plan for a run query
+        /// </summary>
+        public bool IncludeEstimatedExecutionPlanText { get; set; }
 
     }
 }

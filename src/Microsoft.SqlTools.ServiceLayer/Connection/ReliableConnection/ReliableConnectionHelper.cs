@@ -637,37 +637,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
 
             public string OsVersion;
-
-            public enum EngineEdition
-            {
-                /**
-                Currently these values are duplicated in $\Sql\ssms\smo\SMO\Main\src\enumerations.cs
-                Eventually we would like to remove the type defined there (see TFS#7818885) but until that happens
-                make sure to update both enums with any changes
-                **/
-                Unknown = 0x000000,
-                
-                ///The server is Personal or standard
-                Personal = 0x000001,
-                
-                ///The server is Standard
-                Standard = 0x000002,
-                
-                ///The server is Enterprise
-                Enterprise = 0x000003,
-                
-                ///The server is Express
-                Express = 0x000004,
-                
-                ///The server is SqlDatabase
-                SqlDatabase = 0x000005,
-
-                ///The server is a DataWarehouse
-                SqlDataWarehouse = 0x000006,
-
-                ///The server is a StretchDatabase
-                SqlStretchDatabase = 0x000007
-            }
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo)

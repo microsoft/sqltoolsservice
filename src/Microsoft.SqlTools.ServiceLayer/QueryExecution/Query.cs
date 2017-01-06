@@ -69,24 +69,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private static string s_SetShowplanText = "SET SHOWPLAN_TEXT {0}";
 
         /// <summary>
-        /// statistics time statement
-        /// </summary>
-        private static string s_SetStatisticsTime = "SET STATISTICS TIME {0}";
-
-        /// <summary>
-        /// statistics IO statement
-        /// </summary>
-        private static string s_SetStatisticsIO = "SET STATISTICS IO {0}";
-
-        /// <summary>
         /// statistics profile statement
         /// </summary>
         private static string s_SetStatisticsProfile = "SET STATISTICS PROFILE {0}";
- 
-        /// <summary>
-        /// showplan_all statement
-        /// </summary>
-		private static string s_SetShowPlanAll = "SET SHOWPLAN_ALL {0}";
 
         /// <summary>
         /// showplan_xml statement
@@ -144,11 +129,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
 
-            // place holders until implemented
+            // Getting server information 
             ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection.SqlConnection);
             bool isSqlDw = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
-
-            // should i also cover the Sql Server CE case?
             
             if (!isSqlDw)
             {
@@ -159,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 //showplan specified via UI corresponds to execOptions.WithShowPlan option and takes precedence
                 //over all other showplan related settings that might have been specified via Connection Settings
                 //UI
-                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlan) 
+                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
                 {
                     if (serverInfo.ServerMajorVersion >= 9)
                     {
@@ -167,30 +150,51 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
                     }
+
+                    // Support for pre-yukon
+                    /*
                     else
                     {
                         // Enable set showplan all
                         addBatch(string.Format(s_SetShowPlanAll, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetShowPlanAll, s_Off), AfterBatches, outputFactory);
                     }
+                    */
                 }
+                
                 // check for the actual exectuion plan (statistics xml)
-                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlan)
+                if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
                 {
                     if (serverInfo.ServerMajorVersion >= 9)
                     {
                         // enable set statistics xml
                         addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
-                    
-                        // live showplan enabling goes here in the future
                     } 
+
+                    // Support for pre-yukon
+                    /*
                     else
                     {
                         // enable set statistics profile
                         addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
                     }
+                    */
+                } 
+                
+                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanText) 
+                {
+                    // enable showplan text
+                    addBatch(string.Format(s_SetShowplanText, s_On), BeforeBatches, outputFactory);
+                    addBatch(string.Format(s_SetShowplanText, s_Off), AfterBatches, outputFactory);
+                }
+                
+                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanText)
+                {
+                    // enable statistics profile for text
+                    addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
+                    addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
                 }
             }
         }
@@ -511,7 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private void addBatch(string query, List<Batch> batchSet, IFileStreamFactory outputFactory)
         {
-            batchSet.Add(new Batch(query, new SelectionData(0,0,0,0), 0, outputFactory));
+            batchSet.Add(new Batch(query, new SelectionData(0,0,0,0), batchSet.Count, outputFactory));
         }
 
         #endregion

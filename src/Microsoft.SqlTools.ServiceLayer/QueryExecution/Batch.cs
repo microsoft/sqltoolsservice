@@ -62,11 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ExpectEstimatedExecutionPlan = 0x2,
             ExpectActualYukonXmlShowPlan = 0x4,
             ExpectEstimatedYukonXmlShowPlan	= 0x8,
-            ExecuteWithDebugging = 0x10,
-            ExecuteLivePlan = 0x20,
-            HideYukonXMLShowPlan = 0x40,
-            ExpectYukonXmlShowPlan  = ExpectActualYukonXmlShowPlan | ExpectEstimatedYukonXmlShowPlan,
-            ShowPlanMask = ExpectYukonXmlShowPlan | ExpectActualExecutionPlan | ExpectEstimatedExecutionPlan
+            ExpectYukonXmlShowPlan  = ExpectActualYukonXmlShowPlan | ExpectEstimatedYukonXmlShowPlan
         }
 
         #endregion
@@ -214,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     summary.Messages = ResultMessages.ToArray();
                     summary.ExecutionEnd = ExecutionEndTimeStamp;
                     summary.ExecutionElapsed = ExecutionElapsedTime;
-                    summary.BatchSpecialAction = processResultSetsSpecialActions();
+                    summary.SpecialAction = processResultSetsSpecialActions();
                 }
 
                 return summary;
