@@ -280,20 +280,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
                 {
+                    SpecialAction action = this.processSpecialAction();
                     // If result set is 'for xml' or 'for json',
                     // Concatenate all the rows together into one row
-                    if (this.processSpecialAction() != Batch.SpecialAction.None)
+                    if (!action.None)
                     {
                         // Iterate over all the rows and process them into a list of string builders
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
                         IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
                         content = string.Join(string.Empty, rowValues);
 
-                        if (this.processSpecialAction() == Batch.SpecialAction.ExpectYukonXmlShowPlan) 
+                        if (action.ExpectActualYukonXmlShowPlan ||  action.ExpectEstimatedYukonXmlShowPlan) 
                         {
                             format = "xml";
                         }
-                        else
+                        else if (action.ExpectEstimatedYukonTextShowPlan || action.ExpectActualYukonTextShowPlan)
                         {
                             format = "text";
                         }
@@ -511,13 +512,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Determine the special action, if any, for this result set
         /// </summary>
-        private Batch.SpecialAction processSpecialAction() 
+        private SpecialAction processSpecialAction() 
         {           
+            SpecialAction action  = new SpecialAction();
 
             // Check if this result set is a showplan 
             if (dataReader.Columns.Length == 1 && String.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return Batch.SpecialAction.ExpectEstimatedYukonXmlShowPlan;
+                action.ExpectEstimatedYukonXmlShowPlan = true;
             }
             // Compare column names to see if it is pre-Yukon actual execution plan
             else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length)
@@ -525,10 +527,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 for (int i = 2; i < dataReader.Columns.Length; i++)
                 {
                     if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
-                        return Batch.SpecialAction.None;
+                    {
+                        action.None = true;
+                    }
                 }
 
-                return Batch.SpecialAction.ExpectActualYukonXmlShowPlan;
+                action.ExpectActualYukonXmlShowPlan = true;
             }
             // Compare column names to see if it is pre-Yukon estimated execution plan
             else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length + 2)
@@ -536,12 +540,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 for (int i = 2; i < dataReader.Columns.Length; i++)
                 {
                     if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
-                        return Batch.SpecialAction.None;
+                    {
+                        action.None = true;
+                    }
                 }
-                return Batch.SpecialAction.ExpectEstimatedExecutionPlan;
+                action.ExpectEstimatedExecutionPlan = true;
             } 
 
-            return Batch.SpecialAction.None; 
+            return action;
         }
 
         #endregion

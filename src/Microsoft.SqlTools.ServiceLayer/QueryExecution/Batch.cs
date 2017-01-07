@@ -55,16 +55,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly List<ResultSet> resultSets;
 
-        public enum SpecialAction
-        {
-            None = 0x0, 
-            ExpectActualExecutionPlan = 0x1, 
-            ExpectEstimatedExecutionPlan = 0x2,
-            ExpectActualYukonXmlShowPlan = 0x4,
-            ExpectEstimatedYukonXmlShowPlan	= 0x8,
-            ExpectYukonXmlShowPlan  = ExpectActualYukonXmlShowPlan | ExpectEstimatedYukonXmlShowPlan
-        }
-
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
@@ -512,10 +502,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private SpecialAction processResultSetsSpecialActions()
         {
-            SpecialAction batchSpecialAction = SpecialAction.None;
+            SpecialAction batchSpecialAction = new SpecialAction();
             foreach (ResultSet resultSet in resultSets) 
             {
-                batchSpecialAction |= resultSet.Summary.SpecialAction;
+                batchSpecialAction.combineSpecialAction(resultSet.Summary.SpecialAction);
             }
 
             return batchSpecialAction;
