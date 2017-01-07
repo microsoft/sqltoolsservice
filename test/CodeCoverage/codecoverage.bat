@@ -30,11 +30,11 @@ dotnet.exe test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\projec
 
 SET SERVICECODECOVERAGE=FALSE
 
-"%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\project.json -c %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\bin\Debug\netcoreapp1.0
+"%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\project.json -c %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.TestDriver\bin\%DOTNETCONFIG%\netcoreapp1.0
 
-"%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.Test\project.json -c %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.Test\bin\Debug\netcoreapp1.0
+"%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.Test\project.json -c %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.Test\bin\%DOTNETCONFIG%\netcoreapp1.0
 
-"%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.IntegrationTests\project.json -c %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\Debug\netcoreapp1.0
+"%WORKINGDIR%packages\OpenCover.4.6.519\tools\OpenCover.Console.exe" -mergeoutput -register:user -target:dotnet.exe -targetargs:"test %WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.IntegrationTests\project.json -c %DOTNETCONFIG%" -oldstyle -filter:"+[Microsoft.SqlTools.*]* -[xunit*]*" -output:coverage.xml -searchdirs:%WORKINGDIR%..\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\%DOTNETCONFIG%\netcoreapp1.0
 
 "%WORKINGDIR%packages\OpenCoverToCoberturaConverter.0.2.4.0\tools\OpenCoverToCoberturaConverter.exe"  -input:coverage.xml -output:outputCobertura.xml -sources:%WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer
 "%WORKINGDIR%packages\ReportGenerator.2.4.5.0\tools\ReportGenerator.exe"  "-reports:coverage.xml" "-targetdir:%WORKINGDIR%\reports"
