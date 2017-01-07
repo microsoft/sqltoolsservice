@@ -41,18 +41,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             ConnectionProfile connectionProfile = null;
 
             //Get the server or profile name for given type to use for database connection
-            TestServerIdentity serverIdentiry = TestServers.FirstOrDefault(x => x.ServerType == serverType);
+            TestServerIdentity serverIdentiry = TestServers != null ? TestServers.FirstOrDefault(x => x.ServerType == serverType) : null;
 
             //Search for the connection info in settings.json
             if (serverIdentiry == null)
             {
                 //If not server name found, try to find the connection info for given type
-                connectionProfile = Setting.Connections.FirstOrDefault(x => x.ServerType == serverType);
+                connectionProfile = Setting != null && Setting.Connections != null ? Setting.Connections.FirstOrDefault(x => x.ServerType == serverType) : null;
             }
             else
             {
                 //Find the connection info for specific server name or profile name
-                connectionProfile = Setting.GetConnentProfile(serverIdentiry.ProfileName, serverIdentiry.ServerName);
+                connectionProfile = Setting != null ? Setting.GetConnentProfile(serverIdentiry.ProfileName, serverIdentiry.ServerName) : null;
+            }
+
+            if(connectionProfile == null)
+            {
+                return new ConnectionProfile
+                {
+                    ServerName = "localhost",
+                    Database = "master",
+                    AuthenticationType = AuthenticationType.Integrated
+                };  
             }
             return connectionProfile;
         }
@@ -143,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to load the database connection server name settings. error: " + ex.Message);
-                return null;
+                return new List<TestServerIdentity>();
             }
         }
 
@@ -159,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to load the connection settings. error: " + ex.Message);
-                return null;
+                return new ConnectionSetting();
             }
         }
 

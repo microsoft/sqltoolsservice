@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public ConnectionProfile GetConnentProfile(string profilerName, string serverName)
         {
-            if (!string.IsNullOrEmpty(profilerName))
+            if (!string.IsNullOrEmpty(profilerName) && Connections != null)
             {
                 var byPrfileName = Connections.FirstOrDefault(x => x.ProfileName == profilerName);
                 if (byPrfileName != null)
