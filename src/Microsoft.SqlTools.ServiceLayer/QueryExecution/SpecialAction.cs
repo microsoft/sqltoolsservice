@@ -6,8 +6,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
     public class SpecialAction {
         bool _None;
-        bool _ExpectActualExecutionPlan;
-        bool _ExpectEstimatedExecutionPlan;
         bool _ExpectActualYukonXmlShowPlan;
         bool _ExpectEstimatedYukonXmlShowPlan;
         bool _ExpectActualYukonTextShowPlan;
@@ -19,8 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 _None = value;
                 if (value)
                 {
-                    _ExpectActualExecutionPlan = false;
-                    _ExpectEstimatedExecutionPlan = false;
                     _ExpectActualYukonXmlShowPlan = false;
                     _ExpectEstimatedYukonXmlShowPlan = false;
                     _ExpectActualYukonTextShowPlan = false;
@@ -29,75 +25,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-         public bool ExpectActualExecutionPlan {
-            get { return _ExpectActualExecutionPlan; }
-            set { 
-                _ExpectActualExecutionPlan = value;
-                if (value) {
-                    _None = true;
-                }
-            }
-        }
-
-        public bool ExpectEstimatedExecutionPlan {
-            get { return _ExpectEstimatedExecutionPlan; }
-            set { 
-                _ExpectEstimatedExecutionPlan = value;
-                if (value) {
-                    _None = true;
-                }
-            }
-        }
-
-        public bool ExpectActualYukonXmlShowPlan {
+        public bool ExpectActualYukonXmlShowPlan 
+        {
             get { return _ExpectActualYukonXmlShowPlan; }
-            set { 
-                _ExpectActualYukonXmlShowPlan = value;
-                if (value) {
-                    _None = true;
-                }
-            }
+            set { this.registerSpecialAction(ref _ExpectActualYukonXmlShowPlan, value); }
         }
 
-        public bool ExpectEstimatedYukonXmlShowPlan {
+        public bool ExpectEstimatedYukonXmlShowPlan 
+        {
             get { return _ExpectEstimatedYukonXmlShowPlan; }
-            set { 
-                _ExpectEstimatedYukonXmlShowPlan = value;
-                if (value) {
-                    _None = true;
-                }
-            }
+            set { this.registerSpecialAction(ref _ExpectEstimatedYukonXmlShowPlan, value); }
         }
 
-        public bool ExpectActualYukonTextShowPlan {
+        public bool ExpectActualYukonTextShowPlan 
+        {
             get { return _ExpectActualYukonTextShowPlan; }
-            set { 
-                _ExpectActualYukonTextShowPlan = value;
-                if (value) {
-                    _None = true;
-                }
-            }
+            set { this.registerSpecialAction(ref _ExpectActualYukonTextShowPlan, value); }
         }
 
-        public bool ExpectEstimatedYukonTextShowPlan {
+        public bool ExpectEstimatedYukonTextShowPlan 
+        {
             get { return _ExpectEstimatedYukonTextShowPlan; }
-            set { 
-                _ExpectEstimatedYukonTextShowPlan = value;
-                if (value) {
-                    _None = true;
-                }
-            }
+            set { this.registerSpecialAction(ref _ExpectEstimatedYukonTextShowPlan, value); }
         }
-
+ 
         public SpecialAction()
         {
             None = true;
-            _ExpectActualExecutionPlan = false;
-            _ExpectEstimatedExecutionPlan = false;
-            _ExpectActualYukonXmlShowPlan = false;
-            _ExpectEstimatedYukonXmlShowPlan = false;
-            _ExpectActualYukonTextShowPlan = false;
-            _ExpectEstimatedYukonTextShowPlan = false;
+            ExpectActualYukonXmlShowPlan = false;
+            ExpectEstimatedYukonXmlShowPlan = false;
+            ExpectActualYukonTextShowPlan = false;
+            ExpectEstimatedYukonTextShowPlan = false;
         }
 
         public void combineSpecialAction(SpecialAction action)
@@ -105,37 +63,52 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (!action.None)
             {   
                 this.None = false;
-
-                if (action._ExpectActualExecutionPlan) 
-                {
-                    this._ExpectActualExecutionPlan = true;
-                } 
                 
-                if (action._ExpectEstimatedExecutionPlan) 
+                if (action.ExpectActualYukonXmlShowPlan) 
                 {
-                    this._ExpectEstimatedExecutionPlan = true;
-                } 
-                
-                if (action._ExpectActualYukonXmlShowPlan) 
-                {
-                    this._ExpectActualYukonXmlShowPlan = true;
+                    this.ExpectActualYukonXmlShowPlan = true;
                 }
 
-                if (action._ExpectEstimatedYukonXmlShowPlan) 
+                if (action.ExpectEstimatedYukonXmlShowPlan) 
                 {
-                    this._ExpectEstimatedYukonXmlShowPlan = true;
+                    this.ExpectEstimatedYukonXmlShowPlan = true;
                 } 
 
-                if (action._ExpectActualYukonTextShowPlan) 
+                if (action.ExpectActualYukonTextShowPlan) 
                 {
-                    this._ExpectActualYukonTextShowPlan = true;
+                    this.ExpectActualYukonTextShowPlan = true;
                 } 
 
-                if (action._ExpectEstimatedYukonTextShowPlan) 
+                if (action.ExpectEstimatedYukonTextShowPlan) 
                 {
-                    this._ExpectEstimatedYukonTextShowPlan = true;
+                    this.ExpectEstimatedYukonTextShowPlan = true;
                 } 
             }
         }
+        
+        private bool areAllFalse()
+        {
+            if (!ExpectActualYukonXmlShowPlan && !ExpectEstimatedYukonXmlShowPlan &&
+                !ExpectActualYukonTextShowPlan && !ExpectEstimatedYukonTextShowPlan)
+            {
+                return true;
+            }
+            
+            return false;
+        }
+
+        private void registerSpecialAction(ref bool state, bool change)
+        {
+            state = change;
+            if (change) 
+            {
+                None = false;
+            }
+            else if (this.areAllFalse())
+            {
+                None = true;
+            }
+        }
+
     };
 }
