@@ -19,16 +19,5 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Setting to return the estimated execution plan as XML
         /// </summary>
         public bool IncludeEstimatedExecutionPlanXml { get; set; }
-
-        /// <summary>
-        /// Setting to return the actual execution plan as Text
-        /// </summary>
-        public bool IncludeActualExecutionPlanText { get; set; }
-
-        /// <summary>
-        /// Setting to return the estimated execution plan as Text
-        /// </summary>
-        public bool IncludeEstimatedExecutionPlanText { get; set; }
-
     }
 }

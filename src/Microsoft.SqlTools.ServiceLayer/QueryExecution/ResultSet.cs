@@ -29,33 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
 
-        /* Pre-Yukon Support type schema  
-        //array of column names that indicate that we got result set with pre-Yukon showplan
-        protected static String[] s_PreYukonShowPlanColumns = new String[] 
-        {
-            "Rows",
-            "Executes",
-            "StmtText",
-            "StmtId",
-            "NodeId",
-            "Parent",
-            "PhysicalOp",
-            "LogicalOp",
-            "Argument",
-            "DefinedValues",
-            "EstimateRows",
-            "EstimateIO",
-            "EstimateCPU",
-            "AvgRowSize",
-            "TotalSubtreeCost",
-            "OutputList",
-            "Warnings",
-            "Type",
-            "Parallel",
-            "EstimateExecutions"
-        };
-        */
-
         #endregion
 
         #region Member Variables
@@ -522,39 +495,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (dataReader.Columns.Length == 1 && String.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 action.ExpectYukonXMLShowPlan = true;
-                return action;
             }
-
-            /* Pre-Yukon Table support for statistics profile and showplan_all
-            // Compare column names to see if it is pre-Yukon actual execution plan
-            else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length)
-            {
-                for (int i = 2; i < dataReader.Columns.Length; i++)
-                {
-                    if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
-                    {
-                        action.None = true;
-                        return action;
-                    }
-                }
-
-                action.ExpectActualYukonXmlShowPlan = true;
-            }
-            // Compare column names to see if it is pre-Yukon estimated execution plan
-            else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length + 2)
-            {
-                for (int i = 2; i < dataReader.Columns.Length; i++)
-                {
-                    if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
-                    {
-                        action.None = true;
-                        return action;
-                    }
-                }
-                action.ExpectEstimatedExecutionPlan = true;
-                return action;
-            }
-            */ 
 
             return action;
         }

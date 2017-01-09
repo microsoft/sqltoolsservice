@@ -64,23 +64,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// OFF keyword
         /// </summary>
         private static string s_Off = "OFF";
- 
-        /* Pre-Yukon statements
-        /// <summary>
-        /// showplan_text statement
-        /// </summary>
-        private static string s_SetShowplanText = "SET SHOWPLAN_TEXT {0}";
-
-        /// <summary>
-        /// statistics profile statement
-        /// </summary>
-        private static string s_SetStatisticsProfile = "SET STATISTICS PROFILE {0}";
-
-        /// <summary>
-        /// showplan_all statement
-        /// </summary>
-        private static string s_SetShowPlanAll = "SET SHOWPLAN_ALL {0}";
-        */
 
         /// <summary>
         /// showplan_xml statement
@@ -159,15 +142,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
                     }
-
-                    /* Pre-Yukon formats
-                    else
-                    {
-                        // Enable set showplan all
-                        addBatch(string.Format(s_SetShowPlanAll, s_On), BeforeBatches, outputFactory);
-                        addBatch(string.Format(s_SetShowPlanAll, s_Off), AfterBatches, outputFactory);
-                    }
-                    */
                 } 
                 else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
                 {
@@ -177,35 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
                     }
-
-                    /* Pre-Yukon formats 
-                    else
-                    {
-                        // enable set statistics profile
-                        addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
-                        addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
-                    }
-                    */
                 } 
-                
-                /*
-
-                // Dealing with pre-yukon execution plan text formats
-                // Not options in SSMS
-                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanText) 
-                {
-                    // enable showplan text
-                    addBatch(string.Format(s_SetShowplanText, s_On), BeforeBatches, outputFactory);
-                    addBatch(string.Format(s_SetShowplanText, s_Off), AfterBatches, outputFactory);
-                }
-                
-                if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanText)
-                {
-                    // enable statistics profile for text
-                    addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
-                    addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
-                }
-                */
             }
         }
 
