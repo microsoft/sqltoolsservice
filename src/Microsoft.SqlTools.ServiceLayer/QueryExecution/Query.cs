@@ -65,6 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private static string s_Off = "OFF";
  
+        /* Pre-Yukon statements
         /// <summary>
         /// showplan_text statement
         /// </summary>
@@ -76,6 +77,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private static string s_SetStatisticsProfile = "SET STATISTICS PROFILE {0}";
 
         /// <summary>
+        /// showplan_all statement
+        /// </summary>
+        private static string s_SetShowPlanAll = "SET SHOWPLAN_ALL {0}";
+        */
+
+        /// <summary>
         /// showplan_xml statement
         /// </summary>
 		private static string s_SetShowPlanXml = "SET SHOWPLAN_XML {0}";
@@ -84,11 +91,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// statistics xml statement
         /// </summary>
         private static string s_SetStatisticsXml = "SET STATISTICS XML {0}";
-
-        /// <summary>
-        /// showplan_all statement
-        /// </summary>
-        private static string s_SetShowPlanAll = "SET SHOWPLAN_ALL {0}";
 
         #endregion
 
@@ -157,30 +159,39 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
                     }
+
+                    /* Pre-Yukon formats
                     else
                     {
                         // Enable set showplan all
                         addBatch(string.Format(s_SetShowPlanAll, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetShowPlanAll, s_Off), AfterBatches, outputFactory);
                     }
-                }
-                
-                if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+                    */
+                } 
+                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
                 {
                     if (serverInfo.ServerMajorVersion >= 9)
                     {
                         // enable set statistics xml
                         addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
-                    } 
+                    }
+
+                    /* Pre-Yukon formats 
                     else
                     {
                         // enable set statistics profile
                         addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
                     }
+                    */
                 } 
                 
+                /*
+
+                // Dealing with pre-yukon execution plan text formats
+                // Not options in SSMS
                 if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanText) 
                 {
                     // enable showplan text
@@ -194,6 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
                     addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
                 }
+                */
             }
         }
 
