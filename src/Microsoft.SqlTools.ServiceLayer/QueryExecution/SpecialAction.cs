@@ -8,8 +8,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         bool _None;
         bool _ExpectActualYukonXmlShowPlan;
         bool _ExpectEstimatedYukonXmlShowPlan;
-        bool _ExpectActualYukonTextShowPlan;
-        bool _ExpectEstimatedYukonTextShowPlan;
+        bool _ExpectActualTextShowPlan;
+        bool _ExpectEstimatedTextShowPlan;
 
         public bool None {
             get { return _None; }
@@ -19,8 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     _ExpectActualYukonXmlShowPlan = false;
                     _ExpectEstimatedYukonXmlShowPlan = false;
-                    _ExpectActualYukonTextShowPlan = false;
-                    _ExpectEstimatedYukonTextShowPlan = false;
+                    _ExpectActualTextShowPlan = false;
+                    _ExpectEstimatedTextShowPlan = false;
                 }
             }
         }
@@ -37,16 +37,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             set { this.registerSpecialAction(ref _ExpectEstimatedYukonXmlShowPlan, value); }
         }
 
-        public bool ExpectActualYukonTextShowPlan 
+        public bool ExpectActualTextShowPlan 
         {
-            get { return _ExpectActualYukonTextShowPlan; }
-            set { this.registerSpecialAction(ref _ExpectActualYukonTextShowPlan, value); }
+            get { return _ExpectActualTextShowPlan; }
+            set { this.registerSpecialAction(ref _ExpectActualTextShowPlan, value); }
         }
 
-        public bool ExpectEstimatedYukonTextShowPlan 
+        public bool ExpectEstimatedTextShowPlan 
         {
-            get { return _ExpectEstimatedYukonTextShowPlan; }
-            set { this.registerSpecialAction(ref _ExpectEstimatedYukonTextShowPlan, value); }
+            get { return _ExpectEstimatedTextShowPlan; }
+            set { this.registerSpecialAction(ref _ExpectEstimatedTextShowPlan, value); }
+        }
+
+        public bool ExpectYukonXMLShowPlan 
+        {
+            get { return ExpectEstimatedYukonXmlShowPlan || ExpectActualYukonXmlShowPlan; }
+            set 
+            { 
+                ExpectEstimatedYukonXmlShowPlan = value;
+                ExpectActualYukonXmlShowPlan = value;
+            }
         }
  
         public SpecialAction()
@@ -54,8 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             None = true;
             ExpectActualYukonXmlShowPlan = false;
             ExpectEstimatedYukonXmlShowPlan = false;
-            ExpectActualYukonTextShowPlan = false;
-            ExpectEstimatedYukonTextShowPlan = false;
+            ExpectActualTextShowPlan = false;
+            ExpectEstimatedTextShowPlan = false;
         }
 
         public void combineSpecialAction(SpecialAction action)
@@ -74,14 +84,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     this.ExpectEstimatedYukonXmlShowPlan = true;
                 } 
 
-                if (action.ExpectActualYukonTextShowPlan) 
+                if (action.ExpectActualTextShowPlan) 
                 {
-                    this.ExpectActualYukonTextShowPlan = true;
+                    this.ExpectActualTextShowPlan = true;
                 } 
 
-                if (action.ExpectEstimatedYukonTextShowPlan) 
+                if (action.ExpectEstimatedTextShowPlan) 
                 {
-                    this.ExpectEstimatedYukonTextShowPlan = true;
+                    this.ExpectEstimatedTextShowPlan = true;
                 } 
             }
         }
@@ -89,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool areAllFalse()
         {
             if (!ExpectActualYukonXmlShowPlan && !ExpectEstimatedYukonXmlShowPlan &&
-                !ExpectActualYukonTextShowPlan && !ExpectEstimatedYukonTextShowPlan)
+                !ExpectActualTextShowPlan && !ExpectEstimatedTextShowPlan)
             {
                 return true;
             }

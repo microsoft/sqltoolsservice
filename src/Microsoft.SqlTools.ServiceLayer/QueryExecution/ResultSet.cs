@@ -294,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             format = "xml";
                         }
-                        else if (action.ExpectEstimatedYukonTextShowPlan || action.ExpectActualYukonTextShowPlan)
+                        else if (action.ExpectEstimatedTextShowPlan || action.ExpectActualTextShowPlan)
                         {
                             format = "text";
                         }
@@ -519,8 +519,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Check if this result set is a showplan 
             if (dataReader.Columns.Length == 1 && String.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
-                action.ExpectEstimatedYukonXmlShowPlan = true;
+                action.ExpectYukonXMLShowPlan = true;
+                return action;
             }
+
+            /* Pre-Yukon Table support for statistics profile and showplan_all
             // Compare column names to see if it is pre-Yukon actual execution plan
             else if (s_PreYukonShowPlanColumns.Length == dataReader.Columns.Length)
             {
@@ -529,6 +532,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         action.None = true;
+                        return action;
                     }
                 }
 
@@ -542,10 +546,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (String.Compare(dataReader.Columns[i-2].ColumnName, s_PreYukonShowPlanColumns[i], StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         action.None = true;
+                        return action;
                     }
                 }
                 action.ExpectEstimatedExecutionPlan = true;
-            } 
+                return action;
+            }
+            */ 
 
             return action;
         }

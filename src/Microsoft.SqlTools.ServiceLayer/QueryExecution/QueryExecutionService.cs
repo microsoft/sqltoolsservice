@@ -476,7 +476,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
-
                 await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
             };
             query.BatchStarted += batchStartCallback;
@@ -488,7 +487,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
-
                 await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCompleteCallback;

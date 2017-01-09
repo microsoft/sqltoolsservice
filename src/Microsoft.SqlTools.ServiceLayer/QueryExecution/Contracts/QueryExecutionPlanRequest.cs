@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
-    /// Parameters for a query result subset retrieval request
+    /// Parameters for query execution plan request
     /// </summary>
     public class QueryExecutionPlanParams
     {
@@ -30,17 +30,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     }
 
     /// <summary>
-    /// Parameters for the result of a subset retrieval request
+    /// Parameters for the query execution plan request
     /// </summary>
     public class QueryExecutionPlanResult
     {
         /// <summary>
-        /// Subset request error messages. Optional, can be set to null to indicate no errors
+        /// Executionb plan request error messages. Optional, can be set to null to indicate no errors
         /// </summary>
         public string Message { get; set; }
 
         /// <summary>
-        /// The requested subset of results. Optional, can be set to null to indicate an error
+        /// The requested execution plan. Optional, can be set to null to indicate an error
         /// </summary>
         public ExecutionPlan ExecutionPlan { get; set; }
     }

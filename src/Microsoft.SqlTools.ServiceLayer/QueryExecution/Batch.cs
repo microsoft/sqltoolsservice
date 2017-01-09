@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 lock (resultSets)
                 {
-                    return resultSets.Select((set) => set.Summary).ToArray();
+                    return resultSets.Select(set => set.Summary).ToArray();
                 }
             }
         }
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     summary.Messages = ResultMessages.ToArray();
                     summary.ExecutionEnd = ExecutionEndTimeStamp;
                     summary.ExecutionElapsed = ExecutionElapsedTime;
-                    summary.SpecialAction = processResultSetsSpecialActions();
+                    summary.SpecialAction = processResultSetSpecialActions();
                 }
 
                 return summary;
@@ -499,8 +499,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-
-        private SpecialAction processResultSetsSpecialActions()
+        /// <summary>
+        /// Aggregates all result sets in the batch into a single special action 
+        /// </summary>
+        private SpecialAction processResultSetSpecialActions()
         {
             SpecialAction batchSpecialAction = new SpecialAction();
             foreach (ResultSet resultSet in resultSets) 

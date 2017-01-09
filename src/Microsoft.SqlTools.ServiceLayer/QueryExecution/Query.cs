@@ -53,6 +53,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private bool hasExecuteBeenCalled;
 
+        private QueryExecutionSettings settings;
+
         /// <summary>
         /// ON keyword
         /// </summary>
@@ -79,9 +81,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 		private static string s_SetShowPlanXml = "SET SHOWPLAN_XML {0}";
 
         /// <summary>
-        /// statistics_all statement
+        /// statistics xml statement
         /// </summary>
         private static string s_SetStatisticsXml = "SET STATISTICS XML {0}";
+
+        /// <summary>
+        /// showplan_all statement
+        /// </summary>
+        private static string s_SetShowPlanAll = "SET SHOWPLAN_ALL {0}";
 
         #endregion
 
@@ -104,6 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryText = queryText;
             editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
+            this.settings = settings;
 
             // Process the query into batches
             ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
@@ -121,9 +129,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             batch.EndLocation.LineNumber - 1,
                             batch.EndLocation.ColumnNumber - 1),
                         index, outputFactory));
-
+                        
             Batches = batchSelection.ToArray();
-
 
             // Create our batch lists
             BeforeBatches = new List<Batch>();
@@ -133,15 +140,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection.SqlConnection);
             bool isSqlDw = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
             
+            // Determining which execution plan options may be applied 
             if (!isSqlDw)
             {
+                // TODO: 
                 // Client statistics and showplan are not shown for multi-server connections.  If we do decide to show
                 // showplan or statistics for multi-server connections, each child server connection will need
                 // its own setting because the child servers do not have to be the same version.
-                // TODO: support multiServerConnection
-                //showplan specified via UI corresponds to execOptions.WithShowPlan option and takes precedence
-                //over all other showplan related settings that might have been specified via Connection Settings
-                //UI
+
+                // Checking for each type of execution plan option (they are not mutually exclusive)
                 if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
                 {
                     if (serverInfo.ServerMajorVersion >= 9)
@@ -150,19 +157,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
                     }
-
-                    // Support for pre-yukon
-                    /*
                     else
                     {
                         // Enable set showplan all
                         addBatch(string.Format(s_SetShowPlanAll, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetShowPlanAll, s_Off), AfterBatches, outputFactory);
                     }
-                    */
                 }
                 
-                // check for the actual exectuion plan (statistics xml)
                 if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
                 {
                     if (serverInfo.ServerMajorVersion >= 9)
@@ -171,16 +173,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
                     } 
-
-                    // Support for pre-yukon
-                    /*
                     else
                     {
                         // enable set statistics profile
                         addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);
                         addBatch(string.Format(s_SetStatisticsProfile, s_Off), AfterBatches, outputFactory);
                     }
-                    */
                 } 
                 
                 if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanText) 
@@ -190,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     addBatch(string.Format(s_SetShowplanText, s_Off), AfterBatches, outputFactory);
                 }
                 
-                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanText)
+                if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanText)
                 {
                     // enable statistics profile for text
                     addBatch(string.Format(s_SetStatisticsProfile, s_On), BeforeBatches, outputFactory);

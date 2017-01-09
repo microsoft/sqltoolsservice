@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public DbColumnWrapper[] ColumnInfo { get; set; }
 
         /// <summary>
-        /// An attached Actual Showplan in XML, if there was one
+        /// The special action definition of the result set 
         /// </summary>
         public SpecialAction SpecialAction { get; set; }
 
