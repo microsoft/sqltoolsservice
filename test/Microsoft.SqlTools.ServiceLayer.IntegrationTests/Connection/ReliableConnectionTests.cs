@@ -241,8 +241,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             SqlConnectionStringBuilder csb = new SqlConnectionStringBuilder();
             csb.DataSource = connectParams.Connection.ServerName;
             csb.IntegratedSecurity = connectParams.Connection.AuthenticationType == AuthenticationType.Integrated.ToString();
-            csb.UserID = connectParams.Connection.UserName;
-            csb.Password = connectParams.Connection.Password;
+            if (connectParams.Connection.UserName != null)
+            {
+                csb.UserID = connectParams.Connection.UserName;
+            }
+            if (connectParams.Connection.Password != null)
+            {
+                csb.Password = connectParams.Connection.Password;
+            }
             csb.ConnectTimeout = connectParams.Connection.ConnectTimeout.HasValue ? connectParams.Connection.ConnectTimeout.Value: 30;
             csb.Encrypt = connectParams.Connection.Encrypt.HasValue ? connectParams.Connection.Encrypt.Value : false;
             csb.TrustServerCertificate = connectParams.Connection.TrustServerCertificate.HasValue ? connectParams.Connection.TrustServerCertificate.Value : false;
