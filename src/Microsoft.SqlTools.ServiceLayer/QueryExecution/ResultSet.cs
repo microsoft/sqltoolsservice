@@ -269,10 +269,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             format = "xml";
                         }
-                        else if (action.ExpectEstimatedTextShowPlan || action.ExpectActualTextShowPlan)
-                        {
-                            format = "text";
-                        }
                     }
                 }
                 

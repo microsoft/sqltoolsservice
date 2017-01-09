@@ -34,9 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         private ExecutionPlanOptions DefaultExecutionPlanOptions = new ExecutionPlanOptions() { 
             IncludeActualExecutionPlanXml = false,
-            IncludeEstimatedExecutionPlanXml = false,
-            IncludeActualExecutionPlanText = false,
-            IncludeEstimatedExecutionPlanText = false
+            IncludeEstimatedExecutionPlanXml = false
         }; // do not return any execution plan by default
 
         #endregion
