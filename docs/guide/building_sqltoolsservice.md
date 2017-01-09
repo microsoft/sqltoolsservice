@@ -5,7 +5,7 @@
 
 1. Clone the SQL Tools Service repo from [https://github.com/Microsoft/sqltoolsservice](https://github.com/Microsoft/sqltoolsservice).
 2. Run `dotnet restore` from the cloned repo's root directory.
-3. Run `dotnet build src/Microsoft.SqlToosl.ServiceLayer` from the cloned repo's root directory.
+3. Run `dotnet build src/Microsoft.SqlTools.ServiceLayer` from the cloned repo's root directory.
 
 > *Tip* there is a `build.cmd` or `build.sh` file in the repo's root directory that can be used 
 > to build and package the service.
