@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
 				foreach(var typeProperty in supportedTypes)
 				{
+					string statement;
 					// Write comments
 					WriteLine("\t\t/// <summary>");
 					WriteLine(string.Format("\t\t/// Script a {0} using SMO", typeProperty["Name"]));
@@ -61,7 +62,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 					// Write try block to retrieve object and return script
 					WriteLine("\t\t\t" + "try");
 					WriteLine("\t\t\t{");
-					string statement = string.Format("{0} smoObject = string.IsNullOrEmpty(schemaName) ? new {0}(this.Database, objectName) : new {0}(this.Database, objectName, schemaName); ", typeProperty["Name"]);
+					if(typeProperty["SupportsSchemaQuery"].IndexOf("true", StringComparison.OrdinalIgnoreCase) >= 0)
+					{
+					statement = string.Format("{0} smoObject = string.IsNullOrEmpty(schemaName) ? new {0}(this.Database, objectName) : new {0}(this.Database, objectName, schemaName);", typeProperty["AccessClass"]);
+					}
+					else
+					{
+					statement = string.Format("{0} smoObject = new {0}(this.Database, objectName);", typeProperty["Name"]);
+					}
 					WriteLine("\t\t\t\t" + statement);
 					WriteLine("\t\t\t\t" + "smoObject.Refresh();");
 					WriteLine("\t\t\t\t" + "return smoObject.Script();");
@@ -71,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 					WriteLine("\t\t\tcatch (Exception ex)");
 					WriteLine("\t\t\t{");
 					statement = string.Format("LogLevel.Error,\"Exception at PeekDefinition Get{0}Scripts : \" + ex.Message", typeProperty["Name"]);
-					WriteLine("\t\t\t\tLogger.Write(" + statement + "));");
+					WriteLine("\t\t\t\tLogger.Write(" + statement + ");");
 					WriteLine("\t\t\t\treturn null;");
 					WriteLine("\t\t\t}");
 					WriteLine("\t\t}\n");
@@ -97,14 +105,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 				{
 					string typeName = node["Name"]?.InnerText;
 					string createSyntax = node["CreateSyntax"]?.InnerText;
-					string accessMethod = node["AccessMethod"]?.InnerText;
+					string accessClass = node["AccessClass"]?.InnerText;
 					string supportsSchemaQuery = node["SupportsSchemaQuery"]?.InnerText;
-					if (typeName != null && createSyntax != null && accessMethod != null && supportsSchemaQuery!= null)
+					if (typeName != null && createSyntax != null && accessClass != null && supportsSchemaQuery!= null)
 					{
 						Dictionary<string, string> typeProperties = new Dictionary<string, string>();
 						typeProperties.Add("Name", typeName);
 						typeProperties.Add("CreateSyntax", createSyntax);
-						typeProperties.Add("AccessMethod", accessMethod);
+						typeProperties.Add("AccessClass", accessClass);
 						typeProperties.Add("SupportsSchemaQuery", supportsSchemaQuery);
 						typeList.Add(typeProperties);
 					}
