@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
 
+        /* Pre-Yukon Support type schema  
         //array of column names that indicate that we got result set with pre-Yukon showplan
         protected static String[] s_PreYukonShowPlanColumns = new String[] 
         {
@@ -53,6 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             "Parallel",
             "EstimateExecutions"
         };
+        */
 
         #endregion
 
