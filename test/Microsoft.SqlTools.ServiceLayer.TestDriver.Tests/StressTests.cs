@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 // Connect
                 bool connected = await testService.Connect(TestServerType.OnPrem, string.Empty, queryTempFile.FilePath);
@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                                       "SELECT COUNT(*) FROM sys.objects";
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 // Connect
                 bool connected = await testService.Connect(TestServerType.OnPrem, string.Empty, queryTempFile.FilePath);
@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             string ownerUri = "file:///my/test/file.sql";
 
 
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 var connection = await testService.GetConnectionParametersAsync(TestServerType.OnPrem);
                 connection.Connection.Pooling = false;

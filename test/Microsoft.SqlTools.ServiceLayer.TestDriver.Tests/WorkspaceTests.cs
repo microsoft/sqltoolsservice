@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task InitializeRequestTest()
         {
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 InitializeRequest initializeRequest = new InitializeRequest()
                 {

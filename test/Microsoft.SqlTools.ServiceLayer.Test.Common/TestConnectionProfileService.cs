@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -22,8 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     /// </summary>
     public class TestConnectionProfileService
     {
-        public static IEnumerable<TestServerIdentity> TestServers = InitTestServerNames();
-        public static ConnectionSetting Setting = InitSetting();
+        private readonly IEnumerable<TestServerIdentity> _testServers = TestServersLazyInstance.Value;
+        private readonly ConnectionSetting _setting = ConnectionSettingLazyInstance.Value;
 
         public TestConnectionProfileService(ServiceTestDriver driver)
         {
@@ -34,6 +35,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
         }
 
+        private static readonly Lazy<IEnumerable<TestServerIdentity>> TestServersLazyInstance = 
+            new Lazy<IEnumerable<TestServerIdentity>>(InitTestServerNames);
+
+        private static readonly Lazy<ConnectionSetting> ConnectionSettingLazyInstance =
+            new Lazy<ConnectionSetting>(InitSetting);
+
         private ServiceTestDriver Driver { get; set; }
 
         private ConnectionProfile GetConnectionProfile(TestServerType serverType)
@@ -41,29 +48,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             ConnectionProfile connectionProfile = null;
 
             //Get the server or profile name for given type to use for database connection
-            TestServerIdentity serverIdentiry = TestServers != null ? TestServers.FirstOrDefault(x => x.ServerType == serverType) : null;
+            TestServerIdentity serverIdentity = _testServers != null ? _testServers.FirstOrDefault(x => x.ServerType == serverType) : null;
 
             //Search for the connection info in settings.json
-            if (serverIdentiry == null)
+            if (serverIdentity == null)
             {
                 //If not server name found, try to find the connection info for given type
-                connectionProfile = Setting != null && Setting.Connections != null ? Setting.Connections.FirstOrDefault(x => x.ServerType == serverType) : null;
+                connectionProfile = _setting != null && _setting.Connections != null ? _setting.Connections.FirstOrDefault(x => x.ServerType == serverType) : null;
             }
             else
             {
                 //Find the connection info for specific server name or profile name
-                connectionProfile = Setting != null ? Setting.GetConnentProfile(serverIdentiry.ProfileName, serverIdentiry.ServerName) : null;
+                connectionProfile = _setting != null ? _setting.GetConnentProfile(serverIdentity.ProfileName, serverIdentity.ServerName) : null;
             }
 
-            if(connectionProfile == null)
-            {
-                return new ConnectionProfile
-                {
-                    ServerName = "localhost",
-                    Database = "master",
-                    AuthenticationType = AuthenticationType.Integrated
-                };  
-            }
+            Assert.True(connectionProfile != null, "Cannot find any connection profile for server type " + serverType.ToString());
+            
             return connectionProfile;
         }
 
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             if (connectionProfile != null)
             {
                 //If the password is empty, get the credential using the service
-                if (string.IsNullOrEmpty(connectionProfile.Password))
+                if (connectionProfile.AuthenticationType == AuthenticationType.SqlLogin &&  string.IsNullOrEmpty(connectionProfile.Password))
                 {
                     Credential credential = await ReadCredentialAsync(connectionProfile.formatCredentialId());
                     connectionProfile.Password = credential.Password;
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             if (driver == null)
             {
                 TestServiceProvider.InitializeTestServices();
-                return await Task.Factory.StartNew(() => CredentialService.Instance.ReadCredential(credentialParams));
+                return await CredentialService.Instance.ReadCredentialAsync(credentialParams);
             }
             else
             {
@@ -139,11 +139,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             try
             {
-                string testServerNamesFilePath = Environment.GetEnvironmentVariable("TestServerNamesFile");
-                if (!string.IsNullOrEmpty(testServerNamesFilePath))
+                string testServerNamesFileContent = GetTestServerNamesFileContent();
+                if (!string.IsNullOrEmpty(testServerNamesFileContent))
                 {
-                    string jsonFileContent = File.ReadAllText(testServerNamesFilePath);
-                    return Newtonsoft.Json.JsonConvert.DeserializeObject<IList<TestServerIdentity>>(jsonFileContent);
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<IList<TestServerIdentity>>(testServerNamesFileContent);
                 }
                 else
                 {
@@ -153,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to load the database connection server name settings. error: " + ex.Message);
-                return new List<TestServerIdentity>();
+                return Enumerable.Empty<TestServerIdentity>();
             }
         }
 
@@ -174,14 +173,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         /// <summary>
+        /// Get the location of testServerNames.json. Returns the value of environment variable 'SettingsFileName' and if it's empty returns
+        /// the location of vs code testServerNames.json
+        /// </summary>
+        /// <returns></returns>
+        private static string GetTestServerNamesFileContent()
+        {
+            var testServerNameFilePath = Environment.GetEnvironmentVariable("TestServerNamesFile");
+            string testServerFileName = "testServerNames.json";
+
+            if (string.IsNullOrEmpty(testServerNameFilePath))
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    testServerNameFilePath = Environment.GetEnvironmentVariable("APPDATA") + @"\\" + testServerFileName;
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    testServerNameFilePath = Environment.GetEnvironmentVariable("HOME") + @"/" + testServerFileName;
+                }
+                else
+                {
+                    testServerNameFilePath = Environment.GetEnvironmentVariable("HOME") + @"/" + testServerFileName;
+                }
+            }
+            string testServerNamesFileContent = string.IsNullOrEmpty(testServerNameFilePath) ? string.Empty : File.ReadAllText(testServerNameFilePath);
+
+            return testServerNamesFileContent;
+        }
+
+        /// <summary>
         /// Get the location of setting.json. Returns the value of environment variable 'SettingsFileName' and if it's empty returns
         /// the location of vs code settings.json
         /// </summary>
         /// <returns></returns>
         private static string GetSettingFileContent()
         {
-            string settingsFilename;
-            settingsFilename = Environment.GetEnvironmentVariable("SettingsFileName");
+            var settingsFilename = Environment.GetEnvironmentVariable("SettingsFileName");
 
             if (string.IsNullOrEmpty(settingsFilename))
             {
@@ -198,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/.config/Code/User/settings.json";
                 }
             }
-            string settingsFileContents = File.ReadAllText(settingsFilename);
+            string settingsFileContents = string.IsNullOrEmpty(settingsFilename) ? string.Empty : File.ReadAllText(settingsFilename);
 
             return settingsFileContents;
         }

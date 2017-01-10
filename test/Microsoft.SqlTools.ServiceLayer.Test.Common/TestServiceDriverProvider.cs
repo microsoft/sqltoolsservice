@@ -20,12 +20,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     /// <summary>
     /// Service class to execute SQL tools commands using the test driver or calling the service classed directly
     /// </summary>
-    public sealed class TestServiceDriverProvier : IDisposable
+    public sealed class TestServiceDriverProvider : IDisposable
     {
         private bool isRunning = false;
         private TestConnectionProfileService testConnectionService;
 
-        public TestServiceDriverProvier()
+        public TestServiceDriverProvider()
         {
             Driver = new ServiceTestDriver();
             Driver.Start().Wait();

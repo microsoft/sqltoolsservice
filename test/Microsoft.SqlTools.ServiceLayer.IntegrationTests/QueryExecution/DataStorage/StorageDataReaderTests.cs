@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetBytesWithMaxCapacity
         /// </summary>
         [Fact]
-        public async void GetBytesWithMaxCapacityTest()
+        public async Task GetBytesWithMaxCapacityTest()
         {
             var storageReader = await GetTestStorageDataReader(
                 "SELECT CAST([name] as TEXT) As TextName FROM sys.all_columns");
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetCharsWithMaxCapacity
         /// </summary>
         [Fact]
-        public async void GetCharsWithMaxCapacityTest()
+        public async Task GetCharsWithMaxCapacityTest()
         {
             var storageReader = await GetTestStorageDataReader(
                 "SELECT name FROM sys.all_columns");
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetXmlWithMaxCapacity
         /// </summary>
         [Fact]
-        public async void GetXmlWithMaxCapacityTest()
+        public async Task GetXmlWithMaxCapacityTest()
         {
             var storageReader = await GetTestStorageDataReader(
                 "SELECT CAST('<xml>Test XML context</xml>' AS XML) As XmlColumn");

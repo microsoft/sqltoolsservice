@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.MasterBasicQuery;
 
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             using (SelfCleaningTempFile outputTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.MasterBasicQuery;
 

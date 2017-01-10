@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         {
             TestServerType serverType = TestServerType.Azure;
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.TestDbSimpleSelectQuery;
                 testService.WriteToFile(queryTempFile.FilePath, query);
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.TestDbSimpleSelectQuery;
                 testService.WriteToFile(queryTempFile.FilePath, query);
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 await testService.ConnectForQuery(serverType, Scripts.TestDbSimpleSelectQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
                 Thread.Sleep(1000);

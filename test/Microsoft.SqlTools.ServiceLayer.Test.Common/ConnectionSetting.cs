@@ -18,14 +18,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         [JsonProperty("mssql.connections")]
         public List<ConnectionProfile> Connections { get; set; }
 
-        public ConnectionProfile GetConnentProfile(string profilerName, string serverName)
+        public ConnectionProfile GetConnentProfile(string profileName, string serverName)
         {
-            if (!string.IsNullOrEmpty(profilerName) && Connections != null)
+            if (!string.IsNullOrEmpty(profileName) && Connections != null)
             {
-                var byPrfileName = Connections.FirstOrDefault(x => x.ProfileName == profilerName);
-                if (byPrfileName != null)
+                var byProfileName = Connections.FirstOrDefault(x => x.ProfileName == profileName);
+                if (byProfileName != null)
                 {
-                    return byPrfileName;
+                    return byProfileName;
                 }
             }
             return Connections.FirstOrDefault(x => x.ServerName == serverName);

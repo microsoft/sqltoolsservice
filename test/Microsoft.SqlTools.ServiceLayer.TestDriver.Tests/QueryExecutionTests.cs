@@ -334,7 +334,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             };
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 foreach (var query in queries)
                 {

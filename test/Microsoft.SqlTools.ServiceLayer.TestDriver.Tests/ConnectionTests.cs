@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task InvalidConnection()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 bool connected = await testService.Connect(queryTempFile.FilePath, InvalidConnectParams, 300000);
                 Assert.False(connected, "Invalid connection is failed to connect");
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ListDatabasesTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection successful");

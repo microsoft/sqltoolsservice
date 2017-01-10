@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// </summary>
         internal static async Task CreateTestDatabase(TestServerType serverType, string databaseName = null, string query = null)
         {
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 databaseName = databaseName ?? GetUniqueDBName("");

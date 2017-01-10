@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         [Fact]
-        public async void PrepopulateCommonMetadata()
+        public async Task PrepopulateCommonMetadata()
         {
             var result = await TestObjects.InitLiveConnectionInfo();
             var connInfo = result.ConnectionInfo;
@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         // SMO connected metadata provider.  Since we don't want a live DB dependency
         // in the CI unit tests this scenario is currently disabled.
         [Fact]
-        public async void AutoCompleteFindCompletions()
+        public async Task AutoCompleteFindCompletions()
         {
             TextDocumentPosition textDocument;
             ConnectionInfo connInfo;
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// provide signature help.
         /// </summary>
         [Fact]
-        public async void GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
+        public async Task GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
         {
             // When we make a connection to a live database
             Hosting.ServiceHost.SendEventIgnoreExceptions = true;

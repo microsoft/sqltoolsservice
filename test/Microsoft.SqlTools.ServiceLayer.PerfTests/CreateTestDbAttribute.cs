@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public TestServerType ServerType { get; set; }
         public override void Before(MethodInfo methodUnderTest)
         {
-            Task task = SqlTestDb.CreateNew(ServerType, keep: true, databaseName: Common.PerfTestDatabaseName, query: Scripts.CreateDatabaseObjectsQuery);
+            Task task = SqlTestDb.CreateNew(ServerType, doNotCleanupDb: true, databaseName: Common.PerfTestDatabaseName, query: Scripts.CreateDatabaseObjectsQuery);
             task.Wait();
         }
 

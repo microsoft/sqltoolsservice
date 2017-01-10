@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a table object with active connection
         /// </summary>
         [Fact]
-        public async void GetValidTableDefinitionTest()
+        public async Task GetValidTableDefinitionTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a invalid table object with active connection
         /// </summary>
         [Fact]
-        public async void GetTableDefinitionInvalidObjectTest()
+        public async Task GetTableDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a valid table object with schema and active connection
         /// </summary>
         [Fact]
-        public async void GetTableDefinitionWithSchemaTest()
+        public async Task GetTableDefinitionWithSchemaTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test GetDefinition with an unsupported type(schema - dbo). Expect a error result.
         /// </summary>
         [Fact]
-        public async void GetUnsupportedDefinitionErrorTest()
+        public async Task GetUnsupportedDefinitionErrorTest()
         {
             ScriptFile scriptFile;
             TextDocumentPosition textDocument = new TextDocumentPosition
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Get Definition for a object with no definition. Expect a error result
         /// </summary>
         [Fact]
-        public async void GetDefinitionWithNoResultsFoundError()
+        public async Task GetDefinitionWithNoResultsFoundError()
         {
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test GetDefinition with a forced timeout. Expect a error result.
         /// </summary>
         [Fact]
-        public async void GetDefinitionTimeoutTest()
+        public async Task GetDefinitionTimeoutTest()
         {
             // Given a binding queue that will automatically time out
             var languageService = new LanguageService();
@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a view object with active connection
         /// </summary>
         [Fact]
-        public async void GetValidViewDefinitionTest()
+        public async Task GetValidViewDefinitionTest()
         {
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
@@ -248,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for an invalid view object with no schema name and with active connection
         /// </summary>
         [Fact]
-        public async void GetViewDefinitionInvalidObjectTest()
+        public async Task GetViewDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a stored procedure object with active connection
         /// </summary>
         [Fact]
-        public async void GetStoredProcedureDefinitionTest()
+        public async Task GetStoredProcedureDefinitionTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -288,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a stored procedure object that does not exist with active connection
         /// </summary>
         [Fact]
-        public async void GetStoredProcedureDefinitionFailureTest()
+        public async Task GetStoredProcedureDefinitionFailureTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a stored procedure object with active connection and no schema
         /// </summary>
         [Fact]
-        public async void GetStoredProcedureDefinitionWithoutSchemaTest()
+        public async Task GetStoredProcedureDefinitionWithoutSchemaTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();

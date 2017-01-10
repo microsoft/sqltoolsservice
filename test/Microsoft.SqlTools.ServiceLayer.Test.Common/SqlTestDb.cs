@@ -21,15 +21,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public TestServerType ServerType { get; set; }
 
-        public bool Keep { get; set; }
+        public bool DoNotCleanupDb { get; set; }
 
         /// <summary>
         /// Create the test db if not already exists
         /// </summary>
-        public static async Task<SqlTestDb> CreateNew(TestServerType serverType, bool keep = false, string databaseName = null, string query = null)
+        public static async Task<SqlTestDb> CreateNew(TestServerType serverType, bool doNotCleanupDb = false, string databaseName = null, string query = null)
         {
             SqlTestDb testDb = new SqlTestDb();
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 databaseName = databaseName ?? GetUniqueDBName("");
                 string createDatabaseQuery = Scripts.CreateDatabaseQuery.Replace("#DatabaseName#", databaseName);
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 }
                 testDb.DatabaseName = databaseName;
                 testDb.ServerType = serverType;
-                testDb.Keep = keep;
+                testDb.DoNotCleanupDb = doNotCleanupDb;
             }
 
             return testDb;
@@ -62,9 +62,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public void Dispose()
         {
-            if(!Keep)
+            if(!DoNotCleanupDb)
             {
-                using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+                using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
                 using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
                 {
                     string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture, 

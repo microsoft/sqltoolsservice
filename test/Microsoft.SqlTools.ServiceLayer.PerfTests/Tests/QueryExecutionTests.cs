@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.MasterBasicQuery;
 
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.MasterBasicQuery;
 
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 await testService.ConnectForQuery(serverType, Scripts.DelayQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
                 var queryParams = new QueryExecuteParams

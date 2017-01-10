@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task HoverTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string query = "SELECT * FROM sys.objects";
 
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task CompletionTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string query = "SELECT * FROM sys.objects";
 
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task DiagnosticsTests()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection was not successful");
@@ -219,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task DefinitionTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string query = "SELECT * FROM sys.objects";
                 int lineNumber = 0;
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ChangeConfigurationTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection was not successful");
@@ -287,7 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task NotificationIsSentAfterOnConnectionAutoCompleteUpdate()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 // Connect
                 await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             string sqlText = "EXEC sys.fn_not_a_real_function ";
 
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string ownerUri = tempFile.FilePath;
                 File.WriteAllText(ownerUri, sqlText);
@@ -349,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             string sqlText = "EXEC sys.fn_isrolemember ";
 
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string ownerUri = tempFile.FilePath;
 
@@ -395,7 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             string sqlText = "EXEC sys.fn_isrolemember 1, 'testing', 2";
 
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
-            using (TestServiceDriverProvier testService = new TestServiceDriverProvier())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string ownerUri = tempFile.FilePath;
                 File.WriteAllText(ownerUri, sqlText);
@@ -422,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         public async Task VerifyFunctionSignatureHelpParameter(
-            TestServiceDriverProvier TestService,
+            TestServiceDriverProvider TestService,
             string ownerUri, 
             int character, 
             string expectedFunctionName, 
