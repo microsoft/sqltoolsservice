@@ -677,7 +677,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         // if any exceptions are raised looking up extended completion metadata 
                         // then just return the original completion item
-                        Logger.Write(LogLevel.Error, "Exeception in ResolveCompletionItem " + ex.ToString());
+                        Logger.Write(LogLevel.Error, "Exception in ResolveCompletionItem " + ex.ToString());
                     } 
                     finally
                     {
@@ -739,11 +739,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 parserLine, parserColumn,
                                 bindingContext.MetadataDisplayInfoProvider);
 
+                            Babel.CodeObjectQuickInfo quickInfo = Resolver.GetQuickInfo(
+                                    scriptParseInfo.ParseResult, 
+                                    parserLine, 
+                                    parserColumn, 
+                                    bindingContext.MetadataDisplayInfoProvider);
+
                             // Match token with the suggestions(declaration items) returned
 
                             string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
                             PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
-                            return peekDefinition.GetScript(declarationItems, tokenText, schemaName);
+                            return peekDefinition.GetScript(declarationItems, quickInfo.Text, tokenText, schemaName);
                         },
                         timeoutOperation: (bindingContext) =>
                         {

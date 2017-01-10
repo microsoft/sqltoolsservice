@@ -4,6 +4,7 @@
 //
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.SqlClient;
@@ -37,8 +38,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private Dictionary<DeclarationType, ScriptGetter> sqlScriptGetters =
             new Dictionary<DeclarationType, ScriptGetter>();
 
+        private Dictionary<string, ScriptGetter> sqlScriptGettersFromQuickInfo =
+            new Dictionary<string, ScriptGetter> ();
+ 
         // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
+
+        private Dictionary<string, string> sqlObjectTypesFromQuickInfo = new Dictionary<string, string>();
 
         /// <summary>
         /// Initialize a Peek Definition helper object
@@ -49,6 +55,37 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.serverConnection = serverConnection;
             this.connectionInfo = connInfo;
             this.tempPath = FileUtils.GetPeekDefinitionTempFolder();    
+            
+            sqlScriptGettersFromQuickInfo.Add("table", GetTableScripts);
+            sqlObjectTypesFromQuickInfo.Add("table", "Table");
+
+            sqlScriptGettersFromQuickInfo.Add("view", GetViewScripts);
+            sqlObjectTypesFromQuickInfo.Add("view", "View");
+
+            sqlScriptGettersFromQuickInfo.Add("stored procedure", GetStoredProcedureScripts);
+            sqlObjectTypesFromQuickInfo.Add("stored procedure", "Procedure");
+
+            sqlScriptGettersFromQuickInfo.Add("scalar-valued function", GetScalarValuedFunctionScripts);
+            sqlObjectTypesFromQuickInfo.Add("scalar-valued function", "Function");
+
+            sqlScriptGettersFromQuickInfo.Add("table-valued function", GetTableValuedFunctionScripts);
+            sqlObjectTypesFromQuickInfo.Add("table-valued function", "Function");
+
+            
+
+            sqlScriptGettersFromQuickInfo.Add("user-defined data type", GetUserDefinedDataTypeScripts);
+            sqlObjectTypesFromQuickInfo.Add("user-defined data type", "Type");
+
+            sqlScriptGettersFromQuickInfo.Add("user-defined table type", GetUserDefinedTableTypeScripts);
+            sqlObjectTypesFromQuickInfo.Add("user-defined table type", "Type");
+
+            //Synonymns - appear as 'table' in quickInfo
+            sqlScriptGettersFromQuickInfo.Add("table-valued function", GetTableValuedFunctionScripts);
+            sqlObjectTypesFromQuickInfo.Add("table-valued function", "Function");
+
+            sqlScriptGettersFromQuickInfo.Add("table-valued function", GetTableValuedFunctionScripts);
+            sqlObjectTypesFromQuickInfo.Add("table-valued function", "Function");
+
             Initialize();
         }
 
@@ -116,7 +153,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             sqlScriptGetters.Add(type, scriptGetter);
             sqlObjectTypes.Add(type, typeName);
-
         }
 
         /// <summary>
@@ -167,46 +203,71 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="tokenText"></param>
         /// <param name="schemaName"></param>
         /// <returns>Location object of the script file</returns>
-        internal DefinitionResult GetScript(IEnumerable<Declaration> declarationItems, string tokenText, string schemaName)
+        internal DefinitionResult GetScript(IEnumerable<Declaration> declarationItems, string quickInfoText, string tokenText, string schemaName)
         {
-            foreach (Declaration declarationItem in declarationItems)
+            string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText);
+            if (sqlScriptGettersFromQuickInfo.ContainsKey(tokenType))
             {
-                if (declarationItem.Title == null)
+                if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
                 {
-                    continue;
+                    string fullObjectName = GetFullObjectNameFromQuickInfo(quickInfoText, tokenText);
+                    schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
                 }
-
-                if (declarationItem.Title.Equals(tokenText))
+                Location[] locations = GetSqlObjectDefinition(
+                            sqlScriptGettersFromQuickInfo[tokenType],
+                            tokenText,
+                            schemaName,
+                            sqlObjectTypesFromQuickInfo[tokenType]
+                        );
+                DefinitionResult result = new DefinitionResult
                 {
-                    // Script object using SMO based on type
-                    DeclarationType type = declarationItem.Type;
-                    if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
+                    IsErrorResult = this.error,
+                    Message = this.errorMessage,
+                    Locations = locations
+                };
+                return result;
+            }
+            else
+            {
+                foreach (Declaration declarationItem in declarationItems)
+                {
+                    if (declarationItem.Title == null)
                     {
-                        // On *nix and mac systems, the defaultSchema property throws an Exception when accessed.
-                        // This workaround ensures that a schema name is present by attempting 
-                        // to get the schema name from the declaration item 
-                        // If all fails, the default schema name is assumed to be "dbo"
-                        if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
-                        {
-                            string fullObjectName = declarationItem.DatabaseQualifiedName;
-                            schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
-                        }
-                        Location[] locations = GetSqlObjectDefinition(
-                                    sqlScriptGetters[type],
-                                    tokenText,
-                                    schemaName,
-                                    sqlObjectTypes[type]
-                                );
-                        DefinitionResult result = new DefinitionResult
-                        {
-                            IsErrorResult = this.error,
-                            Message = this.errorMessage,
-                            Locations = locations
-                        };
-                        return result;
+                        continue;
                     }
-                    // sql object type is currently not supported
-                    return GetDefinitionErrorResult(SR.PeekDefinitionTypeNotSupportedError);
+
+                    if (declarationItem.Title.Equals(tokenText))
+                    {
+                        // Script object using SMO based on type
+                        DeclarationType type = declarationItem.Type;
+                        if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
+                        {
+                            // On *nix and mac systems, the defaultSchema property throws an Exception when accessed.
+                            // This workaround ensures that a schema name is present by attempting 
+                            // to get the schema name from the declaration item. 
+                            // If all fails, the default schema name is assumed to be "dbo"
+                            if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
+                            {
+                                string fullObjectName = declarationItem.DatabaseQualifiedName;
+                                schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
+                            }
+                            Location[] locations = GetSqlObjectDefinition(
+                                        sqlScriptGetters[type],
+                                        tokenText,
+                                        schemaName,
+                                        sqlObjectTypes[type]
+                                    );
+                            DefinitionResult result = new DefinitionResult
+                            {
+                                IsErrorResult = this.error,
+                                Message = this.errorMessage,
+                                Locations = locations
+                            };
+                            return result;
+                        }
+                        // sql object type is currently not supported
+                        return GetDefinitionErrorResult(SR.PeekDefinitionTypeNotSupportedError);
+                    }
                 }
             }
             // no definition found
@@ -230,6 +291,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
             return "dbo";
+        }
+
+        internal string GetFullObjectNameFromQuickInfo(string text, string tokenText)
+        {
+            //extract string describing token type from quickInfo text
+            string[] tokens =text.Split(' ');
+            List<string> tokenList = tokens.Where(el => el.Contains(tokenText)).ToList();
+            return tokenList[0];
+        }
+
+        internal string GetTokenTypeFromQuickInfo(string text, string tokenText)
+        {
+            string tokenType = null;
+            //extract string describing token type from quickInfo text
+            string[] tokens =text.Split(' ');
+            List<int> indexList = tokens.Select((s,i) => new {i,s}).Where(el => (el.s).Contains(tokenText)).Select(el => el.i).ToList();
+            tokenType = String.Join(" ", tokens.Take(indexList[0]));
+            return tokenType;
         }
 
         /*
