@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace Microsoft.SqlTools.ServiceLayer.Common
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     public class Scripts
     {

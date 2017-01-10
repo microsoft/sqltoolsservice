@@ -78,9 +78,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         [Fact]
         public async Task AutoCompleteFindCompletions()
         {
-            TextDocumentPosition textDocument;
-            ConnectionInfo connInfo;
-            ScriptFile scriptFile;
             var result = await GetLiveAutoCompleteTestObjects();
 
             result.TextDocumentPosition.Position.Character = 7;

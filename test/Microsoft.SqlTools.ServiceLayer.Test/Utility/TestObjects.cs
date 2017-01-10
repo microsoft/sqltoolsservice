@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.Test.Utility
             return filePath;
         }
 
-        public async static Task<TestConnectionResult> InitLiveConnectionInfo()
+        public static async Task<TestConnectionResult> InitLiveConnectionInfo()
         {
             TestServiceProvider.InitializeTestServices();
 
@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.Test.Utility
             return new TestConnectionResult () { ConnectionInfo = connInfo, ScriptFile = scriptFile };
         }
 
-        public async static Task<ConnectionInfo> InitLiveConnectionInfoForDefinition()
+        public static async Task<ConnectionInfo> InitLiveConnectionInfoForDefinition()
         {
             TestServiceProvider.InitializeTestServices();
             TestConnectionProfileService connectionProfileService = new TestConnectionProfileService();

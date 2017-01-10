@@ -6,7 +6,6 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {

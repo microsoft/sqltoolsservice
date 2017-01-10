@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {

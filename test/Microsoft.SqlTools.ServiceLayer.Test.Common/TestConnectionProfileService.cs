@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 string settingsFileContents = GetSettingFileContent();
                 ConnectionSetting setting = Newtonsoft.Json.JsonConvert.DeserializeObject<ConnectionSetting>(settingsFileContents);
-
+                Console.WriteLine("Connection Settings loaded successfully");
                 return setting;
             }
             catch (Exception ex)
@@ -226,6 +226,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     settingsFilename = Environment.GetEnvironmentVariable("HOME") + @"/.config/Code/User/settings.json";
                 }
             }
+
+            if (string.IsNullOrEmpty(settingsFilename))
+            {
+                Console.WriteLine("Cannot find any connection settings. Please run CreateConnectionSettings.cmd to generate a template for the connection settings.");
+            }
+
             string settingsFileContents = string.IsNullOrEmpty(settingsFilename) ? string.Empty : File.ReadAllText(settingsFilename);
 
             return settingsFileContents;

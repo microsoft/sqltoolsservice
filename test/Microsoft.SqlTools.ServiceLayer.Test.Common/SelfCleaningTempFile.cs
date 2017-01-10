@@ -6,7 +6,7 @@
 using System;
 using System.IO;
 
-namespace Microsoft.SqlTools.ServiceLayer.Common
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     public class SelfCleaningTempFile : IDisposable
     {

@@ -35,22 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
     /// </summary>
     public class PeekDefinitionTests
     {
-        private const int TaskTimeout = 30000;
-
-        private readonly string testScriptUri = TestObjects.ScriptUri;
-
-        private readonly string testConnectionKey = "testdbcontextkey";
-
-        private Mock<ConnectedBindingQueue> bindingQueue;
-
-        private Mock<WorkspaceService<SqlToolsSettings>> workspaceService;
-
-        private Mock<RequestContext<Location[]>> requestContext;
-
-        private Mock<IBinder> binder;
-
-        private TextDocumentPosition textDocument;
-
         private const string OwnerUri = "testFile1";
 
         /// <summary>
@@ -123,7 +107,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         [Fact]
         public async Task GetUnsupportedDefinitionErrorTest()
         {
-            ScriptFile scriptFile;
             TextDocumentPosition textDocument = new TextDocumentPosition
             {
                 TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
