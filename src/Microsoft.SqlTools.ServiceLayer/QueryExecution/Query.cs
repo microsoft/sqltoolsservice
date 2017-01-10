@@ -53,8 +53,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private bool hasExecuteBeenCalled;
 
-        private QueryExecutionSettings settings;
-
         /// <summary>
         /// ON keyword
         /// </summary>
@@ -96,7 +94,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryText = queryText;
             editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
-            this.settings = settings;
 
             // Process the query into batches
             ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
@@ -121,38 +118,39 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
 
+            // Checking settings for execution plan options 
+            if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
+            {
+                // Check support level 
+                if (this.doesSupportExecutionPlan(connection))
+                {
+                    // Enable set showplan xml
+                    addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
+                    addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
+                }
+            } 
+            else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+            {
+                if (this.doesSupportExecutionPlan(connection)) {
+                    // Enable statistics xml 
+                    addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
+                    addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
+                }
+            } 
+        }
+
+        private bool doesSupportExecutionPlan(ConnectionInfo conInfo) {
             // Getting server information 
-            ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection.SqlConnection);
+            ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(conInfo.SqlConnection);
             bool isSqlDw = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
             
             // Determining which execution plan options may be applied 
-            if (!isSqlDw)
+            if (!isSqlDw && serverInfo.ServerMajorVersion >= 9)
             {
-                // TODO: 
-                // Client statistics and showplan are not shown for multi-server connections.  If we do decide to show
-                // showplan or statistics for multi-server connections, each child server connection will need
-                // its own setting because the child servers do not have to be the same version.
-
-                // Checking for each type of execution plan option (they are not mutually exclusive)
-                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
-                {
-                    if (serverInfo.ServerMajorVersion >= 9)
-                    {
-                        // Enable set showplan xml
-                        addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
-                        addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
-                    }
-                } 
-                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
-                {
-                    if (serverInfo.ServerMajorVersion >= 9)
-                    {
-                        // enable set statistics xml
-                        addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
-                        addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
-                    }
-                } 
+                return true;
             }
+
+            return false;
         }
 
 

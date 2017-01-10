@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
-                .Returns(() => CreateTestConnection(data, throwOnRead));
+                .Returns<string>((s) => CreateTestConnection(data, throwOnRead));
 
             return mockFactory.Object;
         }
