@@ -282,6 +282,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I create a query from an invalid batch
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
+            ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
+
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
             query.BatchStarted += batchStartCallback;

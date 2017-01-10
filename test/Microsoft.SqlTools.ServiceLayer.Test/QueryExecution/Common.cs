@@ -75,6 +75,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public static Query GetBasicExecutedQuery()
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
+
+            // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
+            // ConnectionInfo with the same URI as the query, so we will manually set it
+            ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
+
             Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory(new Dictionary<string, byte[]>()));
             query.Execute();
             query.ExecutionTask.Wait();
@@ -183,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, StandardConnectionDetails);
         }
 
-        public static ConnectionInfo CreateConnectedConnectionInfo(Dictionary<string, string>[][] data, bool throwOnRead, ConnectionType type = ConnectionType.Default)
+        public static ConnectionInfo CreateConnectedConnectionInfo(Dictionary<string, string>[][] data, bool throwOnRead, string type = ConnectionType.Default)
         {
             ConnectionService connectionService = ConnectionService.Instance;
             connectionService.OwnerToConnectionMap.Clear();

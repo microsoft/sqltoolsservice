@@ -19,7 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         {
             ScriptFile scriptFile;
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-            DbConnection connection = connInfo.ConnectionTypeToConnectionMap[ConnectionType.Default];
+            DbConnection connection;
+            connInfo.TryGetConnection(ConnectionType.Default, out connection);
 
             var command = connection.CreateCommand();
             command.CommandText = query;

@@ -52,8 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private bool hasExecuteBeenCalled;
 
-        private string newDatabase;
-
         #endregion
 
         /// <summary>
@@ -272,29 +270,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Mark that we've internally executed
             hasExecuteBeenCalled = true;
 
-            newDatabase = null;
-
             // Don't actually execute if there aren't any batches to execute
             if (Batches.Length == 0)
             {
                 return;
             }
 
-            // Locate the query connection
-            DbConnection queryConnection;
-            if (!editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection))
-            {
-                // If a query connection does not exist, try to create one
-                ConnectParams connectParams = new ConnectParams()
-                {
-                    OwnerUri = editorConnection.OwnerUri,
-                    Connection = editorConnection.ConnectionDetails,
-                    Type = ConnectionType.Query
-                };
-                ConnectionCompleteParams results = await ConnectionService.Instance.Connect(connectParams);
-                editorConnection.ConnectionTypeToConnectionMap.TryGetValue(ConnectionType.Query, out queryConnection);
-            }
-
+            // Locate and setup the connection
+            DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
             ReliableSqlConnection sqlConn = queryConnection as ReliableSqlConnection;
             if (sqlConn != null)
             {
@@ -317,10 +300,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (QueryCompleted != null)
                 {
                     await QueryCompleted(this);
-                }
-                if (newDatabase != null)
-                {
-                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabase);
                 }
             }
             catch (Exception)
@@ -357,8 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Did the database context change (error code 5701)?
                 if (error.Number == DatabaseContextChangeErrorNumber)
                 {
-                    newDatabase = conn.Database;
-                    //ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
+                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
                 }
             }
         }

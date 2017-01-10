@@ -24,8 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public ConnectionDetails Connection { get; set; }
 
         /// <summary>
-        /// The ConnectionType of this connection. By default, this is set to ConnectionType.Default.
+        /// The type of this connection. By default, this is set to ConnectionType.Default.
         /// </summary>
-        public ConnectionType Type { get; set; } = ConnectionType.Default;
+        public string Type { get; set; } = ConnectionType.Default;
     }
 }

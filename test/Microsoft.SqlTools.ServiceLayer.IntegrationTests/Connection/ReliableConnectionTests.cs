@@ -731,7 +731,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         {
             ScriptFile scriptFile;
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-            DbConnection dbConnection = connInfo.ConnectionTypeToConnectionMap[ConnectionType.Default];
+            DbConnection dbConnection;
+            connInfo.TryGetConnection(ConnectionType.Default, out dbConnection);              
 
             var connection = dbConnection as ReliableSqlConnection;
             var command = new ReliableSqlConnection.ReliableSqlCommand(connection);

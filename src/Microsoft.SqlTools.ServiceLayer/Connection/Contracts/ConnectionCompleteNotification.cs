@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// The type of connection that this notification is for
         /// </summary>
-        public ConnectionType Type { get; set; } = ConnectionType.Default;
+        public string Type { get; set; } = ConnectionType.Default;
     }
 
     /// <summary>

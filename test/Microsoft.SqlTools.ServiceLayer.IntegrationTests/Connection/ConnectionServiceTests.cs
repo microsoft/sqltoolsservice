@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 string uri = connectionInfo.OwnerUri;
 
                 // We should see one ConnectionInfo and one DbConnection
-                Assert.Equal(1, connectionInfo.ConnectionTypeToConnectionMap.Count);
+                Assert.Equal(1, connectionInfo.CountConnections());
                 Assert.Equal(1, service.OwnerToConnectionMap.Count);
 
                 // If we run a query
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.ExecutionTask.Wait();
 
                 // We should see two DbConnections
-                Assert.Equal(2, connectionInfo.ConnectionTypeToConnectionMap.Count);
+                Assert.Equal(2, connectionInfo.CountConnections());
 
                 // If we run another query
                 query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
@@ -52,9 +52,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.ExecutionTask.Wait();
 
                 // We should still have 2 DbConnections
-                Assert.Equal(2, connectionInfo.ConnectionTypeToConnectionMap.Count);
+                Assert.Equal(2, connectionInfo.CountConnections());
 
-                // If we disconnect, we should remain in a consistant state to do it over again
+                // If we disconnect, we should remain in a consistent state to do it over again
                 // e.g. loop and do it over again
                 service.Disconnect(new DisconnectParams() { OwnerUri = connectionInfo.OwnerUri });
 
@@ -76,16 +76,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             string newDatabaseName = "tempdb";
             string changeDatabaseQuery = "use " + newDatabaseName;
 
-            // Then run any query to create a query DbConectio
+            // Then run any query to create a query DbConnection
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
             query.Execute();
             query.ExecutionTask.Wait();
 
             // All open DbConnections (Query and Default) should have initialDatabaseName as their database
-            foreach (KeyValuePair<ConnectionType, DbConnection> entry in connectionInfo.ConnectionTypeToConnectionMap)
+            foreach (DbConnection connection in connectionInfo.GetAllConnections())
             {
-                Assert.Equal(entry.Value.Database, initialDatabaseName);
+                Assert.Equal(connection.Database, initialDatabaseName);
             }
 
             // If we run a query to change the database
@@ -94,9 +94,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             query.ExecutionTask.Wait();
 
             // All open DbConnections (Query and Default) should have newDatabaseName as their database
-            foreach (KeyValuePair<ConnectionType, DbConnection> entry in connectionInfo.ConnectionTypeToConnectionMap)
+            foreach (DbConnection connection in connectionInfo.GetAllConnections())
             {
-                Assert.Equal(entry.Value.Database, newDatabaseName);
+                Assert.Equal(connection.Database, newDatabaseName);
             }
         }
     }

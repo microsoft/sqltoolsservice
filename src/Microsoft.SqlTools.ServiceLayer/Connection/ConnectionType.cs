@@ -6,14 +6,14 @@
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
-    /// Categorizations of DbConnection instances. 
+    /// String constants that represent connection types. 
     /// 
     /// Default: Connection used by the editor. Opened by the editor upon the initial connection. 
     /// Query: Connection used for executing queries. Opened when the first query is executed.
     /// </summary>
-    public enum ConnectionType
+    public static class ConnectionType
     {
-        Default = 1,
-        Query
+        public const string Default = "Default";
+        public const string Query = "Query";
     }
 }
