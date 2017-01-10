@@ -80,11 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             sqlObjectTypesFromQuickInfo.Add("user-defined table type", "Type");
 
             //Synonymns - appear as 'table' in quickInfo
-            sqlScriptGettersFromQuickInfo.Add("table-valued function", GetTableValuedFunctionScripts);
-            sqlObjectTypesFromQuickInfo.Add("table-valued function", "Function");
-
-            sqlScriptGettersFromQuickInfo.Add("table-valued function", GetTableValuedFunctionScripts);
-            sqlObjectTypesFromQuickInfo.Add("table-valued function", "Function");
 
             Initialize();
         }
