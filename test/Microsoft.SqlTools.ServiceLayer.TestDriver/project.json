@@ -2,20 +2,7 @@
   "name": "Microsoft.SqlTools.ServiceLayer.TestDriver",
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable",
-    "emitEntryPoint": true,
-    "embed": {
-      "includeFiles": [
-        "Scripts/CreateTestDatabaseObjects.sql",
-        "Scripts/CreateTestDatabase.sql",
-        "Scripts/TestDbTableQueries.sql"
-      ]
-    },
-    "publishOptions": {
-      "include": [
-        "Scripts/AdventureWorks.sql"
-      ]
-    }
+    "debugType": "portable"
   },
   "dependencies": {
     "xunit": "2.1.0",

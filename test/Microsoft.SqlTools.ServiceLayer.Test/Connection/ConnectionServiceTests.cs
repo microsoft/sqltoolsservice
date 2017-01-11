@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         [Fact]
-        public async void CanCancelConnectRequestByConnecting()
+        public async Task CanCancelConnectRequestByConnecting()
         {
             var testFile = "file:///my/test/file.sql";
 
@@ -273,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Theory]
         [InlineDataAttribute(null)]
         [InlineDataAttribute("")]
-        public async void CanConnectWithEmptyDatabaseName(string databaseName)
+        public async Task CanConnectWithEmptyDatabaseName(string databaseName)
         {
             // Connect
             var connectionDetails = TestObjects.GetTestConnectionDetails();
@@ -297,7 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Theory]
         [InlineDataAttribute("master")]
         [InlineDataAttribute("nonMasterDb")]
-        public async void ConnectToDefaultDatabaseRespondsWithActualDbName(string expectedDbName)
+        public async Task ConnectToDefaultDatabaseRespondsWithActualDbName(string expectedDbName)
         {
             // Given connecting with empty database name will return the expected DB name
             var connectionMock = new Mock<DbConnection> { CallBase = true };
@@ -332,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// connection, we disconnect first before connecting.
         /// </summary>
         [Fact]
-        public async void ConnectingWhenConnectionExistCausesDisconnectThenConnect()
+        public async Task ConnectingWhenConnectionExistCausesDisconnectThenConnect()
         {
             bool callbackInvoked = false;
 
@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify that when connecting with invalid credentials, an error is thrown.
         /// </summary>
         [Fact]
-        public async void ConnectingWithInvalidCredentialsYieldsErrorMessage()
+        public async Task ConnectingWithInvalidCredentialsYieldsErrorMessage()
         {
             var testConnectionDetails = TestObjects.GetTestConnectionDetails();
             var invalidConnectionDetails = new ConnectionDetails();
@@ -418,7 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [InlineData("Integrated", "file://my/sample/file.sql", null, "test", "sa", "123456")]
         [InlineData("Integrated", "", "my-server", "test", "sa", "123456")]
         [InlineData("Integrated", "file://my/sample/file.sql", "", "test", "sa", "123456")]
-        public async void ConnectingWithInvalidParametersYieldsErrorMessage(string authType, string ownerUri, string server, string database, string userName, string password)
+        public async Task ConnectingWithInvalidParametersYieldsErrorMessage(string authType, string ownerUri, string server, string database, string userName, string password)
         {
             // Connect with invalid parameters
             var connectionResult = await
@@ -452,7 +452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [InlineData("sa", "")]
         [InlineData(null, "12345678")]
         [InlineData("", "12345678")]
-        public async void ConnectingWithNoUsernameOrPasswordWorksForIntegratedAuth(string userName, string password)
+        public async Task ConnectingWithNoUsernameOrPasswordWorksForIntegratedAuth(string userName, string password)
         {
             // Connect
             var connectionResult = await
@@ -477,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify that when connecting with a null parameters object, an error is thrown.
         /// </summary>
         [Fact]
-        public async void ConnectingWithNullParametersObjectYieldsErrorMessage()
+        public async Task ConnectingWithNullParametersObjectYieldsErrorMessage()
         {
             // Connect with null parameters
             var connectionResult = await
@@ -555,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify that a connection changed event is fired when the database context changes.
         /// </summary>
         [Fact]
-        public async void ConnectionChangedEventIsFiredWhenDatabaseContextChanges()
+        public async Task ConnectionChangedEventIsFiredWhenDatabaseContextChanges()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 
@@ -589,7 +589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
         [Fact]
-        public async void ConnectToDatabaseTest()
+        public async Task ConnectToDatabaseTest()
         {
             // connect to a database instance 
             string ownerUri = "file://my/sample/file.sql";
@@ -609,7 +609,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify that we can disconnect from an active connection succesfully
         /// </summary>
         [Fact]
-        public async void DisconnectFromDatabaseTest()
+        public async Task DisconnectFromDatabaseTest()
         {
             // first connect
             string ownerUri = "file://my/sample/file.sql";
@@ -639,7 +639,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Test that when a disconnect is performed, the callback event is fired
         /// </summary>
         [Fact]
-        public async void DisconnectFiresCallbackEvent()
+        public async Task DisconnectFiresCallbackEvent()
         {
             bool callbackInvoked = false;
 
@@ -723,7 +723,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [InlineDataAttribute(null)]
         [InlineDataAttribute("")]
 
-        public async void DisconnectValidatesParameters(string disconnectUri)
+        public async Task DisconnectValidatesParameters(string disconnectUri)
         {
             // first connect
             string ownerUri = "file://my/sample/file.sql";
@@ -755,7 +755,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verifies the the list databases operation lists database names for the server used by a connection.
         /// </summary>
         [Fact]
-        public async void ListDatabasesOnServerForCurrentConnectionReturnsDatabaseNames()
+        public async Task ListDatabasesOnServerForCurrentConnectionReturnsDatabaseNames()
         {
             // Result set for the query of database names
             Dictionary<string, string>[] data =
@@ -804,7 +804,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
         [Fact]
-        public async void OnConnectionCallbackHandlerTest()
+        public async Task OnConnectionCallbackHandlerTest()
         {
             bool callbackInvoked = false;
 
@@ -858,7 +858,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Verify when a connection is created that the URI -> Connection mapping is created in the connection service.
         /// </summary>
         [Fact]
-        public async void TestConnectRequestRegistersOwner()
+        public async Task TestConnectRequestRegistersOwner()
         {
             // Given a request to connect to a database
             var service = TestObjects.GetTestConnectionService();

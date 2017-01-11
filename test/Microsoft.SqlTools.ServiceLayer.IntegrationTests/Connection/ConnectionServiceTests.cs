@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.Test.Utility;
@@ -22,15 +23,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
     public class ConnectionServiceTests
     {
         [Fact]
-        public void RunningMultipleQueriesCreatesOnlyOneConnection()
+        public async Task RunningMultipleQueriesCreatesOnlyOneConnection()
         {
             // Connect/disconnect twice to ensure reconnection can occur
             ConnectionService service = ConnectionService.Instance;
             service.OwnerToConnectionMap.Clear();
             for (int i = 0; i < 2; i++)
             {
-                ScriptFile scriptFile;
-                ConnectionInfo connectionInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+                var result = await TestObjects.InitLiveConnectionInfo();
+                ConnectionInfo connectionInfo = result.ConnectionInfo;
                 string uri = connectionInfo.OwnerUri;
 
                 // We should see one ConnectionInfo and one DbConnection
@@ -64,13 +65,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         }
 
         [Fact]
-        public void DatabaseChangesAffectAllConnections()
+        public async Task DatabaseChangesAffectAllConnections()
         {
             // If we make a connection to a live database 
             ConnectionService service = ConnectionService.Instance;
-            ScriptFile scriptFile;
-            ConnectionInfo connectionInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-            ConnectionDetails details = TestObjects.GetIntegratedTestConnectionDetails();
+            var result = await TestObjects.InitLiveConnectionInfo();
+            ConnectionInfo connectionInfo = result.ConnectionInfo;
+            ConnectionDetails details = connectionInfo.ConnectionDetails;
             string uri = connectionInfo.OwnerUri;
             string initialDatabaseName = details.DatabaseName;
             string newDatabaseName = "tempdb";

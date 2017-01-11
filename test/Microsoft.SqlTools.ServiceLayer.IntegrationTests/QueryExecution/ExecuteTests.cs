@@ -17,13 +17,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
     public class ExecuteTests
     {
         [Fact]
-        public void RollbackTransactionFailsWithoutBeginTransaction()
+        public async Task RollbackTransactionFailsWithoutBeginTransaction()
         {
             const string refactorText = "ROLLBACK TRANSACTION";
-            ScriptFile scriptFile;
 
             // Given a connection to a live database
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
+            ConnectionInfo connInfo = result.ConnectionInfo;
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
             // If I run a "ROLLBACK TRANSACTION" query
@@ -36,14 +36,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         }
 
         [Fact]
-        public void TransactionsSucceedAcrossQueries()
+        public async Task TransactionsSucceedAcrossQueries()
         {
             const string beginText = "BEGIN TRANSACTION";
             const string rollbackText = "ROLLBACK TRANSACTION";
-            ScriptFile scriptFile;
 
             // Given a connection to a live database
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
+            ConnectionInfo connInfo = result.ConnectionInfo;
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
             // If I run a "BEGIN TRANSACTION" query
@@ -55,14 +55,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         }
 
         [Fact]
-        public void TempTablesPersistAcrossQueries()
+        public async Task TempTablesPersistAcrossQueries()
         {
             const string createTempText = "CREATE TABLE #someTempTable (id int)";
             const string insertTempText = "INSERT INTO #someTempTable VALUES(1)";
-            ScriptFile scriptFile;
 
             // Given a connection to a live database
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
+            ConnectionInfo connInfo = result.ConnectionInfo;
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
             // If I run a query creating a temp table
@@ -74,15 +74,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         }
 
         [Fact]
-        public void DatabaseChangesWhenCallingUseDatabase()
+        public async Task DatabaseChangesWhenCallingUseDatabase()
         {
             const string master = "master";
             const string tempdb = "tempdb";
             const string useQuery = "USE {0}";
-            ScriptFile scriptFile;
 
             // Given a connection to a live database
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
+            ConnectionInfo connInfo = result.ConnectionInfo;
             DbConnection connection = connInfo.GetAllConnections()[0];
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 

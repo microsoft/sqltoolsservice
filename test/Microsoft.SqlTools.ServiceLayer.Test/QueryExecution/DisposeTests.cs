@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public async void DisposeExecutedQuery()
+        public async Task DisposeExecutedQuery()
         {
             // If:
             // ... I request a query (doesn't matter what kind)
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public async void QueryDisposeMissingQuery()
+        public async Task QueryDisposeMissingQuery()
         {
             // If:
             // ... I attempt to dispose a query that doesn't exist

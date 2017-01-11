@@ -1,18 +1,16 @@
 {
-  "name": "Microsoft.SqlTools.ServiceLayer.Test",
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable"
-  },
-  "configurations": {
-    "Integration": {
-      "buildOptions": {
-        "define": [
-          "WINDOWS_ONLY_BUILD"
-        ]
-      }
+    "emitEntryPoint": false,
+    "embed": {
+      "includeFiles": [
+        "Scripts/CreateTestDatabaseObjects.sql",
+        "Scripts/CreateTestDatabase.sql",
+        "Scripts/TestDbTableQueries.sql"
+      ]
     }
   },
+
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
     "System.Runtime.Serialization.Primitives": "4.1.1",
@@ -28,7 +26,7 @@
       "target": "project"
     },
     "Moq": "4.6.36-alpha",
-    "Microsoft.SqlTools.ServiceLayer.Test.Common": "1.0.0-*"
+    "Microsoft.SqlTools.ServiceLayer.TestDriver": "1.0.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {
