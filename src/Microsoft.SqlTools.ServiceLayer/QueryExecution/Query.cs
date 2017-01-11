@@ -54,6 +54,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool hasExecuteBeenCalled;
 
         /// <summary>
+        /// Settings for query runtime 
+        /// </summary>
+        private QueryExecutionSettings querySettings;
+
+        /// <summary>
+        /// Streaming output factory for the query 
+        /// </summary>
+        private IFileStreamFactory streamOutputFactory;
+
+        /// <summary>
         /// ON keyword
         /// </summary>
         private static string s_On = "ON";
@@ -94,6 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryText = queryText;
             editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
+            querySettings = settings;
+            streamOutputFactory = outputFactory;
 
             // Process the query into batches
             ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
@@ -117,43 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Create our batch lists
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
-
-            // Checking settings for execution plan options 
-            if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
-            {
-                // Check support level 
-                if (this.doesSupportExecutionPlan(connection))
-                {
-                    // Enable set showplan xml
-                    addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, outputFactory);
-                    addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, outputFactory);
-                }
-            } 
-            else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
-            {
-                if (this.doesSupportExecutionPlan(connection)) {
-                    // Enable statistics xml 
-                    addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, outputFactory);
-                    addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, outputFactory);
-                }
-            } 
         }
-
-        private bool doesSupportExecutionPlan(ConnectionInfo conInfo) {
-            // Getting server information 
-            ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(conInfo.SqlConnection);
-            bool isSqlDw = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
-            
-            // Determining which execution plan options may be applied 
-            if (!isSqlDw && serverInfo.ServerMajorVersion >= 9)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-
 
         #region Events
 
@@ -393,6 +369,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 try
                 {
+                    // Checking settings for execution plan options 
+                    if (querySettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
+                    {
+                        // Check support level 
+                        if (this.doesSupportExecutionPlan(conn))
+                        {
+                            // Enable set showplan xml
+                            addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, streamOutputFactory);
+                            addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, streamOutputFactory);
+                        }
+                    } 
+                    else if (querySettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+                    {
+                        if (this.doesSupportExecutionPlan(conn)) {
+                            // Enable statistics xml 
+                            addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, streamOutputFactory);
+                            addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, streamOutputFactory);
+                        }
+                    } 
 
                     // Execute beforeBatches synchronously, before the user defined batches 
                     foreach (Batch b in BeforeBatches)
@@ -499,6 +494,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             disposed = true;
+        }
+
+        /// <summary>
+        /// Does this connection support XML Execution plans
+        /// </summary>
+        private bool doesSupportExecutionPlan(DbConnection dbConnectionInfo) {
+            // Getting server information 
+            ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(dbConnectionInfo);
+            bool isSqlDw = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
+            
+            // Determining which execution plan options may be applied 
+            if (!isSqlDw && serverInfo.ServerMajorVersion >= 9)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         #endregion

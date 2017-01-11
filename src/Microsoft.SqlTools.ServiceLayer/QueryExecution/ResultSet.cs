@@ -240,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Generates a subset of the rows from the result set
+        /// Generates the execution plan from the first row and first column 
         /// </summary>
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
@@ -249,34 +249,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             return Task.Factory.StartNew(() =>
             {
-
-                string content = null;
-                string format = null;
-
-                using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                if (!this.processSpecialAction().None)
                 {
-                    SpecialAction action = this.processSpecialAction();
-                    // If result set is 'for xml' or 'for json',
-                    // Concatenate all the rows together into one row
-                    if (!action.None)
-                    {
-                        // Iterate over all the rows and process them into a list of string builders
-                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
-                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
-                        content = string.Join(string.Empty, rowValues);
+                    string content = null;
+                    string format = null;
 
-                        if (action.ExpectActualYukonXmlShowPlan ||  action.ExpectEstimatedYukonXmlShowPlan) 
+                    using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                    {
+                        SpecialAction action = this.processSpecialAction();
+                        // If result set is 'for xml' or 'for json',
+                        // Concatenate all the rows together into one row
+                        if (!action.None)
                         {
-                            format = "xml";
+                            content = fileStreamReader.ReadRow(0, Columns)[0].DisplayValue;
+
+                            if (action.ExpectActualYukonXmlShowPlan ||  action.ExpectEstimatedYukonXmlShowPlan) 
+                            {
+                                format = "xml";
+                            }
                         }
                     }
+                    
+                    return new ExecutionPlan
+                    {
+                        Format = format,
+                        Content = content
+                    };
                 }
-                
-                return new ExecutionPlan
+                else
                 {
-                    Format = format,
-                    Content = content
-                };
+                    return null;
+                }
             });
         }
 
