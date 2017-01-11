@@ -4,18 +4,17 @@
 //
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SqlTools Editor Services Host Protocol Library")]
-[assembly: AssemblyDescription("Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.")]
+[assembly: AssemblyTitle("SqlToolsEditorServices.Test.Transport.Stdio")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("SqlTools Editor Services")]
-[assembly: AssemblyCopyright("� Microsoft Corporation. All rights reserved.")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("SqlToolsEditorServices.Test.Transport.Stdio")]
+[assembly: AssemblyCopyright("Copyright �  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -25,7 +24,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("78caf6c3-5955-4b15-a302-2bd6b7871d5b")]
+[assembly: Guid("07137FCA-76D0-4CE7-9764-C21DB7A57093")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -39,7 +38,4 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: AssemblyInformationalVersion("1.0.0.0")]
 
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test")]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]

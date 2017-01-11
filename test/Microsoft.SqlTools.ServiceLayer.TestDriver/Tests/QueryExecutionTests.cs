@@ -327,34 +327,33 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
         */
 
-        [Fact]
-        public async Task NoOpQueryReturnsMessage()
+        [Theory]
+        [InlineData("-- no-op")]
+        [InlineData("GO")]
+        [InlineData("GO -- no-op")]
+        public async Task NoOpQueryReturnsMessage(string query)
         {
-            // Given queries that do nothing (no-ops)...
-            var queries = new string[]
-            {
-                "-- no-op",
-                "GO",
-                "GO -- no-op"
-            };
-
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             using (TestHelper testHelper = new TestHelper())
             {
-                foreach (var query in queries)
-                {
-                    Assert.True(await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection));
+                Assert.True(await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection));
 
-                    // If the queries are executed...
-                    var queryResult = await testHelper.RunQueryAsync(queryTempFile.FilePath, query);
+                // If: the query is executed...
+                var queryResult = await testHelper.RunQueryAsync(queryTempFile.FilePath, query);
+                var message = await testHelper.WaitForMessage();
 
-                    // Then I expect messages that the commands were completed successfully to be in the result
-                    Assert.NotNull(queryResult);
-                    Assert.NotNull(queryResult.Messages);
-                    Assert.Equal("Commands completed successfully.", queryResult.Messages);
+                // Then:
+                // ... I expect a query result to indicate successfully started query
+                Assert.NotNull(queryResult);
 
-                    await testHelper.Disconnect(queryTempFile.FilePath);
-                }
+                // ... I expect a non-error message to be returned without a batch associated with it
+                Assert.NotNull(message);
+                Assert.NotNull(message.Message);
+                Assert.NotNull(message.Message.Message);
+                Assert.False(message.Message.IsError);
+                Assert.Null(message.Message.BatchId);
+
+                await testHelper.Disconnect(queryTempFile.FilePath);
             }
         }
     }

@@ -34,10 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// </summary>
     public class QueryExecuteResult
     {
-        /// <summary>
-        /// Informational messages from the query runner. Optional, can be set to null.
-        /// </summary>
-        public string Messages { get; set; }
     }
 
     public class QueryExecuteRequest

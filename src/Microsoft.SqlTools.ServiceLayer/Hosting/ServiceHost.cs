@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// prior to the process shutting down.
         /// </summary>
         private const int ShutdownTimeoutInSeconds = 120;
+        public static readonly string[] CompletionTriggerCharacters = new string[] { ".", "-", ":", "\\", "[", "\"" };
 
         #region Singleton Instance Code
 
@@ -135,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// <param name="initializeParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        private async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
+        internal async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
         {
             // Call all tasks that registered on the initialize request
             var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
@@ -157,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         CompletionProvider = new CompletionOptions
                         {
                             ResolveProvider = true,
-                            TriggerCharacters = new string[] { ".", "-", ":", "\\", "[" }
+                            TriggerCharacters = CompletionTriggerCharacters
                         },
                         SignatureHelpProvider = new SignatureHelpOptions
                         {

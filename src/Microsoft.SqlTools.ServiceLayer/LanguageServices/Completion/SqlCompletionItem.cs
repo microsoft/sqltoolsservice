@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -19,6 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     public class SqlCompletionItem
     {
         private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
+        private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]"};
+        private static DelimitedIdentifier[] DelimitedIdentifiers =
+            new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier {Start = "\"", End = "\"" } };
 
         /// <summary>
         /// Create new instance given the SQL parser declaration
@@ -44,12 +47,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 
         private void Init()
         {
-            InsertText = GetCompletionItemInsertName();
+            InsertText = DeclarationTitle;
+            DelimitedIdentifier delimitedIdentifier = GetDelimitedIdentifier(TokenText);
             Label = DeclarationTitle;
-            if (StartsWithBracket(TokenText) || AutoCompleteHelper.IsReservedWord(InsertText))
+
+            if (delimitedIdentifier == null && !string.IsNullOrEmpty(DeclarationTitle) && 
+                (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText)))
             {
-                Label = WithBracket(Label);
-                InsertText = WithBracket(InsertText);
+                InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
+            }
+            if (delimitedIdentifier != null)
+            {
+                Label = WithDelimitedIdentifier(delimitedIdentifier, Label);
+                InsertText = WithDelimitedIdentifier(delimitedIdentifier, InsertText);
             }
             Detail = Label;
             Kind = CreateCompletionItemKind();
@@ -143,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
            int row,
            int startColumn,
            int endColumn)
-        {   
+        {
             CompletionItem item = new CompletionItem()
             {
                 Label = label,
@@ -172,36 +182,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             return item;
         }
 
-        private string GetCompletionItemInsertName()
+        private bool HasDelimitedIdentifier(DelimitedIdentifier delimiteIidentifier, string text)
         {
-            string insertText = DeclarationTitle;
-            if (!string.IsNullOrEmpty(DeclarationTitle) && !ValidSqlNameRegex.IsMatch(DeclarationTitle))
+            return text != null && delimiteIidentifier != null && text.StartsWith(delimiteIidentifier.Start) 
+                && text.EndsWith(delimiteIidentifier.End);
+        }
+
+        private DelimitedIdentifier GetDelimitedIdentifier(string text)
+        {
+            return text != null ? DelimitedIdentifiers.FirstOrDefault(x => text.StartsWith(x.Start)) : null;
+        }
+
+        private string WithDelimitedIdentifier(DelimitedIdentifier delimiteIidentifier, string text)
+        {
+            if (!HasDelimitedIdentifier(delimiteIidentifier, text))
             {
-                insertText = WithBracket(DeclarationTitle);
-            }
-            return insertText;
-        }
-
-        private bool HasBrackets(string text)
-        {
-            return text != null && text.StartsWith("[") && text.EndsWith("]");
-        }
-
-        private bool StartsWithBracket(string text)
-        {
-            return text != null && text.StartsWith("[");
-        }
-
-        private string WithBracket(string text)
-        {
-            if (!HasBrackets(text))
-            {
-                return string.Format(CultureInfo.InvariantCulture, "[{0}]", text);
+                return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", delimiteIidentifier.Start, text, delimiteIidentifier.End);
             }
             else
             {
                 return text;
             }
         }
+    }
+
+    internal class DelimitedIdentifier
+    {
+        public string Start { get; set; }
+        public string End { get; set; }
     }
 }
