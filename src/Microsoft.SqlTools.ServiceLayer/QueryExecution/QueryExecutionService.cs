@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Query newQuery = await CreateAndActivateNewQuery(executeParams, requestContext);
 
             // Execute the query -- asynchronously
-            await ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
+            ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
         }
 
         /// <summary>
@@ -423,6 +423,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     return null;
                 }
 
+                // Send the result stating that the query was successfully started
+                await requestContext.SendResult(new QueryExecuteResult());
+
                 return newQuery;
             }
             catch (Exception e)
@@ -432,7 +435,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        private static async Task ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
+        private static void ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
         {
             // Skip processing if the query is null
             if (query == null)
@@ -459,7 +462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
                 {
                     OwnerUri = executeParams.OwnerUri,
-                    Message = errorMessage              
+                    //Message = errorMessage              
                 };
                 await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
             };
@@ -493,6 +496,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             };
             query.BatchCompleted += batchCompleteCallback;
 
+            Batch.BatchAsyncMessageHandler batchMessageCallback = async m =>
+            {
+                QueryExecuteMessageParams eventParams = new QueryExecuteMessageParams
+                {
+                    Message = m,
+                    OwnerUri = executeParams.OwnerUri
+                };
+                await requestContext.SendEvent(QueryExecuteMessageEvent.Type, eventParams);
+            };
+            query.BatchMessageSent += batchMessageCallback;
+
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
             {
@@ -507,18 +521,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Launch this as an asynchronous task
             query.Execute();
-
-            // Send back a result showing we were successful
-            string messages = null;
-            if (query.Batches.Length == 0)
-            {
-                // If there were no batches to execute, send back an informational message that the commands were completed successfully
-                messages = SR.QueryServiceCompletedSuccessfully;
-            }
-            await requestContext.SendResult(new QueryExecuteResult
-            {
-                Messages = messages
-            });
         }
 
         private async Task SaveResultsHelper(SaveResultsRequestParams saveParams,

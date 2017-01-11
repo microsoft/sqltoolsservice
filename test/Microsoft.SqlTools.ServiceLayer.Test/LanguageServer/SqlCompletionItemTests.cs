@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Xunit;
@@ -326,6 +326,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
         }
 
         [Fact]
+        public void ConstructorShouldThrowExceptionGivenEmptyDeclarionType()
+        {
+            string declarationTitle = "";
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "";
+            Assert.Throws<ArgumentException>(() => new SqlCompletionItem(declarationTitle, declarationType, tokenText));
+        }
+
+        [Fact]
+        public void ConstructorShouldThrowExceptionGivenNullDeclarion()
+        {
+            string tokenText = "";
+            Assert.Throws<ArgumentException>(() => new SqlCompletionItem(null, tokenText));
+        }
+
+        [Fact]
         public void InsertTextShouldIncludeBracketGivenNameWithSpecialCharacter()
         {
             string declarationTitle = "name @";
@@ -431,21 +447,81 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
         }
 
         [Fact]
-        public void LabelShouldIncBracketGivenReservedName()
+        public void LabelShouldIncludeQuotedIdentifiersGivenTokenWithQuotedIdentifier()
+        {
+            string declarationTitle = "name";
+            string expected = "\"" + declarationTitle + "\"";
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "\"";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(completionItem.Label, expected);
+            Assert.Equal(completionItem.InsertText, expected);
+            Assert.Equal(completionItem.Detail, expected);
+        }
+
+        [Fact]
+        public void LabelShouldIncludeQuotedIdentifiersGivenTokenWithQuotedIdentifiers()
+        {
+            string declarationTitle = "name";
+            string expected = "\"" + declarationTitle + "\"";
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "\"\"";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(completionItem.Label, expected);
+            Assert.Equal(completionItem.InsertText, expected);
+            Assert.Equal(completionItem.Detail, expected);
+        }
+
+        [Fact]
+        public void InsertTextShouldIncludeBracketGivenReservedName()
         {
             foreach (string word in ReservedWords)
             {
                 string declarationTitle = word;
                 string expected = "[" + declarationTitle + "]";
                 DeclarationType declarationType = DeclarationType.Table;
-                string tokenText = "[]";
+                string tokenText = "";
                 SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
                 CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-                Assert.Equal(completionItem.Label, expected);
+                Assert.Equal(completionItem.Label, word);
                 Assert.Equal(completionItem.InsertText, expected);
-                Assert.Equal(completionItem.Detail, expected);
+                Assert.Equal(completionItem.Detail, word);
             }
+        }
+
+        [Fact]
+        public void LabelShouldNotIncludeBracketIfTokenIncludesQuotedIdentifiersGivenReservedName()
+        {
+            string declarationTitle = "User";
+            string expected = "\"" + declarationTitle + "\"";
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "\"";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(completionItem.Label, expected);
+            Assert.Equal(completionItem.InsertText, expected);
+            Assert.Equal(completionItem.Detail, expected);
+        }
+
+        [Fact]
+        public void LabelShouldNotIncludeDoubleBracketIfTokenIncludesBracketsGivenReservedName()
+        {
+            string declarationTitle = "User";
+            string expected = "[" + declarationTitle + "]";
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "[";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(completionItem.Label, expected);
+            Assert.Equal(completionItem.InsertText, expected);
+            Assert.Equal(completionItem.Detail, expected);
         }
 
         [Fact]

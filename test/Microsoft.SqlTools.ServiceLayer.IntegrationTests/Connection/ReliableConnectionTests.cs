@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#if LIVE_CONNECTION_TESTS
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,7 +22,7 @@ using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.Retry
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy.TimeBasedRetryPolicy;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.SqlSchemaModelErrorCodes;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
+namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 {
     /// <summary>
     /// Tests for the ReliableConnection module.
@@ -779,9 +777,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                 var detectionStrategy2 = new TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy();
                 Assert.NotNull(detectionStrategy2.InvokeCanRetrySqlException(sqlException));
                 Assert.NotNull(detectionStrategy2.InvokeShouldIgnoreSqlException(sqlException));
-
-                Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory(null));
-                batch.UnwrapDbException(sqlException);
             }
 
             var unknownCodeReason = RetryPolicy.ThrottlingReason.FromReasonCode(-1);
@@ -952,5 +947,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
     }
 }
-
-#endif // LIVE_CONNECTION_TESTS

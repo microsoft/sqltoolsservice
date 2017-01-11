@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#if LIVE_CONNECTION_TESTS
-
 using System;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -13,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
+namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataStorage
 {
     public class StorageDataReaderTests
     {
@@ -106,5 +104,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         }       
     }
 }
-
-#endif

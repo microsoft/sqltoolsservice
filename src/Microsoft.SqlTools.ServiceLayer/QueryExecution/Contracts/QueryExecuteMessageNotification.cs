@@ -8,9 +8,9 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
-    /// Parameters to be sent back with a query execution complete event
+    /// Parameters to be sent back with a message notification
     /// </summary>
-    public class QueryExecuteCompleteParams
+    public class QueryExecuteMessageParams
     {
         /// <summary>
         /// URI for the editor that owns the query
@@ -18,15 +18,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// Summaries of the result sets that were returned with the query
+        /// The message that is being returned
         /// </summary>
-        public BatchSummary[] BatchSummaries { get; set; }
+        public ResultMessage Message { get; set; }
     }
 
-    public class QueryExecuteCompleteEvent
+    public class QueryExecuteMessageEvent
     {
-        public static readonly 
-            EventType<QueryExecuteCompleteParams> Type =
-            EventType<QueryExecuteCompleteParams>.Create("query/complete");
+        public static readonly
+            EventType<QueryExecuteMessageParams> Type =
+            EventType<QueryExecuteMessageParams>.Create("query/message");
     }
 }
