@@ -69,6 +69,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly string outputFileName;
 
+        /// <summary>
+        /// The special action which applied to this result set
+        /// </summary>
+        private SpecialAction specialAction;
+
         #endregion
 
         /// <summary>
@@ -90,6 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Initialize the storage
             outputFileName = factory.CreateFile();
             fileOffsets = new LongList<long>();
+            specialAction = new SpecialAction();
 
             // Store the factory
             fileStreamFactory = factory;
@@ -167,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    SpecialAction = processSpecialAction()
+                    SpecialAction = ProcessSpecialAction()
                     
                 };
             }
@@ -255,14 +261,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             return Task.Factory.StartNew(() =>
             {
-                if (!this.processSpecialAction().None)
+                if (!this.ProcessSpecialAction().None)
                 {
                     string content = null;
                     string format = null;
 
                     using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
                     {
-                        SpecialAction action = this.processSpecialAction();
+                        SpecialAction action = this.ProcessSpecialAction();
                         // If result set is 'for xml' or 'for json',
                         // Concatenate all the rows together into one row
                         if (!action.None)
@@ -492,17 +498,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Determine the special action, if any, for this result set
         /// </summary>
-        private SpecialAction processSpecialAction() 
+        private SpecialAction ProcessSpecialAction() 
         {           
-            SpecialAction action  = new SpecialAction();
 
             // Check if this result set is a showplan 
-            if (dataReader.Columns.Length == 1 && String.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
+            if (dataReader.Columns.Length == 1 && string.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
-                action.ExpectYukonXMLShowPlan = true;
+                specialAction.ExpectYukonXMLShowPlan = true;
             }
 
-            return action;
+            return specialAction;
         }
 
         #endregion

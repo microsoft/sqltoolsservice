@@ -31,11 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 
         /// <summary>
         /// Default selection of returning an actual XML showplan with all batches
+        /// Do not return any execution plan by default
         /// </summary>
-        private ExecutionPlanOptions DefaultExecutionPlanOptions = new ExecutionPlanOptions() { 
+        private ExecutionPlanOptions DefaultExecutionPlanOptions = new ExecutionPlanOptions() 
+        { 
             IncludeActualExecutionPlanXml = false,
             IncludeEstimatedExecutionPlanXml = false
-        }; // do not return any execution plan by default
+        };
 
         #endregion
 
