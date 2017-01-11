@@ -55,6 +55,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly List<ResultSet> resultSets;
 
+        /// <summary>
+        /// Special action which this batch performed 
+        /// </summary>
+        private SpecialAction specialAction;
+
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
@@ -72,6 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Id = ordinalId;
             resultSets = new List<ResultSet>();
             this.outputFileFactory = outputFileFactory;
+            specialAction = new SpecialAction();
         }
 
         #region Events
@@ -195,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     summary.ResultSetSummaries = ResultSummaries;
                     summary.ExecutionEnd = ExecutionEndTimeStamp;
                     summary.ExecutionElapsed = ExecutionElapsedTime;
-                    summary.SpecialAction = processResultSetSpecialActions();
+                    summary.SpecialAction = ProcessResultSetSpecialActions();
                 }
 
                 return summary;
@@ -501,15 +507,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Aggregates all result sets in the batch into a single special action 
         /// </summary>
-        private SpecialAction processResultSetSpecialActions()
+        private SpecialAction ProcessResultSetSpecialActions()
         {
-            SpecialAction batchSpecialAction = new SpecialAction();
             foreach (ResultSet resultSet in resultSets) 
             {
-                batchSpecialAction.combineSpecialAction(resultSet.Summary.SpecialAction);
+                specialAction.CombineSpecialAction(resultSet.Summary.SpecialAction);
             }
 
-            return batchSpecialAction;
+            return specialAction;
         }
 
         #endregion

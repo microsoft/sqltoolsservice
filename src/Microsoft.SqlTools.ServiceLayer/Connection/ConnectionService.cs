@@ -293,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     OsVersion = serverInfo.OsVersion
                 };
                 connectionInfo.IsAzure = serverInfo.IsCloud;
-                connectionInfo.majorVersion = serverInfo.ServerMajorVersion;
+                connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
             }
             catch(Exception ex)

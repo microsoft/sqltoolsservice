@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Returns the major version number of the db we are connected to 
         /// </summary>
-        public int majorVersion { get; set; }
+        public int MajorVersion { get; set; }
 
     }
 }

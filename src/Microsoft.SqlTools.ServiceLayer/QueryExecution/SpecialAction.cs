@@ -8,21 +8,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// Class that represents a Special Action which occured by user request during the query 
     /// </summary>
     public class SpecialAction {
-        bool _None;
-        bool _ExpectActualYukonXmlShowPlan;
-        bool _ExpectEstimatedYukonXmlShowPlan;
+        
+        #region Private Class variables 
+        bool none;
+        bool expectActualYukonXmlShowPlan;
+        bool expectEstimatedYukonXmlShowPlan;
 
+        #endregion
+
+        /// <summary>
+        /// a type of XML execution plan may be returned  
+        /// </summary>
+        public SpecialAction()
+        {
+            None = true;
+            ExpectActualYukonXmlShowPlan = false;
+            ExpectEstimatedYukonXmlShowPlan = false;
+        }
+
+        #region Public Functions
         /// <summary>
         /// No Special action performed 
         /// </summary>
         public bool None {
-            get { return _None; }
+            get { return none; }
             set { 
-                _None = value;
+                none = value;
                 if (value)
                 {
-                    _ExpectActualYukonXmlShowPlan = false;
-                    _ExpectEstimatedYukonXmlShowPlan = false;
+                    expectActualYukonXmlShowPlan = false;
+                    expectEstimatedYukonXmlShowPlan = false;
                 }
             }
         }
@@ -32,8 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public bool ExpectActualYukonXmlShowPlan 
         {
-            get { return _ExpectActualYukonXmlShowPlan; }
-            set { this.registerSpecialAction(ref _ExpectActualYukonXmlShowPlan, value); }
+            get { return expectActualYukonXmlShowPlan; }
+            set { this.registerSpecialAction(ref expectActualYukonXmlShowPlan, value); }
         }
 
         /// <summary>
@@ -41,8 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public bool ExpectEstimatedYukonXmlShowPlan 
         {
-            get { return _ExpectEstimatedYukonXmlShowPlan; }
-            set { this.registerSpecialAction(ref _ExpectEstimatedYukonXmlShowPlan, value); }
+            get { return expectEstimatedYukonXmlShowPlan; }
+            set { this.registerSpecialAction(ref expectEstimatedYukonXmlShowPlan, value); }
         }
 
         /// <summary>
@@ -57,21 +72,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 ExpectActualYukonXmlShowPlan = value;
             }
         }
- 
-        /// <summary>
-        /// a type of XML execution plan may be returned  
-        /// </summary>
-        public SpecialAction()
-        {
-            None = true;
-            ExpectActualYukonXmlShowPlan = false;
-            ExpectEstimatedYukonXmlShowPlan = false;
-        }
 
         /// <summary>
         /// Aggregate this special action with another one  
         /// </summary>
-        public void combineSpecialAction(SpecialAction action)
+        public void CombineSpecialAction(SpecialAction action)
         {
             if (!action.None)
             {   
@@ -89,8 +94,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
         
+        #endregion
+
+        #region Private Helper Functions 
         /// <summary>
-        /// Check to see if all properties are false, other than _None 
+        /// Check to see if all properties are false, other than none 
         /// </summary>
         private bool areAllFalse()
         {
@@ -117,6 +125,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 None = true;
             }
         }
+
+        #endregion
 
     };
 }
