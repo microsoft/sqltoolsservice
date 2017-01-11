@@ -131,11 +131,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
                 {
                     Line = 0,
                     // test for 'dbo'
-                    Character = 16
+                    Character = 18
                 }
             };
             ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-            scriptFile.Contents = "select * from dbo.func ()";
+            scriptFile.Contents = "alter trigger test_trigger";
             var languageService = new LanguageService();
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
@@ -161,13 +161,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             string objectName = "from";
 
             List<Declaration> declarations = new List<Declaration>();
-            DefinitionResult result = peekDefinition.GetScript(declarations, objectName, null);
+            DefinitionResult result = peekDefinition.GetScript(declarations, null, objectName, null);
 
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
             Assert.Equal(SR.PeekDefinitionNoResultsError, result.Message);
         }
-    
+
         /// <summary>
         /// Test GetDefinition with a forced timeout. Expect a error result.
         /// </summary>
@@ -181,9 +181,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ManualResetEvent mre = new ManualResetEvent(true); // Do not block
             Mock<QueueItem> itemMock = new Mock<QueueItem>();
             itemMock.Setup(i => i.ItemProcessed).Returns(mre);
-            
+
             DefinitionResult timeoutResult = null;
-            
+
             queueMock.Setup(q => q.QueueBindingOperation(
                 It.IsAny<string>(),
                 It.IsAny<Func<IBindingContext, CancellationToken, object>>(),
@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
                 It.IsAny<int?>(),
                 It.IsAny<int?>()))
             .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, int?, int?>(
-                (key, bindOperation, timeoutOperation, blah, blah2) => 
+                (key, bindOperation, timeoutOperation, blah, blah2) =>
             {
                 timeoutResult = (DefinitionResult) timeoutOperation((IBindingContext)null);
                 itemMock.Object.Result = timeoutResult;
@@ -320,6 +320,243 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a scalar valued function object with active connection and explicit schema name. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetScalarValuedFunctionDefinitionWithSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "addTwo";
+            string schemaName = "dbo";
+            string objectType = "FUNCTION";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetScalarValuedFunctionScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a table valued function object with active connection and explicit schema name. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetTableValuedFunctionDefinitionWithSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "returnTable";
+            string schemaName = "dbo";
+            string objectType = "FUNCTION";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableValuedFunctionScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a scalar valued function object that doesn't exist with active connection. Expect null locations
+        /// </summary>
+        [Fact]
+        public void GetScalarValuedFunctionDefinitionWithNonExistantFailureTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "doesNotExist";
+            string schemaName = "dbo";
+            string objectType = "FUNCTION";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetScalarValuedFunctionScripts, objectName, schemaName, objectType);
+            Assert.Null(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a table valued function object that doesn't exist with active connection. Expect null locations
+        /// </summary>
+        [Fact]
+        public void GetTableValuedFunctionDefinitionWithNonExistantObjectFailureTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "doesNotExist";
+            string schemaName = "dbo";
+            string objectType = "FUNCTION";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableValuedFunctionScripts, objectName, schemaName, objectType);
+            Assert.Null(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a scalar valued function object with active connection. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetScalarValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "addTwo";
+            string schemaName = null;
+            string objectType = "FUNCTION";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetScalarValuedFunctionScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a table valued function object with active connection. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetTableValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "returnTable";
+            string schemaName = null;
+            string objectType = "FUNCTION";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableValuedFunctionScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+
+        /// <summary>
+        /// Test get definition for a user defined data type object with active connection and explicit schema name. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetUserDefinedDataTypeDefinitionWithSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "SSN";
+            string schemaName = "dbo";
+            string objectType = "Type";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetUserDefinedDataTypeScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a user defined data type object with active connection. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetUserDefinedDataTypeDefinitionWithoutSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "SSN";
+            string schemaName = null;
+            string objectType = "Type";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetUserDefinedDataTypeScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a user defined data type object that doesn't exist with active connection. Expect null locations
+        /// </summary>
+        [Fact]
+        public void GetUserDefinedDataTypeDefinitionWithNonExistantFailureTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "doesNotExist";
+            string schemaName = "dbo";
+            string objectType = "Type";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetUserDefinedDataTypeScripts, objectName, schemaName, objectType);
+            Assert.Null(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a user defined table type object with active connection and explicit schema name. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetUserDefinedTableTypeDefinitionWithSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "LocationTableType";
+            string schemaName = "dbo";
+            string objectType = "Type";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetUserDefinedTableTypeScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a user defined table type object with active connection. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetUserDefinedTableTypeDefinitionWithoutSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "LocationTableType";
+            string schemaName = null;
+            string objectType = "Type";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetUserDefinedTableTypeScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a user defined table type object that doesn't exist with active connection. Expect null locations
+        /// </summary>
+        [Fact]
+        public void GetUserDefinedTableTypeDefinitionWithNonExistantFailureTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "doesNotExist";
+            string schemaName = "dbo";
+            string objectType = "Type";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetUserDefinedTableTypeScripts, objectName, schemaName, objectType);
+            Assert.Null(locations);
         }
 
         /// <summary>
