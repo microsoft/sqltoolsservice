@@ -247,6 +247,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
+            // Sanity check to make sure that the results have been read beforehand
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
+            }
+
             return Task.Factory.StartNew(() =>
             {
                 if (!this.processSpecialAction().None)

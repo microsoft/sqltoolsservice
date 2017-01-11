@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System.Collections.Generic;
-using Microsoft.SqlServer.Management.Common; 
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -129,6 +128,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Create our batch lists
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
+
+            // Checking settings for execution plan options 
+            if (querySettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
+            {
+                // Check support level 
+                if (this.doesSupportExecutionPlan(connection))
+                {
+                    // Enable set showplan xml
+                    addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, streamOutputFactory);
+                    addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, streamOutputFactory);
+                }
+            } 
+            else if (querySettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+            {
+                if (this.doesSupportExecutionPlan(connection)) {
+                    // Enable statistics xml 
+                    addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, streamOutputFactory);
+                    addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, streamOutputFactory);
+                }
+            } 
         }
 
         #region Events
@@ -369,26 +388,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 try
                 {
-                    // Checking settings for execution plan options 
-                    if (querySettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
-                    {
-                        // Check support level 
-                        if (this.doesSupportExecutionPlan(conn))
-                        {
-                            // Enable set showplan xml
-                            addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, streamOutputFactory);
-                            addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, streamOutputFactory);
-                        }
-                    } 
-                    else if (querySettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
-                    {
-                        if (this.doesSupportExecutionPlan(conn)) {
-                            // Enable statistics xml 
-                            addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, streamOutputFactory);
-                            addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, streamOutputFactory);
-                        }
-                    } 
-
                     // Execute beforeBatches synchronously, before the user defined batches 
                     foreach (Batch b in BeforeBatches)
                     {
@@ -499,18 +498,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Does this connection support XML Execution plans
         /// </summary>
-        private bool doesSupportExecutionPlan(DbConnection dbConnectionInfo) {
-            // Getting server information 
-            ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(dbConnectionInfo);
-            bool isSqlDw = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
-            
-            // Determining which execution plan options may be applied 
-            if (!isSqlDw && serverInfo.ServerMajorVersion >= 9)
-            {
-                return true;
-            }
-
-            return false;
+        private bool doesSupportExecutionPlan(ConnectionInfo connectionInfo) {
+            // Determining which execution plan options may be applied (may be added to for pre-yukon support)
+            return (!connectionInfo.IsSqlDW && connectionInfo.majorVersion >= 9);
         }
 
         #endregion

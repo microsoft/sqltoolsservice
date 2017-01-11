@@ -131,105 +131,121 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #endregion
 
-        /*
+
         #region Service Intergration Tests
 
         [Fact]
-        public async Task SubsetServiceValidTest()
+        public async Task ExecutionPlanServiceValidTest()
         {
             // If:
-            // ... I have a query that has results (doesn't matter what)
+            // ... I have a query that has results in the form of an execution plan 
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(new[] {Common.GetExecutionPlanTestData()}, true, false, workspaceService);
             var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
+            executeParams.ExecutionPlanOptions = new ExecutionPlanOptions()
+            { 
+                IncludeActualExecutionPlanXml = false,
+                IncludeEstimatedExecutionPlanXml = true
+            };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
-            // ... And I then ask for a valid set of results from it
-            var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var subsetRequest = new EventFlowValidator<QueryExecuteSubsetResult>()
+            // ... And I then ask for a valid execution plan 
+            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, BatchIndex = 0, ResultSetIndex = 0 };
+            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddResultValidation(r =>
                 {
-                    // Then: Messages should be null and subset should not be null
+                    // Then: Messages should be null and execution plan should not be null
                     Assert.Null(r.Message);
-                    Assert.NotNull(r.ResultSubset);
+                    Assert.NotNull(r.ExecutionPlan);
                 }).Complete();
-            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-            subsetRequest.Validate();
+            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
+            executionPlanRequest.Validate();
         }
 
+        
         [Fact]
-        public async Task SubsetServiceMissingQueryTest()
+        public async Task ExecutionPlanServiceMissingQueryTest()
         {
             // If:
-            // ... I ask for a set of results for a file that hasn't executed a query
+            // ... I ask for an execution plan for a file that hasn't executed a query
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var subsetRequest = new EventFlowValidator<QueryExecuteSubsetResult>()
+            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
+            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddResultValidation(r =>
                 {
-                    // Then: Messages should not be null and the subset should be null
+                    // Then: Messages should not be null and the execution plan should be null
                     Assert.NotNull(r.Message);
-                    Assert.Null(r.ResultSubset);
+                    Assert.Null(r.ExecutionPlan);
                 }).Complete();
-            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-            subsetRequest.Validate();
+            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
+            executionPlanRequest.Validate();
         }
 
         [Fact]
-        public async Task SubsetServiceUnexecutedQueryTest()
+        public async Task ExecutionPlanServiceUnexecutedQueryTest()
         {
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(new[] { Common.GetExecutionPlanTestData() }, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
+            executeParams.ExecutionPlanOptions = new ExecutionPlanOptions()
+            { 
+                IncludeActualExecutionPlanXml = false,
+                IncludeEstimatedExecutionPlanXml = true
+            };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Common.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
 
-            // ... And I then ask for a valid set of results from it
-            var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var subsetRequest = new EventFlowValidator<QueryExecuteSubsetResult>()
+            // ... And I then ask for a valid execution plan from it 
+            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
+            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddResultValidation(r =>
                 {
-                    // Then: There should not be a subset and message should not be null
+                    // Then: There should not be an execution plan and message should not be null
                     Assert.NotNull(r.Message);
-                    Assert.Null(r.ResultSubset);
+                    Assert.Null(r.ExecutionPlan);
                 }).Complete();
-            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-            subsetRequest.Validate();
+            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
+            executionPlanRequest.Validate();
         }
 
         [Fact]
-        public async Task SubsetServiceOutOfRangeSubsetTest()
+        public async Task ExecutionPlanServiceOutOfRangeSubsetTest()
         {
             // If:
             // ... I have a query that doesn't have any result sets
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
+            executeParams.ExecutionPlanOptions = new ExecutionPlanOptions()
+            { 
+                IncludeActualExecutionPlanXml = false,
+                IncludeEstimatedExecutionPlanXml = true
+            };
             var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
-            // ... And I then ask for a set of results from it
-            var subsetParams = new QueryExecuteSubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var subsetRequest = new EventFlowValidator<QueryExecuteSubsetResult>()
+            // ... And I then ask for an execution plan from a result set 
+            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
+            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddResultValidation(r =>
                 {
-                    // Then: There should be an error message and no subset
+                    // Then: There should be an error message and no execution plan
                     Assert.NotNull(r.Message);
-                    Assert.Null(r.ResultSubset);
+                    Assert.Null(r.ExecutionPlan);
                 }).Complete();
-            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-            subsetRequest.Validate();
+            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
+            executionPlanRequest.Validate();
         }
-
+        
         #endregion
-        */
+        
     }
 }
