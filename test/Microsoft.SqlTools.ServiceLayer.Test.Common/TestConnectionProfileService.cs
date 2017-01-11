@@ -4,7 +4,9 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -25,6 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     {
         private readonly IEnumerable<TestServerIdentity> _testServers = TestServersLazyInstance.Value;
         private readonly ConnectionSetting _setting = ConnectionSettingLazyInstance.Value;
+        private static string _connectionSettingsFilename;
+        private static ConcurrentDictionary<TestServerType, ConnectionProfile> _connectionProfilesCache = new ConcurrentDictionary<TestServerType, ConnectionProfile>(); 
 
         public TestConnectionProfileService(ServiceTestDriver driver)
         {
@@ -55,11 +59,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 //If not server name found, try to find the connection info for given type
                 connectionProfile = _setting != null && _setting.Connections != null ? _setting.Connections.FirstOrDefault(x => x.ServerType == serverType) : null;
+                if (connectionProfile == null && _setting != null && _setting.Connections != null)
+                {
+                    Console.WriteLine(string.Format(CultureInfo.InvariantCulture, 
+                        "Cannot find any connection profile for server type '{0}'. " 
+                        + " Make sure the serverType attribute is set in {1}. " +
+                        "Or run CreateTestServerNameSettings.cmd to create a template for the server names", serverType, _connectionSettingsFilename));
+                }
             }
             else
             {
                 //Find the connection info for specific server name or profile name
                 connectionProfile = _setting != null ? _setting.GetConnentProfile(serverIdentity.ProfileName, serverIdentity.ServerName) : null;
+
             }
 
             Assert.True(connectionProfile != null, "Cannot find any connection profile for server type " + serverType.ToString());
@@ -72,17 +84,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// </summary>
         public async Task<ConnectParams> GetConnectionParametersAsync(TestServerType serverType = TestServerType.OnPrem, string databaseName = null)
         {
-            ConnectionProfile connectionProfile = GetConnectionProfile(serverType);
+            ConnectionProfile connectionProfile;
+            if (!_connectionProfilesCache.TryGetValue(serverType, out connectionProfile))
+            {
+                connectionProfile = GetConnectionProfile(serverType);
+
+                if (connectionProfile != null)
+                {
+                    //If the password is empty, get the credential using the service
+                    if (connectionProfile.AuthenticationType == AuthenticationType.SqlLogin && string.IsNullOrEmpty(connectionProfile.Password))
+                    {
+                        Credential credential = await ReadCredentialAsync(connectionProfile.formatCredentialId());
+                        connectionProfile.Password = credential.Password;
+                    }
+                    _connectionProfilesCache.GetOrAdd(serverType, connectionProfile);
+                }
+            }
 
             if (connectionProfile != null)
             {
-                //If the password is empty, get the credential using the service
-                if (connectionProfile.AuthenticationType == AuthenticationType.SqlLogin &&  string.IsNullOrEmpty(connectionProfile.Password))
-                {
-                    Credential credential = await ReadCredentialAsync(connectionProfile.formatCredentialId());
-                    connectionProfile.Password = credential.Password;
-                }
-
                 ConnectParams connenctParam = CreateConnectParams(connectionProfile, serverType, databaseName);
                
                 return connenctParam;
@@ -230,6 +250,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             if (string.IsNullOrEmpty(settingsFilename))
             {
                 Console.WriteLine("Cannot find any connection settings. Please run CreateConnectionSettings.cmd to generate a template for the connection settings.");
+            }
+            else
+            {
+                Console.WriteLine("Connection settings: " + settingsFilename);
+                _connectionSettingsFilename = settingsFilename;
             }
 
             string settingsFileContents = string.IsNullOrEmpty(settingsFilename) ? string.Empty : File.ReadAllText(settingsFilename);
