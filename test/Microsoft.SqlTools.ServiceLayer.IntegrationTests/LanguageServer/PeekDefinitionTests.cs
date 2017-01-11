@@ -4,23 +4,15 @@
 //
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
-using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
@@ -159,9 +151,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "from";
-
-            List<Declaration> declarations = new List<Declaration>();
-            DefinitionResult result = peekDefinition.GetScript(declarations, null, objectName, null);
+            Position position = new Position()
+            {
+                Line = 1,
+                Character = 14
+            };
+            ScriptParseInfo scriptParseInfo = new ScriptParseInfo() { IsConnected = true };
+            Mock<IBindingContext> bindingContextMock = new Mock<IBindingContext>();
+            DefinitionResult result = peekDefinition.GetScript(scriptParseInfo.ParseResult, position, bindingContextMock.Object.MetadataDisplayInfoProvider, objectName, null);
 
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
@@ -191,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
                 It.IsAny<int?>(),
                 It.IsAny<int?>()))
             .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, int?, int?>(
-                (key, bindOperation, timeoutOperation, blah, blah2) =>
+                (key, bindOperation, timeoutOperation, t1, t2) =>
             {
                 timeoutResult = (DefinitionResult) timeoutOperation((IBindingContext)null);
                 itemMock.Object.Result = timeoutResult;

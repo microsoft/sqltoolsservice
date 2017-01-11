@@ -11,11 +11,14 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -40,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private Dictionary<string, ScriptGetter> sqlScriptGettersFromQuickInfo =
             new Dictionary<string, ScriptGetter> ();
- 
+
         // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
 
@@ -54,8 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             this.serverConnection = serverConnection;
             this.connectionInfo = connInfo;
-            this.tempPath = FileUtils.GetPeekDefinitionTempFolder();    
-            
+            this.tempPath = FileUtils.GetPeekDefinitionTempFolder();
+
             sqlScriptGettersFromQuickInfo.Add("table", GetTableScripts);
             sqlObjectTypesFromQuickInfo.Add("table", "Table");
 
@@ -71,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             sqlScriptGettersFromQuickInfo.Add("table-valued function", GetTableValuedFunctionScripts);
             sqlObjectTypesFromQuickInfo.Add("table-valued function", "Function");
 
-            
+
 
             sqlScriptGettersFromQuickInfo.Add("user-defined data type", GetUserDefinedDataTypeScripts);
             sqlObjectTypesFromQuickInfo.Add("user-defined data type", "Type");
@@ -79,7 +82,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             sqlScriptGettersFromQuickInfo.Add("user-defined table type", GetUserDefinedTableTypeScripts);
             sqlObjectTypesFromQuickInfo.Add("user-defined table type", "Type");
 
-            //Synonymns - appear as 'table' in quickInfo
+            // Synonymns - appear as 'table' in quickInfo
+
+            // Triggers - fails suggestion prompt and hover
+            sqlScriptGettersFromQuickInfo.Add("trigger", GetDatabaseDdlTriggerScripts);
+            sqlObjectTypesFromQuickInfo.Add("trigger", "Trigger");
 
             Initialize();
         }
@@ -198,31 +205,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="tokenText"></param>
         /// <param name="schemaName"></param>
         /// <returns>Location object of the script file</returns>
-        internal DefinitionResult GetScript(IEnumerable<Declaration> declarationItems, string quickInfoText, string tokenText, string schemaName)
+        internal DefinitionResult GetScript(ParseResult parseResult, Position position, IMetadataDisplayInfoProvider metadataDisplayInfoProvider, string tokenText, string schemaName)
         {
-            string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText);
-            if (sqlScriptGettersFromQuickInfo.ContainsKey(tokenType))
-            {
-                if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
-                {
-                    string fullObjectName = GetFullObjectNameFromQuickInfo(quickInfoText, tokenText);
-                    schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
-                }
-                Location[] locations = GetSqlObjectDefinition(
-                            sqlScriptGettersFromQuickInfo[tokenType],
-                            tokenText,
-                            schemaName,
-                            sqlObjectTypesFromQuickInfo[tokenType]
-                        );
-                DefinitionResult result = new DefinitionResult
-                {
-                    IsErrorResult = this.error,
-                    Message = this.errorMessage,
-                    Locations = locations
-                };
-                return result;
-            }
-            else
+            int parserLine = position.Line + 1;
+            int parserColumn = position.Character + 1;
+            IEnumerable<Declaration> declarationItems = GetCompletionsForToken(parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
+            if(declarationItems!= null && declarationItems.Count() > 0)
             {
                 foreach (Declaration declarationItem in declarationItems)
                 {
@@ -238,8 +226,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
                         {
                             // On *nix and mac systems, the defaultSchema property throws an Exception when accessed.
-                            // This workaround ensures that a schema name is present by attempting 
-                            // to get the schema name from the declaration item. 
+                            // This workaround ensures that a schema name is present by attempting
+                            // to get the schema name from the declaration item.
                             // If all fails, the default schema name is assumed to be "dbo"
                             if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
                             {
@@ -263,6 +251,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // sql object type is currently not supported
                         return GetDefinitionErrorResult(SR.PeekDefinitionTypeNotSupportedError);
                     }
+                }
+
+            }
+            else 
+            {
+                string quickInfoText = GetQuickInfoForToken(parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
+                string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText);
+                if (tokenType != null && sqlScriptGettersFromQuickInfo.ContainsKey(tokenType))
+                {
+                    if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
+                    {
+                        string fullObjectName = GetFullObjectNameFromQuickInfo(quickInfoText, tokenText);
+                        schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
+                    }
+                    Location[] locations = GetSqlObjectDefinition(
+                                sqlScriptGettersFromQuickInfo[tokenType],
+                                tokenText,
+                                schemaName,
+                                sqlObjectTypesFromQuickInfo[tokenType]
+                            );
+                    DefinitionResult result = new DefinitionResult
+                    {
+                        IsErrorResult = this.error,
+                        Message = this.errorMessage,
+                        Locations = locations
+                    };
+                    return result;
                 }
             }
             // no definition found
@@ -290,20 +305,47 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal string GetFullObjectNameFromQuickInfo(string text, string tokenText)
         {
-            //extract string describing token type from quickInfo text
-            string[] tokens =text.Split(' ');
+            if ( String.IsNullOrEmpty(text) || String.IsNullOrEmpty(tokenText))
+            {
+                return null;
+            }
+            // extract full object name from quickInfo text
+            string[] tokens = text.Split(' ');
             List<string> tokenList = tokens.Where(el => el.Contains(tokenText)).ToList();
             return tokenList[0];
         }
 
         internal string GetTokenTypeFromQuickInfo(string text, string tokenText)
         {
-            string tokenType = null;
-            //extract string describing token type from quickInfo text
-            string[] tokens =text.Split(' ');
+            if ( String.IsNullOrEmpty(text) || String.IsNullOrEmpty(tokenText))
+            {
+                return null;
+            }
+            // extract string denoting the token type from quickInfo text
+            string[] tokens = text.Split(' ');
             List<int> indexList = tokens.Select((s,i) => new {i,s}).Where(el => (el.s).Contains(tokenText)).Select(el => el.i).ToList();
-            tokenType = String.Join(" ", tokens.Take(indexList[0]));
-            return tokenType;
+            return String.Join(" ", tokens.Take(indexList[0]));
+        }
+
+        internal string GetQuickInfoForToken(ParseResult parseResult, int parserLine, int parserColumn, IMetadataDisplayInfoProvider metadataDisplayInfoProvider)
+        {
+            if ( parseResult == null || metadataDisplayInfoProvider == null)
+            {
+                return null;
+            }
+            Babel.CodeObjectQuickInfo quickInfo = Resolver.GetQuickInfo(
+                parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
+            return quickInfo?.Text;
+        }
+
+        internal  IEnumerable<Declaration> GetCompletionsForToken(ParseResult parseResult, int parserLine, int parserColumn, IMetadataDisplayInfoProvider metadataDisplayInfoProvider)
+        {
+            if ( parseResult == null || metadataDisplayInfoProvider == null)
+            {
+                return null;
+            }
+            return Resolver.FindCompletions(
+                parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
         }
 
         /*
@@ -382,7 +424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
         */
-        
+
         /// <summary>
         /// Script a object using SMO and write to a file.
         /// </summary>

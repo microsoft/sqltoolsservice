@@ -749,7 +749,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                             string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
                             PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
-                            return peekDefinition.GetScript(declarationItems, quickInfo?.Text, tokenText, schemaName);
+                            return peekDefinition.GetScript(
+                                scriptParseInfo.ParseResult, 
+                                textDocumentPosition.Position, 
+                                bindingContext.MetadataDisplayInfoProvider, 
+                                tokenText, 
+                                schemaName);
                         },
                         timeoutOperation: (bindingContext) =>
                         {
