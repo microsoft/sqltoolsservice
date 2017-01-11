@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 };
 
                 var result = await testService.Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
-                if (result != null && string.IsNullOrEmpty(result.Messages))
+                if (result != null)
                 {
                     TestTimer timer = new TestTimer() { PrintResult = true };
                     await testService.ExecuteWithTimeout(timer, 100000, async () => 

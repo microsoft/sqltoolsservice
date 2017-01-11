@@ -740,10 +740,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             Assert.True(connection.ConnectionTimeout > 0);
             connection.ClearPool();
         }
-        
+
         [Fact]
         public void ThrottlingReasonTests()
-        { 
+        {
             var reason = RetryPolicy.ThrottlingReason.Unknown;
             Assert.NotNull(reason.ThrottlingMode);
             Assert.NotNull(reason.ThrottledResources);
@@ -775,10 +775,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 var detectionStrategy2 = new TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy();
                 Assert.NotNull(detectionStrategy2.InvokeCanRetrySqlException(sqlException));
                 Assert.NotNull(detectionStrategy2.InvokeShouldIgnoreSqlException(sqlException));
-
-                Batch batch = new Batch(Test.QueryExecution.Common.StandardQuery, Test.QueryExecution.Common.SubsectionDocument, 
-                    Test.QueryExecution.Common.Ordinal, Test.QueryExecution.Common.GetFileStreamFactory(null));
-                batch.UnwrapDbException(sqlException);
             }
 
             var unknownCodeReason = RetryPolicy.ThrottlingReason.FromReasonCode(-1);

@@ -305,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             };
 
             var result = await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
-            if (result != null && string.IsNullOrEmpty(result.Messages))
+            if (result != null)
             {
                 var eventResult = await Driver.WaitForEvent(QueryExecuteCompleteEvent.Type, timeoutMilliseconds);
                 return eventResult;
@@ -434,6 +434,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
             var result = await Driver.SendRequest(QueryExecuteSubsetRequest.Type, subsetParams);
             return result;
+        }
+
+        /// <summary>
+        /// Waits for a message to be returned by the service
+        /// </summary>
+        /// <returns>A message from the service layer</returns>
+        public async Task<QueryExecuteMessageParams> WaitForMessage()
+        {
+            return await Driver.WaitForEvent(QueryExecuteMessageEvent.Type);
         }
 
         public void WriteToFile(string ownerUri, string query)

@@ -97,6 +97,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return output;
         }
 
+        public static Dictionary<string, string>[][] GetTestDataSet(int dataSets)
+        {
+            List<Dictionary<string, string>[]> output = new List<Dictionary<string, string>[]>();
+            for(int dataSet = 0; dataSet < dataSets; dataSet++)
+            {
+                output.Add(StandardTestData);
+            }
+            return output.ToArray();
+        }
+
         public static async Task AwaitExecution(QueryExecutionService service, QueryExecuteParams qeParams,
             RequestContext<QueryExecuteResult> requestContext)
         {
