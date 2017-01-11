@@ -1,30 +1,30 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     /// <summary>
-    /// Base class for all test suites run by the test driver
+    /// Service class to execute SQL tools commands using the test driver or calling the service classed directly
     /// </summary>
-    public sealed class TestHelper : IDisposable
+    public sealed class TestServiceDriverProvider : IDisposable
     {
         private bool isRunning = false;
+        private TestConnectionProfileService testConnectionService;
 
-        public TestHelper()
+        public TestServiceDriverProvider()
         {
             Driver = new ServiceTestDriver();
             Driver.Start().Wait();
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 Driver.Stop().Wait();
                 Console.WriteLine("Successfully killed process.");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"Exception while waiting for service exit: {e.Message}");
             }
@@ -62,6 +62,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             private set;
         }
 
+        public TestConnectionProfileService TestConnectionService
+        {
+            get
+            {
+                return (testConnectionService = testConnectionService ?? new TestConnectionProfileService(Driver));
+            }
+        }
+
         private object fileLock = new Object();
 
         /// <summary>
@@ -69,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// </summary>
         /// <returns>True if the connection completed successfully</returns>        
         public async Task<bool> Connect(string ownerUri, ConnectParams connectParams, int timeout = 15000)
-        { 
+        {
             connectParams.OwnerUri = ownerUri;
             var connectResult = await Driver.SendRequest(ConnectionRequest.Type, connectParams);
             if (connectResult)
@@ -82,6 +90,52 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 return false;
             }
         }
+
+        /// <summary>
+        ///  Request a new connection to be created for given query
+        /// </summary>
+        public async Task<bool> ConnectForQuery(TestServerType serverType, string query, string ownerUri, string databaseName = null, int timeout = 15000)
+        {
+            if (!string.IsNullOrEmpty(query))
+            {
+                WriteToFile(ownerUri, query);
+            }
+
+            /*
+            DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
+            {
+                TextDocument = new TextDocumentItem
+                {
+                    Uri = ownerUri,
+                    LanguageId = "enu",
+                    Version = 1,
+                    Text = query
+                }
+            };
+
+            await RequestOpenDocumentNotification(openParams);
+
+            Thread.Sleep(500);
+            */
+
+            return await Connect(serverType, ownerUri, databaseName, timeout);
+        }
+
+        /// <summary>
+        ///  Request a new connection to be created for url
+        /// </summary>
+        public async Task<bool> Connect(TestServerType serverType, string ownerUri, string databaseName = null, int timeout = 15000)
+        {
+
+            var connectParams = await GetConnectionParametersAsync(serverType, databaseName);
+
+            bool connected = await Connect(ownerUri, connectParams, timeout);
+            Assert.True(connected, "Connection is successful");
+            Console.WriteLine($"Connection to {connectParams.Connection.ServerName} is successful");
+
+            return connected;
+        }
+
 
         /// <summary>
         /// Request a disconnect
@@ -148,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         {
             await Driver.SendEvent(DidChangeTextDocumentNotification.Type, changeParams);
         }
-        
+
         /// <summary>
         /// Request completion item resolve to look-up additional info
         /// </summary>
@@ -159,55 +213,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         /// <summary>
-        /// Request a Read Credential for given credential id
-        /// </summary>
-        public async Task<Credential> ReadCredential(string credentialId)
-        {
-            var credentialParams = new Credential();
-            credentialParams.CredentialId = credentialId;
-
-            return await Driver.SendRequest(ReadCredentialRequest.Type, credentialParams);
-        }
-
-        /// <summary>
         /// Returns database connection parameters for given server type
         /// </summary>
-        public async Task<ConnectParams> GetDatabaseConnectionAsync(TestServerType serverType, string databaseName)
+        public async Task<ConnectParams> GetConnectionParametersAsync(TestServerType serverType, string databaseName = null)
         {
-            ConnectionProfile connectionProfile = null;
-            TestServerIdentity serverIdentiry = ConnectionTestUtils.TestServers.FirstOrDefault(x => x.ServerType == serverType);
-            if (serverIdentiry == null)
-            {
-                connectionProfile = ConnectionTestUtils.Setting.Connections.FirstOrDefault(x => x.ServerType == serverType);
-            }
-            else
-            {
-                connectionProfile = ConnectionTestUtils.Setting.GetConnentProfile(serverIdentiry.ProfileName, serverIdentiry.ServerName);
-            }
-
-            if (connectionProfile != null)
-            {
-                string password = connectionProfile.Password;
-                if (string.IsNullOrEmpty(password))
-                {
-                    Credential credential = await ReadCredential(connectionProfile.formatCredentialId());
-                    password = credential.Password;
-                }
-                ConnectParams conenctParam = ConnectionTestUtils.CreateConnectParams(connectionProfile.ServerName, connectionProfile.Database,
-                    connectionProfile.User, password);
-                if (!string.IsNullOrEmpty(databaseName))
-                {
-                    conenctParam.Connection.DatabaseName = databaseName;
-                }
-                if (serverType == TestServerType.Azure)
-                {
-                    conenctParam.Connection.ConnectTimeout = 30;
-                    conenctParam.Connection.Encrypt = true;
-                    conenctParam.Connection.TrustServerCertificate = false;
-                }
-                return conenctParam;
-            }
-            return null;
+            return await TestConnectionService.GetConnectionParametersAsync(serverType, databaseName);
         }
 
         /// <summary>
@@ -245,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
             var completionParams = new TextDocumentPosition
             {
-                TextDocument = new TextDocumentIdentifier {Uri = ownerUri},
+                TextDocument = new TextDocumentIdentifier { Uri = ownerUri },
                 Position = new Position
                 {
                     Line = line,
@@ -283,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Run a query using a given connection bound to a URI
         /// </summary>
-        public async Task<QueryExecuteCompleteParams> RunQuery(string ownerUri, string query, int timeoutMilliseconds = 5000)
+        public async Task<QueryExecuteCompleteParams> RunQueryAndWaitToComplete(string ownerUri, string query, int timeoutMilliseconds = 5000)
         {
             // Write the query text to a backing file
             WriteToFile(ownerUri, query);
@@ -322,13 +332,55 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
             return await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
         }
-        
+
+        public async Task RunQuery(TestServerType serverType, string databaseName, string query)
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                await ConnectForQuery(serverType, query, queryTempFile.FilePath, databaseName);
+                var queryResult = await CalculateRunTime(() => RunQueryAndWaitToComplete(queryTempFile.FilePath, query, 50000), false);
+
+                await Disconnect(queryTempFile.FilePath);
+            }
+        }
+
+        public async Task<T> CalculateRunTime<T>(Func<Task<T>> testToRun, bool printResult, [CallerMemberName] string testName = "")
+        {
+            TestTimer timer = new TestTimer() { PrintResult = printResult };
+            T result = await testToRun();
+            timer.EndAndPrint(testName);
+
+            return result;
+        }
+
+        public async Task ExecuteWithTimeout(TestTimer timer, int timeout, Func<Task<bool>> repeatedCode,
+            TimeSpan? delay = null, [CallerMemberName] string testName = "")
+        {
+            while (true)
+            {
+                if (await repeatedCode())
+                {
+                    timer.EndAndPrint(testName);
+                    break;
+                }
+                if (timer.TotalMilliSecondsUntilNow >= timeout)
+                {
+                    Assert.True(false, $"{testName} timed out after {timeout} milliseconds");
+                    break;
+                }
+                if (delay.HasValue)
+                {
+                    await Task.Delay(delay.Value);
+                }
+            }
+        }
+
         /// <summary>
         /// Request to cancel an executing query
         /// </summary>
         public async Task<QueryCancelResult> CancelQuery(string ownerUri)
         {
-            var cancelParams = new QueryCancelParams {OwnerUri = ownerUri};
+            var cancelParams = new QueryCancelParams { OwnerUri = ownerUri };
 
             var result = await Driver.SendRequest(QueryCancelRequest.Type, cancelParams);
             return result;

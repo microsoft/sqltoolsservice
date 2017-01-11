@@ -8,7 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     /// <summary>
     /// Timer to calculate the test run time

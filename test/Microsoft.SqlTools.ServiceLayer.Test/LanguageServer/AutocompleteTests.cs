@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             // set up file for returning the query
             scriptFile = new Mock<ScriptFile>();
-            scriptFile.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            scriptFile.SetupGet(file => file.Contents).Returns(QueryExecution.Common.StandardQuery);
             scriptFile.SetupGet(file => file.ClientFilePath).Returns(this.testScriptUri);
 
             // set up workspace mock

@@ -1,5 +1,5 @@
 {
-  "name": "Microsoft.SqlTools.ServiceLayer.PerfTests",
+  "name": "Microsoft.SqlTools.ServiceLayer.TestDriver.Tests",
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
@@ -14,13 +14,12 @@
     "Microsoft.SqlTools.ServiceLayer.TestDriver": "1.0.0-*",
     "Microsoft.SqlTools.ServiceLayer.Test.Common": "1.0.0-*"
   },
-
   "testRunner": "xunit",
-
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
+          "type": "platform",
           "version": "1.0.0"
         }
       },
