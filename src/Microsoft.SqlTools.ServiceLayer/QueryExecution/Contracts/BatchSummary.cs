@@ -26,6 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string ExecutionStart { get; set; }
 
         /// <summary>
+        /// Whether or not the batch encountered an error that halted execution
+        /// </summary>
+        public bool HasError { get; set; }
+
+        /// <summary>
         /// The ID of the result set within the query results
         /// </summary>
         public int Id { get; set; }
