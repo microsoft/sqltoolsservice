@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             else
             {
                 //Find the connection info for specific server name or profile name
-                connectionProfile = _setting != null ? _setting.GetConnentProfile(serverIdentity.ProfileName, serverIdentity.ServerName) : null;
+                connectionProfile = _setting != null ? _setting.GetConnectionProfile(serverIdentity.ProfileName, serverIdentity.ServerName) : null;
 
             }
 

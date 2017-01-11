@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         [JsonProperty("mssql.connections")]
         public List<ConnectionProfile> Connections { get; set; }
 
-        public ConnectionProfile GetConnentProfile(string profileName, string serverName)
+        public ConnectionProfile GetConnectionProfile(string profileName, string serverName)
         {
             if (!string.IsNullOrEmpty(profileName) && Connections != null)
             {
