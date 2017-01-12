@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 			///
 			/// Generate Initialize method
 			///
-			var directory = Path.GetDirectoryName("LanguageServices\\");
+			var directory = Path.GetDirectoryName("src\\Microsoft.SqlTools.ServiceLayer\\LanguageServices\\");
 			string xmlFile = Path.Combine(directory, "PeekDefinitionSupportedTypes.xml");
 			var supportedTypes = GetSupportedTypes(xmlFile);
 			if (supportedTypes != null && supportedTypes.Count > 0)
@@ -103,11 +103,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 				XmlElement node = type as XmlElement;
 				if (node != null)
 				{
-					string typeName = node["Name"]?.InnerText;
-					string createSyntax = node["CreateSyntax"]?.InnerText;
-					string accessClass = node["AccessClass"]?.InnerText;
-					string supportsSchemaQuery = node["SupportsSchemaQuery"]?.InnerText;
-					string quickInfoType = node["QuickInfoType"]?.InnerText;
+					string typeName = (node["Name"] != null) ? node["Name"].InnerText : null;
+					string createSyntax = (node["CreateSyntax"] != null) ? node["CreateSyntax"].InnerText : null;
+					string accessClass = (node["AccessClass"] != null) ? node["AccessClass"].InnerText : null;
+					string supportsSchemaQuery = (node["SupportsSchemaQuery"] != null) ? node["SupportsSchemaQuery"].InnerText : null;
+					string quickInfoType = (node["QuickInfoType"] != null) ? node["QuickInfoType"].InnerText : null;
 					if (typeName != null && createSyntax != null && accessClass != null && supportsSchemaQuery!= null)
 					{
 						Dictionary<string, string> typeProperties = new Dictionary<string, string>();

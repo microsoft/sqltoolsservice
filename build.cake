@@ -260,6 +260,7 @@ Task("TestCore")
 Task("Test")
     .IsDependentOn("Setup")
 	.IsDependentOn("SRGen")
+    .IsDependentOn("CodeGen")
     .IsDependentOn("BuildTest")
     .Does(() =>
 {
@@ -308,6 +309,7 @@ Task("Test")
 Task("OnlyPublish")
     .IsDependentOn("Setup")
 	.IsDependentOn("SRGen")
+    .IsDependentOn("CodeGen")
     .Does(() =>
 {
     var project = buildPlan.MainProject;
@@ -542,6 +544,20 @@ Task("SRGen")
 			.ExceptionOnError("Failed to run SRGen.");
 	}
 });
+
+/// <summary>
+/// Executes T4Template-based code generators
+/// </summary>
+Task("CodeGen")
+       .Does(() =>
+{
+       var t4Files = GetFiles(sourceFolder + "/**/*.tt");
+       foreach(var t4Template in t4Files)
+       {
+              TransformTemplate(t4Template, new TextTransformSettings {});
+       }
+});
+
 
 /// <summary>
 ///  Default Task aliases to Local.
