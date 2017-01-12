@@ -254,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
             }
-            else 
+            else
             {
                 string quickInfoText = GetQuickInfoForToken(parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
                 string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText);
@@ -262,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
                     {
-                        string fullObjectName = GetFullObjectNameFromQuickInfo(quickInfoText, tokenText);
+                        string fullObjectName = this.GetFullObjectNameFromQuickInfo(quickInfoText, tokenText);
                         schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
                     }
                     Location[] locations = GetSqlObjectDefinition(
@@ -303,28 +303,40 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return "dbo";
         }
 
-        internal string GetFullObjectNameFromQuickInfo(string text, string tokenText)
+        /// <summary>
+        /// Return full object name(database.schema.objectName) from the quickInfo text("type database.schema.objectName")
+        /// </summary>
+        /// <param name="quickInfoText">QuickInfo Text for this token</param>
+        /// <param name="tokenText">Token Text</param>
+        /// <returns></returns>
+        internal string GetFullObjectNameFromQuickInfo(string quickInfoText, string tokenText)
         {
-            if ( String.IsNullOrEmpty(text) || String.IsNullOrEmpty(tokenText))
+            if ( String.IsNullOrEmpty(quickInfoText) || String.IsNullOrEmpty(tokenText))
             {
                 return null;
             }
             // extract full object name from quickInfo text
-            string[] tokens = text.Split(' ');
+            string[] tokens = quickInfoText.Split(' ');
             List<string> tokenList = tokens.Where(el => el.Contains(tokenText)).ToList();
-            return tokenList[0];
+            return (tokenList?.Count() > 0)? tokenList[0] : null;
         }
 
-        internal string GetTokenTypeFromQuickInfo(string text, string tokenText)
+        /// <summary>
+        /// Return token type from the quickInfo text("type database.schema.objectName")
+        /// </summary>
+        /// <param name="quickInfoText">QuickInfo Text for this token</param>
+        /// <param name="tokenText"Token Text></param>
+        /// <returns></returns>
+        internal string GetTokenTypeFromQuickInfo(string quickInfoText, string tokenText)
         {
-            if ( String.IsNullOrEmpty(text) || String.IsNullOrEmpty(tokenText))
+            if ( String.IsNullOrEmpty(quickInfoText) || String.IsNullOrEmpty(tokenText))
             {
                 return null;
             }
             // extract string denoting the token type from quickInfo text
-            string[] tokens = text.Split(' ');
+            string[] tokens = quickInfoText.Split(' ');
             List<int> indexList = tokens.Select((s,i) => new {i,s}).Where(el => (el.s).Contains(tokenText)).Select(el => el.i).ToList();
-            return String.Join(" ", tokens.Take(indexList[0]));
+            return (indexList?.Count() > 0) ? String.Join(" ", tokens.Take(indexList[0])) : null;
         }
 
         internal string GetQuickInfoForToken(ParseResult parseResult, int parserLine, int parserColumn, IMetadataDisplayInfoProvider metadataDisplayInfoProvider)

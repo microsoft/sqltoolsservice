@@ -557,6 +557,66 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         }
 
         /// <summary>
+        /// Test get definition for a synonym object with active connection and explicit schema name. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetSynonymeDefinitionWithSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "testTable";
+            string schemaName = "dbo";
+            string objectType = "Synonym";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetSynonymScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+
+        /// <summary>
+        /// Test get definition for a Synonym object with active connection. Expect non-null locations
+        /// </summary>
+        [Fact]
+        public void GetSynonymDefinitionWithoutSchemaNameSuccessTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "testTable";
+            string schemaName = null;
+            string objectType = "Synonym";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetSynonymScripts, objectName, schemaName, objectType);
+            Assert.NotNull(locations);
+            Cleanup(locations);
+        }
+
+        /// <summary>
+        /// Test get definition for a Synonym object that doesn't exist with active connection. Expect null locations
+        /// </summary>
+        [Fact]
+        public void GetSynonymDefinitionWithNonExistantFailureTest()
+        {
+            // Get live connectionInfo and serverConnection
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "doesNotExist";
+            string schemaName = "dbo";
+            string objectType = "Synonym";
+
+            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetSynonymScripts, objectName, schemaName, objectType);
+            Assert.Null(locations);
+        }
+
+        /// <summary>
         /// Helper method to clean up script files
         /// </summary>
         private void Cleanup(Location[] locations)
