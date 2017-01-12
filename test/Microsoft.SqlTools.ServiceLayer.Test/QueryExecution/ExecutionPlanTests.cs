@@ -47,11 +47,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I have a result set and I ask for an execution plan that doesn't exist
             ResultSet planResultSet = b.ResultSets.First();
-            ExecutionPlan plan = planResultSet.GetExecutionPlan().Result;
 
             // Then:
-            // ... I should get a null value since it has no execution plan 
-            Assert.Null(plan);
+            // ... It should throw an exception
+            Assert.ThrowsAsync<Exception>(async () => await planResultSet.GetExecutionPlan());
         }
 
         #endregion
@@ -82,11 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If: 
             // ... I ask for an invalid execution plan 
-            ExecutionPlan plan = b.GetExecutionPlan(0).Result;
-
-            // Then:
-            // ... I should get a null value since it has no execution plan 
-            Assert.Null(plan);
+            Assert.ThrowsAsync<Exception>(async () => await b.GetExecutionPlan(0));
         }
 
         [Theory]
@@ -100,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for an execution plan with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetExecutionPlan(resultSetIndex)).Wait();
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await b.GetExecutionPlan(resultSetIndex));
         }
 
         #endregion
@@ -126,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => q.GetExecutionPlan(batchIndex, 0)).Wait();
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await q.GetExecutionPlan(batchIndex, 0));
         }
 
         #endregion
@@ -157,7 +152,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 .AddResultValidation(r =>
                 {
                     // Then: Messages should be null and execution plan should not be null
-                    Assert.Null(r.Message);
                     Assert.NotNull(r.ExecutionPlan);
                 }).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
@@ -174,11 +168,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddResultValidation(r =>
+                .AddErrorValidation<string>(r =>
                 {
-                    // Then: Messages should not be null and the execution plan should be null
-                    Assert.NotNull(r.Message);
-                    Assert.Null(r.ExecutionPlan);
+                    // Then: It should return a populated error 
+                    Assert.NotNull(r);
                 }).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();
@@ -205,11 +198,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I then ask for a valid execution plan from it 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddResultValidation(r =>
+                .AddErrorValidation<string>(r =>
                 {
-                    // Then: There should not be an execution plan and message should not be null
-                    Assert.NotNull(r.Message);
-                    Assert.Null(r.ExecutionPlan);
+                    // Then: It should return a populated error 
+                    Assert.NotNull(r);
                 }).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();
@@ -235,11 +227,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I then ask for an execution plan from a result set 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddResultValidation(r =>
+                .AddErrorValidation<string>(r =>
                 {
-                    // Then: There should be an error message and no execution plan
-                    Assert.NotNull(r.Message);
-                    Assert.Null(r.ExecutionPlan);
+                    // Then: It should return a populated error 
+                    Assert.NotNull(r);
                 }).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();

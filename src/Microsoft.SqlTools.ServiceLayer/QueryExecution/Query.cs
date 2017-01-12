@@ -65,22 +65,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// ON keyword
         /// </summary>
-        private static string s_On = "ON";
+        private const string on = "ON";
 
         /// <summary>
         /// OFF keyword
         /// </summary>
-        private static string s_Off = "OFF";
+        private const string off = "OFF";
 
         /// <summary>
         /// showplan_xml statement
         /// </summary>
-		private static string s_SetShowPlanXml = "SET SHOWPLAN_XML {0}";
+		private const string setShowPlanXml = "SET SHOWPLAN_XML {0}";
 
         /// <summary>
         /// statistics xml statement
         /// </summary>
-        private static string s_SetStatisticsXml = "SET STATISTICS XML {0}";
+        private const string setStatisticsXml = "SET STATISTICS XML {0}";
 
         #endregion
 
@@ -129,25 +129,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
 
-            // Checking settings for execution plan options 
-            if (querySettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml) 
+            if (DoesSupportExecutionPlan(connection))
             {
-                // Check support level 
-                if (this.DoesSupportExecutionPlan(connection))
+                // Checking settings for execution plan options 
+                if (querySettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
                 {
                     // Enable set showplan xml
-                    addBatch(string.Format(s_SetShowPlanXml, s_On), BeforeBatches, streamOutputFactory);
-                    addBatch(string.Format(s_SetShowPlanXml, s_Off), AfterBatches, streamOutputFactory);
+                    addBatch(string.Format(setShowPlanXml, on), BeforeBatches, streamOutputFactory);
+                    addBatch(string.Format(setShowPlanXml, off), AfterBatches, streamOutputFactory);
                 }
-            } 
-            else if (querySettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
-            {
-                if (this.DoesSupportExecutionPlan(connection)) {
-                    // Enable statistics xml 
-                    addBatch(string.Format(s_SetStatisticsXml, s_On), BeforeBatches, streamOutputFactory);
-                    addBatch(string.Format(s_SetStatisticsXml, s_Off), AfterBatches, streamOutputFactory);
+                else if (querySettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+                {
+                    addBatch(string.Format(setStatisticsXml, on), BeforeBatches, streamOutputFactory);
+                    addBatch(string.Format(setStatisticsXml, off), AfterBatches, streamOutputFactory);
                 }
-            } 
+            }
         }
 
         #region Events
@@ -410,7 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // We need these to execute synchronously, otherwise the user will be very unhappy
                     foreach (Batch b in Batches)
                     {
-                        // Attach extension callbacks to the these batches because the user explicity ran them
+                        // Add completion callbacks 
                         b.BatchStart += BatchStarted;
                         b.BatchCompletion += BatchCompleted;
                         b.BatchMessageSent += BatchMessageSent;
@@ -477,7 +473,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private void addBatch(string query, List<Batch> batchSet, IFileStreamFactory outputFactory)
         {
-            batchSet.Add(new Batch(query, new SelectionData(0, 0, 0, 0), batchSet.Count, outputFactory));
+            batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory));
         }
 
         #endregion

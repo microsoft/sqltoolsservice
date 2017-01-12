@@ -221,36 +221,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query query;
                 if (!ActiveQueries.TryGetValue(planParams.OwnerUri, out query))
                 {
-                    await requestContext.SendResult(new QueryExecutionPlanResult
-                    {
-                        Message = SR.QueryServiceRequestsNoQuery
-                    });
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
                     return;
                 }
 
                 // Retrieve the requested execution plan and return it
                 var result = new QueryExecutionPlanResult
                 {
-                    Message = null,
                     ExecutionPlan = await query.GetExecutionPlan(planParams.BatchIndex, planParams.ResultSetIndex)
                 };
                 await requestContext.SendResult(result);
-            }
-            catch (InvalidOperationException ioe)
-            {
-                // Return the error as a result
-                await requestContext.SendResult(new QueryExecutionPlanResult
-                {
-                    Message = ioe.Message
-                });
-            }
-            catch (ArgumentOutOfRangeException aoore)
-            {
-                // Return the error as a result
-                await requestContext.SendResult(new QueryExecutionPlanResult
-                {
-                    Message = aoore.Message
-                });
             }
             catch (Exception e)
             {

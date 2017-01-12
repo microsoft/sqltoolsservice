@@ -35,11 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class QueryExecutionPlanResult
     {
         /// <summary>
-        /// Executionb plan request error messages. Optional, can be set to null to indicate no errors
-        /// </summary>
-        public string Message { get; set; }
-
-        /// <summary>
         /// The requested execution plan. Optional, can be set to null to indicate an error
         /// </summary>
         public ExecutionPlan ExecutionPlan { get; set; }

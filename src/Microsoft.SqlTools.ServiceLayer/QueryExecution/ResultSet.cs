@@ -290,7 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
                 else
                 {
-                    return null;
+                    throw new Exception(SR.QueryServiceExecutionPlanNotFound);
                 }
             });
         }
