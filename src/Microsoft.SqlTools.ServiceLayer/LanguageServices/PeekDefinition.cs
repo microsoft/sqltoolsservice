@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.serverConnection = serverConnection;
             this.connectionInfo = connInfo;
             this.tempPath = FileUtils.GetPeekDefinitionTempFolder();
-
+            /*
             sqlScriptGettersFromQuickInfo.Add("table", GetTableScripts);
             sqlObjectTypesFromQuickInfo.Add("table", "Table");
 
@@ -83,10 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             sqlObjectTypesFromQuickInfo.Add("user-defined table type", "Type");
 
             // Synonymns - appear as 'table' in quickInfo
-
-            // Triggers - fails suggestion prompt and hover
-            sqlScriptGettersFromQuickInfo.Add("trigger", GetDatabaseDdlTriggerScripts);
-            sqlObjectTypesFromQuickInfo.Add("trigger", "Trigger");
+            */
 
             Initialize();
         }
@@ -151,10 +148,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Add the given type, scriptgetter and the typeName string to the respective dictionaries
         /// </summary>
-        private void AddSupportedType(DeclarationType type, ScriptGetter scriptGetter, string typeName)
+        private void AddSupportedType(DeclarationType type, ScriptGetter scriptGetter, string typeName, string quickInfoType)
         {
             sqlScriptGetters.Add(type, scriptGetter);
             sqlObjectTypes.Add(type, typeName);
+            if(!String.IsNullOrEmpty(quickInfoType))
+            {
+                sqlScriptGettersFromQuickInfo.Add(quickInfoType, scriptGetter);
+                sqlObjectTypesFromQuickInfo.Add(quickInfoType, typeName);
+            }
         }
 
         /// <summary>

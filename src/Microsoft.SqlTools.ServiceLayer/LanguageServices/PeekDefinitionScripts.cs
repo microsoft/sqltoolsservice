@@ -16,17 +16,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
 		private void Initialize()
 		{
-			AddSupportedType(DeclarationType.Table, GetTableScripts, "Table");
-			AddSupportedType(DeclarationType.View, GetViewScripts, "View");
-			AddSupportedType(DeclarationType.StoredProcedure, GetStoredProcedureScripts, "Procedure");
-			AddSupportedType(DeclarationType.UserDefinedDataType, GetUserDefinedDataTypeScripts, "Type");
-			AddSupportedType(DeclarationType.UserDefinedTableType, GetUserDefinedTableTypeScripts, "Type");
-			AddSupportedType(DeclarationType.UserDefinedAggregate, GetUserDefinedAggregateScripts, "Aggregate");
-			AddSupportedType(DeclarationType.Synonym, GetSynonymScripts, "Synonym");
-			AddSupportedType(DeclarationType.DatabaseRole, GetDatabaseRoleScripts, "Role");
-			AddSupportedType(DeclarationType.DatabaseDdlTrigger, GetDatabaseDdlTriggerScripts, "Trigger");
-			AddSupportedType(DeclarationType.ScalarValuedFunction, GetScalarValuedFunctionScripts, "Function");
-			AddSupportedType(DeclarationType.TableValuedFunction, GetTableValuedFunctionScripts, "Function");
+			AddSupportedType(DeclarationType.Table, GetTableScripts, "Table", "table");
+			AddSupportedType(DeclarationType.View, GetViewScripts, "View", "view");
+			AddSupportedType(DeclarationType.StoredProcedure, GetStoredProcedureScripts, "Procedure", "stored procedure");
+			AddSupportedType(DeclarationType.UserDefinedDataType, GetUserDefinedDataTypeScripts, "Type", "user-defined data type");
+			AddSupportedType(DeclarationType.UserDefinedTableType, GetUserDefinedTableTypeScripts, "Type", "user-defined table type");
+			AddSupportedType(DeclarationType.Synonym, GetSynonymScripts, "Synonym", "");
+			AddSupportedType(DeclarationType.ScalarValuedFunction, GetScalarValuedFunctionScripts, "Function", "scalar-valued function");
+			AddSupportedType(DeclarationType.TableValuedFunction, GetTableValuedFunctionScripts, "Function", "table-valued function");
 		}
 
 		/// <summary>
@@ -135,27 +132,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 		}
 
 		/// <summary>
-		/// Script a UserDefinedAggregate using SMO
-		/// </summary>
-		/// <param name="objectName">UserDefinedAggregate name</param>
-		/// <param name="schemaName">Schema name</param>
-		/// <returns>String collection of scripts</returns>
-		internal StringCollection GetUserDefinedAggregateScripts(string objectName, string schemaName)
-		{
-			try
-			{
-				UserDefinedAggregate smoObject = string.IsNullOrEmpty(schemaName) ? new UserDefinedAggregate(this.Database, objectName) : new UserDefinedAggregate(this.Database, objectName, schemaName);
-				smoObject.Refresh();
-				return smoObject.Script();
-			}
-			catch (Exception ex)
-			{
-				Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetUserDefinedAggregateScripts : " + ex.Message);
-				return null;
-			}
-		}
-
-		/// <summary>
 		/// Script a Synonym using SMO
 		/// </summary>
 		/// <param name="objectName">Synonym name</param>
@@ -172,48 +148,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 			catch (Exception ex)
 			{
 				Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetSynonymScripts : " + ex.Message);
-				return null;
-			}
-		}
-
-		/// <summary>
-		/// Script a DatabaseRole using SMO
-		/// </summary>
-		/// <param name="objectName">DatabaseRole name</param>
-		/// <param name="schemaName">Schema name</param>
-		/// <returns>String collection of scripts</returns>
-		internal StringCollection GetDatabaseRoleScripts(string objectName, string schemaName)
-		{
-			try
-			{
-				DatabaseRole smoObject = new DatabaseRole(this.Database, objectName);
-				smoObject.Refresh();
-				return smoObject.Script();
-			}
-			catch (Exception ex)
-			{
-				Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetDatabaseRoleScripts : " + ex.Message);
-				return null;
-			}
-		}
-
-		/// <summary>
-		/// Script a DatabaseDdlTrigger using SMO
-		/// </summary>
-		/// <param name="objectName">DatabaseDdlTrigger name</param>
-		/// <param name="schemaName">Schema name</param>
-		/// <returns>String collection of scripts</returns>
-		internal StringCollection GetDatabaseDdlTriggerScripts(string objectName, string schemaName)
-		{
-			try
-			{
-				DatabaseDdlTrigger smoObject = new DatabaseDdlTrigger(this.Database, objectName);
-				smoObject.Refresh();
-				return smoObject.Script();
-			}
-			catch (Exception ex)
-			{
-				Logger.Write(LogLevel.Error,"Exception at PeekDefinition GetDatabaseDdlTriggerScripts : " + ex.Message);
 				return null;
 			}
 		}

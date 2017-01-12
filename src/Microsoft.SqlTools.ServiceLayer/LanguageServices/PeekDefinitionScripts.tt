@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 			///
 			/// Generate Initialize method
 			///
-			var directory = Path.GetDirectoryName("src\\Microsoft.SqlTools.ServiceLayer\\LanguageServices\\");
+			var directory = Path.GetDirectoryName("LanguageServices\\");
 			string xmlFile = Path.Combine(directory, "PeekDefinitionSupportedTypes.xml");
 			var supportedTypes = GetSupportedTypes(xmlFile);
 			if (supportedTypes != null && supportedTypes.Count > 0)
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 				WriteLine("\t\t{");
 				foreach(var typeProperty in supportedTypes)
 				{
-						string functionCall = string.Format("\t\t\tAddSupportedType(DeclarationType.{0}, Get{0}Scripts, \"{1}\");", typeProperty["Name"], typeProperty["CreateSyntax"]);
+						string functionCall = string.Format("\t\t\tAddSupportedType(DeclarationType.{0}, Get{0}Scripts, \"{1}\", \"{2}\");", typeProperty["Name"], typeProperty["CreateSyntax"], typeProperty["QuickInfoType"]);
 						WriteLine(functionCall);
 				}
 				WriteLine("\t\t}\n");
@@ -107,6 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 					string createSyntax = node["CreateSyntax"]?.InnerText;
 					string accessClass = node["AccessClass"]?.InnerText;
 					string supportsSchemaQuery = node["SupportsSchemaQuery"]?.InnerText;
+					string quickInfoType = node["QuickInfoType"]?.InnerText;
 					if (typeName != null && createSyntax != null && accessClass != null && supportsSchemaQuery!= null)
 					{
 						Dictionary<string, string> typeProperties = new Dictionary<string, string>();
@@ -114,6 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 						typeProperties.Add("CreateSyntax", createSyntax);
 						typeProperties.Add("AccessClass", accessClass);
 						typeProperties.Add("SupportsSchemaQuery", supportsSchemaQuery);
+						typeProperties.Add("QuickInfoType", quickInfoType);
 						typeList.Add(typeProperties);
 					}
 

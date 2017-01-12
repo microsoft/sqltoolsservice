@@ -3,66 +3,56 @@
     <Name>Table</Name>
     <CreateSyntax>Table</CreateSyntax>
     <AccessClass>Table</AccessClass>
+    <QuickInfoType>table</QuickInfoType>
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
   </Type>
   <Type>
     <Name>View</Name>
     <CreateSyntax>View</CreateSyntax>
     <AccessClass>View</AccessClass>
+    <QuickInfoType>view</QuickInfoType>
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
   </Type>
   <Type>
     <Name>StoredProcedure</Name>
     <CreateSyntax>Procedure</CreateSyntax>
     <AccessClass>StoredProcedure</AccessClass>
+    <QuickInfoType>stored procedure</QuickInfoType>
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
   </Type>
   <Type>
     <Name>UserDefinedDataType</Name>
     <CreateSyntax>Type</CreateSyntax>
     <AccessClass>UserDefinedDataType</AccessClass>
+    <QuickInfoType>user-defined data type</QuickInfoType>
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
   </Type>
   <Type>
     <Name>UserDefinedTableType</Name>
     <CreateSyntax>Type</CreateSyntax>
     <AccessClass>UserDefinedTableType</AccessClass>
-    <SupportsSchemaQuery>true</SupportsSchemaQuery>
-  </Type>
-  <Type>
-    <Name>UserDefinedAggregate</Name>
-    <CreateSyntax>Aggregate</CreateSyntax>
-    <AccessClass>UserDefinedAggregate</AccessClass>
+    <QuickInfoType>user-defined table type</QuickInfoType>
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
   </Type>
   <Type>
     <Name>Synonym</Name>
     <CreateSyntax>Synonym</CreateSyntax>
     <AccessClass>Synonym</AccessClass>
+    <QuickInfoType></QuickInfoType>
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
-  </Type>
-  <Type>
-    <Name>DatabaseRole</Name>
-    <CreateSyntax>Role</CreateSyntax>
-    <AccessClass>DatabaseRole</AccessClass>
-    <SupportsSchemaQuery>false</SupportsSchemaQuery>
-  </Type>
-  <Type>
-    <Name>DatabaseDdlTrigger</Name>
-    <CreateSyntax>Trigger</CreateSyntax>
-    <AccessClass>DatabaseDdlTrigger</AccessClass>
-    <SupportsSchemaQuery>false</SupportsSchemaQuery>
   </Type>
   <Type>
     <Name>ScalarValuedFunction</Name>
     <CreateSyntax>Function</CreateSyntax>
     <AccessClass>UserDefinedFunction</AccessClass>
+    <QuickInfoType>scalar-valued function</QuickInfoType>
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
   </Type>
   <Type>
     <Name>TableValuedFunction</Name>
     <CreateSyntax>Function</CreateSyntax>
     <AccessClass>UserDefinedFunction</AccessClass>
+    <QuickInfoType>table-valued function</QuickInfoType>
     <SupportsSchemaQuery>true</SupportsSchemaQuery>
   </Type>
 </SupportedTypes>
