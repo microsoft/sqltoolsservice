@@ -4,10 +4,12 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -53,8 +55,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// this ConnectionInfo's OwnerUri.
         /// This is internal for testing access only
         /// </summary>
-        internal readonly Dictionary<string, DbConnection> ConnectionTypeToConnectionMap =
-            new Dictionary<string, DbConnection>();
+        internal readonly ConcurrentDictionary<string, DbConnection> ConnectionTypeToConnectionMap =
+            new ConcurrentDictionary<string, DbConnection>();
 
         /// <summary>
         /// Intellisense Metrics
@@ -67,82 +69,84 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool IsAzure { get; set; }
 
         /// <summary>
-        /// Try to get the DbConnection associated with the given connection type string. 
+        /// All DbConnection instances held by this ConnectionInfo
         /// </summary>
-        public bool TryGetConnection(string connectionType, out DbConnection connection)
+        public ICollection<DbConnection> AllConnections
         {
-            if (connectionType == null)
+            get
             {
-                connectionType = ConnectionType.Default;
+                return ConnectionTypeToConnectionMap.Values;
             }
-
-            return ConnectionTypeToConnectionMap.TryGetValue(connectionType, out connection);
         }
 
         /// <summary>
-        /// Get a List of all DbConnection instances held by this ConnectionInfo
-        /// </summary>
-        public List<DbConnection> GetAllConnections()
-        {
-            return ConnectionTypeToConnectionMap.Values.ToList();
-        }
-
-        /// <summary>
-        /// Get a list of all connection type strings held by this ConnectionInfo
+        /// All connection type strings held by this ConnectionInfo
         /// </summary>
         /// <returns></returns>
-        public List<string> GetAllConnectionTypes()
+        public ICollection<string> AllConnectionTypes
         {
-            return ConnectionTypeToConnectionMap.Keys.ToList();
+            get
+            {
+                return ConnectionTypeToConnectionMap.Keys;
+            }
         }
 
         /// <summary>
-        /// Gets the count of DbConnectioninstances held by this ConnectionInfo 
+        /// The count of DbConnectioninstances held by this ConnectionInfo 
         /// </summary>
-        public int CountConnections()
+        public int CountConnections
         {
-            return ConnectionTypeToConnectionMap.Count;
+            get
+            {
+                return ConnectionTypeToConnectionMap.Count;
+            }
+        }
+
+        /// <summary>
+        /// Try to get the DbConnection associated with the given connection type string. 
+        /// </summary>
+        /// <returns>true if a connection with type connectionType was located and out connection was set, 
+        /// false otherwise </returns>
+        /// <exception cref="ArgumentException">Thrown when connectionType is null or empty</exception>
+        public bool TryGetConnection(string connectionType, out DbConnection connection)
+        {
+            Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
+            return ConnectionTypeToConnectionMap.TryGetValue(connectionType, out connection);
         }
 
         /// <summary>
         /// Adds a DbConnection to this object and associates it with the given 
         /// connection type string. If a connection already exists with an identical 
-        /// connection type string, it is overwritten. Ignores calls where connectionType = null
+        /// connection type string, it is not overwritten. Ignores calls where connectionType = null
         /// </summary>
+        /// <exception cref="ArgumentException">Thrown when connectionType is null or empty</exception>
         public void AddConnection(string connectionType, DbConnection connection)
         {
-            if (connectionType != null)
-            {
-                ConnectionTypeToConnectionMap.Add(connectionType, connection);
-            }
+            Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
+            ConnectionTypeToConnectionMap.TryAdd(connectionType, connection);
         }
 
         /// <summary>
-        /// If string connectionType is not null, removes the single DbConnection
-        /// instance associated with string connectionType. If string connectionType
-        /// is null, removes all DbConnection instances. 
+        /// Removes the single DbConnection instance associated with string connectionType
         /// </summary>
-        /// <param name="connectionType"></param>
-        /// <returns>true if there are no more DbConnection instances held
-        /// by this object after trying to remove the requested connection(s),  
-        /// false otherwise</returns>
-        public bool RemoveConnection(string connectionType)
+        /// <exception cref="ArgumentException">Thrown when connectionType is null or empty</exception>
+        public void RemoveConnection(string connectionType)
         {
-            // Remove a single DbConnection
-            if (connectionType != null)
-            {
-                ConnectionTypeToConnectionMap.Remove(connectionType);
-            }
-            // Remove all DbConnections 
-            else
-            {
-                foreach (string type in GetAllConnectionTypes())
-                {
-                    ConnectionTypeToConnectionMap.Remove(type);
-                }
-            }
+            Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
+            DbConnection connection;
+            ConnectionTypeToConnectionMap.TryRemove(connectionType, out connection);
+        }
 
-            return CountConnections() == 0;
+        /// <summary>
+        /// Removes all DbConnection instances held by this object
+        /// </summary>
+        public void RemoveAllConnections()
+        {
+            foreach (var type in AllConnectionTypes)
+            {
+                DbConnection connection;
+                ConnectionTypeToConnectionMap.TryRemove(type, out connection);
+            }
         }
     }
 }

@@ -1079,7 +1079,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // We should have one ConnectionInfo and 2 DbConnections 
             ConnectionInfo connectionInfo = service.OwnerToConnectionMap[connectParamsDefault.OwnerUri];
-            Assert.Equal(2, connectionInfo.CountConnections());
+            Assert.Equal(2, connectionInfo.CountConnections);
             Assert.Equal(1, service.OwnerToConnectionMap.Count);
 
             // If we record when the Default connecton calls Close()
@@ -1110,7 +1110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Assert.True(queryDisconnectCalled);
 
             // And the maps that hold connection data should be empty
-            Assert.Equal(0, connectionInfo.CountConnections());
+            Assert.Equal(0, connectionInfo.CountConnections);
             Assert.Equal(0, service.OwnerToConnectionMap.Count);
         }
 
@@ -1144,15 +1144,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             ConnectionInfo connectionInfo = service.OwnerToConnectionMap[connectParamsDefault.OwnerUri];
 
             // There should be 2 connections in the map
-            Assert.Equal(2, connectionInfo.CountConnections());
+            Assert.Equal(2, connectionInfo.CountConnections);
 
             // If I Disconnect only the Query connection, there should be 1 connection in the map
             service.Disconnect(disconnectParamsQuery);
-            Assert.Equal(1, connectionInfo.CountConnections());
+            Assert.Equal(1, connectionInfo.CountConnections);
 
             // If I reconnect, there should be 2 again
             await service.Connect(connectParamsQuery);
-            Assert.Equal(2, connectionInfo.CountConnections());
+            Assert.Equal(2, connectionInfo.CountConnections);
         }
     }
 }

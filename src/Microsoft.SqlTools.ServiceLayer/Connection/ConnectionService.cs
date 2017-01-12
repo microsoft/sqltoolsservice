@@ -384,11 +384,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         public async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType)
         {
-            if (String.IsNullOrEmpty(ownerUri) || String.IsNullOrEmpty(connectionType))
+            if (string.IsNullOrEmpty(ownerUri) || string.IsNullOrEmpty(connectionType))
             {
                 return null;
             }
-            if (String.Equals(connectionType, ConnectionType.Default))
+            if (ConnectionType.Default == connectionType)
             {
                 return null;
             }
@@ -436,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return false;
             }
 
-            CancelTokenKey cancelKey = new CancelTokenKey()
+            CancelTokenKey cancelKey = new CancelTokenKey
             {
                 OwnerUri = cancelParams.OwnerUri,
                 Type = cancelParams.Type
@@ -456,10 +456,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;        
         }
 
         /// <summary>
@@ -493,14 +491,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return false;
             }
 
-            // Remove the disconnected connections from the map
-            if (info.RemoveConnection(disconnectParams.Type))
+            // Remove the disconnected connections from the ConnectionInfo map
+            if (disconnectParams.Type == null)
+            {
+                info.RemoveAllConnections();
+            }
+            else
+            {
+                info.RemoveConnection(disconnectParams.Type);
+            }
+
+            // If the ConnectionInfo has no more connections, remove the ConnectionInfo
+            if (info.CountConnections == 0)
             {
                 ownerToConnectionMap.Remove(disconnectParams.OwnerUri);
             }
 
             // Handle Telemetry disconnect events if we are disconnecting the default connection
-            if (disconnectParams.Type == null || String.Equals(disconnectParams.Type, ConnectionType.Default))
+            if (disconnectParams.Type == null || disconnectParams.Type == ConnectionType.Default)
             {
                 HandleDisconnectTelemetry(info);
                 InvokeOnDisconnectionActivities(info);
@@ -528,7 +536,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Cancel all pending connections
-            foreach (KeyValuePair<CancelTokenKey, CancellationTokenSource> entry in cancelTupleToCancellationTokenSourceMap)
+            foreach (var entry in cancelTupleToCancellationTokenSourceMap)
             {
                 string entryConnectionUri = entry.Key.OwnerUri;
                 string entryConnectionType = entry.Key.Type;
@@ -550,10 +558,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// false if no connections were found</returns>
         private bool CloseConnections(ConnectionInfo connectionInfo, string connectionType)
         {
-            List<DbConnection> connectionsToDisconnect = new List<DbConnection>();
+            ICollection<DbConnection> connectionsToDisconnect = new List<DbConnection>();
             if (connectionType == null)
             {
-                connectionsToDisconnect = connectionInfo.GetAllConnections();
+                connectionsToDisconnect = connectionInfo.AllConnections;
             }
             else
             {
@@ -671,11 +679,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             onDisconnectActivities.Add(activity);
         }
-        
+
         /// <summary>
         /// Handle new connection requests
         /// </summary>
-        /// <param name="connectionDetails"></param>
+        /// <param name="connectParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
         protected async Task HandleConnectRequest(
@@ -937,7 +945,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    foreach (DbConnection connection in info.GetAllConnections())
+                    foreach (DbConnection connection in info.AllConnections)
                     {
                         if (connection.State == ConnectionState.Open)
                         {
@@ -974,7 +982,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         private void InvokeOnConnectionActivities(ConnectionInfo connectionInfo, ConnectParams connectParams)
         {
-            if (!String.Equals(connectParams.Type, ConnectionType.Default))
+            if (connectParams.Type != ConnectionType.Default)
             {
                 return;
             }

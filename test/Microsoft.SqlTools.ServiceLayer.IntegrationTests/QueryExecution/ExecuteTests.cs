@@ -83,19 +83,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             // Given a connection to a live database
             var result = await TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            DbConnection connection = connInfo.GetAllConnections()[0];
+            DbConnection connection;
+            connInfo.TryGetConnection(ConnectionType.Default, out connection);
+
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
             // If I use master, the current database should be master
-            CreateAndExecuteQuery(String.Format(useQuery, master), connInfo, fileStreamFactory);
+            CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);
             Assert.Equal(master, connection.Database);
 
             // If I use tempdb, the current database should be tempdb
-            CreateAndExecuteQuery(String.Format(useQuery, tempdb), connInfo, fileStreamFactory);
+            CreateAndExecuteQuery(string.Format(useQuery, tempdb), connInfo, fileStreamFactory);
             Assert.Equal(tempdb, connection.Database);
 
             // If I switch back to master, the current database should be master
-            CreateAndExecuteQuery(String.Format(useQuery, master), connInfo, fileStreamFactory);
+            CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);
             Assert.Equal(master, connection.Database);
         }
 

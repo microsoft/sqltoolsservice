@@ -10,17 +10,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// Used to uniquely identify a CancellationTokenSource associated with both
     /// a string URI and a string connection type.
     /// </summary>
-    public class CancelTokenKey : CancelConnectParams
+    public class CancelTokenKey : CancelConnectParams, IEquatable<CancelTokenKey>
     {
         public override bool Equals(object obj)
         {
-            if (!(obj is CancelTokenKey))
+            CancelTokenKey other = obj as CancelTokenKey;
+            if (other == null)
             {
                 return false;
             }
 
-            CancelTokenKey other = obj as CancelTokenKey;
-            return String.Equals(other.OwnerUri, OwnerUri) && String.Equals(other.Type, Type);
+            return other.OwnerUri == OwnerUri && other.Type == Type;
+        }
+
+        public bool Equals(CancelTokenKey obj)
+        {
+            return obj.OwnerUri == OwnerUri && obj.Type == Type;
         }
 
         public override int GetHashCode()

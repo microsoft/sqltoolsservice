@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 string uri = connectionInfo.OwnerUri;
 
                 // We should see one ConnectionInfo and one DbConnection
-                Assert.Equal(1, connectionInfo.CountConnections());
+                Assert.Equal(1, connectionInfo.CountConnections);
                 Assert.Equal(1, service.OwnerToConnectionMap.Count);
 
                 // If we run a query
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.ExecutionTask.Wait();
 
                 // We should see two DbConnections
-                Assert.Equal(2, connectionInfo.CountConnections());
+                Assert.Equal(2, connectionInfo.CountConnections);
 
                 // If we run another query
                 query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.ExecutionTask.Wait();
 
                 // We should still have 2 DbConnections
-                Assert.Equal(2, connectionInfo.CountConnections());
+                Assert.Equal(2, connectionInfo.CountConnections);
 
                 // If we disconnect, we should remain in a consistent state to do it over again
                 // e.g. loop and do it over again
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             query.ExecutionTask.Wait();
 
             // All open DbConnections (Query and Default) should have initialDatabaseName as their database
-            foreach (DbConnection connection in connectionInfo.GetAllConnections())
+            foreach (DbConnection connection in connectionInfo.AllConnections)
             {
                 Assert.Equal(connection.Database, initialDatabaseName);
             }
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             query.ExecutionTask.Wait();
 
             // All open DbConnections (Query and Default) should have newDatabaseName as their database
-            foreach (DbConnection connection in connectionInfo.GetAllConnections())
+            foreach (DbConnection connection in connectionInfo.AllConnections)
             {
                 Assert.Equal(connection.Database, newDatabaseName);
             }
