@@ -27,19 +27,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 			///
 			/// Generate Initialize method
 			///
-			var directory = Path.GetDirectoryName("src\\Microsoft.SqlTools.ServiceLayer\\LanguageServices\\");
+			var indent = "    ";
+			var directory = Path.GetDirectoryName(Host.TemplateFile);
 			string xmlFile = Path.Combine(directory, "PeekDefinitionSupportedTypes.xml");
 			var supportedTypes = GetSupportedTypes(xmlFile);
 			if (supportedTypes != null && supportedTypes.Count > 0)
 			{
 				WriteLine("private void Initialize()");
-				WriteLine("\t\t{");
+				PushIndent(indent);
+				PushIndent(indent);
+				WriteLine("{");
+				PushIndent(indent);
 				foreach(var typeProperty in supportedTypes)
 				{
-						string functionCall = string.Format("\t\t\tAddSupportedType(DeclarationType.{0}, Get{0}Scripts, \"{1}\", \"{2}\");", typeProperty["Name"], typeProperty["CreateSyntax"], typeProperty["QuickInfoType"]);
+						string functionCall = string.Format("AddSupportedType(DeclarationType.{0}, Get{0}Scripts, \"{1}\", \"{2}\");", typeProperty["Name"], typeProperty["CreateSyntax"], typeProperty["QuickInfoType"]);
 						WriteLine(functionCall);
 				}
-				WriteLine("\t\t}\n");
+				PopIndent();
+				WriteLine("}\n");
 
 				///
 				/// Generate scriptGetters
@@ -49,19 +54,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 				{
 					string statement;
 					// Write comments
-					WriteLine("\t\t/// <summary>");
-					WriteLine(string.Format("\t\t/// Script a {0} using SMO", typeProperty["Name"]));
-					WriteLine("\t\t/// </summary>");
-					WriteLine(string.Format("\t\t/// <param name=\"objectName\">{0} name</param>", typeProperty["Name"]));
-					WriteLine(string.Format("\t\t/// <param name=\"schemaName\">Schema name</param>"));
-					WriteLine("\t\t/// <returns>String collection of scripts</returns>");
+					WriteLine("/// <summary>");
+					WriteLine(string.Format("/// Script a {0} using SMO", typeProperty["Name"]));
+					WriteLine("/// </summary>");
+					WriteLine(string.Format("/// <param name=\"objectName\">{0} name</param>", typeProperty["Name"]));
+					WriteLine(string.Format("/// <param name=\"schemaName\">Schema name</param>"));
+					WriteLine("/// <returns>String collection of scripts</returns>");
 
-					WriteLine(string.Format("\t\tinternal StringCollection Get{0}Scripts(string objectName, string schemaName)", typeProperty["Name"]));
-					WriteLine("\t\t{");
-
+					WriteLine(string.Format("internal StringCollection Get{0}Scripts(string objectName, string schemaName)", typeProperty["Name"]));
+					WriteLine("{");
+					PushIndent(indent);
 					// Write try block to retrieve object and return script
-					WriteLine("\t\t\t" + "try");
-					WriteLine("\t\t\t{");
+					WriteLine("try");
+					WriteLine("{");
 					if(typeProperty["SupportsSchemaQuery"].IndexOf("true", StringComparison.OrdinalIgnoreCase) >= 0)
 					{
 					statement = string.Format("{0} smoObject = string.IsNullOrEmpty(schemaName) ? new {0}(this.Database, objectName) : new {0}(this.Database, objectName, schemaName);", typeProperty["AccessClass"]);
@@ -70,21 +75,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 					{
 					statement = string.Format("{0} smoObject = new {0}(this.Database, objectName);", typeProperty["Name"]);
 					}
-					WriteLine("\t\t\t\t" + statement);
-					WriteLine("\t\t\t\t" + "smoObject.Refresh();");
-					WriteLine("\t\t\t\t" + "return smoObject.Script();");
-					WriteLine("\t\t\t}");
+					PushIndent(indent);
+					WriteLine(statement);
+					WriteLine("smoObject.Refresh();");
+					WriteLine("return smoObject.Script();");
+					PopIndent();
+					WriteLine("}");
 
 					// Write catch block to catch and log exceptions
-					WriteLine("\t\t\tcatch (Exception ex)");
-					WriteLine("\t\t\t{");
+					WriteLine("catch (Exception ex)");
+					WriteLine("{");
+					PushIndent(indent);
 					statement = string.Format("LogLevel.Error,\"Exception at PeekDefinition Get{0}Scripts : \" + ex.Message", typeProperty["Name"]);
-					WriteLine("\t\t\t\tLogger.Write(" + statement + ");");
-					WriteLine("\t\t\t\treturn null;");
-					WriteLine("\t\t\t}");
-					WriteLine("\t\t}\n");
+					WriteLine("Logger.Write(" + statement + ");");
+					WriteLine("return null;");
+					PopIndent();
+					WriteLine("}");
+					PopIndent();
+					WriteLine("}\n");
 				}
 			}
+			PopIndent();
+			PopIndent();
 		#>
 	}
 }
