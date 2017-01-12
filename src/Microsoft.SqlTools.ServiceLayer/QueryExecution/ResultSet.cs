@@ -253,45 +253,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>A subset of results</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
+            // Proccess the action just incase is hasn't been yet 
+            ProcessSpecialAction();
+
             // Sanity check to make sure that the results have been read beforehand
             if (!hasBeenRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
+            // Check that we this result set contains a showplan 
+            else if (!specialAction.ExpectYukonXMLShowPlan)
+            {
+                throw new Exception(SR.QueryServiceExecutionPlanNotFound);
+            }
+
 
             return Task.Factory.StartNew(() =>
-            {
-                if (!this.ProcessSpecialAction().None)
+            { 
+                string content = null;
+                string format = null;
+
+                using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
                 {
-                    string content = null;
-                    string format = null;
+                    // Determine the format and get the first col/row of XML
+                    content = fileStreamReader.ReadRow(0, Columns)[0].DisplayValue;
 
-                    using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                    if (specialAction.ExpectYukonXMLShowPlan) 
                     {
-                        SpecialAction action = this.ProcessSpecialAction();
-                        // If result set is 'for xml' or 'for json',
-                        // Concatenate all the rows together into one row
-                        if (!action.None)
-                        {
-                            content = fileStreamReader.ReadRow(0, Columns)[0].DisplayValue;
-
-                            if (action.ExpectActualYukonXmlShowPlan ||  action.ExpectEstimatedYukonXmlShowPlan) 
-                            {
-                                format = "xml";
-                            }
-                        }
+                        format = "xml";
                     }
+                }
                     
-                    return new ExecutionPlan
-                    {
-                        Format = format,
-                        Content = content
-                    };
-                }
-                else
+                return new ExecutionPlan
                 {
-                    throw new Exception(SR.QueryServiceExecutionPlanNotFound);
-                }
+                    Format = format,
+                    Content = content
+                };
             });
         }
 

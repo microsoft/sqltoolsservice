@@ -1,6 +1,7 @@
 // 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -10,9 +11,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     public class SpecialAction {
         
         #region Private Class variables 
+
+        // Underlying representation as bitwise flags to simplify logic
+        [Flags]
+        private enum ActionFlags 
+        {
+            None    = 0,
+            // All added options must be powers of 2
+            ExpectYukonXmlShowPlan = 1
+        }
+
+        private ActionFlags flags; 
         private bool none;
-        private bool expectActualYukonXmlShowPlan;
-        private bool expectEstimatedYukonXmlShowPlan;
+        private bool expectYukonXmlShowPlan;
 
         #endregion
 
@@ -21,41 +32,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public SpecialAction()
         {
-            None = true;
+            flags = ActionFlags.None;
         }
 
         #region Public Functions
         /// <summary>
         /// No Special action performed 
         /// </summary>
-        public bool None {
-            get { return none; }
-            set { 
-                none = value;
-                if (value)
-                {
-                    expectActualYukonXmlShowPlan = false;
-                    expectEstimatedYukonXmlShowPlan = false;
-                }
+        public bool None 
+        { 
+            get { return none; } 
+            set 
+            {
+                flags = ActionFlags.None;
+                update();
             }
-        }
-
-        /// <summary>
-        /// Contains an actual XML execution plan result set
-        /// </summary>
-        public bool ExpectActualYukonXmlShowPlan 
-        {
-            get { return expectActualYukonXmlShowPlan; }
-            set { this.RegisterSpecialAction(ref expectActualYukonXmlShowPlan, value); }
-        }
-
-        /// <summary>
-        /// Contains estimated XML execution plan result set 
-        /// </summary>
-        public bool ExpectEstimatedYukonXmlShowPlan 
-        {
-            get { return expectEstimatedYukonXmlShowPlan; }
-            set { this.RegisterSpecialAction(ref expectEstimatedYukonXmlShowPlan, value); }
         }
 
         /// <summary>
@@ -63,60 +54,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public bool ExpectYukonXMLShowPlan 
         {
-            get { return ExpectEstimatedYukonXmlShowPlan || ExpectActualYukonXmlShowPlan; }
+            get { return expectYukonXmlShowPlan; }
             set 
             { 
-                ExpectEstimatedYukonXmlShowPlan = value;
-                ExpectActualYukonXmlShowPlan = value;
+                flags |= ActionFlags.ExpectYukonXmlShowPlan;
+                update();
             }
         }
 
         /// <summary>
-        /// Aggregate this special action with another one  
+        /// Aggregate this special action with the input
         /// </summary>
         public void CombineSpecialAction(SpecialAction action)
         {
-            if (!action.None)
-            {   
-                this.None = false;
-                
-                if (action.ExpectActualYukonXmlShowPlan) 
-                {
-                    this.ExpectActualYukonXmlShowPlan = true;
-                }
-
-                if (action.ExpectEstimatedYukonXmlShowPlan) 
-                {
-                    this.ExpectEstimatedYukonXmlShowPlan = true;
-                }
-            }
+            flags |= action.flags;
         }
         
         #endregion
 
         #region Private Helper Functions 
-        /// <summary>
-        /// Check to see if all properties are false, other than none 
-        /// </summary>
-        private bool AreAllFalse()
-        {
-            return (!ExpectActualYukonXmlShowPlan && !ExpectEstimatedYukonXmlShowPlan);
-        }
 
         /// <summary>
-        /// Helper function to turn a special action on and implement needed side effects  
+        /// Helper function to update internal state base on flags
         /// </summary>
-        private void RegisterSpecialAction(ref bool state, bool change)
+        private void update()
         {
-            state = change;
-            if (change) 
-            {
-                None = false;
-            }
-            else if (this.AreAllFalse())
-            {
-                None = true;
-            }
+            none = flags.HasFlag(ActionFlags.None);
+            expectYukonXmlShowPlan = flags.HasFlag(ActionFlags.ExpectYukonXmlShowPlan);
         }
 
         #endregion
