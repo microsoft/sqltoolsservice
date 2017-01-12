@@ -265,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // Verify that the disconnect failed (since it caused a cancellation)
             Assert.False(disconnectResult);
         }
-        
+
         /// <summary>
         /// Verify that we can connect to the default database when no database name is
         /// provided as a parameter.
