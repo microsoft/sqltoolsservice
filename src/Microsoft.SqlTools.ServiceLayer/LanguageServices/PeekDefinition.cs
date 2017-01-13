@@ -104,8 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             sqlObjectTypes.Add(type, typeName);
             if (!String.IsNullOrEmpty(quickInfoType))
             {
-                sqlScriptGettersFromQuickInfo.Add(quickInfoType, scriptGetter);
-                sqlObjectTypesFromQuickInfo.Add(quickInfoType, typeName);
+                sqlScriptGettersFromQuickInfo.Add(quickInfoType.ToLowerInvariant(), scriptGetter);
+                sqlObjectTypesFromQuickInfo.Add(quickInfoType.ToLowerInvariant(), typeName);
             }
         }
 
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText);
             if (tokenType != null)
             {
-                if (sqlScriptGettersFromQuickInfo.ContainsKey(tokenType))
+                if (sqlScriptGettersFromQuickInfo.ContainsKey(tokenType.ToLowerInvariant()))
                 {
                     if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
                     {
@@ -167,10 +167,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
                     }
                     Location[] locations = GetSqlObjectDefinition(
-                                sqlScriptGettersFromQuickInfo[tokenType],
+                                sqlScriptGettersFromQuickInfo[tokenType.ToLowerInvariant()],
                                 tokenText,
                                 schemaName,
-                                sqlObjectTypesFromQuickInfo[tokenType]
+                                sqlObjectTypesFromQuickInfo[tokenType.ToLowerInvariant()]
                             );
                     DefinitionResult result = new DefinitionResult
                     {
