@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Generates the execution plan from the first row and first column 
+        /// Generates the execution plan from the table returned 
         /// </summary>
         /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
