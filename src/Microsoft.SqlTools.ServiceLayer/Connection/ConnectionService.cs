@@ -388,10 +388,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 return null;
             }
-            if (ConnectionType.Default == connectionType)
-            {
-                return null;
-            }
 
             // Try to get the ConnectionInfo, if it exists
             ConnectionInfo connectionInfo = ownerToConnectionMap[ownerUri];
@@ -409,9 +405,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Try to get the DbConnection
             DbConnection connection;
-            if (!connectionInfo.TryGetConnection(connectionType, out connection))
+            if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
             {
-                // If the DbConnection does not exist, create one
+                // If the DbConnection does not exist and is not the default connection, create one.
+                // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
+                // if Connect() has not yet been called.
                 ConnectParams connectParams = new ConnectParams()
                 {
                     OwnerUri = ownerUri,
