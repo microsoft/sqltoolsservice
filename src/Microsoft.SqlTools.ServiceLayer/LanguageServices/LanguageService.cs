@@ -731,23 +731,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         bindingTimeout: LanguageService.PeekDefinitionTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
-                            // Get suggestions for the token
-                            int parserLine = textDocumentPosition.Position.Line + 1;
-                            int parserColumn = textDocumentPosition.Position.Character + 1;
-                            IEnumerable<Declaration> declarationItems = Resolver.FindCompletions(
-                                scriptParseInfo.ParseResult,
-                                parserLine, parserColumn,
-                                bindingContext.MetadataDisplayInfoProvider);
-
-                            Babel.CodeObjectQuickInfo quickInfo = Resolver.GetQuickInfo(
-                                    scriptParseInfo.ParseResult,
-                                    parserLine,
-                                    parserColumn,
-                                    bindingContext.MetadataDisplayInfoProvider);
-
-                            // Match token with the suggestions(declaration items) returned
-
                             string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                            // Script object using SMO
                             PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
                             return peekDefinition.GetScript(
                                 scriptParseInfo.ParseResult, 
