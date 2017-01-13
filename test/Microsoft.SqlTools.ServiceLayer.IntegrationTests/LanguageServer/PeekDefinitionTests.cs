@@ -19,6 +19,7 @@ using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 {
@@ -614,6 +615,90 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 
             Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetSynonymScripts, objectName, schemaName, objectType);
             Assert.Null(locations);
+        }
+
+        /// <summary>
+        /// Test get definition using declaration type for a view object with active connection
+        /// Expect a non-null result with location
+        /// </summary>
+        [Fact]
+        public void GetDefinitionUsingDeclarationTypeWithValidObjectTest()
+        {
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "objects";
+            string schemaName = "sys";
+
+            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.View, "master.sys.objects", objectName, schemaName);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Locations);
+            Assert.False(result.IsErrorResult);
+            Cleanup(result.Locations);
+
+        }
+
+        /// <summary>
+        /// Test get definition using declaration type for a non existent view object with active connection
+        /// Expect a non-null result with location
+        /// </summary>
+        [Fact]
+        public void GetDefinitionUsingDeclarationTypeWithNonexistentObjectTest()
+        {
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "doesNotExist";
+            string schemaName = "sys";
+
+            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.View, "master.sys.objects", objectName, schemaName);
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
+        }
+
+        /// <summary>
+        /// Test get definition using quickInfo text for a view object with active connection
+        /// Expect a non-null result with location
+        /// </summary>
+        [Fact]
+        public void GetDefinitionUsingQuickInfoTextWithValidObjectTest()
+        {
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "objects";
+            string schemaName = "sys";
+            string quickInfoText = "view master.sys.objects";
+
+            DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, schemaName);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Locations);
+            Assert.False(result.IsErrorResult);
+            Cleanup(result.Locations);
+
+        }
+
+        /// <summary>
+        /// Test get definition using quickInfo text for a view object with active connection
+        /// Expect a non-null result with location
+        /// </summary>
+        [Fact]
+        public void GetDefinitionUsingQuickInfoTextWithNonexistentObjectTest()
+        {
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "doesNotExist";
+            string schemaName = "sys";
+            string quickInfoText = "view master.sys.objects";
+
+            DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, schemaName);
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
         }
 
         /// <summary>

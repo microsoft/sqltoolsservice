@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 				WriteLine("}\n");
 
 				///
-				/// Generate scriptGetters
+				/// Generate scriptGetters for each type
 				///
 
 				foreach(var typeProperty in supportedTypes)
@@ -64,16 +64,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 					WriteLine(string.Format("internal StringCollection Get{0}Scripts(string objectName, string schemaName)", typeProperty["Name"]));
 					WriteLine("{");
 					PushIndent(indent);
+
 					// Write try block to retrieve object and return script
 					WriteLine("try");
 					WriteLine("{");
 					if(typeProperty["SupportsSchemaQuery"].IndexOf("true", StringComparison.OrdinalIgnoreCase) >= 0)
 					{
-					statement = string.Format("{0} smoObject = string.IsNullOrEmpty(schemaName) ? new {0}(this.Database, objectName) : new {0}(this.Database, objectName, schemaName);", typeProperty["AccessClass"]);
+						statement = string.Format("{0} smoObject = string.IsNullOrEmpty(schemaName) ? new {0}(this.Database, objectName) : new {0}(this.Database, objectName, schemaName);", typeProperty["AccessClass"]);
 					}
 					else
 					{
-					statement = string.Format("{0} smoObject = new {0}(this.Database, objectName);", typeProperty["Name"]);
+						statement = string.Format("{0} smoObject = new {0}(this.Database, objectName);", typeProperty["Name"]);
 					}
 					PushIndent(indent);
 					WriteLine(statement);
@@ -101,6 +102,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 	}
 }
 	<#+
+	///
+	/// Get the supported types from the xml file
+	///
 	public static List<Dictionary<string, string>> GetSupportedTypes(string xmlFile)
 	{
 		List<Dictionary<string, string>> typeList = null;

@@ -339,5 +339,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             string expected = null;
             Assert.Equal(expected, result);
         }
+
+        /// <summary>
+        /// test Getting definition using quickInfo text without a live connection
+        /// Expect an error result( because you cannot script without a live connection)
+        /// </summary>
+        [Fact]
+        public void GetDefinitionUsingQuickInfoWithoutConnectionTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "tableName";
+            string quickInfoText = "table master.dbo.tableName";
+            DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, null);
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
+        }
+
+        /// <summary>
+        /// test Getting definition using declarration Type without a live connection
+        /// Expect an error result( because you cannot script without a live connection)
+        /// </summary>
+        [Fact]
+        public void GetDefinitionUsingDeclarationItemWithoutConnectionTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "tableName";
+            string fullObjectName = "master.dbo.tableName";
+            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Table, fullObjectName, objectName, null);
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
+        }
     }
 }
