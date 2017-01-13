@@ -248,9 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Generates the execution plan from the first row and first column 
         /// </summary>
-        /// <param name="startRow">The starting row of the results</param>
-        /// <param name="rowCount">How many rows to retrieve</param>
-        /// <returns>A subset of results</returns>
+        /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
             // Proccess the action just incase is hasn't been yet 
