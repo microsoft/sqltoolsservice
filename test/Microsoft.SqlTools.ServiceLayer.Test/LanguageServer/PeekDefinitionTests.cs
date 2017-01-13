@@ -27,6 +27,7 @@ using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 {
@@ -71,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             // set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns(Common.StandardQuery);
+            fileMock.SetupGet(file => file.Contents).Returns(QueryExecution.Common.StandardQuery);
             fileMock.SetupGet(file => file.ClientFilePath).Returns(this.testScriptUri);
 
             // set up workspace mock
@@ -125,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public async Task DefinitionsHandlerWithNoConnectionTest()
         {
-            TestObjects.InitializeTestServices();
+            TestServiceProvider.InitializeTestServices();
             InitializeTestObjects();
             // request definition
             var definitionTask = await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));

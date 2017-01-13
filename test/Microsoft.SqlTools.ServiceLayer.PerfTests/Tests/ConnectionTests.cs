@@ -5,9 +5,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Tests;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 
@@ -22,10 +20,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         {
             TestServerType serverType = TestServerType.Azure;
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.TestDbSimpleSelectQuery;
-                testHelper.WriteToFile(queryTempFile.FilePath, query);
+                testService.WriteToFile(queryTempFile.FilePath, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
                 {
@@ -38,13 +36,13 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                     }
                 };
 
-                await testHelper.RequestOpenDocumentNotification(openParams);
+                await testService.RequestOpenDocumentNotification(openParams);
 
                 Thread.Sleep(500);
-                var connected = await Common.CalculateRunTime(async () =>
+                var connected = await testService.CalculateRunTime(async () =>
                 {
-                    var connectParams = await testHelper.GetDatabaseConnectionAsync(serverType, Common.PerfTestDatabaseName);
-                    return await testHelper.Connect(queryTempFile.FilePath, connectParams);
+                    var connectParams = await testService.GetConnectionParametersAsync(serverType, Common.PerfTestDatabaseName);
+                    return await testService.Connect(queryTempFile.FilePath, connectParams);
                 }, true);
                 Assert.True(connected, "Connection was not successful");
             }
@@ -57,10 +55,10 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.TestDbSimpleSelectQuery;
-                testHelper.WriteToFile(queryTempFile.FilePath, query);
+                testService.WriteToFile(queryTempFile.FilePath, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
                 {
@@ -73,13 +71,13 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                     }
                 };
 
-                await testHelper.RequestOpenDocumentNotification(openParams);
+                await testService.RequestOpenDocumentNotification(openParams);
 
                 Thread.Sleep(500);
-                var connected = await Common.CalculateRunTime(async () =>
+                var connected = await testService.CalculateRunTime(async () =>
                 {
-                    var connectParams = await testHelper.GetDatabaseConnectionAsync(serverType, Common.PerfTestDatabaseName);
-                    return await testHelper.Connect(queryTempFile.FilePath, connectParams);
+                    var connectParams = await testService.GetConnectionParametersAsync(serverType, Common.PerfTestDatabaseName);
+                    return await testService.Connect(queryTempFile.FilePath, connectParams);
                 }, true);
                 Assert.True(connected, "Connection was not successful");
             }
@@ -92,11 +90,11 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                await Common.ConnectAsync(testHelper, serverType, Scripts.TestDbSimpleSelectQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                await testService.ConnectForQuery(serverType, Scripts.TestDbSimpleSelectQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
                 Thread.Sleep(1000);
-                var connected = await Common.CalculateRunTime(() => testHelper.Disconnect(queryTempFile.FilePath), true);
+                var connected = await testService.CalculateRunTime(() => testService.Disconnect(queryTempFile.FilePath), true);
                 Assert.True(connected);
             }
         }

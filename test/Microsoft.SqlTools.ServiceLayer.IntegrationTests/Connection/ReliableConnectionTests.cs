@@ -9,9 +9,12 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -30,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
     /// </summary>
     public class ReliableConnectionTests
     {
+        private TestConnectionProfileService connectionProfileService = new TestConnectionProfileService();
+
         internal class TestDataTransferErrorDetectionStrategy : DataTransferErrorDetectionStrategy
         {
             public bool InvokeCanRetrySqlException(SqlException exception)
@@ -230,11 +235,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// <summary>
         /// Helper method to create an integrated auth connection builder for testing.
         /// </summary>
-        private SqlConnectionStringBuilder CreateTestConnectionStringBuilder()
+        private async Task<SqlConnectionStringBuilder> CreateTestConnectionStringBuilder()
         {
+            ConnectParams connectParams = await this.connectionProfileService.GetConnectionParametersAsync();
             SqlConnectionStringBuilder csb = new SqlConnectionStringBuilder();
-            csb.DataSource = TestServerName;
-            csb.IntegratedSecurity = true;
+            csb.DataSource = connectParams.Connection.ServerName;
+            csb.IntegratedSecurity = connectParams.Connection.AuthenticationType == AuthenticationType.Integrated.ToString();
+            if (connectParams.Connection.UserName != null)
+            {
+                csb.UserID = connectParams.Connection.UserName;
+            }
+            if (connectParams.Connection.Password != null)
+            {
+                csb.Password = connectParams.Connection.Password;
+            }
+            csb.ConnectTimeout = connectParams.Connection.ConnectTimeout.HasValue ? connectParams.Connection.ConnectTimeout.Value: 30;
+            csb.Encrypt = connectParams.Connection.Encrypt.HasValue ? connectParams.Connection.Encrypt.Value : false;
+            csb.TrustServerCertificate = connectParams.Connection.TrustServerCertificate.HasValue ? connectParams.Connection.TrustServerCertificate.Value : false;
 
             return csb;
         }
@@ -242,9 +259,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// <summary>
         /// Helper method to create an integrated auth reliable connection for testing.
         /// </summary>
-        private DbConnection CreateTestConnection()
+        private async Task<DbConnection> CreateTestConnection()
         {
-            SqlConnectionStringBuilder csb = CreateTestConnectionStringBuilder();
+            SqlConnectionStringBuilder csb = await CreateTestConnectionStringBuilder();
 
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
@@ -257,64 +274,59 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Test ReliableConnectionHelper.GetDefaultDatabaseFilePath()
         /// </summary>
         [Fact]
-        public void TestGetDefaultDatabaseFilePath()
+        public async Task TestGetDefaultDatabaseFilePath()
         {
-            TestUtils.RunIfWindows(() =>
-            {
-                var connectionBuilder = CreateTestConnectionStringBuilder();
-                Assert.NotNull(connectionBuilder);
 
-                string filePath = string.Empty;
-                string logPath = string.Empty;
+            var connectionBuilder = await CreateTestConnectionStringBuilder();
+            Assert.NotNull(connectionBuilder);
 
-                ReliableConnectionHelper.OpenConnection(
-                    connectionBuilder,
-                    usingConnection: (conn) => 
-                    {
-                        filePath = ReliableConnectionHelper.GetDefaultDatabaseFilePath(conn);
-                        logPath = ReliableConnectionHelper.GetDefaultDatabaseLogPath(conn);
-                    },
-                    catchException: null,
-                    useRetry: false);
+            string filePath = string.Empty;
+            string logPath = string.Empty;
 
-                Assert.False(string.IsNullOrWhiteSpace(filePath));
-                Assert.False(string.IsNullOrWhiteSpace(logPath));
-            });
+            ReliableConnectionHelper.OpenConnection(
+                connectionBuilder,
+                usingConnection: (conn) =>
+                {
+                    filePath = ReliableConnectionHelper.GetDefaultDatabaseFilePath(conn);
+                    logPath = ReliableConnectionHelper.GetDefaultDatabaseLogPath(conn);
+                },
+                catchException: null,
+                useRetry: false);
+
+            Assert.False(string.IsNullOrWhiteSpace(filePath));
+            Assert.False(string.IsNullOrWhiteSpace(logPath));
         }
 
         /// <summary>
         /// Test ReliableConnectionHelper.GetServerVersion()
         /// </summary>
         [Fact]
-        public void TestGetServerVersion()
+        public async Task TestGetServerVersion()
         {
-            TestUtils.RunIfWindows(() => 
+            using (var connection = await CreateTestConnection())
             {
-                using (var connection = CreateTestConnection())
+                Assert.NotNull(connection);
+                connection.Open();
+
+                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+                ReliableConnectionHelper.ServerInfo serverInfo2;
+                using (var connection2 = await CreateTestConnection())
                 {
-                    Assert.NotNull(connection);
-                    connection.Open();
-
-                    ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
-                    ReliableConnectionHelper.ServerInfo serverInfo2;
-                    using (var connection2 = CreateTestConnection())
-                    {
-                        connection2.Open();
-                        serverInfo2 = ReliableConnectionHelper.GetServerVersion(connection);
-                    }
-
-                    Assert.NotNull(serverInfo);
-                    Assert.NotNull(serverInfo2);
-                    Assert.True(serverInfo.ServerMajorVersion != 0);
-                    Assert.True(serverInfo.ServerMajorVersion == serverInfo2.ServerMajorVersion);
-                    Assert.True(serverInfo.ServerMinorVersion == serverInfo2.ServerMinorVersion);
-                    Assert.True(serverInfo.ServerReleaseVersion == serverInfo2.ServerReleaseVersion);
-                    Assert.True(serverInfo.ServerEdition == serverInfo2.ServerEdition);
-                    Assert.True(serverInfo.IsCloud == serverInfo2.IsCloud);
-                    Assert.True(serverInfo.AzureVersion == serverInfo2.AzureVersion);
-                    Assert.True(serverInfo.IsAzureV1 == serverInfo2.IsAzureV1);                    
+                    connection2.Open();
+                    serverInfo2 = ReliableConnectionHelper.GetServerVersion(connection);
                 }
-            });
+
+                Assert.NotNull(serverInfo);
+                Assert.NotNull(serverInfo2);
+                Assert.True(serverInfo.ServerMajorVersion != 0);
+                Assert.True(serverInfo.ServerMajorVersion == serverInfo2.ServerMajorVersion);
+                Assert.True(serverInfo.ServerMinorVersion == serverInfo2.ServerMinorVersion);
+                Assert.True(serverInfo.ServerReleaseVersion == serverInfo2.ServerReleaseVersion);
+                Assert.True(serverInfo.ServerEdition == serverInfo2.ServerEdition);
+                Assert.True(serverInfo.IsCloud == serverInfo2.IsCloud);
+                Assert.True(serverInfo.AzureVersion == serverInfo2.AzureVersion);
+                Assert.True(serverInfo.IsAzureV1 == serverInfo2.IsAzureV1);
+            }
         }
 
         /// <summary>
@@ -334,9 +346,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Tests ReliableConnectionHelper.IsDatabaseReadonly()
         /// </summary>
         [Fact]
-        public void TestIsDatabaseReadonly()
+        public async Task TestIsDatabaseReadonly()
         {
-            var connectionBuilder = CreateTestConnectionStringBuilder();
+            var connectionBuilder = await CreateTestConnectionStringBuilder();
             Assert.NotNull(connectionBuilder);
 
             bool isReadOnly = ReliableConnectionHelper.IsDatabaseReadonly(connectionBuilder);
@@ -350,22 +362,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         public void TestIsDatabaseReadonlyWithNullBuilder()
         {
             Assert.Throws<ArgumentNullException>(() => ReliableConnectionHelper.IsDatabaseReadonly(null));                        
-        }        
+        }
 
         /// <summary>
         /// Verify ANSI_NULL and QUOTED_IDENTIFIER settings can be set and retrieved for a session
         /// </summary>
         [Fact]
-        public void VerifyAnsiNullAndQuotedIdentifierSettingsReplayed()
+        public async Task VerifyAnsiNullAndQuotedIdentifierSettingsReplayed()
         {
-            TestUtils.RunIfWindows(() =>
+            using (ReliableSqlConnection conn = (ReliableSqlConnection) ReliableConnectionHelper.OpenConnection(await CreateTestConnectionStringBuilder(), useRetry: true))
             {
-                using (ReliableSqlConnection conn = (ReliableSqlConnection)ReliableConnectionHelper.OpenConnection(CreateTestConnectionStringBuilder(), useRetry: true))
-                {
-                    VerifySessionSettings(conn, true);
-                    VerifySessionSettings(conn, false);
-                }
-            });
+                VerifySessionSettings(conn, true);
+                VerifySessionSettings(conn, false);
+            }
         }
 
         private void VerifySessionSettings(ReliableSqlConnection conn, bool expectedSessionValue)
@@ -468,73 +477,62 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// ReliableConnectionHelper.IsCloud() should be false for a local server
         /// </summary>
         [Fact]
-        public void TestIsCloudIsFalseForLocalServer()
+        public async Task TestIsCloudIsFalseForLocalServer()
         {
-            TestUtils.RunIfWindows(() => 
+            using (var connection = await CreateTestConnection())
             {
-                using (var connection = CreateTestConnection())
-                {
-                    Assert.NotNull(connection);
+                Assert.NotNull(connection);
 
-                    connection.Open();
-                    Assert.False(ReliableConnectionHelper.IsCloud(connection));
-                }
-            });
+                connection.Open();
+                Assert.False(ReliableConnectionHelper.IsCloud(connection));
+            }
         }
 
         /// <summary>
         /// Tests that ReliableConnectionHelper.OpenConnection() opens a connection if it is closed
         /// </summary>
         [Fact]
-        public void TestOpenConnectionOpensConnection()
+        public async Task TestOpenConnectionOpensConnection()
         {
-            TestUtils.RunIfWindows(() =>
+            using (var connection = await CreateTestConnection())
             {
-                using (var connection = CreateTestConnection())
-                {
-                    Assert.NotNull(connection);
+                Assert.NotNull(connection);
 
-                    Assert.True(connection.State == ConnectionState.Closed);
-                    ReliableConnectionHelper.OpenConnection(connection);
-                    Assert.True(connection.State == ConnectionState.Open);
-                }
-            });
+                Assert.True(connection.State == ConnectionState.Closed);
+                ReliableConnectionHelper.OpenConnection(connection);
+                Assert.True(connection.State == ConnectionState.Open);
+            }
         }
 
         /// <summary>
         /// Tests that ReliableConnectionHelper.ExecuteNonQuery() runs successfully
         /// </summary>
         [Fact]
-        public void TestExecuteNonQuery()
+        public async Task TestExecuteNonQuery()
         {
-            TestUtils.RunIfWindows(() =>
-            {
-                var result = ReliableConnectionHelper.ExecuteNonQuery(
-                    CreateTestConnectionStringBuilder(),
-                    "SET NOCOUNT ON; SET NOCOUNT OFF;",
-                    ReliableConnectionHelper.SetCommandTimeout,
-                    null,
-                    true
+            var result = ReliableConnectionHelper.ExecuteNonQuery(
+                await CreateTestConnectionStringBuilder(),
+                "SET NOCOUNT ON; SET NOCOUNT OFF;",
+                ReliableConnectionHelper.SetCommandTimeout,
+                null,
+                true
                 );
-                Assert.NotNull(result);
-            });
+            Assert.NotNull(result);
         }
 
         /// <summary>
         /// Test that TryGetServerVersion() gets server information
         /// </summary>
         [Fact]
-        public void TestTryGetServerVersion()
+        public async Task TestTryGetServerVersion()
         {
-            TestUtils.RunIfWindows(() =>
-            {
-                ReliableConnectionHelper.ServerInfo info = null;
-                Assert.True(ReliableConnectionHelper.TryGetServerVersion(CreateTestConnectionStringBuilder().ConnectionString, out info));
+            ReliableConnectionHelper.ServerInfo info = null;
+            var connBuilder = await CreateTestConnectionStringBuilder();
+            Assert.True(ReliableConnectionHelper.TryGetServerVersion(connBuilder.ConnectionString, out info));
 
-                Assert.NotNull(info);
-                Assert.NotNull(info.ServerVersion);
-                Assert.NotEmpty(info.ServerVersion);
-            });
+            Assert.NotNull(info);
+            Assert.NotNull(info.ServerVersion);
+            Assert.NotEmpty(info.ServerVersion);
         }
 
         /// <summary>
@@ -683,10 +681,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         }
 
         [Fact]
-        public void ReliableConnectionHelperTest()
+        public async Task ReliableConnectionHelperTest()
         {
-            ScriptFile scriptFile;
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
+            ConnectionInfo connInfo = result.ConnectionInfo;
 
             Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(connInfo.SqlConnection));
 
@@ -699,7 +697,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             
             Assert.NotNull(ReliableConnectionHelper.GetAsSqlConnection(connInfo.SqlConnection));
 
-            ServerInfo info = ReliableConnectionHelper.GetServerVersion(connInfo.SqlConnection);
+            ReliableConnectionHelper.ServerInfo info = ReliableConnectionHelper.GetServerVersion(connInfo.SqlConnection);
             Assert.NotNull(ReliableConnectionHelper.IsVersionGreaterThan2012RTM(info));
         }
 
@@ -726,10 +724,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         }
 
         [Fact]
-        public void InitReliableSqlConnectionTest()
+        public async Task InitReliableSqlConnectionTest()
         {
-            ScriptFile scriptFile;
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
+            ConnectionInfo connInfo = result.ConnectionInfo;
 
             var connection = connInfo.SqlConnection as ReliableSqlConnection;
             var command = new ReliableSqlConnection.ReliableSqlCommand(connection);
@@ -742,10 +740,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             Assert.True(connection.ConnectionTimeout > 0);
             connection.ClearPool();
         }
-        
+
         [Fact]
         public void ThrottlingReasonTests()
-        { 
+        {
             var reason = RetryPolicy.ThrottlingReason.Unknown;
             Assert.NotNull(reason.ThrottlingMode);
             Assert.NotNull(reason.ThrottledResources);
@@ -777,9 +775,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 var detectionStrategy2 = new TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy();
                 Assert.NotNull(detectionStrategy2.InvokeCanRetrySqlException(sqlException));
                 Assert.NotNull(detectionStrategy2.InvokeShouldIgnoreSqlException(sqlException));
-
-                Batch batch = new Batch(Common.StandardQuery, Common.SubsectionDocument, Common.Ordinal, Common.GetFileStreamFactory(null));
-                batch.UnwrapDbException(sqlException);
             }
 
             var unknownCodeReason = RetryPolicy.ThrottlingReason.FromReasonCode(-1);

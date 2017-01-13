@@ -21,14 +21,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I request to execute a valid query with all batches as no op
             var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.NoOpQuery));
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+            var queryParams = new QueryExecuteParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
-                .AddResultValidation(p =>
+                .AddStandardQueryResultValidator()
+                .AddStandardMessageValidator()
+                .AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
                 {
-                    Assert.False(string.IsNullOrWhiteSpace(p.Messages));
-                })
-                .Complete();
+                    // Validate OwnerURI matches
+                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                    Assert.NotNull(p.BatchSummaries);
+                    Assert.Equal(0, p.BatchSummaries.Length);
+                }).Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
@@ -38,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... There should be one active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
-    
+
         [Fact]
         public async Task QueryExecuteSingleBatchNoResultsTest()
         {
@@ -46,11 +50,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I request to execute a valid query with no results
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+            var queryParams = new QueryExecuteParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
+                .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
@@ -71,18 +76,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request to execute a valid query with results
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workspaceService);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
+            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false,
+                workspaceService);
+            var queryParams = new QueryExecuteParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
+                .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
-            
+
             // Then:
             // ... All events should have been called as per their flow validator
             efv.Validate();
@@ -97,15 +104,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request to execute a valid query with one batch and multiple result sets
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
-            var dataset = new[] { Common.StandardTestData, Common.StandardTestData };
+            var dataset = new[] {Common.StandardTestData, Common.StandardTestData};
             var queryService = Common.GetPrimedExecutionService(dataset, true, false, workspaceService);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
+            var queryParams = new QueryExecuteParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
                 .AddStandardResultSetValidator()
+                .AddStandardMessageValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
@@ -124,17 +132,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request a to execute a valid query with multiple batches
             var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery));
-            var dataSet = new[] { Common.StandardTestData };
+            var dataSet = new[] {Common.StandardTestData};
             var queryService = Common.GetPrimedExecutionService(dataSet, true, false, workspaceService);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
+            var queryParams = new QueryExecuteParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddStandardQueryResultValidator()
                 .AddStandardBatchStartValidator()
                 .AddStandardResultSetValidator()
+                .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardResultSetValidator()
+                .AddStandardMessageValidator()
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(2)
                 .Complete();
@@ -149,14 +159,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [Fact]
-        public async void QueryExecuteUnconnectedUriTest()
+        public async Task QueryExecuteUnconnectedUriTest()
         {
             // Given:
             // If:
             // ... I request to execute a query using a file URI that isn't connected
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, false, false, workspaceService);
-            var queryParams = new QueryExecuteParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
+            var queryParams = new QueryExecuteParams {OwnerUri = "notConnected", QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddErrorValidation<string>(Assert.NotEmpty)
@@ -172,20 +182,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [Fact]
-        public async void QueryExecuteInProgressTest()
+        public async Task QueryExecuteInProgressTest()
         {
             // If:
             // ... I request to execute a query
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
+            var queryParams = new QueryExecuteParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.Create<QueryExecuteResult>(null);
             await Common.AwaitExecution(queryService, queryParams, firstRequestContext.Object);
 
             // ... And then I request another query without waiting for the first to complete
-            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;   // Simulate query hasn't finished
+            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false; // Simulate query hasn't finished
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddErrorValidation<string>(Assert.NotEmpty)
                 .Complete();
@@ -200,13 +210,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [Fact]
-        public async void QueryExecuteCompletedTest()
+        public async Task QueryExecuteCompletedTest()
         {
             // If:
             // ... I request to execute a query
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
+            var queryParams = new QueryExecuteParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.Create<QueryExecuteResult>(null);
@@ -240,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request to execute a query with a missing query string
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = null };
+            var queryParams = new QueryExecuteParams {OwnerUri = Common.OwnerUri, QuerySelection = null};
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddErrorValidation<string>(Assert.NotEmpty)
@@ -256,13 +266,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [Fact]
-        public async void QueryExecuteInvalidQueryTest()
+        public async Task QueryExecuteInvalidQueryTest()
         {
             // If:
             // ... I request to execute a query that is invalid
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, true, workspaceService);
-            var queryParams = new QueryExecuteParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
+            var queryParams = new QueryExecuteParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<QueryExecuteResult>()
                 .AddStandardQueryResultValidator()
@@ -270,7 +280,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 .AddStandardBatchCompleteValidator()
                 .AddStandardQueryCompleteValidator(1)
                 .Complete();
-
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
             // Then:
@@ -295,10 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             this EventFlowValidator<QueryExecuteResult> efv)
         {
             // We just need to makes sure we get a result back, there's no params to validate
-            return efv.AddResultValidation(r =>
-            {
-                Assert.Null(r.Messages);
-            });
+            return efv.AddResultValidation(Assert.NotNull);
         }
 
         public static EventFlowValidator<TRequestContext> AddStandardBatchStartValidator<TRequestContext>(
@@ -317,9 +323,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             return efv.AddEventValidation(QueryExecuteBatchCompleteEvent.Type, p =>
             {
-                // Validate OwnerURI and batch summary are returned
+                // Validate OwnerURI and result summary are returned
                 Assert.Equal(Common.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.BatchSummary);
+            });
+        }
+
+        public static EventFlowValidator<TRequestContext> AddStandardMessageValidator<TRequestContext>(
+            this EventFlowValidator<TRequestContext> efv)
+        {
+            return efv.AddEventValidation(QueryExecuteMessageEvent.Type, p =>
+            {
+                // Validate OwnerURI and message are returned
+                Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                Assert.NotNull(p.Message);
             });
         }
 
@@ -328,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             return efv.AddEventValidation(QueryExecuteResultSetCompleteEvent.Type, p =>
             {
-                // Validate OwnerURI and result summary are returned
+                // Validate OwnerURI and summary are returned
                 Assert.Equal(Common.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.ResultSetSummary);
             });
@@ -339,7 +356,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             return efv.AddEventValidation(QueryExecuteCompleteEvent.Type, p =>
             {
-                Assert.True(string.IsNullOrWhiteSpace(p.Message));
                 Assert.Equal(Common.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.BatchSummaries);
                 Assert.Equal(expectedBatches, p.BatchSummaries.Length);

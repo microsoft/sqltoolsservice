@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -13,7 +13,7 @@ using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
-namespace Microsoft.SqlTools.ServiceLayer.TestDriver
+namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
     internal class Program
     {
@@ -21,8 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
         {
             if (args.Length < 1)
             {
-                Console.WriteLine(  "Microsoft.SqlTools.ServiceLayer.TestDriver.exe [tests]" + Environment.NewLine +
-                                    "    [tests] is a space-separated list of tests to run." + Environment.NewLine + 
+                Console.WriteLine("Microsoft.SqlTools.ServiceLayer.TestDriver.exe [tests]" + Environment.NewLine +
+                                    "    [tests] is a space-separated list of tests to run." + Environment.NewLine +
                                     "            They are qualified within the Microsoft.SqlTools.ServiceLayer.TestDriver.Tests namespace" + Environment.NewLine +
                                     "Be sure to set the environment variable " + ServiceTestDriver.ServiceHostEnvironmentVariable + " to the full path of the sqltoolsservice executable.");
                 return 0;
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
             Logger.Initialize("testdriver", LogLevel.Verbose);
 
             int returnCode = 0;
-            Task.Run(async () => 
+            Task.Run(async () =>
             {
                 string testNamespace = "Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.";
                 foreach (var test in args)
@@ -41,8 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver
                         var testName = test.Contains(testNamespace) ? test.Replace(testNamespace, "") : test;
                         bool containsTestName = testName.Contains(".");
                         var className = containsTestName ? testName.Substring(0, testName.LastIndexOf('.')) : testName;
-                        var methodName = containsTestName ?  testName.Substring(testName.LastIndexOf('.') + 1) : null;
-                        
+                        var methodName = containsTestName ? testName.Substring(testName.LastIndexOf('.') + 1) : null;
+
                         var type = Type.GetType(testNamespace + className);
                         if (type == null)
                         {

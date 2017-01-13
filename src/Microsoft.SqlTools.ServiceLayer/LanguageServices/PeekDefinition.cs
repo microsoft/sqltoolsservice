@@ -71,12 +71,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         try
                         {
-                            // Get server object from connection
-                            SqlConnection sqlConn = new SqlConnection(this.serverConnection.ConnectionString);
-                            sqlConn.Open();
-                            ServerConnection peekConnection = new ServerConnection(sqlConn);
-                            Server server = new Server(peekConnection);
-                            this.database = new Database(server, peekConnection.DatabaseName);
+                            // Reuse existing connection 
+                            Server server = new Server(this.serverConnection);
+                            this.database = new Database(server, this.serverConnection.DatabaseName);
                         }
                         catch (ConnectionFailureException cfe)
                         {

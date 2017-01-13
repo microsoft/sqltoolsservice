@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -28,32 +29,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
     /// </summary>
     public class PeekDefinitionTests
     {
-        private const int TaskTimeout = 30000;
-
-        private readonly string testScriptUri = TestObjects.ScriptUri;
-
-        private readonly string testConnectionKey = "testdbcontextkey";
-
-        private Mock<ConnectedBindingQueue> bindingQueue;
-
-        private Mock<WorkspaceService<SqlToolsSettings>> workspaceService;
-
-        private Mock<RequestContext<Location[]>> requestContext;
-
-        private Mock<IBinder> binder;
-
-        private TextDocumentPosition textDocument;
-
         private const string OwnerUri = "testFile1";
 
         /// <summary>
         /// Test get definition for a table object with active connection
         /// </summary>
         [Fact]
-        public void GetValidTableDefinitionTest()
+        public async Task GetValidTableDefinitionTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -72,10 +57,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a invalid table object with active connection
         /// </summary>
         [Fact]
-        public void GetTableDefinitionInvalidObjectTest()
+        public async Task GetTableDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -92,10 +77,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a valid table object with schema and active connection
         /// </summary>
         [Fact]
-        public void GetTableDefinitionWithSchemaTest()
+        public async Task GetTableDefinitionWithSchemaTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -114,9 +99,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test GetDefinition with an unsupported type(schema - dbo). Expect a error result.
         /// </summary>
         [Fact]
-        public void GetUnsupportedDefinitionErrorTest()
+        public async Task GetUnsupportedDefinitionErrorTest()
         {
-            ScriptFile scriptFile;
             TextDocumentPosition textDocument = new TextDocumentPosition
             {
                 TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
@@ -124,17 +108,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
                 {
                     Line = 0,
                     // test for 'dbo'
-                    Character = 18
+                    Character = 15
                 }
             };
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
-            scriptFile.Contents = "alter trigger test_trigger";
+
+            TestConnectionResult connectionResult = await TestObjects.InitLiveConnectionInfo();
+            connectionResult.ScriptFile.Contents = "select * from dbo.func ()";
             var languageService = new LanguageService();
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
 
             // When I call the language service
-            var result = languageService.GetDefinition(textDocument, scriptFile, connInfo);
+            var result = languageService.GetDefinition(textDocument, connectionResult.ScriptFile, connectionResult.ConnectionInfo);
 
             // Then I expect null locations and an error to be reported
             Assert.NotNull(result);
@@ -145,9 +130,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Get Definition for a object with no definition. Expect a error result
         /// </summary>
         [Fact]
-        public void GetDefinitionWithNoResultsFoundError()
+        public async Task GetDefinitionWithNoResultsFoundError()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -170,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test GetDefinition with a forced timeout. Expect a error result.
         /// </summary>
         [Fact]
-        public void GetDefinitionTimeoutTest()
+        public async Task GetDefinitionTimeoutTest()
         {
             // Given a binding queue that will automatically time out
             var languageService = new LanguageService();
@@ -196,7 +181,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             })
             .Returns(() => itemMock.Object);
 
-            ScriptFile scriptFile;
             TextDocumentPosition textDocument = new TextDocumentPosition
             {
                 TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
@@ -206,7 +190,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
                     Character = 20
                 }
             };
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            TestConnectionResult connectionResult = await TestObjects.InitLiveConnectionInfo();
+            ScriptFile scriptFile = connectionResult.ScriptFile;
+            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
             scriptFile.Contents = "select * from dbo.func ()";
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
@@ -226,9 +212,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a view object with active connection
         /// </summary>
         [Fact]
-        public void GetValidViewDefinitionTest()
+        public async Task GetValidViewDefinitionTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -245,10 +231,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for an invalid view object with no schema name and with active connection
         /// </summary>
         [Fact]
-        public void GetViewDefinitionInvalidObjectTest()
+        public async Task GetViewDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -264,10 +250,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a stored procedure object with active connection
         /// </summary>
         [Fact]
-        public void GetStoredProcedureDefinitionTest()
+        public async Task GetStoredProcedureDefinitionTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -285,10 +271,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a stored procedure object that does not exist with active connection
         /// </summary>
         [Fact]
-        public void GetStoredProcedureDefinitionFailureTest()
+        public async Task GetStoredProcedureDefinitionFailureTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -304,10 +290,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a stored procedure object with active connection and no schema
         /// </summary>
         [Fact]
-        public void GetStoredProcedureDefinitionWithoutSchemaTest()
+        public async Task GetStoredProcedureDefinitionWithoutSchemaTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -324,10 +310,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a scalar valued function object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetScalarValuedFunctionDefinitionWithSchemaNameSuccessTest()
+        public async Task GetScalarValuedFunctionDefinitionWithSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -344,10 +330,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a table valued function object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetTableValuedFunctionDefinitionWithSchemaNameSuccessTest()
+        public async Task GetTableValuedFunctionDefinitionWithSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -364,10 +350,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a scalar valued function object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetScalarValuedFunctionDefinitionWithNonExistantFailureTest()
+        public async Task GetScalarValuedFunctionDefinitionWithNonExistantFailureTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -383,10 +369,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a table valued function object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetTableValuedFunctionDefinitionWithNonExistantObjectFailureTest()
+        public async Task GetTableValuedFunctionDefinitionWithNonExistantObjectFailureTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -402,10 +388,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a scalar valued function object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetScalarValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetScalarValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -422,10 +408,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a table valued function object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetTableValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetTableValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -443,10 +429,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a user defined data type object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedDataTypeDefinitionWithSchemaNameSuccessTest()
+        public async Task GetUserDefinedDataTypeDefinitionWithSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -463,10 +449,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a user defined data type object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedDataTypeDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetUserDefinedDataTypeDefinitionWithoutSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -483,10 +469,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a user defined data type object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedDataTypeDefinitionWithNonExistantFailureTest()
+        public async Task GetUserDefinedDataTypeDefinitionWithNonExistantFailureTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -502,10 +488,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a user defined table type object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedTableTypeDefinitionWithSchemaNameSuccessTest()
+        public async Task GetUserDefinedTableTypeDefinitionWithSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -522,10 +508,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a user defined table type object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedTableTypeDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetUserDefinedTableTypeDefinitionWithoutSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -542,10 +528,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a user defined table type object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedTableTypeDefinitionWithNonExistantFailureTest()
+        public async Task GetUserDefinedTableTypeDefinitionWithNonExistantFailureTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -561,10 +547,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a synonym object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetSynonymeDefinitionWithSchemaNameSuccessTest()
+        public async Task GetSynonymeDefinitionWithSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -582,10 +568,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a Synonym object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetSynonymDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetSynonymDefinitionWithoutSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -602,10 +588,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a Synonym object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetSynonymDefinitionWithNonExistantFailureTest()
+        public async Task GetSynonymDefinitionWithNonExistantFailureTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -622,9 +608,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Expect a non-null result with location
         /// </summary>
         [Fact]
-        public void GetDefinitionUsingDeclarationTypeWithValidObjectTest()
+        public async Task GetDefinitionUsingDeclarationTypeWithValidObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -644,9 +630,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Expect a non-null result with location
         /// </summary>
         [Fact]
-        public void GetDefinitionUsingDeclarationTypeWithNonexistentObjectTest()
+        public async Task GetDefinitionUsingDeclarationTypeWithNonexistentObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -663,9 +649,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Expect a non-null result with location
         /// </summary>
         [Fact]
-        public void GetDefinitionUsingQuickInfoTextWithValidObjectTest()
+        public async Task GetDefinitionUsingQuickInfoTextWithValidObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
@@ -686,9 +672,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Expect a non-null result with location
         /// </summary>
         [Fact]
-        public void GetDefinitionUsingQuickInfoTextWithNonexistentObjectTest()
+        public async Task GetDefinitionUsingQuickInfoTextWithNonexistentObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);

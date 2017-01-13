@@ -93,54 +93,73 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
 
         public async Task HandleReadCredentialRequest(Credential credential, RequestContext<Credential> requestContext)
         {
-            Func<Credential> doRead = () =>
+            Func<Task<Credential>> doRead = () =>
             {
-                return ReadCredential(credential);
+                return ReadCredentialAsync(credential);
             };
             await HandleRequest(doRead, requestContext, "HandleReadCredentialRequest");
         }
 
 
-        private Credential ReadCredential(Credential credential)
+        public async Task<Credential> ReadCredentialAsync(Credential credential)
         {
-            Credential.ValidateForLookup(credential);
-
-            Credential result = Credential.Copy(credential);
-            string password;
-            if (credStore.TryGetPassword(credential.CredentialId, out password))
+            return await Task.Factory.StartNew(() =>
             {
-                result.Password = password;
-            }
-            return result;
+                Credential.ValidateForLookup(credential);
+
+                Credential result = Credential.Copy(credential);
+                string password;
+                if (credStore.TryGetPassword(credential.CredentialId, out password))
+                {
+                    result.Password = password;
+                }
+                return result;
+            });
         }
 
         public async Task HandleSaveCredentialRequest(Credential credential, RequestContext<bool> requestContext)
         {
-            Func<bool> doSave = () =>
+            Func<Task<bool>> doSave = () =>
             {
-                Credential.ValidateForSave(credential);
-                return credStore.Save(credential);
+                return SaveCredentialAsync(credential);
             };
             await HandleRequest(doSave, requestContext, "HandleSaveCredentialRequest");
         }
 
+        private async Task<bool> SaveCredentialAsync(Credential credential)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                Credential.ValidateForSave(credential);
+                return credStore.Save(credential);
+            });
+        }
+
         public async Task HandleDeleteCredentialRequest(Credential credential, RequestContext<bool> requestContext)
         {
-            Func<bool> doDelete = () =>
+            Func<Task<bool>> doDelete = () =>
             {
-                Credential.ValidateForLookup(credential);
-                return credStore.DeletePassword(credential.CredentialId);
+                return DeletePasswordAsync(credential);
             };
             await HandleRequest(doDelete, requestContext, "HandleDeleteCredentialRequest");
         }
 
-        private async Task HandleRequest<T>(Func<T> handler, RequestContext<T> requestContext, string requestType)
+        private async Task<bool> DeletePasswordAsync(Credential credential)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                Credential.ValidateForLookup(credential);
+                return credStore.DeletePassword(credential.CredentialId);
+            });
+        }
+
+        private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
         {
             Logger.Write(LogLevel.Verbose, requestType);
 
             try
             {
-                T result = handler();
+                T result = await handler();
                 await requestContext.SendResult(result);
             }
             catch (Exception ex)
