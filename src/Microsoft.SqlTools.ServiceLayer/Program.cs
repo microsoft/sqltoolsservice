@@ -9,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
+using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer
@@ -52,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             ConnectionService.Instance.InitializeService(serviceHost);
             CredentialService.Instance.InitializeService(serviceHost);
             QueryExecutionService.Instance.InitializeService(serviceHost);
+            EditDataService.Instance.InitializeService(serviceHost);
 
             serviceHost.Initialize();
             serviceHost.WaitForExit();

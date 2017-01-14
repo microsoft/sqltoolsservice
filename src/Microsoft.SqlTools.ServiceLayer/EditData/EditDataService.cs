@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // @TODO: Logic for determining if the query is valid for an edit data session
 
             // Create the session and add it to the sessions list
-            Session session = new Session();
+            Session session = new Session(query);
             if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
             {
                 await requestContext.SendError("Failed to create edit session, session already exists.");
