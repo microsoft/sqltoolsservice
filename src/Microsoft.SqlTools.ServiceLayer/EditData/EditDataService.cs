@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
@@ -58,6 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
+            serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest);
 
             // Register handler for shutdown event
@@ -69,6 +71,25 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         #region Request Handlers
+
+        public async Task HandleDisposeRequest(EditDisposeParams disposeParams,
+            RequestContext<EditDisposeResult> requestContext)
+        {
+            // Sanity check the owner URI
+            Validate.IsNotNullOrWhitespaceString(nameof(disposeParams.OwnerUri), disposeParams.OwnerUri);
+
+            // Attempt to remove the session
+            Session session;
+            if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out session))
+            {
+                // @TODO: Move to constants file
+                await requestContext.SendError("Failed to dispose session, session does not exist.");
+                return;
+            }
+
+            // Everything was successful, return success
+            await requestContext.SendResult(new EditDisposeResult());
+        }
 
         public async Task HandleInitializeRequest(EditInitializeParams initParams,
             RequestContext<EditInitializeResult> requestContext)
@@ -87,6 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             Session session = new Session(query);
             if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
             {
+                // @TODO: Move to constants file
                 await requestContext.SendError("Failed to create edit session, session already exists.");
                 return;
             }
