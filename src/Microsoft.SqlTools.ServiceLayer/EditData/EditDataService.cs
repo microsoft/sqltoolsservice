@@ -59,8 +59,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
+            serviceHost.SetRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest);
+            serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest);
             serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest);
+            serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest);
+            serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -71,6 +75,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         #region Request Handlers
+
+        public async Task HandleCreateRowRequest(EditCreateRowParams createParams,
+            RequestContext<EditCreateRowResult> requestContext)
+        {
+            
+        }
+
+        public async Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
+            RequestContext<EditDeleteRowResult> requestContext)
+        {
+
+        }
 
         public async Task HandleDisposeRequest(EditDisposeParams disposeParams,
             RequestContext<EditDisposeResult> requestContext)
@@ -120,6 +136,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Everything was successful, return success
             await requestContext.SendResult(new EditInitializeResult());
+        }
+
+        public async Task HandleRevertRowRequest(EditRevertRowParams revertParams,
+            RequestContext<EditRevertRowResult> requestContext)
+        {
+            
+        }
+
+        public async Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
+            RequestContext<EditUpdateCellResult> requestContext)
+        {
+            
         }
 
         #endregion
