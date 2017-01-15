@@ -102,15 +102,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 return;
             }
 
-            // @TODO: Logic for determining if the query is valid for an edit data session
-
-            // Create the session and add it to the sessions list
-            Session session = new Session(query);
-            if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
+            try
             {
-                // @TODO: Move to constants file
-                await requestContext.SendError("Failed to create edit session, session already exists.");
-                return;
+                // Create the session and add it to the sessions list
+                Session session = new Session(query);
+                if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
+                {
+                    // @TODO: Move to constants file
+                    await requestContext.SendError("Failed to create edit session, session already exists.");
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
             }
 
             // Everything was successful, return success

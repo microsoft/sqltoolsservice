@@ -23,5 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
             throw new NotImplementedException();
         }
+
+        public override string UpdateCell(int columnId, string newValue)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -16,5 +16,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// This method should not be called on 
+        /// </summary>
+        /// <param name="columnId"></param>
+        /// <param name="newValue"></param>
+        /// <returns></returns>
+        public override string UpdateCell(int columnId, string newValue)
+        {
+            // @TODO: Move to constants file
+            throw new InvalidOperationException("A delete is pending for this row, a cell update cannot be applied.");
+        }
     }
 }
