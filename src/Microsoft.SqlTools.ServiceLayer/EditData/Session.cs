@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -114,6 +115,37 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // @TODO Move to constants file
                 throw new ArgumentOutOfRangeException(nameof(rowId), "Given row ID does not have pending updated");
             }
+        }
+
+        public string ScriptEdits(string outputPath)
+        {
+            // Validate the output path
+            if (outputPath == null)
+            {
+                // If output path isn't provided, we'll use a temporary location
+                outputPath = Path.GetTempFileName();
+            }
+            else if (outputPath.Trim() == string.Empty)
+            {
+                // If output path is empty, that's an error
+                // @TODO: Move to constants file
+                throw new ArgumentNullException(nameof(outputPath), "An output filename must be provided");
+            }
+
+            // Open a handle to the output file
+            using (FileStream outputStream = File.OpenWrite(outputPath))
+            using (TextWriter outputWriter = new StreamWriter(outputStream))
+            {
+
+                // Convert each update in the cache into an insert/update/delete statement
+                foreach (RowUpdateBase rowEdit in updateCache.Values)
+                {
+                    outputWriter.WriteLine(rowEdit.GetScript());
+                }
+            }
+
+            // Return the location of the generated script
+            return outputPath;
         }
 
         /// <summary>

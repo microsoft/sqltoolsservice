@@ -79,13 +79,38 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public async Task HandleCreateRowRequest(EditCreateRowParams createParams,
             RequestContext<EditCreateRowResult> requestContext)
         {
-            
+            Session session = GetActiveSessionOrThrow(createParams.OwnerUri);
+            try
+            {
+                // Create the row and get send the ID of the row back
+                long newRowId = session.CreateRow();
+                EditCreateRowResult createResult = new EditCreateRowResult
+                {
+                    NewRowId = newRowId
+                };
+                await requestContext.SendResult(createResult);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         public async Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
             RequestContext<EditDeleteRowResult> requestContext)
         {
-
+            Session session = GetActiveSessionOrThrow(deleteParams.OwnerUri);
+            try
+            {
+                // Add the delete row to the edit cache
+                session.DeleteRow(deleteParams.RowId);
+                await requestContext.SendResult(new EditDeleteRowResult());
+            }
+            catch (Exception e)
+            {
+                // Send back the error
+                await requestContext.SendError(e.Message);
+            }
         }
 
         public async Task HandleDisposeRequest(EditDisposeParams disposeParams,
@@ -141,13 +166,58 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public async Task HandleRevertRowRequest(EditRevertRowParams revertParams,
             RequestContext<EditRevertRowResult> requestContext)
         {
-            
+            Session session = GetActiveSessionOrThrow(revertParams.OwnerUri);
+            try
+            {
+                session.RevertRow(revertParams.RowId);
+                await requestContext.SendResult(new EditRevertRowResult());
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         public async Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
             RequestContext<EditUpdateCellResult> requestContext)
         {
-            
+            Session session = GetActiveSessionOrThrow(updateParams.OwnerUri);
+            try
+            {
+                // @TODO: Figure out how to send back corrections
+                session.UpdateCell(updateParams.RowId, updateParams.ColumnId, updateParams.NewValue);
+                await requestContext.SendResult(new EditUpdateCellResult());
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
+        }
+
+        #endregion
+
+        #region Private Helpers
+
+        /// <summary>
+        /// Returns the session with the given owner URI or throws if it can't be found
+        /// </summary>
+        /// <exception cref="Exception">If the edit session doesn't exist</exception>
+        /// <param name="ownerUri">Owner URI for the edit session</param>
+        /// <returns>The edit session that corresponds to the owner URI</returns>
+        private Session GetActiveSessionOrThrow(string ownerUri)
+        {
+            // Sanity check the owner URI is provided
+            Validate.IsNotNullOrWhitespaceString(nameof(ownerUri), ownerUri);
+
+            // Attempt to get the session, throw if unable
+            Session session;
+            if (!ActiveSessions.TryGetValue(ownerUri, out session))
+            {
+                // @TODO: Move to constants file
+                throw new Exception("Could not find an edit session with the given owner URI");
+            }
+
+            return session;
         }
 
         #endregion
