@@ -65,22 +65,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// ON keyword
         /// </summary>
-        private const string on = "ON";
+        private const string On = "ON";
 
         /// <summary>
         /// OFF keyword
         /// </summary>
-        private const string off = "OFF";
+        private const string Off = "OFF";
 
         /// <summary>
         /// showplan_xml statement
         /// </summary>
-		private const string setShowPlanXml = "SET SHOWPLAN_XML {0}";
+        private const string SetShowPlanXml = "SET SHOWPLAN_XML {0}";
 
         /// <summary>
         /// statistics xml statement
         /// </summary>
-        private const string setStatisticsXml = "SET STATISTICS XML {0}";
+        private const string SetStatisticsXml = "SET STATISTICS XML {0}";
 
         #endregion
 
@@ -135,13 +135,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (querySettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
                 {
                     // Enable set showplan xml
-                    addBatch(string.Format(setShowPlanXml, on), BeforeBatches, streamOutputFactory);
-                    addBatch(string.Format(setShowPlanXml, off), AfterBatches, streamOutputFactory);
+                    addBatch(string.Format(SetShowPlanXml, On), BeforeBatches, streamOutputFactory);
+                    addBatch(string.Format(SetShowPlanXml, Off), AfterBatches, streamOutputFactory);
                 }
                 else if (querySettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
                 {
-                    addBatch(string.Format(setStatisticsXml, on), BeforeBatches, streamOutputFactory);
-                    addBatch(string.Format(setStatisticsXml, off), AfterBatches, streamOutputFactory);
+                    addBatch(string.Format(SetStatisticsXml, On), BeforeBatches, streamOutputFactory);
+                    addBatch(string.Format(SetStatisticsXml, Off), AfterBatches, streamOutputFactory);
                 }
             }
         }

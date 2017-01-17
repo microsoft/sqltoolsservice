@@ -22,8 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         private ActionFlags flags; 
-        private bool none;
-        private bool expectYukonXmlShowPlan;
 
         #endregion
 
@@ -41,11 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public bool None 
         { 
-            get { return none; } 
+            get { return flags == ActionFlags.None; } 
             set 
             {
                 flags = ActionFlags.None;
-                update();
             }
         }
 
@@ -54,11 +51,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public bool ExpectYukonXMLShowPlan 
         {
-            get { return expectYukonXmlShowPlan; }
+            get { return flags.HasFlag(ActionFlags.ExpectYukonXmlShowPlan); }
             set 
-            { 
-                flags |= ActionFlags.ExpectYukonXmlShowPlan;
-                update();
+            {
+                if (value)
+                {
+                    // OR flags with value to apply 
+                    flags |= ActionFlags.ExpectYukonXmlShowPlan;
+                } 
+                else
+                {
+                    // AND flags with the inverse of the value we want to remove
+                    flags &= ~(ActionFlags.ExpectYukonXmlShowPlan);
+                }
             }
         }
 
@@ -71,19 +76,5 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
         
         #endregion
-
-        #region Private Helper Functions 
-
-        /// <summary>
-        /// Helper function to update internal state base on flags
-        /// </summary>
-        private void update()
-        {
-            none = flags.HasFlag(ActionFlags.None);
-            expectYukonXmlShowPlan = flags.HasFlag(ActionFlags.ExpectYukonXmlShowPlan);
-        }
-
-        #endregion
-
     };
 }
