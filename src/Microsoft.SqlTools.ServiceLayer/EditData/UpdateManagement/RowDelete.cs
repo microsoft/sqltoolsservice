@@ -4,14 +4,16 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
-    public sealed class RowDelete : RowUpdateBase
+    public sealed class RowDelete : RowEditBase
     {
+        public RowDelete(long rowId, ResultSet associatedResultSet) : base(rowId, associatedResultSet)
+        {
+        }
+
         public override string GetScript()
         {
             throw new NotImplementedException();
@@ -23,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="columnId"></param>
         /// <param name="newValue"></param>
         /// <returns></returns>
-        public override string UpdateCell(int columnId, string newValue)
+        public override string SetCell(int columnId, string newValue)
         {
             // @TODO: Move to constants file
             throw new InvalidOperationException("A delete is pending for this row, a cell update cannot be applied.");
