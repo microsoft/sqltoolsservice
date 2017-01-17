@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -19,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         #region Member Variables
 
         private long nextRowId;
-        private readonly ConcurrentDictionary<long, RowUpdateBase> updateCache;
+        private readonly ConcurrentDictionary<long, RowEditBase> editCache;
         private readonly ResultSet associatedResultSet;
 
         #endregion
@@ -49,10 +48,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Setup the internal state
-            AssociatedQuery = query;
             associatedResultSet = queryResultSets[0];
             nextRowId = associatedResultSet.RowCount;
-            updateCache = new List<RowUpdateBase>();
+            editCache = new ConcurrentDictionary<long, RowEditBase>();
         }
 
         #region Public Methods
@@ -68,8 +66,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             long newRowId = nextRowId++;
 
             // Create a new row create update and add to the update cache
-            RowCreate newRow = new RowCreate();
-            if (!updateCache.TryAdd(newRowId, newRow))
+            RowCreate newRow = new RowCreate(newRowId, associatedResultSet);
+            if (!editCache.TryAdd(newRowId, newRow))
             {
                 // Revert the next row ID
                 nextRowId--;
@@ -90,9 +88,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="rowId">The internal ID of the row to delete</param>
         public void DeleteRow(long rowId)
         {
+            // Sanity check the row ID
+            if (rowId >= nextRowId)
+            {
+                // @TODO: Move to constants file
+                throw new ArgumentOutOfRangeException(nameof(rowId), "Give row ID is outside the range of rows in the cache");
+            }
+
             // Create a new row delete update and add to cache
-            RowDelete deleteRow = new RowDelete();
-            if (!updateCache.TryAdd(rowId, deleteRow))
+            RowDelete deleteRow = new RowDelete(rowId, associatedResultSet);
+            if (!editCache.TryAdd(rowId, deleteRow))
             {
                 // @TODO: Move to constants file
                 throw new InvalidOperationException("An update is already pending for this row and must be reverted first.");
@@ -109,8 +114,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void RevertRow(long rowId)
         {
             // Attempt to remove the row with the given ID
-            RowUpdateBase removedUpdate;
-            if (!updateCache.TryRemove(rowId, out removedUpdate))
+            RowEditBase removedEdit;
+            if (!editCache.TryRemove(rowId, out removedEdit))
             {
                 // @TODO Move to constants file
                 throw new ArgumentOutOfRangeException(nameof(rowId), "Given row ID does not have pending updated");
@@ -138,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
 
                 // Convert each update in the cache into an insert/update/delete statement
-                foreach (RowUpdateBase rowEdit in updateCache.Values)
+                foreach (RowEditBase rowEdit in editCache.Values)
                 {
                     outputWriter.WriteLine(rowEdit.GetScript());
                 }
@@ -171,11 +176,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Attempt to get the row that is being edited, create a new update object if one
             // doesn't exist
-            RowUpdateBase updateRow;
-            if (!updateCache.TryGetValue(rowId, out updateRow))
+            RowEditBase editRow;
+            if (!editCache.TryGetValue(rowId, out editRow))
             {
-                updateRow = new RowUpdate();
-                if (!updateCache.TryAdd(rowId, updateRow))
+                editRow = new RowUpdate(rowId, associatedResultSet);
+                if (!editCache.TryAdd(rowId, editRow))
                 {
                     // @TODO: Move to constants file
                     throw new Exception("Failed to add row update to cache");
@@ -183,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Pass the call to the row update
-            updateRow.UpdateCell(columnId, newValue);
+            editRow.SetCell(columnId, newValue);
         }
 
         #endregion

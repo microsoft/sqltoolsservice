@@ -5,16 +5,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
-    public sealed class RowUpdate : RowUpdateBase
+    public sealed class RowUpdate : RowEditBase
     {
         private readonly List<CellUpdate> cellUpdates;
 
-        public RowUpdate()
+        public RowUpdate(long rowId, ResultSet associatedResultSet) : base(rowId, associatedResultSet)
         {
             cellUpdates = new List<CellUpdate>();
         }
@@ -24,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             throw new NotImplementedException();
         }
 
-        public override string UpdateCell(int columnId, string newValue)
+        public override string SetCell(int columnId, string newValue)
         {
             throw new NotImplementedException();
         }
