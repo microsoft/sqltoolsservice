@@ -39,6 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Setup the internal state
             streamWriter = new StreamWriter(stream);
             jsonWriter = new JsonTextWriter(streamWriter);
+            jsonWriter.Formatting = Formatting.Indented;
 
             // Write the header of the file
             jsonWriter.WriteStartArray();
