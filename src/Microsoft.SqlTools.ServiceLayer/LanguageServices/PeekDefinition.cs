@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             sqlScriptGetters.Add(type, scriptGetter);
             sqlObjectTypes.Add(type, typeName);
-            if (!String.IsNullOrEmpty(quickInfoType))
+            if (!string.IsNullOrEmpty(quickInfoType))
             {
                 sqlScriptGettersFromQuickInfo.Add(quickInfoType.ToLowerInvariant(), scriptGetter);
                 sqlObjectTypesFromQuickInfo.Add(quickInfoType.ToLowerInvariant(), typeName);
@@ -285,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>Schema name</returns>
         internal string GetSchemaFromDatabaseQualifiedName(string fullObjectName, string objectName)
         {
-            if(!String.IsNullOrEmpty(fullObjectName))
+            if(!string.IsNullOrEmpty(fullObjectName))
             {
                 string[] tokens = fullObjectName.Split('.');
                 for (int i = tokens.Length - 1; i > 0; i--)
@@ -364,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal string GetFullObjectNameFromQuickInfo(string quickInfoText, string tokenText)
         {
-            if (String.IsNullOrEmpty(quickInfoText) || String.IsNullOrEmpty(tokenText))
+            if (string.IsNullOrEmpty(quickInfoText) || string.IsNullOrEmpty(tokenText))
             {
                 return null;
             }
@@ -382,7 +382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal string GetTokenTypeFromQuickInfo(string quickInfoText, string tokenText)
         {
-            if (String.IsNullOrEmpty(quickInfoText) || String.IsNullOrEmpty(tokenText))
+            if (string.IsNullOrEmpty(quickInfoText) || string.IsNullOrEmpty(tokenText))
             {
                 return null;
             }
