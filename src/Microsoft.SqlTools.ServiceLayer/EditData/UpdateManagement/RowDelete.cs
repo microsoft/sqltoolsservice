@@ -8,6 +8,9 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
+    /// <summary>
+    /// Represents a row that should be deleted. This will generate a DELETE statement
+    /// </summary>
     public sealed class RowDelete : RowEditBase
     {
         public RowDelete(long rowId, ResultSet associatedResultSet) : base(rowId, associatedResultSet)

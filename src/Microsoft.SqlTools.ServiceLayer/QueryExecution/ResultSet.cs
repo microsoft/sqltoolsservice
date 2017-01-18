@@ -174,6 +174,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Public Methods
 
+        public IList<DbCellValue> GetRow(long rowId)
+        {
+            // Sanity check to make sure that results have been read beforehand
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
+            }
+
+            // Sanity check to make sure that the row exists
+            if (rowId >= RowCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.QueryServiceResultSetStartRowOutOfRange);
+            }
+
+            using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+            {
+                return fileStreamReader.ReadRow(fileOffsets[rowId], Columns);
+            }
+        }
+
         /// <summary>
         /// Generates a subset of the rows from the result set
         /// </summary>

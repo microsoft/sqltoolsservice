@@ -16,10 +16,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// </summary>
     public class DbColumnWrapper : DbColumn
     {
+        #region Constants
+
         /// <summary>
         /// All types supported by the server, stored as a hash set to provide O(1) lookup
         /// </summary>
-        internal static readonly HashSet<string> AllServerDataTypes = new HashSet<string>
+        private static readonly HashSet<string> AllServerDataTypes = new HashSet<string>
         {
             "bigint",
             "binary",
@@ -51,6 +53,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             "datetimeoffset",
             "datetime2"
         };
+
+        private const string SqlXmlDataTypeName = "xml";
+        private const string DbTypeXmlDataTypeName = "DBTYPE_XML";
+        private const string UnknownTypeName = "unknown";
+
+        #endregion
 
         /// <summary>
         /// Constructor for a DbColumnWrapper
@@ -215,6 +223,38 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Whether or not the column is JSON
         /// </summary>
         public bool IsJson { get; set; }
+
+        /// <summary>
+        /// Whether or not the column is an XML Reader type.
+        /// </summary>
+        /// <remarks>
+        /// Logic taken from SSDT determination of whether a column is a SQL XML type. It may not
+        /// be possible to have XML readers from .NET Core SqlClient.
+        /// </remarks>
+        public bool IsSqlXmlType => DataTypeName.Equals(SqlXmlDataTypeName, StringComparison.OrdinalIgnoreCase) ||
+                                    DataTypeName.Equals(DbTypeXmlDataTypeName, StringComparison.OrdinalIgnoreCase) ||
+                                    DataType == typeof(System.Xml.XmlReader);
+
+        /// <summary>
+        /// Whether or not the column is an unknown type
+        /// </summary>
+        /// <remarks>
+        /// Logic taken from SSDT determination of unknown columns. It may not even be possible to
+        /// have "unknown" column types with the .NET Core SqlClient.
+        /// </remarks>
+        public bool IsUnknownType => DataType == typeof(object) &&
+                                     DataTypeName.Equals(UnknownTypeName, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Whether or not the column can be updated, based on whether it's an auto increment
+        /// column, is an XML reader column, and if it's read only.
+        /// </summary>
+        /// <remarks>
+        /// Logic taken from SSDT determination of updatable columns
+        /// </remarks>
+        public bool IsUpdatable => IsAutoIncrement.HasValue && !IsAutoIncrement.Value && 
+                                   IsReadOnly.HasValue && !IsReadOnly.Value && 
+                                   !IsSqlXmlType;
 
         #endregion
 

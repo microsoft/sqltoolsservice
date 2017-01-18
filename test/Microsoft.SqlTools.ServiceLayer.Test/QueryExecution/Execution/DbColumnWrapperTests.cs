@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         /// <summary>
         /// Test DbColumn derived class
         /// </summary>
-        class TestColumn : DbColumn
+        private class TestColumn : DbColumn
         {
             public TestColumn(
                 string dataTypeName = null, 
@@ -48,15 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         /// <summary>
-        /// Basic data type and properites test
+        /// Basic data type and properties test
         /// </summary>
         [Fact]
         public void DataTypeAndPropertiesTest()
-        {
-            // check that data types array contains items
-            var serverDataTypes = DbColumnWrapper.AllServerDataTypes;
-            Assert.True(serverDataTypes.Count > 0);
-            
+        {          
             // check default constructor doesn't throw
             Assert.NotNull(new DbColumnWrapper());
 
