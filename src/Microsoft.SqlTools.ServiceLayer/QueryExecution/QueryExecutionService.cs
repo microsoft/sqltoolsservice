@@ -126,6 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
+            serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -200,6 +201,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Message = aoore.Message
                 });
+            }
+            catch (Exception e)
+            {
+                // This was unexpected, so send back as error
+                await requestContext.SendError(e.Message);
+            }
+        }
+
+         /// <summary>
+        /// Handles a request to get an execution plan
+        /// </summary>
+        public async Task HandleExecutionPlanRequest(QueryExecutionPlanParams planParams,
+            RequestContext<QueryExecutionPlanResult> requestContext)
+        {
+            try
+            {
+                // Attempt to load the query
+                Query query;
+                if (!ActiveQueries.TryGetValue(planParams.OwnerUri, out query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                // Retrieve the requested execution plan and return it
+                var result = new QueryExecutionPlanResult
+                {
+                    ExecutionPlan = await query.GetExecutionPlan(planParams.BatchIndex, planParams.ResultSetIndex)
+                };
+                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {
@@ -334,6 +365,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Retrieve the current settings for executing the query with
                 QueryExecutionSettings settings = WorkspaceService.CurrentSettings.QueryExecutionSettings;
 
+                // Apply execution parameter settings 
+                settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
+
                 // Get query text from the workspace.
                 ScriptFile queryFile = WorkspaceService.Workspace.GetFile(executeParams.OwnerUri);
 
@@ -425,6 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
+
                 await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
             };
             query.BatchStarted += batchStartCallback;
@@ -436,6 +471,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummary = b.Summary,
                     OwnerUri = executeParams.OwnerUri
                 };
+
                 await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCompleteCallback;

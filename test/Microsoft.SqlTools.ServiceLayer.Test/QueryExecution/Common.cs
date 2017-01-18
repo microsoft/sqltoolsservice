@@ -72,10 +72,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return batch;
         }
 
+        public static Batch GetExecutedBatchWithExecutionPlan()
+        {
+            Batch batch = new Batch(StandardQuery, SubsectionDocument, 1, GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            batch.Execute(CreateTestConnection(new[] {GetExecutionPlanTestData()}, false), CancellationToken.None).Wait();
+            return batch;
+        }
+
         public static Query GetBasicExecutedQuery()
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
             Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            query.Execute();
+            query.ExecutionTask.Wait();
+            return query;
+        }
+
+        public static Query GetBasicExecutedQuery(QueryExecutionSettings querySettings)
+        {
+            ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
+            Query query = new Query(StandardQuery, ci, querySettings, GetFileStreamFactory(new Dictionary<string, byte[]>()));
             query.Execute();
             query.ExecutionTask.Wait();
             return query;
@@ -97,6 +113,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return output;
         }
 
+
+        public static Dictionary<string, string>[] GetExecutionPlanTestData()
+        {
+            Dictionary<string, string>[] output = new Dictionary<string, string>[1];
+            int col = 0;
+            int row = 0;
+            Dictionary<string, string> rowDictionary = new Dictionary<string, string>();
+            rowDictionary.Add(string.Format("Microsoft SQL Server 2005 XML Showplan", col), string.Format("Execution Plan", col, row));
+            output[row] = rowDictionary;
+            
+            return output;
+        }
+      
         public static Dictionary<string, string>[][] GetTestDataSet(int dataSets)
         {
             List<Dictionary<string, string>[]> output = new List<Dictionary<string, string>[]>();

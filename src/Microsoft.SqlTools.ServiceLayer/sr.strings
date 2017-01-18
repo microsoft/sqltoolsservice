@@ -149,6 +149,8 @@ QueryServiceResultSetRowCountOutOfRange = Row count must be a positive integer
 
 QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for result set
 
+QueryServiceExecutionPlanNotFound = Could not retrieve an execution plan from the result set 
+
 ############################################################################
 # Language Service
 

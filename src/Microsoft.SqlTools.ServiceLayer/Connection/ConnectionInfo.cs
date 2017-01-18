@@ -60,5 +60,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Returns true is the db connection is to a SQL db
         /// </summary>
         public bool IsAzure { get; set; }
+
+        /// <summary>
+        /// Returns true if the sql connection is to a DW instance
+        /// </summary>
+        public bool IsSqlDW { get; set; }
+
+        /// <summary>
+        /// Returns the major version number of the db we are connected to 
+        /// </summary>
+        public int MajorVersion { get; set; }
+
     }
 }
