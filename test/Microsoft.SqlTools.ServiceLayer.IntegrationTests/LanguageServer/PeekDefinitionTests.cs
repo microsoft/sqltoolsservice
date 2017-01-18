@@ -350,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a scalar valued function object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public async Task GetScalarValuedFunctionDefinitionWithNonExistantFailureTest()
+        public async Task GetScalarValuedFunctionDefinitionWithNonExistentFailureTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -369,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a table valued function object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public async Task GetTableValuedFunctionDefinitionWithNonExistantObjectFailureTest()
+        public async Task GetTableValuedFunctionDefinitionWithNonExistentObjectFailureTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -469,7 +469,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a user defined data type object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public async Task GetUserDefinedDataTypeDefinitionWithNonExistantFailureTest()
+        public async Task GetUserDefinedDataTypeDefinitionWithNonExistentFailureTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -528,7 +528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a user defined table type object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public async Task GetUserDefinedTableTypeDefinitionWithNonExistantFailureTest()
+        public async Task GetUserDefinedTableTypeDefinitionWithNonExistentFailureTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
@@ -588,7 +588,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a Synonym object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public async Task GetSynonymDefinitionWithNonExistantFailureTest()
+        public async Task GetSynonymDefinitionWithNonExistentFailureTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();

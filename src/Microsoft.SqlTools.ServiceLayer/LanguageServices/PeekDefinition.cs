@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else
             {
-                // if no declarartionItem matched the selected token, we try to find the type of th etoken using QuickInfo.Text
+                // if no declarationItem matched the selected token, we try to find the type of the token using QuickInfo.Text
                 string quickInfoText = GetQuickInfoForToken(parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
                 return GetDefinitionUsingQuickInfoText(quickInfoText, tokenText, schemaName);
             }
@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Script a object using the type extracted from quickInfo Text
+        /// Script an object using the type extracted from quickInfo Text
         /// </summary>
         /// <param name="quickInfoText">the text from the quickInfo for the selected token</param>
         /// <param name="tokenText">The text of the selected token</param>
@@ -161,6 +161,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (sqlScriptGettersFromQuickInfo.ContainsKey(tokenType.ToLowerInvariant()))
                 {
+                    // With SqlLogin authentication, the defaultSchema property throws an Exception when accessed.
+                    // This workaround ensures that a schema name is present by attempting
+                    // to get the schema name from the declaration item.
+                    // If all fails, the default schema name is assumed to be "dbo"
                     if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
                     {
                         string fullObjectName = this.GetFullObjectNameFromQuickInfo(quickInfoText, tokenText);
@@ -201,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (sqlScriptGetters.ContainsKey(type) && sqlObjectTypes.ContainsKey(type))
             {
-                // On *nix and mac systems, the defaultSchema property throws an Exception when accessed.
+                // With SqlLogin authentication, the defaultSchema property throws an Exception when accessed.
                 // This workaround ensures that a schema name is present by attempting
                 // to get the schema name from the declaration item.
                 // If all fails, the default schema name is assumed to be "dbo"
@@ -300,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal Location[] GetLocationFromFile(string tempFileName, int lineNumber)
         {
-            // Get absolute Uri based on uri format. This worksaround a dotnetcore URI bug for linux paths.
+            // Get absolute Uri based on uri format. This works around a dotnetcore URI bug for linux paths.
             if (Path.DirectorySeparatorChar.Equals('/'))
             {
                 tempFileName = "file:" + tempFileName;
