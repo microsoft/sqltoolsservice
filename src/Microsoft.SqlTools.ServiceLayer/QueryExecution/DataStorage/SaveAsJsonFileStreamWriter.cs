@@ -84,9 +84,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // Write the footer of the file
             jsonWriter.WriteEndArray();
-
+            // This closes the underlying stream, so we needn't call close on the underlying stream explicitly
             jsonWriter.Close();
-            streamWriter.Dispose();
             base.Dispose();
         }
     }
