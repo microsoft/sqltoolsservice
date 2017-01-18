@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
         }
 
         [Fact]
-        public async void SaveResultAsCsvFailure()
+        public async Task SaveResultAsCsvFailure()
         {
             // Given: 
             // ... A working query and workspace service
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
         }
 
         [Fact]
-        public async void SaveResultsAsCsvSuccess()
+        public async Task SaveResultsAsCsvSuccess()
         {
             // Given: 
             // ... A working query and workspace service
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
         }
 
         [Fact]
-        public async void SaveResultAsJsonFailure()
+        public async Task SaveResultAsJsonFailure()
         {
             // Given: 
             // ... A working query and workspace service
@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
         }
 
         [Fact]
-        public async void SaveResultsAsJsonSuccess()
+        public async Task SaveResultsAsJsonSuccess()
         {
             // Given: 
             // ... A working query and workspace service

@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [Fact]
-        public async void QueryExecuteUnconnectedUriTest()
+        public async Task QueryExecuteUnconnectedUriTest()
         {
             // Given:
             // If:
@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [Fact]
-        public async void QueryExecuteInProgressTest()
+        public async Task QueryExecuteInProgressTest()
         {
             // If:
             // ... I request to execute a query
@@ -210,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [Fact]
-        public async void QueryExecuteCompletedTest()
+        public async Task QueryExecuteCompletedTest()
         {
             // If:
             // ... I request to execute a query
@@ -266,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [Fact]
-        public async void QueryExecuteInvalidQueryTest()
+        public async Task QueryExecuteInvalidQueryTest()
         {
             // If:
             // ... I request to execute a query that is invalid

@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // ... It should not have executed and no error
             Assert.False(batch.HasExecuted, "The query should not have executed.");
+            Assert.False(batch.HasError);
 
             // ... The results should be empty
             Assert.Empty(batch.ResultSets);
@@ -78,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(0, resultSetCalls);
 
             // ... The batch and the summary should be correctly assigned
-            ValidateBatch(batch, 0);
+            ValidateBatch(batch, 0, false);
             ValidateBatchSummary(batch);
             ValidateMessages(batch, 1, messages);
         }
@@ -114,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(1, resultSetCalls);
 
             // ... There should be exactly one result set
-            ValidateBatch(batch, resultSets);
+            ValidateBatch(batch, resultSets, false);
             ValidateBatchSummary(batch);
             ValidateMessages(batch, 1, messages);
         }
@@ -150,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(2, resultSetCalls);
 
             // ... It should have executed without error
-            ValidateBatch(batch, resultSets);
+            ValidateBatch(batch, resultSets, false);
             ValidateBatchSummary(batch);
             ValidateMessages(batch, 1, messages);
         }
@@ -180,8 +181,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(1, batchStartCalls);
             Assert.Equal(1, batchEndCalls);
 
-            // ... It should have executed without error
-            ValidateBatch(batch, 0);
+            // ... It should have executed with error
+            ValidateBatch(batch, 0, true);
             ValidateBatchSummary(batch);
 
             // ... There should be one error message returned
@@ -221,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 () => batch.Execute(GetConnection(ci), CancellationToken.None));
 
             // ... The data should still be available without error
-            ValidateBatch(batch, resultSets);
+            ValidateBatch(batch, resultSets, false);
             ValidateBatchSummary(batch);
         }
 
@@ -284,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
 
         [SuppressMessage("ReSharper", "UnusedParameter.Local")]
-        private static void ValidateBatch(Batch batch, int expectedResultSets)
+        private static void ValidateBatch(Batch batch, int expectedResultSets, bool isError)
         {
             // The batch should be executed
             Assert.True(batch.HasExecuted, "The query should have been marked executed.");
@@ -296,6 +297,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // Make sure the number of result sets matches
             Assert.Equal(expectedResultSets, batch.ResultSets.Count);
             Assert.Equal(expectedResultSets, batch.ResultSummaries.Length);
+
+            // Make sure that the error state is set properly
+            Assert.Equal(isError, batch.HasError);
         }
 
         private static void ValidateBatchSummary(Batch batch)
@@ -306,6 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(batch.Id, batchSummary.Id);
             Assert.Equal(batch.ResultSets.Count, batchSummary.ResultSetSummaries.Length);
             Assert.Equal(batch.Selection, batchSummary.Selection);
+            Assert.Equal(batch.HasError, batchSummary.HasError);
 
             // Something other than default date is provided for start and end times
             Assert.True(DateTime.Parse(batchSummary.ExecutionStart) > default(DateTime));   

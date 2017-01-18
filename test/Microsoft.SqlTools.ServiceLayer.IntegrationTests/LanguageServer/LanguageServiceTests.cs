@@ -3,11 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
@@ -19,12 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
-        private static void GetLiveAutoCompleteTestObjects(
-            out TextDocumentPosition textDocument,
-            out ScriptFile scriptFile,
-            out ConnectionInfo connInfo)
+        private async static Task<TestConnectionResult> GetLiveAutoCompleteTestObjects()
         {
-            textDocument = new TextDocumentPosition
+            var textDocument = new TextDocumentPosition
             {
                 TextDocument = new TextDocumentIdentifier { Uri = TestObjects.ScriptUri },
                 Position = new Position
@@ -34,7 +33,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 }
             };
 
-            connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
+            result.TextDocumentPosition = textDocument;
+            return result;
         }
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         {
             try
             {
-                TestObjects.InitializeTestServices();
+                TestServiceProvider.InitializeTestServices();
             }
             catch (System.ArgumentException)
             {
@@ -61,10 +62,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         [Fact]
-        public void PrepopulateCommonMetadata()
+        public async Task PrepopulateCommonMetadata()
         {
-            ScriptFile scriptFile;
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
+            var connInfo = result.ConnectionInfo;
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
 
@@ -75,21 +76,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         // SMO connected metadata provider.  Since we don't want a live DB dependency
         // in the CI unit tests this scenario is currently disabled.
         [Fact]
-        public void AutoCompleteFindCompletions()
+        public async Task AutoCompleteFindCompletions()
         {
-            TextDocumentPosition textDocument;
-            ConnectionInfo connInfo;
-            ScriptFile scriptFile;
-            GetLiveAutoCompleteTestObjects(out textDocument, out scriptFile, out connInfo);
+            var result = await GetLiveAutoCompleteTestObjects();
 
-            textDocument.Position.Character = 7;
-            scriptFile.Contents = "select ";
+            result.TextDocumentPosition.Position.Character = 7;
+            result.ScriptFile.Contents = "select ";
 
             var autoCompleteService = LanguageService.Instance;
             var completions = autoCompleteService.GetCompletionItems(
-                textDocument,
-                scriptFile,
-                connInfo);
+                result.TextDocumentPosition,
+                result.ScriptFile,
+                result.ConnectionInfo);
 
             Assert.True(completions.Length > 0);
         }
@@ -100,21 +98,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// provide signature help.
         /// </summary>
         [Fact]
-        public async void GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
+        public async Task GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
         {
             // When we make a connection to a live database
-            ScriptFile scriptFile;
             Hosting.ServiceHost.SendEventIgnoreExceptions = true;
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfo(out scriptFile);
+            var result = await TestObjects.InitLiveConnectionInfo();
 
             // And we place the cursor after a function that should prompt for signature help
             string queryWithFunction = "EXEC sys.fn_isrolemember ";
-            scriptFile.Contents = queryWithFunction;
+            result.ScriptFile.Contents = queryWithFunction;
             TextDocumentPosition textDocument = new TextDocumentPosition
             {
                 TextDocument = new TextDocumentIdentifier
                 {
-                    Uri = scriptFile.ClientFilePath
+                    Uri = result.ScriptFile.ClientFilePath
                 },
                 Position = new Position
                 {
@@ -125,14 +122,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
             // If the SQL has already been parsed
             var service = LanguageService.Instance;
-            await service.UpdateLanguageServiceOnConnection(connInfo);
+            await service.UpdateLanguageServiceOnConnection(result.ConnectionInfo);
 
             // We should get back a non-null ScriptParseInfo
-            ScriptParseInfo parseInfo = service.GetScriptParseInfo(scriptFile.ClientFilePath);
+            ScriptParseInfo parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientFilePath);
             Assert.NotNull(parseInfo);
 
             // And we should get back a non-null SignatureHelp
-            SignatureHelp signatureHelp = service.GetSignatureHelp(textDocument, scriptFile);
+            SignatureHelp signatureHelp = service.GetSignatureHelp(textDocument, result.ScriptFile);
             Assert.NotNull(signatureHelp);
         }
     }

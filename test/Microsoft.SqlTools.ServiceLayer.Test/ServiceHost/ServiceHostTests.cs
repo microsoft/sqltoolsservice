@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
     public class ServiceHostTests
     {
         [Fact]
-        public async void InitializeResultShouldIncludeTheCharactersThatWouldTriggerTheCompletion()
+        public async Task InitializeResultShouldIncludeTheCharactersThatWouldTriggerTheCompletion()
         {
             Hosting.ServiceHost host = Hosting.ServiceHost.Instance;
             var requesContext = new Mock<RequestContext<InitializeResult>>();

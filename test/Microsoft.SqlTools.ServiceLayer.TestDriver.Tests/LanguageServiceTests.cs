@@ -4,12 +4,11 @@
 //
 
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 
@@ -28,11 +27,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task HoverTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string query = "SELECT * FROM sys.objects";
 
-                testHelper.WriteToFile(queryTempFile.FilePath, query);
+                testService.WriteToFile(queryTempFile.FilePath, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
                 {
@@ -45,20 +44,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     }
                 };
 
-                await testHelper.RequestOpenDocumentNotification(openParams);
+                await testService.RequestOpenDocumentNotification(openParams);
                   
                 Thread.Sleep(500);
 
-                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection was not successful");
 
                 Thread.Sleep(10000);
 
-                Hover hover = await testHelper.RequestHover(queryTempFile.FilePath, query, 0, 15);
+                Hover hover = await testService.RequestHover(queryTempFile.FilePath, query, 0, 15);
 
                 Assert.True(hover != null, "Hover tooltop is null");
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -69,11 +68,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task CompletionTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string query = "SELECT * FROM sys.objects";
 
-                testHelper.WriteToFile(queryTempFile.FilePath, query);
+                testService.WriteToFile(queryTempFile.FilePath, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
                 {
@@ -86,26 +85,26 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     }
                 };
 
-                await testHelper.RequestOpenDocumentNotification(openParams);
+                await testService.RequestOpenDocumentNotification(openParams);
                   
                 Thread.Sleep(500);
 
-                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection is successful");
 
                 Thread.Sleep(10000);
 
-                CompletionItem[] completions = await testHelper.RequestCompletion(queryTempFile.FilePath, query, 0, 15);
+                CompletionItem[] completions = await testService.RequestCompletion(queryTempFile.FilePath, query, 0, 15);
 
                 Assert.True(completions != null && completions.Length > 0, "Completion items list is null or empty");
 
                 Thread.Sleep(50);
 
-                await testHelper.RequestResolveCompletion(completions[0]);
+                await testService.RequestResolveCompletion(completions[0]);
 
                 Assert.True(completions != null && completions.Length > 0, "Completion items list is null or empty");
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -116,9 +115,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task DiagnosticsTests()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection was not successful");
 
                 Thread.Sleep(500);
@@ -136,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     }
                 };
 
-                await testHelper.RequestOpenDocumentNotification(openParams);
+                await testService.RequestOpenDocumentNotification(openParams);
               
                 Thread.Sleep(100);
 
@@ -170,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     }
                 };
 
-                await testHelper.RequestChangeTextDocumentNotification(changeParams);
+                await testService.RequestChangeTextDocumentNotification(changeParams);
 
                 Thread.Sleep(100);
         
@@ -203,11 +202,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     }
                 };
 
-                await testHelper.RequestChangeTextDocumentNotification(changeParams);
+                await testService.RequestChangeTextDocumentNotification(changeParams);
 
                 Thread.Sleep(2500);
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -219,13 +218,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task DefinitionTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string query = "SELECT * FROM sys.objects";
                 int lineNumber = 0;
                 int position = 23;
 
-                testHelper.WriteToFile(queryTempFile.FilePath, query);
+                testService.WriteToFile(queryTempFile.FilePath, query);
 
                 DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
                 {
@@ -238,19 +237,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     }
                 };
 
-                await testHelper.RequestOpenDocumentNotification(openParams);
+                await testService.RequestOpenDocumentNotification(openParams);
                   
                 Thread.Sleep(500);
 
-                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection is successful");
 
                 Thread.Sleep(10000);
                 // Request definition for "objects"
-                Location[] locations = await testHelper.RequestDefinition(queryTempFile.FilePath, query, lineNumber, position);
+                Location[] locations = await testService.RequestDefinition(queryTempFile.FilePath, query, lineNumber, position);
                 
                 Assert.True(locations != null, "Location is not null and not empty");
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -261,9 +260,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task ChangeConfigurationTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                bool connected = await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection was not successful");
 
                 Thread.Sleep(500);             
@@ -275,11 +274,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Settings = settings
                 };
 
-                await testHelper.RequestChangeConfigurationNotification(configParams);
+                await testService.RequestChangeConfigurationNotification(configParams);
 
                 Thread.Sleep(2000);
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -287,17 +286,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         public async Task NotificationIsSentAfterOnConnectionAutoCompleteUpdate()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 // Connect
-                await testHelper.Connect(queryTempFile.FilePath, ConnectionTestUtils.LocalhostConnection);
+                await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
 
                 // An event signalling that IntelliSense is ready should be sent shortly thereafter
-                var readyParams = await testHelper.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
                 Assert.Equal(queryTempFile.FilePath, readyParams.OwnerUri);
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -307,16 +306,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             string sqlText = "EXEC sys.fn_not_a_real_function ";
 
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string ownerUri = tempFile.FilePath;
                 File.WriteAllText(ownerUri, sqlText);
 
                 // Connect
-                await testHelper.Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+                await testService.Connect(TestServerType.OnPrem, ownerUri);
 
                 // Wait for intellisense to be ready
-                var readyParams = await testHelper.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
                 Assert.Equal(ownerUri, readyParams.OwnerUri);
 
@@ -333,13 +332,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                         Character = sqlText.Length
                     }
                 };
-                var signatureHelp = await testHelper.Driver.SendRequest(SignatureHelpRequest.Type, position);
+                var signatureHelp = await testService.Driver.SendRequest(SignatureHelpRequest.Type, position);
 
                 Assert.NotNull(signatureHelp);
                 Assert.False(signatureHelp.ActiveSignature.HasValue);
                 Assert.Null(signatureHelp.Signatures);
 
-                await testHelper.Disconnect(ownerUri);
+                await testService.Disconnect(ownerUri);
             }
         }
 
@@ -349,16 +348,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             string sqlText = "EXEC sys.fn_isrolemember ";
 
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string ownerUri = tempFile.FilePath;
-                File.WriteAllText(ownerUri, sqlText);
 
                 // Connect
-                await testHelper.Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+                await testService.ConnectForQuery(TestServerType.OnPrem, sqlText, ownerUri);
 
                 // Wait for intellisense to be ready
-                var readyParams = await testHelper.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
                 Assert.Equal(ownerUri, readyParams.OwnerUri);
 
@@ -375,7 +373,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                         Character = sqlText.Length
                     }
                 };
-                var signatureHelp = await testHelper.Driver.SendRequest(SignatureHelpRequest.Type, position);
+                var signatureHelp = await testService.Driver.SendRequest(SignatureHelpRequest.Type, position);
 
                 Assert.NotNull(signatureHelp);
                 Assert.True(signatureHelp.ActiveSignature.HasValue);
@@ -386,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 Assert.NotEmpty(label);
                 Assert.True(label.Contains("fn_isrolemember"));
 
-                await testHelper.Disconnect(ownerUri);
+                await testService.Disconnect(ownerUri);
             }
         }
 
@@ -396,34 +394,34 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             string sqlText = "EXEC sys.fn_isrolemember 1, 'testing', 2";
 
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 string ownerUri = tempFile.FilePath;
                 File.WriteAllText(ownerUri, sqlText);
 
                 // Connect
-                await testHelper.Connect(ownerUri, ConnectionTestUtils.LocalhostConnection);
+                await testService.Connect(TestServerType.OnPrem, ownerUri);
 
                 // Wait for intellisense to be ready
-                var readyParams = await testHelper.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
                 Assert.Equal(ownerUri, readyParams.OwnerUri);
 
                 // Verify all parameters when the cursor is inside of parameters and at separator boundaries (,)
-                await VerifyFunctionSignatureHelpParameter(testHelper, ownerUri, 25, "fn_isrolemember", 0, "@mode int");
-                await VerifyFunctionSignatureHelpParameter(testHelper, ownerUri, 26, "fn_isrolemember", 0, "@mode int");
-                await VerifyFunctionSignatureHelpParameter(testHelper, ownerUri, 27, "fn_isrolemember", 1, "@login sysname");
-                await VerifyFunctionSignatureHelpParameter(testHelper, ownerUri, 30, "fn_isrolemember", 1, "@login sysname");
-                await VerifyFunctionSignatureHelpParameter(testHelper, ownerUri, 37, "fn_isrolemember", 1, "@login sysname");
-                await VerifyFunctionSignatureHelpParameter(testHelper, ownerUri, 38, "fn_isrolemember", 2, "@tranpubid int");
-                await VerifyFunctionSignatureHelpParameter(testHelper, ownerUri, 39, "fn_isrolemember", 2, "@tranpubid int");
+                await VerifyFunctionSignatureHelpParameter(testService, ownerUri, 25, "fn_isrolemember", 0, "@mode int");
+                await VerifyFunctionSignatureHelpParameter(testService, ownerUri, 26, "fn_isrolemember", 0, "@mode int");
+                await VerifyFunctionSignatureHelpParameter(testService, ownerUri, 27, "fn_isrolemember", 1, "@login sysname");
+                await VerifyFunctionSignatureHelpParameter(testService, ownerUri, 30, "fn_isrolemember", 1, "@login sysname");
+                await VerifyFunctionSignatureHelpParameter(testService, ownerUri, 37, "fn_isrolemember", 1, "@login sysname");
+                await VerifyFunctionSignatureHelpParameter(testService, ownerUri, 38, "fn_isrolemember", 2, "@tranpubid int");
+                await VerifyFunctionSignatureHelpParameter(testService, ownerUri, 39, "fn_isrolemember", 2, "@tranpubid int");
 
-                await testHelper.Disconnect(ownerUri);
+                await testService.Disconnect(ownerUri);
             }
         }
 
         public async Task VerifyFunctionSignatureHelpParameter(
-            TestHelper testHelper,
+            TestServiceDriverProvider TestService,
             string ownerUri, 
             int character, 
             string expectedFunctionName, 
@@ -442,7 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Character = character
                 }
             };
-            var signatureHelp = await testHelper.Driver.SendRequest(SignatureHelpRequest.Type, position);
+            var signatureHelp = await TestService.Driver.SendRequest(SignatureHelpRequest.Type, position);
 
             Assert.NotNull(signatureHelp);
             Assert.NotNull(signatureHelp.ActiveSignature);

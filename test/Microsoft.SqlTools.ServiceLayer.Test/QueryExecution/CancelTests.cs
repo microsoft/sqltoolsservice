@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
     public class CancelTests
     {
         [Fact]
-        public async void CancelInProgressQueryTest()
+        public async Task CancelInProgressQueryTest()
         {
             // If:
             // ... I request a query (doesn't matter what kind) and execute it
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public async void CancelExecutedQueryTest()
+        public async Task CancelExecutedQueryTest()
         {
             // If:
             // ... I request a query (doesn't matter what kind) and wait for execution

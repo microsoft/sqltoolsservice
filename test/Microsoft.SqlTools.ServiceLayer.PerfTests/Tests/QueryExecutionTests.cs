@@ -7,9 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Scripts;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Tests;
-using Microsoft.SqlTools.ServiceLayer.TestDriver.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.PerfTests
@@ -22,17 +20,17 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.MasterBasicQuery;
 
-                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath, Common.MasterDatabaseName);
-                var queryResult = await Common.CalculateRunTime(() => testHelper.RunQuery(queryTempFile.FilePath, query), true);
+                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
+                var queryResult = await testService.CalculateRunTime(() => testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query), true);
 
                 Assert.NotNull(queryResult);
                 Assert.True(queryResult.BatchSummaries.Any(x => x.ResultSetSummaries.Any(r => r.RowCount > 0)));
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -42,23 +40,23 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 const string query = Scripts.MasterBasicQuery;
 
-                await Common.ConnectAsync(testHelper, serverType, query, queryTempFile.FilePath, Common.MasterDatabaseName);
+                await testService.ConnectForQuery(serverType, query, queryTempFile.FilePath, SqlTestDb.MasterDatabaseName);
 
-                var queryResult = await Common.CalculateRunTime(async () =>
+                var queryResult = await testService.CalculateRunTime(async () =>
                 {
-                    await testHelper.RunQuery(queryTempFile.FilePath, query);
-                    return await testHelper.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 100);
+                    await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, query);
+                    return await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 100);
                 }, true);
 
                 Assert.NotNull(queryResult);
                 Assert.NotNull(queryResult.ResultSubset);
                 Assert.True(queryResult.ResultSubset.Rows.Any());
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
@@ -69,22 +67,22 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestServerType serverType = TestServerType.OnPrem;
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            using (TestHelper testHelper = new TestHelper())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                await Common.ConnectAsync(testHelper, serverType, Scripts.DelayQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
+                await testService.ConnectForQuery(serverType, Scripts.DelayQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
                 var queryParams = new QueryExecuteParams
                 {
                     OwnerUri = queryTempFile.FilePath,
                     QuerySelection = null
                 };
 
-                var result = await testHelper.Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
+                var result = await testService.Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
                 if (result != null)
                 {
                     TestTimer timer = new TestTimer() { PrintResult = true };
-                    await Common.ExecuteWithTimeout(timer, 100000, async () => 
+                    await testService.ExecuteWithTimeout(timer, 100000, async () => 
                     {
-                        var cancelQueryResult = await testHelper.CancelQuery(queryTempFile.FilePath);
+                        var cancelQueryResult = await testService.CancelQuery(queryTempFile.FilePath);
                         return true;
                     },  TimeSpan.FromMilliseconds(10));
                 }
@@ -93,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                     Assert.True(false, "Failed to run the query");
                 }
 
-                await testHelper.Disconnect(queryTempFile.FilePath);
+                await testService.Disconnect(queryTempFile.FilePath);
             }
         }
     }

@@ -149,6 +149,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public string ExecutionStartTimeStamp { get { return executionStartTime.ToString("o"); } }
 
         /// <summary>
+        /// Whether or not this batch encountered an error that halted execution
+        /// </summary>
+        public bool HasError { get; set; }
+
+        /// <summary>
         /// Whether or not this batch has been executed, regardless of success or failure 
         /// </summary>
         public bool HasExecuted { get; set; }
@@ -192,7 +197,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Id = Id,
                     Selection = Selection,
-                    ExecutionStart = ExecutionStartTimeStamp
+                    ExecutionStart = ExecutionStartTimeStamp,
+                    HasError = HasError
                 };
 
                 // Add on extra details if we finished executing it
@@ -309,15 +315,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (DbException dbe)
             {
+                HasError = true;
                 await UnwrapDbException(dbe);
             }
             catch (TaskCanceledException)
             {
+                // Cancellation isn't considered an error condition
                 await SendMessage(SR.QueryServiceQueryCancelled, false);
                 throw;
             }
             catch (Exception e)
             {
+                HasError = true;
                 await SendMessage(SR.QueryServiceQueryFailed(e.Message), true);
                 throw;
             }
