@@ -99,7 +99,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 return;
             }
 
-            FileStream.Flush();
             FileStream.Dispose();
         }
         public virtual void Dispose()
