@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -52,6 +53,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private bool hasExecuteBeenCalled;
 
+        /// <summary>
+        /// Settings for query runtime 
+        /// </summary>
+        private QueryExecutionSettings querySettings;
+
+        /// <summary>
+        /// Streaming output factory for the query 
+        /// </summary>
+        private IFileStreamFactory streamOutputFactory;
+
+        /// <summary>
+        /// ON keyword
+        /// </summary>
+        private const string On = "ON";
+
+        /// <summary>
+        /// OFF keyword
+        /// </summary>
+        private const string Off = "OFF";
+
+        /// <summary>
+        /// showplan_xml statement
+        /// </summary>
+        private const string SetShowPlanXml = "SET SHOWPLAN_XML {0}";
+
+        /// <summary>
+        /// statistics xml statement
+        /// </summary>
+        private const string SetStatisticsXml = "SET STATISTICS XML {0}";
+
         #endregion
 
         /// <summary>
@@ -73,6 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryText = queryText;
             editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
+            querySettings = settings;
+            streamOutputFactory = outputFactory;
 
             // Process the query into batches
             ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
@@ -90,7 +123,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             batch.EndLocation.LineNumber - 1,
                             batch.EndLocation.ColumnNumber - 1),
                         index, outputFactory));
+                        
             Batches = batchSelection.ToArray();
+
+            // Create our batch lists
+            BeforeBatches = new List<Batch>();
+            AfterBatches = new List<Batch>();
+
+            if (DoesSupportExecutionPlan(connection))
+            {
+                // Checking settings for execution plan options 
+                if (querySettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
+                {
+                    // Enable set showplan xml
+                    addBatch(string.Format(SetShowPlanXml, On), BeforeBatches, streamOutputFactory);
+                    addBatch(string.Format(SetShowPlanXml, Off), AfterBatches, streamOutputFactory);
+                }
+                else if (querySettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+                {
+                    addBatch(string.Format(SetStatisticsXml, On), BeforeBatches, streamOutputFactory);
+                    addBatch(string.Format(SetStatisticsXml, Off), AfterBatches, streamOutputFactory);
+                }
+            }
         }
 
         #region Events
@@ -147,9 +201,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public delegate Task QueryAsyncEventHandler(Query q);
 
         /// <summary>
+        /// The batches which should run before the user batches 
+        /// </summary>
+        internal List<Batch> BeforeBatches { get; set; }
+
+        /// <summary>
         /// The batches underneath this query
         /// </summary>
         internal Batch[] Batches { get; set; }
+
+        /// <summary>
+        /// The batches which should run after the user batches 
+        /// </summary>
+        internal List<Batch> AfterBatches { get; set; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
@@ -243,6 +307,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// Retrieves a subset of the result sets
+        /// </summary>
+        /// <param name="batchIndex">The index for selecting the batch item</param>
+        /// <param name="resultSetIndex">The index for selecting the result set</param>
+        /// <returns>The Execution Plan, if the result set has one</returns>
+        public Task<ExecutionPlan> GetExecutionPlan(int batchIndex, int resultSetIndex)
+        {
+            // Sanity check to make sure that the batch is within bounds
+            if (batchIndex < 0 || batchIndex >= Batches.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(batchIndex), SR.QueryServiceSubsetBatchOutOfRange);
+            }
+
+            return Batches[batchIndex].GetExecutionPlan(resultSetIndex);
+        }
+
+        /// <summary>
         /// Saves the requested results to a file format of the user's choice
         /// </summary>
         /// <param name="saveParams">Parameters for the save as request</param>
@@ -300,21 +381,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             try
             {
+                // Execute beforeBatches synchronously, before the user defined batches 
+                foreach (Batch b in BeforeBatches)
+                {
+                    await b.Execute(conn, cancellationSource.Token);
+                }
+
                 // We need these to execute synchronously, otherwise the user will be very unhappy
                 foreach (Batch b in Batches)
                 {
+                    // Add completion callbacks 
                     b.BatchStart += BatchStarted;
                     b.BatchCompletion += BatchCompleted;
                     b.BatchMessageSent += BatchMessageSent;
                     b.ResultSetCompletion += ResultSetCompleted;
-                    await b.Execute(queryConnection, cancellationSource.Token);
+                    await b.Execute(conn, cancellationSource.Token);
+                }
+
+                // Execute afterBatches synchronously, after the user defined batches
+                foreach (Batch b in AfterBatches)
+                {
+                    await b.Execute(conn, cancellationSource.Token);
                 }
 
                 // Call the query execution callback
                 if (QueryCompleted != null)
                 {
                     await QueryCompleted(this);
-                }          
+                }         
             }
             catch (Exception)
             {
@@ -355,6 +449,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Function to add a new batch to a Batch set
+        /// </summary>
+        private void addBatch(string query, List<Batch> batchSet, IFileStreamFactory outputFactory)
+        {
+            batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory));
+        }
+
         #endregion
 
         #region IDisposable Implementation
@@ -382,6 +484,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             disposed = true;
+        }
+
+        /// <summary>
+        /// Does this connection support XML Execution plans
+        /// </summary>
+        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) {
+            // Determining which execution plan options may be applied (may be added to for pre-yukon support)
+            return (!connectionInfo.IsSqlDW && connectionInfo.MajorVersion >= 9);
         }
 
         #endregion

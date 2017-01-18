@@ -365,6 +365,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceExecutionPlanNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceExecutionPlanNotFound);
+            }
+        }
+
         public static string PeekDefinitionNoResultsError
         {
             get
@@ -621,6 +629,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetNoColumnSchema = "QueryServiceResultSetNoColumnSchema";
+
+
+            public const string QueryServiceExecutionPlanNotFound = "QueryServiceExecutionPlanNotFound";
 
 
             public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";

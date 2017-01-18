@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Column names of 'for xml' and 'for json' queries
         private const string NameOfForXMLColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
+        private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
 
         #endregion
 
@@ -68,6 +69,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly string outputFileName;
 
+        /// <summary>
+        /// The special action which applied to this result set
+        /// </summary>
+        private SpecialAction specialAction;
+
         #endregion
 
         /// <summary>
@@ -89,6 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Initialize the storage
             outputFileName = factory.CreateFile();
             fileOffsets = new LongList<long>();
+            specialAction = new SpecialAction();
 
             // Store the factory
             fileStreamFactory = factory;
@@ -165,7 +172,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     ColumnInfo = Columns,
                     Id = Id,
                     BatchId = BatchId,
-                    RowCount = RowCount
+                    RowCount = RowCount,
+                    SpecialAction = ProcessSpecialAction()
+                    
                 };
             }
         }
@@ -232,6 +241,51 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Rows = rows,
                     RowCount = rows.Length
+                };
+            });
+        }
+
+        /// <summary>
+        /// Generates the execution plan from the table returned 
+        /// </summary>
+        /// <returns>An execution plan object</returns>
+        public Task<ExecutionPlan> GetExecutionPlan()
+        {
+            // Proccess the action just incase is hasn't been yet 
+            ProcessSpecialAction();
+
+            // Sanity check to make sure that the results have been read beforehand
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
+            }
+            // Check that we this result set contains a showplan 
+            else if (!specialAction.ExpectYukonXMLShowPlan)
+            {
+                throw new Exception(SR.QueryServiceExecutionPlanNotFound);
+            }
+
+
+            return Task.Factory.StartNew(() =>
+            { 
+                string content = null;
+                string format = null;
+
+                using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                {
+                    // Determine the format and get the first col/row of XML
+                    content = fileStreamReader.ReadRow(0, Columns)[0].DisplayValue;
+
+                    if (specialAction.ExpectYukonXMLShowPlan) 
+                    {
+                        format = "xml";
+                    }
+                }
+                    
+                return new ExecutionPlan
+                {
+                    Format = format,
+                    Content = content
                 };
             });
         }
@@ -434,6 +488,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     RowCount = 1;
                 }
             }
+        }
+
+        /// <summary>
+        /// Determine the special action, if any, for this result set
+        /// </summary>
+        private SpecialAction ProcessSpecialAction() 
+        {           
+
+            // Check if this result set is a showplan 
+            if (dataReader.Columns.Length == 1 && string.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                specialAction.ExpectYukonXMLShowPlan = true;
+            }
+
+            return specialAction;
         }
 
         #endregion
