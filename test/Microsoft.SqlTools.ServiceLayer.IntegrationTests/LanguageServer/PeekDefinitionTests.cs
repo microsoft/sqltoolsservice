@@ -317,7 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "addTwo";
+            string objectName = "pd_addTwo";
             string schemaName = "dbo";
             string objectType = "FUNCTION";
 
@@ -337,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "returnTable";
+            string objectName = "pd_returnTable";
             string schemaName = "dbo";
             string objectType = "FUNCTION";
 
@@ -395,7 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "addTwo";
+            string objectName = "pd_addTwo";
             string schemaName = null;
             string objectType = "FUNCTION";
 
@@ -415,7 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "returnTable";
+            string objectName = "pd_returnTable";
             string schemaName = null;
             string objectType = "FUNCTION";
 
@@ -436,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "SSN";
+            string objectName = "pd_ssn";
             string schemaName = "dbo";
             string objectType = "Type";
 
@@ -456,7 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "SSN";
+            string objectName = "pd_ssn";
             string schemaName = null;
             string objectType = "Type";
 
@@ -495,7 +495,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "LocationTableType";
+            string objectName = "pd_locationTableType";
             string schemaName = "dbo";
             string objectType = "Type";
 
@@ -515,7 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "LocationTableType";
+            string objectName = "pd_locationTableType";
             string schemaName = null;
             string objectType = "Type";
 
@@ -547,14 +547,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         /// Test get definition for a synonym object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public async Task GetSynonymeDefinitionWithSchemaNameSuccessTest()
+        public async Task GetSynonymDefinitionWithSchemaNameSuccessTest()
         {
             // Get live connectionInfo and serverConnection
             ConnectionInfo connInfo = await TestObjects.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "testTable";
+            string objectName = "pd_testTable";
             string schemaName = "dbo";
             string objectType = "Synonym";
 
@@ -575,7 +575,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
-            string objectName = "testTable";
+            string objectName = "pd_testTable";
             string schemaName = null;
             string objectType = "Synonym";
 
