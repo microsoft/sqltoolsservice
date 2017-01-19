@@ -384,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Execute beforeBatches synchronously, before the user defined batches 
                 foreach (Batch b in BeforeBatches)
                 {
-                    await b.Execute(sqlConn, cancellationSource.Token);
+                    await b.Execute(queryConnection, cancellationSource.Token);
                 }
 
                 // We need these to execute synchronously, otherwise the user will be very unhappy
@@ -395,13 +395,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     b.BatchCompletion += BatchCompleted;
                     b.BatchMessageSent += BatchMessageSent;
                     b.ResultSetCompletion += ResultSetCompleted;
-                    await b.Execute(sqlConn, cancellationSource.Token);
+                    await b.Execute(queryConnection, cancellationSource.Token);
                 }
 
                 // Execute afterBatches synchronously, after the user defined batches
                 foreach (Batch b in AfterBatches)
                 {
-                    await b.Execute(sqlConn, cancellationSource.Token);
+                    await b.Execute(queryConnection, cancellationSource.Token);
                 }
 
                 // Call the query execution callback
