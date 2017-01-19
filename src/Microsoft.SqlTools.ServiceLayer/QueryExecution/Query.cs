@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
@@ -369,82 +370,62 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            // Open up a connection for querying the database
-            string connectionString = ConnectionService.BuildConnectionString(editorConnection.ConnectionDetails);
-            // TODO: Don't create a new connection every time, see TFS #834978
-            using (DbConnection conn = editorConnection.Factory.CreateSqlConnection(connectionString))
+            // Locate and setup the connection
+            DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
+            ReliableSqlConnection sqlConn = queryConnection as ReliableSqlConnection;
+            if (sqlConn != null)
             {
-                try
+                // Subscribe to database informational messages
+                sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
+            }
+
+            try
+            {
+                // Execute beforeBatches synchronously, before the user defined batches 
+                foreach (Batch b in BeforeBatches)
                 {
-                    await conn.OpenAsync();
-                }
-                catch (Exception exception)
-                {
-                    this.HasExecuted = true;
-                    if (QueryConnectionException != null)
-                    {
-                        await QueryConnectionException(exception.Message);
-                    }
-                    return;
+                    await b.Execute(queryConnection, cancellationSource.Token);
                 }
 
-                ReliableSqlConnection sqlConn = conn as ReliableSqlConnection;
+                // We need these to execute synchronously, otherwise the user will be very unhappy
+                foreach (Batch b in Batches)
+                {
+                    // Add completion callbacks 
+                    b.BatchStart += BatchStarted;
+                    b.BatchCompletion += BatchCompleted;
+                    b.BatchMessageSent += BatchMessageSent;
+                    b.ResultSetCompletion += ResultSetCompleted;
+                    await b.Execute(queryConnection, cancellationSource.Token);
+                }
+
+                // Execute afterBatches synchronously, after the user defined batches
+                foreach (Batch b in AfterBatches)
+                {
+                    await b.Execute(queryConnection, cancellationSource.Token);
+                }
+
+                // Call the query execution callback
+                if (QueryCompleted != null)
+                {
+                    await QueryCompleted(this);
+                }         
+            }
+            catch (Exception)
+            {
+                // Call the query failure callback
+                if (QueryFailed != null)
+                {
+                    await QueryFailed(this);
+                }
+            }
+            finally
+            {
                 if (sqlConn != null)
                 {
                     // Subscribe to database informational messages
-                    sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
+                    sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
                 }
-
-                try
-                {
-                    // Execute beforeBatches synchronously, before the user defined batches 
-                    foreach (Batch b in BeforeBatches)
-                    {
-                        await b.Execute(conn, cancellationSource.Token);
-                    }
-
-                    // We need these to execute synchronously, otherwise the user will be very unhappy
-                    foreach (Batch b in Batches)
-                    {
-                        // Add completion callbacks 
-                        b.BatchStart += BatchStarted;
-                        b.BatchCompletion += BatchCompleted;
-                        b.BatchMessageSent += BatchMessageSent;
-                        b.ResultSetCompletion += ResultSetCompleted;
-                        await b.Execute(conn, cancellationSource.Token);
-                    }
-
-                    // Execute afterBatches synchronously, after the user defined batches
-                    foreach (Batch b in AfterBatches)
-                    {
-                        await b.Execute(conn, cancellationSource.Token);
-                    }
-
-                    // Call the query execution callback
-                    if (QueryCompleted != null)
-                    {
-                        await QueryCompleted(this);
-                    }
-                }
-                catch (Exception)
-                {
-                    // Call the query failure callback
-                    if (QueryFailed != null)
-                    {
-                        await QueryFailed(this);
-                    }
-                }
-                finally
-                {
-                    if (sqlConn != null)
-                    {
-                        // Subscribe to database informational messages
-                        sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
-                    }
-                }
-
-                // TODO: Close connection after eliminating using statement for above TODO
-            }
+            }            
         }
 
         /// <summary>

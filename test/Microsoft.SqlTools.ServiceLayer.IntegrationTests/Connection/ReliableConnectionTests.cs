@@ -685,19 +685,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         {
             var result = await TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
+            DbConnection connection = connInfo.ConnectionTypeToConnectionMap[ConnectionType.Default];
 
-            Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(connInfo.SqlConnection));
+
+            Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(connection));
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
             Assert.True(ReliableConnectionHelper.IsAuthenticatingDatabaseMaster(builder));
             ReliableConnectionHelper.TryAddAlwaysOnConnectionProperties(builder, new SqlConnectionStringBuilder());
 
-            Assert.NotNull(ReliableConnectionHelper.GetServerName(connInfo.SqlConnection));
-            Assert.NotNull(ReliableConnectionHelper.ReadServerVersion(connInfo.SqlConnection));
+            Assert.NotNull(ReliableConnectionHelper.GetServerName(connection));
+            Assert.NotNull(ReliableConnectionHelper.ReadServerVersion(connection));
             
-            Assert.NotNull(ReliableConnectionHelper.GetAsSqlConnection(connInfo.SqlConnection));
+            Assert.NotNull(ReliableConnectionHelper.GetAsSqlConnection(connection));
 
-            ReliableConnectionHelper.ServerInfo info = ReliableConnectionHelper.GetServerVersion(connInfo.SqlConnection);
+            ReliableConnectionHelper.ServerInfo info = ReliableConnectionHelper.GetServerVersion(connection);
             Assert.NotNull(ReliableConnectionHelper.IsVersionGreaterThan2012RTM(info));
         }
 
@@ -728,8 +730,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         {
             var result = await TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
+            DbConnection dbConnection;
+            connInfo.TryGetConnection(ConnectionType.Default, out dbConnection);
 
-            var connection = connInfo.SqlConnection as ReliableSqlConnection;
+            var connection = dbConnection as ReliableSqlConnection;
             var command = new ReliableSqlConnection.ReliableSqlCommand(connection);
             Assert.NotNull(command.Connection);
 

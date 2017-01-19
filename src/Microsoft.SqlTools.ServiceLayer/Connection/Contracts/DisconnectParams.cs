@@ -15,5 +15,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// or a virtual file representing an object in a database.         
         /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// The type of connection we are disconnecting. If null, we will disconnect all connections.
+        /// connections. 
+        /// </summary>
+        public string Type { get; set; }
     }
 }
