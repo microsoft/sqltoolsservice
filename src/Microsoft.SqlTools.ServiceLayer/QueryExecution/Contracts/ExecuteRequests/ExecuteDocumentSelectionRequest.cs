@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         public SelectionData QuerySelection { get; set; }
     }
 
-    public class QueryExecuteRequest
+    public class ExecuteDocumentSelectionRequest
     {
         public static readonly
             RequestType<ExecuteDocumentSelectionParams, ExecuteRequestResult> Type =

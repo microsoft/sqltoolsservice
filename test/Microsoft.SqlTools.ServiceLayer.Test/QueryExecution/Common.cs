@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
@@ -96,6 +97,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public static Query GetBasicExecutedQuery(QueryExecutionSettings querySettings)
         {
             ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
+
+            // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
+            // ConnectionInfo with the same URI as the query, so we will manually set it
+            ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
+
             Query query = new Query(StandardQuery, ci, querySettings, GetFileStreamFactory(new Dictionary<string, byte[]>()));
             query.Execute();
             query.ExecutionTask.Wait();
@@ -141,8 +147,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return output.ToArray();
         }
 
-        public static async Task AwaitExecution(QueryExecutionService service, QueryExecuteParams qeParams,
-            RequestContext<QueryExecuteResult> requestContext)
+        public static async Task AwaitExecution(QueryExecutionService service, ExecuteDocumentSelectionParams qeParams,
+            RequestContext<ExecuteRequestResult> requestContext)
         {
             await service.HandleExecuteRequest(qeParams, requestContext);
             if (service.ActiveQueries.ContainsKey(qeParams.OwnerUri) && service.ActiveQueries[qeParams.OwnerUri].ExecutionTask != null)
