@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -119,6 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             // Register handlers for requests
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest);
+            serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles request to execute a selection of a document in the workspace service
         /// </summary>
-        public async Task HandleExecuteRequest(ExecuteDocumentSelectionParams executeDocumentSelectionParams,
+        public async Task HandleExecuteRequest(ExecuteRequestParamsBase executeDocumentSelectionParams,
             RequestContext<ExecuteRequestResult> requestContext)
         {
             // Get a query new active query
@@ -340,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
-        private async Task<Query> CreateAndActivateNewQuery(ExecuteDocumentSelectionParams executeParams, RequestContext<ExecuteRequestResult> requestContext)
+        private async Task<Query> CreateAndActivateNewQuery(ExecuteRequestParamsBase executeParams, RequestContext<ExecuteRequestResult> requestContext)
         {
             try
             {
@@ -366,34 +366,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Apply execution parameter settings 
                 settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
 
-                // Get query text from the workspace.
-                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(executeParams.OwnerUri);
-
-                string queryText;
-
-                if (executeParams.QuerySelection != null)
-                {
-                    string[] queryTextArray = queryFile.GetLinesInRange(
-                        new BufferRange(
-                            new BufferPosition(
-                                executeParams.QuerySelection.StartLine + 1,
-                                executeParams.QuerySelection.StartColumn + 1
-                            ),
-                            new BufferPosition(
-                                executeParams.QuerySelection.EndLine + 1,
-                                executeParams.QuerySelection.EndColumn + 1
-                            )
-                        )
-                    );
-                    queryText = queryTextArray.Aggregate((a, b) => a + '\r' + '\n' + b);
-                }
-                else
-                {
-                    queryText = queryFile.Contents;
-                }
-
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(queryText, connectionInfo, settings, BufferFileFactory);
+                Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendError(SR.QueryServiceQueryInProgress);
@@ -535,6 +509,50 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await errorHandler(saveParams, e.Message);
             }
+        }
+
+        // Internal for testing purposes
+        internal string GetSqlText(ExecuteRequestParamsBase request)
+        {
+            Type requestType = request.GetType();
+
+            // If it is a document selection, we'll retrieve the text from the document
+            if (requestType == typeof(ExecuteDocumentSelectionParams))
+            {
+                // Get the document from the parameters
+                ExecuteDocumentSelectionParams documentRequest = (ExecuteDocumentSelectionParams) request;
+                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(documentRequest.OwnerUri);
+
+                // If a selection was not provided, use the entire document
+                if (documentRequest.QuerySelection == null)
+                {
+                    return queryFile.Contents;
+                }
+
+                // A selection was provided, so get the lines in the selected range
+                string[] queryTextArray = queryFile.GetLinesInRange(
+                    new BufferRange(
+                        new BufferPosition(
+                            documentRequest.QuerySelection.StartLine + 1,
+                            documentRequest.QuerySelection.StartColumn + 1
+                        ),
+                        new BufferPosition(
+                            documentRequest.QuerySelection.EndLine + 1,
+                            documentRequest.QuerySelection.EndColumn + 1
+                        )
+                    )
+                );
+                return string.Join(Environment.NewLine, queryTextArray);
+            }
+
+            // If it is an ExecuteStringParams, return the text as is
+            if (requestType == typeof(ExecuteStringParams))
+            {
+                return ((ExecuteStringParams) request).Query;
+            }
+
+            // Note, this shouldn't be possible due to inheritance rules
+            throw new InvalidCastException("Invalid request type");
         }
 
         #endregion

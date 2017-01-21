@@ -3,19 +3,97 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 {
     public class ServiceIntegrationTests
     {
+        #region Get SQL Tests
+
         [Fact]
-        public async Task QueryExecuteAllBatchesNoOp()
+        public void GetSqlTextFromDocumentRequestFull()
+        {
+            // Setup:
+            // ... Create a workspace service with a multi-line constructed query
+            // ... Create a query execution service without a connection service (we won't be
+            //     executing queries), and the previously created workspace service
+            string query = string.Format("{0}{1}GO{1}{0}", Common.StandardQuery, Environment.NewLine);
+            var workspaceService = GetDefaultWorkspaceService(query);
+            var queryService = new QueryExecutionService(null, workspaceService);
+
+            // If: I attempt to get query text from execute document params (entire document)
+            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryText = queryService.GetSqlText(queryParams);
+
+            // Then: The text should match the constructed query
+            Assert.Equal(query, queryText);
+        }
+
+        [Fact]
+        public void GetSqlTextFromDocumentRequestPartial()
+        {
+            // Setup:
+            // ... Create a workspace service with a multi-line constructed query
+            string query = string.Format("{0}{1}GO{1}{0}", Common.StandardQuery, Environment.NewLine);
+            var workspaceService = GetDefaultWorkspaceService(query);
+            var queryService = new QueryExecutionService(null, workspaceService);
+
+            // If: I attempt to get query text from execute document params (partial document)
+            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.SubsectionDocument};
+            var queryText = queryService.GetSqlText(queryParams);
+
+            // Then: The text should be a subset of the constructed query
+            Assert.Contains(queryText, query);
+        }
+
+        [Fact]
+        public void GetSqlTextFromStringRequest()
+        {
+            // Setup: 
+            // ... Create a query execution service without a connection service or workspace
+            //     service (we won't execute code that uses either
+            var queryService = new QueryExecutionService(null, null);
+
+            // If: I attempt to get query text from execute string params
+            var queryParams = new ExecuteStringParams {OwnerUri = Common.OwnerUri, Query = Common.StandardQuery};
+            var queryText = queryService.GetSqlText(queryParams);
+
+            // Then: The text should match the standard query
+            Assert.Equal(Common.StandardQuery, queryText);
+        }
+
+        [Fact]
+        public void GetSqlTextFromInvalidType()
+        {
+            // Setup:
+            // ... Mock up an implementation of ExecuteRequestParamsBase
+            // ... Create a query execution service without a connection service or workspace
+            //     service (we won't execute code that uses either
+            var mockParams = new Mock<ExecuteRequestParamsBase>().Object;
+            var queryService = new QueryExecutionService(null, null);
+
+            // If: I attempt to get query text from the mock params
+            // Then: It should throw an exception
+            Assert.Throws<InvalidCastException>(() => queryService.GetSqlText(mockParams));
+        }
+
+        #endregion
+
+        #region Execution Tests
+        // NOTE: In order to limit test duplication, we're running the ExecuteDocumentSelection
+        // version of execute query. The code paths are almost identical.
+
+        [Fact]
+        private async Task QueryExecuteAllBatchesNoOp()
         {
             // If:
             // ... I request to execute a valid query with all batches as no op
@@ -289,6 +367,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... There should not be an active query
             Assert.Equal(1, queryService.ActiveQueries.Count);
         }
+
+        #endregion
 
         private static WorkspaceService<SqlToolsSettings> GetDefaultWorkspaceService(string query)
         {
