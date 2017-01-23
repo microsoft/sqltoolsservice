@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         }
 
         [Fact]
-        [CreateTestDb(TestServerType.Azure)]
+        [CreateTestDb(TestServerType.OnPrem)]
         public async Task BindingCacheColdOnPremComplexQuery()
         {
             TestServerType serverType = TestServerType.OnPrem;

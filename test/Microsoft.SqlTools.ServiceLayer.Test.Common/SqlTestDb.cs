@@ -48,6 +48,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         /// <summary>
+        /// Create the test db if not already exists
+        /// </summary>
+        public static SqlTestDb CreateNew(TestServerType serverType, string query = null)
+        {
+            return CreateNew(serverType, false, null, query).Result;
+        }
+
+        /// <summary>
         /// Returns a mangled name that unique based on Prefix + Machine + Process
         /// </summary>
         /// <param name="namePrefix"></param>
@@ -59,18 +67,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 namePrefix, safeMachineName, Guid.NewGuid().ToString().Replace("-", ""));
         }
 
-        public void Dispose()
+        public void CleanUp()
         {
-            if(!DoNotCleanupDb)
+            CleanUpAsync().Wait();
+        }
+
+        public async Task CleanUpAsync()
+        {
+            if (!DoNotCleanupDb)
             {
                 using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
                 using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
                 {
-                    string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture, 
+                    string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
                         (ServerType == TestServerType.Azure ? Scripts.DropDatabaseIfExistAzure : Scripts.DropDatabaseIfExist), DatabaseName);
-                    testService.RunQuery(ServerType, MasterDatabaseName, dropDatabaseQuery).Wait();
+                    await testService.RunQuery(ServerType, MasterDatabaseName, dropDatabaseQuery);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            CleanUp();
         }
     }
 }

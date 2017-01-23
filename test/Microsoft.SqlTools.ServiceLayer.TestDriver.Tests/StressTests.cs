@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                var connection = await testService.GetConnectionParametersAsync(TestServerType.OnPrem);
+                var connection = testService.GetConnectionParameters(TestServerType.OnPrem);
                 connection.Connection.Pooling = false;
 
                 // Connect/disconnect repeatedly
