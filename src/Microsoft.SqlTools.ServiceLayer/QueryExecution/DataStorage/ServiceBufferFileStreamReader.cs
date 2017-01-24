@@ -354,6 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
 
                 return dt.ToString(formatString);
+
             });
         }
 
