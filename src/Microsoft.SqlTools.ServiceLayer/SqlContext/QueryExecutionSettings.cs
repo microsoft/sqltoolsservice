@@ -1,6 +1,9 @@
 ﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
     /// <summary>
@@ -26,6 +29,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         private const int DefaultMaxXmlCharsToStore = 2097152; // 2 MB - QE default
 
+        /// <summary>
+        /// Default selection of returning an actual XML showplan with all batches
+        /// Do not return any execution plan by default
+        /// </summary>
+        private ExecutionPlanOptions DefaultExecutionPlanOptions = new ExecutionPlanOptions() 
+        { 
+            IncludeActualExecutionPlanXml = false,
+            IncludeEstimatedExecutionPlanXml = false
+        };
+
         #endregion
 
         #region Member Variables
@@ -35,6 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private int? maxCharsToStore;
 
         private int? maxXmlCharsToStore;
+
+        private ExecutionPlanOptions? executionPlanOptions;
 
         #endregion
 
@@ -61,6 +76,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             set { maxXmlCharsToStore = value; }
         }
 
+        public ExecutionPlanOptions ExecutionPlanOptions
+        {
+            get { return executionPlanOptions ?? DefaultExecutionPlanOptions; }
+            set { executionPlanOptions = value; }
+        }
+
         #endregion
 
         #region Public Methods
@@ -74,6 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             BatchSeparator = newSettings.BatchSeparator;
             MaxCharsToStore = newSettings.MaxCharsToStore;
             MaxXmlCharsToStore = newSettings.MaxXmlCharsToStore;
+            ExecutionPlanOptions = newSettings.ExecutionPlanOptions;
         }
 
         #endregion

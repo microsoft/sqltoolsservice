@@ -163,7 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // If:
             // ... I create a query from two batches (with separator)
-            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
+            ConnectionInfo ci = Common.CreateConnectedConnectionInfo(null, false);
+
             string queryText = string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
@@ -280,6 +281,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I create a query from an invalid batch
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true);
+            ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
+
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
             BatchCallbackHelper(query,

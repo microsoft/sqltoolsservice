@@ -29,5 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Details about the columns that are provided as solutions
         /// </summary>
         public DbColumnWrapper[] ColumnInfo { get; set; }
+
+        /// <summary>
+        /// The special action definition of the result set 
+        /// </summary>
+        public SpecialAction SpecialAction { get; set; }
+
     }
 }

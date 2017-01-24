@@ -55,6 +55,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private readonly List<ResultSet> resultSets;
 
+        /// <summary>
+        /// Special action which this batch performed 
+        /// </summary>
+        private SpecialAction specialAction;
+
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId, IFileStreamFactory outputFileFactory)
@@ -72,6 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Id = ordinalId;
             resultSets = new List<ResultSet>();
             this.outputFileFactory = outputFileFactory;
+            specialAction = new SpecialAction();
         }
 
         #region Events
@@ -201,6 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     summary.ResultSetSummaries = ResultSummaries;
                     summary.ExecutionEnd = ExecutionEndTimeStamp;
                     summary.ExecutionElapsed = ExecutionElapsedTime;
+                    summary.SpecialAction = ProcessResultSetSpecialActions();
                 }
 
                 return summary;
@@ -371,6 +378,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// Generates an execution plan
+        /// </summary>
+        /// <param name="resultSetIndex">The index for selecting the result set</param>
+        /// <returns>An exeuction plan object</returns>
+        public Task<ExecutionPlan> GetExecutionPlan(int resultSetIndex)
+        {
+            ResultSet targetResultSet;
+            lock (resultSets)
+            {
+                // Sanity check to make sure we have valid numbers
+                if (resultSetIndex < 0 || resultSetIndex >= resultSets.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(resultSetIndex),
+                        SR.QueryServiceSubsetResultSetOutOfRange);
+                }
+
+                targetResultSet = resultSets[resultSetIndex];
+            }
+
+            // Retrieve the result set
+            return targetResultSet.GetExecutionPlan();
+        }
+
+        /// <summary>
         /// Saves a result to a file format selected by the user
         /// </summary>
         /// <param name="saveParams">Parameters for the save as request</param>
@@ -480,6 +511,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await SendMessage(dbe.Message, true);
             }
+        }
+
+        /// <summary>
+        /// Aggregates all result sets in the batch into a single special action 
+        /// </summary>
+        private SpecialAction ProcessResultSetSpecialActions()
+        {
+            foreach (ResultSet resultSet in resultSets) 
+            {
+                specialAction.CombineSpecialAction(resultSet.Summary.SpecialAction);
+            }
+
+            return specialAction;
         }
 
         #endregion

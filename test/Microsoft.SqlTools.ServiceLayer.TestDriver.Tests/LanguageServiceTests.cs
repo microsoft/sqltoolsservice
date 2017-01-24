@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 await testService.RequestOpenDocumentNotification(openParams);
-                  
+
                 Thread.Sleep(500);
 
                 bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 await testService.RequestOpenDocumentNotification(openParams);
-                  
+
                 Thread.Sleep(500);
 
                 bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 await testService.RequestOpenDocumentNotification(openParams);
-              
+
                 Thread.Sleep(100);
 
                 var contentChanges = new TextDocumentChangeEvent[1];
@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 await testService.RequestChangeTextDocumentNotification(changeParams);
 
                 Thread.Sleep(100);
-        
+
                 contentChanges[0] = new TextDocumentChangeEvent
                 {
                     Range = new Range
@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         }
 
         /// <summary>
-        /// Peek Definition/ Go to definition 
+        /// Peek Definition/ Go to definition
         /// </summary>
         /// <returns></returns>
         [Fact]
@@ -238,16 +238,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 await testService.RequestOpenDocumentNotification(openParams);
-                  
+
                 Thread.Sleep(500);
 
                 bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
+
+                // Wait for intellisense to be ready
+                var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
+                Assert.NotNull(readyParams);
                 Assert.True(connected, "Connection is successful");
 
-                Thread.Sleep(10000);
+
                 // Request definition for "objects"
                 Location[] locations = await testService.RequestDefinition(queryTempFile.FilePath, query, lineNumber, position);
-                
+
                 Assert.True(locations != null, "Location is not null and not empty");
                 await testService.Disconnect(queryTempFile.FilePath);
             }
@@ -265,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 bool connected = await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath);
                 Assert.True(connected, "Connection was not successful");
 
-                Thread.Sleep(500);             
+                Thread.Sleep(500);
 
                 var settings = new SqlToolsSettings();
                 settings.SqlTools.IntelliSense.EnableIntellisense = false;
@@ -422,10 +426,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
         public async Task VerifyFunctionSignatureHelpParameter(
             TestServiceDriverProvider TestService,
-            string ownerUri, 
-            int character, 
-            string expectedFunctionName, 
-            int expectedParameterIndex, 
+            string ownerUri,
+            int character,
+            string expectedFunctionName,
+            int expectedParameterIndex,
             string expectedParameterName)
         {
             var position = new TextDocumentPosition()

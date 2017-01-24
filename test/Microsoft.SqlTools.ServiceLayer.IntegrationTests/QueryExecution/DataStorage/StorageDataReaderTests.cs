@@ -19,8 +19,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         private async Task<StorageDataReader> GetTestStorageDataReader(string query)
         {
             var result = await TestObjects.InitLiveConnectionInfo();
+            DbConnection connection;
+            result.ConnectionInfo.TryGetConnection(ConnectionType.Default, out connection);
 
-            var command = result.ConnectionInfo.SqlConnection.CreateCommand();
+            var command = connection.CreateCommand();
             command.CommandText = query;
             DbDataReader reader = command.ExecuteReader();
 

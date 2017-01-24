@@ -19,6 +19,10 @@ using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 {
@@ -993,6 +997,162 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // Then I expect an error message
             Assert.NotNull(errorMessage);
             Assert.NotEmpty(errorMessage);
+        }
+
+        [Fact]
+        public async void ConnectingTwiceWithTheSameUriDoesNotCreateAnotherDbConnection()
+        {
+            // Setup the connect and disconnect params
+            var connectParamsSame1 = new ConnectParams()
+            {
+                OwnerUri = "connectParamsSame",
+                Connection = TestObjects.GetTestConnectionDetails()
+            };
+            var connectParamsSame2 = new ConnectParams()
+            {
+                OwnerUri = "connectParamsSame",
+                Connection = TestObjects.GetTestConnectionDetails()
+            };
+            var disconnectParamsSame = new DisconnectParams()
+            {
+                OwnerUri = connectParamsSame1.OwnerUri
+            };
+            var connectParamsDifferent = new ConnectParams()
+            {
+                OwnerUri = "connectParamsDifferent",
+                Connection = TestObjects.GetTestConnectionDetails()
+            };
+            var disconnectParamsDifferent = new DisconnectParams()
+            {
+                OwnerUri = connectParamsDifferent.OwnerUri
+            };
+
+            // Given a request to connect to a database, there should be no initial connections in the map
+            var service = TestObjects.GetTestConnectionService();
+            Dictionary<string, ConnectionInfo> ownerToConnectionMap = service.OwnerToConnectionMap;
+            Assert.Equal(0, ownerToConnectionMap.Count);
+
+            // If we connect to the service, there should be 1 connection
+            await service.Connect(connectParamsSame1);
+            Assert.Equal(1, ownerToConnectionMap.Count);
+
+            // If we connect again with the same URI, there should still be 1 connection
+            await service.Connect(connectParamsSame2);
+            Assert.Equal(1, ownerToConnectionMap.Count);
+
+            // If we connect with a different URI, there should be 2 connections
+            await service.Connect(connectParamsDifferent);
+            Assert.Equal(2, ownerToConnectionMap.Count);
+
+            // If we disconenct with the unique URI, there should be 1 connection
+            service.Disconnect(disconnectParamsDifferent);
+            Assert.Equal(1, ownerToConnectionMap.Count);
+
+            // If we disconenct with the duplicate URI, there should be 0 connections
+            service.Disconnect(disconnectParamsSame);
+            Assert.Equal(0, ownerToConnectionMap.Count);
+        }
+
+        [Fact]
+        public async void DbConnectionDoesntLeakUponDisconnect()
+        {
+            // If we connect with a single URI and 2 connection types
+            var connectParamsDefault = new ConnectParams()
+            {
+                OwnerUri = "connectParams",
+                Connection = TestObjects.GetTestConnectionDetails(),
+                Type = ConnectionType.Default
+            };
+            var connectParamsQuery = new ConnectParams()
+            {
+                OwnerUri = "connectParams",
+                Connection = TestObjects.GetTestConnectionDetails(),
+                Type = ConnectionType.Query
+            };
+            var disconnectParams = new DisconnectParams()
+            {
+                OwnerUri = connectParamsDefault.OwnerUri
+            };
+            var service = TestObjects.GetTestConnectionService();
+            await service.Connect(connectParamsDefault);
+            await service.Connect(connectParamsQuery);
+
+            // We should have one ConnectionInfo and 2 DbConnections 
+            ConnectionInfo connectionInfo = service.OwnerToConnectionMap[connectParamsDefault.OwnerUri];
+            Assert.Equal(2, connectionInfo.CountConnections);
+            Assert.Equal(1, service.OwnerToConnectionMap.Count);
+
+            // If we record when the Default connecton calls Close()
+            bool defaultDisconnectCalled = false;
+            var mockDefaultConnection = new Mock<DbConnection> { CallBase = true };
+            mockDefaultConnection.Setup(x => x.Close())
+                .Callback(() =>
+                {
+                    defaultDisconnectCalled = true;
+                });
+            connectionInfo.ConnectionTypeToConnectionMap[ConnectionType.Default] = mockDefaultConnection.Object;
+
+            // And when the Query connecton calls Close()
+            bool queryDisconnectCalled = false;
+            var mockQueryConnection = new Mock<DbConnection> { CallBase = true };
+            mockQueryConnection.Setup(x => x.Close())
+                .Callback(() =>
+                {
+                    queryDisconnectCalled = true;
+                });
+            connectionInfo.ConnectionTypeToConnectionMap[ConnectionType.Query] = mockQueryConnection.Object;
+
+            // If we disconnect all open connections with the same URI as used above 
+            service.Disconnect(disconnectParams);
+
+            // Close() should have gotten called for both DbConnections
+            Assert.True(defaultDisconnectCalled);
+            Assert.True(queryDisconnectCalled);
+
+            // And the maps that hold connection data should be empty
+            Assert.Equal(0, connectionInfo.CountConnections);
+            Assert.Equal(0, service.OwnerToConnectionMap.Count);
+        }
+
+        [Fact]
+        public async void ClosingQueryConnectionShouldLeaveDefaultConnectionOpen()
+        {
+            // Setup the connect and disconnect params
+            var connectParamsDefault = new ConnectParams()
+            {
+                OwnerUri = "connectParamsSame",
+                Connection = TestObjects.GetTestConnectionDetails(),
+                Type = ConnectionType.Default
+            };
+            var connectParamsQuery = new ConnectParams()
+            {
+                OwnerUri = connectParamsDefault.OwnerUri,
+                Connection = TestObjects.GetTestConnectionDetails(),
+                Type = ConnectionType.Query
+            };
+            var disconnectParamsQuery = new DisconnectParams()
+            {
+                OwnerUri = connectParamsDefault.OwnerUri,
+                Type = connectParamsQuery.Type
+            };
+
+            // If I connect a Default and a Query connection
+            var service = TestObjects.GetTestConnectionService();
+            Dictionary<string, ConnectionInfo> ownerToConnectionMap = service.OwnerToConnectionMap;
+            await service.Connect(connectParamsDefault);
+            await service.Connect(connectParamsQuery);
+            ConnectionInfo connectionInfo = service.OwnerToConnectionMap[connectParamsDefault.OwnerUri];
+
+            // There should be 2 connections in the map
+            Assert.Equal(2, connectionInfo.CountConnections);
+
+            // If I Disconnect only the Query connection, there should be 1 connection in the map
+            service.Disconnect(disconnectParamsQuery);
+            Assert.Equal(1, connectionInfo.CountConnections);
+
+            // If I reconnect, there should be 2 again
+            await service.Connect(connectParamsQuery);
+            Assert.Equal(2, connectionInfo.CountConnections);
         }
     }
 }

@@ -44,5 +44,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// The summaries of the result sets inside the batch
         /// </summary>
         public ResultSetSummary[] ResultSetSummaries { get; set; }
+
+        /// <summary>
+        /// The special action of the batch 
+        /// </summary>
+        public SpecialAction SpecialAction { get; set; }
     }
 }

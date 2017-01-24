@@ -39,6 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Setup the internal state
             streamWriter = new StreamWriter(stream);
             jsonWriter = new JsonTextWriter(streamWriter);
+            jsonWriter.Formatting = Formatting.Indented;
 
             // Write the header of the file
             jsonWriter.WriteStartArray();
@@ -59,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             
             // Write the items out as properties
             int columnStart = ColumnStartIndex ?? 0;
-            int columnEnd = ColumnEndIndex ?? columns.Count;
+            int columnEnd = (ColumnEndIndex != null) ? ColumnEndIndex.Value + 1  : columns.Count; 
             for (int i = columnStart; i < columnEnd; i++)
             {
                 jsonWriter.WritePropertyName(columns[i].ColumnName);
@@ -84,9 +85,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // Write the footer of the file
             jsonWriter.WriteEndArray();
-
+            // This closes the underlying stream, so we needn't call close on the underlying stream explicitly
             jsonWriter.Close();
-            streamWriter.Dispose();
             base.Dispose();
         }
     }

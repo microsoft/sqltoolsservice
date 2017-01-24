@@ -325,6 +325,10 @@
     <value>Could not retrieve column schema for result set</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>Could not retrieve an execution plan from the result set </value>
+    <comment></comment>
+  </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</value>
     <comment>.

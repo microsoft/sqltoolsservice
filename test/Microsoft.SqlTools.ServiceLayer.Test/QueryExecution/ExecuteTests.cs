@@ -7,10 +7,16 @@
 
 using System.Data.Common;
 using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Test.Utility;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 {
@@ -24,12 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I create a query with a udt column in the result set
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            Query query = new Query(Common.UdtQuery, connectionInfo, new QueryExecutionSettings(), Common.GetFileStreamFactory());
+            Query query = new Query(Common.UdtQuery, connectionInfo, new QueryExecutionSettings(), Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
 
             // If:
             // ... I then execute the query
             DateTime startTime = DateTime.Now;
-            query.Execute().Wait();
+            query.Execute();
+            query.ExecutionTask.Wait();
 
             // Then:
             // ... The query should complete within 2 seconds since retry logic should not kick in

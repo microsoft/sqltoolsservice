@@ -47,6 +47,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the actual Connection established, including Database Name
         /// </summary>
         public ConnectionSummary ConnectionSummary { get; set; }
+
+        /// <summary>
+        /// The type of connection that this notification is for
+        /// </summary>
+        public string Type { get; set; } = ConnectionType.Default;
     }
 
     /// <summary>
