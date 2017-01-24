@@ -4,15 +4,20 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Moq;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -62,20 +67,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
-        public static string GetTestSqlFile()
+        /// <summary>
+        /// Runs a query by calling the services directly (not using the test driver) 
+        /// </summary>
+        public void RunQuery(TestServerType serverType, string databaseName, string queryText)
         {
-            string filePath = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                "sqltest.sql");
-
-            if (File.Exists(filePath))
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                File.Delete(filePath);
+                ConnectionInfo connInfo = InitLiveConnectionInfo(serverType, databaseName, queryTempFile.FilePath);
+                Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), GetFileStreamFactory(new Dictionary<string, byte[]>()));
+                query.Execute();
+                query.ExecutionTask.Wait();
             }
+        }
 
-            File.WriteAllText(filePath, "SELECT * FROM sys.objects\n");
+        private ConnectionInfo InitLiveConnectionInfo(TestServerType serverType, string databaseName, string scriptFilePath)
+        {
+            ConnectParams connectParams = ConnectionProfileService.GetConnectionParameters(serverType, databaseName);
 
-            return filePath;
+            string ownerUri = scriptFilePath;
+            var connectionService = ConnectionService.Instance;
+            var connectionResult = connectionService.Connect(new ConnectParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = connectParams.Connection
+                });
+
+            connectionResult.Wait();
+
+            ConnectionInfo connInfo = null;
+            connectionService.TryFindConnection(ownerUri, out connInfo);
+            Assert.NotNull(connInfo);
+            return connInfo;
+        }
+
+        private static IFileStreamFactory GetFileStreamFactory(Dictionary<string, byte[]> storage)
+        {
+            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            mock.Setup(fsf => fsf.CreateFile())
+                .Returns(() =>
+                {
+                    string fileName = Guid.NewGuid().ToString();
+                    storage.Add(fileName, new byte[8192]);
+                    return fileName;
+                });
+            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output])));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
+                .Returns<string>(output => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), 1024, 1024));
+
+            return mock.Object;
         }
 
         private static bool hasInitServices = false;
@@ -119,5 +160,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 serviceHost.Initialize();
             }
         }
+
     }
 }

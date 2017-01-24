@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         public async Task DiagnosticsTests()
         {
             TestServerType serverType = TestServerType.OnPrem;
-            await SqlTestDb.CreateNew(serverType, doNotCleanupDb: true, databaseName: Common.PerfTestDatabaseName, query: Scripts.CreateDatabaseObjectsQuery);
+            SqlTestDb.CreateNew(serverType, doNotCleanupDb: true, databaseName: Common.PerfTestDatabaseName, query: Scripts.CreateDatabaseObjectsQuery);
 
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

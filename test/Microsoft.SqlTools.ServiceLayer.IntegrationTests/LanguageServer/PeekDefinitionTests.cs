@@ -310,7 +310,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 CREATE FUNCTION[dbo].[pd_addTwo](@number int)  
 RETURNS int
 AS   
--- Returns the stock level for the product.
 BEGIN
     RETURN @number + 2;
         END;  
@@ -416,7 +415,6 @@ GO";
 CREATE FUNCTION[dbo].[pd_addTwo](@number int)  
 RETURNS int
 AS   
--- Returns the stock level for the product.
 BEGIN
     RETURN @number + 2;
         END;  
