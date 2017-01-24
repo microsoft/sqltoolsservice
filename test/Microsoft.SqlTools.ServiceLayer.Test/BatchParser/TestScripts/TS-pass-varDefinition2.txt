@@ -1,0 +1,2 @@
+:setvar a [unterminated_brace
+$(b)]
