@@ -3,20 +3,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -112,23 +113,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             querySettings = settings;
             streamOutputFactory = outputFactory;
 
-            // Process the query into batches
-            ParseResult parseResult = Parser.Parse(queryText, new ParseOptions
-            {
-                BatchSeparator = settings.BatchSeparator
-            });
-            // NOTE: We only want to process batches that have statements (ie, ignore comments and empty lines)
-            var batchSelection = parseResult.Script.Batches
-                .Where(batch => batch.Statements.Count > 0)
-                .Select((batch, index) =>
-                    new Batch(batch.Sql,
+            // Process the query into batches 
+            BatchParserWrapper parser = new BatchParserWrapper();
+            List<BatchDefinition> parserResult = parser.GetBatches(queryText);
+
+            var batchSelection = parserResult
+                .Select((batchDefinition, index) =>
+                    new Batch(batchDefinition.batchText, 
                         new SelectionData(
-                            batch.StartLocation.LineNumber - 1,
-                            batch.StartLocation.ColumnNumber - 1,
-                            batch.EndLocation.LineNumber - 1,
-                            batch.EndLocation.ColumnNumber - 1),
+                            batchDefinition.startLine-1,
+                            batchDefinition.startColumn-1,
+                            batchDefinition.endLine-1,
+                            batchDefinition.endColumn-1),                       
                         index, outputFactory));
-                        
+
             Batches = batchSelection.ToArray();
 
             // Create our batch lists
