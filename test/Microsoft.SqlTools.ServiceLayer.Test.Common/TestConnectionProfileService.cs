@@ -18,8 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     /// </summary>
     public class TestConnectionProfileService
     {
-        private static Dictionary<string, InstanceInfo> _connectionProfilesCache = new Dictionary<string, InstanceInfo>();
-        private static TestConnectionProfileService _instance = new TestConnectionProfileService();
+        private static Dictionary<string, InstanceInfo> connectionProfilesCache = new Dictionary<string, InstanceInfo>();
+        private static TestConnectionProfileService instance = new TestConnectionProfileService();
 
         public const string DefaultSql2005InstanceKey = "defaultSql2005";
         public const string DefaultSql2008InstanceKey = "defaultSql2008";
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             get
             {
-                return _instance;
+                return instance;
             }
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public static InstanceInfo GetInstance(string key)
         {
             InstanceInfo instanceInfo;
-            _connectionProfilesCache.TryGetValue(key, out instanceInfo);
+            connectionProfilesCache.TryGetValue(key, out instanceInfo);
             Assert.True(instanceInfo != null, string.Format(CultureInfo.InvariantCulture, "Cannot find any instance for version key: {0}", key));
             return instanceInfo;
         }
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             try
             {
-                _connectionProfilesCache = new Dictionary<string, InstanceInfo>();
+                connectionProfilesCache = new Dictionary<string, InstanceInfo>();
                 IEnumerable<TestServerIdentity> testServers = TestConfigPersistenceHelper.InitTestServerNames();
                 ConnectionSetting settings = TestConfigPersistenceHelper.InitSetting();
                 if (settings == null)
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 TestServerType serverType = instance.ServerType == TestServerType.None ? TestServerType.OnPrem : instance.ServerType; //Default to onPrem
                 string versionKey = string.IsNullOrEmpty(instance.VersionKey) ? ConvertServerTypeToVersionKey(serverType) : instance.VersionKey;
-                if (!_connectionProfilesCache.ContainsKey(versionKey))
+                if (!connectionProfilesCache.ContainsKey(versionKey))
                 {
                     //If the password is empty, get the credential using the service
                     if (instance.AuthenticationType == AuthenticationType.SqlLogin && string.IsNullOrEmpty(instance.Password))
@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                         Credential credential = TestCredentialService.Instance.ReadCredential(instance);
                         instance.Password = credential.Password;
                     }
-                    _connectionProfilesCache.Add(versionKey, instance);
+                    connectionProfilesCache.Add(versionKey, instance);
                 }
             }
         }

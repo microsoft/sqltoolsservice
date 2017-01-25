@@ -7,13 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     public sealed class TestConfigPersistenceHelper
     {
         private static string DefaultSettingFileName = Path.Combine(FileUtils.UserRootFolder, "sqlConnectionSettings.json");
-        private static TestCredentialService _credentialService = TestCredentialService.Instance;
+        private static TestCredentialService credentialService = TestCredentialService.Instance;
 
         public static bool Write(IEnumerable<InstanceInfo> instances)
         {
@@ -30,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     if (!string.IsNullOrEmpty(instance.Password))
                     {
                         
-                        if (!_credentialService.SaveCredential(instance))
+                        if (!credentialService.SaveCredential(instance))
                         {
                             Console.WriteLine("Failed to store the password for server: " + instance.ServerName);
                         }
@@ -45,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 }
                 
                 Console.WriteLine("The SQL connection instances will be written to " + DefaultSettingFileName);
-                string jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(connectionSetting);
+                string jsonContent = JsonConvert.SerializeObject(connectionSetting);
 
                 if (File.Exists(DefaultSettingFileName))
                 {

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     /// <summary>
-    /// The model for de-serializing settings.json
+    /// The model for deserializing settings.json
     /// </summary>
     public class ConnectionSetting
     {

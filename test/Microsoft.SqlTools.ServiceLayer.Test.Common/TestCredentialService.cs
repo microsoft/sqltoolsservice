@@ -12,9 +12,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     public class TestCredentialService
     {
-        private CredentialService _credentialService = TestServiceProvider.Instance.CredentialService;
+        private CredentialService credentialService = TestServiceProvider.Instance.CredentialService;
 
-        private static TestCredentialService _instance = new TestCredentialService();
+        private static TestCredentialService instance = new TestCredentialService();
 
         /// <summary>
         /// The singleton instance of the service 
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             get
             {
-                return _instance;
+                return instance;
             }
         }
 
@@ -43,11 +43,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             var credentialParams = new Credential();
             credentialParams.CredentialId = FormatCredentialIdForTest(connectionProfile);
-            Credential credential = _credentialService.ReadCredential(credentialParams);
+            Credential credential = credentialService.ReadCredential(credentialParams);
             if (credential == null || string.IsNullOrEmpty(credential.Password))
             {
                 credentialParams.CredentialId = FormatCredentialIdForMsSql(connectionProfile);
-                credential = _credentialService.ReadCredential(credentialParams);
+                credential = credentialService.ReadCredential(credentialParams);
             }
 
             return credential;
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public bool SaveCredential(InstanceInfo connectionProfile)
         {
             Credential credential = new Credential(FormatCredentialIdForTest(connectionProfile), connectionProfile.Password);
-            return _credentialService.SaveCredential(credential);
+            return credentialService.SaveCredential(credential);
         }
 
         private string FormatCredentialIdForMsSql(InstanceInfo connectionProfile, string itemType = "Profile")
