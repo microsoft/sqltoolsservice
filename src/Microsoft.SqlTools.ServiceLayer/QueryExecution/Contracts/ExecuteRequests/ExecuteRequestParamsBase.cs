@@ -5,6 +5,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
+    /// <summary>
+    /// Basic parameters that are required for executing a query
+    /// </summary>
     public abstract class ExecuteRequestParamsBase
     {
         /// <summary>

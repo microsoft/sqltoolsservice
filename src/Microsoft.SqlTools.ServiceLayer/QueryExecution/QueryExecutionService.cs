@@ -519,11 +519,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (docRequest != null)
             {
                 // Get the document from the parameters
-                ExecuteDocumentSelectionParams documentRequest = (ExecuteDocumentSelectionParams) request;
-                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(documentRequest.OwnerUri);
+                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(docRequest.OwnerUri);
 
                 // If a selection was not provided, use the entire document
-                if (documentRequest.QuerySelection == null)
+                if (docRequest.QuerySelection == null)
                 {
                     return queryFile.Contents;
                 }
@@ -532,12 +531,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 string[] queryTextArray = queryFile.GetLinesInRange(
                     new BufferRange(
                         new BufferPosition(
-                            documentRequest.QuerySelection.StartLine + 1,
-                            documentRequest.QuerySelection.StartColumn + 1
+                            docRequest.QuerySelection.StartLine + 1,
+                            docRequest.QuerySelection.StartColumn + 1
                         ),
                         new BufferPosition(
-                            documentRequest.QuerySelection.EndLine + 1,
-                            documentRequest.QuerySelection.EndColumn + 1
+                            docRequest.QuerySelection.EndLine + 1,
+                            docRequest.QuerySelection.EndColumn + 1
                         )
                     )
                 );
@@ -548,7 +547,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ExecuteStringParams stringRequest = request as ExecuteStringParams;
             if (stringRequest != null)
             {
-                return ((ExecuteStringParams) request).Query;
+                return stringRequest.Query;
             }
 
             // Note, this shouldn't be possible due to inheritance rules
