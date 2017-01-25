@@ -514,10 +514,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Internal for testing purposes
         internal string GetSqlText(ExecuteRequestParamsBase request)
         {
-            Type requestType = request.GetType();
-
             // If it is a document selection, we'll retrieve the text from the document
-            if (requestType == typeof(ExecuteDocumentSelectionParams))
+            ExecuteDocumentSelectionParams docRequest = request as ExecuteDocumentSelectionParams;
+            if (docRequest != null)
             {
                 // Get the document from the parameters
                 ExecuteDocumentSelectionParams documentRequest = (ExecuteDocumentSelectionParams) request;
@@ -546,7 +545,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // If it is an ExecuteStringParams, return the text as is
-            if (requestType == typeof(ExecuteStringParams))
+            ExecuteStringParams stringRequest = request as ExecuteStringParams;
+            if (stringRequest != null)
             {
                 return ((ExecuteStringParams) request).Query;
             }
