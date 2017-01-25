@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -124,6 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             // If the SQL has already been parsed
             var service = LanguageService.Instance;
             await service.UpdateLanguageServiceOnConnection(result.ConnectionInfo);
+            Thread.Sleep(2000);
 
             // We should get back a non-null ScriptParseInfo
             ScriptParseInfo parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientFilePath);
