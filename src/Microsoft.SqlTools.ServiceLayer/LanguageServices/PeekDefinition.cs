@@ -74,12 +74,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             // Reuse existing connection 
                             Server server = new Server(this.serverConnection);
-                            // Deafult database name is the database name of the server connection
+                            // The default database name is the database name of the server connection
                             string dbName = this.serverConnection.DatabaseName;                          
                             if (this.connectionInfo != null)
                             {
-                                // If there is a query DbConnection, use that connection to get the database name.
-                                // This is preffered since it has the most current database name (in case of database switching)
+                                // If there is a query DbConnection, use that connection to get the database name
+                                // This is preferred since it has the most current database name (in case of database switching)
                                 DbConnection connection;
                                 if (connectionInfo.TryGetConnection(ConnectionType.Query, out connection))
                                 {
