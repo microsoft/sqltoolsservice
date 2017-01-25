@@ -1,6 +1,7 @@
-﻿//------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -10,21 +11,22 @@ using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
+    // Lexer for the SMO Batch Parser
     internal sealed class Lexer : IDisposable
     {
-        private LexerInput _currentInput;
-        private bool _popInputAtNextConsume;
-        private Token _currentToken;
-        private ErrorCode _errorCode = ErrorCode.Success;
-        private readonly Stack<LexerInput> _inputStack = new Stack<LexerInput>();
-        private Func<bool> _lexerFunc;
-        private TextRuleFlags _textRuleFlags;
-        private PositionStruct _tokenBeginPosition;
+        private LexerInput currentInput;
+        private bool popInputAtNextConsume;
+        private Token currentToken;
+        private ErrorCode errorCode = ErrorCode.Success;
+        private readonly Stack<LexerInput> inputStack = new Stack<LexerInput>();
+        private Func<bool> lexerFunc;
+        private TextRuleFlags textRuleFlags;
+        private PositionStruct tokenBeginPosition;
 
         public Lexer(TextReader input, string name)
         {
-            _currentInput = new LexerInput(input, name);
-            _currentToken = null;
+            currentInput = new LexerInput(input, name);
+            currentToken = null;
             RecognizeSqlCmdSyntax = true;
 
             SetState(RuleLine);
@@ -33,45 +35,45 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         public Token CurrentToken
         {
             get {
-                return _currentToken; 
+                return currentToken; 
             }
         }
 
         public LexerTokenType CurrentTokenType
         {
-            get { return _currentToken.TokenType; }
+            get { return currentToken.TokenType; }
         }
 
 
         public void ConsumeToken()
         {
-            if (_currentInput == null)
+            if (currentInput == null)
             {
                 return;
             }
 
             bool result;
-            _tokenBeginPosition = new PositionStruct(_currentInput.CurrentLine, _currentInput.CurrentColumn, _currentInput.CurrentOffset, _currentInput.Filename);
+            tokenBeginPosition = new PositionStruct(currentInput.CurrentLine, currentInput.CurrentColumn, currentInput.CurrentOffset, currentInput.Filename);
 
             do
             {
-                if (_popInputAtNextConsume)
+                if (popInputAtNextConsume)
                 {
                     PopAndCloseInput();
-                    _popInputAtNextConsume = false;
+                    popInputAtNextConsume = false;
                 }
                 do
                 {
-                    result = _lexerFunc();
+                    result = lexerFunc();
                 } while (result == false);
                 if (CurrentTokenType == LexerTokenType.Eof)
                 {
-                    _popInputAtNextConsume = true;
-                    if(_inputStack.Count > 0)
+                    popInputAtNextConsume = true;
+                    if(inputStack.Count > 0)
                     {
                         // report as empty NewLine token
-                        _currentToken = new Token(
-                            LexerTokenType.NewLine, _tokenBeginPosition, _tokenBeginPosition, string.Empty, _tokenBeginPosition.Filename);
+                        currentToken = new Token(
+                            LexerTokenType.NewLine, tokenBeginPosition, tokenBeginPosition, string.Empty, tokenBeginPosition.Filename);
                     }
                 }
             } while (result == false);
@@ -79,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         public void Dispose()
         {
-            while (_inputStack.Count > 0)
+            while (inputStack.Count > 0)
             {
                 PopAndCloseInput();
             }
@@ -87,14 +89,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         public void PopAndCloseInput()
         {
-            if (_currentInput != null)
+            if (currentInput != null)
             {
-                _currentInput.Dispose();
-                _currentInput = null;
+                currentInput.Dispose();
+                currentInput = null;
             }
-            if (_inputStack.Count > 0)
+            if (inputStack.Count > 0)
             {
-                _currentInput = _inputStack.Pop();
+                currentInput = inputStack.Pop();
                 SetState(RuleLine);
             }
         }
@@ -106,15 +108,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         public void PushInput(TextReader reader, string name)
         {
-            Debug.Assert(_currentToken != null &&
-                (_currentToken.TokenType == LexerTokenType.NewLine || _currentToken.TokenType == LexerTokenType.Eof), "New input can only be pushed after new line token or EOF");
+            Debug.Assert(currentToken != null &&
+                (currentToken.TokenType == LexerTokenType.NewLine || currentToken.TokenType == LexerTokenType.Eof), "New input can only be pushed after new line token or EOF");
 
-            if (name.Equals(_currentInput.Filename, StringComparison.OrdinalIgnoreCase))
+            if (name.Equals(currentInput.Filename, StringComparison.OrdinalIgnoreCase))
             {
                 RaiseError(ErrorCode.CircularReference, GetCircularReferenceErrorMessage(name));
             }
 
-            foreach (LexerInput input in _inputStack)
+            foreach (LexerInput input in inputStack)
             {
                 if (name.Equals(input.Filename, StringComparison.OrdinalIgnoreCase))
                 {
@@ -122,12 +124,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 }
             }
 
-            _inputStack.Push(_currentInput);
-            _currentInput = new LexerInput(reader, name);
+            inputStack.Push(currentInput);
+            currentInput = new LexerInput(reader, name);
             SetState(RuleLine);
             // We don't want to close the input, in that case the current file would be taken out of the 
             // input stack and cycle detection won't work.
-            _popInputAtNextConsume = false;
+            popInputAtNextConsume = false;
             ConsumeToken();
         }
 
@@ -298,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private void Consume()
         {
-            _currentInput.Consume();
+            currentInput.Consume();
         }
 
         private void ChangeStateToBatchCommand(Token token)
@@ -345,18 +347,18 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private char? Lookahead()
         {
-            return _currentInput.Lookahead();
+            return currentInput.Lookahead();
         }
 
         private char? Lookahead(int lookahead)
         {
-            return _currentInput.Lookahead(lookahead);
+            return currentInput.Lookahead(lookahead);
         }
 
         private bool RuleError()
         {
             // lexer repeats last error
-            Parser.RaiseError(_errorCode, CurrentToken);
+            Parser.RaiseError(errorCode, CurrentToken);
             Debug.Fail("Parser.RaiseError should throw an exception");
             return true;
         }
@@ -384,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 case ':':
                     if (RecognizeSqlCmdSyntax && TryAcceptBatchCommandAndSetToken())
                     {
-                        ChangeStateToBatchCommand(_currentToken);
+                        ChangeStateToBatchCommand(currentToken);
                         return true;
                     }
                     break;
@@ -393,7 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     if (TryAccept("go", true))
                     {
                         SetToken(LexerTokenType.Go);
-                        ChangeStateToBatchCommand(_currentToken);
+                        ChangeStateToBatchCommand(currentToken);
                         return true;
                     }
                     break;
@@ -463,20 +465,20 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     SetState(RuleLine);
                     return true;
                 }
-                else if (_textRuleFlags.HasFlag(TextRuleFlags.ReportWhitespace) && IsWhitespaceChar(ch.Value))
+                else if (textRuleFlags.HasFlag(TextRuleFlags.ReportWhitespace) && IsWhitespaceChar(ch.Value))
                 {
                     AcceptWhitespace();
                     return true;
                 }
-                else if (_textRuleFlags.HasFlag(TextRuleFlags.RecognizeBlockComment) || _textRuleFlags.HasFlag(TextRuleFlags.RecognizeLineComment))
+                else if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeBlockComment) || textRuleFlags.HasFlag(TextRuleFlags.RecognizeLineComment))
                 {
                     char? ch2 = Lookahead(1);
-                    if (_textRuleFlags.HasFlag(TextRuleFlags.RecognizeBlockComment) && ch == '/' && ch2 == '*')
+                    if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeBlockComment) && ch == '/' && ch2 == '*')
                     {
                         AcceptBlockComment();
                         return true;
                     }
-                    else if (_textRuleFlags.HasFlag(TextRuleFlags.RecognizeLineComment) && ch == '-' && ch2 == '-')
+                    else if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeLineComment) && ch == '-' && ch2 == '-')
                     {
                         AcceptLineComment();
                         return true;
@@ -491,7 +493,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 {
                     case ' ':
                     case '\t':
-                        if (_textRuleFlags.HasFlag(TextRuleFlags.ReportWhitespace))
+                        if (textRuleFlags.HasFlag(TextRuleFlags.ReportWhitespace))
                         {
                             SetToken(LexerTokenType.Text);
                             return true;
@@ -502,28 +504,28 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         SetToken(LexerTokenType.Text);
                         return true;
                     case '"':
-                        if (_textRuleFlags.HasFlag(TextRuleFlags.RecognizeDoubleQuotedString))
+                        if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeDoubleQuotedString))
                         {
                             AcceptQuotedText('"');
                             consumed = true;
                         }
                         break;
                     case '\'':
-                        if (_textRuleFlags.HasFlag(TextRuleFlags.RecognizeSingleQuotedString))
+                        if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeSingleQuotedString))
                         {
                             AcceptEscapableQuotedText('\'');
                             consumed = true;
                         }
                         break;
                     case '[':
-                        if (_textRuleFlags.HasFlag(TextRuleFlags.RecognizeBrace))
+                        if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeBrace))
                         {
                             AcceptEscapableQuotedText(']');
                             consumed = true;
                         }
                         break;
                     case '-':
-                        if (_textRuleFlags.HasFlag(TextRuleFlags.RecognizeLineComment))
+                        if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeLineComment))
                         {
                             char? ch2 = Lookahead(1);
                             if (ch.HasValue && ch2 == '-')
@@ -534,7 +536,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         }
                         break;
                     case '/':
-                        if (_textRuleFlags.HasFlag(TextRuleFlags.RecognizeBlockComment))
+                        if (textRuleFlags.HasFlag(TextRuleFlags.RecognizeBlockComment))
                         {
                             char? ch2 = Lookahead(1);
                             if (ch.HasValue && ch2 == '*')
@@ -561,31 +563,31 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         {
             SetState(RuleError);
             SetToken(LexerTokenType.Error);
-            _errorCode = code;
-            Parser.RaiseError(_errorCode, CurrentToken, message);
+            errorCode = code;
+            Parser.RaiseError(errorCode, CurrentToken, message);
         }
 
         private void SetState(Func<bool> lexerFunc)
         {
-            this._lexerFunc = lexerFunc;
+            this.lexerFunc = lexerFunc;
         }
 
         internal void SetTextState(TextRuleFlags textRuleFlags)
         {
-            this._textRuleFlags = textRuleFlags;
+            this.textRuleFlags = textRuleFlags;
             SetState(RuleText);
         }
 
         private void SetToken(LexerTokenType lexerTokenType)
         {
-            string text = _currentInput.FlushBufferedText();
+            string text = currentInput.FlushBufferedText();
 
-            _currentToken = new Token(
+            currentToken = new Token(
                 lexerTokenType, 
-                _tokenBeginPosition, 
-                new PositionStruct(_currentInput.CurrentLine, _currentInput.CurrentColumn, _currentInput.CurrentOffset, _currentInput.Filename),
+                tokenBeginPosition, 
+                new PositionStruct(currentInput.CurrentLine, currentInput.CurrentColumn, currentInput.CurrentOffset, currentInput.Filename),
                 text, 
-                _currentInput.Filename);
+                currentInput.Filename);
         }
 
         private bool TryAccept(string text, bool wordBoundary)

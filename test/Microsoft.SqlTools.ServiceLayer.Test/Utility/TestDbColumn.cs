@@ -17,7 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             base.DataType = typeof(string);
             base.DataTypeName = "nvarchar";
         }
-<<<<<<< HEAD
 
         public TestDbColumn(string columnName, string columnType)
             : this(columnName)
@@ -30,7 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
         {
             base.NumericScale = scale;
         }
-=======
->>>>>>> a41977b... Revert "Adding Milliseconds to DateTime fields (#173)" (#197)
+
     }
 }

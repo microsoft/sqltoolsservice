@@ -1,10 +1,8 @@
-//------------------------------------------------------------------------------
-// <copyright file="ExecutionEngineConditions.cs" company="Microsoft">
-//	 Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
-using System;
 using System.Collections.Specialized;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -27,8 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public ExecutionEngineConditions(ExecutionEngineConditions condition)
         {
-            _state = condition._state;
-            _batchSeparator = condition._batchSeparator;
+            state = condition.state;
+            batchSeparator = condition.batchSeparator;
         }
         #endregion
 
@@ -114,8 +112,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsParseOnly
         {
-            get { return _state[stateParseOnly]; }
-            set { _state[stateParseOnly] = value; }
+            get { return state[stateParseOnly]; }
+            set { state[stateParseOnly] = value; }
         }
 
         /// <summary>
@@ -123,8 +121,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsTransactionWrapped
         {
-            get { return _state[stateTransactionWrapped]; }
-            set { _state[stateTransactionWrapped] = value; }
+            get { return state[stateTransactionWrapped]; }
+            set { state[stateTransactionWrapped] = value; }
         }
 
         /// <summary>
@@ -132,8 +130,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsScriptExecutionTracked
         {
-            get { return _state[stateScriptExecutionTracked]; }
-            set { _state[stateScriptExecutionTracked] = value; }
+            get { return state[stateScriptExecutionTracked]; }
+            set { state[stateScriptExecutionTracked] = value; }
         }
 
         /// <summary>
@@ -141,8 +139,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsHaltOnError
         {
-            get { return _state[stateHaltOnError]; }
-            set { _state[stateHaltOnError] = value; }
+            get { return state[stateHaltOnError]; }
+            set { state[stateHaltOnError] = value; }
         }
 
         /// <summary>
@@ -150,8 +148,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsEstimatedShowPlan
         {
-            get { return _state[stateEstimatedShowPlan]; }
-            set { _state[stateEstimatedShowPlan] = value; }
+            get { return state[stateEstimatedShowPlan]; }
+            set { state[stateEstimatedShowPlan] = value; }
         }
 
         /// <summary>
@@ -159,8 +157,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsActualShowPlan
         {
-            get { return _state[stateActualShowPlan]; }
-            set { _state[stateActualShowPlan] = value; }
+            get { return state[stateActualShowPlan]; }
+            set { state[stateActualShowPlan] = value; }
         }
 
         /// <summary>
@@ -168,8 +166,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsSuppressProviderMessageHeaders
         {
-            get { return _state[stateSuppressProviderMessageHeaders]; }
-            set { _state[stateSuppressProviderMessageHeaders] = value; }
+            get { return state[stateSuppressProviderMessageHeaders]; }
+            set { state[stateSuppressProviderMessageHeaders] = value; }
         }
 
         /// <summary>
@@ -177,8 +175,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsNoExec
         {
-            get { return _state[stateNoExec]; }
-            set { _state[stateNoExec] = value; }
+            get { return state[stateNoExec]; }
+            set { state[stateNoExec] = value; }
         }
 
         /// <summary>
@@ -186,8 +184,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsStatisticsIO
         {
-            get { return _state[stateStatisticsIO]; }
-            set { _state[stateStatisticsIO] = value; }
+            get { return state[stateStatisticsIO]; }
+            set { state[stateStatisticsIO] = value; }
         }
 
         /// <summary>
@@ -195,8 +193,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsShowPlanText
         {
-            get { return _state[stateShowPlanText]; }
-            set { _state[stateShowPlanText] = value; }
+            get { return state[stateShowPlanText]; }
+            set { state[stateShowPlanText] = value; }
         }
 
         /// <summary>
@@ -204,8 +202,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsStatisticsTime
         {
-            get { return _state[stateStatisticsTime]; }
-            set { _state[stateStatisticsTime] = value; }
+            get { return state[stateStatisticsTime]; }
+            set { state[stateStatisticsTime] = value; }
         }
 
         /// <summary>
@@ -213,23 +211,23 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public bool IsSqlCmd
         {
-            get { return _state[stateSqlCmd]; }
-            set { _state[stateSqlCmd] = value; }
+            get { return state[stateSqlCmd]; }
+            set { state[stateSqlCmd] = value; }
         }
 
         /// <summary>
         /// Batch separator statement
         /// </summary>
-        public String BatchSeparator
+        public string BatchSeparator
         {
             get
             {
-                return _batchSeparator;
+                return batchSeparator;
             }
             set
             {
                 Validate.IsNotNullOrEmptyString(nameof(value), value);
-                _batchSeparator = value;
+                batchSeparator = value;
             }
         }
 
@@ -270,8 +268,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         private static readonly int stateSqlCmd = BitVector32.CreateMask(stateStatisticsTime);
         private static readonly int stateScriptExecutionTracked = BitVector32.CreateMask(stateSqlCmd);
                 
-        private BitVector32 _state = new BitVector32();
-        private string _batchSeparator = Consts.BatchSeparator;
+        private BitVector32 state = new BitVector32();
+        private string batchSeparator = Consts.BatchSeparator;
 
         #endregion
     }

@@ -4,12 +4,8 @@
 //
 
 using System;
-<<<<<<< HEAD
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-=======
-using System.Data.SqlTypes;
->>>>>>> a41977b... Revert "Adding Milliseconds to DateTime fields (#173)" (#197)
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -19,28 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     public interface IFileStreamWriter : IDisposable
     {
         int WriteRow(StorageDataReader dataReader);
-<<<<<<< HEAD
         void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns);
-=======
-        int WriteNull();
-        int WriteInt16(short val);
-        int WriteInt32(int val);
-        int WriteInt64(long val);
-        int WriteByte(byte val);
-        int WriteChar(char val);
-        int WriteBoolean(bool val);
-        int WriteSingle(float val);
-        int WriteDouble(double val);
-        int WriteDecimal(decimal val);
-        int WriteSqlDecimal(SqlDecimal val);
-        int WriteDateTime(DateTime val);
-        int WriteDateTimeOffset(DateTimeOffset dtoVal);
-        int WriteTimeSpan(TimeSpan val);
-        int WriteString(string val);
-        int WriteBytes(byte[] bytes);
-        int WriteGuid(Guid val);
-        int WriteMoney(SqlMoney val);
->>>>>>> a41977b... Revert "Adding Milliseconds to DateTime fields (#173)" (#197)
         void FlushBuffer();
     }
 }

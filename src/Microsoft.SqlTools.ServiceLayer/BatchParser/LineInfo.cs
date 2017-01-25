@@ -1,35 +1,32 @@
-//------------------------------------------------------------------------------
-// <copyright file="LineInfo.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
-using System;
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     class LineInfo
     {
-        private IEnumerable<Token> _tokens;
-        private IEnumerable<VariableReference> _variableRefs;
+        private IEnumerable<Token> tokens;
+        private IEnumerable<VariableReference> variableRefs;
 
         public LineInfo(IEnumerable<Token> tokens, IEnumerable<VariableReference> variableRefs)
         {
-            _tokens = tokens;
-            _variableRefs = variableRefs;
+            this.tokens = tokens;
+            this.variableRefs = variableRefs;
         }
 
         public PositionStruct GetStreamPositionForOffset(int offset)
         {
-            if (_variableRefs != null)
+            if (variableRefs != null)
             {
                 offset = CalculateVarsUnresolvedOffset(offset);
             }
             int charCount = 0;
             Token lastToken = null;
-            foreach (Token token in _tokens)
+            foreach (Token token in tokens)
             {
                 lastToken = token;
                 if (charCount + token.Text.Length > offset)
@@ -88,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         {
             // find offset of the beginning of variable substitution (if offset points to the middle of it)
             int diff = 0;
-            foreach (VariableReference reference in _variableRefs)
+            foreach (VariableReference reference in variableRefs)
             {
                 if (reference.Start >= offset)
                 {

@@ -1,8 +1,7 @@
-//------------------------------------------------------------------------------
-// <copyright file="BatchParserWrapper.cs" company="Microsoft">
-//         Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -22,41 +21,34 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
     {
         public BatchParserWrapper()
         {
-            _executionEngine = new ExecutionEngine();
-
-            ////commented for performance reasons
-            // subscribe to executionEngine events
-            //_executionEngine.ScriptExecutionFinished +=
-            //    new EventHandler<ScriptExecutionFinishedEventArgs>(OnScriptExecutionFinished);
+            executionEngine = new ExecutionEngine();
 
             // subscribe to executionEngine BatchParser events
-            _executionEngine.BatchParserExecutionError +=
+            executionEngine.BatchParserExecutionError +=
                 new EventHandler<BatchParserExecutionErrorEventArgs>(OnBatchParserExecutionError);
-            ////commented for performance reasons
-            //_executionEngine.BatchParserExecutionStart +=
-            //    new System.EventHandler<BatchParserExecutionStartEventArgs>(OnBatchParserExecutionStart);
-            _executionEngine.BatchParserExecutionFinished +=
+
+            executionEngine.BatchParserExecutionFinished +=
                 new System.EventHandler<BatchParserExecutionFinishedEventArgs>(OnBatchParserExecutionFinished);
 
             // instantiate notificationHandler class
-            _notificationHandler = new BatchEventNotificationHandler();
+            notificationHandler = new BatchEventNotificationHandler();
         }
 
         public List<BatchDefinition> GetBatches(string sqlScript)
         {
-            _startLineColumns = new List<System.Tuple<int /*startLine*/, int/*startColumn*/>>();
-            _lengths = new List<int /* length */>();
+            startLineColumns = new List<System.Tuple<int /*startLine*/, int/*startColumn*/>>();
+            lengths = new List<int /* length */>();
 
             // execute the script - all communication / integration after here happen via event handlers
-            _executionEngine.ParseScript(sqlScript, _notificationHandler);
+            executionEngine.ParseScript(sqlScript, notificationHandler);
 
             List<System.Tuple<int/*startOffset*/, int/*length*/>> positions = new List<System.Tuple<int, int>>();
 
-            IList<int/*startOffset*/> offsets = ConvertToOffsetSortedInput(sqlScript, _startLineColumns);
-            Debug.Assert(offsets.Count == _lengths.Count);
+            IList<int/*startOffset*/> offsets = ConvertToOffsetSortedInput(sqlScript, startLineColumns);
+            Debug.Assert(offsets.Count == lengths.Count);
             for (int batchIndex = 0, batchCount = offsets.Count; batchIndex < batchCount; batchIndex++)
             {
-                positions.Add(new System.Tuple<int/*startOffset*/, int/*length*/>(offsets[batchIndex], _lengths[batchIndex]));
+                positions.Add(new System.Tuple<int/*startOffset*/, int/*length*/>(offsets[batchIndex], lengths[batchIndex]));
             }
 
             List<string> batchTextList = GetBatchText(sqlScript, positions);
@@ -78,23 +70,23 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     endColumn = endLineColumn.Item2;
                 }
                 else {
-                    endLine = _startLineColumns[i+1].Item1-1;
+                    endLine = startLineColumns[i+1].Item1-1;
                     endColumn = GetEndColumn(reader, endLine);
                 }
 
                 // create a batch definition for each batch
                 BatchDefinition batchDefinition = new BatchDefinition(
                     batchTextList[i], //batchText
-                    _startLineColumns[i].Item1 + 1, //startLine
+                    startLineColumns[i].Item1 + 1, //startLine
                     endLine, //endLine
-                    _startLineColumns[i].Item2 + 1, //startColumn
+                    startLineColumns[i].Item2 + 1, //startColumn
                     endColumn); //endColumn
 
                 batchDefinitions.Add(batchDefinition);           
             }
          
-            _startLineColumns = null;
-            _lengths = null;
+            startLineColumns = null;
+            lengths = null;
            
             return batchDefinitions;
         }
@@ -317,8 +309,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     }
 
                     // Add the script info
-                    _startLineColumns.Add(position);
-                    _lengths.Add(batchTextLength);
+                    startLineColumns.Add(position);
+                    lengths.Add(batchTextLength);
                 }
             }
             catch (NotImplementedException)
@@ -398,10 +390,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         #region Private members
 
-        private List<System.Tuple<int /*startLine*/, int/*startColumn*/>> _startLineColumns;
-        private List<int /*length*/> _lengths;
-        private ExecutionEngine _executionEngine;
-        private BatchEventNotificationHandler _notificationHandler;
+        private List<System.Tuple<int /*startLine*/, int/*startColumn*/>> startLineColumns;
+        private List<int /*length*/> lengths;
+        private ExecutionEngine executionEngine;
+        private BatchEventNotificationHandler notificationHandler;
 
         #endregion
 
@@ -409,12 +401,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         public void Dispose()
         {
-            if (_executionEngine != null)
+            if (executionEngine != null)
             {
-                _executionEngine.Dispose();
-                _executionEngine = null;
-                _startLineColumns = null;
-                _lengths = null;
+                executionEngine.Dispose();
+                executionEngine = null;
+                startLineColumns = null;
+                lengths = null;
             }
         }
 

@@ -1,8 +1,7 @@
-//------------------------------------------------------------------------------
-// <copyright file="BatchMessageEventArgs.cs" company="Microsoft">
-//	 Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Data.SqlClient;
@@ -10,7 +9,7 @@ using System.Data.SqlClient;
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
     /// <summary>
-    /// Event args for notification about non-error _message
+    /// Event args for notification about non-error message
     /// </summary>
     internal class BatchMessageEventArgs : EventArgs
     {
@@ -20,47 +19,47 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
         }
 
-        internal BatchMessageEventArgs(String msg)
+        internal BatchMessageEventArgs(string msg)
             : this(string.Empty, msg)
         {            
         }
 
-        internal BatchMessageEventArgs(String detailedMsg, String msg) : this(detailedMsg, msg, null)
+        internal BatchMessageEventArgs(string detailedMsg, string msg) : this(detailedMsg, msg, null)
         {
         }
-        internal BatchMessageEventArgs(String detailedMsg, String msg, SqlError error)
+        internal BatchMessageEventArgs(string detailedMsg, string msg, SqlError error)
         {
-            _message = msg;
-            _detailedMessage = detailedMsg;
-            _error = error;
+            message = msg;
+            detailedMessage = detailedMsg;
+            this.error = error;
         }
         #endregion
 
         #region Public properties
 
-        public String Message
+        public string Message
         {
             get
             {
-                return _message;
+                return message;
             }
         }
 
-        public String DetailedMessage
+        public string DetailedMessage
         {
             get
             {
-                return _detailedMessage;
+                return detailedMessage;
             }
         }
 
-        public SqlError Error { get { return _error; } }
+        public SqlError Error { get { return error; } }
         #endregion
 
         #region Private fields
-        private readonly String _message = String.Empty;
-        private readonly String _detailedMessage = String.Empty;
-        private readonly SqlError _error;
+        private readonly string message = string.Empty;
+        private readonly string detailedMessage = string.Empty;
+        private readonly SqlError error;
         #endregion
     }
 }

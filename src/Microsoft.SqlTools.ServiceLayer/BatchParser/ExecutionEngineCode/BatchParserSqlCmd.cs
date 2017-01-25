@@ -1,23 +1,20 @@
-//------------------------------------------------------------------------------
-// <copyright file="BatchParserSqlCmd.cs" company="Microsoft">
-//	 Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
-using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using System.IO;
-using Microsoft.SqlTools.ServiceLayer;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
     internal class BatchParserSqlCmd : BatchParser
     {
         #region Public delegates
-        public delegate void ConnectionChangedDelegate(SqlConnectionStringBuilder connectionStringBuilder);
+        public delegate void ConnectionChangedDelegate(SqlConnectionStringBuilder connectionstringBuilder);
         public delegate void ErrorActionChangedDelegate(OnErrorAction ea);        
         #endregion
 
@@ -37,14 +34,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         #region Public properties
         internal ConnectionChangedDelegate ConnectionChanged
         {
-            get { return _connectionChangedDelegate; }
-            set { _connectionChangedDelegate = value; }
+            get { return connectionChangedDelegate; }
+            set { connectionChangedDelegate = value; }
         }
 
         internal ErrorActionChangedDelegate ErrorActionChanged
         {
-            get { return _errorActionChangedDelegate; }
-            set { _errorActionChangedDelegate = value; }
+            get { return errorActionChangedDelegate; }
+            set { errorActionChangedDelegate = value; }
         }
         #endregion
 
@@ -55,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public override string GetVariable(PositionStruct pos, string name)
         {
-            if (_variableSubstitutionDisabled)
+            if (variableSubstitutionDisabled)
             {
                 return null;
             }
@@ -63,13 +60,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             string value;
 
             // Internally defined variables have higher precedence over environment variables.
-            if (!_internalVariables.TryGetValue(name, out value))
+            if (!internalVariables.TryGetValue(name, out value))
             {
                 value = Environment.GetEnvironmentVariables()[name] as string;
             }
             if (value == null)
             {
-                RaiseScriptError(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionError_VariableNotFound, name), ScriptMessageType.FatalError);
+                RaiseScriptError(string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionError_VariableNotFound, name), ScriptMessageType.FatalError);
                 RaiseHaltParser();
                 // TODO: Halt the parser, should get/set variable have ParserAction.Abort/Continue (like original?)
             }
@@ -79,28 +76,28 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         public override void SetVariable(PositionStruct pos, string name, string value)
         {
-            if (_variableSubstitutionDisabled)
+            if (variableSubstitutionDisabled)
             {
                 return;
             }
 
             if (value == null)
             {
-                if (_internalVariables.ContainsKey(name))
+                if (internalVariables.ContainsKey(name))
                 {
-                    _internalVariables.Remove(name);
+                    internalVariables.Remove(name);
                 }
             }
             else
             {
-                _internalVariables[name] = value;
+                internalVariables[name] = value;
             }
         }
 
-        public Dictionary<String, String> InternalVariables
+        public Dictionary<string, string> InternalVariables
         {
-            get { return _internalVariables; }
-            set { _internalVariables = value; }
+            get { return internalVariables; }
+            set { internalVariables = value; }
         }
 
         #endregion
@@ -113,15 +110,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             stream = null;
             newFilename = null;
 
-            RaiseScriptError(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionError_CommandNotSupported, "Include"), ScriptMessageType.Error);
+            RaiseScriptError(string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionError_CommandNotSupported, "Include"), ScriptMessageType.Error);
             return BatchParserAction.Abort;
         }
 
         public override BatchParserAction OnError(Token token, OnErrorAction ea)
         {
-            if (_errorActionChangedDelegate != null)
+            if (errorActionChangedDelegate != null)
             {
-                _errorActionChangedDelegate(ea);
+                errorActionChangedDelegate(ea);
             }
             return BatchParserAction.Continue;
         }
@@ -133,9 +130,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// The internal variables that can be used in SqlCommand substitution.
         /// These variables take precedence over environment variables.
         /// </summary>
-        private Dictionary<String, String> _internalVariables = new Dictionary<String, String>(StringComparer.CurrentCultureIgnoreCase);
-        private ConnectionChangedDelegate _connectionChangedDelegate;
-        private ErrorActionChangedDelegate _errorActionChangedDelegate;
+        private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+        private ConnectionChangedDelegate connectionChangedDelegate;
+        private ErrorActionChangedDelegate errorActionChangedDelegate;
         #endregion
     }
 }

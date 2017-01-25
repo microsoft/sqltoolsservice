@@ -1,6 +1,7 @@
-﻿//------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.IO;
@@ -12,17 +13,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 {
     internal class TestCommandHandler : ICommandHandler
     {
-        private Parser _parser;
-        private StringBuilder _outputString;
+        private Parser parser;
+        private StringBuilder outputString;
 
         public TestCommandHandler(StringBuilder outputString)
         {
-            _outputString = outputString;
+            outputString = outputString;
         }
 
         public void SetParser(Parser parser)
         {
-            _parser = parser;
+            parser = parser;
         }
 
         public BatchParserAction Go(TextBlock batch, int repeatCount)
@@ -34,42 +35,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 
             batch.GetText(true, out textWithVariablesResolved, out lineInfoVarsResolved);
             batch.GetText(false, out textWithVariablesUnresolved, out lineInfoVarsUnresolved);
-            _outputString.AppendFormat(CultureInfo.InvariantCulture, "*** Execute batch ({0})\n", repeatCount);
+            outputString.AppendFormat(CultureInfo.InvariantCulture, "*** Execute batch ({0})\n", repeatCount);
             
             if (string.Compare(textWithVariablesUnresolved, textWithVariablesResolved, StringComparison.Ordinal) != 0)
             {
-                _outputString.AppendLine("Text with variables not resolved:");
-                _outputString.AppendLine(textWithVariablesResolved);
-                _outputString.AppendLine("Text with variables not resolved:");
-                _outputString.AppendLine(textWithVariablesUnresolved);
+                outputString.AppendLine("Text with variables not resolved:");
+                outputString.AppendLine(textWithVariablesResolved);
+                outputString.AppendLine("Text with variables not resolved:");
+                outputString.AppendLine(textWithVariablesUnresolved);
                 int i = 0;
-                _outputString.AppendLine("Mapping from resolved string to unresolved:");
+                outputString.AppendLine("Mapping from resolved string to unresolved:");
                 while (i <= textWithVariablesResolved.Length)
                 {
                     PositionStruct pos = lineInfoVarsResolved.GetStreamPositionForOffset(i);
                     string character = i < textWithVariablesResolved.Length ? ("" + textWithVariablesResolved[i]).Replace("\n", @"\n").Replace("\r", @"\r") : "EOF";
-                    _outputString.AppendFormat(CultureInfo.InvariantCulture, "Pos [{0}] {1}:{2} \"{3}\"", 
+                    outputString.AppendFormat(CultureInfo.InvariantCulture, "Pos [{0}] {1}:{2} \"{3}\"", 
                         i, 
                         BatchParserTests.GetFilenameOnly(pos.Filename), 
                         pos.Offset, 
                         character);
-                    _outputString.AppendLine();
+                    outputString.AppendLine();
                     i++;
                 }
             }
             else
             {
-                _outputString.AppendLine("Batch text:");
-                _outputString.AppendLine(textWithVariablesUnresolved);
+                outputString.AppendLine("Batch text:");
+                outputString.AppendLine(textWithVariablesUnresolved);
             }
-            _outputString.AppendLine();
+            outputString.AppendLine();
             return BatchParserAction.Continue;
         }
 
         public BatchParserAction OnError(Token token, OnErrorAction action)
         {
-            _outputString.AppendFormat(CultureInfo.InvariantCulture, "*** PARSER: On error: {0}", action.ToString());
-            _outputString.AppendLine();
+            outputString.AppendFormat(CultureInfo.InvariantCulture, "*** PARSER: On error: {0}", action.ToString());
+            outputString.AppendLine();
             return BatchParserAction.Continue;
         }
 
@@ -79,8 +80,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             LineInfo lineInfo;
 
             filename.GetText(true, out resolvedFilename, out lineInfo);
-            _outputString.AppendFormat(CultureInfo.InvariantCulture, "*** PARSER: Include file \"{0}\"\n", resolvedFilename);
-            _outputString.AppendLine();
+            outputString.AppendFormat(CultureInfo.InvariantCulture, "*** PARSER: Include file \"{0}\"\n", resolvedFilename);
+            outputString.AppendLine();
             string currentFilename = lineInfo.GetStreamPositionForOffset(0).Filename;
             string currentFilePath = Path.Combine(Path.GetDirectoryName(currentFilename), resolvedFilename);
             stream = new StreamReader(File.Open(currentFilePath, FileMode.Open));

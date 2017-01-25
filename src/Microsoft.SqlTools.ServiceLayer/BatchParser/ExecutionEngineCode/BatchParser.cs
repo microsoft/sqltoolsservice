@@ -1,11 +1,9 @@
-//------------------------------------------------------------------------------
-// <copyright file="BatchParser.cs" company="Microsoft">
-//	 Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
@@ -15,9 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     {
         #region Public delegates
         public  delegate void HaltParserDelegate();
-        public delegate void ScriptMessageDelegate(String message);
-        public delegate void ScriptErrorDelegate(String message, ScriptMessageType messageType);
-        public delegate bool ExecuteDelegate(String batchScript, int num, int lineNumber);        
+        public delegate void ScriptMessageDelegate(string message);
+        public delegate void ScriptErrorDelegate(string message, ScriptMessageType messageType);
+        public delegate bool ExecuteDelegate(string batchScript, int num, int lineNumber);        
         #endregion
 
         #region Constructors / Destructor
@@ -29,32 +27,32 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         #region Public properties
         public ScriptMessageDelegate Message
         {
-            get { return _scriptMessageDelegate; }
-            set { _scriptMessageDelegate = value; }
+            get { return scriptMessageDelegate; }
+            set { scriptMessageDelegate = value; }
         }
 
         public ScriptErrorDelegate ErrorMessage
         {
-            get { return _scriptErrorDelegate; }
-            set { _scriptErrorDelegate = value; }
+            get { return scriptErrorDelegate; }
+            set { scriptErrorDelegate = value; }
         }
         
         public ExecuteDelegate Execute
         {
-            get { return _executeDelegate; }
-            set { _executeDelegate = value; }
+            get { return executeDelegate; }
+            set { executeDelegate = value; }
         }
 
         public HaltParserDelegate HaltParser
         {
-            get { return _haltParserDelegate; }
-            set { _haltParserDelegate = value; }
+            get { return haltParserDelegate; }
+            set { haltParserDelegate = value; }
         }
 
         public int StartingLine
         {
-            get { return _startingLine; }
-            set { _startingLine = value; }
+            get { return startingLine; }
+            set { startingLine = value; }
         }
 
         #endregion
@@ -63,15 +61,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         public BatchParserAction Go(TextBlock batch, int repeatCount)
         {
-            String str;
+            string str;
             LineInfo lineInfo;
 
-            batch.GetText(!_variableSubstitutionDisabled, out str, out lineInfo);
+            batch.GetText(!variableSubstitutionDisabled, out str, out lineInfo);
 
             bool executeResult = false;
-            if (_executeDelegate != null)
+            if (executeDelegate != null)
             {
-                executeResult = _executeDelegate(str, repeatCount, lineInfo.GetStreamPositionForOffset(0).Line + _startingLine - 1);
+                executeResult = executeDelegate(str, repeatCount, lineInfo.GetStreamPositionForOffset(0).Line + startingLine - 1);
             }
             return executeResult ? BatchParserAction.Continue : BatchParserAction.Abort;
         }
@@ -84,11 +82,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         /// <param name="message"></param>
         /// <param name="messageType"></param>
-        protected void RaiseScriptError(String message, ScriptMessageType messageType)
+        protected void RaiseScriptError(string message, ScriptMessageType messageType)
         {
-            if (_scriptErrorDelegate != null)
+            if (scriptErrorDelegate != null)
             {
-                _scriptErrorDelegate(message, messageType);
+                scriptErrorDelegate(message, messageType);
             }
         }
 
@@ -97,11 +95,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         /// <param name="message"></param>
         /// <param name="messageType"></param>
-        protected void RaiseScriptMessage(String message)
+        protected void RaiseScriptMessage(string message)
         {
-            if (_scriptMessageDelegate != null)
+            if (scriptMessageDelegate != null)
             {
-                _scriptMessageDelegate(message);
+                scriptMessageDelegate(message);
             }
         }
 
@@ -112,20 +110,20 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="messageType"></param>
         protected void RaiseHaltParser()
         {
-            if (_haltParserDelegate != null)
+            if (haltParserDelegate != null)
             {
-                _haltParserDelegate();
+                haltParserDelegate();
             }
         }
         #endregion
 
         #region Private fields
-        protected ScriptMessageDelegate _scriptMessageDelegate;
-        protected ScriptErrorDelegate _scriptErrorDelegate;
-        protected ExecuteDelegate _executeDelegate;
-        protected HaltParserDelegate _haltParserDelegate;
-        private int _startingLine = 0;
-        protected bool _variableSubstitutionDisabled = false;
+        protected ScriptMessageDelegate scriptMessageDelegate;
+        protected ScriptErrorDelegate scriptErrorDelegate;
+        protected ExecuteDelegate executeDelegate;
+        protected HaltParserDelegate haltParserDelegate;
+        private int startingLine = 0;
+        protected bool variableSubstitutionDisabled = false;
         
         #endregion
 
@@ -152,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         internal void DisableVariableSubstitution()
         {
-            _variableSubstitutionDisabled = true;
+            variableSubstitutionDisabled = true;
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿//------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -11,39 +11,39 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     internal sealed class LexerInput : IDisposable
     {
-        private readonly string _filename;
-        private TextReader _input;
-        private int _currentLine;
-        private int _currentColumn;
-        private int _bufferStartOffset;
-        private int _currentSbOffset;
-        private StringBuilder _buffer;
+        private readonly string filename;
+        private TextReader input;
+        private int currentLine;
+        private int currentColumn;
+        private int bufferStartOffset;
+        private int currentSbOffset;
+        private StringBuilder buffer;
 
         public LexerInput(TextReader reader, string filename)
         {
-            _input = reader;
-            _filename = filename;
-            _currentLine = 1;
-            _currentColumn = 1;
-            _bufferStartOffset = 0;
-            _currentSbOffset = 0;
-            _buffer = new StringBuilder();
+            input = reader;
+            this.filename = filename;
+            currentLine = 1;
+            currentColumn = 1;
+            bufferStartOffset = 0;
+            currentSbOffset = 0;
+            buffer = new StringBuilder();
             EnsureBytes(1);
         }
 
         public string Filename
         {
-            get { return _filename; }
+            get { return filename; }
         }
 
         public int CurrentLine 
         {
-            get { return _currentLine; }
+            get { return currentLine; }
         }
 
         public int CurrentColumn 
         {
-            get { return _currentColumn; }
+            get { return currentColumn; }
         }
 
         public void Consume()
@@ -62,8 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
             else if (ch == '\n')
             {
-                _currentLine++;
-                _currentColumn = 0;
+                currentLine++;
+                currentColumn = 0;
             }
 
             int count = EnsureBytes(1);
@@ -72,48 +72,48 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 // end of stream
                 return;
             }
-            _currentSbOffset++;
+            currentSbOffset++;
 
             if (newLineWithCR && Lookahead() != '\n')
             {
-                _currentLine++;
-                _currentColumn = 0;
+                currentLine++;
+                currentColumn = 0;
             }
-            _currentColumn++;
+            currentColumn++;
         }
 
         public void Dispose()
         {
-            if (_input != null)
+            if (input != null)
             {
-                _input.Dispose();
-                _input = null;
+                input.Dispose();
+                input = null;
             }
         }
 
         public int CurrentOffset
         {
-            get { return _bufferStartOffset + _currentSbOffset; }
+            get { return bufferStartOffset + currentSbOffset; }
         }
 
         public int EnsureBytes(int bytesToBuffer)
         {
-            if (_currentSbOffset + bytesToBuffer > _buffer.Length)
+            if (currentSbOffset + bytesToBuffer > buffer.Length)
             {
-                if (_input == null)
+                if (input == null)
                 {
-                    return _buffer.Length - _currentSbOffset;
+                    return buffer.Length - currentSbOffset;
                 }
-                int chArrayLength = bytesToBuffer - (_buffer.Length - _currentSbOffset) + 128;
+                int chArrayLength = bytesToBuffer - (buffer.Length - currentSbOffset) + 128;
                 char[] chArray = new char[chArrayLength];
-                int count = _input.ReadBlock(chArray, 0, chArrayLength);
-                _buffer.Append(chArray, 0, count);
+                int count = input.ReadBlock(chArray, 0, chArrayLength);
+                buffer.Append(chArray, 0, count);
                 if (count < chArrayLength)
                 {
-                    _input.Dispose();
-                    _input = null;
+                    input.Dispose();
+                    input = null;
                 }
-                return _buffer.Length - _currentSbOffset;
+                return buffer.Length - currentSbOffset;
             }
             return bytesToBuffer;
         }
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             {
                 return null;
             }
-            return _buffer[_currentSbOffset];
+            return buffer[currentSbOffset];
         }
 
         public char? Lookahead(int lookahead)
@@ -135,17 +135,17 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             {
                 return null;
             }
-            return _buffer[_currentSbOffset + lookahead];
+            return buffer[currentSbOffset + lookahead];
         }
 
         public string FlushBufferedText()
         {
             string text;
 
-            text = _buffer.ToString(0, _currentSbOffset);
-            _bufferStartOffset += _currentSbOffset;
-            _buffer.Remove(0, _currentSbOffset);
-            _currentSbOffset = 0;
+            text = buffer.ToString(0, currentSbOffset);
+            bufferStartOffset += currentSbOffset;
+            buffer.Remove(0, currentSbOffset);
+            currentSbOffset = 0;
 
             return text;
         }

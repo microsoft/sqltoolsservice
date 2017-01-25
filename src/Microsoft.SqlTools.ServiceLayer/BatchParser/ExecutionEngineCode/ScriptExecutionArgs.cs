@@ -1,8 +1,7 @@
-//------------------------------------------------------------------------------
-// <copyright file="ScriptExecutionArgs.cs" company="Microsoft">
-//	 Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -15,10 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     {
         #region Private fields
 
-        private IDbConnection _connection;
-        private IBatchEventsHandler _batchEventHandlers;
-        private int _startingLine;
-        private Dictionary<string, string> _cmdVariables;
+        private IDbConnection connection;
+        private IBatchEventsHandler batchEventHandlers;
+        private int startingLine;
+        private Dictionary<string, string> cmdVariables;
 
         #endregion
 
@@ -26,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         // FUTURE CLEANUP: Remove in favor of general signature (IDbConnection) - #920978
         public ScriptExecutionArgs(
-            String script, 
+            string script, 
             SqlConnection connection, 
             int timeOut, 
             ExecutionEngineConditions conditions, 
@@ -38,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         // FUTURE CLEANUP: Remove in favor of general signature (IDbConnection) - #920978
         public ScriptExecutionArgs(
-            String script,
+            string script,
             SqlConnection connection,
             int timeOut,
             ExecutionEngineConditions conditions,
@@ -51,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         }
 
         public ScriptExecutionArgs(
-            String script,
+            string script,
             IDbConnection connection,
             int timeOut,
             ExecutionEngineConditions conditions,
@@ -62,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         }
 
         public ScriptExecutionArgs(
-                    String script,
+                    string script,
                     IDbConnection connection,
                     int timeOut,
                     ExecutionEngineConditions conditions,
@@ -71,11 +70,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                     IDictionary<string, string> variables)
         {
             Script = script;
-            _connection = connection;
+            this.connection = connection;
             TimeOut = timeOut;
             Conditions = conditions;
-            _batchEventHandlers = batchEventHandlers;
-            _startingLine = startingLine;
+            this.batchEventHandlers = batchEventHandlers;
+            this.startingLine = startingLine;
 
             if (variables != null)
             {
@@ -95,14 +94,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         // FUTURE CLEANUP: Remove in favor of general signature (IDbConnection) - #920978
         public SqlConnection Connection
         {
-            get { return _connection as SqlConnection; }
-            set { _connection = value as SqlConnection; }
+            get { return connection as SqlConnection; }
+            set { connection = value as SqlConnection; }
         }
 
         public IDbConnection ReliableConnection
         {
-            get { return _connection; }
-            set { _connection = value; }
+            get { return connection; }
+            set { connection = value; }
         }
 
         public int TimeOut { get; set; }
@@ -111,26 +110,26 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         internal IBatchEventsHandler BatchEventHandlers
         {
-            get { return _batchEventHandlers; }
-            set { _batchEventHandlers = value; }
+            get { return batchEventHandlers; }
+            set { batchEventHandlers = value; }
         }
 
         internal int StartingLine
         {
-            get { return _startingLine; }
-            set { _startingLine = value; }
+            get { return startingLine; }
+            set { startingLine = value; }
         }
 
         internal Dictionary<string, string> Variables
         {
             get
             {
-                if (_cmdVariables == null)
+                if (cmdVariables == null)
                 {
-                    _cmdVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+                    cmdVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
                 }
 
-                return _cmdVariables;
+                return cmdVariables;
             }
         }
         #endregion
