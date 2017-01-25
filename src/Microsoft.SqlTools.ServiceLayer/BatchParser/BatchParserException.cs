@@ -1,11 +1,13 @@
-﻿//------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
+    // Exception class used by the Batch Parser class
     internal sealed class BatchParserException : Exception
     {
         const string ErrorCodeName = "ErrorCode";
@@ -14,59 +16,31 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         const string TextName = "Text";
         const string TokenTypeName = "TokenType";
 
-        ErrorCode _errorCode;
-        PositionStruct _begin;
-        PositionStruct _end;
-        string _text;
-        LexerTokenType _tokenType;
+        ErrorCode errorCode;
+        PositionStruct begin;
+        PositionStruct end;
+        string text;
+        LexerTokenType tokenType;
 
         public BatchParserException(ErrorCode errorCode, Token token, string message)
             : base(message)
         {
-            _errorCode = errorCode;
-            _begin = token.Begin;
-            _end = token.End;
-            _text = token.Text;
-            _tokenType = token.TokenType;
+            this.errorCode = errorCode;
+            begin = token.Begin;
+            end = token.End;
+            text = token.Text;
+            tokenType = token.TokenType;
         }
 
-        //leaving for incase we add serializable back again
+        public ErrorCode ErrorCode { get { return errorCode; } }
 
-        //private BatchParserException(SerializationInfo info, StreamingContext context)
-        //    : base(info, context)
-        //{
-        //    _errorCode = (ErrorCode) info.GetInt32(ErrorCodeName);
-        //    _begin = (PositionStruct) info.GetValue(BeginName, typeof(PositionStruct));
-        //    _end = (PositionStruct) info.GetValue(EndName, typeof(PositionStruct));
-        //    _text = info.GetString(TextName);
-        //    _tokenType = (LexerTokenType)info.GetInt32(TokenTypeName);
-        //}
+        public PositionStruct Begin { get { return begin; } }
 
+        public PositionStruct End { get { return end; } }
 
-        public ErrorCode ErrorCode { get { return _errorCode; } }
+        public string Text { get { return text; } }
 
-        public PositionStruct Begin { get { return _begin; } }
-
-        public PositionStruct End { get { return _end; } }
-
-        public string Text { get { return _text; } }
-
-        public LexerTokenType TokenType { get { return _tokenType; } }
-
-
-
-        //leaving for incase we add serializable back again
-
-        //public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    base.GetObjectData(info, context);
-
-        //    info.AddValue(ErrorCodeName, (int) _errorCode);
-        //    info.AddValue(BeginName, _begin);
-        //    info.AddValue(EndName, _end);
-        //    info.AddValue(TextName, _text);
-        //    info.AddValue(TokenTypeName, (int)_tokenType);
-        //}
+        public LexerTokenType TokenType { get { return tokenType; } }
 
     }
 }

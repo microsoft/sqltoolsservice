@@ -1,6 +1,7 @@
-﻿//------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -12,11 +13,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
     internal sealed class TestVariableResolver : IVariableResolver
     {
         Dictionary<string, string> variables = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private StringBuilder _outputString;
+        private StringBuilder outputString;
 
         public TestVariableResolver(StringBuilder outputString)
         {
-            _outputString = outputString;
+            outputString = outputString;
         }
 
         public string GetVariable(PositionStruct pos, string name)
@@ -33,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 
         public void SetVariable(PositionStruct pos, string name, string value)
         {
-            _outputString.AppendFormat("Setting variable {0} to [{1}]\n", name, value);
+            outputString.AppendFormat("Setting variable {0} to [{1}]\n", name, value);
             if (value == null)
             {
                 variables.Remove(name);

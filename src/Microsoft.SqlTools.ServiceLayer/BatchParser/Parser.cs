@@ -1,8 +1,8 @@
-﻿//------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
-using Microsoft.SqlTools.ServiceLayer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,37 +15,37 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     internal sealed class Parser : IDisposable
     {
-        private readonly ICommandHandler _commandHandler;
-        private Lexer _lexer;
-        private List<Token> _tokenBuffer;
-        private readonly IVariableResolver _variableResolver;
+        private readonly ICommandHandler commandHandler;
+        private Lexer lexer;
+        private List<Token> tokenBuffer;
+        private readonly IVariableResolver variableResolver;
 
         public Parser(ICommandHandler commandHandler, IVariableResolver variableResolver, TextReader reader, string name)
         {
-            _commandHandler = commandHandler;
-            _variableResolver = variableResolver;
-            _lexer = new Lexer(reader, name);
-            _tokenBuffer = new List<Token>();
+            this.commandHandler = commandHandler;
+            this.variableResolver = variableResolver;
+            lexer = new Lexer(reader, name);
+            tokenBuffer = new List<Token>();
         }
 
         public bool ThrowOnUnresolvedVariable { get; set; }
 
         private Token LookaheadToken
         {
-            get { return _lexer.CurrentToken; }
+            get { return lexer.CurrentToken; }
         }
 
         private LexerTokenType LookaheadTokenType
         {
-            get { return _lexer.CurrentTokenType; }
+            get { return lexer.CurrentTokenType; }
         }
 
         public void Dispose()
         {
-            if (_lexer != null)
+            if (lexer != null)
             {
-                _lexer.Dispose();
-                _lexer = null;
+                lexer.Dispose();
+                lexer = null;
             }
         }
 
@@ -86,11 +86,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 PositionStruct beginPos = token.Begin;
                 PositionStruct endPos = new PositionStruct(beginPos.Line + 1, 1, beginPos.Offset, beginPos.Filename);
 
-                _tokenBuffer.Add(new Token(LexerTokenType.NewLine, beginPos, endPos, "\r\n", beginPos.Filename));
+                tokenBuffer.Add(new Token(LexerTokenType.NewLine, beginPos, endPos, "\r\n", beginPos.Filename));
             }
             else
             {
-                _tokenBuffer.Add(token);
+                tokenBuffer.Add(token);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private void AddVariableReferences(Token token, int offset, IList<VariableReference> variableRefs)
         {
-            if (_lexer.RecognizeSqlCmdSyntax == false)
+            if (lexer.RecognizeSqlCmdSyntax == false)
             {
                 // variables are recognized only in sqlcmd mode.
                 return;
@@ -186,20 +186,20 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private LexerTokenType Accept()
         {
-            _lexer.ConsumeToken();
+            lexer.ConsumeToken();
             return LookaheadTokenType;
         }
 
         private void ExecuteBatch(int repeatCount)
         {
             BatchParserAction action;
-            action = _commandHandler.Go(new TextBlock(this, _tokenBuffer), repeatCount);
+            action = commandHandler.Go(new TextBlock(this, tokenBuffer), repeatCount);
 
             if (action == BatchParserAction.Abort)
             {
                 RaiseError(ErrorCode.Aborted);
             }
-            _tokenBuffer = new List<Token>();
+            tokenBuffer = new List<Token>();
         }
 
         private bool Expect(LexerTokenType lexerTokenType)
@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 RaiseError(ErrorCode.TokenExpected);
             }
 
-            _lexer.SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeLineComment | TextRuleFlags.RecognizeDoubleQuotedString);
+            lexer.SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeLineComment | TextRuleFlags.RecognizeDoubleQuotedString);
             Accept();
             AcceptWhitespaceOrComment();
             if (LookaheadTokenType != LexerTokenType.Eof)
@@ -288,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 tokens = new[] { token };
             }
 
-            action = _commandHandler.Include(new TextBlock(this, tokens), out textReader, out newFilename);
+            action = commandHandler.Include(new TextBlock(this, tokens), out textReader, out newFilename);
 
             if (action == BatchParserAction.Abort)
             {
@@ -350,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         internal void PushInput(TextReader reader, string filename)
         {
-            _lexer.PushInput(reader, filename);
+            lexer.PushInput(reader, filename);
         }
 
         private void ParseLines()
@@ -367,7 +367,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         ParseOnErrorCommand(onErrorToken);
                         break;
                     case LexerTokenType.Eof:
-                        if (_tokenBuffer.Count > 0)
+                        if (tokenBuffer.Count > 0)
                         {
                             ExecuteBatch(1);
                         }
@@ -421,9 +421,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private void RemoveLastWhitespaceToken()
         {
-            if (_tokenBuffer.Count > 0 && _tokenBuffer[_tokenBuffer.Count - 1].TokenType == LexerTokenType.Whitespace)
+            if (tokenBuffer.Count > 0 && tokenBuffer[tokenBuffer.Count - 1].TokenType == LexerTokenType.Whitespace)
             {
-                _tokenBuffer.RemoveAt(_tokenBuffer.Count - 1);
+                tokenBuffer.RemoveAt(tokenBuffer.Count - 1);
             }
         }
 
@@ -460,7 +460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
             BatchParserAction parserAction;
 
-            parserAction = _commandHandler.OnError(onErrorToken, onErrorAction);
+            parserAction = commandHandler.OnError(onErrorToken, onErrorAction);
 
             if (parserAction == BatchParserAction.Abort)
             {
@@ -485,7 +485,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 case LexerTokenType.Text:
                     // No variable substitution
                     variableValue = UnquoteVariableValue(LookaheadToken.Text);
-                    _lexer.SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeLineComment | TextRuleFlags.RecognizeDoubleQuotedString);
+                    lexer.SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeLineComment | TextRuleFlags.RecognizeDoubleQuotedString);
                     Accept();
                     AcceptWhitespaceOrComment();
 
@@ -509,7 +509,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     break;
             }
 
-            _variableResolver.SetVariable(setvarToken.Begin, variableName, variableValue);
+            variableResolver.SetVariable(setvarToken.Begin, variableName, variableValue);
         }
 
         internal void RaiseError(ErrorCode errorCode, string message = null)
@@ -562,7 +562,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     column: column,
                     offset: reference.Start - offset,
                     filename: inputToken.Filename);
-                string value = _variableResolver.GetVariable(variablePos.Value, reference.VariableName);
+                string value = variableResolver.GetVariable(variablePos.Value, reference.VariableName);
                 if (value == null)
                 {
                     // Undefined variable
@@ -632,7 +632,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         public void SetRecognizeSqlCmdSyntax(bool recognizeSqlCmdSyntax)
         {
-            _lexer.RecognizeSqlCmdSyntax = recognizeSqlCmdSyntax;
+            lexer.RecognizeSqlCmdSyntax = recognizeSqlCmdSyntax;
         }
 
         public static TextReader GetBufferedTextReaderForFile(string filename)

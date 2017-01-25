@@ -18,7 +18,6 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
 
-
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
     /// <summary>

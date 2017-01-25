@@ -1,8 +1,7 @@
-//------------------------------------------------------------------------------
-// <copyright file="BatchResultSetEventArgs.cs" company="Microsoft">
-//	 Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Data;
@@ -17,8 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="dataReader"></param>
         internal BatchResultSetEventArgs(IDataReader dataReader, ShowPlanType expectedShowPlan)
         {
-            _dataReader = dataReader;
-            _expectedShowPlan = expectedShowPlan;
+            this.dataReader = dataReader;
+            this.expectedShowPlan = expectedShowPlan;
         }
 
         /// <summary>
@@ -28,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             get
             {
-                return _dataReader;
+                return dataReader;
             }
         }
 
@@ -39,13 +38,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             get
             {
-                return _expectedShowPlan;
+                return expectedShowPlan;
             }
         }
 
         #region Private fields
-        private readonly IDataReader _dataReader = null;
-        private readonly ShowPlanType _expectedShowPlan = ShowPlanType.None;
+        private readonly IDataReader dataReader = null;
+        private readonly ShowPlanType expectedShowPlan = ShowPlanType.None;
         #endregion
     }
 }

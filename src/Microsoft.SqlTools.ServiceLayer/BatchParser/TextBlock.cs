@@ -1,6 +1,7 @@
-﻿//------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System.Text;
 using System.Collections.Generic;
@@ -9,8 +10,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     internal class TextBlock
     {
-        private Parser _parser;
-        private IEnumerable<Token> _tokens;
+        private Parser parser;
+        private IEnumerable<Token> tokens;
 
         public TextBlock(Parser parser, Token token) : this(parser, new[] { token })
         {
@@ -18,8 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         public TextBlock(Parser parser, IEnumerable<Token> tokens)
         {
-            _parser = parser;
-            _tokens = tokens;
+            this.parser = parser;
+            this.tokens = tokens;
         }
 
         public void GetText(bool resolveVariables, out string text, out LineInfo lineInfo)
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
             if (resolveVariables == false)
             {
-                foreach (Token token in _tokens)
+                foreach (Token token in tokens)
                 {
                     sb.Append(token.Text);
                 }
@@ -37,11 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             else
             {
                 variableRefs = new List<VariableReference>();
-                foreach (Token token in _tokens)
+                foreach (Token token in tokens)
                 {
                     if (token.TokenType == LexerTokenType.Text)
                     {
-                        sb.Append(_parser.ResolveVariables(token, sb.Length, variableRefs));
+                        sb.Append(parser.ResolveVariables(token, sb.Length, variableRefs));
                     }
                     else
                     {
@@ -50,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     }
                 }
             }
-            lineInfo = new LineInfo(_tokens, variableRefs);
+            lineInfo = new LineInfo(tokens, variableRefs);
             text = sb.ToString();
         }
 

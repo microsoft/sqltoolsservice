@@ -1,6 +1,7 @@
-//------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Globalization;
@@ -16,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 {
     public class BatchParserTests : BaselinedTest
     {
-        private bool _testFailed = false;
+        private bool testFailed = false;
 
         public BatchParserTests()
         {
@@ -155,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             Start("pass-varDefinition3");
             Start("pass-varDefinition4");
             Start("pass-command-and-comment");
-            Assert.False(_testFailed, "At least one of test cases failed. Check output for details.");
+            Assert.False(testFailed, "At least one of test cases failed. Check output for details.");
         }
 
         public void TestParser(string filename, StringBuilder output)
@@ -248,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
                 Console.WriteLine("sd " + action + " \"" + baselineFilename + "\"");
                 Console.WriteLine("copy \"" + outputFilename + "\" \"" + baselineFilename + "\"");
                 Console.WriteLine();
-                _testFailed = true;
+                testFailed = true;
             }
         }
     }

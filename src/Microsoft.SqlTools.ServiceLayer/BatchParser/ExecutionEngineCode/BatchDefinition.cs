@@ -4,6 +4,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
+    ///<summary>
+    /// Class to get text from the BatchParser and convert them into batches
+    ///</summary>
     public class BatchDefinition
     {
         public int startLine;

@@ -1,17 +1,15 @@
-//------------------------------------------------------------------------------
-// <copyright file="BatchErrorEventArgs.cs" company="Microsoft">
-//	 Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
-using Microsoft.SqlTools.ServiceLayer;
 using System;
 using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
     /// <summary>
-    /// Error _totalAffectedRows for a Batch
+    /// Error totalAffectedRows for a Batch
     /// </summary>
     internal class BatchErrorEventArgs : EventArgs
     {
@@ -28,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// Constructor with message and no description
         /// </summary>
         /// <param name="message"></param>
-        internal BatchErrorEventArgs(String message)
+        internal BatchErrorEventArgs(string message)
             : this(message, null)
         {
         }
@@ -38,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         /// <param name="message"></param>
         /// <param name="ex"></param>
-        internal BatchErrorEventArgs(String message, Exception ex)
+        internal BatchErrorEventArgs(string message, Exception ex)
             : this(message, string.Empty, ex)
         {
         }
@@ -49,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="message"></param>
         /// <param name="description"></param>
         /// <param name="ex"></param>
-        internal BatchErrorEventArgs(String message, String description, Exception ex)
+        internal BatchErrorEventArgs(string message, string description, Exception ex)
             : this(message, description, -1, new TextSpan(), ex)
         {
         }
@@ -64,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
             int lineNumber = error != null ? error.LineNumber : -1;
             Init(message, desc, lineNumber, textSpan, ex);
-            _error = error;
+            this.error = error;
         }
 
         /// <summary>
@@ -74,37 +72,37 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="description"></param>
         /// <param name="line"></param>
         /// <param name="textSpan"></param>
-        internal BatchErrorEventArgs(String message, String description, int line, TextSpan textSpan, Exception ex)
+        internal BatchErrorEventArgs(string message, string description, int line, TextSpan textSpan, Exception ex)
         {
             Init(message, description, line, textSpan, ex);
         }
 
-        private void Init(String message, String description, int line, TextSpan textSpan, Exception ex)
+        private void Init(string message, string description, int line, TextSpan textSpan, Exception ex)
         {
-            _message = message;
-            _description = description;
-            _line = line;
-            _textSpan = textSpan;
-            _exception = ex;
+            this.message = message;
+            this.description = description;
+            this.line = line;
+            this.textSpan = textSpan;
+            exception = ex;
         }
 
         #endregion
 
         #region Public properties
 
-        public String Message
+        public string Message
         {
             get
             {
-                return _message;
+                return message;
             }
         }
 
-        public String Description
+        public string Description
         {
             get
             {
-                return _description;
+                return description;
             }
         }
 
@@ -112,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             get 
             { 
-                return _line; 
+                return line; 
             }
         }
 
@@ -120,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             get 
             { 
-                return _textSpan; 
+                return textSpan; 
             }
         }
 
@@ -128,25 +126,25 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             get
             {
-                return _exception;
+                return exception;
             }
         }
 
         public SqlError Error
         {
-            get { return _error; }
+            get { return error; }
         }
 
 
         #endregion
 
         #region Private Fields
-        private string _message = string.Empty;
-        private string _description = string.Empty;
-        private int _line = -1;
-        private TextSpan _textSpan;
-        private Exception _exception;
-        private SqlError _error;
+        private string message = string.Empty;
+        private string description = string.Empty;
+        private int line = -1;
+        private TextSpan textSpan;
+        private Exception exception;
+        private SqlError error;
         #endregion
     }
 }

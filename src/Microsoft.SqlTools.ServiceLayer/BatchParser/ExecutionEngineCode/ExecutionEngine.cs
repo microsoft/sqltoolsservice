@@ -1,8 +1,7 @@
-//------------------------------------------------------------------------------
-// <copyright file="ExecutionEngine.cs" company="Microsoft">
-//	 Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -49,15 +48,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <remarks>
         /// The batch parser functionality is used in this case
         /// </remarks>
-        public void ParseScript(String script, IBatchEventsHandler batchEventsHandler)
+        public void ParseScript(string script, IBatchEventsHandler batchEventsHandler)
         {
             Validate.IsNotNullOrEmptyString(nameof(script), script);
             Validate.IsNotNull(nameof(batchEventsHandler), batchEventsHandler);
 
 
-            _script = script;
-            _batchEventHandlers = batchEventsHandler;
-            _isLocalParse = true;
+            this.script = script;
+            batchEventHandlers = batchEventsHandler;
+            isLocalParse = true;
 
             DoExecute(/* isBatchParser */ true);
         }
@@ -102,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             {
                 if (isCloseConnection)
                 {
-                    CloseConnection(_connection);
+                    CloseConnection(connection);
                 }
             }
         }
@@ -114,16 +113,16 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         virtual public void Dispose()
         {
             //Debug.WriteLine("ExecutionEngine.Dispose");
-            if (_commandParser != null)
+            if (commandParser != null)
             {
-                _commandParser.Dispose();
-                _commandParser = null;
+                commandParser.Dispose();
+                commandParser = null;
             }
 
             ResetScript();
 
-            _stateSyncLock = null;
-            _currentBatch = null;
+            stateSyncLock = null;
+            currentBatch = null;
         }
         #endregion
 
@@ -147,32 +146,32 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 try
                 {
                     // Parsing mode we execute only once
-                    if (_conditions.IsParseOnly)
+                    if (conditions.IsParseOnly)
                     {
-                        _numBatchExecutionTimes = 1;
+                        numBatchExecutionTimes = 1;
                     }
 
-                    int timesLoop = _numBatchExecutionTimes;
-                    if (_numBatchExecutionTimes > 1)
+                    int timesLoop = numBatchExecutionTimes;
+                    if (numBatchExecutionTimes > 1)
                     {
-                        RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_InitilizingLoop, _numBatchExecutionTimes));
+                        RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_InitilizingLoop, numBatchExecutionTimes));
                     }
 
                     while (timesLoop > 0 && result != ScriptExecutionResult.Cancel && result != ScriptExecutionResult.Halted)
                     {
-                        result = batch.Execute(_connection, _expectedShowPlan);
+                        result = batch.Execute(connection, expectedShowPlan);
 
-                        Debug.Assert(_connection != null);
-                        if (_connection == null || _connection.State != ConnectionState.Open)
+                        Debug.Assert(connection != null);
+                        if (connection == null || connection.State != ConnectionState.Open)
                         {
                             result = ScriptExecutionResult.Halted;
                         }
 
                         if (result == ScriptExecutionResult.Failure)
                         {
-                            if (_errorAction == OnErrorAction.Ignore)
+                            if (errorAction == OnErrorAction.Ignore)
                             {
-                                if (_numBatchExecutionTimes > 1)
+                                if (numBatchExecutionTimes > 1)
                                 {
                                     RaiseBatchMessage(SR.EE_BatchExecutionError_Ignoring);
                                 }
@@ -194,9 +193,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                     }
                     else
                     {
-                        if (_numBatchExecutionTimes > 1)
+                        if (numBatchExecutionTimes > 1)
                         {
-                            RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_FinalizingLoop, _numBatchExecutionTimes));
+                            RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_FinalizingLoop, numBatchExecutionTimes));
                         }
                     }
                 }
@@ -227,17 +226,17 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </remarks>
         private void ResetScript()
         {
-            lock (_stateSyncLock)
+            lock (stateSyncLock)
             {
-                _executionState = ExecutionState.Initial;
+                executionState = ExecutionState.Initial;
             }
 
-            ConfigurePrePostConditionBatches(_preConditionBatches);
-            ConfigurePrePostConditionBatches(_postConditionBatches);
+            ConfigurePrePostConditionBatches(preConditionBatches);
+            ConfigurePrePostConditionBatches(postConditionBatches);
 
-            _currentBatchIndex = -1;
-            _conditions = null;
-            _batchEventHandlers = null;
+            currentBatchIndex = -1;
+            conditions = null;
+            batchEventHandlers = null;
         }
 
         /// <summary>
@@ -248,12 +247,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             BatchParser batchParser;
             bool sqlCmdMode;
 
-            if (_conditions != null && _conditions.IsSqlCmd)
+            if (conditions != null && conditions.IsSqlCmd)
             {
                 BatchParserSqlCmd batchParserSqlCmd = new BatchParserSqlCmd();
                 batchParserSqlCmd.ConnectionChanged = new BatchParserSqlCmd.ConnectionChangedDelegate(OnConnectionChanged);
                 batchParserSqlCmd.ErrorActionChanged = new BatchParserSqlCmd.ErrorActionChangedDelegate(OnErrorActionChanged);
-                batchParserSqlCmd.InternalVariables = _internalVariables;
+                batchParserSqlCmd.InternalVariables = internalVariables;
                 sqlCmdMode = true;
                 batchParser = batchParserSqlCmd;
             }
@@ -263,18 +262,18 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 sqlCmdMode = false;
             }
 
-            _commandParser = new Parser(batchParser, batchParser, new StringReader(_script), "[script]");
-            _commandParser.SetRecognizeSqlCmdSyntax(sqlCmdMode);
-            _commandParser.SetBatchDelimiter(BatchSeparator);
-            _commandParser.ThrowOnUnresolvedVariable = true;
+            commandParser = new Parser(batchParser, batchParser, new StringReader(script), "[script]");
+            commandParser.SetRecognizeSqlCmdSyntax(sqlCmdMode);
+            commandParser.SetBatchDelimiter(BatchSeparator);
+            commandParser.ThrowOnUnresolvedVariable = true;
             
             batchParser.Execute = new BatchParser.ExecuteDelegate(ExecuteBatchInternal);
             batchParser.ErrorMessage = new BatchParser.ScriptErrorDelegate(RaiseScriptError);
             batchParser.Message = new BatchParser.ScriptMessageDelegate(RaiseBatchMessage);
             batchParser.HaltParser = new BatchParser.HaltParserDelegate(OnHaltParser);
-            batchParser.StartingLine = _startingLine;
+            batchParser.StartingLine = startingLine;
 
-            if (_isLocalParse)
+            if (isLocalParse)
             {
                 batchParser.DisableVariableSubstitution();
             }
@@ -285,8 +284,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         private void ConfigureBatch()
         {
-            _numBatchExecutionTimes = 1;
-            _currentBatch.IsResultsExpected = true;
+            numBatchExecutionTimes = 1;
+            currentBatch.IsResultsExpected = true;
         }
 
         /// <summary>
@@ -313,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             {
                 DisconnectSqlCmdInternal();                
 
-                ConfigureBatchEventHandlers(_currentBatch, _batchEventHandlers, false);
+                ConfigureBatchEventHandlers(currentBatch, batchEventHandlers, false);
 
                 ResetScript();
             }
@@ -389,14 +388,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// Called when a message needs to be notified to the consumer
         /// </summary>
         /// <param name="message"></param>
-        private void RaiseBatchMessage(String message)
+        private void RaiseBatchMessage(string message)
         {
             Validate.IsNotNullOrEmptyString(nameof(message), message);
 
-            if (_batchEventHandlers != null)
+            if (batchEventHandlers != null)
             {
                 BatchMessageEventArgs args = new BatchMessageEventArgs(message);
-                _batchEventHandlers.OnBatchMessage(this, args);
+                batchEventHandlers.OnBatchMessage(this, args);
             }
         }
         
@@ -408,7 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="lineNumber"></param>
         /// <returns>True if we should continue processing, false otherwise</returns>
         private bool ExecuteBatchInternal(
-            String batchScript, 
+            string batchScript, 
             int num, 
             int lineNumber)
         {
@@ -426,7 +425,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             if (!String.IsNullOrEmpty(batchScript))
             {
                 bool continueProcessing = true;
-                _numBatchExecutionTimes = num;
+                numBatchExecutionTimes = num;
                 ExecuteBatchTextSpanInternal(batchScript, localTextSpan, out continueProcessing);
                 return continueProcessing;
             }
@@ -442,59 +441,59 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="batchScript"></param>
         /// <param name="textSpan"></param>
         /// <param name="continueProcessing"></param>
-        private void ExecuteBatchTextSpanInternal(String batchScript, TextSpan textSpan, out bool continueProcessing)
+        private void ExecuteBatchTextSpanInternal(string batchScript, TextSpan textSpan, out bool continueProcessing)
         {
             Debug.Assert(!String.IsNullOrEmpty(batchScript));
             continueProcessing = true;
 
             if (batchScript.Trim().Length <= 0)
             {
-                _result |= ScriptExecutionResult.Success;
+                result |= ScriptExecutionResult.Success;
                 return;
             }
 
-            Debug.Assert(_currentBatch != null);
+            Debug.Assert(currentBatch != null);
 
-            if (_executionState == ExecutionState.Cancelling)
+            if (executionState == ExecutionState.Cancelling)
             {
-                _result = ScriptExecutionResult.Cancel;
+                result = ScriptExecutionResult.Cancel;
             }
             else
             {
-                _currentBatch.Reset();
-                _currentBatch.Text = batchScript;
-                _currentBatch.TextSpan = textSpan;
-                _currentBatch.BatchIndex = _currentBatchIndex;
+                currentBatch.Reset();
+                currentBatch.Text = batchScript;
+                currentBatch.TextSpan = textSpan;
+                currentBatch.BatchIndex = currentBatchIndex;
                 
-                _currentBatchIndex++;
+                currentBatchIndex++;
 
-                if (_conditions != null)
+                if (conditions != null)
                 {
-                    _currentBatch.IsSuppressProviderMessageHeaders = _conditions.IsSuppressProviderMessageHeaders;
+                    currentBatch.IsSuppressProviderMessageHeaders = conditions.IsSuppressProviderMessageHeaders;
 
                     // TODO this is associated with Dacfx specific situations, so uncomment if need be
-                    //_currentBatch.IsScriptExecutionTracked = _conditions.IsScriptExecutionTracked;
-                    if (_conditions.IsScriptExecutionTracked)
+                    //currentBatch.IsScriptExecutionTracked = conditions.IsScriptExecutionTracked;
+                    if (conditions.IsScriptExecutionTracked)
                     {
-                        _currentBatch.ScriptTrackingId = _scriptTrackingId++;
+                        currentBatch.ScriptTrackingId = scriptTrackingId++;
                     }
                 }
 
-                //ExecutingBatch state means _currentBatch is valid to use from another thread to Cancel
-                _executionState = ExecutionState.ExecutingBatch;
+                //ExecutingBatch state means currentBatch is valid to use from another thread to Cancel
+                executionState = ExecutionState.ExecutingBatch;
             }
 
             ScriptExecutionResult batchResult = ScriptExecutionResult.Failure;
-            if (_result != ScriptExecutionResult.Cancel)
+            if (result != ScriptExecutionResult.Cancel)
             {
                 bool isExecutionDiscarded = false;
                 try
                 {
-                    RaiseBatchParserExecutionStarted(_currentBatch, textSpan);
+                    RaiseBatchParserExecutionStarted(currentBatch, textSpan);
 
-                    if (!_isLocalParse)
+                    if (!isLocalParse)
                     {
-                        batchResult = DoBatchExecution(_currentBatch);
+                        batchResult = DoBatchExecution(currentBatch);
                     }
                     else
                     {
@@ -503,20 +502,20 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 }
                 finally
                 {
-                    isExecutionDiscarded = (_executionState == ExecutionState.Discarded);
-                    if (_executionState == ExecutionState.Cancelling || isExecutionDiscarded)
+                    isExecutionDiscarded = (executionState == ExecutionState.Discarded);
+                    if (executionState == ExecutionState.Cancelling || isExecutionDiscarded)
                     {
                         batchResult = ScriptExecutionResult.Cancel;
                     }
                     else
                     {
-                        _executionState = ExecutionState.Executing;
+                        executionState = ExecutionState.Executing;
                     }
                 }
 
                 if (!isExecutionDiscarded)
                 {
-                    RaiseBatchParserExecutionFinished(_currentBatch, batchResult);
+                    RaiseBatchParserExecutionFinished(currentBatch, batchResult);
                 }
             }
             else
@@ -527,13 +526,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             //if we're in Cancel or Halt state, do some special actions
             if (batchResult == ScriptExecutionResult.Cancel || batchResult == ScriptExecutionResult.Halted)
             {
-                _result = batchResult;
+                result = batchResult;
                 continueProcessing = false;
                 return;
             }
             else
             {
-                _result |= batchResult;
+                result |= batchResult;
             }
         }
 
@@ -554,13 +553,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
                 try
                 {
-                    _commandParser.Parse();
+                    commandParser.Parse();
                 }
                 catch (BatchParserException ex)
                 {
                     if (ex.ErrorCode != ErrorCode.Aborted)
                     {
-                        _result = ScriptExecutionResult.Failure;
+                        result = ScriptExecutionResult.Failure;
                         string info = ex.Text;
 
                         RaiseScriptError(String.Format(CultureInfo.CurrentCulture, SR.EE_ScriptError_ParsingSyntax, info), ScriptMessageType.FatalError);
@@ -574,7 +573,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             }
             else
             {
-                ExecuteBatchInternal(_script, /* num */ 1, /* lineNumber */ 0);
+                ExecuteBatchInternal(script, /* num */ 1, /* lineNumber */ 0);
             }
 
         }
@@ -585,72 +584,72 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         private void DoExecute(bool isBatchParser)
         {
             //we should not be in the middle of execution here
-            if (_executionState == ExecutionState.Executing || _executionState == ExecutionState.ExecutingBatch)
+            if (executionState == ExecutionState.Executing || executionState == ExecutionState.ExecutingBatch)
             {
                 throw new InvalidOperationException(SR.EE_ExecutionNotYetCompleteError);
             }
 
-            _executionState = ExecutionState.Initial;
-            _result = ScriptExecutionResult.Failure;
-            _currentBatchIndex = 0;
-            _currentBatch.ExecutionTimeout = _executionTimeout;
-            _expectedShowPlan = ShowPlanType.None;
+            executionState = ExecutionState.Initial;
+            result = ScriptExecutionResult.Failure;
+            currentBatchIndex = 0;
+            currentBatch.ExecutionTimeout = executionTimeout;
+            expectedShowPlan = ShowPlanType.None;
 
-            if (!_isLocalParse)
+            if (!isLocalParse)
             {
-                _errorAction = _conditions.IsHaltOnError ?
+                errorAction = conditions.IsHaltOnError ?
                     OnErrorAction.Exit :
                     OnErrorAction.Ignore;
 
                 CreatePrePostConditionBatches();
             }
 
-            ConfigureBatchEventHandlers(_currentBatch, _batchEventHandlers, true);
+            ConfigureBatchEventHandlers(currentBatch, batchEventHandlers, true);
 
             // do we have a cancel request already?
-            lock (_stateSyncLock)
+            lock (stateSyncLock)
             {
-                if (_executionState == ExecutionState.Cancelling)
+                if (executionState == ExecutionState.Cancelling)
                 {
                     RaiseScriptExecutionFinished(ScriptExecutionResult.Cancel);
                     return;
                 }
-                Debug.Assert(_executionState == ExecutionState.Initial);
-                _executionState = ExecutionState.Executing;
+                Debug.Assert(executionState == ExecutionState.Initial);
+                executionState = ExecutionState.Executing;
             }
 
-            if ((_result = ExecutePrePostConditionBatches(_preConditionBatches)) == ScriptExecutionResult.Success)
+            if ((result = ExecutePrePostConditionBatches(preConditionBatches)) == ScriptExecutionResult.Success)
             {
                 DoScriptExecution(isBatchParser);
             }
 
             if (!CheckForDiscardedConnection())
             {
-                if (!_isLocalParse)
+                if (!isLocalParse)
                 {
-                    if (_conditions.IsTransactionWrapped && !_conditions.IsParseOnly)
+                    if (conditions.IsTransactionWrapped && !conditions.IsParseOnly)
                     {
-                        if (_result == ScriptExecutionResult.Success)
+                        if (result == ScriptExecutionResult.Success)
                         {
-                            _postConditionBatches.Add(new Batch(ExecutionEngineConditions.CommitTransactionStatement, false, _executionTimeout));
+                            postConditionBatches.Add(new Batch(ExecutionEngineConditions.CommitTransactionStatement, false, executionTimeout));
                         }
                         else
                         {
-                            _postConditionBatches.Add(new Batch(ExecutionEngineConditions.RollbackTransactionStatement, false, _executionTimeout));
+                            postConditionBatches.Add(new Batch(ExecutionEngineConditions.RollbackTransactionStatement, false, executionTimeout));
                         }
                     }
 
-                    // no need to update the _result value as it has been updated by the DoScriptExecution()
-                    ExecutePrePostConditionBatches(_postConditionBatches);
+                    // no need to update the result value as it has been updated by the DoScriptExecution()
+                    ExecutePrePostConditionBatches(postConditionBatches);
                 }
 
                 //fire an event that we're done with execution of all batches
-                if (_result == ScriptExecutionResult.Halted) //remap into failure
+                if (result == ScriptExecutionResult.Halted) //remap into failure
                 {
-                    _result = ScriptExecutionResult.Failure;
+                    result = ScriptExecutionResult.Failure;
                 }
 
-                RaiseScriptExecutionFinished(_result);
+                RaiseScriptExecutionFinished(result);
             }
         }
 
@@ -664,17 +663,17 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         public void CancelCurrentBatch()
         {
             ExecutionState state;
-            lock (_stateSyncLock)
+            lock (stateSyncLock)
             {
-                state = _executionState;
-                _executionState = ExecutionState.Cancelling;
+                state = executionState;
+                executionState = ExecutionState.Cancelling;
 
                 if (state == ExecutionState.ExecutingBatch)
                 {
-                    Debug.Assert(_currentBatch != null);
-                    if (_currentBatch != null)
+                    Debug.Assert(currentBatch != null);
+                    if (currentBatch != null)
                     {
-                        _currentBatch.Cancel();
+                        currentBatch.Cancel();
                     }
                 }
             }
@@ -684,24 +683,24 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             Debug.WriteLine("ExecutionEngine.Cancel(): Thread didn't cancel");
 
-            ConfigureBatchEventHandlers(_currentBatch, _batchEventHandlers, false);
+            ConfigureBatchEventHandlers(currentBatch, batchEventHandlers, false);
 
-            lock (_stateSyncLock)
+            lock (stateSyncLock)
             {
-                _executionState = ExecutionState.Discarded;
+                executionState = ExecutionState.Discarded;
             }
         }
 
         /// <summary>
         /// Gets the Batch Separator statement
         /// </summary>
-        private String BatchSeparator
+        private string BatchSeparator
         {
             get
             {
-                if (_conditions != null)
+                if (conditions != null)
                 {
-                    return _conditions.BatchSeparator;
+                    return conditions.BatchSeparator;
                 }
                 else
                 {
@@ -724,108 +723,108 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             StringBuilder scriptPostBatches = new StringBuilder();
             int serverVersion = 8;
 
-            if (_connection != null && _connection.State == ConnectionState.Open)
+            if (connection != null && connection.State == ConnectionState.Open)
             {
-                serverVersion = new Version(ReliableConnectionHelper.ReadServerVersion(_connection)).Major;
+                serverVersion = new Version(ReliableConnectionHelper.ReadServerVersion(connection)).Major;
             }
 
-            ConfigurePrePostConditionBatches(_preConditionBatches);
-            ConfigurePrePostConditionBatches(_postConditionBatches);
+            ConfigurePrePostConditionBatches(preConditionBatches);
+            ConfigurePrePostConditionBatches(postConditionBatches);
 
-            if (_conditions.IsNoExec)
+            if (conditions.IsNoExec)
             {
                 scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.NoExecStatement(false));
             }
 
-            if (_conditions.IsStatisticsIO)
+            if (conditions.IsStatisticsIO)
             {
                 scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.StatisticsIOStatement(true));
                 scriptPostBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.StatisticsIOStatement(false));
             }
 
-            if (_conditions.IsStatisticsTime)
+            if (conditions.IsStatisticsTime)
             {
                 scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.StatisticsTimeStatement(true));
                 scriptPostBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.StatisticsTimeStatement(false));
             }
 
-            if (_conditions.IsEstimatedShowPlan)
+            if (conditions.IsEstimatedShowPlan)
             {
                 if (serverVersion >= 9)
                 {
                     scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.ShowPlanXmlStatement(true));
                     scriptPostBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.ShowPlanXmlStatement(false));
-                    _expectedShowPlan = ShowPlanType.EstimatedXmlShowPlan;
+                    expectedShowPlan = ShowPlanType.EstimatedXmlShowPlan;
                 }
                 else
                 {
                     scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.ShowPlanAllStatement(true));
                     scriptPostBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.ShowPlanAllStatement(false));
-                    _expectedShowPlan = ShowPlanType.EstimatedExecutionShowPlan;
+                    expectedShowPlan = ShowPlanType.EstimatedExecutionShowPlan;
                 }
             }
-            else if (_conditions.IsActualShowPlan)
+            else if (conditions.IsActualShowPlan)
             {
                 if (serverVersion >= 9)
                 {
                     scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.StatisticsXmlStatement(true));
                     scriptPostBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.StatisticsXmlStatement(false));
-                    _expectedShowPlan = ShowPlanType.ActualXmlShowPlan;
+                    expectedShowPlan = ShowPlanType.ActualXmlShowPlan;
                 }
                 else
                 {
                     scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.StatisticsProfileStatement(true));
                     scriptPostBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.StatisticsProfileStatement(false));
-                    _expectedShowPlan = ShowPlanType.ActualExecutionShowPlan;
+                    expectedShowPlan = ShowPlanType.ActualExecutionShowPlan;
                 }
             }
 
-            if (_conditions.IsTransactionWrapped)
+            if (conditions.IsTransactionWrapped)
             {
                 scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.BeginTransactionStatement);
                 // issuing a Rollback or a Commit will depend on the script execution result
             }
 
-            if (_conditions.IsParseOnly)
+            if (conditions.IsParseOnly)
             {
                 scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.ParseOnlyStatement(true));
                 scriptPostBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.ParseOnlyStatement(false));
             }
 
-            if (_conditions.IsNoExec)
+            if (conditions.IsNoExec)
             {
                 scriptPreBatches.AppendFormat(CultureInfo.InvariantCulture, "{0} ", ExecutionEngineConditions.NoExecStatement(true));
             }
 
-            if (_conditions.IsShowPlanText &&
-                !_conditions.IsEstimatedShowPlan &&
-                !_conditions.IsActualShowPlan)
+            if (conditions.IsShowPlanText &&
+                !conditions.IsEstimatedShowPlan &&
+                !conditions.IsActualShowPlan)
             {
                 // SET SHOWPLAN_TEXT cannot be used with other statements in the batch
-                _preConditionBatches.Insert(0,
+                preConditionBatches.Insert(0,
                     new Batch(
                         String.Format(CultureInfo.CurrentCulture, "{0} ", ExecutionEngineConditions.ShowPlanTextStatement(true)),
                         false,
-                        _executionTimeout));
+                        executionTimeout));
 
-                _postConditionBatches.Insert(0,
+                postConditionBatches.Insert(0,
                     new Batch(
                         String.Format(CultureInfo.CurrentCulture, "{0} ", ExecutionEngineConditions.ShowPlanTextStatement(false)),
                         false,
-                        _executionTimeout));
+                        executionTimeout));
             }
 
-            String preBatches = scriptPreBatches.ToString().Trim();
-            String postBatches = scriptPostBatches.ToString().Trim();
+            string preBatches = scriptPreBatches.ToString().Trim();
+            string postBatches = scriptPostBatches.ToString().Trim();
 
             if (scriptPreBatches.Length > 0)
             {
-                _preConditionBatches.Add(new Batch(preBatches, false, _executionTimeout));
+                preConditionBatches.Add(new Batch(preBatches, false, executionTimeout));
             }
 
             if (scriptPostBatches.Length > 0)
             {
-                _postConditionBatches.Add(new Batch(postBatches, false, _executionTimeout));
+                postConditionBatches.Add(new Batch(postBatches, false, executionTimeout));
             }
         }
 
@@ -843,8 +842,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             {
                 try
                 {
-                    ConfigureBatchEventHandlers(batch, _batchEventHandlers, true);
-                    result = batch.Execute(_connection, ShowPlanType.None);
+                    ConfigureBatchEventHandlers(batch, batchEventHandlers, true);
+                    result = batch.Execute(connection, ShowPlanType.None);
                 }
                 catch (SqlException)
                 {
@@ -852,7 +851,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 }
                 finally
                 {
-                    ConfigureBatchEventHandlers(batch, _batchEventHandlers, false);
+                    ConfigureBatchEventHandlers(batch, batchEventHandlers, false);
                 }
 
                 if (result != ScriptExecutionResult.Success)
@@ -919,9 +918,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         private bool CheckForDiscardedConnection()
         {
             bool isDiscarded = false;
-            lock (_stateSyncLock)
+            lock (stateSyncLock)
             {
-                isDiscarded = (_executionState == ExecutionState.Discarded);
+                isDiscarded = (executionState == ExecutionState.Discarded);
             }
 
             if (isDiscarded)
@@ -930,7 +929,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
                 ResetScript();
 
-                CloseConnection(_connection);
+                CloseConnection(connection);
 
                 return true;
             }
@@ -947,7 +946,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         private void OnHaltParser()
         {
-            _result = ScriptExecutionResult.Halted;
+            result = ScriptExecutionResult.Halted;
         }
 
         /// <summary>
@@ -956,7 +955,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <param name="ea"></param>
         private void OnErrorActionChanged(OnErrorAction ea)
         {
-            _errorAction = ea;
+            errorAction = ea;
         }
 
         /// <summary>
@@ -972,11 +971,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             SqlConnection connection = ConnectSqlCmdInternal(connectionStringBuilder);
             if (connection != null)
             {
-                _isSqlCmdConnection = true;
-                _connection = connection;
+                isSqlCmdConnection = true;
+                this.connection = connection;
 
                 CreatePrePostConditionBatches();
-                _result = ExecutePrePostConditionBatches(_preConditionBatches);
+                result = ExecutePrePostConditionBatches(preConditionBatches);
             }
         }
 
@@ -1010,10 +1009,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         private void DisconnectSqlCmdInternal()
         {
-            if (_isSqlCmdConnection)
+            if (isSqlCmdConnection)
             {
-                RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, "Disconnection from server {0}", ReliableConnectionHelper.GetServerName(_connection)));
-                CloseConnection(_connection);
+                RaiseBatchMessage(String.Format(CultureInfo.CurrentCulture, "Disconnection from server {0}", ReliableConnectionHelper.GetServerName(connection)));
+                CloseConnection(connection);
             }
         }
         #endregion
@@ -1055,14 +1054,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
             Debug.Assert(scriptExecutionArgs.TimeOut >= 0);
 
-            _executionTimeout = scriptExecutionArgs.TimeOut < 0 ? 0 : scriptExecutionArgs.TimeOut;
-            _connection = scriptExecutionArgs.ReliableConnection;
-            _conditions = new ExecutionEngineConditions(scriptExecutionArgs.Conditions);
-            _script = scriptExecutionArgs.Script;
-            _isSqlCmdConnection = false;
-            _batchEventHandlers = scriptExecutionArgs.BatchEventHandlers;
-            _startingLine = scriptExecutionArgs.StartingLine;
-            _internalVariables = scriptExecutionArgs.Variables;
+            executionTimeout = scriptExecutionArgs.TimeOut < 0 ? 0 : scriptExecutionArgs.TimeOut;
+            connection = scriptExecutionArgs.ReliableConnection;
+            conditions = new ExecutionEngineConditions(scriptExecutionArgs.Conditions);
+            script = scriptExecutionArgs.Script;
+            isSqlCmdConnection = false;
+            batchEventHandlers = scriptExecutionArgs.BatchEventHandlers;
+            startingLine = scriptExecutionArgs.StartingLine;
+            internalVariables = scriptExecutionArgs.Variables;
 
             DoExecute(isBatchParser);
         }
@@ -1094,33 +1093,33 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         #endregion
 
         #region Private fields
-        private OnErrorAction _errorAction = OnErrorAction.Ignore;
-        private int _numBatchExecutionTimes = 1;
-        private IDbConnection _connection = null;
-        private bool _isSqlCmdConnection;
+        private OnErrorAction errorAction = OnErrorAction.Ignore;
+        private int numBatchExecutionTimes = 1;
+        private IDbConnection connection = null;
+        private bool isSqlCmdConnection;
 
-        private Parser _commandParser = null;
-        private int _executionTimeout;
-        private int _startingLine;
-        private ExecutionState _executionState = ExecutionState.Initial;
-        private String _script;
-        private ScriptExecutionResult _result = ScriptExecutionResult.Failure;
-        private bool _isLocalParse;
-        private ExecutionEngineConditions _conditions = null;
-        private IList<Batch> _preConditionBatches = new List<Batch>();
-        private IList<Batch> _postConditionBatches = new List<Batch>();
-        private IBatchEventsHandler _batchEventHandlers = null;
-        private Batch _currentBatch = new Batch();
-        private ShowPlanType _expectedShowPlan;
-        private int _currentBatchIndex = -1; 
-        private int _scriptTrackingId = 1;
-        private object _stateSyncLock = new object();
+        private Parser commandParser = null;
+        private int executionTimeout;
+        private int startingLine;
+        private ExecutionState executionState = ExecutionState.Initial;
+        private string script;
+        private ScriptExecutionResult result = ScriptExecutionResult.Failure;
+        private bool isLocalParse;
+        private ExecutionEngineConditions conditions = null;
+        private IList<Batch> preConditionBatches = new List<Batch>();
+        private IList<Batch> postConditionBatches = new List<Batch>();
+        private IBatchEventsHandler batchEventHandlers = null;
+        private Batch currentBatch = new Batch();
+        private ShowPlanType expectedShowPlan;
+        private int currentBatchIndex = -1; 
+        private int scriptTrackingId = 1;
+        private object stateSyncLock = new object();
                 
         /// <summary>
         /// The internal variables that can be used in SqlCommand substitution.
         /// These variables take precedence over environment variables.
         /// </summary>
-        private Dictionary<String, String> _internalVariables = new Dictionary<String, String>(StringComparer.CurrentCultureIgnoreCase);
+        private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         #endregion
     }
 }
