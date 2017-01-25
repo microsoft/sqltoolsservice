@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 DbConnection connection;
                                 if (connectionInfo.TryGetConnection(ConnectionType.Query, out connection))
                                 {
-                                    if(!string.IsNullOrEmpty(connection.Database))
+                                    if (!string.IsNullOrEmpty(connection.Database))
                                     {
                                         dbName  = connection.Database;
                                     }                               
