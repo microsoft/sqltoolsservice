@@ -533,7 +533,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Fires an error message event
         /// </summary>
-        /// <param name="ex">Exception cought</param>
+        /// <param name="ex">Exception caught</param>
         /// <remarks>
         /// Non-SQL exception
         /// </remarks>
@@ -726,8 +726,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 lock (this)
                 {
                     state = BatchState.Initial;
-                    command.Dispose();
-                    command = null;
+                    if (command != null)
+                    {
+                        command.Dispose();
+                        command = null;
+                    }
                 }
             }
 
@@ -845,7 +848,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             {
                 try
                 {
-                    reader.Close();
+                    // reader.Close() doesn't actually close the reader
+                    // so explicitly dispose the reader
+                    reader.Dispose();
                     reader = null;
                 }
                 catch (OutOfMemoryException)

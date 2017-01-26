@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         batchText,
                         startLine,
                         endLine,
-                        startColumn,
+                        startColumn+1,
                         endColumn          
                     );
 
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             batchText,
                             startLine,
                             endLine,
-                            startColumn,
+                            startColumn+1,
                             endColumn
                         );
                         batchDefinitionList.Add(batch);
@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 batchText,
                 startLine,
                 endLine,
-                startColumn,
+                startColumn+1,
                 endColumn
             );
         }

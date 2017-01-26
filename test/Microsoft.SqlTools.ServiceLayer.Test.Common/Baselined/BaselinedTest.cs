@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.Test.Commons;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
 {
@@ -235,7 +236,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             _testScriptExtension = _baselineExtension = "txt"; //default to txt
             _testCategoryName = null;
-            _traceOutputDir = Environment.ExpandEnvironmentVariables(@"%SystemDrive%\trace\");
+            string projectPath = Environment.GetEnvironmentVariable(Consts.ProjectPath);
+            if (projectPath != null)
+            {
+                _traceOutputDir = Path.Combine(projectPath, "trace");
+            }
+            else
+            {
+                _traceOutputDir = Environment.ExpandEnvironmentVariables(@"%SystemDrive%\trace\");
+            }
             _baselinePrefix = "BL";
             _testscriptPrefix = "TS";
         }
@@ -387,7 +396,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             {
                 Directory.CreateDirectory(TraceFilePath);
             }
-
             WriteTraceFile(traceFile, text);
             return traceFile;
         }
@@ -399,12 +407,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         /// <param name="text">The content for the trace file</param>
         public void WriteTraceFile(string traceFile, string text)
         {
-            using (StreamWriter sw = new StreamWriter(File.Open(traceFile, FileMode.Open), Encoding.Unicode))
+            Stream traceStream = GetStreamFromString(traceFile);
+            using (StreamWriter sw = new StreamWriter(traceStream, Encoding.Unicode))
             {
                 sw.Write(text);
                 sw.Flush();
                 sw.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Converts a string to a stream
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        private Stream GetStreamFromString(string s)
+        {
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
         }
 
         /// <summary>

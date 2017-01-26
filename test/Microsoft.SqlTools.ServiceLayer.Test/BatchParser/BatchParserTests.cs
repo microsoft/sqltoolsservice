@@ -7,6 +7,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -31,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             TestInitialize();
         }
 
-        [Fact()]
+        [Fact]
         public void VerifyThrowOnUnresolvedVariable()
         {
             string script = "print '$(NotDefined)'";
@@ -232,6 +233,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             }
 
             string outputString = output.ToString();
+
+            baseline = Regex.Replace(baseline, @"\s", "");
+            outputString = Regex.Replace(outputString, @"\s", "");
+
+            Console.WriteLine(baselineFilename);
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
