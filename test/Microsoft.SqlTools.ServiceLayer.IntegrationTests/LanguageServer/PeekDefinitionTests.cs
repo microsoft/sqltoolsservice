@@ -683,7 +683,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             Assert.True(result.IsErrorResult);
         }
 
-        /// Give that there is no query connection
+        /// Given that there is no query connection
         /// Expect database name to be "master"
         /// </summary>
         [Fact]
