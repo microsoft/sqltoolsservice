@@ -113,12 +113,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             var batchSelection = parserResult
                 .Select((batchDefinition, index) =>
-                    new Batch(batchDefinition.batchText, 
+                    new Batch(batchDefinition.BatchText, 
                         new SelectionData(
-                            batchDefinition.startLine-1,
-                            batchDefinition.startColumn-1,
-                            batchDefinition.endLine-1,
-                            batchDefinition.endColumn-1),                       
+                            batchDefinition.StartLine-1,
+                            batchDefinition.StartColumn-1,
+                            batchDefinition.EndLine-1,
+                            batchDefinition.EndColumn-1),                       
                         index, outputFactory));
 
             Batches = batchSelection.ToArray();

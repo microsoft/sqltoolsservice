@@ -5,8 +5,18 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
+    /// <summary>
+    /// Class associated with batch parser execution errors
+    /// </summary>
     internal class BatchParserExecutionErrorEventArgs : BatchErrorEventArgs
     {
+        #region Private fields
+        private readonly ScriptMessageType messageType;
+        #endregion
+
+        /// <summary>
+        /// Constructor method for BatchParserExecutionErrorEventArgs class
+        /// </summary>
         public BatchParserExecutionErrorEventArgs(string errorLine, string message, ScriptMessageType messageType)
             : base(errorLine, message, null)
         {
@@ -21,8 +31,5 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             }
         }
 
-        #region Private fields
-        private readonly ScriptMessageType messageType;
-        #endregion
     }
 }

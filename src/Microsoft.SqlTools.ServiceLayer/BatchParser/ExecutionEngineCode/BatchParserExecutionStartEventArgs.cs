@@ -7,12 +7,25 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
+
+    /// <summary>
+    /// Class associated with batch parser execution start event
+    /// </summary>
     internal class BatchParserExecutionStartEventArgs : EventArgs
     {
+
+        #region Private members
+        private readonly Batch batch = null;
+        private readonly TextSpan textSpan;
+        #endregion
+
         private BatchParserExecutionStartEventArgs() 
         {
         }
 
+        /// <summary>
+        /// Contructor method for the class
+        /// </summary>
         public BatchParserExecutionStartEventArgs(TextSpan textSpan, Batch batch)            
         {
             this.batch = batch;
@@ -35,9 +48,5 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             }
         }
 
-        #region Private members
-        private readonly Batch batch = null;
-        private readonly TextSpan textSpan;
-        #endregion
     }
 }

@@ -19,6 +19,210 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// </summary>
     internal class Batch
     {
+        #region Private methods
+
+        /// <summary>
+        /// Helper method to format the provided SqlError
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        private string FormatSqlErrorMessage(SqlError error)
+        {
+            string detailedMessage = string.Empty;
+
+            if (error.Class > 10)
+            {
+                if (string.IsNullOrEmpty(error.Procedure))
+                {
+                    detailedMessage = string.Format(CultureInfo.CurrentCulture, SR.EE_BatchSqlMessageNoProcedureInfo,
+                            error.Number,
+                            error.Class,
+                            error.State,
+                            error.LineNumber);
+                }
+                else
+                {
+                    detailedMessage = string.Format(CultureInfo.CurrentCulture, SR.EE_BatchSqlMessageWithProcedureInfo,
+                        error.Number,
+                        error.Class,
+                        error.State,
+                        error.Procedure,
+                        error.LineNumber);
+                }
+            }
+            else if (error.Class > 0 && error.Number > 0)
+            {
+                detailedMessage = string.Format(CultureInfo.CurrentCulture, SR.EE_BatchSqlMessageNoLineInfo,
+                    error.Number,
+                    error.Class,
+                    error.State);
+            }
+
+            if (!string.IsNullOrEmpty(detailedMessage) && !isSuppressProviderMessageHeaders)
+            {
+                detailedMessage = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", error.Source, detailedMessage);
+            }
+
+            return detailedMessage;
+        }
+
+        /// <summary>
+        /// Handles a Sql exception
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <returns></returns>
+        private ScriptExecutionResult HandleSqlException(SqlException ex)
+        {
+            ScriptExecutionResult result;
+
+            lock (this)
+            {
+                if (state == BatchState.Cancelling)
+                {
+                    result = ScriptExecutionResult.Cancel;
+                }
+                else
+                {
+                    result = ScriptExecutionResult.Failure;
+                }
+            }
+
+            if (result != ScriptExecutionResult.Cancel)
+            {
+                HandleSqlMessages(ex.Errors);
+            }
+
+            return result;
+        }
+
+        /// <summary>        
+        /// Called when an error message came from SqlClient
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="description"></param>
+        /// <param name="line"></param>
+        /// <param name="textSpan"></param>
+        private void RaiseBatchError(string message, SqlError error, TextSpan textSpan)
+        {
+            BatchErrorEventArgs args = new BatchErrorEventArgs(message, error, textSpan, null);
+            RaiseBatchError(args);
+        }
+
+        /// <summary>
+        /// Called when an error message came from SqlClient
+        /// </summary>
+        /// <param name="e"></param>
+        private void RaiseBatchError(BatchErrorEventArgs e)
+        {
+            EventHandler<BatchErrorEventArgs> cache = BatchError;
+            if (cache != null)
+            {
+                cache(this, e);
+            }
+        }
+
+        /// <summary>
+        /// Called when a message came from SqlClient
+        /// </summary>
+        /// <remarks>
+        /// Additionally, it's being used to notify the user that the script execution
+        /// has been finished.
+        /// </remarks>
+        /// <param name="detailedMessage"></param>
+        /// <param name="message"></param>
+        private void RaiseBatchMessage(string detailedMessage, string message, SqlError error)
+        {
+            EventHandler<BatchMessageEventArgs> cache = BatchMessage;
+            if (cache != null)
+            {
+                BatchMessageEventArgs args = new BatchMessageEventArgs(detailedMessage, message, error);
+                cache(this, args);
+            }
+        }
+
+        /// <summary>
+        /// Called when a new result set has to be processed
+        /// </summary>
+        /// <param name="resultSet"></param>
+        private void RaiseBatchResultSetProcessing(IDataReader dataReader, ShowPlanType expectedShowPlan)
+        {
+            EventHandler<BatchResultSetEventArgs> cache = BatchResultSetProcessing;
+            if (cache != null)
+            {
+                BatchResultSetEventArgs args = new BatchResultSetEventArgs(dataReader, expectedShowPlan);
+                BatchResultSetProcessing(this, args);
+            }
+        }
+
+        /// <summary>
+        /// Called when the result set has been processed
+        /// </summary>
+        private void RaiseBatchResultSetFinished()
+        {
+            EventHandler<EventArgs> cache = BatchResultSetFinished;
+            if (cache != null)
+            {
+                cache(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Called when the batch is being cancelled with an active result set 
+        /// </summary>
+        private void RaiseCancelling()
+        {
+            EventHandler<EventArgs> cache = BatchCancelling;
+            if (cache != null)
+            {
+                cache(this, EventArgs.Empty);
+            }
+        }
+        #endregion
+
+        #region Private enums
+
+        private enum BatchState
+        {
+            Initial,
+            Executing,
+            Executed,
+            ProcessingResults,
+            Cancelling,
+        }
+        #endregion
+
+        #region Private fields
+
+        // correspond to public properties
+        private bool isSuppressProviderMessageHeaders;
+        private bool isResultExpected = false;
+        private string sqlText = string.Empty;
+        private int execTimeout = 30;
+        private int scriptTrackingId = 0;
+        private bool isScriptExecutionTracked = false;
+        private const int ChangeDatabase = 0x1645;
+
+        //command that will be used for execution
+        private IDbCommand command = null;
+
+        //current object state
+        private BatchState state = BatchState.Initial;
+
+        //script text to be executed
+        private TextSpan textSpan;
+
+        //index of the batch in collection of batches
+        private int index = 0;
+
+        private long totalAffectedRows = 0;
+
+        private bool hasErrors;
+
+        // Expected showplan if any
+        private ShowPlanType expectedShowPlan;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -184,23 +388,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 scriptTrackingId = value;
             }
         }
-
-        // TODO Reenable if any consumer ever needs specialized script tracking. Only Dacfx needs at present and
-        // has its own copy of this code.
-        /// <summary>
-        /// Gets or sets a value indicating whether to track the current batch in the tracking table
-        /// </summary>
-        //public bool IsScriptExecutionTracked
-        //{
-        //    get
-        //    {
-        //        return isScriptExecutionTracked;
-        //    }
-        //    set
-        //    {
-        //        isScriptExecutionTracked = value;
-        //    }
-        //}
 
         #endregion
 
@@ -556,16 +743,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
             return this.ExecuteUnTrackedCommand();
             
-            // TODO Reenable if any consumer ever needs specialized script tracking. Only Dacfx needs at present and
-            // has its own copy of this code.
-            //if (isScriptExecutionTracked)
-            //{
-            //    return this.ExecuteTrackedCommand();
-            //}
-            //else
-            //{
-            //    return this.ExecuteUnTrackedCommand(); 
-            //}
         }
 
         private ScriptExecutionResult ExecuteUnTrackedCommand()
@@ -583,78 +760,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
             return this.CheckStateAndRead(reader);
         }
-
-
-
-        // TODO Reenable if any consumer ever needs specialized script tracking. Only Dacfx needs at present and
-        // has its own copy of this code.
-        //private ScriptExecutionResult ExecuteTrackedCommand()
-        //{
-        //    ScriptExecutionResult result = ScriptExecutionResult.Success;
-        //    IDataReader reader = null;
-
-        //    // Get the transaction retry policy
-        //    RetryPolicy transactionCommandRetryPolicy = RetryPolicyFactory.PrimaryKeyViolationRetryPolicy;
-            
-        //    transactionCommandRetryPolicy.ExecuteAction(retryState =>
-        //    {
-        //        // Make sure connection is open
-        //        if (command.Connection.State != ConnectionState.Open)
-        //        {
-        //            command.Connection.Open();
-        //        }
-
-        //        // Get the connection
-        //        IDbConnection connection = command.Connection;
-
-        //        // Execute transaction
-        //        bool success = false;
-        //        using (IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
-        //        {
-        //            try
-        //            {
-        //                // Execute the Insert statement to track this execution
-        //                IDbCommand insertCommand = DeploymentScriptTracker.GetInsertCommandIntoScriptTrackingTable(connection, scriptTrackingId);
-        //                insertCommand.Transaction = transaction;
-        //                insertCommand.ExecuteNonQuery();
-
-        //                // Execute the actual deployment script
-        //                command.Transaction = transaction;
-        //                if (!isResultExpected)
-        //                {
-        //                    command.ExecuteNonQuery();
-        //                }
-        //                else
-        //                {
-        //                    reader = command.ExecuteReader(CommandBehavior.SequentialAccess);
-        //                }
-
-        //                result = this.CheckStateAndRead(reader);
-
-        //                transaction.Commit();
-        //                success = true;
-        //            }
-        //            finally
-        //            {
-        //                if (!success)
-        //                {
-        //                    // Attempt to rollback transaction and ignore any exceptions.
-        //                    // If there was any error, we need to rollback transaction to avoid partial data being submitted.
-        //                    try
-        //                    {
-        //                        transaction.Rollback();
-        //                    }
-        //                    catch (Exception ex)
-        //                    {
-        //                        Logger.Write(LogLevel.Error, "Exception rolling back transaction");
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    });
-
-        //    return result;
-        //}
 
         private ScriptExecutionResult CheckStateAndRead(IDataReader reader = null)
         {
@@ -759,208 +864,5 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         #endregion
 
-        #region Private methods
-
-        /// <summary>
-        /// Helper method to format the provided SqlError
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        private string FormatSqlErrorMessage(SqlError error)
-        {
-            string detailedMessage = string.Empty;
-
-            if (error.Class > 10)
-            {
-                if (string.IsNullOrEmpty(error.Procedure))
-                {
-                    detailedMessage = string.Format(CultureInfo.CurrentCulture, SR.EE_BatchSqlMessageNoProcedureInfo,
-                            error.Number,
-                            error.Class,
-                            error.State,
-                            error.LineNumber);
-                }
-                else
-                {
-                    detailedMessage = string.Format(CultureInfo.CurrentCulture, SR.EE_BatchSqlMessageWithProcedureInfo,
-                        error.Number,
-                        error.Class,
-                        error.State,
-                        error.Procedure,
-                        error.LineNumber);
-                }
-            }
-            else if (error.Class > 0 && error.Number > 0)
-            {
-                detailedMessage = string.Format(CultureInfo.CurrentCulture, SR.EE_BatchSqlMessageNoLineInfo,
-                    error.Number,
-                    error.Class,
-                    error.State);
-            }
-
-            if (!string.IsNullOrEmpty(detailedMessage) && !isSuppressProviderMessageHeaders)
-            {
-                detailedMessage = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", error.Source, detailedMessage);
-            }
-
-            return detailedMessage;
-        }
-
-        /// <summary>
-        /// Handles a Sql exception
-        /// </summary>
-        /// <param name="ex"></param>
-        /// <returns></returns>
-        private ScriptExecutionResult HandleSqlException(SqlException ex)
-        {
-            ScriptExecutionResult result;
-
-            lock (this)
-            {
-                if (state == BatchState.Cancelling)
-                {
-                    result = ScriptExecutionResult.Cancel;
-                }
-                else
-                {
-                    result = ScriptExecutionResult.Failure;
-                }
-            }
-
-            if (result != ScriptExecutionResult.Cancel)
-            {
-                HandleSqlMessages(ex.Errors);
-            }
-
-            return result;
-        }
-
-        /// <summary>        
-        /// Called when an error message came from SqlClient
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="description"></param>
-        /// <param name="line"></param>
-        /// <param name="textSpan"></param>
-        private void RaiseBatchError(string message, SqlError error, TextSpan textSpan)
-        {
-            BatchErrorEventArgs args = new BatchErrorEventArgs(message, error, textSpan, null);
-            RaiseBatchError(args);
-        }
-
-        /// <summary>
-        /// Called when an error message came from SqlClient
-        /// </summary>
-        /// <param name="e"></param>
-        private void RaiseBatchError(BatchErrorEventArgs e)
-        {
-            EventHandler<BatchErrorEventArgs> cache = BatchError;
-            if (cache != null)
-            {
-                cache(this, e);
-            }
-        }
-
-        /// <summary>
-        /// Called when a message came from SqlClient
-        /// </summary>
-        /// <remarks>
-        /// Additionally, it's being used to notify the user that the script execution
-        /// has been finished.
-        /// </remarks>
-        /// <param name="detailedMessage"></param>
-        /// <param name="message"></param>
-        private void RaiseBatchMessage(string detailedMessage, string message, SqlError error)
-        {
-            EventHandler<BatchMessageEventArgs> cache = BatchMessage;
-            if (cache != null)
-            {
-                BatchMessageEventArgs args = new BatchMessageEventArgs(detailedMessage, message, error);
-                cache(this, args);
-            }
-        }
-
-        /// <summary>
-        /// Called when a new result set has to be processed
-        /// </summary>
-        /// <param name="resultSet"></param>
-        private void RaiseBatchResultSetProcessing(IDataReader dataReader, ShowPlanType expectedShowPlan)
-        {
-            EventHandler<BatchResultSetEventArgs> cache = BatchResultSetProcessing;
-            if (cache != null)
-            {
-                BatchResultSetEventArgs args = new BatchResultSetEventArgs(dataReader, expectedShowPlan);
-                BatchResultSetProcessing(this, args);
-            }
-        }
-
-        /// <summary>
-        /// Called when the result set has been processed
-        /// </summary>
-        private void RaiseBatchResultSetFinished()
-        {
-            EventHandler<EventArgs> cache = BatchResultSetFinished;
-            if (cache != null)
-            {
-                cache(this, EventArgs.Empty);
-            }
-        }
-
-        /// <summary>
-        /// Called when the batch is being cancelled with an active result set 
-        /// </summary>
-        private void RaiseCancelling()
-        {
-            EventHandler<EventArgs> cache = BatchCancelling;
-            if (cache != null)
-            {
-                cache(this, EventArgs.Empty);
-            }
-        }
-        #endregion
-
-        #region Private enums
-
-        private enum BatchState
-        {
-            Initial,
-            Executing,
-            Executed,
-            ProcessingResults,
-            Cancelling,
-        }
-        #endregion
-
-        #region Private fields
-
-        // correspond to public properties
-        private bool isSuppressProviderMessageHeaders;
-        private bool isResultExpected = false;
-        private string sqlText = string.Empty;
-        private int execTimeout = 30;
-        private int scriptTrackingId = 0;
-        private bool isScriptExecutionTracked = false;
-        private const int ChangeDatabase = 0x1645;
-
-        //command that will be used for execution
-        private IDbCommand command = null;
-
-        //current object state
-        private BatchState state = BatchState.Initial;
-
-        //script text to be executed
-        private TextSpan textSpan;
-
-        //index of the batch in collection of batches
-        private int index = 0;
-
-        private long totalAffectedRows = 0;
-
-        private bool hasErrors;
-
-        // Expected showplan if any
-        private ShowPlanType expectedShowPlan;
-
-        #endregion
     }
 }

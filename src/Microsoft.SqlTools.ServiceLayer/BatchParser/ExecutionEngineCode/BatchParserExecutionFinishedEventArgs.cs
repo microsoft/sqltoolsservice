@@ -7,12 +7,24 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
+    /// <summary>
+    /// Class associated with batch parser execution finished event
+    /// </summary>
     internal class BatchParserExecutionFinishedEventArgs : EventArgs
     {
+
+        #region Private members
+        private readonly Batch batch = null;
+        private readonly ScriptExecutionResult result;
+        #endregion
+
         private BatchParserExecutionFinishedEventArgs() 
         {
         }
 
+        /// <summary>
+        /// Constructor method for the class
+        /// </summary>
         public BatchParserExecutionFinishedEventArgs(ScriptExecutionResult batchResult, Batch batch)            
         {
             this.batch = batch;
@@ -34,10 +46,5 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 return result;
             }
         }
-
-        #region Private members
-        private readonly Batch batch = null;
-        private readonly ScriptExecutionResult result;
-        #endregion
     }
 }

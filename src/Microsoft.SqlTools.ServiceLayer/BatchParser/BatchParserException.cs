@@ -7,7 +7,6 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    // Exception class used by the Batch Parser class
     internal sealed class BatchParserException : Exception
     {
         const string ErrorCodeName = "ErrorCode";
@@ -22,6 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         string text;
         LexerTokenType tokenType;
 
+        /// <summary>
+        /// Class for a custom exception for the Batch Parser
+        /// </summary>
         public BatchParserException(ErrorCode errorCode, Token token, string message)
             : base(message)
         {

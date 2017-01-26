@@ -17,116 +17,13 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
+    /// <summary>
+    /// Execution engine class which executed the parsed batches
+    /// </summary>
     internal class ExecutionEngine : IDisposable
     {
-        #region Public members
-        
-        /// <summary>
-        /// Executes the script
-        /// </summary>
-        /// <param name="scriptArgs">Script to be executed</param>
-        public void ExecuteScript(object scriptArgs)
-        {
-            ExecuteInternal(scriptArgs as ScriptExecutionArgs, /* isBatchParser */ true);
-        }
 
-        /// <summary>
-        /// Executes a given batch
-        /// </summary>
-        /// <param name="batchScript"></param>
-        /// <returns></returns>
-        public void ExecuteBatch(ScriptExecutionArgs scriptExecutionArgs)
-        {
-            ExecuteInternal(scriptExecutionArgs, /* isBatchParser */ false);
-        }
-
-        /// <summary>
-        /// Parses the script locally
-        /// </summary>
-        /// <param name="script">script to parse</param>
-        /// <param name="batchEventsHandler">batch handler</param>        
-        /// <remarks>
-        /// The batch parser functionality is used in this case
-        /// </remarks>
-        public void ParseScript(string script, IBatchEventsHandler batchEventsHandler)
-        {
-            Validate.IsNotNullOrEmptyString(nameof(script), script);
-            Validate.IsNotNull(nameof(batchEventsHandler), batchEventsHandler);
-
-
-            this.script = script;
-            batchEventHandlers = batchEventsHandler;
-            isLocalParse = true;
-
-            DoExecute(/* isBatchParser */ true);
-        }
-                        
-        /// <summary>
-        /// Close the current connection
-        /// </summary>
-        /// <param name="isCloseConnection"></param>
-        public void Close(bool isCloseConnection)
-        {
-            Close(isCloseConnection, /* isDiscard */ false);
-        }
-
-        /// <summary>
-        /// Close/Discard the current connection
-        /// </summary>
-        /// <param name="isCloseConnection"></param>
-        /// <param name="isDiscard"></param>
-        public void Close(bool isCloseConnection, bool isDiscard)
-        {
-            Close(isCloseConnection, isDiscard, /* isFinishExecution */ false);
-        }
-
-        /// <summary>
-        /// Close/Discard the current connection
-        /// </summary>
-        /// <param name="isCloseConnection">true if connection has to be closed</param>
-        /// <param name="isDiscard">true if connection has to be discarded</param>
-        /// <param name="isFinishExecution">Raises the script execution finish event</param>
-        public void Close(bool isCloseConnection, bool isDiscard, bool isFinishExecution)
-        {
-            if (isFinishExecution)
-            {
-                RaiseScriptExecutionFinished(ScriptExecutionResult.Cancel);
-            }
-
-            if (isDiscard)
-            {
-                Discard();
-            }
-            else
-            {
-                if (isCloseConnection)
-                {
-                    CloseConnection(connection);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or
-        //  resetting unmanaged resources.
-        /// </summary>
-        virtual public void Dispose()
-        {
-            //Debug.WriteLine("ExecutionEngine.Dispose");
-            if (commandParser != null)
-            {
-                commandParser.Dispose();
-                commandParser = null;
-            }
-
-            ResetScript();
-
-            stateSyncLock = null;
-            currentBatch = null;
-        }
-        #endregion
-
-        #region Private members
+       #region Private members
 
         /// <summary>
         /// Batch to be executed
@@ -1120,6 +1017,113 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// These variables take precedence over environment variables.
         /// </summary>
         private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+        #endregion
+        
+        #region Public members
+        
+        /// <summary>
+        /// Executes the script
+        /// </summary>
+        /// <param name="scriptArgs">Script to be executed</param>
+        public void ExecuteScript(object scriptArgs)
+        {
+            ExecuteInternal(scriptArgs as ScriptExecutionArgs, /* isBatchParser */ true);
+        }
+
+        /// <summary>
+        /// Executes a given batch
+        /// </summary>
+        /// <param name="batchScript"></param>
+        /// <returns></returns>
+        public void ExecuteBatch(ScriptExecutionArgs scriptExecutionArgs)
+        {
+            ExecuteInternal(scriptExecutionArgs, /* isBatchParser */ false);
+        }
+
+        /// <summary>
+        /// Parses the script locally
+        /// </summary>
+        /// <param name="script">script to parse</param>
+        /// <param name="batchEventsHandler">batch handler</param>        
+        /// <remarks>
+        /// The batch parser functionality is used in this case
+        /// </remarks>
+        public void ParseScript(string script, IBatchEventsHandler batchEventsHandler)
+        {
+            Validate.IsNotNullOrEmptyString(nameof(script), script);
+            Validate.IsNotNull(nameof(batchEventsHandler), batchEventsHandler);
+
+
+            this.script = script;
+            batchEventHandlers = batchEventsHandler;
+            isLocalParse = true;
+
+            DoExecute(/* isBatchParser */ true);
+        }
+                        
+        /// <summary>
+        /// Close the current connection
+        /// </summary>
+        /// <param name="isCloseConnection"></param>
+        public void Close(bool isCloseConnection)
+        {
+            Close(isCloseConnection, /* isDiscard */ false);
+        }
+
+        /// <summary>
+        /// Close/Discard the current connection
+        /// </summary>
+        /// <param name="isCloseConnection"></param>
+        /// <param name="isDiscard"></param>
+        public void Close(bool isCloseConnection, bool isDiscard)
+        {
+            Close(isCloseConnection, isDiscard, /* isFinishExecution */ false);
+        }
+
+        /// <summary>
+        /// Close/Discard the current connection
+        /// </summary>
+        /// <param name="isCloseConnection">true if connection has to be closed</param>
+        /// <param name="isDiscard">true if connection has to be discarded</param>
+        /// <param name="isFinishExecution">Raises the script execution finish event</param>
+        public void Close(bool isCloseConnection, bool isDiscard, bool isFinishExecution)
+        {
+            if (isFinishExecution)
+            {
+                RaiseScriptExecutionFinished(ScriptExecutionResult.Cancel);
+            }
+
+            if (isDiscard)
+            {
+                Discard();
+            }
+            else
+            {
+                if (isCloseConnection)
+                {
+                    CloseConnection(connection);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or
+        //  resetting unmanaged resources.
+        /// </summary>
+        virtual public void Dispose()
+        {
+            //Debug.WriteLine("ExecutionEngine.Dispose");
+            if (commandParser != null)
+            {
+                commandParser.Dispose();
+                commandParser = null;
+            }
+
+            ResetScript();
+
+            stateSyncLock = null;
+            currentBatch = null;
+        }
         #endregion
     }
 }

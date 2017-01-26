@@ -9,6 +9,9 @@ using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
+    /// <summary>
+    /// Lexer input class used by lexer in SMO Batch Parser
+    /// </summary>
     internal sealed class LexerInput : IDisposable
     {
         private readonly string filename;
@@ -19,6 +22,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private int currentSbOffset;
         private StringBuilder buffer;
 
+        /// <summary>
+        /// Constructor method for the LexerInput class
+        /// </summary>
         public LexerInput(TextReader reader, string filename)
         {
             input = reader;
@@ -31,21 +37,33 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             EnsureBytes(1);
         }
 
+        /// <summary>
+        /// Get filename associated with lexer input
+        /// </summary>
         public string Filename
         {
             get { return filename; }
         }
 
+        /// <summary>
+        /// Get current line associated with lexer input
+        /// </summary>
         public int CurrentLine 
         {
             get { return currentLine; }
         }
 
+        /// <summary>
+        /// Get current column associated with lexer input
+        /// </summary>
         public int CurrentColumn 
         {
             get { return currentColumn; }
         }
 
+        /// <summary>
+        /// Consume token used by lexer input
+        /// </summary>
         public void Consume()
         {
             bool newLineWithCR = false;
@@ -91,11 +109,17 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
         }
 
+        /// <summary>
+        /// Get current offset for the lexer input
+        /// </summary>
         public int CurrentOffset
         {
             get { return bufferStartOffset + currentSbOffset; }
         }
 
+        /// <summary>
+        /// Ensure correct number of bytes to buffer
+        /// </summary>
         public int EnsureBytes(int bytesToBuffer)
         {
             if (currentSbOffset + bytesToBuffer > buffer.Length)
@@ -118,6 +142,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             return bytesToBuffer;
         }
 
+        /// <summary>
+        /// look ahead bytes in lexer input
+        /// </summary>
         public char? Lookahead()
         {
             int count = EnsureBytes(1);
@@ -128,6 +155,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             return buffer[currentSbOffset];
         }
 
+        /// <summary>
+        /// look ahead bytes in lexer input
+        /// </summary>
         public char? Lookahead(int lookahead)
         {
             int count = EnsureBytes(lookahead + 1);
@@ -138,6 +168,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             return buffer[currentSbOffset + lookahead];
         }
 
+        /// <summary>
+        /// Flush buffered text in lexer input
+        /// </summary>
         public string FlushBufferedText()
         {
             string text;

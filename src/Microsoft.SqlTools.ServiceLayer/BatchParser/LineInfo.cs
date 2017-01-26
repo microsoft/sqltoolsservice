@@ -7,17 +7,27 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
+    /// <summary>
+    /// This class gives information about lines being parsed by
+    /// the Batch Parser
+    /// </summary>
     class LineInfo
     {
         private IEnumerable<Token> tokens;
         private IEnumerable<VariableReference> variableRefs;
 
+        /// <summary>
+        /// Constructor method for the LineInfo class
+        /// </summary>
         public LineInfo(IEnumerable<Token> tokens, IEnumerable<VariableReference> variableRefs)
         {
             this.tokens = tokens;
             this.variableRefs = variableRefs;
         }
 
+        /// <summary>
+        /// Gets the stream position for offset and returns a PositionStruct
+        /// </summary>
         public PositionStruct GetStreamPositionForOffset(int offset)
         {
             if (variableRefs != null)

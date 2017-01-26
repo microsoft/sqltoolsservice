@@ -13,6 +13,9 @@ using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
+    /// <summary>
+    /// The Parser class on which the Batch Parser is based on
+    /// </summary>
     internal sealed class Parser : IDisposable
     {
         private readonly ICommandHandler commandHandler;
@@ -20,6 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private List<Token> tokenBuffer;
         private readonly IVariableResolver variableResolver;
 
+        /// <summary>
+        /// Constructor for the Parser class
+        /// </summary>
         public Parser(ICommandHandler commandHandler, IVariableResolver variableResolver, TextReader reader, string name)
         {
             this.commandHandler = commandHandler;
