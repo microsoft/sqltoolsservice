@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Commons
 
         public const string DBBackupFileLocation = "DBBackupPath";
 
-        public const string TestFileLocation = @"C:\projects\sqltoolsservice";
+        public const string TestFileLocation = "BatchParserTestData";
 
         public const string BVTLocalRoot = "BVT_LOCALROOT";
 
