@@ -203,10 +203,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             var languageService = LanguageService.Instance;
-            Assert.True(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
+            Assert.True(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             languageService.DeletePeekDefinitionScripts();
             Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
-
         }
 
         /// <summary>
