@@ -18,12 +18,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 
         public TestCommandHandler(StringBuilder outputString)
         {
-            outputString = outputString;
+            this.outputString = outputString;
         }
 
         public void SetParser(Parser parser)
         {
-            parser = parser;
+            this.parser = parser;
         }
 
         public BatchParserAction Go(TextBlock batch, int repeatCount)
