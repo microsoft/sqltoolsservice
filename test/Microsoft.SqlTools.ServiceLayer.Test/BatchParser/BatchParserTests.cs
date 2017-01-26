@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
         static void CopyToOutput(string sourceDirectory, string filename)
         {
             File.Copy(Path.Combine(sourceDirectory, filename), filename, true);
-            FileUtils.SetFileReadWrite(filename);
+            FileUtilities.SetFileReadWrite(filename);
         }
 
         [Fact]
