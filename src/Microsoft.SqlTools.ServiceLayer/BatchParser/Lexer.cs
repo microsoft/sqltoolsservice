@@ -11,7 +11,9 @@ using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    // Lexer for the SMO Batch Parser
+    /// <summary>
+    /// Lexer class for the SMO Batch Parser
+    /// </summary>
     internal sealed class Lexer : IDisposable
     {
         private LexerInput currentInput;
@@ -23,6 +25,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private TextRuleFlags textRuleFlags;
         private PositionStruct tokenBeginPosition;
 
+        /// <summary>
+        /// Constructor for the lexer class used by SMO Batch Parser
+        /// </summary>
         public Lexer(TextReader input, string name)
         {
             currentInput = new LexerInput(input, name);
@@ -32,6 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             SetState(RuleLine);
         }
 
+        /// <summary>
+        /// Get current token for the lexer
+        /// </summary>
         public Token CurrentToken
         {
             get {
@@ -39,12 +47,17 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
         }
 
+        /// <summary>
+        /// Get current token type for the lexer
+        /// </summary>
         public LexerTokenType CurrentTokenType
         {
             get { return currentToken.TokenType; }
         }
 
-
+        /// <summary>
+        /// Consume the token
+        /// </summary>
         public void ConsumeToken()
         {
             if (currentInput == null)
@@ -106,6 +119,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             return string.Format(CultureInfo.CurrentCulture, SR.BatchParser_CircularReference, filename);
         }
 
+        /// <summary>
+        /// Push current input into the stack
+        /// </summary>
         public void PushInput(TextReader reader, string name)
         {
             Debug.Assert(currentToken != null &&

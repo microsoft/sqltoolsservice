@@ -9,7 +9,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
     using SqlTools.ServiceLayer;
@@ -19,6 +18,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
     /// </summary>
     public sealed class BatchParserWrapper : IDisposable
     {
+        /// <summary>
+        /// Wrapper API for the Batch Parser that returns a list of
+        /// BatchDefinitions when given a string to parse
+        /// </summary>
         public BatchParserWrapper()
         {
             executionEngine = new ExecutionEngine();
@@ -34,6 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             notificationHandler = new BatchEventNotificationHandler();
         }
 
+        /// <summary>
+        /// Takes in a query string and returns a list of BatchDefinitions
+        /// </summary>
         public List<BatchDefinition> GetBatches(string sqlScript)
         {
             startLineColumns = new List<System.Tuple<int /*startLine*/, int/*startColumn*/>>();
@@ -42,186 +48,146 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             // execute the script - all communication / integration after here happen via event handlers
             executionEngine.ParseScript(sqlScript, notificationHandler);
 
-            List<System.Tuple<int/*startOffset*/, int/*length*/>> positions = new List<System.Tuple<int, int>>();
-
-            IList<int/*startOffset*/> offsets = ConvertToOffsetSortedInput(sqlScript, startLineColumns);
-            Debug.Assert(offsets.Count == lengths.Count);
-            for (int batchIndex = 0, batchCount = offsets.Count; batchIndex < batchCount; batchIndex++)
-            {
-                positions.Add(new System.Tuple<int/*startOffset*/, int/*length*/>(offsets[batchIndex], lengths[batchIndex]));
-            }
-
-            List<string> batchTextList = GetBatchText(sqlScript, positions);
-           
-            List<BatchDefinition> batchDefinitions = new List<BatchDefinition>();
-            int endLine;
-            int endColumn;
-            System.Tuple<int, int> endLineColumn;
-
-            for (int i = 0; i < offsets.Count; i++)
-            {   
-                StringReader reader = new StringReader(sqlScript);
-
-                // if it's the last batch
-                if (i == offsets.Count - 1)
-                {      
-                    endLineColumn = GetLastEndLineColumn(reader);
-                    endLine = endLineColumn.Item1;
-                    endColumn = endLineColumn.Item2;
-                }
-                else {
-                    endLine = startLineColumns[i+1].Item1-1;
-                    endColumn = GetEndColumn(reader, endLine);
-                }
-
-                // create a batch definition for each batch
-                BatchDefinition batchDefinition = new BatchDefinition(
-                    batchTextList[i], //batchText
-                    startLineColumns[i].Item1 + 1, //startLine
-                    endLine, //endLine
-                    startLineColumns[i].Item2 + 1, //startColumn
-                    endColumn); //endColumn
-
-                batchDefinitions.Add(batchDefinition);           
-            }
+            // retrieve a list of BatchDefinitions 
+            List<BatchDefinition> batchDefinitionList = ConvertToBatchDefinitionList(sqlScript, startLineColumns, lengths);
          
-            startLineColumns = null;
-            lengths = null;
-           
-            return batchDefinitions;
+            return batchDefinitionList;
         }
 
-        /// <summary>
-        /// Helper method used to return the individual text for the batches
-        /// </summary>
-        /// <param name="sqlScript"></param>
-        /// <param name="batchResult"></param>
-        /// <returns></returns>
-        private static List<string> GetBatchText(string sqlScript,
-            List<System.Tuple<int /*startOffset*/, int /*length*/>> batchResult)
-        {
-            List<string /*batchText*/> batchTextList = new List<string>();
-            foreach (var result in batchResult)
-            {
-                int startOffset = result.Item1;
-                int length = result.Item2;
-                batchTextList.Add(sqlScript.Substring(startOffset, length));
-            }
-            return batchTextList;
-        }
 
         /// <summary>
         /// Helper method used to Convert line/column information in a file to offset
         /// </summary>
-        /// <param name="content"></param>
-        /// <param name="positions"></param>
-        /// <returns></returns>
-        private static IList<int> ConvertToOffsetSortedInput(string content, IList<System.Tuple<int, int>> positions)
+        private static List<BatchDefinition> ConvertToBatchDefinitionList(string content, 
+            IList<System.Tuple<int, int>> positions, List<int> lengths)
         {
-            IList<int/*offset*/> offsetList = new List<int>();
+
+            List<BatchDefinition> batchDefinitionList = new List<BatchDefinition>();
 
             if (!string.IsNullOrEmpty(content) && (positions.Count > 0))
             {
-                // Get char array to find \r and \n
+                // Instantiate a string reader for the whole sql content
                 using (StringReader reader = new StringReader(content))
                 {
+
+                    // Generate the first batch definition list
+                    int startLine = positions[0].Item1 + 1;
+                    int endLine = startLine;
+                    int lineDifference = 0;
+                    int endColumn;
                     int lineStartOffset = 0;
+                    int offset = 0;
+                    int startColumn = positions[0].Item2;
                     int count = positions.Count;
+                    string batchText = content.Substring(offset, lengths[0]);
 
-                    // Calculate the first offset
-                    // positions is 1-based
-                    int lineDifference = positions[0].Item1;
-                    lineStartOffset = ReadLines(reader, lineStartOffset, lineDifference);
-                    // offset is 0-based
-                    int offset = lineStartOffset + positions[0].Item2;
-                    offsetList.Add(offset);
-
-                    // Calculate the rest offsets
-                    for (int index = 1; index < count; index++)
+                    // if there's only one batch then the line difference is just 0
+                    if (count > 1) 
                     {
-                        lineDifference = positions[index].Item1 - positions[index - 1].Item1;
-                        lineStartOffset = ReadLines(reader, lineStartOffset, lineDifference);
-                        offset = lineStartOffset + positions[index].Item2;
-                        offsetList.Add(offset);
+                        lineDifference = positions[1].Item1 - positions[0].Item1;
                     }
-                }
-            }
-            return offsetList;
-        }
 
-        /// <summar>
-        /// Helper method used to get the end column
-        /// <param name="reader"></param>
-        /// <param name="endLine"></param>
-        /// <returns></returns>
-        private static int GetEndColumn(StringReader reader, int endLine)
-        {
-            string endLineString = null;
-            int endColumn = 0;
-            int ch;
-            for (int i = 0; i < endLine; i++) {
-                endLineString = reader.ReadLine();
-            }
-            StringReader endLineReader = new StringReader(endLineString);
-            while (true) {
-                ch = endLineReader.Read();
-                if (ch == -1) 
-                {
-                    return endColumn;
+                    // get endLine, endColumn for the current batch and the lineStartOffset for the next batch
+                    System.Tuple<int, int, int> batchInfo = ReadLines(reader, lineStartOffset, lineDifference, endLine);
+                    endLine = batchInfo.Item1;
+                    endColumn = batchInfo.Item2;
+                    lineStartOffset = batchInfo.Item3;
+                   
+                    offset = lineStartOffset + positions[0].Item2;
+                    
+                    // create a new BatchDefinition and add it to the list
+                    BatchDefinition batchDef = new BatchDefinition(    
+                        batchText,
+                        startLine,
+                        endLine,
+                        startColumn,
+                        endColumn          
+                    );
+
+                    batchDefinitionList.Add(batchDef);
+
+                    // Generate the rest batch definitions
+                    for (int index = 1; index < count - 1; index++)
+                    {
+                        lineDifference = positions[index + 1].Item1 - positions[index].Item1;
+                        batchInfo = ReadLines(reader, lineStartOffset, lineDifference, endLine);
+                        endLine = batchInfo.Item1;
+                        endColumn = batchInfo.Item2;
+                        lineStartOffset = batchInfo.Item3;
+                        batchText = content.Substring(offset, lengths[index]);
+                        offset = lineStartOffset + positions[index].Item2;
+                        startLine = positions[index].Item1;
+                        startColumn = positions[index].Item2;
+
+                        // make a new batch definition for each batch
+                        BatchDefinition batch = new BatchDefinition (
+                            batchText,
+                            startLine,
+                            endLine,
+                            startColumn,
+                            endColumn
+                        );
+                        batchDefinitionList.Add(batch);
+                    }
+
+                    // if there is only one batch then that was the last one anyway
+                    if (count > 1)
+                    {
+                        batchText = content.Substring(offset, lengths[count-1]);
+                        BatchDefinition lastBatchDef = GetLastBatchDefinition(reader, positions[count-1], batchText);
+                        batchDefinitionList.Add(lastBatchDef);
+                    }
+
                 }
-                endColumn++;
             }
+            return batchDefinitionList;
         }
 
         /// <summary>
-        /// Helper method used to get the end line and column for the last batch
+        /// Helper method to get the last batch 
         /// </summary>
-        /// <param name="reader"></param>
-        /// <returns></returns>
-        private static System.Tuple<int /*endLine */, int /*endColumn */> GetLastEndLineColumn(StringReader reader)
+        private static BatchDefinition GetLastBatchDefinition(StringReader reader, 
+            System.Tuple<int, int> position, string batchText)
         {
-            int endLine = 0;
-            int endColumn = 0;
-            string nextLine;
-            string lastLine = null; // get the last line
-            int ch;
+            int startLine = position.Item1;
+            int startColumn = position.Item2;
+            string prevLine = null;
+            string line = reader.ReadLine();
+            int endLine = startLine;
 
-            while ((nextLine = reader.ReadLine()) != null)
+            // find end line
+            while (line != null)
             {
                 endLine++;
-                lastLine = nextLine;
+                prevLine = line;
+                line = reader.ReadLine();
             }
 
-            StringReader lastLineReader = new StringReader(lastLine);
-                       
-            while (true) 
-            {
-                ch = lastLineReader.Read();
-                if (ch == -1) 
-                {
-                    break;
-                }
-                endColumn++;
-            }
-            return System.Tuple.Create(endLine, endColumn);
+            // get number of characters in the last line
+            int endColumn = prevLine.ToCharArray().Length;
+
+            return new BatchDefinition(
+                batchText,
+                startLine,
+                endLine,
+                startColumn,
+                endColumn
+            );
         }
 
-
-
+     
         /// <summary>
         /// Read number of lines and get the line offset
         /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="lineStartOffset"></param>
-        /// <param name="n"></param>
-        /// <returns></returns>
-        private static int ReadLines(StringReader reader, int lineStartOffset, int n)
+        private static System.Tuple<int, int, int> ReadLines(StringReader reader, int lineStartOffset, int n, int endLine)
         {
             Validate.IsNotNull(nameof(reader), reader);
-
+            int endColumn = 0;
+            
             for (int i = 0; i < n; i++)
             {
                 int ch;
+                endColumn = 0;
                 while (true)
                 {
                     ch = reader.Read();
@@ -232,28 +198,21 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     else if (ch == 10 /* for \n */) // End of line increase and break
                     {
                         ++lineStartOffset;
+                        ++endLine;
                         break;
                     }
                     else // regular char just increase
                     {
+                        ++endColumn;
                         ++lineStartOffset;
                     }
                 }
             }
-            return lineStartOffset;
+
+            return System.Tuple.Create(endLine, endColumn, lineStartOffset);
         }
 
         #region ExecutionEngine Event Handlers
-
-        ////commented for performance reasons
-        //private void OnScriptExecutionFinished(object sender, ScriptExecutionFinishedEventArgs e)
-        //{
-        //    if (e != null)
-        //    {
-        //        Tracer.TraceEvent(TraceEventType.Verbose, TraceId.TSqlModel, 
-        //            SchemaResources.BatchParserWrapperScriptExecutionComplete, e.ExecutionResult);
-        //    }
-        //}
 
         private void OnBatchParserExecutionError(object sender, BatchParserExecutionErrorEventArgs args)
         {
@@ -266,26 +225,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
         }
 
-
-        ////commented for performance reasons
-        //private void OnBatchParserExecutionStart(object sender, BatchParserExecutionStartEventArgs args).
-        //{
-        //    if (args != null)
-        //    {
-        //        Tracer.TraceEvent(TraceEventType.Verbose, TraceId.TSqlModel,
-        //            SchemaResources.BatchParserWrapperExecutionStart, args.Batch, args.TextSpan.iStartLine);
-        //    }
-        //}
-
         private void OnBatchParserExecutionFinished(object sender, BatchParserExecutionFinishedEventArgs args)
         {
             try
             {
                 if (args != null && args.Batch != null)
                 {
-                    ////commented for performance reasons
-                    //Tracer.TraceEvent(TraceEventType.Verbose, TraceId.TSqlModel,
-                    //    SchemaResources.BatchParserWrapperExecutionFinished, args.ExecutionResult);
 
                     System.Tuple<int /*startLine*/, int/*startColumn*/> position = new System.Tuple<int, int>(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex);
 

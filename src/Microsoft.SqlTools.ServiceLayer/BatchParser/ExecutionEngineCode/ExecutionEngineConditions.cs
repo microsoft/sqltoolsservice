@@ -10,6 +10,47 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
     internal class ExecutionEngineConditions
     {
+
+        #region Private fields
+        private static class Consts
+        {
+            public static string On = "ON";
+            public static string Off = "OFF";
+            public static string ParseOnly = "SET PARSEONLY {0}";
+            public static string NoExec = "SET NOEXEC {0}";
+            public static string StatisticsIO = "SET STATISTICS IO {0}";
+            public static string StatisticsTime = "SET STATISTICS TIME {0}";
+            public static string ShowPlanXml = "SET SHOWPLAN_XML {0}";
+            public static string ShowPlanAll = "SET SHOWPLAN_ALL {0}";
+            public static string ShowPlanText = "SET SHOWPLAN_TEXT {0}";
+            public static string StatisticsXml = "SET STATISTICS XML {0}";
+            public static string StatisticsProfile = "SET STATISTICS PROFILE {0}";
+            public static string BeginTrans = "BEGIN TRAN";
+            public static string CommitTrans = "COMMIT TRAN";
+            public static string Rollback = "ROLLBACK";
+            public static string BatchSeparator = "GO";
+
+            public static string Reset = "SET NOEXEC, FMTONLY OFF, PARSEONLY, SET SHOWPLAN_ALL, SET SHOWPLAN_TEXT";
+        }
+
+        private static readonly int stateParseOnly = BitVector32.CreateMask();
+        private static readonly int stateTransactionWrapped = BitVector32.CreateMask(stateParseOnly);
+        private static readonly int stateHaltOnError = BitVector32.CreateMask(stateTransactionWrapped);
+        private static readonly int stateEstimatedShowPlan = BitVector32.CreateMask(stateHaltOnError);
+        private static readonly int stateActualShowPlan = BitVector32.CreateMask(stateEstimatedShowPlan);
+        private static readonly int stateSuppressProviderMessageHeaders = BitVector32.CreateMask(stateActualShowPlan);
+        private static readonly int stateNoExec = BitVector32.CreateMask(stateSuppressProviderMessageHeaders);
+        private static readonly int stateStatisticsIO = BitVector32.CreateMask(stateNoExec);
+        private static readonly int stateShowPlanText = BitVector32.CreateMask(stateStatisticsIO);
+        private static readonly int stateStatisticsTime = BitVector32.CreateMask(stateShowPlanText);
+        private static readonly int stateSqlCmd = BitVector32.CreateMask(stateStatisticsTime);
+        private static readonly int stateScriptExecutionTracked = BitVector32.CreateMask(stateSqlCmd);
+                
+        private BitVector32 state = new BitVector32();
+        private string batchSeparator = Consts.BatchSeparator;
+
+        #endregion
+        
         #region Constructors / Destructor
 
         /// <summary>
@@ -230,46 +271,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 batchSeparator = value;
             }
         }
-
-        #endregion
-
-        #region Private fields
-        private static class Consts
-        {
-            public static string On = "ON";
-            public static string Off = "OFF";
-            public static string ParseOnly = "SET PARSEONLY {0}";
-            public static string NoExec = "SET NOEXEC {0}";
-            public static string StatisticsIO = "SET STATISTICS IO {0}";
-            public static string StatisticsTime = "SET STATISTICS TIME {0}";
-            public static string ShowPlanXml = "SET SHOWPLAN_XML {0}";
-            public static string ShowPlanAll = "SET SHOWPLAN_ALL {0}";
-            public static string ShowPlanText = "SET SHOWPLAN_TEXT {0}";
-            public static string StatisticsXml = "SET STATISTICS XML {0}";
-            public static string StatisticsProfile = "SET STATISTICS PROFILE {0}";
-            public static string BeginTrans = "BEGIN TRAN";
-            public static string CommitTrans = "COMMIT TRAN";
-            public static string Rollback = "ROLLBACK";
-            public static string BatchSeparator = "GO";
-
-            public static string Reset = "SET NOEXEC, FMTONLY OFF, PARSEONLY, SET SHOWPLAN_ALL, SET SHOWPLAN_TEXT";
-        }
-
-        private static readonly int stateParseOnly = BitVector32.CreateMask();
-        private static readonly int stateTransactionWrapped = BitVector32.CreateMask(stateParseOnly);
-        private static readonly int stateHaltOnError = BitVector32.CreateMask(stateTransactionWrapped);
-        private static readonly int stateEstimatedShowPlan = BitVector32.CreateMask(stateHaltOnError);
-        private static readonly int stateActualShowPlan = BitVector32.CreateMask(stateEstimatedShowPlan);
-        private static readonly int stateSuppressProviderMessageHeaders = BitVector32.CreateMask(stateActualShowPlan);
-        private static readonly int stateNoExec = BitVector32.CreateMask(stateSuppressProviderMessageHeaders);
-        private static readonly int stateStatisticsIO = BitVector32.CreateMask(stateNoExec);
-        private static readonly int stateShowPlanText = BitVector32.CreateMask(stateStatisticsIO);
-        private static readonly int stateStatisticsTime = BitVector32.CreateMask(stateShowPlanText);
-        private static readonly int stateSqlCmd = BitVector32.CreateMask(stateStatisticsTime);
-        private static readonly int stateScriptExecutionTracked = BitVector32.CreateMask(stateSqlCmd);
-                
-        private BitVector32 state = new BitVector32();
-        private string batchSeparator = Consts.BatchSeparator;
 
         #endregion
     }

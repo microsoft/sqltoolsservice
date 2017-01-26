@@ -7,10 +7,23 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
+    /// <summary>
+    /// Class that parses queries into batches
+    /// </summary>
     internal class BatchParser : 
         ICommandHandler, 
         IVariableResolver
     {
+        #region Private fields
+        protected ScriptMessageDelegate scriptMessageDelegate;
+        protected ScriptErrorDelegate scriptErrorDelegate;
+        protected ExecuteDelegate executeDelegate;
+        protected HaltParserDelegate haltParserDelegate;
+        private int startingLine = 0;
+        protected bool variableSubstitutionDisabled = false;
+        
+        #endregion
+
         #region Public delegates
         public  delegate void HaltParserDelegate();
         public delegate void ScriptMessageDelegate(string message);
@@ -59,6 +72,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         #region ICommandHandler Members
 
+        /// <summary>
+        /// Take approptiate action on the parsed batches
+        /// </summary>
         public BatchParserAction Go(TextBlock batch, int repeatCount)
         {
             string str;
@@ -117,16 +133,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         }
         #endregion
 
-        #region Private fields
-        protected ScriptMessageDelegate scriptMessageDelegate;
-        protected ScriptErrorDelegate scriptErrorDelegate;
-        protected ExecuteDelegate executeDelegate;
-        protected HaltParserDelegate haltParserDelegate;
-        private int startingLine = 0;
-        protected bool variableSubstitutionDisabled = false;
-        
-        #endregion
-
         public virtual BatchParserAction OnError(Token token, OnErrorAction action)
         {
             throw new NotImplementedException("The method or operation is not implemented.");
@@ -146,7 +152,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             throw new NotImplementedException("The method or operation is not implemented.");
         }
-
 
         internal void DisableVariableSubstitution()
         {

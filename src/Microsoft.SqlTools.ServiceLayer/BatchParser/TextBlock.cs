@@ -13,16 +13,25 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private Parser parser;
         private IEnumerable<Token> tokens;
 
+        /// <summary>
+        /// Constructor for the TextBlock class 
+        /// </summary>
         public TextBlock(Parser parser, Token token) : this(parser, new[] { token })
         {
         }
 
+        /// <summary>
+        /// Constructor for the TextBlock class 
+        /// </summary>
         public TextBlock(Parser parser, IEnumerable<Token> tokens)
         {
             this.parser = parser;
             this.tokens = tokens;
         }
 
+        /// <summary>
+        /// Get text from TextBlock
+        /// </summary>
         public void GetText(bool resolveVariables, out string text, out LineInfo lineInfo)
         {
             StringBuilder sb = new StringBuilder();

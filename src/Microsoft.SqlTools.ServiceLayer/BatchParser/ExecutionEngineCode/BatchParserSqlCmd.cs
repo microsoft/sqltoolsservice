@@ -11,8 +11,21 @@ using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
+    /// <summary>
+    /// Class for handling SQL CMD by Batch Parser
+    /// </summary>
     internal class BatchParserSqlCmd : BatchParser
     {
+        #region Private fields
+        /// <summary>
+        /// The internal variables that can be used in SqlCommand substitution.
+        /// These variables take precedence over environment variables.
+        /// </summary>
+        private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+        private ConnectionChangedDelegate connectionChangedDelegate;
+        private ErrorActionChangedDelegate errorActionChangedDelegate;
+        #endregion
+
         #region Public delegates
         public delegate void ConnectionChangedDelegate(SqlConnectionStringBuilder connectionstringBuilder);
         public delegate void ErrorActionChangedDelegate(OnErrorAction ea);        
@@ -74,6 +87,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             return value;
         }
 
+        /// <summary>
+        /// Set environment or internal variable
+        /// </summary>
         public override void SetVariable(PositionStruct pos, string name, string value)
         {
             if (variableSubstitutionDisabled)
@@ -114,6 +130,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             return BatchParserAction.Abort;
         }
 
+        /// <summary>
+        /// Method to deal with errors
+        /// </summary>
         public override BatchParserAction OnError(Token token, OnErrorAction ea)
         {
             if (errorActionChangedDelegate != null)
@@ -125,14 +144,5 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         #endregion
 
-        #region Private fields
-        /// <summary>
-        /// The internal variables that can be used in SqlCommand substitution.
-        /// These variables take precedence over environment variables.
-        /// </summary>
-        private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-        private ConnectionChangedDelegate connectionChangedDelegate;
-        private ErrorActionChangedDelegate errorActionChangedDelegate;
-        #endregion
     }
 }

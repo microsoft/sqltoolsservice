@@ -23,7 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         #region Constructors / Destructor
 
-        // FUTURE CLEANUP: Remove in favor of general signature (IDbConnection) - #920978
+        /// <summary>
+        /// Constructor method for ScriptExecutionArgs
+        /// </summary>
         public ScriptExecutionArgs(
             string script, 
             SqlConnection connection, 
@@ -35,7 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             // nothing
         }
 
-        // FUTURE CLEANUP: Remove in favor of general signature (IDbConnection) - #920978
+        /// <summary>
+        /// Constructor method for ScriptExecutionArgs
+        /// </summary>
         public ScriptExecutionArgs(
             string script,
             SqlConnection connection,
@@ -49,6 +53,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             // nothing
         }
 
+        /// <summary>
+        /// Constructor method for ScriptExecutionArgs
+        /// </summary>
         public ScriptExecutionArgs(
             string script,
             IDbConnection connection,
@@ -60,6 +67,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             // nothing
         }
 
+        /// <summary>
+        /// Constructor method for ScriptExecutionArgs
+        /// </summary>
         public ScriptExecutionArgs(
                     string script,
                     IDbConnection connection,

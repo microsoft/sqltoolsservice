@@ -13,6 +13,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// </summary>
     internal class BatchErrorEventArgs : EventArgs
     {
+        #region Private Fields
+        private string message = string.Empty;
+        private string description = string.Empty;
+        private int line = -1;
+        private TextSpan textSpan;
+        private Exception exception;
+        private SqlError error;
+        #endregion
+        
         #region Constructors / Destructor
                 
         /// <summary>
@@ -25,7 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor with message and no description
         /// </summary>
-        /// <param name="message"></param>
         internal BatchErrorEventArgs(string message)
             : this(message, null)
         {
@@ -34,8 +42,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor with exception and no description
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ex"></param>
         internal BatchErrorEventArgs(string message, Exception ex)
             : this(message, string.Empty, ex)
         {
@@ -44,9 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor with message and description
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="description"></param>
-        /// <param name="ex"></param>
         internal BatchErrorEventArgs(string message, string description, Exception ex)
             : this(message, description, -1, new TextSpan(), ex)
         {
@@ -68,10 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor with message, description, textspan and line number
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="description"></param>
-        /// <param name="line"></param>
-        /// <param name="textSpan"></param>
         internal BatchErrorEventArgs(string message, string description, int line, TextSpan textSpan, Exception ex)
         {
             Init(message, description, line, textSpan, ex);
@@ -138,13 +137,5 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         #endregion
 
-        #region Private Fields
-        private string message = string.Empty;
-        private string description = string.Empty;
-        private int line = -1;
-        private TextSpan textSpan;
-        private Exception exception;
-        private SqlError error;
-        #endregion
     }
 }

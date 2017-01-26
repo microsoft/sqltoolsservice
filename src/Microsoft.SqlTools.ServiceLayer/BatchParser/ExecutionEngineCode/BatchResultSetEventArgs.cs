@@ -8,8 +8,17 @@ using System.Data;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
+    /// <summary>
+    /// Class associated with setting batch results
+    /// </summary>
     internal class BatchResultSetEventArgs : EventArgs
     {
+
+        #region Private fields
+        private readonly IDataReader dataReader = null;
+        private readonly ShowPlanType expectedShowPlan = ShowPlanType.None;
+        #endregion
+        
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -41,10 +50,5 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 return expectedShowPlan;
             }
         }
-
-        #region Private fields
-        private readonly IDataReader dataReader = null;
-        private readonly ShowPlanType expectedShowPlan = ShowPlanType.None;
-        #endregion
     }
 }
