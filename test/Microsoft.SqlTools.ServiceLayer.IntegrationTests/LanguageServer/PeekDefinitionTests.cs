@@ -6,16 +6,15 @@ using System;
 using System.IO;
 using System.Threading;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
-using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using static Microsoft.SqlTools.ServiceLayer.LanguageServices.PeekDefinition;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 {
@@ -384,49 +383,49 @@ GO";
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
 
-            ScriptGetter sqlScriptGetter = null;
+            PeekDefinition.ScriptGetter sqlScriptGetter = null;
             switch (objectType)
             {
                 case SynonymTypeName:
                     sqlScriptGetter = peekDefinition.GetSynonymScripts;
-                    return;
+                    break;
                 case ScalarValuedFunctionTypeName:
                     sqlScriptGetter = peekDefinition.GetScalarValuedFunctionScripts;
                     objectType = "Function";
-                    return;
+                    break;
                 case TableValuedFunctionTypeName:
                     sqlScriptGetter = peekDefinition.GetTableValuedFunctionScripts;
                     objectType = "Function";
-                    return;
+                    break;
                 case TableTypeName:
                     sqlScriptGetter = peekDefinition.GetTableScripts;
-                    return;
+                    break;
                 case ViewTypeName:
                     sqlScriptGetter = peekDefinition.GetViewScripts;
-                    return;
+                    break;
                 case StoredProcedureTypeName:
                     sqlScriptGetter = peekDefinition.GetStoredProcedureScripts;
-                    return;
+                    break;
                 case UserDefinedDataTypeTypeName:
                     sqlScriptGetter = peekDefinition.GetUserDefinedDataTypeScripts;
                     objectType = "Type";
-                    return;
+                    break;
                 case UserDefinedTableTypeTypeName:
                     sqlScriptGetter = peekDefinition.GetUserDefinedTableTypeScripts;
                     objectType = "Type";
-                    return;
+                    break;
             }
 
             Location[] locations = peekDefinition.GetSqlObjectDefinition(sqlScriptGetter, objectName, schemaName, objectType);
             if (shouldReturnValidResult)
             {
                 Assert.NotNull(locations);
+                Cleanup(locations);
             }
             else
             {
                 Assert.Null(locations);
             }
-            Cleanup(locations);
         }
 
         /// <summary>
