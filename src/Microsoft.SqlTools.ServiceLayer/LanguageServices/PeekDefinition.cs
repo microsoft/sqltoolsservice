@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Initialize();
         }
 
-        private Database Database
+        internal Database Database
         {
             get
             {
