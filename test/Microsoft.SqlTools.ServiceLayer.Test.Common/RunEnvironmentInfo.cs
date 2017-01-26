@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
      
             if (IsLabMode())
             {
-                string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test";
+                string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test\BatchParser";
                 testFolderPath = Path.Combine(Environment.GetEnvironmentVariable(Consts.TestFileLocation), testPath);
             }
             else
