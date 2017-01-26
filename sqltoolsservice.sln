@@ -59,6 +59,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceL
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.TestDriver.Tests", "test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.xproj", "{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.TestEnvConfig", "test\Microsoft.SqlTools.ServiceLayer.TestEnvConfig\Microsoft.SqlTools.ServiceLayer.TestEnvConfig.xproj", "{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,6 +110,12 @@ Global
 		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,5 +130,6 @@ Global
 		{08AF0209-D598-47BB-9DFD-FC9E74C0FE56} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{B6F4BECE-82EE-4AB6-99AC-108AEE466274} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 	EndGlobalSection
 EndGlobal
