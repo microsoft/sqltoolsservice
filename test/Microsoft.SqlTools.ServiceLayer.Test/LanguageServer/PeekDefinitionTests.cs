@@ -206,6 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.True(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
             languageService.DeletePeekDefinitionScripts();
             Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
+
         }
 
         /// <summary>
@@ -216,8 +217,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             var languageService = LanguageService.Instance;
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
-            ServiceLayer.QueryExecution.FileUtils.SafeDirectoryDelete(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder, true);
-            Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
+            FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
+            Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             // Expected not to throw any exception
             languageService.DeletePeekDefinitionScripts();
         }

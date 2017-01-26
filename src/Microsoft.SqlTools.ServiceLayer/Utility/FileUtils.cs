@@ -6,7 +6,7 @@ using System;
 using System.IO;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
-    internal static class FileUtils
+    internal static class FileUtilities
     {
         internal static string PeekDefinitionTempFolder = Path.GetTempPath() + "mssql_definition"; 
         internal static bool PeekDefinitionTempFolderCreated = false;
@@ -19,9 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 try
                 {
                     // create new temp folder
-                    string tempFolder = string.Format("{0}_{1}", FileUtils.PeekDefinitionTempFolder, DateTime.Now.ToString("yyyyMMddHHmmssffff"));
+                    string tempFolder = string.Format("{0}_{1}", FileUtilities.PeekDefinitionTempFolder, DateTime.Now.ToString("yyyyMMddHHmmssffff"));
                     DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(tempFolder);
-                    FileUtils.PeekDefinitionTempFolder = tempScriptDirectory.FullName;
+                    FileUtilities.PeekDefinitionTempFolder = tempScriptDirectory.FullName;
                     tempPath = tempScriptDirectory.FullName;
                     PeekDefinitionTempFolderCreated = true;
                 }
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 try
                 {
                     // use tempDirectory name created previously
-                    DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(FileUtils.PeekDefinitionTempFolder);
+                    DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(FileUtilities.PeekDefinitionTempFolder);
                     tempPath = tempScriptDirectory.FullName;
                 }
                 catch (Exception)
@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Turns off the read-only attribute for this file
         /// </summary>
-        /// <param name="fullFilePath></param>
+        /// <param name="fullFilePath"></param>
 
         internal static void SetFileReadWrite(string fullFilePath)
         {
@@ -137,4 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
     }
+
+
+    
 }
