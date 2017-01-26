@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Xunit;
 
 namespace Microsoft.SqlTools.Test.Utility
 {
@@ -28,7 +30,9 @@ namespace Microsoft.SqlTools.Test.Utility
     /// </summary>
     public class TestObjects
     {
+        public const string ScriptUriTemplate = "file://some/{0}.sql";
         public const string ScriptUri = "file://some/file.sql";
+        private static TestServiceProvider _serviceProvider = TestServiceProvider.Instance;
 
         /// <summary>
         /// Creates a test connection service
@@ -124,14 +128,11 @@ namespace Microsoft.SqlTools.Test.Utility
             return filePath;
         }
 
-        public static async Task<TestConnectionResult> InitLiveConnectionInfo()
+        public static TestConnectionResult InitLiveConnectionInfo()
         {
-            TestServiceProvider.InitializeTestServices();
-
             string sqlFilePath = GetTestSqlFile();
-            ScriptFile scriptFile = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(sqlFilePath);
-            TestConnectionProfileService connectionProfileService = new TestConnectionProfileService();
-            ConnectParams connectParams = await connectionProfileService.GetConnectionParametersAsync();
+            ScriptFile scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(sqlFilePath);
+            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem);
 
             string ownerUri = scriptFile.ClientFilePath;
             var connectionService = TestObjects.GetLiveTestConnectionService();
@@ -150,13 +151,11 @@ namespace Microsoft.SqlTools.Test.Utility
             return new TestConnectionResult () { ConnectionInfo = connInfo, ScriptFile = scriptFile };
         }
 
-        public static async Task<ConnectionInfo> InitLiveConnectionInfoForDefinition()
+        public static ConnectionInfo InitLiveConnectionInfoForDefinition(string databaseName = null)
         {
-            TestServiceProvider.InitializeTestServices();
-            TestConnectionProfileService connectionProfileService = new TestConnectionProfileService();
-            ConnectParams connectParams = await connectionProfileService.GetConnectionParametersAsync();
+            ConnectParams connectParams = _serviceProvider.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
 
-            string ownerUri = ScriptUri;
+            string ownerUri = string.Format(CultureInfo.InvariantCulture, ScriptUriTemplate, string.IsNullOrEmpty(databaseName) ? "file" :  databaseName);
             var connectionService = TestObjects.GetLiveTestConnectionService();
             var connectionResult =
                 connectionService
@@ -170,6 +169,8 @@ namespace Microsoft.SqlTools.Test.Utility
 
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
+            
+            Assert.NotNull(connInfo);
             return connInfo;
         }
 

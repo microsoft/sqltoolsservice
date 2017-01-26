@@ -23,14 +23,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
     public class ConnectionServiceTests
     {
         [Fact]
-        public async Task RunningMultipleQueriesCreatesOnlyOneConnection()
+        public void RunningMultipleQueriesCreatesOnlyOneConnection()
         {
             // Connect/disconnect twice to ensure reconnection can occur
             ConnectionService service = ConnectionService.Instance;
             service.OwnerToConnectionMap.Clear();
             for (int i = 0; i < 2; i++)
             {
-                var result = await TestObjects.InitLiveConnectionInfo();
+                var result = TestObjects.InitLiveConnectionInfo();
                 ConnectionInfo connectionInfo = result.ConnectionInfo;
                 string uri = connectionInfo.OwnerUri;
 
@@ -65,11 +65,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         }
 
         [Fact]
-        public async Task DatabaseChangesAffectAllConnections()
+        public void DatabaseChangesAffectAllConnections()
         {
             // If we make a connection to a live database 
             ConnectionService service = ConnectionService.Instance;
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connectionInfo = result.ConnectionInfo;
             ConnectionDetails details = connectionInfo.ConnectionDetails;
             string uri = connectionInfo.OwnerUri;

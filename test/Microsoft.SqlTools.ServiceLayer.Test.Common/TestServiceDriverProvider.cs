@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             get
             {
-                return (testConnectionService = testConnectionService ?? new TestConnectionProfileService(Driver));
+                return (testConnectionService = testConnectionService ?? TestConnectionProfileService.Instance);
             }
         }
 
@@ -101,23 +101,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 WriteToFile(ownerUri, query);
             }
 
-            /*
-            DidOpenTextDocumentNotification openParams = new DidOpenTextDocumentNotification
-            {
-                TextDocument = new TextDocumentItem
-                {
-                    Uri = ownerUri,
-                    LanguageId = "enu",
-                    Version = 1,
-                    Text = query
-                }
-            };
-
-            await RequestOpenDocumentNotification(openParams);
-
-            Thread.Sleep(500);
-            */
-
             return await Connect(serverType, ownerUri, databaseName, timeout);
         }
 
@@ -127,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public async Task<bool> Connect(TestServerType serverType, string ownerUri, string databaseName = null, int timeout = 15000)
         {
 
-            var connectParams = await GetConnectionParametersAsync(serverType, databaseName);
+            var connectParams = GetConnectionParameters(serverType, databaseName);
 
             bool connected = await Connect(ownerUri, connectParams, timeout);
             Assert.True(connected, "Connection is successful");
@@ -215,9 +198,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// <summary>
         /// Returns database connection parameters for given server type
         /// </summary>
-        public async Task<ConnectParams> GetConnectionParametersAsync(TestServerType serverType, string databaseName = null)
+        public ConnectParams GetConnectionParameters(TestServerType serverType, string databaseName = null)
         {
-            return await TestConnectionService.GetConnectionParametersAsync(serverType, databaseName);
+            return TestConnectionService.GetConnectionParameters(serverType, databaseName);
         }
 
         /// <summary>
@@ -339,6 +322,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 await ConnectForQuery(serverType, query, queryTempFile.FilePath, databaseName);
                 var queryResult = await CalculateRunTime(() => RunQueryAndWaitToComplete(queryTempFile.FilePath, query, 50000), false);
+                Assert.NotNull(queryResult);
+                Assert.NotNull(queryResult.BatchSummaries);
 
                 await Disconnect(queryTempFile.FilePath);
             }
