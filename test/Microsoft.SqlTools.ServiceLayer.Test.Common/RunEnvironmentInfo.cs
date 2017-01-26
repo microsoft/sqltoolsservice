@@ -34,32 +34,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
      
             if (IsLabMode())
             {
-                testFolderPath = Path.Combine(Environment.GetEnvironmentVariable(Consts.TestFileLocation), "TestData");
+                string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test";
+                testFolderPath = Path.Combine(Environment.GetEnvironmentVariable(Consts.TestFileLocation), testPath);
             }
             else
             {
-                string localPath = Environment.GetEnvironmentVariable(Consts.SourceDirectoryEnvVariable);
-
-                // HACKHACK: these files should be picked up from a directory in the build output location, not from within the source tree
-                //   Redirect to an appropriate SQL depot directory for now...
-                if (localPath != null)
+                if (cachedTestFolderPath != null)
                 {
-                    testFolderPath = Path.Combine(localPath, @"test\Microsoft.SqlTools.ServiceLayer.Test.Common");
+                    testFolderPath = cachedTestFolderPath;
                 }
                 else
                 {
-                    if (cachedTestFolderPath != null)
-                    {
-                        testFolderPath = cachedTestFolderPath;
-                    }
-                    else
-                    {
-                        string defaultPath = Path.Combine(typeof(Scripts).GetTypeInfo().Assembly.Location, @"..\..\..\..\..");
-                        testFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.Test");
-                    }
+                    string defaultPath = Path.Combine(typeof(Scripts).GetTypeInfo().Assembly.Location, @"..\..\..\..\..");
+                    testFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.Test");
+                    cachedTestFolderPath = testFolderPath;
                 }
             }
-
             return testFolderPath;
         }
 
