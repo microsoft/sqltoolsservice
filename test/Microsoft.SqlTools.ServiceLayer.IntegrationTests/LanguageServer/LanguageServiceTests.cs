@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
-        private async static Task<TestConnectionResult> GetLiveAutoCompleteTestObjects()
+        private TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
             var textDocument = new TextDocumentPosition
             {
@@ -33,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 }
             };
 
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             result.TextDocumentPosition = textDocument;
             return result;
         }
@@ -46,7 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         {
             try
             {
-                TestServiceProvider.InitializeTestServices();
+                TestServiceProvider serviceProvider = TestServiceProvider.Instance;
+                Assert.NotNull(serviceProvider);
             }
             catch (System.ArgumentException)
             {
@@ -62,9 +64,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
         [Fact]
-        public async Task PrepopulateCommonMetadata()
+        public void PrepopulateCommonMetadata()
         {
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             var connInfo = result.ConnectionInfo;
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
@@ -76,9 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         // SMO connected metadata provider.  Since we don't want a live DB dependency
         // in the CI unit tests this scenario is currently disabled.
         [Fact]
-        public async Task AutoCompleteFindCompletions()
+        public void AutoCompleteFindCompletions()
         {
-            var result = await GetLiveAutoCompleteTestObjects();
+            var result = GetLiveAutoCompleteTestObjects();
 
             result.TextDocumentPosition.Position.Character = 7;
             result.ScriptFile.Contents = "select ";
@@ -102,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         {
             // When we make a connection to a live database
             Hosting.ServiceHost.SendEventIgnoreExceptions = true;
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
 
             // And we place the cursor after a function that should prompt for signature help
             string queryWithFunction = "EXEC sys.fn_isrolemember ";
@@ -123,6 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             // If the SQL has already been parsed
             var service = LanguageService.Instance;
             await service.UpdateLanguageServiceOnConnection(result.ConnectionInfo);
+            Thread.Sleep(2000);
 
             // We should get back a non-null ScriptParseInfo
             ScriptParseInfo parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientFilePath);

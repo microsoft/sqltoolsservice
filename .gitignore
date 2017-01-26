@@ -290,3 +290,5 @@ metadata
 /artifacts/
 /.tools/
 /.dotnet/
+/test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Properties/launchSettings.json
+/test/Microsoft.SqlTools.ServiceLayer.PerfTests/Properties/launchSettings.json

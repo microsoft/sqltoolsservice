@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -16,9 +16,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     public class ConnectionSetting
     {
         [JsonProperty("mssql.connections")]
-        public List<ConnectionProfile> Connections { get; set; }
+        public List<InstanceInfo> Connections { get; set; }
 
-        public ConnectionProfile GetConnectionProfile(string profileName, string serverName)
+        public InstanceInfo GetConnectionProfile(string profileName, string serverName)
         {
             if (!string.IsNullOrEmpty(profileName) && Connections != null)
             {
@@ -33,52 +33,94 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     }
 
     /// <summary>
-    /// The model to deserializing the connections inside settings.json
+    /// The model to de-serializing the connections inside settings.json
     /// </summary>
-    public class ConnectionProfile
+    public class InstanceInfo
     {
-        public const string CRED_PREFIX = "Microsoft.SqlTools";
-        public const string CRED_SEPARATOR = "|";
-        public const string CRED_SERVER_PREFIX = "server:";
-        public const string CRED_DB_PREFIX = "db:";
-        public const string CRED_USER_PREFIX = "user:";
-        public const string CRED_ITEMTYPE_PREFIX = "itemtype:";
+        public InstanceInfo(string versionKey)
+        {
+            ConnectTimeout = 15;
+            VersionKey = versionKey;
+        }
 
         [JsonProperty("server")]
         public string ServerName { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Database { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string User { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Password { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string ProfileName { get; set; }
 
         public TestServerType ServerType { get; set; }
 
         public AuthenticationType AuthenticationType { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string RemoteSharePath { get; set; }
 
-        public string formatCredentialId(string itemType = "Profile")
+        public int ConnectTimeout { get; set; }
+
+        public string VersionKey { get; set; }
+
+        [JsonIgnore]
+        public string ConnectTimeoutAsString
         {
-            if (!string.IsNullOrEmpty(ServerName))
+            get { return ConnectTimeout.ToString(); }
+            set
             {
-                List<string> cred = new List<string>();
-                cred.Add(CRED_PREFIX);
-                AddToList(itemType, CRED_ITEMTYPE_PREFIX, cred);
-                AddToList(ServerName, CRED_SERVER_PREFIX, cred);
-                AddToList(Database, CRED_DB_PREFIX, cred);
-                AddToList(User, CRED_USER_PREFIX, cred);
-                return string.Join(CRED_SEPARATOR, cred.ToArray());
+                int temp;
+                if (int.TryParse(value, out temp))
+                {
+                    this.ConnectTimeout = temp;
+                }
+                else
+                {
+                    this.ConnectTimeout = 15;
+                }
             }
-            return null;
         }
-        private void AddToList(string item, string prefix, List<string> list)
+
+        [JsonIgnore]
+        public string MachineName
         {
-            if (!string.IsNullOrEmpty(item))
+            get
             {
-                list.Add(string.Format(CultureInfo.InvariantCulture, "{0}{1}", prefix, item));
+                string serverName = ServerName;
+                int index = ServerName.IndexOf('\\');
+                if (index > 0)
+                {
+                    serverName = ServerName.Substring(0, index);
+                }
+                if (StringComparer.OrdinalIgnoreCase.Compare("(local)", serverName) == 0
+                    || StringComparer.OrdinalIgnoreCase.Compare(".", serverName) == 0)
+                {
+                    serverName = Environment.MachineName;
+                }
+                return serverName;
             }
         }
+
+        [JsonIgnore]
+        public string InstanceName
+        {
+            get
+            {
+                string name = null;
+                int index = ServerName.IndexOf('\\');
+                if (index > 0)
+                {
+                    name = ServerName.Substring(index + 1);
+                }
+                return name;
+            }
+        }
+
     }
 }

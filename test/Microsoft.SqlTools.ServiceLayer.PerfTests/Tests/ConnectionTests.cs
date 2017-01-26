@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 Thread.Sleep(500);
                 var connected = await testService.CalculateRunTime(async () =>
                 {
-                    var connectParams = await testService.GetConnectionParametersAsync(serverType, Common.PerfTestDatabaseName);
+                    var connectParams = testService.GetConnectionParameters(serverType, Common.PerfTestDatabaseName);
                     return await testService.Connect(queryTempFile.FilePath, connectParams);
                 }, true);
                 Assert.True(connected, "Connection was not successful");
@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
                 Thread.Sleep(500);
                 var connected = await testService.CalculateRunTime(async () =>
                 {
-                    var connectParams = await testService.GetConnectionParametersAsync(serverType, Common.PerfTestDatabaseName);
+                    var connectParams = testService.GetConnectionParameters(serverType, Common.PerfTestDatabaseName);
                     return await testService.Connect(queryTempFile.FilePath, connectParams);
                 }, true);
                 Assert.True(connected, "Connection was not successful");

@@ -33,8 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
     /// </summary>
     public class ReliableConnectionTests
     {
-        private TestConnectionProfileService connectionProfileService = new TestConnectionProfileService();
-
         internal class TestDataTransferErrorDetectionStrategy : DataTransferErrorDetectionStrategy
         {
             public bool InvokeCanRetrySqlException(SqlException exception)
@@ -235,9 +233,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// <summary>
         /// Helper method to create an integrated auth connection builder for testing.
         /// </summary>
-        private async Task<SqlConnectionStringBuilder> CreateTestConnectionStringBuilder()
+        private SqlConnectionStringBuilder CreateTestConnectionStringBuilder()
         {
-            ConnectParams connectParams = await this.connectionProfileService.GetConnectionParametersAsync();
+            ConnectParams connectParams = TestConnectionProfileService.Instance.GetConnectionParameters(TestServerType.OnPrem);
             SqlConnectionStringBuilder csb = new SqlConnectionStringBuilder();
             csb.DataSource = connectParams.Connection.ServerName;
             csb.IntegratedSecurity = connectParams.Connection.AuthenticationType == AuthenticationType.Integrated.ToString();
@@ -259,9 +257,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// <summary>
         /// Helper method to create an integrated auth reliable connection for testing.
         /// </summary>
-        private async Task<DbConnection> CreateTestConnection()
+        private DbConnection CreateTestConnection()
         {
-            SqlConnectionStringBuilder csb = await CreateTestConnectionStringBuilder();
+            SqlConnectionStringBuilder csb = CreateTestConnectionStringBuilder();
 
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
@@ -274,10 +272,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Test ReliableConnectionHelper.GetDefaultDatabaseFilePath()
         /// </summary>
         [Fact]
-        public async Task TestGetDefaultDatabaseFilePath()
+        public void TestGetDefaultDatabaseFilePath()
         {
 
-            var connectionBuilder = await CreateTestConnectionStringBuilder();
+            var connectionBuilder = CreateTestConnectionStringBuilder();
             Assert.NotNull(connectionBuilder);
 
             string filePath = string.Empty;
@@ -301,16 +299,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Test ReliableConnectionHelper.GetServerVersion()
         /// </summary>
         [Fact]
-        public async Task TestGetServerVersion()
+        public void TestGetServerVersion()
         {
-            using (var connection = await CreateTestConnection())
+            using (var connection = CreateTestConnection())
             {
                 Assert.NotNull(connection);
                 connection.Open();
 
                 ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
                 ReliableConnectionHelper.ServerInfo serverInfo2;
-                using (var connection2 = await CreateTestConnection())
+                using (var connection2 = CreateTestConnection())
                 {
                     connection2.Open();
                     serverInfo2 = ReliableConnectionHelper.GetServerVersion(connection);
@@ -346,9 +344,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Tests ReliableConnectionHelper.IsDatabaseReadonly()
         /// </summary>
         [Fact]
-        public async Task TestIsDatabaseReadonly()
+        public void TestIsDatabaseReadonly()
         {
-            var connectionBuilder = await CreateTestConnectionStringBuilder();
+            var connectionBuilder = CreateTestConnectionStringBuilder();
             Assert.NotNull(connectionBuilder);
 
             bool isReadOnly = ReliableConnectionHelper.IsDatabaseReadonly(connectionBuilder);
@@ -368,9 +366,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Verify ANSI_NULL and QUOTED_IDENTIFIER settings can be set and retrieved for a session
         /// </summary>
         [Fact]
-        public async Task VerifyAnsiNullAndQuotedIdentifierSettingsReplayed()
+        public void VerifyAnsiNullAndQuotedIdentifierSettingsReplayed()
         {
-            using (ReliableSqlConnection conn = (ReliableSqlConnection) ReliableConnectionHelper.OpenConnection(await CreateTestConnectionStringBuilder(), useRetry: true))
+            using (ReliableSqlConnection conn = (ReliableSqlConnection) ReliableConnectionHelper.OpenConnection(CreateTestConnectionStringBuilder(), useRetry: true))
             {
                 VerifySessionSettings(conn, true);
                 VerifySessionSettings(conn, false);
@@ -477,9 +475,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// ReliableConnectionHelper.IsCloud() should be false for a local server
         /// </summary>
         [Fact]
-        public async Task TestIsCloudIsFalseForLocalServer()
+        public void TestIsCloudIsFalseForLocalServer()
         {
-            using (var connection = await CreateTestConnection())
+            using (var connection = CreateTestConnection())
             {
                 Assert.NotNull(connection);
 
@@ -492,9 +490,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Tests that ReliableConnectionHelper.OpenConnection() opens a connection if it is closed
         /// </summary>
         [Fact]
-        public async Task TestOpenConnectionOpensConnection()
+        public void TestOpenConnectionOpensConnection()
         {
-            using (var connection = await CreateTestConnection())
+            using (var connection = CreateTestConnection())
             {
                 Assert.NotNull(connection);
 
@@ -508,10 +506,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Tests that ReliableConnectionHelper.ExecuteNonQuery() runs successfully
         /// </summary>
         [Fact]
-        public async Task TestExecuteNonQuery()
+        public void TestExecuteNonQuery()
         {
             var result = ReliableConnectionHelper.ExecuteNonQuery(
-                await CreateTestConnectionStringBuilder(),
+                CreateTestConnectionStringBuilder(),
                 "SET NOCOUNT ON; SET NOCOUNT OFF;",
                 ReliableConnectionHelper.SetCommandTimeout,
                 null,
@@ -524,10 +522,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Test that TryGetServerVersion() gets server information
         /// </summary>
         [Fact]
-        public async Task TestTryGetServerVersion()
+        public void TestTryGetServerVersion()
         {
             ReliableConnectionHelper.ServerInfo info = null;
-            var connBuilder = await CreateTestConnectionStringBuilder();
+            var connBuilder = CreateTestConnectionStringBuilder();
             Assert.True(ReliableConnectionHelper.TryGetServerVersion(connBuilder.ConnectionString, out info));
 
             Assert.NotNull(info);
@@ -681,9 +679,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         }
 
         [Fact]
-        public async Task ReliableConnectionHelperTest()
+        public void ReliableConnectionHelperTest()
         {
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             DbConnection connection = connInfo.ConnectionTypeToConnectionMap[ConnectionType.Default];
 
@@ -726,9 +724,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         }
 
         [Fact]
-        public async Task InitReliableSqlConnectionTest()
+        public void InitReliableSqlConnectionTest()
         {
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             DbConnection dbConnection;
             connInfo.TryGetConnection(ConnectionType.Default, out dbConnection);

@@ -17,12 +17,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
     public class ExecuteTests
     {
         [Fact]
-        public async Task RollbackTransactionFailsWithoutBeginTransaction()
+        public void RollbackTransactionFailsWithoutBeginTransaction()
         {
             const string refactorText = "ROLLBACK TRANSACTION";
 
             // Given a connection to a live database
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
@@ -36,13 +36,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         }
 
         [Fact]
-        public async Task TransactionsSucceedAcrossQueries()
+        public void TransactionsSucceedAcrossQueries()
         {
             const string beginText = "BEGIN TRANSACTION";
             const string rollbackText = "ROLLBACK TRANSACTION";
 
             // Given a connection to a live database
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
@@ -55,13 +55,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         }
 
         [Fact]
-        public async Task TempTablesPersistAcrossQueries()
+        public void TempTablesPersistAcrossQueries()
         {
             const string createTempText = "CREATE TABLE #someTempTable (id int)";
             const string insertTempText = "INSERT INTO #someTempTable VALUES(1)";
 
             // Given a connection to a live database
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
@@ -74,14 +74,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         }
 
         [Fact]
-        public async Task DatabaseChangesWhenCallingUseDatabase()
+        public void DatabaseChangesWhenCallingUseDatabase()
         {
             const string master = "master";
             const string tempdb = "tempdb";
             const string useQuery = "USE {0}";
 
             // Given a connection to a live database
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             DbConnection connection;
             connInfo.TryGetConnection(ConnectionType.Default, out connection);

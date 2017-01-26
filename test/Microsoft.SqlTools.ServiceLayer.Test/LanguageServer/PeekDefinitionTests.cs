@@ -126,7 +126,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public async Task DefinitionsHandlerWithNoConnectionTest()
         {
-            TestServiceProvider.InitializeTestServices();
             InitializeTestObjects();
             // request definition
             var definitionTask = await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
@@ -204,9 +203,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             var languageService = LanguageService.Instance;
-            Assert.True(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            Assert.True(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
             languageService.DeletePeekDefinitionScripts();
-            Assert.False(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
         }
 
         /// <summary>
@@ -217,8 +216,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             var languageService = LanguageService.Instance;
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
-            FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
-            Assert.False(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            ServiceLayer.QueryExecution.FileUtils.SafeDirectoryDelete(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder, true);
+            Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
             // Expected not to throw any exception
             languageService.DeletePeekDefinitionScripts();
         }
