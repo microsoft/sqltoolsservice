@@ -27,9 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
         public void InitializeTest()
         {
             CategoryName = "BatchParser";
-            //this.TraceOutputDirectory = this.TestContext.TestDeploymentDir;
-
-            //ask about this 
             this.TraceOutputDirectory = RunEnvironmentInfo.GetTestDataLocation();
             TestInitialize();
         }
@@ -122,7 +119,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
         }
 
         [Fact]
-        //[Priority(1)][SqlStudioTestCategory(Category.UnitTest, Feature.TSqlModel, TestGroup=TestGroup.Group16)]
         public void BatchParserTest()
         {
             CopyToOutput(FilesLocation, "TS-err-cycle1.txt");

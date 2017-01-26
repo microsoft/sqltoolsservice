@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 
         public TestVariableResolver(StringBuilder outputString)
         {
-            outputString = outputString;
+            this.outputString = outputString;
         }
 
         public string GetVariable(PositionStruct pos, string name)
