@@ -665,7 +665,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 
         /// <summary>
         /// Test get definition using quickInfo text for a view object with active connection
-        /// Expect a non-null result with location
+        /// Expect a non-null result with location 
         /// </summary>
         [Fact]
         public async Task GetDefinitionUsingQuickInfoTextWithNonexistentObjectTest()
@@ -683,6 +683,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
             Assert.True(result.IsErrorResult);
         }
 
+        /// <summary>
+        /// Test if peek definition default database name is the default server connection database name
         /// Given that there is no query connection
         /// Expect database name to be "master"
         /// </summary>
@@ -701,9 +703,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         }
 
         /// <summary>
-        /// Test if peek definition default database name is the default server connection database name
-        /// Give that there is no query connection
-        /// Expect database name to be "master"
+        /// Test if the peek definition database name changes to the query connection database name
+        /// Give that there is a query connection
+        /// Expect database name to be query connection's database name
         /// </summary>
         [Fact]
         public async Task GetDatabaseWithQueryConnectionTest()
