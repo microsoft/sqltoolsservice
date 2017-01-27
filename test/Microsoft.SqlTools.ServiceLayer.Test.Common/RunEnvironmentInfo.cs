@@ -35,11 +35,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             string testFolderPath;
             string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test";
             string labPath = Environment.GetEnvironmentVariable(Consts.TestFileLocation);
-            Console.WriteLine(labPath);
+
             if (labPath != null)
             {
                 testFolderPath = Path.Combine(labPath, testPath);
-                Console.WriteLine(testFolderPath);
             }
             else
             {
