@@ -384,7 +384,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
 
             if (File.Exists(traceFile))
             {
-                Console.WriteLine("trace line file existed");
                 Trace.Write(string.Format("Overwriting existing trace file [{0}]", traceFile));
                 File.Delete(traceFile);
             }
@@ -392,11 +391,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             {
                 Console.WriteLine("trace line file didnt exist");
                 Trace.Write(string.Format("Dumping to trace file [{0}]", traceFile));
+                Console.WriteLine(File.Exists(traceFile) + " <-- trace files exists");
             }
 
             if (Directory.Exists(TraceFilePath) == false)
             {
-                Console.WriteLine("trace line directory didnt exist");
                 Directory.CreateDirectory(TraceFilePath);
             }
             Console.WriteLine(traceFile + "-- DUMP TO TRACE --");
