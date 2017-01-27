@@ -396,7 +396,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             {
                 Directory.CreateDirectory(TraceFilePath);
             }
-
+            Console.WriteLine(traceFile);
             WriteTraceFile(traceFile, text);
             return traceFile;
         }
