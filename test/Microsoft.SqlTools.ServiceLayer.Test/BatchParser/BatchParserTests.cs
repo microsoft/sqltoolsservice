@@ -221,7 +221,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 
             string baselineFilename = GetBaselineFilePath(CurrentTestName);
             string baseline;
-            Console.WriteLine(baselineFilename + "-- RUN --");
 
             try
             {

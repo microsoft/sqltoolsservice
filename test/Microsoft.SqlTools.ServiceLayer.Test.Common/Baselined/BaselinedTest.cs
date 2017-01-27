@@ -161,8 +161,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             get
             {
-                Console.WriteLine(Path.Combine(RunEnvironmentInfo.GetTestDataLocation(), CategoryName, Path.Combine(BaselineDirectory, BaselinesSubdir)));
-                Console.WriteLine("--- baseline file path ---");
                 return Path.Combine(RunEnvironmentInfo.GetTestDataLocation(), CategoryName, Path.Combine( BaselineDirectory, BaselinesSubdir ));
             }
         }
@@ -386,16 +384,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
 
             if (File.Exists(traceFile))
             {
+                Console.WriteLine("trace line file existed");
                 Trace.Write(string.Format("Overwriting existing trace file [{0}]", traceFile));
                 File.Delete(traceFile);
             }
             else
             {
+                Console.WriteLine("trace line file didnt exist");
                 Trace.Write(string.Format("Dumping to trace file [{0}]", traceFile));
             }
 
             if (Directory.Exists(TraceFilePath) == false)
             {
+                Console.WriteLine("trace line directory didnt exist");
                 Directory.CreateDirectory(TraceFilePath);
             }
             Console.WriteLine(traceFile + "-- DUMP TO TRACE --");
