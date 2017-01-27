@@ -389,7 +389,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             }
             else
             {
-                Console.WriteLine("trace line file didnt exist");
                 Trace.Write(string.Format("Dumping to trace file [{0}]", traceFile));
                 Console.WriteLine(File.Exists(traceFile) + " <-- trace files exists");
             }
@@ -398,7 +397,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             {
                 Directory.CreateDirectory(TraceFilePath);
             }
-            Console.WriteLine(traceFile + "-- DUMP TO TRACE --");
             WriteTraceFile(traceFile, text);
             return traceFile;
         }
@@ -410,12 +408,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         /// <param name="text">The content for the trace file</param>
         public void WriteTraceFile(string traceFile, string text)
         {
-            using (StreamWriter sw = new StreamWriter(File.Open(traceFile, FileMode.Open), Encoding.Unicode))
+            Stream traceStream = GetStreamFromString(traceFile);
+            using (StreamWriter sw = new StreamWriter(traceStream, Encoding.Unicode))
             {
                 sw.Write(text);
                 sw.Flush();
                 sw.Dispose();
             }
+        }
+
+        private Stream GetStreamFromString(string s)
+        {
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
         }
 
         /// <summary>
