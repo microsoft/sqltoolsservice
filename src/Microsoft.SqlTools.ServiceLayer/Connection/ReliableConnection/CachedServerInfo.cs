@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         {
             public bool IsAzure;
             public DateTime LastUpdate;
+            public bool IsSqlDw;
         }
 
         private static ConcurrentDictionary<string, CachedInfo> _cache;
@@ -113,6 +114,82 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     _cache.AddOrUpdate(dataSource, info, (key, oldValue) => info);
                 }
             }
+        }
+
+        public static void AddOrUpdateIsSqlDw(IDbConnection connection, bool isSqlDw)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
+            AddOrUpdateIsSqlDw(builder.DataSource, isSqlDw);
+        }
+
+        public static void AddOrUpdateIsSqlDw(string  dataSource, bool isSqlDw)
+        {
+            Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
+            CachedInfo info;
+            bool hasFound = _cache.TryGetValue(dataSource, out info);
+
+            if (hasFound && info.IsSqlDw == isSqlDw)
+            {
+                return;
+            }
+            else
+            {
+                lock (_cacheLock)
+                {
+                    if (! _cache.ContainsKey(dataSource))
+                    {
+                        //delete a batch of old elements when we try to add a new one and
+                        //the capacity limitation is hit
+                        if (_cache.Keys.Count > _maxCacheSize - 1)
+                        {
+                            var keysToDelete = _cache
+                                .OrderBy(x => x.Value.LastUpdate)
+                                .Take(_deleteBatchSize)
+                                .Select(pair => pair.Key);
+
+                            foreach (string key in keysToDelete)
+                            {
+                                _cache.TryRemove(key, out info);
+                            }
+                        }
+                    }
+
+                    info.IsSqlDw = isSqlDw;
+                    info.LastUpdate = DateTime.UtcNow;
+                    _cache.AddOrUpdate(dataSource, info, (key, oldValue) => info);
+                }
+            }
+        }
+
+        public static void TryGetIsSqlDw(IDbConnection connection, out bool isSqlDw)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
+            TryGetIsSqlDw(builder.DataSource, out isSqlDw);
+
+        }
+
+        
+        public static void TryGetIsSqlDw(string dataSource, out bool isSqlDw)
+        {
+            Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
+
+            Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
+            CachedInfo info;
+            bool hasFound = _cache.TryGetValue(dataSource, out info);
+
+            if(hasFound)
+            {
+                isSqlDw = info.IsSqlDw;
+            }
+            else
+            {
+                throw new Exception(Resources.ServerInfoCacheMiss);
+            }
+
         }
 
         private static string SafeGetDataSourceFromConnection(IDbConnection connection)
