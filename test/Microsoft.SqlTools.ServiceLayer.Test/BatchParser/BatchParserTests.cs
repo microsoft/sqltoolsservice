@@ -232,6 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             }
 
             string outputString = output.ToString();
+            Console.WriteLine(outputString);
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {

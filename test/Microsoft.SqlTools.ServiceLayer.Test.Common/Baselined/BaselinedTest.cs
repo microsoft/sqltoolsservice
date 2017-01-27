@@ -390,7 +390,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             else
             {
                 Trace.Write(string.Format("Dumping to trace file [{0}]", traceFile));
-                Console.WriteLine(File.Exists(traceFile) + " <-- trace files exists");
             }
 
             if (Directory.Exists(TraceFilePath) == false)
@@ -417,6 +416,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             }
         }
 
+        /// <summary>
+        /// Converts a string to a stream
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         private Stream GetStreamFromString(string s)
         {
             MemoryStream stream = new MemoryStream();
