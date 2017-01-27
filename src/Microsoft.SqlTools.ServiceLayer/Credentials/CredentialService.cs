@@ -105,16 +105,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         {
             return await Task.Factory.StartNew(() =>
             {
-                Credential.ValidateForLookup(credential);
-
-                Credential result = Credential.Copy(credential);
-                string password;
-                if (credStore.TryGetPassword(credential.CredentialId, out password))
-                {
-                    result.Password = password;
-                }
-                return result;
+                return ReadCredential(credential);
             });
+        }
+
+        public Credential ReadCredential(Credential credential)
+        {
+            Credential.ValidateForLookup(credential);
+
+            Credential result = Credential.Copy(credential);
+            string password;
+            if (credStore.TryGetPassword(credential.CredentialId, out password))
+            {
+                result.Password = password;
+            }
+            return result;
         }
 
         public async Task HandleSaveCredentialRequest(Credential credential, RequestContext<bool> requestContext)
@@ -126,13 +131,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
             await HandleRequest(doSave, requestContext, "HandleSaveCredentialRequest");
         }
 
-        private async Task<bool> SaveCredentialAsync(Credential credential)
+        public async Task<bool> SaveCredentialAsync(Credential credential)
         {
             return await Task.Factory.StartNew(() =>
             {
-                Credential.ValidateForSave(credential);
-                return credStore.Save(credential);
+                return SaveCredential(credential);
             });
+        }
+
+        public bool SaveCredential(Credential credential)
+        {
+            Credential.ValidateForSave(credential);
+            return credStore.Save(credential);
         }
 
         public async Task HandleDeleteCredentialRequest(Credential credential, RequestContext<bool> requestContext)
