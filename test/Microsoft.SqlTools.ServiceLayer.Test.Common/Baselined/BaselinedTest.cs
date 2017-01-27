@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         private void Initialize()
         {
             _testScriptExtension = _baselineExtension = "txt"; //default to txt
-            _testCategoryName = null;
+            _testCategoryName = "Baselines";
             string projectPath = Environment.GetEnvironmentVariable(Consts.ProjectPath);
             if (projectPath != null)
             {
