@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Test.Commons;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -32,13 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public static string GetTestDataLocation()
         {
             string testFolderPath;
-     
-            if (IsLabMode())
+            string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test";
+            string labPath = Environment.GetEnvironmentVariable(Consts.TestFileLocation);
+
+            if (labPath != null)
             {
-                string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test";
-                testFolderPath = Path.Combine(Environment.GetEnvironmentVariable(Consts.TestFileLocation), testPath);
-                Console.WriteLine("----- ACTUALLY LAB MODE ------");
-                Console.WriteLine(testFolderPath);
+                testFolderPath = Path.Combine(labPath, testPath);
             }
             else
             {
@@ -52,8 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     testFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.Test");
                     cachedTestFolderPath = testFolderPath;
                 }
-                Console.WriteLine("----- ACTUALLY LOCAL MODE ------");
-                Console.WriteLine(testFolderPath);
             }
             return testFolderPath;
         }
