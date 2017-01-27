@@ -161,6 +161,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             get
             {
+                Console.WriteLine(Path.Combine(RunEnvironmentInfo.GetTestDataLocation(), CategoryName, Path.Combine(BaselineDirectory, BaselinesSubdir)));
+                Console.WriteLine("--- baseline file path ---");
                 return Path.Combine(RunEnvironmentInfo.GetTestDataLocation(), CategoryName, Path.Combine( BaselineDirectory, BaselinesSubdir ));
             }
         }
@@ -235,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         private void Initialize()
         {
             _testScriptExtension = _baselineExtension = "txt"; //default to txt
-            _testCategoryName = "Baselines";
+            _testCategoryName = null;
             string projectPath = Environment.GetEnvironmentVariable(Consts.ProjectPath);
             if (projectPath != null)
             {
@@ -396,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             {
                 Directory.CreateDirectory(TraceFilePath);
             }
-            Console.WriteLine(traceFile);
+            Console.WriteLine(traceFile + "-- DUMP TO TRACE --");
             WriteTraceFile(traceFile, text);
             return traceFile;
         }
