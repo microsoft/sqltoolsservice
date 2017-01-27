@@ -6,9 +6,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Test.Commons;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -34,11 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             string testFolderPath;
             string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test";
-            string labPath = Environment.GetEnvironmentVariable(Consts.TestFileLocation);
+            string projectPath = Environment.GetEnvironmentVariable(Consts.ProjectPath);
 
-            if (labPath != null)
+            if (projectPath != null)
             {
-                testFolderPath = Path.Combine(labPath, testPath);
+                testFolderPath = Path.Combine(projectPath, testPath);
             }
             else
             {

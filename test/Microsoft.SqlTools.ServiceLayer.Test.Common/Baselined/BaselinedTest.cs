@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Xunit;
+using Microsoft.SqlTools.ServiceLayer.Test.Commons;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
 {
@@ -235,7 +236,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             _testScriptExtension = _baselineExtension = "txt"; //default to txt
             _testCategoryName = null;
-            _traceOutputDir = Environment.ExpandEnvironmentVariables(@"%SystemDrive%\trace\");
+            string projectPath = Environment.GetEnvironmentVariable(Consts.ProjectPath);
+            if (projectPath != null)
+            {
+                _traceOutputDir = Path.Combine(projectPath, "trace");
+            }
+            else
+            {
+                _traceOutputDir = Environment.ExpandEnvironmentVariables(@"%SystemDrive%\trace\");
+            }
             _baselinePrefix = "BL";
             _testscriptPrefix = "TS";
         }
