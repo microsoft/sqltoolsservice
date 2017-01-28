@@ -232,14 +232,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             }
 
             string outputString = output.ToString();
-            Console.WriteLine("---------- OUTPUT STRING ---------");
-            Console.WriteLine(outputString.ToCharArray().Length);
-            Console.WriteLine();
-            Console.WriteLine("--------- BASE LINE FILE --------");
-            Console.WriteLine(baseline.ToCharArray().Length);
-            Console.WriteLine();
+            
+            for (int i = 0; i < outputString.ToCharArray().Length; i++)
+            {
+                if (baseline.ToCharArray()[i] != outputString.ToCharArray()[i])
+                {
+                    Console.WriteLine(baseline.ToCharArray()[i] + "--- BASELINE ---");
+                    Console.WriteLine(outputString.ToCharArray()[i] + "--- OUTPUT ---");
+                    Console.WriteLine(baselineFilename);
+                }
+            }
 
-            if (string.Compare(baseline, outputString) != 0)
+
+            if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
