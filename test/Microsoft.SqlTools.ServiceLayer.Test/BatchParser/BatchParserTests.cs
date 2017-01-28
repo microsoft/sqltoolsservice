@@ -232,14 +232,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             }
 
             string outputString = output.ToString();
-            
+
+            Console.WriteLine(baselineFilename);
             for (int i = 0; i < outputString.ToCharArray().Length; i++)
             {
                 if (baseline.ToCharArray()[i] != outputString.ToCharArray()[i])
                 {
                     Console.WriteLine(baseline.ToCharArray()[i] + "--- BASELINE ---");
                     Console.WriteLine(outputString.ToCharArray()[i] + "--- OUTPUT ---");
-                    Console.WriteLine(baselineFilename);
+                    Console.WriteLine(i + "--- char ---");
                 }
             }
 
