@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             AddOrUpdateIsSqlDw(builder.DataSource, isSqlDw);
         }
 
-        public static void AddOrUpdateIsSqlDw(string  dataSource, bool isSqlDw)
+        public static void AddOrUpdateIsSqlDw(string dataSource, bool isSqlDw)
         {
             Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
             CachedInfo info;
@@ -175,8 +175,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         
         public static void TryGetIsSqlDw(string dataSource, out bool isSqlDw)
         {
-            Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
-
             Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
             CachedInfo info;
             bool hasFound = _cache.TryGetValue(dataSource, out info);
