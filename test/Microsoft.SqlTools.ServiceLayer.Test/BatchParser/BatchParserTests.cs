@@ -233,10 +233,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 
             string outputString = output.ToString();
             Console.WriteLine("---------- OUTPUT STRING ---------");
-            Console.WriteLine(outputString);
+            Console.WriteLine(outputString.ToCharArray().Length);
             Console.WriteLine();
             Console.WriteLine("--------- BASE LINE FILE --------");
-            Console.WriteLine(baseline);
+            Console.WriteLine(baseline.ToCharArray().Length);
             Console.WriteLine();
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
