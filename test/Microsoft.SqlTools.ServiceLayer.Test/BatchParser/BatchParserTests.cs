@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             Console.WriteLine(baseline.ToCharArray().Length);
             Console.WriteLine();
 
-            if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
+            if (string.Compare(baseline, outputString) != 0)
             {
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
