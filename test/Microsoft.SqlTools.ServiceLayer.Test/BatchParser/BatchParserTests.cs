@@ -234,13 +234,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             string outputString = output.ToString();
 
             Console.WriteLine(baselineFilename);
-            for (int i = 0; i < outputString.Length; i++)
+            string[] lines = outputString.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
+            string[] lines2 = baseline.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
+
+            for (int i = 0; i < lines.Length; i++)
             {
-                if (baseline[i] != outputString[i])
+                if (string.Compare(lines[i], lines2[i], StringComparison.Ordinal) != 0)
                 {
-                    Console.WriteLine(baseline[i] + "--- BASELINE ---");
-                    Console.WriteLine(outputString[i] + "--- OUTPUT ---");
-                    Console.WriteLine(i + "--- word ---");
+                    Console.WriteLine("--- output ---");
+                    Console.WriteLine(lines[i]);
+                    Console.WriteLine("--- base ---");
+                    Console.WriteLine(baseline);
                 }
             }
 
