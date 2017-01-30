@@ -239,13 +239,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 
             for (int i = 0; i < lines.Length; i++)
             {
-                if (string.Compare(lines[i], lines2[i], StringComparison.Ordinal) != 0)
-                {
-                    Console.WriteLine("--- output ---");
-                    Console.WriteLine(lines[i]);
-                    Console.WriteLine("--- base ---");
-                    Console.WriteLine(lines2[i]);
-                }
+                Console.WriteLine("--- output ---");
+                Console.WriteLine(lines[i]);
             }
 
 
