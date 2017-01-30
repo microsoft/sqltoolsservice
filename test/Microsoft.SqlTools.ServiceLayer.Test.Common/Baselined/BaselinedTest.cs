@@ -361,7 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             Trace.WriteLine(string.Format("GetFileContent for [{0}]", Path.GetFullPath(path)));
 
-            using (StreamReader sr = new StreamReader(File.Open(path, FileMode.Open), Encoding.Unicode))
+            using (StreamReader sr = new StreamReader(File.Open(path, FileMode.Open)))
             {
                 return sr.ReadToEnd();
             }

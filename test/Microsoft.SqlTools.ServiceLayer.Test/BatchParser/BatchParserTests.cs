@@ -235,31 +235,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             string outputString = output.ToString();
 
             Console.WriteLine(baselineFilename);
-            if (baselineFilename ==
-                @"C:\projects\sqltoolsservice\test\Microsoft.SqlTools.ServiceLayer.Test\BatchParser\Baselines\BL-err-varDefinition2.txt")
-            {
-                outputString = @"Lexer tokenized input:
-======================
-[Setvar::setvar][WS: ][T: a][WS: ][T: b][WS: ][T: c][NL:
-][C: --invalid syntax(too many params)][NL:
-][Eof:]
-Tokens:
-=======
-[Token Setvar at TS - err - varDefinition2.txt(1:1[0] - 1:8[7]): ':setvar']
-[Token Whitespace at TS - err - varDefinition2.txt(1:8[7] - 1:9[8]): ' ']
-[Token Text at TS - err - varDefinition2.txt(1:9[8] - 1:10[9]): 'a']
-[Token Whitespace at TS - err - varDefinition2.txt(1:10[9] - 1:11[10]): ' ']
-[Token Text at TS - err - varDefinition2.txt(1:11[10] - 1:12[11]): 'b']
-[Token Whitespace at TS - err - varDefinition2.txt(1:12[11] - 1:13[12]): ' ']
-[Token Text at TS - err - varDefinition2.txt(1:13[12] - 1:14[13]): 'c']
-[Token NewLine at TS - err - varDefinition2.txt(1:14[13] - 2:1[14]): '\n']
-[Token Comment at TS - err - varDefinition2.txt(2:1[14] - 2:36[49]): '-- invalid syntax (too many params)']
-[Token NewLine at TS - err - varDefinition2.txt(2:36[49] - 3:1[50]): '\n']
-[Token Eof at TS - err - varDefinition2.txt(3:1[50] - 3:1[50]): '']
-
-[PARSER ERROR: code UnrecognizedToken at 1:13[12] - 1:14[13] in TS - err - varDefinition2.txt, token text: c, message: Incorrect syntax was encountered while parsing 'c'.]";
-                Console.WriteLine(string.Compare(baseline, outputString, StringComparison.Ordinal) != 0);
-            }
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
