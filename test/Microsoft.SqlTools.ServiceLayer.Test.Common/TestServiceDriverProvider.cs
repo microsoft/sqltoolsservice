@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -157,9 +158,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// <summary>
         /// Request the active SQL script is parsed for errors
         /// </summary>
-        public async Task<QueryExecuteSubsetResult> RequestQueryExecuteSubset(QueryExecuteSubsetParams subsetParams)
+        public async Task<SubsetResult> RequestQueryExecuteSubset(SubsetParams subsetParams)
         {
-            return await Driver.SendRequest(QueryExecuteSubsetRequest.Type, subsetParams);
+            return await Driver.SendRequest(SubsetRequest.Type, subsetParams);
         }
 
         /// <summary>
@@ -276,21 +277,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// <summary>
         /// Run a query using a given connection bound to a URI
         /// </summary>
-        public async Task<QueryExecuteCompleteParams> RunQueryAndWaitToComplete(string ownerUri, string query, int timeoutMilliseconds = 5000)
+        public async Task<QueryCompleteParams> RunQueryAndWaitToComplete(string ownerUri, string query, int timeoutMilliseconds = 5000)
         {
             // Write the query text to a backing file
             WriteToFile(ownerUri, query);
 
-            var queryParams = new QueryExecuteParams
+            var queryParams = new ExecuteDocumentSelectionParams
             {
                 OwnerUri = ownerUri,
                 QuerySelection = null
             };
 
-            var result = await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
+            var result = await Driver.SendRequest(ExecuteDocumentSelectionRequest.Type, queryParams);
             if (result != null)
             {
-                var eventResult = await Driver.WaitForEvent(QueryExecuteCompleteEvent.Type, timeoutMilliseconds);
+                var eventResult = await Driver.WaitForEvent(QueryCompleteEvent.Type, timeoutMilliseconds);
                 return eventResult;
             }
             else
@@ -301,19 +302,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         /// <summary>
         /// Run a query using a given connection bound to a URI. This method only waits for the initial response from query
-        /// execution (QueryExecuteResult). It is up to the caller to wait for the QueryExecuteCompleteEvent if they are interested.
+        /// execution (QueryExecuteResult). It is up to the caller to wait for the QueryCompleteEvent if they are interested.
         /// </summary>
-        public async Task<QueryExecuteResult> RunQueryAsync(string ownerUri, string query, int timeoutMilliseconds = 5000)
+        public async Task<ExecuteRequestResult> RunQueryAsync(string ownerUri, string query, int timeoutMilliseconds = 5000)
         {
             WriteToFile(ownerUri, query);
 
-            var queryParams = new QueryExecuteParams
+            var queryParams = new ExecuteDocumentSelectionParams
             {
                 OwnerUri = ownerUri,
                 QuerySelection = null
             };
 
-            return await Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
+            return await Driver.SendRequest(ExecuteDocumentSelectionRequest.Type, queryParams);
         }
 
         public async Task RunQuery(TestServerType serverType, string databaseName, string query)
@@ -408,16 +409,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// <summary>
         /// Request a subset of results from a query
         /// </summary>
-        public async Task<QueryExecuteSubsetResult> ExecuteSubset(string ownerUri, int batchIndex, int resultSetIndex, int rowStartIndex, int rowCount)
+        public async Task<SubsetResult> ExecuteSubset(string ownerUri, int batchIndex, int resultSetIndex, int rowStartIndex, int rowCount)
         {
-            var subsetParams = new QueryExecuteSubsetParams();
+            var subsetParams = new SubsetParams();
             subsetParams.OwnerUri = ownerUri;
             subsetParams.BatchIndex = batchIndex;
             subsetParams.ResultSetIndex = resultSetIndex;
             subsetParams.RowsStartIndex = rowStartIndex;
             subsetParams.RowsCount = rowCount;
 
-            var result = await Driver.SendRequest(QueryExecuteSubsetRequest.Type, subsetParams);
+            var result = await Driver.SendRequest(SubsetRequest.Type, subsetParams);
             return result;
         }
 
@@ -425,9 +426,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// Waits for a message to be returned by the service
         /// </summary>
         /// <returns>A message from the service layer</returns>
-        public async Task<QueryExecuteMessageParams> WaitForMessage()
+        public async Task<MessageParams> WaitForMessage()
         {
-            return await Driver.WaitForEvent(QueryExecuteMessageEvent.Type);
+            return await Driver.WaitForEvent(MessageEvent.Type);
         }
 
         public void WriteToFile(string ownerUri, string query)

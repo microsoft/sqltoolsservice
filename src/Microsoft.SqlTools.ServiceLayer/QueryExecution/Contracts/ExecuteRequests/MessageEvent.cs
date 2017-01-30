@@ -5,12 +5,12 @@
 
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
     /// Parameters to be sent back with a message notification
     /// </summary>
-    public class QueryExecuteMessageParams
+    public class MessageParams
     {
         /// <summary>
         /// URI for the editor that owns the query
@@ -23,10 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public ResultMessage Message { get; set; }
     }
 
-    public class QueryExecuteMessageEvent
+    public class MessageEvent
     {
         public static readonly
-            EventType<QueryExecuteMessageParams> Type =
-            EventType<QueryExecuteMessageParams>.Create("query/message");
+            EventType<MessageParams> Type =
+            EventType<MessageParams>.Create("query/message");
     }
 }
