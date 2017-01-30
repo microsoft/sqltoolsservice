@@ -244,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
                     Console.WriteLine("--- output ---");
                     Console.WriteLine(lines[i]);
                     Console.WriteLine("--- base ---");
-                    Console.WriteLine(baseline);
+                    Console.WriteLine(lines2[i]);
                 }
             }
 
