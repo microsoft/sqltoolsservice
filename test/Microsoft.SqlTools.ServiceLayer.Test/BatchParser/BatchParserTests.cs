@@ -7,6 +7,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Babel;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -234,6 +235,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
             string outputString = output.ToString();
 
             Console.WriteLine(baselineFilename);
+            string[] lines = outputString.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
+            int i = 0;
+            using (StreamReader sr = new StreamReader(File.Open(baselineFilename, FileMode.Open), Encoding.Unicode))
+            {
+                while (i != lines.Length)
+                {
+                    if (string.Compare(sr.ReadLine(), lines[i]) != 0)
+                    {
+                        Console.WriteLine("--- output ---");
+                        Console.WriteLine(sr.ReadLine());
+                        Console.WriteLine("--- base ---");
+                        Console.WriteLine(lines[i]);
+                    }
+                    i++;
+                }
+
+            }
 
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
