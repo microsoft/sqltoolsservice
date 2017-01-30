@@ -225,34 +225,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.BatchParser
 
             try
             {
-                baseline = GetFileContent(baselineFilename);
+                baseline = GetFileContent(baselineFilename).Replace("\r\n", "\n");
             }
             catch (FileNotFoundException)
             {
                 baseline = "";
             }
 
-            string outputString = output.ToString();
+            string outputString = output.ToString().Replace("\r\n", "\n");
 
             Console.WriteLine(baselineFilename);
-            string[] lines = outputString.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
-            int i = 0;
-            using (StreamReader sr = new StreamReader(File.Open(baselineFilename, FileMode.Open), Encoding.Unicode))
-            {
-                while (i != lines.Length)
-                {
-                    if (string.Compare(sr.ReadLine(), lines[i]) != 0)
-                    {
-                        Console.WriteLine("--- output ---");
-                        Console.WriteLine(sr.ReadLine());
-                        Console.WriteLine("--- base ---");
-                        Console.WriteLine(lines[i]);
-                    }
-                    i++;
-                }
-
-            }
-
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
