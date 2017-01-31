@@ -137,15 +137,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
-        public static void TryGetIsSqlDw(IDbConnection connection, out bool isSqlDw)
+        public static bool TryGetIsSqlDw(IDbConnection connection, out bool isSqlDw)
         {
             Validate.IsNotNull(nameof(connection), connection);
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
-            TryGetIsSqlDw(builder.DataSource, out isSqlDw);
+            return TryGetIsSqlDw(builder.DataSource, out isSqlDw);
         }
 
-        public static void TryGetIsSqlDw(string dataSource, out bool isSqlDw)
+        public static bool TryGetIsSqlDw(string dataSource, out bool isSqlDw)
         {
             Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
             CachedInfo info;
@@ -154,12 +154,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             if(hasFound)
             {
                 isSqlDw = info.IsSqlDw;
+                return true;
             }
-            else
-            {
-                throw new Exception(Resources.ServerInfoCacheMiss);
-            }
-
+            
+            isSqlDw = false;
+            return false;
         }
 
         private static string SafeGetDataSourceFromConnection(IDbConnection connection)

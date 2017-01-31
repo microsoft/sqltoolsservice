@@ -107,17 +107,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             //This is assuming that it is highly unlikely for a connection to change between instances.
             //Hence any subsequent calls to this method will just return the cached value and not 
             //verify again if this is a SQL DW database connection or not.
-            try
+            if (!CachedServerInfo.TryGetIsSqlDw(conn, out _isSqlDwDatabase))
             {
-                CachedServerInfo.TryGetIsSqlDw(conn, out _isSqlDwDatabase);
-            }
-            catch (Exception)
-            {
-                //This exception occurs when there is a cache miss
-                //Hence we try to obtain the information from other means and update the cache
                 _isSqlDwDatabase = ReliableConnectionHelper.IsSqlDwDatabase(conn);
-                CachedServerInfo.AddOrUpdateIsSqlDw(conn, _isSqlDwDatabase);
+                CachedServerInfo.AddOrUpdateIsSqlDw(conn, _isSqlDwDatabase);;
             }
+
             return _isSqlDwDatabase;
         }
 
@@ -373,10 +368,6 @@ SET NUMERIC_ROUNDABORT OFF;";
                 if (_underlyingConnection.State != ConnectionState.Open)
                 {
                     _underlyingConnection.Open();
-
-                    // Asking if the server is sqldw or not
-                    IsSqlDwConnection(_underlyingConnection);
-
                 }
                 SetLockAndCommandTimeout(_underlyingConnection);
                 SetDefaultAnsiSettings(_underlyingConnection, IsSqlDwConnection(_underlyingConnection));

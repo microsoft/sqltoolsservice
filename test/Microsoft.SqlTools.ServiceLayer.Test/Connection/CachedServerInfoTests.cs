@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             CachedServerInfo.AddOrUpdateCache("testDataSource", state, CachedServerInfo.CacheVariable.IsSqlDw);
 
             // Expect the same returned result
-            CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult);
+            Assert.True(CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult));
             Assert.Equal(isSqlDwResult, state);
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             CachedServerInfo.AddOrUpdateCache("testDataSource", state, CachedServerInfo.CacheVariable.IsSqlDw);
 
             // Expect the same returned result
-            CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult);
+            Assert.True(CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult));
             Assert.Equal(isSqlDwResult, state);
 
             // Toggle isSqlDw cache state
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             CachedServerInfo.AddOrUpdateCache("testDataSource", !state, CachedServerInfo.CacheVariable.IsSqlDw);
 
             // Expect the oppisite returned result
-            CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResultToggle);
+            Assert.True(CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResultToggle));
             Assert.Equal(isSqlDwResultToggle, !state);
 
         }
@@ -63,8 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             CachedServerInfo.AddOrUpdateCache("testDataSource2", !state, CachedServerInfo.CacheVariable.IsSqlDw);
 
             // Expect the same returned result
-            CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult);
-            CachedServerInfo.TryGetIsSqlDw("testDataSource2", out isSqlDwResult2);
+            Assert.True(CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult));
+            Assert.True(CachedServerInfo.TryGetIsSqlDw("testDataSource2", out isSqlDwResult2));
 
             // Assert cache is set on a per connection basis
             Assert.Equal(isSqlDwResult, state);
@@ -75,20 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Fact]
         public void AskforSqlDwBeforeCached()
         {
-            bool exceptionThrown = false;
-            try
-            {
-                bool isSqlDwResult;
-                // ask for result that has NOT been cached
-                CachedServerInfo.TryGetIsSqlDw("testDataSourceCacheMiss", out isSqlDwResult);
-            }
-            catch (Exception)
-            {
-                exceptionThrown = true;
-            }
-
-            // Assert that the exception has been thrown
-            Assert.True(exceptionThrown);
+            bool isSqlDwResult;
+            Assert.False(CachedServerInfo.TryGetIsSqlDw("testDataSourceWithNoCache", out isSqlDwResult));
         }
     }
 }
