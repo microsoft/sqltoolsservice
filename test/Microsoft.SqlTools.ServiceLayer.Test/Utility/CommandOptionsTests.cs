@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.True(options.EnableLogging);
             Assert.False(options.ShouldExit);
+            Assert.Null(options.Locale);
         }
 
         [Fact]
@@ -33,6 +34,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
+            Assert.Null(options.Locale);
         }
 
         [Fact]
@@ -43,6 +45,7 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
+            Assert.Null(options.Locale);
         }
 
         [Fact]
@@ -53,6 +56,7 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
+            Assert.Null(options.Locale);
         }
 
         [Fact]
@@ -64,6 +68,31 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
+            Assert.Null(options.Locale);
+        }
+        
+        [Fact]
+        public void LocaleSetWhenProvided()
+        {
+            var args = new string[] {"--locale enu"};
+            CommandOptions options = new CommandOptions(args);
+            Assert.NotNull(options);
+
+            Assert.True(options.EnableLogging);
+            Assert.False(options.ShouldExit);
+            Assert.Equal(options.Locale, "enu");
+        }
+
+        [Fact]
+        public void LocaleNotSetWhenNotProvided()
+        {
+            var args = new string[] {};
+            CommandOptions options = new CommandOptions(args);
+            Assert.NotNull(options);
+
+            Assert.False(options.EnableLogging);
+            Assert.False(options.ShouldExit);
+            Assert.Null(options.Locale);
         }
     }
 }

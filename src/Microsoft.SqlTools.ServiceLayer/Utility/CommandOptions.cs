@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
@@ -26,11 +27,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     string arg = args[i];
                     if (arg.StartsWith("--") || arg.StartsWith("-"))
                     {
-                        arg = arg.Substring(1).ToLowerInvariant();
-                        switch (arg)
+                        // Extracting arguments and properties
+                        arg = arg.Substring(1).ToLowerInvariant(); 
+                        string argName = arg.Remove(arg.IndexOf(' '));
+                        string argProperty = arg.Remove(0, arg.IndexOf(' '));
+
+                        switch (argName)
                         {
                             case "-enable-logging":
                                 EnableLogging = true;
+                                break;
+                            case "-locale":
+                                setLocale(argProperty);
                                 break;
                             case "h":
                             case "-help":
@@ -72,6 +80,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         public bool ShouldExit { get; private set; }
 
         /// <summary>
+        /// The locale our we should instantiate this service in 
+        /// </summary>
+        public string Locale { get; private set; }
+
+        /// <summary>
         /// Get the usage string describing command-line arguments for the program
         /// </summary>
         public string Usage
@@ -86,6 +99,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     ErrorMessage);
                 return str;
             }
+        }
+
+        private void setLocale(string locale){
+            Locale = locale;
+            CultureInfo language = new CultureInfo(locale);
+            CultureInfo.CurrentCulture = language;
+            CultureInfo.CurrentUICulture = language;
         }
     }
 }
