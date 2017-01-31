@@ -65,27 +65,5 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
         }
-
-        [Fact]
-        public void LocaleSetWhenProvided()
-        {
-            var args = new string[] {"--locale enu"};
-            CommandOptions options = new CommandOptions(args);
-            Assert.NotNull(options);
-
-            Assert.True(options.EnableLogging);
-            Assert.False(options.ShouldExit);
-        }
-
-        [Fact]
-        public void LocaleNotSetWhenNotProvided()
-        {
-            var args = new string[] {};
-            CommandOptions options = new CommandOptions(args);
-            Assert.NotNull(options);
-
-            Assert.True(options.EnableLogging);
-            Assert.False(options.ShouldExit);
-        }
     }
 }

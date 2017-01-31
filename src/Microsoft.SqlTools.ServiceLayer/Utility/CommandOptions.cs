@@ -32,10 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                             case "-enable-logging":
                                 EnableLogging = true;
                                 break;
-                            case "-locale":
-                                // set locale here
-                                
-                                break;
                             case "h":
                             case "-help":
                                 ShouldExit = true;
