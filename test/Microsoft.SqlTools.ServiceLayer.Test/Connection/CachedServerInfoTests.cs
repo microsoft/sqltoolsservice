@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         {
             // Set sqlDw result into cache
             bool isSqlDwResult;
-            CachedServerInfo.AddOrUpdateIsSqlDw("testDataSource", state);
+            CachedServerInfo.AddOrUpdateCache("testDataSource", state, CachedServerInfo.CacheVariable.IsSqlDw);
 
             // Expect the same returned result
             CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult);
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         {
             // Set sqlDw result into cache
             bool isSqlDwResult;
-            CachedServerInfo.AddOrUpdateIsSqlDw("testDataSource", state);
+            CachedServerInfo.AddOrUpdateCache("testDataSource", state, CachedServerInfo.CacheVariable.IsSqlDw);
 
             // Expect the same returned result
             CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult);
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // Toggle isSqlDw cache state
             bool isSqlDwResultToggle;
-            CachedServerInfo.AddOrUpdateIsSqlDw("testDataSource", !state);
+            CachedServerInfo.AddOrUpdateCache("testDataSource", !state, CachedServerInfo.CacheVariable.IsSqlDw);
 
             // Expect the oppisite returned result
             CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResultToggle);
@@ -59,8 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             // Set sqlDw result into cache
             bool isSqlDwResult;
             bool isSqlDwResult2;
-            CachedServerInfo.AddOrUpdateIsSqlDw("testDataSource", state);
-            CachedServerInfo.AddOrUpdateIsSqlDw("testDataSource2", !state);
+            CachedServerInfo.AddOrUpdateCache("testDataSource", state, CachedServerInfo.CacheVariable.IsSqlDw);
+            CachedServerInfo.AddOrUpdateCache("testDataSource2", !state, CachedServerInfo.CacheVariable.IsSqlDw);
 
             // Expect the same returned result
             CachedServerInfo.TryGetIsSqlDw("testDataSource", out isSqlDwResult);

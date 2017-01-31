@@ -17,6 +17,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
     /// </summary>
     internal static class CachedServerInfo
     {
+        public enum CacheVariable {
+            IsSqlDw,
+            IsAzure
+        }
+
         private struct CachedInfo
         {
             public bool IsAzure;
@@ -28,7 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         private static object _cacheLock;
         private const int _maxCacheSize = 1024;
         private const int _deleteBatchSize = 512;
-
         private const int MinimalQueryTimeoutSecondsForAzure = 300;
 
         static CachedServerInfo()
@@ -71,66 +75,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public static void AddOrUpdateIsAzure(IDbConnection connection, bool isAzure)
         {
-            Validate.IsNotNull(nameof(connection), connection);
-
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
-            AddOrUpdateIsAzure(builder.DataSource, isAzure);
-        }
-
-        public static void AddOrUpdateIsAzure(string  dataSource, bool isAzure)
-        {
-            Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
-            CachedInfo info;
-            bool hasFound = _cache.TryGetValue(dataSource, out info);
-
-            if (hasFound && info.IsAzure == isAzure)
-            {
-                return;
-            }
-            else
-            {
-                lock (_cacheLock)
-                {
-                    if (! _cache.ContainsKey(dataSource))
-                    {
-                        //delete a batch of old elements when we try to add a new one and
-                        //the capacity limitation is hit
-                        if (_cache.Keys.Count > _maxCacheSize - 1)
-                        {
-                            var keysToDelete = _cache
-                                .OrderBy(x => x.Value.LastUpdate)
-                                .Take(_deleteBatchSize)
-                                .Select(pair => pair.Key);
-
-                            foreach (string key in keysToDelete)
-                            {
-                                _cache.TryRemove(key, out info);
-                            }
-                        }
-                    }
-
-                    info.IsAzure = isAzure;
-                    info.LastUpdate = DateTime.UtcNow;
-                    _cache.AddOrUpdate(dataSource, info, (key, oldValue) => info);
-                }
-            }
+            AddOrUpdateCache(connection, isAzure, CacheVariable.IsAzure);
         }
 
         public static void AddOrUpdateIsSqlDw(IDbConnection connection, bool isSqlDw)
         {
-            Validate.IsNotNull(nameof(connection), connection);
-
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
-            AddOrUpdateIsSqlDw(builder.DataSource, isSqlDw);
+            AddOrUpdateCache(connection, isSqlDw, CacheVariable.IsSqlDw);
         }
 
-        public static void AddOrUpdateIsSqlDw(string dataSource, bool isSqlDw)
+        private static void AddOrUpdateCache(IDbConnection connection, bool newState, CacheVariable cacheVar)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
+            AddOrUpdateCache(builder.DataSource, newState, cacheVar);
+        }
+
+        internal static void AddOrUpdateCache(string dataSource, bool newState, CacheVariable cacheVar)
         {
             Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
             CachedInfo info;
             bool hasFound = _cache.TryGetValue(dataSource, out info);
 
-            if (hasFound && info.IsSqlDw == isSqlDw)
+            if ((cacheVar == CacheVariable.IsSqlDw && hasFound && info.IsSqlDw == newState) || 
+                (cacheVar == CacheVariable.IsAzure && hasFound && info.IsAzure == newState)) 
             {
                 return;
             }
@@ -156,7 +123,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         }
                     }
 
-                    info.IsSqlDw = isSqlDw;
+                    if (cacheVar == CacheVariable.IsSqlDw)
+                    {
+                        info.IsSqlDw = newState;
+                    }
+                    else if (cacheVar == CacheVariable.IsAzure)
+                    {
+                        info.IsAzure = newState;
+                    }
                     info.LastUpdate = DateTime.UtcNow;
                     _cache.AddOrUpdate(dataSource, info, (key, oldValue) => info);
                 }
@@ -169,10 +143,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
             TryGetIsSqlDw(builder.DataSource, out isSqlDw);
-
         }
 
-        
         public static void TryGetIsSqlDw(string dataSource, out bool isSqlDw)
         {
             Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
