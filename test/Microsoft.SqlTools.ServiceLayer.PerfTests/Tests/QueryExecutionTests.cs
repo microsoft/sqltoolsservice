@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 
@@ -70,13 +71,13 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
                 await testService.ConnectForQuery(serverType, Scripts.DelayQuery, queryTempFile.FilePath, Common.PerfTestDatabaseName);
-                var queryParams = new QueryExecuteParams
+                var queryParams = new ExecuteDocumentSelectionParams
                 {
                     OwnerUri = queryTempFile.FilePath,
                     QuerySelection = null
                 };
 
-                var result = await testService.Driver.SendRequest(QueryExecuteRequest.Type, queryParams);
+                var result = await testService.Driver.SendRequest(ExecuteDocumentSelectionRequest.Type, queryParams);
                 if (result != null)
                 {
                     TestTimer timer = new TestTimer() { PrintResult = true };

@@ -4,13 +4,13 @@
 
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
-    /// Parameters to be sent back as part of a QueryExecuteBatchCompleteEvent to indicate that a
-    /// batch of a query completed.
+    /// Parameters to be sent back as part of a batch start or complete event to indicate that a
+    /// batch of a query started or completed.
     /// </summary>
-    public class QueryExecuteBatchNotificationParams
+    public class BatchEventParams
     {
         /// <summary>
         /// Summary of the batch that just completed
@@ -23,17 +23,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string OwnerUri { get; set; }
     }
 
-    public class QueryExecuteBatchCompleteEvent
+    public class BatchCompleteEvent
     {
         public static readonly 
-            EventType<QueryExecuteBatchNotificationParams> Type =
-            EventType<QueryExecuteBatchNotificationParams>.Create("query/batchComplete");
+            EventType<BatchEventParams> Type =
+            EventType<BatchEventParams>.Create("query/batchComplete");
     }
 
-    public class QueryExecuteBatchStartEvent
+    public class BatchStartEvent
     {
         public static readonly
-            EventType<QueryExecuteBatchNotificationParams> Type =
-            EventType<QueryExecuteBatchNotificationParams>.Create("query/batchStart");
+            EventType<BatchEventParams> Type =
+            EventType<BatchEventParams>.Create("query/batchStart");
     }
 }
