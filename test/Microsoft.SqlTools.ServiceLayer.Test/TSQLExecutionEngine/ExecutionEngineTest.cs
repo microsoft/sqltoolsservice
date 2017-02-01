@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.TSQLExecutionEngine
         /// <summary>
         /// Executing same query mulptile times within one batch
         /// </summary>
-        [Fact]
+        //[Fact]
         //public void ExecutionEngineTest_ValidScriptWithLoop()
         //{
         //    String sqlStatement = "select * from sysobjects";
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.TSQLExecutionEngine
         /// <summary>
         /// Test with multiple valid scripts in multiple batches
         /// </summary>
-        [Fact]
+        //[Fact]
         //public void ExecutionEngineTest_MultiValidScripts()
         //{
         //    String sqlStatement = "select * from sys.databases\ngo\nselect name from sys.databases\ngo\nprint 'test'\ngo";
