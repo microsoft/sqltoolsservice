@@ -28,9 +28,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     if (arg.StartsWith("--") || arg.StartsWith("-"))
                     {
                         // Extracting arguments and properties
-                        arg = arg.Substring(1).ToLowerInvariant(); 
-                        string argName = arg.Remove(arg.IndexOf(' '));
-                        string argProperty = arg.Remove(0, arg.IndexOf(' '));
+                        arg = arg.Substring(1).ToLowerInvariant();
+                        string argName = arg;
+                        string argProperty = "";
+                        int splitIndex = arg.IndexOf(' ');
+                        if (splitIndex > 0)
+                        {
+                            argName = arg.Substring(0, splitIndex);
+                            argProperty = arg.Substring(splitIndex + 1);
+                        }
 
                         switch (argName)
                         {
@@ -45,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                                 ShouldExit = true;
                                 return;
                             default:
-                                ErrorMessage += String.Format("Unknown argument \"{0}\"" + Environment.NewLine, arg);
+                                ErrorMessage += String.Format("Unknown argument \"{0}\" with property \"{1}\"" + Environment.NewLine, argName, argProperty);
                                 break;
                         }
                     }
@@ -95,7 +101,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     "Microsoft.SqlTools.ServiceLayer.exe " + Environment.NewLine +
                     "   Options:" + Environment.NewLine +
                     "        [--enable-logging]" + Environment.NewLine +
-                    "        [--help]" + Environment.NewLine,
+                    "        [--help]" + Environment.NewLine +
+                    "        [--locale]" + Environment.NewLine,
                     ErrorMessage);
                 return str;
             }
@@ -106,6 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             CultureInfo language = new CultureInfo(locale);
             CultureInfo.CurrentCulture = language;
             CultureInfo.CurrentUICulture = language;
+            SR.Culture = CultureInfo.CurrentCulture;
         }
     }
 }
