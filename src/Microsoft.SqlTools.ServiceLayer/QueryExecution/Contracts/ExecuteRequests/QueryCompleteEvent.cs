@@ -5,12 +5,12 @@
 
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
     /// <summary>
     /// Parameters to be sent back with a query execution complete event
     /// </summary>
-    public class QueryExecuteCompleteParams
+    public class QueryCompleteParams
     {
         /// <summary>
         /// URI for the editor that owns the query
@@ -23,10 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public BatchSummary[] BatchSummaries { get; set; }
     }
 
-    public class QueryExecuteCompleteEvent
+    public class QueryCompleteEvent
     {
         public static readonly 
-            EventType<QueryExecuteCompleteParams> Type =
-            EventType<QueryExecuteCompleteParams>.Create("query/complete");
+            EventType<QueryCompleteParams> Type =
+            EventType<QueryCompleteParams>.Create("query/complete");
     }
 }

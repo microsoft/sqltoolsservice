@@ -4,11 +4,11 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Xunit;
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void ExecutionPlanInvalid()
+        public async Task ExecutionPlanInvalid()
         {
             // Setup:
             // ... I have a batch that has been executed
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // Then:
             // ... It should throw an exception
-            Assert.ThrowsAsync<Exception>(async () => await planResultSet.GetExecutionPlan());
+            await Assert.ThrowsAsync<Exception>(() => planResultSet.GetExecutionPlan());
         }
 
         #endregion
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         }
 
         [Fact]
-        public void BatchExecutionPlanInvalidTest()
+        public async Task BatchExecutionPlanInvalidTest()
         {
             // Setup:
             // ... I have a batch that has been executed without an execution plan 
@@ -81,13 +81,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If: 
             // ... I ask for an invalid execution plan 
-            Assert.ThrowsAsync<Exception>(async () => await b.GetExecutionPlan(0));
+            await Assert.ThrowsAsync<Exception>(() => b.GetExecutionPlan(0));
         }
 
         [Theory]
         [InlineData(-1)]  // Invalid result set, too low
         [InlineData(2)]   // Invalid result set, too high
-        public void BatchExecutionPlanInvalidParamsTest(int resultSetIndex)
+        public async Task BatchExecutionPlanInvalidParamsTest(int resultSetIndex)
         {
             // If I have an executed batch which has an execution plan 
             Batch b = Common.GetExecutedBatchWithExecutionPlan();
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for an execution plan with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await b.GetExecutionPlan(resultSetIndex));
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetExecutionPlan(resultSetIndex));
         }
 
         #endregion
@@ -105,14 +105,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         [Theory]
         [InlineData(-1)]  // Invalid batch, too low
         [InlineData(2)]   // Invalid batch, too high
-        public void QueryExecutionPlanInvalidParamsTest(int batchIndex)
+        public async Task QueryExecutionPlanInvalidParamsTest(int batchIndex)
         {
             // Setup query settings
-            QueryExecutionSettings querySettings = new QueryExecutionSettings(); 
-            querySettings.ExecutionPlanOptions = new ExecutionPlanOptions()
-            { 
-                IncludeActualExecutionPlanXml = false,
-                IncludeEstimatedExecutionPlanXml = true
+            QueryExecutionSettings querySettings = new QueryExecutionSettings
+            {
+                ExecutionPlanOptions = new ExecutionPlanOptions
+                {
+                    IncludeActualExecutionPlanXml = false,
+                    IncludeEstimatedExecutionPlanXml = true
+                }
             };
 
             // If I have an executed query
@@ -121,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await q.GetExecutionPlan(batchIndex, 0));
+           await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => q.GetExecutionPlan(batchIndex, 0));
         }
 
         #endregion
@@ -136,13 +138,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that has results in the form of an execution plan 
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(new[] {Common.GetExecutionPlanTestData()}, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
-            executeParams.ExecutionPlanOptions = new ExecutionPlanOptions()
-            { 
-                IncludeActualExecutionPlanXml = false,
-                IncludeEstimatedExecutionPlanXml = true
+            var executeParams = new ExecuteDocumentSelectionParams
+            {
+                QuerySelection = null,
+                OwnerUri = Common.OwnerUri,
+                ExecutionPlanOptions = new ExecutionPlanOptions
+                {
+                    IncludeActualExecutionPlanXml = false,
+                    IncludeEstimatedExecutionPlanXml = true
+                }
             };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
@@ -168,11 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddErrorValidation<string>(r =>
-                {
-                    // Then: It should return a populated error 
-                    Assert.NotNull(r);
-                }).Complete();
+                .AddErrorValidation<string>(Assert.NotNull).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();
         }
@@ -184,13 +186,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that hasn't finished executing (doesn't matter what)
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(new[] { Common.GetExecutionPlanTestData() }, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
-            executeParams.ExecutionPlanOptions = new ExecutionPlanOptions()
-            { 
-                IncludeActualExecutionPlanXml = false,
-                IncludeEstimatedExecutionPlanXml = true
+            var executeParams = new ExecuteDocumentSelectionParams
+            {
+                QuerySelection = null,
+                OwnerUri = Common.OwnerUri,
+                ExecutionPlanOptions = new ExecutionPlanOptions
+                {
+                    IncludeActualExecutionPlanXml = false,
+                    IncludeEstimatedExecutionPlanXml = true
+                }
             };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
             queryService.ActiveQueries[Common.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
@@ -198,11 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And I then ask for a valid execution plan from it 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddErrorValidation<string>(r =>
-                {
-                    // Then: It should return a populated error 
-                    Assert.NotNull(r);
-                }).Complete();
+                .AddErrorValidation<string>(Assert.NotNull).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();
         }
@@ -214,24 +216,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a query that doesn't have any result sets
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
-            executeParams.ExecutionPlanOptions = new ExecutionPlanOptions()
-            { 
-                IncludeActualExecutionPlanXml = false,
-                IncludeEstimatedExecutionPlanXml = true
+            var executeParams = new ExecuteDocumentSelectionParams
+            {
+                QuerySelection = null,
+                OwnerUri = Common.OwnerUri,
+                ExecutionPlanOptions = new ExecutionPlanOptions
+                {
+                    IncludeActualExecutionPlanXml = false,
+                    IncludeEstimatedExecutionPlanXml = true
+                }
             };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
             // ... And I then ask for an execution plan from a result set 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddErrorValidation<string>(r =>
-                {
-                    // Then: It should return a populated error 
-                    Assert.NotNull(r);
-                }).Complete();
+                .AddErrorValidation<string>(Assert.NotNull).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();
         }

@@ -5,6 +5,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -22,8 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I request a query (doesn't matter what kind) and execute it
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
@@ -51,8 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I request a query (doesn't matter what kind) and wait for execution
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
