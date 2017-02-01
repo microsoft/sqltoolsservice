@@ -359,13 +359,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         /// <returns>The contents of the file</returns>
         public string GetFileContent(string path)
         {
-            //Trace.WriteLine(string.Format("GetFileContent for [{0}]", Path.GetFullPath(path)));
+            Trace.WriteLine(string.Format("GetFileContent for [{0}]", Path.GetFullPath(path)));
 
-            //using (StreamReader sr = new StreamReader(File.Open(path, FileMode.Open)))
-            //{
-            //    return sr.ReadToEnd();
-            //}
-            return File.ReadAllText(path);
+            using (StreamReader sr = new StreamReader(File.Open(path, FileMode.Open), Encoding.Unicode))
+            {
+                return sr.ReadToEnd();
+            }
         }
 
         /// <summary>
