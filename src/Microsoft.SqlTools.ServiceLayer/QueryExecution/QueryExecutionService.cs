@@ -146,14 +146,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles request to execute a selection of a document in the workspace service
         /// </summary>
-        public async Task HandleExecuteRequest(ExecuteRequestParamsBase executeDocumentSelectionParams,
+        public Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
             RequestContext<ExecuteRequestResult> requestContext)
         {
-            // Get a query new active query
-            Query newQuery = await CreateAndActivateNewQuery(executeDocumentSelectionParams, requestContext);
+            // Setup actions to perform upon successful start and on failure to start
+            Func<Task> queryCreationAction = () => requestContext.SendResult(new ExecuteRequestResult());
+            Func<string, Task> queryFailAction = requestContext.SendError;
 
-            // Execute the query -- asynchronously
-            ExecuteAndCompleteQuery(executeDocumentSelectionParams.OwnerUri, requestContext, newQuery);
+            // Use the internal handler to launch the query
+            return InterServiceExecuteQuery(executeParams, requestContext, queryCreationAction, queryFailAction);
         }
 
         /// <summary>
@@ -338,9 +339,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
+        #region Inter-Service API Handlers
+
+        /// <summary>
+        /// Query execution meant to be called from another service. Utilizes callbacks to allow
+        /// custom actions to be taken upon creation of query and failure to create query.
+        /// </summary>
+        /// <param name="executeParams">Params for creating the new query</param>
+        /// <param name="eventSender">Object that can send events for query execution progress</param>
+        /// <param name="queryCreatedAction">
+        /// Action to perform when query has been successfully created, right before execution of 
+        /// the query
+        /// </param>
+        /// <param name="failureAction">Action to perform if query was not successfully created</param>
+        public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams, IEventSender eventSender,
+            Func<Task> queryCreatedAction, Func<string, Task> failureAction)
+        {
+            // Get a new active query
+            Query newQuery = await CreateAndActivateNewQuery(executeParams, queryCreatedAction, failureAction);
+
+            // Execute the query asynchronously
+            ExecuteAndCompleteQuery(executeParams.OwnerUri, eventSender, newQuery);
+        }
+
+        #endregion
+
         #region Private Helpers
 
-        private async Task<Query> CreateAndActivateNewQuery(ExecuteRequestParamsBase executeParams, RequestContext<ExecuteRequestResult> requestContext)
+        private async Task<Query> CreateAndActivateNewQuery(ExecuteRequestParamsBase executeParams, Func<Task> successAction, Func<string, Task> failureAction)
         {
             try
             {
@@ -348,7 +374,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 ConnectionInfo connectionInfo;
                 if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
                 {
-                    await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+                    await failureAction(SR.QueryServiceQueryInvalidOwnerUri);
                     return null;
                 }
 
@@ -370,19 +396,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
-                    await requestContext.SendError(SR.QueryServiceQueryInProgress);
+                    await failureAction(SR.QueryServiceQueryInProgress);
                     newQuery.Dispose();
                     return null;
                 }
 
-                // Send the result stating that the query was successfully started
-                await requestContext.SendResult(new ExecuteRequestResult());
+                // Successfully created query
+                await successAction();
 
                 return newQuery;
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.Message);
+                await failureAction(e.Message);
                 return null;
             }
         }
