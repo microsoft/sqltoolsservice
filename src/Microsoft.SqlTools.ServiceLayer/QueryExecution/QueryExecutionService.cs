@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Query newQuery = await CreateAndActivateNewQuery(executeDocumentSelectionParams, requestContext);
 
             // Execute the query -- asynchronously
-            ExecuteAndCompleteQuery(executeDocumentSelectionParams, requestContext, newQuery);
+            ExecuteAndCompleteQuery(executeDocumentSelectionParams.OwnerUri, requestContext, newQuery);
         }
 
         /// <summary>
@@ -387,7 +387,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        private static void ExecuteAndCompleteQuery(ExecuteRequestParamsBase executeDocumentSelectionParams, RequestContext<ExecuteRequestResult> requestContext, Query query)
+        private static void ExecuteAndCompleteQuery(string ownerUri, IEventSender eventSender, Query query)
         {
             // Skip processing if the query is null
             if (query == null)
@@ -401,11 +401,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Send back the results
                 QueryCompleteParams eventParams = new QueryCompleteParams
                 {
-                    OwnerUri = executeDocumentSelectionParams.OwnerUri,
+                    OwnerUri = ownerUri,
                     BatchSummaries = q.BatchSummaries
                 };
 
-                await requestContext.SendEvent(QueryCompleteEvent.Type, eventParams);
+                await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
             Query.QueryAsyncErrorEventHandler errorCallback = async errorMessage =>
@@ -413,10 +413,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Send back the error message
                 QueryCompleteParams eventParams = new QueryCompleteParams
                 {
-                    OwnerUri = executeDocumentSelectionParams.OwnerUri,
+                    OwnerUri = ownerUri,
                     //Message = errorMessage              
                 };
-                await requestContext.SendEvent(QueryCompleteEvent.Type, eventParams);
+                await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
             query.QueryCompleted += callback;
@@ -429,10 +429,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BatchEventParams eventParams = new BatchEventParams
                 {
                     BatchSummary = b.Summary,
-                    OwnerUri = executeDocumentSelectionParams.OwnerUri
+                    OwnerUri = ownerUri
                 };
 
-                await requestContext.SendEvent(BatchStartEvent.Type, eventParams);
+                await eventSender.SendEvent(BatchStartEvent.Type, eventParams);
             };
             query.BatchStarted += batchStartCallback;
 
@@ -441,10 +441,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BatchEventParams eventParams = new BatchEventParams
                 {
                     BatchSummary = b.Summary,
-                    OwnerUri = executeDocumentSelectionParams.OwnerUri
+                    OwnerUri = ownerUri
                 };
 
-                await requestContext.SendEvent(BatchCompleteEvent.Type, eventParams);
+                await eventSender.SendEvent(BatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCompleteCallback;
 
@@ -453,9 +453,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 MessageParams eventParams = new MessageParams
                 {
                     Message = m,
-                    OwnerUri = executeDocumentSelectionParams.OwnerUri
+                    OwnerUri = ownerUri
                 };
-                await requestContext.SendEvent(MessageEvent.Type, eventParams);
+                await eventSender.SendEvent(MessageEvent.Type, eventParams);
             };
             query.BatchMessageSent += batchMessageCallback;
 
@@ -465,9 +465,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 ResultSetEventParams eventParams = new ResultSetEventParams
                 {
                     ResultSetSummary = r.Summary,
-                    OwnerUri = executeDocumentSelectionParams.OwnerUri
+                    OwnerUri = ownerUri
                 };
-                await requestContext.SendEvent(ResultSetCompleteEvent.Type, eventParams);
+                await eventSender.SendEvent(ResultSetCompleteEvent.Type, eventParams);
             };
             query.ResultSetCompleted += resultCallback;
 
