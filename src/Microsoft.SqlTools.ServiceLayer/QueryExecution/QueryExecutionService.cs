@@ -5,12 +5,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -26,15 +26,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     {
         #region Singleton Instance Implementation
 
-        private static readonly Lazy<QueryExecutionService> instance = new Lazy<QueryExecutionService>(() => new QueryExecutionService());
+        private static readonly Lazy<QueryExecutionService> LazyInstance = new Lazy<QueryExecutionService>(() => new QueryExecutionService());
 
         /// <summary>
         /// Singleton instance of the query execution service
         /// </summary>
-        public static QueryExecutionService Instance
-        {
-            get { return instance.Value; }
-        }
+        public static QueryExecutionService Instance => LazyInstance.Value;
 
         private QueryExecutionService()
         {
@@ -120,12 +117,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(QueryExecuteRequest.Type, HandleExecuteRequest);
-            serviceHost.SetRequestHandler(QueryExecuteSubsetRequest.Type, HandleResultSubsetRequest);
+            serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest);
+            serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest);
+            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
+            serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -145,23 +144,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Request Handlers
 
         /// <summary>
-        /// Handles request to execute the query
+        /// Handles request to execute a selection of a document in the workspace service
         /// </summary>
-        public async Task HandleExecuteRequest(QueryExecuteParams executeParams,
-            RequestContext<QueryExecuteResult> requestContext)
+        public async Task HandleExecuteRequest(ExecuteRequestParamsBase executeDocumentSelectionParams,
+            RequestContext<ExecuteRequestResult> requestContext)
         {
             // Get a query new active query
-            Query newQuery = await CreateAndActivateNewQuery(executeParams, requestContext);
+            Query newQuery = await CreateAndActivateNewQuery(executeDocumentSelectionParams, requestContext);
 
             // Execute the query -- asynchronously
-            ExecuteAndCompleteQuery(executeParams, requestContext, newQuery);
+            ExecuteAndCompleteQuery(executeDocumentSelectionParams, requestContext, newQuery);
         }
 
         /// <summary>
         /// Handles a request to get a subset of the results of this query
         /// </summary>
-        public async Task HandleResultSubsetRequest(QueryExecuteSubsetParams subsetParams,
-            RequestContext<QueryExecuteSubsetResult> requestContext)
+        public async Task HandleResultSubsetRequest(SubsetParams subsetParams,
+            RequestContext<SubsetResult> requestContext)
         {
             try
             {
@@ -169,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query query;
                 if (!ActiveQueries.TryGetValue(subsetParams.OwnerUri, out query))
                 {
-                    await requestContext.SendResult(new QueryExecuteSubsetResult
+                    await requestContext.SendResult(new SubsetResult
                     {
                         Message = SR.QueryServiceRequestsNoQuery
                     });
@@ -177,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Retrieve the requested subset and return it
-                var result = new QueryExecuteSubsetResult
+                var result = new SubsetResult
                 {
                     Message = null,
                     ResultSubset = await query.GetSubset(subsetParams.BatchIndex,
@@ -188,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             catch (InvalidOperationException ioe)
             {
                 // Return the error as a result
-                await requestContext.SendResult(new QueryExecuteSubsetResult
+                await requestContext.SendResult(new SubsetResult
                 {
                     Message = ioe.Message
                 });
@@ -196,10 +195,40 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             catch (ArgumentOutOfRangeException aoore)
             {
                 // Return the error as a result
-                await requestContext.SendResult(new QueryExecuteSubsetResult
+                await requestContext.SendResult(new SubsetResult
                 {
                     Message = aoore.Message
                 });
+            }
+            catch (Exception e)
+            {
+                // This was unexpected, so send back as error
+                await requestContext.SendError(e.Message);
+            }
+        }
+
+         /// <summary>
+        /// Handles a request to get an execution plan
+        /// </summary>
+        public async Task HandleExecutionPlanRequest(QueryExecutionPlanParams planParams,
+            RequestContext<QueryExecutionPlanResult> requestContext)
+        {
+            try
+            {
+                // Attempt to load the query
+                Query query;
+                if (!ActiveQueries.TryGetValue(planParams.OwnerUri, out query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                // Retrieve the requested execution plan and return it
+                var result = new QueryExecutionPlanResult
+                {
+                    ExecutionPlan = await query.GetExecutionPlan(planParams.BatchIndex, planParams.ResultSetIndex)
+                };
+                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {
@@ -311,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
-        private async Task<Query> CreateAndActivateNewQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext)
+        private async Task<Query> CreateAndActivateNewQuery(ExecuteRequestParamsBase executeParams, RequestContext<ExecuteRequestResult> requestContext)
         {
             try
             {
@@ -334,34 +363,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Retrieve the current settings for executing the query with
                 QueryExecutionSettings settings = WorkspaceService.CurrentSettings.QueryExecutionSettings;
 
-                // Get query text from the workspace.
-                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(executeParams.OwnerUri);
-
-                string queryText;
-
-                if (executeParams.QuerySelection != null)
-                {
-                    string[] queryTextArray = queryFile.GetLinesInRange(
-                        new BufferRange(
-                            new BufferPosition(
-                                executeParams.QuerySelection.StartLine + 1,
-                                executeParams.QuerySelection.StartColumn + 1
-                            ),
-                            new BufferPosition(
-                                executeParams.QuerySelection.EndLine + 1,
-                                executeParams.QuerySelection.EndColumn + 1
-                            )
-                        )
-                    );
-                    queryText = queryTextArray.Aggregate((a, b) => a + '\r' + '\n' + b);
-                }
-                else
-                {
-                    queryText = queryFile.Contents;
-                }
+                // Apply execution parameter settings 
+                settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
 
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(queryText, connectionInfo, settings, BufferFileFactory);
+                Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await requestContext.SendError(SR.QueryServiceQueryInProgress);
@@ -370,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Send the result stating that the query was successfully started
-                await requestContext.SendResult(new QueryExecuteResult());
+                await requestContext.SendResult(new ExecuteRequestResult());
 
                 return newQuery;
             }
@@ -381,7 +387,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        private static void ExecuteAndCompleteQuery(QueryExecuteParams executeParams, RequestContext<QueryExecuteResult> requestContext, Query query)
+        private static void ExecuteAndCompleteQuery(ExecuteRequestParamsBase executeDocumentSelectionParams, RequestContext<ExecuteRequestResult> requestContext, Query query)
         {
             // Skip processing if the query is null
             if (query == null)
@@ -393,24 +399,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Query.QueryAsyncEventHandler callback = async q =>
             {
                 // Send back the results
-                QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
+                QueryCompleteParams eventParams = new QueryCompleteParams
                 {
-                    OwnerUri = executeParams.OwnerUri,
+                    OwnerUri = executeDocumentSelectionParams.OwnerUri,
                     BatchSummaries = q.BatchSummaries
                 };
 
-                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
+                await requestContext.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
             Query.QueryAsyncErrorEventHandler errorCallback = async errorMessage =>
             {
                 // Send back the error message
-                QueryExecuteCompleteParams eventParams = new QueryExecuteCompleteParams
+                QueryCompleteParams eventParams = new QueryCompleteParams
                 {
-                    OwnerUri = executeParams.OwnerUri,
+                    OwnerUri = executeDocumentSelectionParams.OwnerUri,
                     //Message = errorMessage              
                 };
-                await requestContext.SendEvent(QueryExecuteCompleteEvent.Type, eventParams);
+                await requestContext.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
             query.QueryCompleted += callback;
@@ -420,46 +426,48 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the batch callbacks
             Batch.BatchAsyncEventHandler batchStartCallback = async b =>
             {
-                QueryExecuteBatchNotificationParams eventParams = new QueryExecuteBatchNotificationParams
+                BatchEventParams eventParams = new BatchEventParams
                 {
                     BatchSummary = b.Summary,
-                    OwnerUri = executeParams.OwnerUri
+                    OwnerUri = executeDocumentSelectionParams.OwnerUri
                 };
-                await requestContext.SendEvent(QueryExecuteBatchStartEvent.Type, eventParams);
+
+                await requestContext.SendEvent(BatchStartEvent.Type, eventParams);
             };
             query.BatchStarted += batchStartCallback;
 
             Batch.BatchAsyncEventHandler batchCompleteCallback = async b =>
             {
-                QueryExecuteBatchNotificationParams eventParams = new QueryExecuteBatchNotificationParams
+                BatchEventParams eventParams = new BatchEventParams
                 {
                     BatchSummary = b.Summary,
-                    OwnerUri = executeParams.OwnerUri
+                    OwnerUri = executeDocumentSelectionParams.OwnerUri
                 };
-                await requestContext.SendEvent(QueryExecuteBatchCompleteEvent.Type, eventParams);
+
+                await requestContext.SendEvent(BatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCompleteCallback;
 
             Batch.BatchAsyncMessageHandler batchMessageCallback = async m =>
             {
-                QueryExecuteMessageParams eventParams = new QueryExecuteMessageParams
+                MessageParams eventParams = new MessageParams
                 {
                     Message = m,
-                    OwnerUri = executeParams.OwnerUri
+                    OwnerUri = executeDocumentSelectionParams.OwnerUri
                 };
-                await requestContext.SendEvent(QueryExecuteMessageEvent.Type, eventParams);
+                await requestContext.SendEvent(MessageEvent.Type, eventParams);
             };
             query.BatchMessageSent += batchMessageCallback;
 
             // Setup the ResultSet completion callback
             ResultSet.ResultSetAsyncEventHandler resultCallback = async r =>
             {
-                QueryExecuteResultSetCompleteParams eventParams = new QueryExecuteResultSetCompleteParams
+                ResultSetEventParams eventParams = new ResultSetEventParams
                 {
                     ResultSetSummary = r.Summary,
-                    OwnerUri = executeParams.OwnerUri
+                    OwnerUri = executeDocumentSelectionParams.OwnerUri
                 };
-                await requestContext.SendEvent(QueryExecuteResultSetCompleteEvent.Type, eventParams);
+                await requestContext.SendEvent(ResultSetCompleteEvent.Type, eventParams);
             };
             query.ResultSetCompleted += resultCallback;
 
@@ -501,6 +509,49 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await errorHandler(saveParams, e.Message);
             }
+        }
+
+        // Internal for testing purposes
+        internal string GetSqlText(ExecuteRequestParamsBase request)
+        {
+            // If it is a document selection, we'll retrieve the text from the document
+            ExecuteDocumentSelectionParams docRequest = request as ExecuteDocumentSelectionParams;
+            if (docRequest != null)
+            {
+                // Get the document from the parameters
+                ScriptFile queryFile = WorkspaceService.Workspace.GetFile(docRequest.OwnerUri);
+
+                // If a selection was not provided, use the entire document
+                if (docRequest.QuerySelection == null)
+                {
+                    return queryFile.Contents;
+                }
+
+                // A selection was provided, so get the lines in the selected range
+                string[] queryTextArray = queryFile.GetLinesInRange(
+                    new BufferRange(
+                        new BufferPosition(
+                            docRequest.QuerySelection.StartLine + 1,
+                            docRequest.QuerySelection.StartColumn + 1
+                        ),
+                        new BufferPosition(
+                            docRequest.QuerySelection.EndLine + 1,
+                            docRequest.QuerySelection.EndColumn + 1
+                        )
+                    )
+                );
+                return string.Join(Environment.NewLine, queryTextArray);
+            }
+
+            // If it is an ExecuteStringParams, return the text as is
+            ExecuteStringParams stringRequest = request as ExecuteStringParams;
+            if (stringRequest != null)
+            {
+                return stringRequest.Query;
+            }
+
+            // Note, this shouldn't be possible due to inheritance rules
+            throw new InvalidCastException("Invalid request type");
         }
 
         #endregion

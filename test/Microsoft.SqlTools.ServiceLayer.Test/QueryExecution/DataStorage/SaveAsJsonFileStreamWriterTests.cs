@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             var saveParams = new SaveResultsAsJsonRequestParams
             {
                 ColumnStartIndex = 1,
-                ColumnEndIndex = 3,
+                ColumnEndIndex = 2,
                 RowStartIndex = 0,          // Including b/c it is required to be a "save selection"
                 RowEndIndex = 10
             };

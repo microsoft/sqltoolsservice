@@ -126,7 +126,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public async Task DefinitionsHandlerWithNoConnectionTest()
         {
-            TestServiceProvider.InitializeTestServices();
             InitializeTestObjects();
             // request definition
             var definitionTask = await Task.WhenAny(LanguageService.HandleDefinitionRequest(textDocument, requestContext.Object), Task.Delay(TaskTimeout));
@@ -204,9 +203,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             var languageService = LanguageService.Instance;
-            Assert.True(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            Assert.True(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
             languageService.DeletePeekDefinitionScripts();
-            Assert.False(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
         }
 
         /// <summary>
@@ -217,10 +216,158 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         {
             var languageService = LanguageService.Instance;
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
-            FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
-            Assert.False(Directory.Exists(FileUtils.PeekDefinitionTempFolder));
+            ServiceLayer.QueryExecution.FileUtils.SafeDirectoryDelete(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder, true);
+            Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
             // Expected not to throw any exception
-            languageService.DeletePeekDefinitionScripts();        
+            languageService.DeletePeekDefinitionScripts();
+        }
+
+        /// <summary>
+        /// Test Extracting the full object name from quickInfoText.
+        /// Given a valid object name string and a vaild quickInfo string containing the object name
+        /// Expect the full object name (database.schema.objectName)
+        /// </summary>
+        [Fact]
+        public void GetFullObjectNameFromQuickInfoWithValidStringsTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "testTable";
+            string quickInfoText = "table master.dbo.testTable";
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            string expected = "master.dbo.testTable";
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
+        /// Test Extracting the full object name from quickInfoText.
+        /// Given a null object name string and a vaild quickInfo string containing the object name( and vice versa)
+        /// Expect null
+        /// </summary>
+        [Fact]
+        public void GetFullObjectNameFromQuickInfoWithNullStringsTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string expected = null;
+
+            string objectName = null;
+            string quickInfoText = "table master.dbo.testTable";
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            Assert.Equal(expected, result);
+
+            quickInfoText = null;
+            objectName = "tableName";
+            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            Assert.Equal(expected, result);
+
+            quickInfoText = null;
+            objectName = null;
+            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
+        /// Test Extracting the full object name from quickInfoText.
+        /// Given a valid object name string and a vaild quickInfo string that does not contain the object name
+        /// Expect null
+        /// </summary>
+        [Fact]
+        public void GetFullObjectNameFromQuickInfoWithIncorrectObjectNameTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "test";
+            string quickInfoText = "table master.dbo.tableName";
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            string expected = null;
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
+        /// Test Extracting the object type from quickInfoText.
+        /// Given a valid object name string and a vaild quickInfo string containing the object name
+        /// Expect correct object type
+        /// </summary>
+        [Fact]
+        public void GetTokenTypeFromQuickInfoWithValidStringsTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "tableName";
+            string quickInfoText = "table master.dbo.tableName";
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            string expected = "table";
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
+        /// Test Extracting theobject type from quickInfoText.
+        /// Given a null object name string and a vaild quickInfo string containing the object name( and vice versa)
+        /// Expect null
+        /// </summary>
+        [Fact]
+        public void GetTokenTypeFromQuickInfoWithNullStringsTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string expected = null;
+
+            string objectName = null;
+            string quickInfoText = "table master.dbo.testTable";
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            Assert.Equal(expected, result);
+
+            quickInfoText = null;
+            objectName = "tableName";
+            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            Assert.Equal(expected, result);
+
+            quickInfoText = null;
+            objectName = null;
+            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
+        /// Test Extracting the object type from quickInfoText.
+        /// Given a valid object name string and a vaild quickInfo string that does not containthe object name
+        /// Expect null
+        /// </summary>
+        [Fact]
+        public void GetTokenTypeFromQuickInfoWithIncorrectObjectNameTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "test";
+            string quickInfoText = "table master.dbo.tableName";
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            string expected = null;
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
+        /// test Getting definition using quickInfo text without a live connection
+        /// Expect an error result( because you cannot script without a live connection)
+        /// </summary>
+        [Fact]
+        public void GetDefinitionUsingQuickInfoWithoutConnectionTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "tableName";
+            string quickInfoText = "table master.dbo.tableName";
+            DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, null);
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
+        }
+
+        /// <summary>
+        /// test Getting definition using declarration Type without a live connection
+        /// Expect an error result( because you cannot script without a live connection)
+        /// </summary>
+        [Fact]
+        public void GetDefinitionUsingDeclarationItemWithoutConnectionTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "tableName";
+            string fullObjectName = "master.dbo.tableName";
+            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Table, fullObjectName, objectName, null);
+            Assert.NotNull(result);
+            Assert.True(result.IsErrorResult);
         }
     }
 }

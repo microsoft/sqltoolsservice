@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 }
 
                 // Run n queries at once
-                var queryTasks = new Task<QueryExecuteCompleteParams>[queryCount];
+                var queryTasks = new Task<QueryCompleteParams>[queryCount];
                 for (int i = 0; i < queryCount; i++)
                 {
                     queryTasks[i] = TestService.RunQuery(ownerUris[i].FilePath, query);
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 await TestService.RunQuery(queryTempFile.FilePath, query);
 
                 // Spawn several tasks for subset requests
-                var subsetTasks = new Task<QueryExecuteSubsetResult>[100];
+                var subsetTasks = new Task<SubsetResult>[100];
                 for (int i = 0; i < 100; i++)
                 {
                     subsetTasks[i] = TestService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 100);
@@ -259,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     }
                 }
 
-                var subsetRequest = new QueryExecuteSubsetParams()
+                var subsetRequest = new SubsetParams()
                 {
                     OwnerUri = queryTempFile.FilePath,
                     BatchIndex = 0,

@@ -12,6 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -26,6 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         private const string ApplicationIntent = "ApplicationIntent";
         private const string MultiSubnetFailover = "MultiSubnetFailover";
         private const string DacFxApplicationName = "DacFx";
+
+        private const int SqlDwEngineEditionId = (int)DatabaseEngineEdition.SqlDataWarehouse;
         
         // See MSDN documentation for "SERVERPROPERTY (SQL Azure Database)" for "EngineEdition" property:
         // http://msdn.microsoft.com/en-us/library/ee336261.aspx
@@ -457,6 +460,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         private static bool IsCloudEngineId(int engineEditionId)
         {
             return engineEditionId == SqlAzureEngineEditionId;
+        }
+
+        /// <summary>
+        /// Determines if the type of database that a connection is being made to is SQL data warehouse.
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns>True if the database is a SQL data warehouse</returns>
+        public static bool IsSqlDwDatabase(IDbConnection connection)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+
+            Func<string, bool> executeCommand = commandText =>
+            {
+                bool result = false;
+                ExecuteReader(connection,
+                              commandText,
+                              readResult: (reader) =>
+                              {
+                                  reader.Read();
+                                  int engineEditionId = int.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+
+                                  result = IsSqlDwEngineId(engineEditionId);
+                              }
+                    );
+                return result;
+            };
+
+            bool isSqlDw = false;
+            try
+            {
+                isSqlDw = executeCommand(SqlConnectionHelperScripts.EngineEdition);
+            }
+            catch (SqlException)
+            {
+                // The default query contains a WITH (NOLOCK).  This doesn't work for Azure DW, so when things don't work out, 
+                // we'll fall back to a version without NOLOCK and try again.
+                isSqlDw = executeCommand(SqlConnectionHelperScripts.EngineEditionWithLock);
+            }
+
+            return isSqlDw;
+        }
+
+        /// <summary>
+        /// Compares the engine edition id of a given database with that of SQL data warehouse.
+        /// </summary>
+        /// <param name="engineEditionId"></param>
+        /// <returns>True if the engine edition id is that of SQL data warehouse</returns>
+        private static bool IsSqlDwEngineId(int engineEditionId)
+        {
+            return engineEditionId == SqlDwEngineEditionId;
         }
 
         /// <summary>

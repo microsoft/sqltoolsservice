@@ -16,11 +16,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
 {
     public class StorageDataReaderTests
     {
-        private async Task<StorageDataReader> GetTestStorageDataReader(string query)
+        private StorageDataReader GetTestStorageDataReader(string query)
         {
-            var result = await TestObjects.InitLiveConnectionInfo();
+            var result = TestObjects.InitLiveConnectionInfo();
+            DbConnection connection;
+            result.ConnectionInfo.TryGetConnection(ConnectionType.Default, out connection);
 
-            var command = result.ConnectionInfo.SqlConnection.CreateCommand();
+            var command = connection.CreateCommand();
             command.CommandText = query;
             DbDataReader reader = command.ExecuteReader();
 
@@ -31,9 +33,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetBytesWithMaxCapacity
         /// </summary>
         [Fact]
-        public async Task GetBytesWithMaxCapacityTest()
+        public void GetBytesWithMaxCapacityTest()
         {
-            var storageReader = await GetTestStorageDataReader(
+            var storageReader = GetTestStorageDataReader(
                 "SELECT CAST([name] as TEXT) As TextName FROM sys.all_columns");
             DbDataReader reader = storageReader.DbDataReader;
 
@@ -48,9 +50,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetCharsWithMaxCapacity
         /// </summary>
         [Fact]
-        public async Task GetCharsWithMaxCapacityTest()
+        public void GetCharsWithMaxCapacityTest()
         {
-            var storageReader = await GetTestStorageDataReader(
+            var storageReader = GetTestStorageDataReader(
                 "SELECT name FROM sys.all_columns");
             DbDataReader reader = storageReader.DbDataReader;
 
@@ -70,9 +72,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// Validate GetXmlWithMaxCapacity
         /// </summary>
         [Fact]
-        public async Task GetXmlWithMaxCapacityTest()
+        public void GetXmlWithMaxCapacityTest()
         {
-            var storageReader = await GetTestStorageDataReader(
+            var storageReader = GetTestStorageDataReader(
                 "SELECT CAST('<xml>Test XML context</xml>' AS XML) As XmlColumn");
             DbDataReader reader = storageReader.DbDataReader;
 

@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Stream writer</returns>
         public IFileStreamWriter GetWriter(string fileName)
         {
-            return new SaveAsCsvFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), SaveRequestParams);
+            return new SaveAsCsvFileStreamWriter(new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite), SaveRequestParams);
         }
 
         /// <summary>

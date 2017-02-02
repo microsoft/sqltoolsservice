@@ -6,6 +6,7 @@
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
@@ -39,8 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I request a query (doesn't matter what kind)
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executeParams = new QueryExecuteParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
-            var executeRequest = RequestContextMocks.Create<QueryExecuteResult>(null);
+            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
@@ -90,8 +91,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // If:
             // ... I execute some bogus query
-            var queryParams = new QueryExecuteParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
-            var requestContext = RequestContextMocks.Create<QueryExecuteResult>(null);
+            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+            var requestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
             await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
 
