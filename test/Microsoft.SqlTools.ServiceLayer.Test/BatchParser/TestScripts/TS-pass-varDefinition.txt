@@ -1,2 +1,0 @@
-:setvar a "variable with 
-new line"

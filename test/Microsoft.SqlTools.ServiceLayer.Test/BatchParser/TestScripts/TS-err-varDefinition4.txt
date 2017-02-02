@@ -1,2 +1,0 @@
-:setvar
--- no variable defined
