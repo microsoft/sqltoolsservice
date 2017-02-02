@@ -1,1 +1,0 @@
-Variable reference with invalid name: $(7var)

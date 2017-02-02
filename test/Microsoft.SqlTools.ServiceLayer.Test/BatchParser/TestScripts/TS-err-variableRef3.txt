@@ -1,2 +1,0 @@
-Unterminated variable reference: $(var
-iable)

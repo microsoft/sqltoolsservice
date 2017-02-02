@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public static string GetTestDataLocation()
         {
             string testFolderPath;
-            string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test";
+            string testPath = @"test\Microsoft.SqlTools.ServiceLayer.IntegrationTests";
             string projectPath = Environment.GetEnvironmentVariable(Consts.ProjectPath);
 
             if (projectPath != null)
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 else
                 {
                     string defaultPath = Path.Combine(typeof(Scripts).GetTypeInfo().Assembly.Location, @"..\..\..\..\..");
-                    testFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.Test");
+                    testFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.IntegrationTests");
                     cachedTestFolderPath = testFolderPath;
                 }
             }

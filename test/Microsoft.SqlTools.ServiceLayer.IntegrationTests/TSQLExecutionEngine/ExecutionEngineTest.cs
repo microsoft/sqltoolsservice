@@ -117,63 +117,32 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             ExecuteSqlBatch(batchScripts, connection);
 
             Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
-            Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));           
+            Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
 
-        /// <summary>
-        /// Executing same query mulptile times within one batch
-        /// </summary>
-        //[Fact]
-        //public void ExecutionEngineTest_ValidScriptWithLoop()
-        //{
-        //    String sqlStatement = "select * from sysobjects";
-        //    int loopTime = 5;
+        // <summary>
+        // Test with multiple valid scripts in multiple batches
+        // </summary>
+        [Fact]
+        public void ExecutionEngineTest_MultiValidScripts()
+        {
+            String sqlStatement = "select * from sys.databases\ngo\nselect name from sys.databases\ngo\nprint 'test'\ngo";
 
-        //    sqlStatement = String.Format("{0}\n GO {1}", sqlStatement, loopTime);
+            ExecutionEngineConditions conditions = new ExecutionEngineConditions();
+            conditions.IsTransactionWrapped = true;
+            conditions.IsParseOnly = false;
+            conditions.IsHaltOnError = false;
 
-        //    ExecutionEngineConditions conditions = new ExecutionEngineConditions();
-        //    conditions.IsTransactionWrapped = true;
-        //    conditions.IsParseOnly = false;
-        //    conditions.IsHaltOnError = false;
+            TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions, false);
+            executor.Run();
 
-        //    TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions, false);
-        //    executor.Run();
+            //Get the expected values
+            List<String> batchScripts = executor.BatchScripts;
+            ExecuteSqlBatch(batchScripts, connection);
 
-        //    //Get the expected values
-        //    List<String> batchScripts = executor.BatchScripts;
-        //    for (int i = 0; i < loopTime; i++)
-        //    {
-        //        ExecuteSqlBatch(batchScripts, connection);
-        //    }
-
-        //    Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
-        //    Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
-        //    Assert.Equal(loopTime, executor.BatchFinshedEventCounter);
-        //}
-
-        /// <summary>
-        /// Test with multiple valid scripts in multiple batches
-        /// </summary>
-        //[Fact]
-        //public void ExecutionEngineTest_MultiValidScripts()
-        //{
-        //    String sqlStatement = "select * from sys.databases\ngo\nselect name from sys.databases\ngo\nprint 'test'\ngo";
-
-        //    ExecutionEngineConditions conditions = new ExecutionEngineConditions();
-        //    conditions.IsTransactionWrapped = true;
-        //    conditions.IsParseOnly = false;
-        //    conditions.IsHaltOnError = false;
-
-        //    TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions, false);
-        //    executor.Run();
-
-        //    //Get the expected values
-        //    List<String> batchScripts = executor.BatchScripts;
-        //    ExecuteSqlBatch(batchScripts, connection);
-
-        //    Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
-        //    Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
-        //}
+            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
+        }
 
         /// <summary>
         /// Test with SQL comment
@@ -308,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         [Fact]
         public void ExecutionEngineTest_MixedValidandInvalidScript()
         {
-            String sqlStatement = "SELECT * FROM Authors \n Go\n select * from sysobjects \n go\nif exists (select * from sysobjects where id = object_id('MyTab')) DROP TABLE MyTab2\nCREATE TABLE MyTab2 (x int)\nGO\n\nINSERT INTO MyTab2 VALUES(1)\nROLLING BACK";
+            String sqlStatement = "SELECT * FROM Authors \n Go\n select * from sysobjects \n go\nif exists (select * from sysobjects where id = object_id('MyTab')) DROP TABLE MyTab2";
 
             ExecutionEngineConditions conditions = new ExecutionEngineConditions();
             conditions.IsTransactionWrapped = true;
@@ -627,150 +596,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             if (executor.ScriptExecuteThread != null)
                 Assert.True(!executor.ScriptExecuteThread.IsAlive);
             Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Cancel, executor.ExecutionResult);
-        }
-
-        /// <summary>
-        /// Test mutliple execution engine threads
-        /// </summary>
-        //[Fact]
-        //public void ExecutionEngineTest_MultiThreading()
-        //{
-        //    String[] sqlStatement = { "SELECT * FROM XML \n go 5",
-        //         "SELECT * FROM sysobjects \n go 5",
-        //         "SELECT * FROM sysobjects \n go 5"
-        //    };
-
-        //    ExecutionEngineConditions conditions = new ExecutionEngineConditions();
-        //    conditions.IsTransactionWrapped = true;
-        //    conditions.IsParseOnly = false;
-        //    conditions.IsHaltOnError = false;
-
-        //    SqlConnection connection2 = SetUpConnection("test2");
-        //    SqlConnection connection3 = SetUpConnection("test3");
-
-        //    TestExecutor executor1 = new TestExecutor(sqlStatement[0], connection, conditions);            
-        //    TestExecutor executor2 = new TestExecutor(sqlStatement[1], connection2, conditions);
-        //    TestExecutor executor3 = new TestExecutor(sqlStatement[2], connection3, conditions);
-            
-        //    Thread t1 = new Thread(new ThreadStart(executor1.Run));
-        //    Thread t2 = new Thread(new ThreadStart(executor2.Run));
-        //    Thread t3 = new Thread(new ThreadStart(executor3.Run));
-
-        //    t1.Name = "Executor1";
-        //    t1.Start();
-
-        //    t2.Name = "Executor2";
-        //    t2.Start();
-        //    t3.Name = "Executor3";
-        //    t3.Start();
-
-        //    //Give fifteen seconds for the query to be finished.
-        //    Thread.Sleep(15000);
-        //    if (t1.ThreadState != ThreadState.Stopped)
-        //    {
-        //        Assert.True(false, string.Format("Executing {0} was not finished in 5 seconds!!", sqlStatement[0]));
-        //    }
-
-        //    if (t2.ThreadState != ThreadState.Stopped)
-        //    {
-        //        Assert.True(false, string.Format("Executing {0} was not finished in 5 seconds!!", sqlStatement[1]));
-        //    }
-
-        //    if (t3.ThreadState != ThreadState.Stopped)
-        //    {
-        //        Assert.True(false, string.Format("Executing {0} was not finished in 5 seconds!!", sqlStatement[2]));
-        //    }
-
-        //    CloseConnection(connection2);
-        //    CloseConnection(connection3);
-
-        //    Assert.True(!executor1.ScriptExecuteThread.IsAlive);
-        //    Assert.True(!executor2.ScriptExecuteThread.IsAlive);
-        //    Assert.True(!executor3.ScriptExecuteThread.IsAlive);
-
-        //    Assert.Equal(ScriptExecutionResult.Failure, executor1.ExecutionResult);
-        //    Assert.Equal(ScriptExecutionResult.Success, executor2.ExecutionResult);
-        //    Assert.Equal(ScriptExecutionResult.Success, executor3.ExecutionResult);
-
-        //    //Get the expected values
-        //    //List<String> batchScripts1 = new List<string>();
-        //    //batchScripts1.Add(sqlStatement[0]);
-        //    //ExecuteSqlBatch(batchScripts1, connection);
-        //    //Assert.IsTrue(CompareTwoIntLists(executor1.ResultCountQueue, expResultCounts));
-
-        //    //expResultCounts = new List<int>();
-        //    //List<String> batchScripts2 = new List<string>();
-        //    //batchScripts2.Add(sqlStatement[1]);
-        //    //ExecuteSqlBatch(batchScripts2, connection2);
-        //    //Assert.IsTrue(CompareTwoIntLists(executor2.ResultCountQueue, expResultCounts));
-
-        //    //expResultCounts = new List<int>();
-        //    //List<String> batchScripts3 = new List<string>();
-        //    //batchScripts3.Add(sqlStatement[2]);
-        //    //ExecuteSqlBatch(batchScripts3, connection3);
-        //    //Assert.IsTrue(CompareTwoIntLists(executor3.ResultCountQueue, expResultCounts));
-
-
-        //}
-
-        /// <summary>
-        /// Test multiple threads of execution engine utlilizing the same connection
-        /// </summary>
-        //TEST_DOESNOTWORK[TestMethod()]
-        public void ExecutionEngineTest_MultiThreading_SameConnection()
-        {
-            String[] sqlStatement = { "SELECT * FROM sysobjects as t \n Go 5",
-                 "SELECT * FROM sysobjects as t \n Go 5",
-                 "SELECT * FROM sysobjects as t \n Go 5"
-            };
-
-            ExecutionEngineConditions conditions = new ExecutionEngineConditions();
-            conditions.IsTransactionWrapped = true;
-            conditions.IsParseOnly = false;
-            conditions.IsHaltOnError = false;
-
-            TestExecutor executor1 = new TestExecutor(sqlStatement[0], connection, conditions);
-            TestExecutor executor2 = new TestExecutor(sqlStatement[1], connection, conditions);
-            TestExecutor executor3 = new TestExecutor(sqlStatement[2], connection, conditions);
-
-            Thread t1 = new Thread(new ThreadStart(executor1.Run));
-            Thread t2 = new Thread(new ThreadStart(executor2.Run));
-            Thread t3 = new Thread(new ThreadStart(executor3.Run));
-
-            t1.Name = "Executor1";
-            t1.Start();
-            t2.Name = "Executor2";
-            t2.Start();
-            t3.Name = "Executor3";
-            t3.Start();
-
-            while ((t1.ThreadState != ThreadState.Stopped) &&
-                (t2.ThreadState != ThreadState.Stopped) &&
-                (t3.ThreadState != ThreadState.Stopped))
-            {
-                Thread.Sleep(1000);
-            }
-            Thread.Sleep(3000);
-
-            //Verification
-            //Expect errors
-            Assert.True(((executor1.ErrorMessageQueue.Count > 0) ||
-                            (executor2.ErrorMessageQueue.Count > 0) ||
-                            (executor3.ErrorMessageQueue.Count > 0)));
-
-            List<TestExecutor> executors = new List<TestExecutor>();
-            executors.Add(executor1);
-            executors.Add(executor2);
-            executors.Add(executor3);
-
-            foreach(TestExecutor testExe in executors)
-            {
-                Assert.True(!testExe.ScriptExecuteThread.IsAlive);
-                if(testExe.ErrorMessageQueue.Count == 0)
-                    Assert.Equal(ScriptExecutionResult.Success, testExe.ExecutionResult);
-                else
-                    Assert.True((testExe.ExecutionResult & ScriptExecutionResult.Failure) == ScriptExecutionResult.Failure);
-            }
         }
 
         /// <summary>
