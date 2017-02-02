@@ -332,6 +332,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams, IEventSender eventSender,
             Func<Task> queryCreatedAction, Func<string, Task> failureAction)
         {
+            Validate.IsNotNull(nameof(executeParams), executeParams);
+            Validate.IsNotNull(nameof(eventSender), eventSender);
+            Validate.IsNotNull(nameof(queryCreatedAction), queryCreatedAction);
+            Validate.IsNotNull(nameof(failureAction), failureAction);
+
             // Get a new active query
             Query newQuery = await CreateAndActivateNewQuery(executeParams, queryCreatedAction, failureAction);
 
@@ -350,6 +355,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task InterServiceDisposeQuery(string ownerUri, Func<Task> successAction,
             Func<string, Task> failureAction)
         {
+            Validate.IsNotNull(nameof(successAction), successAction);
+            Validate.IsNotNull(nameof(failureAction), failureAction);
+
             try
             {
                 // Attempt to remove the query for the owner uri
