@@ -216,6 +216,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             return fullPath != null ? Path.GetFileName(fullPath) : null;
         }
 
+        private static bool CompareStrings(string baseline, string output)
+        {
+            string[] baselineArray = baseline.Split(new string[] {"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+            string[] outputArray = output.Split(new string[] {"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+            if (outputArray.Length != baselineArray.Length)
+            {
+                return false;
+            }
+            for (int i = 0; i < baselineArray.Length; i++)
+            {
+                if (string.Compare(baselineArray[i], outputArray[i], StringComparison.Ordinal) != 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public override void Run()
         {
             string inputFilename = GetTestscriptFilePath(CurrentTestName);
@@ -238,12 +256,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             string outputString = output.ToString();
 
-            baseline = Regex.Replace(baseline, @"\s", "");
-            outputString = Regex.Replace(outputString, @"\s", "");
+            //baseline = Regex.Replace(baseline, @"\s", "");
+            //outputString = Regex.Replace(outputString, @"\s", "");
 
             Console.WriteLine(baselineFilename);
 
-            if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
+            if (!CompareStrings(baseline, outputString))
             {
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
