@@ -256,9 +256,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             string outputString = output.ToString();
 
-            //baseline = Regex.Replace(baseline, @"\s", "");
-            //outputString = Regex.Replace(outputString, @"\s", "");
-
             Console.WriteLine(baselineFilename);
 
             if (!CompareStrings(baseline, outputString))
