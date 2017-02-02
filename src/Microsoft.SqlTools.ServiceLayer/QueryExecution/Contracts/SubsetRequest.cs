@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// <summary>
     /// Parameters for a query result subset retrieval request
     /// </summary>
-    public class QueryExecuteSubsetParams
+    public class SubsetParams
     {
         /// <summary>
         /// URI for the file that owns the query to look up the results for
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// <summary>
     /// Parameters for the result of a subset retrieval request
     /// </summary>
-    public class QueryExecuteSubsetResult
+    public class SubsetResult
     {
         /// <summary>
         /// Subset request error messages. Optional, can be set to null to indicate no errors
@@ -57,10 +57,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public ResultSetSubset ResultSubset { get; set; }
     }
 
-    public class QueryExecuteSubsetRequest
+    public class SubsetRequest
     {
         public static readonly
-            RequestType<QueryExecuteSubsetParams, QueryExecuteSubsetResult> Type =
-            RequestType<QueryExecuteSubsetParams, QueryExecuteSubsetResult>.Create("query/subset");
+            RequestType<SubsetParams, SubsetResult> Type =
+            RequestType<SubsetParams, SubsetResult>.Create("query/subset");
     }
 }

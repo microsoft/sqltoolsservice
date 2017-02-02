@@ -17,17 +17,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
     /// </summary>
     internal static class CachedServerInfo
     {
+        public enum CacheVariable {
+            IsSqlDw,
+            IsAzure
+        }
+
         private struct CachedInfo
         {
             public bool IsAzure;
             public DateTime LastUpdate;
+            public bool IsSqlDw;
         }
 
         private static ConcurrentDictionary<string, CachedInfo> _cache;
         private static object _cacheLock;
         private const int _maxCacheSize = 1024;
         private const int _deleteBatchSize = 512;
-
         private const int MinimalQueryTimeoutSecondsForAzure = 300;
 
         static CachedServerInfo()
@@ -70,19 +75,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public static void AddOrUpdateIsAzure(IDbConnection connection, bool isAzure)
         {
-            Validate.IsNotNull(nameof(connection), connection);
-
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
-            AddOrUpdateIsAzure(builder.DataSource, isAzure);
+            AddOrUpdateCache(connection, isAzure, CacheVariable.IsAzure);
         }
 
-        public static void AddOrUpdateIsAzure(string  dataSource, bool isAzure)
+        public static void AddOrUpdateIsSqlDw(IDbConnection connection, bool isSqlDw)
+        {
+            AddOrUpdateCache(connection, isSqlDw, CacheVariable.IsSqlDw);
+        }
+
+        private static void AddOrUpdateCache(IDbConnection connection, bool newState, CacheVariable cacheVar)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
+            AddOrUpdateCache(builder.DataSource, newState, cacheVar);
+        }
+
+        internal static void AddOrUpdateCache(string dataSource, bool newState, CacheVariable cacheVar)
         {
             Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
             CachedInfo info;
             bool hasFound = _cache.TryGetValue(dataSource, out info);
 
-            if (hasFound && info.IsAzure == isAzure)
+            if ((cacheVar == CacheVariable.IsSqlDw && hasFound && info.IsSqlDw == newState) || 
+                (cacheVar == CacheVariable.IsAzure && hasFound && info.IsAzure == newState)) 
             {
                 return;
             }
@@ -108,11 +123,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         }
                     }
 
-                    info.IsAzure = isAzure;
+                    if (cacheVar == CacheVariable.IsSqlDw)
+                    {
+                        info.IsSqlDw = newState;
+                    }
+                    else if (cacheVar == CacheVariable.IsAzure)
+                    {
+                        info.IsAzure = newState;
+                    }
                     info.LastUpdate = DateTime.UtcNow;
                     _cache.AddOrUpdate(dataSource, info, (key, oldValue) => info);
                 }
             }
+        }
+
+        public static bool TryGetIsSqlDw(IDbConnection connection, out bool isSqlDw)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
+            return TryGetIsSqlDw(builder.DataSource, out isSqlDw);
+        }
+
+        public static bool TryGetIsSqlDw(string dataSource, out bool isSqlDw)
+        {
+            Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
+            CachedInfo info;
+            bool hasFound = _cache.TryGetValue(dataSource, out info);
+
+            if(hasFound)
+            {
+                isSqlDw = info.IsSqlDw;
+                return true;
+            }
+            
+            isSqlDw = false;
+            return false;
         }
 
         private static string SafeGetDataSourceFromConnection(IDbConnection connection)
