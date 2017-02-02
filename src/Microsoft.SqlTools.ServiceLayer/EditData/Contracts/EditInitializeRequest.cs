@@ -13,10 +13,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     public class EditInitializeParams
     {
         /// <summary>
-        /// The owner URI for the query to base this edit session on. This URI will also be used
-        /// for identifying the edit session later.
+        /// The owner URI for the edit session we're creating
         /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// The object to use for generating an edit script
+        /// </summary>
+        public string ObjectName { get; set; }
     }
 
     /// <summary>
