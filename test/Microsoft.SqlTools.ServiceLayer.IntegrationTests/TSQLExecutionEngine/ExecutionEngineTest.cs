@@ -7,12 +7,11 @@ using System.Data.SqlClient;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.TSQLExecutionEngine
+namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 {
     /// <summary>
     ///This is a test class for Microsoft.Data.Tools.Schema.Common.ExecutionEngine.ExecutionEngine and is intended

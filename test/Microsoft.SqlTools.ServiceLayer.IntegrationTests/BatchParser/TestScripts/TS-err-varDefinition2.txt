@@ -1,0 +1,2 @@
+:setvar a b c
+-- invalid syntax (too many params)

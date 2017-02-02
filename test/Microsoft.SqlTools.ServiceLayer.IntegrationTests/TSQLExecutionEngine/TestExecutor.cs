@@ -5,7 +5,7 @@ using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.TSQLExecutionEngine
+namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 {
     class TestExecutor : IDisposable
     {

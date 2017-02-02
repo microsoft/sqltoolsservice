@@ -1,0 +1,1 @@
+Unterminated variable reference (at EOF): $(var
