@@ -4,7 +4,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Data.SqlClient;
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.TSQLExecutionEngine
+namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 {
     internal class BatchEventHandler: IBatchEventsHandler
     {
