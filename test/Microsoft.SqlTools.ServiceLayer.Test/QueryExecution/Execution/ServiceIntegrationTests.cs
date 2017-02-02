@@ -378,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         }
     }
 
-    public static class EventFlowValidatorExtensions
+    public static class QueryExecutionEventFlowValidatorExtensions
     {
         public static EventFlowValidator<ExecuteRequestResult> AddStandardQueryResultValidator(
             this EventFlowValidator<ExecuteRequestResult> efv)

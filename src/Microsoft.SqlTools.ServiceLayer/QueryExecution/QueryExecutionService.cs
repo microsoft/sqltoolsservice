@@ -87,17 +87,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The collection of active queries
         /// </summary>
-        internal ConcurrentDictionary<string, Query> ActiveQueries
-        {
-            get { return queries.Value; }
-        }
+        internal ConcurrentDictionary<string, Query> ActiveQueries => queries.Value;
 
         /// <summary>
         /// Instance of the connection service, used to get the connection info for a given owner URI
         /// </summary>
-        private ConnectionService ConnectionService { get; set; }
+        private ConnectionService ConnectionService { get; }
 
-        private WorkspaceService<SqlToolsSettings> WorkspaceService { get; set; }
+        private WorkspaceService<SqlToolsSettings> WorkspaceService { get; }
 
         /// <summary>
         /// Internal storage of active queries, lazily constructed as a threadsafe dictionary
@@ -105,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly Lazy<ConcurrentDictionary<string, Query>> queries =
             new Lazy<ConcurrentDictionary<string, Query>>(() => new ConcurrentDictionary<string, Query>());
 
-        private SqlToolsSettings Settings { get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; } }
+        private SqlToolsSettings Settings => WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings;
 
         #endregion
 
@@ -146,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles request to execute a selection of a document in the workspace service
         /// </summary>
-        public Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
+        internal Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
             RequestContext<ExecuteRequestResult> requestContext)
         {
             // Setup actions to perform upon successful start and on failure to start
@@ -160,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles a request to get a subset of the results of this query
         /// </summary>
-        public async Task HandleResultSubsetRequest(SubsetParams subsetParams,
+        internal async Task HandleResultSubsetRequest(SubsetParams subsetParams,
             RequestContext<SubsetResult> requestContext)
         {
             try
@@ -211,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
          /// <summary>
         /// Handles a request to get an execution plan
         /// </summary>
-        public async Task HandleExecutionPlanRequest(QueryExecutionPlanParams planParams,
+        internal async Task HandleExecutionPlanRequest(QueryExecutionPlanParams planParams,
             RequestContext<QueryExecutionPlanResult> requestContext)
         {
             try
@@ -241,41 +238,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles a request to dispose of this query
         /// </summary>
-        public async Task HandleDisposeRequest(QueryDisposeParams disposeParams,
+        internal async Task HandleDisposeRequest(QueryDisposeParams disposeParams,
             RequestContext<QueryDisposeResult> requestContext)
         {
-            try
-            {
-                // Attempt to remove the query for the owner uri
-                Query result;
-                if (!ActiveQueries.TryRemove(disposeParams.OwnerUri, out result))
-                {
-                    await requestContext.SendResult(new QueryDisposeResult
-                    {
-                        Messages = SR.QueryServiceRequestsNoQuery
-                    });
-                    return;
-                }
+            // Setup action for success and failure
+            Func<Task> successAction = () => requestContext.SendResult(new QueryDisposeResult());
+            Func<string, Task> failureAction = requestContext.SendError;
 
-                // Cleanup the query
-                result.Dispose();
-
-                // Success
-                await requestContext.SendResult(new QueryDisposeResult
-                {
-                    Messages = null
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.Message);
-            }
+            // Use the inter-service dispose functionality
+            await InterServiceDisposeQuery(disposeParams.OwnerUri, successAction, failureAction);
         }
 
         /// <summary>
         /// Handles a request to cancel this query if it is in progress
         /// </summary>
-        public async Task HandleCancelRequest(QueryCancelParams cancelParams,
+        internal async Task HandleCancelRequest(QueryCancelParams cancelParams,
             RequestContext<QueryCancelResult> requestContext)
         {
             try
@@ -360,6 +337,39 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Execute the query asynchronously
             ExecuteAndCompleteQuery(executeParams.OwnerUri, eventSender, newQuery);
+        }
+
+        /// <summary>
+        /// Query disposal meant to be called from another service. Utilizes callbacks to allow
+        /// custom actions to be performed on success or failure.
+        /// </summary>
+        /// <param name="ownerUri">The identifier of the query to be disposed</param>
+        /// <param name="successAction">Action to perform on success</param>
+        /// <param name="failureAction">Action to perform on failure</param>
+        /// <returns></returns>
+        public async Task InterServiceDisposeQuery(string ownerUri, Func<Task> successAction,
+            Func<string, Task> failureAction)
+        {
+            try
+            {
+                // Attempt to remove the query for the owner uri
+                Query result;
+                if (!ActiveQueries.TryRemove(ownerUri, out result))
+                {
+                    await failureAction(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+
+                // Cleanup the query
+                result.Dispose();
+
+                // Success
+                await successAction();
+            }
+            catch (Exception e)
+            {
+                await failureAction(e.Message);
+            }
         }
 
         #endregion
