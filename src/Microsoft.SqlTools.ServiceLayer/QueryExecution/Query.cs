@@ -64,6 +64,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private IFileStreamFactory streamOutputFactory;
 
         /// <summary>
+        /// Name of the new database if the database name was changed in the query
+        /// </summary>
+        private string newDatabaseName;
+
+        /// <summary>
         /// ON keyword
         /// </summary>
         private const string On = "ON";
@@ -425,7 +430,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
                 }
-            }            
+            }
+
+            if (newDatabaseName != null)
+            {
+                ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabaseName);
+            }
         }
 
         /// <summary>
@@ -444,7 +454,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Did the database context change (error code 5701)?
                 if (error.Number == DatabaseContextChangeErrorNumber)
                 {
-                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, conn.Database);
+                    newDatabaseName = conn.Database;
                 }
             }
         }
