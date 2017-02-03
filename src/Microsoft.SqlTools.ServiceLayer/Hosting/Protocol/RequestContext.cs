@@ -9,10 +9,10 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
 {
-    public class RequestContext<TResult>
+    public class RequestContext<TResult> : IEventSender
     {
-        private Message requestMessage;
-        private MessageWriter messageWriter;
+        private readonly Message requestMessage;
+        private readonly MessageWriter messageWriter;
 
         public RequestContext(Message requestMessage, MessageWriter messageWriter)
         {
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
 
         public virtual async Task SendResult(TResult resultDetails)
         {
-            await this.messageWriter.WriteResponse<TResult>(
+            await this.messageWriter.WriteResponse(
                 resultDetails,
                 requestMessage.Method,
                 requestMessage.Id);
