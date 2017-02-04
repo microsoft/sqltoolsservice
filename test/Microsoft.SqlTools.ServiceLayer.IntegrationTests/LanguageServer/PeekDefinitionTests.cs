@@ -3,8 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
+using System.Data.Common;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -14,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
+using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
@@ -639,7 +642,7 @@ GO";
 
         /// <summary>
         /// Test get definition using quickInfo text for a view object with active connection
-        /// Expect a non-null result with location
+        /// Expect a non-null result with location 
         /// </summary>
         [Fact]
         public void GetDefinitionUsingQuickInfoTextWithNonexistentObjectTest()
@@ -656,6 +659,52 @@ GO";
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
         }
+
+        /// <summary>
+        /// Test if peek definition default database name is the default server connection database name
+        /// Given that there is no query connection
+        /// Expect database name to be "master"
+        /// </summary>
+        [Fact]
+        public void GetDatabaseWithNoQueryConnectionTest()
+        {
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            DbConnection connection;
+            //Check if query connection is present
+            Assert.False(connInfo.TryGetConnection(ConnectionType.Query, out connection));
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            //Check if database name is the default server connection database name
+            Assert.Equal(peekDefinition.Database.Name, "master");
+        }
+
+        /// <summary>
+        /// Test if the peek definition database name changes to the query connection database name
+        /// Give that there is a query connection
+        /// Expect database name to be query connection's database name
+        /// </summary>
+        [Fact]
+        public void GetDatabaseWithQueryConnectionTest()
+        {
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            //Mock a query connection object
+            var mockQueryConnection = new Mock<DbConnection> { CallBase = true };
+            mockQueryConnection.SetupGet(x => x.Database).Returns("testdb");
+            connInfo.ConnectionTypeToConnectionMap[ConnectionType.Query] = mockQueryConnection.Object;
+            DbConnection connection;
+            //Check if query connection is present
+            Assert.True(connInfo.TryGetConnection(ConnectionType.Query, out connection));
+
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            //Check if database name is the database name in the query connection
+            Assert.Equal(peekDefinition.Database.Name, "testdb");
+
+            // remove mock from ConnectionInfo
+            Assert.True(connInfo.ConnectionTypeToConnectionMap.TryRemove(ConnectionType.Query, out connection));
+        }
+
 
         /// <summary>
         /// Helper method to clean up script files

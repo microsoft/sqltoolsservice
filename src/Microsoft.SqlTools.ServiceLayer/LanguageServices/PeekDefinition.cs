@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Data.SqlClient;
+using System.Data.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -61,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Initialize();
         }
 
-        private Database Database
+        internal Database Database
         {
             get
             {
@@ -73,7 +74,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             // Reuse existing connection 
                             Server server = new Server(this.serverConnection);
-                            this.database = new Database(server, this.serverConnection.DatabaseName);
+                            // The default database name is the database name of the server connection
+                            string dbName = this.serverConnection.DatabaseName;                          
+                            if (this.connectionInfo != null)
+                            {
+                                // If there is a query DbConnection, use that connection to get the database name
+                                // This is preferred since it has the most current database name (in case of database switching)
+                                DbConnection connection;
+                                if (connectionInfo.TryGetConnection(ConnectionType.Query, out connection))
+                                {
+                                    if (!string.IsNullOrEmpty(connection.Database))
+                                    {
+                                        dbName  = connection.Database;
+                                    }                               
+                                }                              
+                            }
+                            this.database = new Database(server, dbName);
                         }
                         catch (ConnectionFailureException cfe)
                         {

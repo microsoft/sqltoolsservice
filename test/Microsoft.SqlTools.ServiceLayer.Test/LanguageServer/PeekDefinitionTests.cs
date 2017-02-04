@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Deletion of peek definition scripts for a valid temp folder that exists
+        /// Test deletion of peek definition scripts for a valid temp folder that exists
         /// </summary>
         [Fact]
         public void DeletePeekDefinitionScriptsTest()
@@ -209,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Deletion of peek definition scripts for a temp folder that does not exist
+        /// Test deletion of peek definition scripts for a temp folder that does not exist
         /// </summary>
         [Fact]
         public void DeletePeekDefinitionScriptsWhenFolderDoesNotExistTest()
@@ -223,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Extracting the full object name from quickInfoText.
+        /// Test extracting the full object name from quickInfoText.
         /// Given a valid object name string and a vaild quickInfo string containing the object name
         /// Expect the full object name (database.schema.objectName)
         /// </summary>
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Extracting the full object name from quickInfoText.
+        /// Test extracting the full object name from quickInfoText.
         /// Given a null object name string and a vaild quickInfo string containing the object name( and vice versa)
         /// Expect null
         /// </summary>
@@ -266,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Extracting the full object name from quickInfoText.
+        /// Test extracting the full object name from quickInfoText.
         /// Given a valid object name string and a vaild quickInfo string that does not contain the object name
         /// Expect null
         /// </summary>
@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Extracting the object type from quickInfoText.
+        /// Test extracting the object type from quickInfoText.
         /// Given a valid object name string and a vaild quickInfo string containing the object name
         /// Expect correct object type
         /// </summary>
@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Extracting theobject type from quickInfoText.
+        /// Test extracting theobject type from quickInfoText.
         /// Given a null object name string and a vaild quickInfo string containing the object name( and vice versa)
         /// Expect null
         /// </summary>
@@ -325,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Extracting the object type from quickInfoText.
+        /// Test extracting the object type from quickInfoText.
         /// Given a valid object name string and a vaild quickInfo string that does not containthe object name
         /// Expect null
         /// </summary>
@@ -341,8 +341,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// test Getting definition using quickInfo text without a live connection
-        /// Expect an error result( because you cannot script without a live connection)
+        /// Test getting definition using quickInfo text without a live connection
+        /// Expect an error result (because you cannot script without a live connection)
         /// </summary>
         [Fact]
         public void GetDefinitionUsingQuickInfoWithoutConnectionTest()
@@ -356,8 +356,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// test Getting definition using declarration Type without a live connection
-        /// Expect an error result( because you cannot script without a live connection)
+        /// Test getting definition using declaration Type without a live connection
+        /// Expect an error result (because you cannot script without a live connection)
         /// </summary>
         [Fact]
         public void GetDefinitionUsingDeclarationItemWithoutConnectionTest()
