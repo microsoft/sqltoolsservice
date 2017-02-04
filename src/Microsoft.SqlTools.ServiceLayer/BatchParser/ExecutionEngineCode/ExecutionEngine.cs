@@ -1110,19 +1110,27 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// Performs application-defined tasks associated with freeing, releasing, or
         //  resetting unmanaged resources.
         /// </summary>
-        virtual public void Dispose()
+        public void Dispose()
         {
-            //Debug.WriteLine("ExecutionEngine.Dispose");
-            if (commandParser != null)
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                commandParser.Dispose();
-                commandParser = null;
+                //Debug.WriteLine("ExecutionEngine.Dispose");
+                if (commandParser != null)
+                {
+                    commandParser.Dispose();
+                    commandParser = null;
+                }
+
+                ResetScript();
+
+                stateSyncLock = null;
+                currentBatch = null;
             }
-
-            ResetScript();
-
-            stateSyncLock = null;
-            currentBatch = null;
         }
         #endregion
     }

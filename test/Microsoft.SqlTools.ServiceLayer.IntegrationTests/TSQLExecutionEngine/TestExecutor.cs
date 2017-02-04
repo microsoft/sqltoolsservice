@@ -1,3 +1,8 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -10,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
     class TestExecutor : IDisposable
     {
         #region Private variables
-        String sqlStatement;
+        string sqlStatement;
         ExecutionEngineConditions conditions = new ExecutionEngineConditions();
         BatchEventHandler eventHandler = new BatchEventHandler();
         SqlConnection connection = null;
@@ -30,6 +35,80 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         static List<string> batchScripts = new List<string>();
         static Thread exeThread = null;
         static bool parserExecutionError = false;
+        #endregion
+
+        #region private methods
+        /// <summary>
+        /// Execut the script
+        /// </summary>
+        /// <param name="exec">Execution Engine</param>
+        /// <param name="connection">SQL connection</param>
+        /// <param name="script">script text</param>
+        /// <param name="conditions">Execution condition</param>
+        /// <param name="batchHandler">Batch event handler</param>
+        /// <param name="timeout">time out value</param>
+        static void ExecuteScript(ExecutionEngine exec, SqlConnection connection, string script, ExecutionEngineConditions conditions, IBatchEventsHandler batchHandler, int timeout)
+        {
+            Validate.IsNotNull(nameof(exec), exec);
+            Validate.IsNotNull(nameof(connection), connection);
+            Validate.IsNotNullOrEmptyString(nameof(script), script);
+            Validate.IsNotNull(nameof(conditions), conditions);
+
+            Console.WriteLine("------------------------ Executing Script ----------------------");
+
+            //exec.BeginScriptExecution(script, connection, timeout, conditions, batchConsumer);
+            ScriptExecutionArgs args = new ScriptExecutionArgs(script, connection, timeout, conditions, batchHandler);
+            //exec.ExecuteScript(args);
+
+            _executionThread = new Thread(new ParameterizedThreadStart(exec.ExecuteScript));
+            _executionThread.Start(args);
+        }
+
+        /// <summary>
+        /// Cancel the execution
+        /// </summary>
+        /// <param name="exec">Execution Engine</param>
+        /// <param name="isSynchronous">Cancel the execution synchronously or not</param>
+        /// <param name="timeout">sycn canceo timeout</param>
+        static void Cancel(ExecutionEngine exec, bool isSynchronous, int millisecondsTimeOut)
+        {
+            //exec.BeginCancellingExecution(isSynchronous, timeout);
+
+            if (_executionThread == null ||
+                _executionThread.ThreadState == System.Threading.ThreadState.Unstarted ||
+                _executionThread.ThreadState == System.Threading.ThreadState.Stopped)
+            {
+                exec.Close(isSynchronous, /* isDiscard */ false, /* isFinishExecution */ true);
+            }
+            else
+            {
+                // activates the cancel thread
+                Thread cancelThread = new Thread(new ThreadStart(exec.CancelCurrentBatch));
+                cancelThread.Name = "Cancelling thread";
+                cancelThread.Start();
+
+                // in a syncrhonous call, we need to block and wait until the thread is stopped
+                if (isSynchronous)
+                {
+                    int totalSleep = 0;
+                    while (totalSleep < millisecondsTimeOut && _executionThread != null && _executionThread.IsAlive)
+                    {
+                        Thread.Sleep(50);
+                        totalSleep += 50;
+                    }
+
+                    if (_executionThread != null && _executionThread.IsAlive)
+                    {
+                        exec.Close(isSynchronous, /* isDiscard */ true);
+                    }
+                    else
+                    {
+                        exec.Close(/* isCloseConnection */ true);
+                    }
+                }
+            }
+            Thread.Sleep(5000);
+        }
         #endregion
 
         #region Public properties
@@ -73,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             }
         }
 
-        public List<String> SQLMessageQueue
+        public List<string> SQLMessageQueue
         {
             get
             {
@@ -89,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             }
         }
 
-        public List<String> BatchScripts
+        public List<string> BatchScripts
         {
             get
             {
@@ -131,11 +210,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         #endregion
 
         #region Constructors
-        public TestExecutor(String batch, SqlConnection conn, ExecutionEngineConditions exeCondition): this(batch, conn, exeCondition, false)
+        public TestExecutor(string batch, SqlConnection conn, ExecutionEngineConditions exeCondition): this(batch, conn, exeCondition, false)
         {
         }
 
-        public TestExecutor(String batch, SqlConnection conn, ExecutionEngineConditions exeCondition, bool cancelExecution)
+        public TestExecutor(string batch, SqlConnection conn, ExecutionEngineConditions exeCondition, bool cancelExecution)
         {
             sqlStatement = batch;
             conditions.IsHaltOnError = exeCondition.IsHaltOnError;
@@ -152,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             parserExecutionError = false;
 
         }
-        public TestExecutor(String batch, SqlConnection conn, ExecutionEngineConditions exeCondition, int timeOut)
+        public TestExecutor(string batch, SqlConnection conn, ExecutionEngineConditions exeCondition, int timeOut)
             : this(batch, conn, exeCondition, false)
         {
             exeTimeOut = timeOut;
@@ -166,38 +245,39 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         public void Run()
         {
             Console.WriteLine("Executing scripts {0} ...", sqlStatement);
-          
-            ExecutionEngine exec = new ExecutionEngine();
-            _isFinished = false;
-            exec.BatchParserExecutionStart += new EventHandler<BatchParserExecutionStartEventArgs>(OnBatchParserExecutionStart);
-            exec.BatchParserExecutionFinished += new EventHandler<BatchParserExecutionFinishedEventArgs>(OnBatchParserExecutionFinished);
-            exec.BatchParserExecutionError += new EventHandler<BatchParserExecutionErrorEventArgs>(OnBatchParserExecutionError);
-            exec.ScriptExecutionFinished += new EventHandler<ScriptExecutionFinishedEventArgs>(OnExecutionFinished);
-                       
-            ExecuteScript(exec, connection, sqlStatement, conditions , eventHandler, exeTimeOut);
 
-            if (!_cancel)
+            using (ExecutionEngine exec = new ExecutionEngine())
             {
-                //Do not cancel the execution engine
-                while (!_isFinished)
+                _isFinished = false;
+                exec.BatchParserExecutionStart += new EventHandler<BatchParserExecutionStartEventArgs>(OnBatchParserExecutionStart);
+                exec.BatchParserExecutionFinished += new EventHandler<BatchParserExecutionFinishedEventArgs>(OnBatchParserExecutionFinished);
+                exec.BatchParserExecutionError += new EventHandler<BatchParserExecutionErrorEventArgs>(OnBatchParserExecutionError);
+                exec.ScriptExecutionFinished += new EventHandler<ScriptExecutionFinishedEventArgs>(OnExecutionFinished);
+
+                ExecuteScript(exec, connection, sqlStatement, conditions, eventHandler, exeTimeOut);
+
+                if (!_cancel)
                 {
-                    Thread.Sleep(1000);
-                }
-            }
-            else
-            {
-                if (!_isFinished)
-                {
-                    Console.WriteLine("Need to cancel while the batch execution is not finished!");
-                    Thread.Sleep(1000);
+                    //Do not cancel the execution engine
+                    while (!_isFinished)
+                    {
+                        Thread.Sleep(1000);
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("Canceling after the exe engine is disposed...");                    
+                    if (!_isFinished)
+                    {
+                        Console.WriteLine("Need to cancel while the batch execution is not finished!");
+                        Thread.Sleep(1000);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Canceling after the exe engine is disposed...");
+                    }
+                    Cancel(exec, _syncCancel, _cancelTimeout);
                 }
-                Cancel(exec, _syncCancel, _cancelTimeout);
             }
-            exec.Dispose();
         }
         #endregion
 
@@ -263,80 +343,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             resultCounts = eventHandler.ResultCounts;
             sqlMessages = eventHandler.SqlMessages;
             errorMessage = eventHandler.ErrorMessages;
-        }
-        #endregion
-
-        #region private methods
-        /// <summary>
-        /// Execut the script
-        /// </summary>
-        /// <param name="exec">Execution Engine</param>
-        /// <param name="connection">SQL connection</param>
-        /// <param name="script">script text</param>
-        /// <param name="conditions">Execution condition</param>
-        /// <param name="batchConsumer">Batch event handler</param>
-        /// <param name="timeout">time out value</param>
-        static void ExecuteScript(ExecutionEngine exec, SqlConnection connection, string script, ExecutionEngineConditions conditions, IBatchEventsHandler batchHandler, int timeout)
-        {
-            Validate.IsNotNull(nameof(exec), exec);
-            Validate.IsNotNull(nameof(connection), connection);
-            Validate.IsNotNullOrEmptyString(nameof(script), script);
-            Validate.IsNotNull(nameof(conditions), conditions);
-
-            Console.WriteLine("------------------------ Executing Script ----------------------");
-
-            //exec.BeginScriptExecution(script, connection, timeout, conditions, batchConsumer);
-            ScriptExecutionArgs args = new ScriptExecutionArgs(script, connection, timeout, conditions, batchHandler);
-            //exec.ExecuteScript(args);
-
-            _executionThread = new Thread(new ParameterizedThreadStart(exec.ExecuteScript));
-            _executionThread.Start(args);     
-        }
-
-        /// <summary>
-        /// Cancel the execution
-        /// </summary>
-        /// <param name="exec">Execution Engine</param>
-        /// <param name="isSynchronous">Cancel the execution synchronously or not</param>
-        /// <param name="timeout">sycn canceo timeout</param>
-        static void Cancel(ExecutionEngine exec, bool isSynchronous, int millisecondsTimeOut)
-        {
-            //exec.BeginCancellingExecution(isSynchronous, timeout);
-            
-            if (_executionThread == null ||
-                _executionThread.ThreadState == System.Threading.ThreadState.Unstarted ||
-                _executionThread.ThreadState == System.Threading.ThreadState.Stopped)
-            {
-                exec.Close(isSynchronous, /* isDiscard */ false, /* isFinishExecution */ true);
-            }
-            else
-            {
-                // activates the cancel thread
-                Thread cancelThread = new Thread(new ThreadStart(exec.CancelCurrentBatch));
-                cancelThread.Name = "Cancelling thread";
-                cancelThread.Start();
-
-                // in a syncrhonous call, we need to block and wait until the thread is stopped
-                if (isSynchronous)
-                {
-                    int totalSleep = 0;
-                    while (totalSleep < millisecondsTimeOut && _executionThread != null && _executionThread.IsAlive)
-                    {
-                        Thread.Sleep(50);
-                        totalSleep += 50;
-                    }
-
-                    if (_executionThread != null && _executionThread.IsAlive)
-                    {
-                        exec.Close(isSynchronous, /* isDiscard */ true);
-                    }
-                    else
-                    {
-                        exec.Close(/* isCloseConnection */ true);
-                    }
-                }
-            }
-            Thread.Sleep(5000);
         }
         #endregion
 
