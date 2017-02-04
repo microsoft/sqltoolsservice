@@ -5,11 +5,14 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
@@ -18,9 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     {
         #region Singleton Instance Implementation
 
-        private static readonly Lazy<EditDataService> instance = new Lazy<EditDataService>(() => new EditDataService());
+        private static readonly Lazy<EditDataService> LazyInstance = new Lazy<EditDataService>(() => new EditDataService());
 
-        public static EditDataService Instance => instance.Value;
+        public static EditDataService Instance => LazyInstance.Value;
 
         private EditDataService()
         {
@@ -76,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #region Request Handlers
 
-        public async Task HandleCreateRowRequest(EditCreateRowParams createParams,
+        internal async Task HandleCreateRowRequest(EditCreateRowParams createParams,
             RequestContext<EditCreateRowResult> requestContext)
         {
             Session session = GetActiveSessionOrThrow(createParams.OwnerUri);
@@ -96,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        public async Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
+        internal async Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
             RequestContext<EditDeleteRowResult> requestContext)
         {
             Session session = GetActiveSessionOrThrow(deleteParams.OwnerUri);
@@ -113,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        public async Task HandleDisposeRequest(EditDisposeParams disposeParams,
+        internal async Task HandleDisposeRequest(EditDisposeParams disposeParams,
             RequestContext<EditDisposeResult> requestContext)
         {
             // Sanity check the owner URI
@@ -132,38 +135,82 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             await requestContext.SendResult(new EditDisposeResult());
         }
 
-        public async Task HandleInitializeRequest(EditInitializeParams initParams,
+        internal async Task HandleInitializeRequest(EditInitializeParams initParams,
             RequestContext<EditInitializeResult> requestContext)
         {
-            // Verify that the query exists
-            Query query;
-            if (!queryExecutionService.ActiveQueries.TryGetValue(initParams.OwnerUri, out query))
+            // Setup a callback for when the query has successfully created
+            Func<Query, Task<bool>> queryCreateSuccessCallback = async query =>
             {
-                await requestContext.SendError("Failed to create edit session, query does not exist.");
-                return;
-            }
+                await requestContext.SendResult(new EditInitializeResult());
+                return true;
+            };
+
+            // Setup a callback for when the query failed to be created
+            Func<string, Task> queryCreateFailureCallback = requestContext.SendError;
+
+            // Setup a callback for when the query completes execution successfully
+            Query.QueryAsyncEventHandler queryCompleteSuccessCallback = async query =>
+            {
+                EditSessionReadyParams readyParams = new EditSessionReadyParams
+                {
+                    OwnerUri = initParams.OwnerUri
+                };
+
+                try
+                {
+                    // Create the session and add it to the sessions list
+                    Session session = new Session(query);
+                    if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
+                    {
+                        throw new InvalidOperationException("Failed to create edit session, session already exists.");
+                    }
+                    readyParams.Success = true;
+                }
+                catch (Exception)
+                {
+                    // Request that the query be disposed
+                    await queryExecutionService.InterServiceDisposeQuery(initParams.OwnerUri, null, null);
+                    readyParams.Success = false;
+                }
+
+                // Send the edit session ready notification
+                await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
+            };
+
+            // Setup a callback for when the query completes execution with failure
+            Query.QueryAsyncEventHandler queryCompleteFailureCallback = query =>
+            {
+                EditSessionReadyParams readyParams = new EditSessionReadyParams
+                {
+                    OwnerUri = initParams.OwnerUri,
+                    Success = false
+                };
+                return requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
+            };
 
             try
             {
-                // Create the session and add it to the sessions list
-                Session session = new Session(query);
-                if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
+                // Make sure we have info to process this request
+                Validate.IsNotNullOrWhitespaceString(nameof(initParams.OwnerUri), initParams.OwnerUri);
+                Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
+
+                // Put together a query for the results and execute it
+                ExecuteStringParams executeParams = new ExecuteStringParams
                 {
-                    // @TODO: Move to constants file
-                    await requestContext.SendError("Failed to create edit session, session already exists.");
-                    return;
-                }
+                    Query = GetSelectQuery(initParams.ObjectName),
+                    OwnerUri = initParams.OwnerUri
+                };
+                await queryExecutionService.InterServiceExecuteQuery(executeParams, requestContext,
+                    queryCreateSuccessCallback, queryCreateFailureCallback,
+                    queryCompleteSuccessCallback, queryCompleteFailureCallback);
             }
             catch (Exception e)
             {
                 await requestContext.SendError(e.Message);
             }
-
-            // Everything was successful, return success
-            await requestContext.SendResult(new EditInitializeResult());
         }
 
-        public async Task HandleRevertRowRequest(EditRevertRowParams revertParams,
+        internal async Task HandleRevertRowRequest(EditRevertRowParams revertParams,
             RequestContext<EditRevertRowResult> requestContext)
         {
             Session session = GetActiveSessionOrThrow(revertParams.OwnerUri);
@@ -178,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        public async Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
+        internal async Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
             RequestContext<EditUpdateCellResult> requestContext)
         {
             Session session = GetActiveSessionOrThrow(updateParams.OwnerUri);
@@ -218,6 +265,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             return session;
+        }
+
+        private string GetSelectQuery(string objectName)
+        {
+            // If the object is a multi-part identifier (eg, dbo.tablename) split it, and escape as necessary
+            string[] identifierParts = objectName.Split('.');
+            IEnumerable<string> escapedParts = identifierParts.Select(p => SqlScriptFormatter.FormatIdentifier(objectName.Trim('[', ']')));
+            string escapedObject = string.Join(".", escapedParts);
+
+            return $"SELECT * FROM {escapedObject}";
         }
 
         #endregion
