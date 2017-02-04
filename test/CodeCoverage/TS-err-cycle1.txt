@@ -1,0 +1,2 @@
+print 'hi'
+:r cycle2.txt

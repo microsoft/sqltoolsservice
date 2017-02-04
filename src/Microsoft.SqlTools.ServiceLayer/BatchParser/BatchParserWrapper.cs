@@ -18,6 +18,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
     /// </summary>
     public sealed class BatchParserWrapper : IDisposable
     {
+        #region Private members
+
+        private List<Tuple<int /*startLine*/, int/*startColumn*/>> startLineColumns;
+        private List<int /*length*/> lengths;
+        private ExecutionEngine executionEngine;
+        private BatchEventNotificationHandler notificationHandler;
+
+        #endregion
+
         /// <summary>
         /// Wrapper API for the Batch Parser that returns a list of
         /// BatchDefinitions when given a string to parse
@@ -27,11 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             executionEngine = new ExecutionEngine();
 
             // subscribe to executionEngine BatchParser events
-            executionEngine.BatchParserExecutionError +=
-                new EventHandler<BatchParserExecutionErrorEventArgs>(OnBatchParserExecutionError);
+            executionEngine.BatchParserExecutionError += OnBatchParserExecutionError;
 
-            executionEngine.BatchParserExecutionFinished +=
-                new System.EventHandler<BatchParserExecutionFinishedEventArgs>(OnBatchParserExecutionFinished);
+            executionEngine.BatchParserExecutionFinished += OnBatchParserExecutionFinished;
 
             // instantiate notificationHandler class
             notificationHandler = new BatchEventNotificationHandler();
@@ -232,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 if (args != null && args.Batch != null)
                 {
 
-                    System.Tuple<int /*startLine*/, int/*startColumn*/> position = new System.Tuple<int, int>(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex);
+                    Tuple<int /*startLine*/, int/*startColumn*/> position = new Tuple<int, int>(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex);
 
 
                     // PS168371
@@ -279,9 +286,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// </summary>
         internal class BatchEventNotificationHandler : IBatchEventsHandler
         {
-            public BatchEventNotificationHandler()
-            {
-            }
 
             #region IBatchEventHandlers Members
 
@@ -333,28 +337,26 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         #endregion
 
-        #region Private members
-
-        private List<System.Tuple<int /*startLine*/, int/*startColumn*/>> startLineColumns;
-        private List<int /*length*/> lengths;
-        private ExecutionEngine executionEngine;
-        private BatchEventNotificationHandler notificationHandler;
-
-        #endregion
-
         #region IDisposable implementation
 
         public void Dispose()
         {
-            if (executionEngine != null)
-            {
-                executionEngine.Dispose();
-                executionEngine = null;
-                startLineColumns = null;
-                lengths = null;
-            }
+            Dispose(true);
         }
 
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (executionEngine != null)
+                {
+                    executionEngine.Dispose();
+                    executionEngine = null;
+                    startLineColumns = null;
+                    lengths = null;
+                }
+            }
+        }
         #endregion
     }
 }

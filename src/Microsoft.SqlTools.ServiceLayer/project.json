@@ -2,7 +2,7 @@
   "name": "Microsoft.SqlTools.ServiceLayer",
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable",
+    "debugType": "full",
     "emitEntryPoint": true
   },
   "configurations": {

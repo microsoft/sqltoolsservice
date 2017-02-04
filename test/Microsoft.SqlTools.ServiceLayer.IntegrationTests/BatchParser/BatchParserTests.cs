@@ -59,6 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             {
                 
                 string inputText = File.ReadAllText(filename);
+                inputText = inputText.Replace("\r\n", "\n");
                 StringBuilder roundtripTextBuilder = new StringBuilder();
                 StringBuilder outputBuilder = new StringBuilder();
                 StringBuilder tokenizedInput = new StringBuilder();
@@ -91,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 if (lexerError == false)
                 {
                     // Verify that all text from tokens can be recombined into original string
-                    Assert.Equal<string>(inputText, roundtripTextBuilder.ToString());
+                    Assert.Equal<string>(inputText, roundtripTextBuilder.ToString().Replace("\r\n", "\n"));
                 }
             }
         }
@@ -119,10 +120,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             FileUtilities.SetFileReadWrite(filename);
         }
 
-        // These tests will fail locally but shouldn't fail on AppVeyor
-        // This is because the parser has different results for *nix based system
-        // compared to windows because of the new line character "\r\n" in windows
-        // and "\n" in *nix.
         [Fact]
         public void BatchParserTest()
         {
@@ -258,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             Console.WriteLine(baselineFilename);
 
-            if (!CompareStrings(baseline, outputString))
+            if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
@@ -266,8 +263,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 Console.WriteLine(":: windiff \"" + baselineFilename + "\" \"" + outputFilename + "\"");
                 Console.WriteLine();
                 Console.WriteLine(":: To update the baseline:");
-                string action = File.Exists(baselineFilename) ? "edit" : "add";
-                Console.WriteLine("sd " + action + " \"" + baselineFilename + "\"");
                 Console.WriteLine("copy \"" + outputFilename + "\" \"" + baselineFilename + "\"");
                 Console.WriteLine();
                 testFailed = true;
