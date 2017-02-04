@@ -15,7 +15,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     {
         private readonly CellUpdate[] newCells;
 
-        public RowCreate(long rowId, ResultSet associatedResultSet) : base(rowId, associatedResultSet)
+        public RowCreate(long rowId, ResultSet associatedResultSet, string associatedObject)
+            : base(rowId, associatedResultSet, associatedObject)
         {
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
         }

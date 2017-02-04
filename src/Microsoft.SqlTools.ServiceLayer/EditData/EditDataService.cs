@@ -5,8 +5,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -159,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 try
                 {
                     // Create the session and add it to the sessions list
-                    Session session = new Session(query);
+                    Session session = new Session(query, initParams.ObjectName);
                     if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
                     {
                         throw new InvalidOperationException("Failed to create edit session, session already exists.");
@@ -197,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // Put together a query for the results and execute it
                 ExecuteStringParams executeParams = new ExecuteStringParams
                 {
-                    Query = GetSelectQuery(initParams.ObjectName),
+                    Query = $"SELECT * FROM {SqlScriptFormatter.FormatMultipartIdentifier(initParams.ObjectName)}",
                     OwnerUri = initParams.OwnerUri
                 };
                 await queryExecutionService.InterServiceExecuteQuery(executeParams, requestContext,
@@ -265,16 +263,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             return session;
-        }
-
-        private string GetSelectQuery(string objectName)
-        {
-            // If the object is a multi-part identifier (eg, dbo.tablename) split it, and escape as necessary
-            string[] identifierParts = objectName.Split('.');
-            IEnumerable<string> escapedParts = identifierParts.Select(p => SqlScriptFormatter.FormatIdentifier(objectName.Trim('[', ']')));
-            string escapedObject = string.Join(".", escapedParts);
-
-            return $"SELECT * FROM {escapedObject}";
         }
 
         #endregion

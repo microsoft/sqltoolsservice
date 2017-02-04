@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlTypes;
 using System.Diagnostics;
@@ -89,21 +90,49 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             NumericScale = column.NumericScale;
             UdtAssemblyQualifiedName = column.UdtAssemblyQualifiedName;
             DataType = column.DataType;
-            DataTypeName = column.DataTypeName;
+            DataTypeName = column.DataTypeName.ToLowerInvariant();
+
+            // Determine the SqlDbType
+            SqlDbType type;
+            if (Enum.TryParse(DataTypeName, true, out type))
+            {
+                SqlDbType = type;
+            }
+            else
+            {
+                switch (DataTypeName)
+                {
+                    case "numeric":
+                        SqlDbType = SqlDbType.Decimal;
+                        break;
+                    case "sql_variant":
+                        SqlDbType = SqlDbType.Variant;
+                        break;
+                    case "timestamp":
+                        SqlDbType = SqlDbType.VarBinary;
+                        break;
+                    case "sysname":
+                        SqlDbType = SqlDbType.NVarChar;
+                        break;
+                    default:
+                        SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.NVarChar : SqlDbType.Udt;
+                        break;
+                }
+            }
 
             // We want the display name for the column to always exist
             ColumnName = string.IsNullOrEmpty(column.ColumnName)
                 ? SR.QueryServiceColumnNull
                 : column.ColumnName;
 
-            switch (column.DataTypeName)
+            switch (DataTypeName)
             {
                 case "varchar":
                 case "nvarchar":
                     IsChars = true;
 
-                    Debug.Assert(column.ColumnSize.HasValue);
-                    if (column.ColumnSize.Value == int.MaxValue)
+                    Debug.Assert(ColumnSize.HasValue);
+                    if (ColumnSize.Value == int.MaxValue)
                     {
                         //For Yukon, special case nvarchar(max) with column name == "Microsoft SQL Server 2005 XML Showplan" -
                         //assume it is an XML showplan.
@@ -139,8 +168,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                 case "rowversion":
                     IsBytes = true;
 
-                    Debug.Assert(column.ColumnSize.HasValue);
-                    if (column.ColumnSize.Value == int.MaxValue)
+                    Debug.Assert(ColumnSize.HasValue);
+                    if (ColumnSize.Value == int.MaxValue)
                     {
                         IsLong = true;
                     }
@@ -149,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                     IsSqlVariant = true;
                     break;
                 default:
-                    if (!AllServerDataTypes.Contains(column.DataTypeName))
+                    if (!AllServerDataTypes.Contains(DataTypeName))
                     {
                         // treat all UDT's as long/bytes data types to prevent the CLR from attempting
                         // to load the UDT assembly into our process to call ToString() on the object.
@@ -225,6 +254,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IsJson { get; set; }
 
         /// <summary>
+        /// The SqlDbType of the column, for use in a SqlParameter
+        /// </summary>
+        public SqlDbType SqlDbType { get; private set; }
+
+        /// <summary>
         /// Whether or not the column is an XML Reader type.
         /// </summary>
         /// <remarks>
@@ -255,6 +289,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IsUpdatable => IsAutoIncrement.HasValue && !IsAutoIncrement.Value && 
                                    IsReadOnly.HasValue && !IsReadOnly.Value && 
                                    !IsSqlXmlType;
+
+        ///// <summary>
+        ///// The BaseColumnName unless it is <c>null</c>, then it is the ColumnName
+        ///// </summary>
+        //public string SafeBaseColumnName => BaseColumnName ?? ColumnName;
 
         #endregion
 

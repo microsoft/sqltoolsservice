@@ -4,8 +4,13 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -22,10 +27,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         /// <param name="rowId">The internal ID of the row that is being edited</param>
         /// <param name="associatedResultSet">The result set that will be updated</param>
-        protected RowEditBase(long rowId, ResultSet associatedResultSet)
+        /// <param name="associatedObject">The object (table, view, etc) that will be updated</param>
+        protected RowEditBase(long rowId, ResultSet associatedResultSet, string associatedObject)
         {
             RowId = rowId;
             AssociatedResultSet = associatedResultSet;
+            AssociatedObject = associatedObject;
         }
 
         #region Properties
@@ -39,6 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// The result set that is associated with this row edit
         /// </summary>
         public ResultSet AssociatedResultSet { get; }
+
+        public string AssociatedObject { get; }
 
         #endregion
 
@@ -80,6 +89,84 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 // @TODO: Add to constants file
                 throw new InvalidOperationException("Column cannot be edited");
             }
+        }
+
+        protected WhereClause GetWhereClause(bool parameterize)
+        {
+            WhereClause output = new WhereClause();
+
+            // Determine how many key columns we have 
+            int keyCount = AssociatedResultSet.Columns.Count(v => v.IsKey.HasTrue() && (v.IsUpdatable || v.IsIdentity.HasTrue()));
+
+            IList<DbCellValue> row = AssociatedResultSet.GetRow(RowId);
+            for (int index = 0; index < AssociatedResultSet.Columns.Length; index++)
+            {
+                // Don't add this column to the where clauses. Why?
+                // 1) We have key columns in the table, but this isn't one of them OR
+                // 2) We don't have key columns (and should use all columns for identifying the row)
+                //    a) This column isn't an identity column AND
+                //    b) This column isn't updatable (timestamp) and shouldn't be trusted to identify the column
+                DbColumnWrapper column = AssociatedResultSet.Columns[index];
+                if ((keyCount > 0 && !column.IsKey.HasTrue()) || (!column.IsIdentity.HasTrue() && !column.IsUpdatable))
+                {
+                    continue;
+                }
+
+                // Put together a clause for the value of the cell
+                DbCellValue cellData = row[index];
+                string cellDataClause;
+                if (cellData.IsNull)
+                {
+                    cellDataClause = "IS NULL";
+                }
+                else
+                {
+                    if (cellData.RawObject is byte[] ||
+                        column.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
+                        column.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Special cases for byte[] and TEXT/NTEXT types
+                        cellDataClause = "IS NOT NULL";
+                    }
+                    else
+                    {
+                        // General case is to just use the value from the cell
+                        if (parameterize)
+                        {
+                            // Add a parameter and parameterized clause component
+                            // NOTE: We include the row ID to make sure the parameter is unique if
+                            //       we execute multiple row edits at once.
+                            string paramName = $"@Param{RowId}{index}";
+                            cellDataClause = $"= {paramName}";
+                            output.Parameters.Add(new SqlParameter(paramName, column.SqlDbType));
+                        }
+                        else
+                        {
+                            // Add the clause component with the formatted value
+                            cellDataClause = $"= {SqlScriptFormatter.FormatValue(cellData, column)}";
+                        }
+                    }
+                }
+
+                string completeComponent = $"({SqlScriptFormatter.FormatIdentifier(column.ColumnName)} {cellDataClause})";
+                output.ClauseComponents.Add(completeComponent);
+            }
+            return output;
+        }
+
+        protected class WhereClause
+        {
+            public WhereClause()
+            {
+                Parameters = new List<DbParameter>();
+                ClauseComponents = new List<string>();
+            }
+
+            public List<DbParameter> Parameters { get; }
+
+            public List<string> ClauseComponents { get; }
+
+            public string CommandText => $"WHERE {string.Join(" AND ", ClauseComponents)}";
         }
     }
 }

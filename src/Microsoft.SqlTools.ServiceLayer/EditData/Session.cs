@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
@@ -20,10 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         private long nextRowId;
         private readonly ConcurrentDictionary<long, RowEditBase> editCache;
         private readonly ResultSet associatedResultSet;
+        private readonly string associatedObject;
 
         #endregion
 
-        public Session(Query query)
+        public Session(Query query, string obj)
         {
             // Determine if the query is valid for editing
             // @TODO: Refine this criteria once we replace the batch parser
@@ -49,6 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Setup the internal state
             associatedResultSet = queryResultSets[0];
+            associatedObject = SqlScriptFormatter.FormatMultipartIdentifier(obj);
             nextRowId = associatedResultSet.RowCount;
             editCache = new ConcurrentDictionary<long, RowEditBase>();
         }
@@ -66,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             long newRowId = nextRowId++;
 
             // Create a new row create update and add to the update cache
-            RowCreate newRow = new RowCreate(newRowId, associatedResultSet);
+            RowCreate newRow = new RowCreate(newRowId, associatedResultSet, associatedObject);
             if (!editCache.TryAdd(newRowId, newRow))
             {
                 // Revert the next row ID
@@ -96,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Create a new row delete update and add to cache
-            RowDelete deleteRow = new RowDelete(rowId, associatedResultSet);
+            RowDelete deleteRow = new RowDelete(rowId, associatedResultSet, associatedObject);
             if (!editCache.TryAdd(rowId, deleteRow))
             {
                 // @TODO: Move to constants file
@@ -179,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             RowEditBase editRow;
             if (!editCache.TryGetValue(rowId, out editRow))
             {
-                editRow = new RowUpdate(rowId, associatedResultSet);
+                editRow = new RowUpdate(rowId, associatedResultSet, associatedObject);
                 if (!editCache.TryAdd(rowId, editRow))
                 {
                     // @TODO: Move to constants file

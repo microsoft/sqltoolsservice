@@ -23,7 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         /// <param name="rowId">Internal ID of the row that will be updated with this object</param>
         /// <param name="associatedResultSet">The result set that this update will be applied to</param>
-        public RowUpdate(long rowId, ResultSet associatedResultSet) : base(rowId, associatedResultSet)
+        /// <param name="associatedObject">The object (table, view, etc) that will be updated</param>
+        public RowUpdate(long rowId, ResultSet associatedResultSet, string associatedObject) 
+            : base(rowId, associatedResultSet, associatedObject)
         {
             cellUpdates = new Dictionary<int, CellUpdate>();
             associatedRow = associatedResultSet.GetRow(rowId);
