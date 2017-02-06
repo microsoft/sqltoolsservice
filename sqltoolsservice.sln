@@ -53,6 +53,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeCoverage", "CodeCoverag
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.PerfTests", "test\Microsoft.SqlTools.ServiceLayer.PerfTests\Microsoft.SqlTools.ServiceLayer.PerfTests.xproj", "{7E5968AB-83D7-4738-85A2-416A50F13D2F}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.IntegrationTests", "test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\Microsoft.SqlTools.ServiceLayer.IntegrationTests.xproj", "{08AF0209-D598-47BB-9DFD-FC9E74C0FE56}"
+EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.Test.Common", "test\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.xproj", "{B6F4BECE-82EE-4AB6-99AC-108AEE466274}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.TestDriver.Tests", "test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.xproj", "{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE}"
@@ -90,6 +92,12 @@ Global
 		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Integration|Any CPU.Build.0 = Release|Any CPU
 		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E5968AB-83D7-4738-85A2-416A50F13D2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08AF0209-D598-47BB-9DFD-FC9E74C0FE56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08AF0209-D598-47BB-9DFD-FC9E74C0FE56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08AF0209-D598-47BB-9DFD-FC9E74C0FE56}.Integration|Any CPU.ActiveCfg = Integration|Any CPU
+		{08AF0209-D598-47BB-9DFD-FC9E74C0FE56}.Integration|Any CPU.Build.0 = Integration|Any CPU
+		{08AF0209-D598-47BB-9DFD-FC9E74C0FE56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08AF0209-D598-47BB-9DFD-FC9E74C0FE56}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B6F4BECE-82EE-4AB6-99AC-108AEE466274}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B6F4BECE-82EE-4AB6-99AC-108AEE466274}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6F4BECE-82EE-4AB6-99AC-108AEE466274}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
@@ -119,6 +127,7 @@ Global
 		{B7D21727-2926-452B-9610-3ADB0BB6D789} = {F9978D78-78FE-4E92-A7D6-D436B7683EF6}
 		{87D9C7D9-18F4-4AB9-B20D-66C02B6075E2} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{7E5968AB-83D7-4738-85A2-416A50F13D2F} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
+		{08AF0209-D598-47BB-9DFD-FC9E74C0FE56} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{B6F4BECE-82EE-4AB6-99AC-108AEE466274} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{E7CF630E-E084-4DA4-BF69-F61BF0A8F5BE} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{6CF2E945-C7D1-44B5-9E28-ADDD09E3E983} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
