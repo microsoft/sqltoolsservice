@@ -413,6 +413,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TestLocalizationConstant
+        {
+            get
+            {
+                return Keys.GetString(Keys.TestLocalizationConstant);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -659,6 +667,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
+
+
+            public const string TestLocalizationConstant = "TestLocalizationConstant";
 
 
             private Keys()

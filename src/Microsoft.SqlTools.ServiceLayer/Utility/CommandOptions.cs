@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         public CommandOptions(string[] args)
         {
             ErrorMessage = string.Empty;
+            Locale = string.Empty;
 
             try
             {
@@ -109,10 +110,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         }
 
         private void setLocale(string locale){
+            // Creating cultureInfo from our given locale
             Locale = locale;
             CultureInfo language = new CultureInfo(locale);
+
+            // Setting our language globally 
             CultureInfo.CurrentCulture = language;
             CultureInfo.CurrentUICulture = language;
+
+            // Setting our internal SR culture to our global culture
             SR.Culture = CultureInfo.CurrentCulture;
         }
     }

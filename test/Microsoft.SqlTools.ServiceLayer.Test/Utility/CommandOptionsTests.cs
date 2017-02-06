@@ -74,13 +74,13 @@ namespace Microsoft.SqlTools.Test.Utility
         [Fact]
         public void LocaleSetWhenProvided()
         {
-            var args = new string[] {"--locale enu"};
+            var args = new string[] {"--locale en"};
             CommandOptions options = new CommandOptions(args);
             Assert.NotNull(options);
 
             Assert.True(options.EnableLogging);
             Assert.False(options.ShouldExit);
-            Assert.Equal(options.Locale, "enu");
+            Assert.Equal(options.Locale, "en");
         }
 
         [Fact]
