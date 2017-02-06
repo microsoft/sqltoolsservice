@@ -145,5 +145,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 return "Unable to retrieve Azure session-id.";
             }
         }
+
+        internal static string ServerInfoCacheMiss
+        {
+            get
+            {
+                return "Server Info does not have the requested property in the cache";
+            }
+        }
     }
 }

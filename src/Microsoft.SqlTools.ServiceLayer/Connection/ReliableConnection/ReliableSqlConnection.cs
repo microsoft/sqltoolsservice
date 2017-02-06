@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         private readonly RetryPolicy _connectionRetryPolicy;
         private RetryPolicy _commandRetryPolicy;
         private Guid _azureSessionId;
+        private bool _isSqlDwDatabase;
 
         /// <summary>
         /// Initializes a new instance of the ReliableSqlConnection class with a given connection string
@@ -96,6 +97,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
+        /// <summary>
+        /// Determines if a connection is being made to a SQL DW database.
+        /// </summary>
+        /// <param name="conn">A connection object.</param>
+        private bool IsSqlDwConnection(IDbConnection conn)
+        {
+            //Set the connection only if it has not been set earlier.
+            //This is assuming that it is highly unlikely for a connection to change between instances.
+            //Hence any subsequent calls to this method will just return the cached value and not 
+            //verify again if this is a SQL DW database connection or not.
+            if (!CachedServerInfo.TryGetIsSqlDw(conn, out _isSqlDwDatabase))
+            {
+                _isSqlDwDatabase = ReliableConnectionHelper.IsSqlDwDatabase(conn);
+                CachedServerInfo.AddOrUpdateIsSqlDw(conn, _isSqlDwDatabase);;
+            }
+
+            return _isSqlDwDatabase;
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         internal static void SetLockAndCommandTimeout(IDbConnection conn)
         {
@@ -120,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
-        internal static void SetDefaultAnsiSettings(IDbConnection conn)
+        internal static void SetDefaultAnsiSettings(IDbConnection conn, bool isSqlDw)
         {
             Validate.IsNotNull(nameof(conn), conn);
 
@@ -136,8 +156,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             using (IDbCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandTimeout = CachedServerInfo.GetQueryTimeoutSeconds(conn);
-                cmd.CommandText = @"SET ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL, QUOTED_IDENTIFIER ON;
+                if (!isSqlDw)
+                {
+                    cmd.CommandText = @"SET ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL, QUOTED_IDENTIFIER ON;
 SET NUMERIC_ROUNDABORT OFF;";
+                }
+                else
+                {
+                    cmd.CommandText = @"SET ANSI_NULLS ON; SET ANSI_PADDING ON; SET ANSI_WARNINGS ON; SET ARITHABORT ON; SET CONCAT_NULL_YIELDS_NULL ON; SET QUOTED_IDENTIFIER ON;"; //SQL DW does not support NUMERIC_ROUNDABORT
+                }
                 cmd.ExecuteNonQuery();
             }
         }
@@ -343,7 +370,7 @@ SET NUMERIC_ROUNDABORT OFF;";
                     _underlyingConnection.Open();
                 }
                 SetLockAndCommandTimeout(_underlyingConnection);
-                SetDefaultAnsiSettings(_underlyingConnection);
+                SetDefaultAnsiSettings(_underlyingConnection, IsSqlDwConnection(_underlyingConnection));
             });
 
             return _underlyingConnection;

@@ -48,11 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... And then I dispose of the query
             var disposeParams = new QueryDisposeParams {OwnerUri = Common.OwnerUri};
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
-                .AddResultValidation(r =>
-                {
-                    // Then: Messages should be null
-                    Assert.Null(r.Messages);
-                }).Complete();
+                .AddStandardQueryDisposeValidator()
+                .Complete();
             await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
 
             // Then:
@@ -71,13 +68,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             var disposeParams = new QueryDisposeParams {OwnerUri = Common.OwnerUri};
 
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
-                .AddResultValidation(r =>
-                {
-                    // Then: Messages should not be null
-                    Assert.NotNull(r.Messages);
-                    Assert.NotEmpty(r.Messages);
-                }).Complete();
+                .AddErrorValidation<string>(Assert.NotEmpty)
+                .Complete();
             await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
+
+            // Then: I should have received an error
             disposeRequest.Validate();
         }
 
@@ -105,6 +100,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // Then:
             // ... There should no longer be an active query
             Assert.Empty(queryService.ActiveQueries);
+        }
+    }
+
+    public static class QueryDisposeEventFlowValidatorExtensions
+    {
+        public static EventFlowValidator<QueryDisposeResult> AddStandardQueryDisposeValidator(
+            this EventFlowValidator<QueryDisposeResult> evf)
+        {
+            // We just need to make sure that the result is not null
+            evf.AddResultValidation(Assert.NotNull);
+
+            return evf;
         }
     }
 }

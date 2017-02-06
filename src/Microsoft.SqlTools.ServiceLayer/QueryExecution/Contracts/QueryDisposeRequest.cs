@@ -20,11 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// </summary>
     public class QueryDisposeResult
     {
-        /// <summary>
-        /// Any error messages that occurred during disposing the result set. Optional, can be set
-        /// to null if there were no errors.
-        /// </summary>
-        public string Messages { get; set; }
     }
 
     public class QueryDisposeRequest

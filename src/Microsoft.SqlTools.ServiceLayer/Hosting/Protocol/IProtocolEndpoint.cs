@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
     /// respond to requests and events, send their own requests, and listen for notifications
     /// sent by the other side of the endpoint
     /// </summary>
-    public interface IProtocolEndpoint : IMessageSender
+    public interface IProtocolEndpoint : IEventSender, IRequestSender
     {
         void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
