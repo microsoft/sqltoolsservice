@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.True(options.EnableLogging);
             Assert.False(options.ShouldExit);
-            Assert.Null(options.Locale);
+            Assert.Equal(options.Locale, string.Empty);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
-            Assert.Null(options.Locale);
+            Assert.Equal(options.Locale, string.Empty);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
-            Assert.Null(options.Locale);
+            Assert.Equal(options.Locale, string.Empty);
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
-            Assert.Null(options.Locale);
+            Assert.Equal(options.Locale, string.Empty);
         }
 
         [Fact]
@@ -68,19 +68,22 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
-            Assert.Null(options.Locale);
+            Assert.Equal(options.Locale, string.Empty);
         }
         
-        [Fact]
-        public void LocaleSetWhenProvided()
+        [Theory]
+        [InlineData("en")]
+        [InlineData("es")]
+        [InlineData("enu")]
+        [InlineData("esn")]
+        public void LocaleSetWhenProvided(string locale)
         {
-            var args = new string[] {"--locale en"};
+            var args = new string[] {"--locale " + locale};
             CommandOptions options = new CommandOptions(args);
             Assert.NotNull(options);
 
-            Assert.True(options.EnableLogging);
             Assert.False(options.ShouldExit);
-            Assert.Equal(options.Locale, "en");
+            Assert.Equal(options.Locale, locale);
         }
 
         [Fact]
@@ -92,7 +95,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
-            Assert.Null(options.Locale);
+            Assert.Equal(options.Locale, string.Empty);
         }
     }
 }
