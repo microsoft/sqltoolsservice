@@ -3,10 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -15,6 +17,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowUpdate : RowEditBase
     {
+        private const string UpdateStatement = "UPDATE {0} SET {1} {2}";
+        private const string UpdateStatementHekaton = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
+
         private readonly Dictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
 
@@ -31,9 +36,27 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             associatedRow = associatedResultSet.GetRow(rowId);
         }
 
+        /// <summary>
+        /// Constructs an update statement to change the associated row.
+        /// </summary>
+        /// <returns>An UPDATE statement</returns>
         public override string GetScript()
         {
-            throw new NotImplementedException();
+            // Build the "SET" portion of the statement
+            IEnumerable<string> setComponents = cellUpdates.Select(kvp =>
+            {
+                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(kvp.Value.Column.ColumnName);
+                string formattedValue = SqlScriptFormatter.FormatValue(kvp.Value.Value, kvp.Value.Column);
+                return $"({formattedColumnName} = {formattedValue})";
+            });
+            string setClause = string.Join(", ", setComponents);
+
+            // Get the where clause
+            string whereClause = GetWhereClause(false).CommandText;
+
+            // @TODO Determine when to use Hekaton version
+            // Put it all together
+            return string.Format(CultureInfo.InvariantCulture, UpdateStatement, AssociatedObject, setClause, whereClause);
         }
 
         /// <summary>
