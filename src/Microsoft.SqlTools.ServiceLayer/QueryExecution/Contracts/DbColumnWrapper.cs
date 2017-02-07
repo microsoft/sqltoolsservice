@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlTypes;
 using System.Diagnostics;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
@@ -286,14 +287,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <remarks>
         /// Logic taken from SSDT determination of updatable columns
         /// </remarks>
-        public bool IsUpdatable => IsAutoIncrement.HasValue && !IsAutoIncrement.Value && 
-                                   IsReadOnly.HasValue && !IsReadOnly.Value && 
+        public bool IsUpdatable => !IsAutoIncrement.HasTrue() && 
+                                   !IsReadOnly.HasTrue() && 
                                    !IsSqlXmlType;
-
-        ///// <summary>
-        ///// The BaseColumnName unless it is <c>null</c>, then it is the ColumnName
-        ///// </summary>
-        //public string SafeBaseColumnName => BaseColumnName ?? ColumnName;
 
         #endregion
 

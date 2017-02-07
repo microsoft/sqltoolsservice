@@ -4,7 +4,10 @@
 //
 
 using System;
+using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -13,6 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowCreate : RowEditBase
     {
+        private const string InsertStatement = "INSERT INTO {0}({1}) VALUES ({2})";
+
         private readonly CellUpdate[] newCells;
 
         public RowCreate(long rowId, ResultSet associatedResultSet, string associatedObject)
@@ -23,7 +28,37 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         public override string GetScript()
         {
-            throw new NotImplementedException();
+            List<string> columnNames = new List<string>();
+            List<string> columnValues = new List<string>();
+
+            // Build the column list and value list
+            for (int i = 0; i < AssociatedResultSet.Columns.Length; i++)
+            {
+                DbColumnWrapper column = AssociatedResultSet.Columns[i];
+                CellUpdate cell = newCells[i];
+
+                // If the column is not updatable, then skip it
+                if (!column.IsUpdatable)
+                {
+                    continue;
+                }
+
+                // If the cell doesn't have a value, but is updatable, don't try to create the script
+                if (cell == null)
+                {
+                    // @TODO: Move to constants file
+                    throw new InvalidOperationException("Cannot create a row with missing data");
+                }
+
+                // Add the column and the data to their respective lists
+                columnNames.Add(SqlScriptFormatter.FormatIdentifier(column.ColumnName));
+                columnValues.Add(SqlScriptFormatter.FormatValue(cell.Value, column));
+            }
+
+            // Put together the components of the statement
+            string joinedColumnNames = string.Join(", ", columnNames);
+            string joinedColumnValues = string.Join(", ", columnValues);
+            return string.Format(InsertStatement, AssociatedObject, joinedColumnNames, joinedColumnValues);
         }
 
         /// <summary>
