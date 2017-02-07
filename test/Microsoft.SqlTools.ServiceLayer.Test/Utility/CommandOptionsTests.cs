@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.Test.Utility
             var args = new string[] {};
             CommandOptions options = new CommandOptions(args);
             Assert.NotNull(options);
-
+   
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
             Assert.Equal(options.Locale, string.Empty);
@@ -78,8 +78,9 @@ namespace Microsoft.SqlTools.Test.Utility
         {
             var args = new string[] {"--locale " + locale};
             CommandOptions options = new CommandOptions(args);
-            Assert.NotNull(options);
 
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
             Assert.False(options.ShouldExit);
             Assert.Equal(options.Locale, locale);
         }
@@ -90,8 +91,9 @@ namespace Microsoft.SqlTools.Test.Utility
             string locale = "invalid";
             var args = new string[] { "--locale " + locale };
             CommandOptions options = new CommandOptions(args);
-            Assert.NotNull(options);
 
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
             Assert.False(options.ShouldExit);
         }
 
@@ -100,8 +102,9 @@ namespace Microsoft.SqlTools.Test.Utility
         {
             var args = new string[] {};
             CommandOptions options = new CommandOptions(args);
-            Assert.NotNull(options);
 
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
             Assert.Equal(options.Locale, string.Empty);
