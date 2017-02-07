@@ -233,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string objectName = "testTable";
             string quickInfoText = "table master.dbo.testTable";
-            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             string expected = "master.dbo.testTable";
             Assert.Equal(expected, result);
         }
@@ -251,17 +251,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             string objectName = null;
             string quickInfoText = "table master.dbo.testTable";
-            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
 
             quickInfoText = null;
             objectName = "tableName";
-            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
 
             quickInfoText = null;
             objectName = null;
-            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
         }
 
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string objectName = "test";
             string quickInfoText = "table master.dbo.tableName";
-            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             string expected = null;
             Assert.Equal(expected, result);
         }
@@ -292,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string objectName = "tableName";
             string quickInfoText = "table master.dbo.tableName";
-            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             string expected = "table";
             Assert.Equal(expected, result);
         }
@@ -310,17 +310,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             string objectName = null;
             string quickInfoText = "table master.dbo.testTable";
-            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
 
             quickInfoText = null;
             objectName = "tableName";
-            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
 
             quickInfoText = null;
             objectName = null;
-            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
         }
 
@@ -335,7 +335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string objectName = "test";
             string quickInfoText = "table master.dbo.tableName";
-            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             string expected = null;
             Assert.Equal(expected, result);
         }
