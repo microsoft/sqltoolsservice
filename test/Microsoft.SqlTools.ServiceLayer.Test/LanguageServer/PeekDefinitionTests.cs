@@ -239,6 +239,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
+        /// Test extracting the full object name from quickInfoText with case insensitive comparison.
+        /// Given a valid object name string and a vaild quickInfo string containing the object name
+        /// Expect the full object name (database.schema.objectName)
+        /// </summary>
+        [Fact]
+        public void GetFullObjectNameFromQuickInfoWithValidStringsandIgnoreCaseTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "testtable";
+            string quickInfoText = "table master.dbo.testTable";
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.OrdinalIgnoreCase);
+            string expected = "master.dbo.testTable";
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
         /// Test extracting the full object name from quickInfoText.
         /// Given a null object name string and a vaild quickInfo string containing the object name( and vice versa)
         /// Expect null
@@ -293,6 +309,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             string objectName = "tableName";
             string quickInfoText = "table master.dbo.tableName";
             string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
+            string expected = "table";
+            Assert.Equal(expected, result);
+        }
+
+
+        /// <summary>
+        /// Test extracting the object type from quickInfoText with case insensitive comparison.
+        /// Given a valid object name string and a vaild quickInfo string containing the object name
+        /// Expect correct object type
+        /// </summary>
+        [Fact]
+        public void GetTokenTypeFromQuickInfoWithValidStringsandIgnoreCaseTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "tablename";
+            string quickInfoText = "table master.dbo.tableName";
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.OrdinalIgnoreCase);
             string expected = "table";
             Assert.Equal(expected, result);
         }
