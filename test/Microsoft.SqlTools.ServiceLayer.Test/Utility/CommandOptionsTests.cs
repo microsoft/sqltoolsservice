@@ -74,8 +74,6 @@ namespace Microsoft.SqlTools.Test.Utility
         [Theory]
         [InlineData("en")]
         [InlineData("es")]
-        [InlineData("enu")]
-        [InlineData("esn")]
         public void LocaleSetWhenProvided(string locale)
         {
             var args = new string[] {"--locale " + locale};
@@ -83,6 +81,18 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.False(options.ShouldExit);
+            Assert.Equal(options.Locale, locale);
+        }
+
+        [Fact]
+        public void ShouldExitSetWhenInvalidLocale()
+        {
+            string locale = "invalid";
+            var args = new string[] { "--locale " + locale };
+            CommandOptions options = new CommandOptions(args);
+            Assert.NotNull(options);
+
+            Assert.True(options.ShouldExit);
             Assert.Equal(options.Locale, locale);
         }
 
