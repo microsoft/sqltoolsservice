@@ -110,16 +110,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         }
 
         private void setLocale(string locale){
-            // Creating cultureInfo from our given locale
-            Locale = locale;
-            CultureInfo language = new CultureInfo(locale);
+            try
+            {
+                // Creating cultureInfo from our given locale
+                CultureInfo language = new CultureInfo(locale);
+                Locale = locale;
 
-            // Setting our language globally 
-            CultureInfo.CurrentCulture = language;
-            CultureInfo.CurrentUICulture = language;
+                // Setting our language globally 
+                CultureInfo.CurrentCulture = language;
+                CultureInfo.CurrentUICulture = language;
 
-            // Setting our internal SR culture to our global culture
-            SR.Culture = CultureInfo.CurrentCulture;
+                // Setting our internal SR culture to our global culture
+                SR.Culture = CultureInfo.CurrentCulture;
+            }
+            catch(Exception ex)
+            {
+                // Warn user of invalid locale, and fall back to english 
+                Console.WriteLine(ex);
+            }
         }
     }
 }

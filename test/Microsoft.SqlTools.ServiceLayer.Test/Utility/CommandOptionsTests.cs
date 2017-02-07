@@ -92,8 +92,7 @@ namespace Microsoft.SqlTools.Test.Utility
             CommandOptions options = new CommandOptions(args);
             Assert.NotNull(options);
 
-            Assert.True(options.ShouldExit);
-            Assert.Equal(options.Locale, locale);
+            Assert.False(options.ShouldExit);
         }
 
         [Fact]
