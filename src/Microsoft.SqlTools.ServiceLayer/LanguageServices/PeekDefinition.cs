@@ -72,10 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         try
                         {
-                            // Reuse existing connection 
+                            // Reuse existing connection
                             Server server = new Server(this.serverConnection);
                             // The default database name is the database name of the server connection
-                            string dbName = this.serverConnection.DatabaseName;                          
+                            string dbName = this.serverConnection.DatabaseName;
                             if (this.connectionInfo != null)
                             {
                                 // If there is a query DbConnection, use that connection to get the database name
@@ -86,8 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     if (!string.IsNullOrEmpty(connection.Database))
                                     {
                                         dbName  = connection.Database;
-                                    }                               
-                                }                              
+                                    }
+                                }
                             }
                             this.database = new Database(server, dbName);
                             this.database.Refresh();
@@ -147,8 +147,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         continue;
                     }
-                    // if declarationItem matches the selected token, script SMO using that type
+                    if (this.Database == null)
+                    {
+                        return GetDefinitionErrorResult(SR.PeekDefinitionDatabaseError);
+                    }
                     StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+                    // if declarationItem matches the selected token, script SMO using that type
                     if (declarationItem.Title.Equals (tokenText, caseSensitivity))
                     {
                         return GetDefinitionUsingDeclarationType(declarationItem.Type, declarationItem.DatabaseQualifiedName, tokenText, schemaName);
@@ -174,6 +178,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal DefinitionResult GetDefinitionUsingQuickInfoText(string quickInfoText, string tokenText, string schemaName)
         {
+            if (this.Database == null)
+            {
+                return GetDefinitionErrorResult(SR.PeekDefinitionDatabaseError);
+            }
             StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
             if (tokenType != null)
