@@ -343,6 +343,10 @@
     <value>No results were found.</value>
     <comment></comment>
   </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>No database object was retrieved.</value>
+    <comment></comment>
+  </data>
   <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
     <value>Please connect to a server.</value>
     <comment></comment>
