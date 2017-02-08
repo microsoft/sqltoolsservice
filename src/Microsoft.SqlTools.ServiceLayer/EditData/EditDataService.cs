@@ -5,13 +5,21 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
+using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
@@ -26,16 +34,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         private EditDataService()
         {
             queryExecutionService = QueryExecutionService.Instance;
+            connectionService = ConnectionService.Instance;
         }
 
-        internal EditDataService(QueryExecutionService qes)
+        internal EditDataService(QueryExecutionService qes, ConnectionService cs)
         {
             queryExecutionService = qes;
+            connectionService = cs;
         }
 
         #endregion
 
         #region Member Variables 
+
+        private readonly ConnectionService connectionService;
 
         private readonly QueryExecutionService queryExecutionService;
 
@@ -136,61 +148,66 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleInitializeRequest(EditInitializeParams initParams,
             RequestContext<EditInitializeResult> requestContext)
         {
-            // Setup a callback for when the query has successfully created
-            Func<Query, Task<bool>> queryCreateSuccessCallback = async query =>
-            {
-                await requestContext.SendResult(new EditInitializeResult());
-                return true;
-            };
-
-            // Setup a callback for when the query failed to be created
-            Func<string, Task> queryCreateFailureCallback = requestContext.SendError;
-
-            // Setup a callback for when the query completes execution successfully
-            Query.QueryAsyncEventHandler queryCompleteSuccessCallback = async query =>
-            {
-                EditSessionReadyParams readyParams = new EditSessionReadyParams
-                {
-                    OwnerUri = initParams.OwnerUri
-                };
-
-                try
-                {
-                    // Create the session and add it to the sessions list
-                    Session session = new Session(query, initParams.ObjectName);
-                    if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
-                    {
-                        throw new InvalidOperationException("Failed to create edit session, session already exists.");
-                    }
-                    readyParams.Success = true;
-                }
-                catch (Exception)
-                {
-                    // Request that the query be disposed
-                    await queryExecutionService.InterServiceDisposeQuery(initParams.OwnerUri, null, null);
-                    readyParams.Success = false;
-                }
-
-                // Send the edit session ready notification
-                await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
-            };
-
-            // Setup a callback for when the query completes execution with failure
-            Query.QueryAsyncEventHandler queryCompleteFailureCallback = query =>
-            {
-                EditSessionReadyParams readyParams = new EditSessionReadyParams
-                {
-                    OwnerUri = initParams.OwnerUri,
-                    Success = false
-                };
-                return requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
-            };
-
             try
-            {
+            {          
                 // Make sure we have info to process this request
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.OwnerUri), initParams.OwnerUri);
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
+
+                // Setup a callback for when the query has successfully created
+                Func<Query, Task<bool>> queryCreateSuccessCallback = async query =>
+                {
+                    await requestContext.SendResult(new EditInitializeResult());
+                    return true;
+                };
+
+                // Setup a callback for when the query failed to be created
+                Func<string, Task> queryCreateFailureCallback = requestContext.SendError;
+
+                // Setup a callback for when the query completes execution successfully
+                Query.QueryAsyncEventHandler queryCompleteSuccessCallback = async query =>
+                {
+                    EditSessionReadyParams readyParams = new EditSessionReadyParams
+                    {
+                        OwnerUri = initParams.OwnerUri
+                    };
+
+                    try
+                    {
+                        // Get a connection we'll use for SMO metadata lookup (and committing, later on)
+                        // @TODO: Replace with factory pattern!
+                        var smoMetadata = await GetSmoMetadata(initParams.OwnerUri, initParams.ObjectName, initParams.ObjectType);
+                        var metadata = new EditTableMetadata(query.Batches[0].ResultSets[0].Columns, smoMetadata);
+
+                        // Create the session and add it to the sessions list
+                        Session session = new Session(query, metadata);
+                        if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
+                        {
+                            throw new InvalidOperationException("Failed to create edit session, session already exists.");
+                        }
+                        readyParams.Success = true;
+                    }
+                    catch (Exception)
+                    {
+                        // Request that the query be disposed
+                        await queryExecutionService.InterServiceDisposeQuery(initParams.OwnerUri, null, null);
+                        readyParams.Success = false;
+                    }
+
+                    // Send the edit session ready notification
+                    await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
+                };
+
+                // Setup a callback for when the query completes execution with failure
+                Query.QueryAsyncEventHandler queryCompleteFailureCallback = query =>
+                {
+                    EditSessionReadyParams readyParams = new EditSessionReadyParams
+                    {
+                        OwnerUri = initParams.OwnerUri,
+                        Success = false
+                    };
+                    return requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
+                };
 
                 // Put together a query for the results and execute it
                 ExecuteStringParams executeParams = new ExecuteStringParams
@@ -242,6 +259,41 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         #endregion
 
         #region Private Helpers
+
+        private async Task<TableViewTableTypeBase> GetSmoMetadata(string ownerUri, string objectName, string objectType)
+        {
+            // Get a connection to the database for edit purposes
+            DbConnection conn = await connectionService.GetOrOpenConnection(ownerUri, ConnectionType.Edit);
+            ReliableSqlConnection reliableConn = conn as ReliableSqlConnection;
+            if (reliableConn == null)
+            {
+                // If we don't have connection we can use with SMO, just give up on using SMO
+                return null;
+            }
+
+            SqlConnection sqlConn = reliableConn.GetUnderlyingConnection();
+            Server server = new Server(new ServerConnection(sqlConn));
+            TableViewTableTypeBase result;
+            switch (objectType.ToLowerInvariant())
+            {
+                case "table":
+                    result = server.Databases[sqlConn.Database].Tables["identitytest"];
+                    break;
+                case "view":
+                    result = server.Databases[sqlConn.Database].Views[objectName];
+                    break;
+                default:
+                    // @TODO: Move to constants file
+                    throw new ArgumentOutOfRangeException(nameof(objectType), "Unsupported object type for editing");
+            }
+            if (result == null)
+            {
+                // @TODO: Move to constants file
+                throw new ArgumentOutOfRangeException(nameof(objectName), "Table or view could not be found");
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Returns the session with the given owner URI or throws if it can't be found

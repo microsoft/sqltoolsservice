@@ -27,10 +27,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Constructs a new RowUpdate to be added to the cache.
         /// </summary>
         /// <param name="rowId">Internal ID of the row that will be updated with this object</param>
-        /// <param name="associatedResultSet">The result set that this update will be applied to</param>
-        /// <param name="associatedObject">The object (table, view, etc) that will be updated</param>
-        public RowUpdate(long rowId, ResultSet associatedResultSet, string associatedObject) 
-            : base(rowId, associatedResultSet, associatedObject)
+        /// <param name="associatedResultSet">Result set for the rows of the object to update</param>
+        /// <param name="associatedMetadata">Metadata provider for the object to update</param>
+        public RowUpdate(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+            : base(rowId, associatedResultSet, associatedMetadata)
         {
             cellUpdates = new Dictionary<int, CellUpdate>();
             associatedRow = associatedResultSet.GetRow(rowId);
@@ -54,9 +54,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Get the where clause
             string whereClause = GetWhereClause(false).CommandText;
 
-            // @TODO Determine when to use Hekaton version
             // Put it all together
-            return string.Format(CultureInfo.InvariantCulture, UpdateStatement, AssociatedObject, setClause, whereClause);
+            string formatString = AssociatedObjectMetadata.IsHekaton ? UpdateStatementHekaton : UpdateStatement;
+            return string.Format(CultureInfo.InvariantCulture, formatString,
+                AssociatedObjectMetadata.EscapedMultipartName, setClause, whereClause);
         }
 
         /// <summary>

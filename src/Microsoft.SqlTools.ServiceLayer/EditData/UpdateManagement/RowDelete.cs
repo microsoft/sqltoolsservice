@@ -5,6 +5,7 @@
 
 using System;
 using System.Data.Common;
+using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
@@ -17,21 +18,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string DeleteStatement = "DELETE FROM {0} {1}";
         private const string DeleteHekatonStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
 
-        public RowDelete(long rowId, ResultSet associatedResultSet, string associatedObject)
-            : base(rowId, associatedResultSet, associatedObject)
+        public RowDelete(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+            : base(rowId, associatedResultSet, associatedMetadata)
         {
         }
 
         public /* override */ DbCommand GetCommitCommand()
         {
-            DbColumn firstColumn = AssociatedResultSet.Columns[0];
             throw new NotImplementedException();
         }
 
         public override string GetScript()
         {
-            // @TODO: Determine if this is a hekaton table and use the appropriate statement.
-            return string.Format(DeleteStatement, AssociatedObject, GetWhereClause(false).CommandText);
+            string formatString = AssociatedObjectMetadata.IsHekaton ? DeleteHekatonStatement : DeleteStatement;
+            return string.Format(CultureInfo.InvariantCulture, formatString,
+                AssociatedObjectMetadata.EscapedMultipartName, GetWhereClause(false).CommandText);
         }
 
         /// <summary>

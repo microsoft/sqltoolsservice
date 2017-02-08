@@ -120,8 +120,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         public static string FormatMultipartIdentifier(string identifier)
         {
             // If the object is a multi-part identifier (eg, dbo.tablename) split it, and escape as necessary
-            string[] identifierParts = identifier.Split('.');
-            IEnumerable<string> escapedParts = identifierParts.Select(p => FormatIdentifier(identifier.Trim('[', ']')));
+            return FormatMultipartIdentifier(identifier.Split('.'));
+        }
+
+        public static string FormatMultipartIdentifier(string[] identifiers)
+        {
+            IEnumerable<string> escapedParts = identifiers.Select(p => FormatIdentifier(p.Trim('[', ']')));
             return string.Join(".", escapedParts);
         }
 

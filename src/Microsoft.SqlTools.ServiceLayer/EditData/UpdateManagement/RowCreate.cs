@@ -20,8 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         private readonly CellUpdate[] newCells;
 
-        public RowCreate(long rowId, ResultSet associatedResultSet, string associatedObject)
-            : base(rowId, associatedResultSet, associatedObject)
+        public RowCreate(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+            : base(rowId, associatedResultSet, associatedMetadata)
         {
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
         }
@@ -58,7 +58,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Put together the components of the statement
             string joinedColumnNames = string.Join(", ", columnNames);
             string joinedColumnValues = string.Join(", ", columnValues);
-            return string.Format(InsertStatement, AssociatedObject, joinedColumnNames, joinedColumnValues);
+            return string.Format(InsertStatement, AssociatedObjectMetadata.EscapedMultipartName, joinedColumnNames,
+                joinedColumnValues);
         }
 
         /// <summary>
