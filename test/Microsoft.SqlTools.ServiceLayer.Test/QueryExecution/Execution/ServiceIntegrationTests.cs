@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 {
     public class ServiceIntegrationTests
     {
+
         #region Get SQL Tests
 
         [Fact]
