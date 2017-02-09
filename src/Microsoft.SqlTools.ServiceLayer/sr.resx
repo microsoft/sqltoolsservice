@@ -299,6 +299,10 @@
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>No results were found.</value>
   </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>No database object was retrieved.</value>
+    <comment></comment>
+  </data>
   <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
     <value>Please connect to a server.</value>
   </data>
@@ -321,6 +325,7 @@
     <comment>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
+
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
   </data>
@@ -410,5 +415,9 @@
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>EN_LOCALIZATION</value>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>EN_LOCALIZATION</value>
+    <comment></comment>
   </data>
 </root>

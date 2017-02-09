@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.True(options.EnableLogging);
             Assert.False(options.ShouldExit);
+            Assert.Equal(options.Locale, string.Empty);
         }
 
         [Fact]
@@ -33,6 +34,7 @@ namespace Microsoft.SqlTools.Test.Utility
 
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
+            Assert.Equal(options.Locale, string.Empty);
         }
 
         [Fact]
@@ -43,6 +45,7 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
+            Assert.Equal(options.Locale, string.Empty);
         }
 
         [Fact]
@@ -53,6 +56,7 @@ namespace Microsoft.SqlTools.Test.Utility
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
+            Assert.Equal(options.Locale, string.Empty);
         }
 
         [Fact]
@@ -61,9 +65,49 @@ namespace Microsoft.SqlTools.Test.Utility
             var args = new string[] {};
             CommandOptions options = new CommandOptions(args);
             Assert.NotNull(options);
-
+   
             Assert.False(options.EnableLogging);
             Assert.False(options.ShouldExit);
+            Assert.Equal(options.Locale, string.Empty);
+        }
+        
+        [Theory]
+        [InlineData("en")]
+        [InlineData("es")]
+        public void LocaleSetWhenProvided(string locale)
+        {
+            var args = new string[] {"--locale " + locale};
+            CommandOptions options = new CommandOptions(args);
+
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
+            Assert.False(options.ShouldExit);
+            Assert.Equal(options.Locale, locale);
+        }
+
+        [Fact]
+        public void ShouldExitSetWhenInvalidLocale()
+        {
+            string locale = "invalid";
+            var args = new string[] { "--locale " + locale };
+            CommandOptions options = new CommandOptions(args);
+
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
+            Assert.False(options.ShouldExit);
+        }
+
+        [Fact]
+        public void LocaleNotSetWhenNotProvided()
+        {
+            var args = new string[] {};
+            CommandOptions options = new CommandOptions(args);
+
+            // Asserting all options were properly set 
+            Assert.NotNull(options);
+            Assert.False(options.EnableLogging);
+            Assert.False(options.ShouldExit);
+            Assert.Equal(options.Locale, string.Empty);
         }
     }
 }

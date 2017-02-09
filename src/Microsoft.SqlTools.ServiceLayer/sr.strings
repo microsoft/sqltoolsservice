@@ -160,6 +160,8 @@ PeekDefinitionError(string errorMessage) = An unexpected error occurred during P
 
 PeekDefinitionNoResultsError = No results were found.
 
+PeekDefinitionDatabaseError = No database object was retrieved.
+
 PeekDefinitionNotConnectedError = Please connect to a server.
 
 PeekDefinitionTimedoutError = Operation timed out.
@@ -241,8 +243,3 @@ BatchParser_VariableNotDefined = Variable {0} is not defined.
 # Workspace Service
 
 TestLocalizationConstant = EN_LOCALIZATION
-
-
-
-
-

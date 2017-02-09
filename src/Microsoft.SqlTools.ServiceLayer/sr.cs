@@ -381,6 +381,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string PeekDefinitionDatabaseError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionDatabaseError);
+            }
+        }
+
         public static string PeekDefinitionNotConnectedError
         {
             get
@@ -644,6 +652,14 @@ namespace Microsoft.SqlTools.ServiceLayer
                 return Keys.GetString(Keys.BatchParser_VariableNotDefined);
             }
         }
+      
+        public static string TestLocalizationConstant
+        {
+            get
+            {
+                return Keys.GetString(Keys.TestLocalizationConstant);
+            }
+        }
 
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
@@ -875,6 +891,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string PeekDefinitionNoResultsError = "PeekDefinitionNoResultsError";
 
 
+            public const string PeekDefinitionDatabaseError = "PeekDefinitionDatabaseError";
+
+
             public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
 
 
@@ -978,6 +997,8 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string BatchParser_VariableNotDefined = "BatchParser_VariableNotDefined";
+
+            public const string TestLocalizationConstant = "TestLocalizationConstant";
 
 
             private Keys()
