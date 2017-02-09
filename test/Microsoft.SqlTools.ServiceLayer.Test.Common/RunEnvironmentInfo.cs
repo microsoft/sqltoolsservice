@@ -1,12 +1,11 @@
-//------------------------------------------------------------------------------
-// <copyright file="RunEnvironmentInfo.cs" company="Microsoft">
-//         Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.IO;
 using System.Reflection;
-using Microsoft.SqlTools.ServiceLayer.Test.Commons;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -16,8 +15,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public static bool IsLabMode()
         {
-            string bvtLabRoot = Environment.GetEnvironmentVariable(Consts.BVTLocalRoot);
-            if (String.IsNullOrEmpty(bvtLabRoot))
+            string bvtLabRoot = Environment.GetEnvironmentVariable(Constants.BVTLocalRoot);
+            if (string.IsNullOrEmpty(bvtLabRoot))
             {
                 return false;
             }
@@ -31,8 +30,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public static string GetTestDataLocation()
         {
             string testFolderPath;
-            string testPath = @"test\Microsoft.SqlTools.ServiceLayer.IntegrationTests";
-            string projectPath = Environment.GetEnvironmentVariable(Consts.ProjectPath);
+            string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test.Common\TestData";
+            string projectPath = Environment.GetEnvironmentVariable(Constants.ProjectPath);
 
             if (projectPath != null)
             {
@@ -47,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 else
                 {
                     string defaultPath = Path.Combine(typeof(Scripts).GetTypeInfo().Assembly.Location, @"..\..\..\..\..");
-                    testFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.IntegrationTests");
+                    testFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.Test.Common\TestData");
                     cachedTestFolderPath = testFolderPath;
                 }
             }
