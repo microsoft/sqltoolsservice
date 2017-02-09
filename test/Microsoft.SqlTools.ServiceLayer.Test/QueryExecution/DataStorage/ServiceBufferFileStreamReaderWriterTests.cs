@@ -354,7 +354,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
 
                 // Make sure the display value has a time string with 7 milliseconds
                 Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{7}$"));
-                VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteDateTime(val), reader => reader.ReadDateTime(0));
 
             }
         }
