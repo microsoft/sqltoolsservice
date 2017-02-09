@@ -13,16 +13,16 @@
     Example:
     
     ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+    <resheader name="resmimetype=">text/microsoft-resx</resheader>
+    <resheader name="version=">2.0</resheader>
+    <resheader name="reader=">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer=">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1="><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing=">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64=">
         <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64=">
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
@@ -59,12 +59,12 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata=">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
+    <xsd:element name="root" msdata:IsDataSet="true=">
       <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
+        <xsd:choice maxOccurs="unbounded=">
+          <xsd:element name="metadata=">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" />
@@ -75,13 +75,13 @@
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="assembly">
+          <xsd:element name="assembly=">
             <xsd:complexType>
               <xsd:attribute name="alias" type="xsd:string" />
               <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="data">
+          <xsd:element name="data=">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
@@ -93,7 +93,7 @@
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="resheader">
+          <xsd:element name="resheader=">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
@@ -119,9 +119,11 @@
   </resheader>
   <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
     <value>Connection parameters cannot be null</value>
+    <comment></comment>
   </data>
   <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
     <value>OwnerUri cannot be null or empty</value>
+    <comment></comment>
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
     <value>SpecifiedUri '{0}' does not have existing connection</value>
@@ -140,15 +142,19 @@
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
     <value>Connection canceled</value>
+    <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
     <value>OwnerUri cannot be null or empty</value>
+    <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
     <value>Connection details object cannot be null</value>
+    <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
     <value>ServerName cannot be null or empty</value>
+    <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
     <value>{0} cannot be null or empty when using SqlLogin authentication</value>
@@ -157,69 +163,91 @@
   </data>
   <data name="CredentialsServiceInvalidCriticalHandle" xml:space="preserve">
     <value>Invalid CriticalHandle!</value>
+    <comment></comment>
   </data>
   <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
     <value>The password has exceeded 512 bytes</value>
+    <comment></comment>
   </data>
   <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
     <value>Target must be specified to delete a credential</value>
+    <comment></comment>
   </data>
   <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
     <value>Target must be specified to check existance of a credential</value>
+    <comment></comment>
   </data>
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
     <value>Win32Credential object is already disposed</value>
+    <comment></comment>
   </data>
   <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
     <value>MessageReader's input stream ended unexpectedly, terminating</value>
+    <comment></comment>
   </data>
   <data name="HostingHeaderMissingColon" xml:space="preserve">
     <value>Message header must separate key and value using ':'</value>
+    <comment></comment>
   </data>
   <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
     <value>Fatal error: Content-Length header must be provided</value>
+    <comment></comment>
   </data>
   <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
     <value>Fatal error: Content-Length value is not an integer</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
     <value>The query has already completed, it cannot be cancelled</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
     <value>Query successfully cancelled, failed to dispose query. Owner URI not found.</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceQueryCancelled" xml:space="preserve">
     <value>Query was canceled by user</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
     <value>The batch has not completed, yet</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
     <value>Batch index cannot be less than 0 or greater than the number of batches</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
     <value>Result set index cannot be less than 0 or greater than the number of result sets</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
     <value>Maximum number of bytes to return must be greater than zero</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
     <value>Maximum number of chars to return must be greater than zero</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
     <value>Maximum number of XML bytes to return must be greater than zero</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
     <value>Access method cannot be write-only</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
     <value>FileStreamWrapper must be initialized before performing operations</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
     <value>This FileStreamWrapper cannot be used for writing</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceAffectedOneRow" xml:space="preserve">
     <value>(1 row affected)</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
     <value>({0} rows affected)</value>
@@ -228,6 +256,7 @@
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>Commands completed successfully.</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</value>
@@ -241,30 +270,39 @@
   </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
     <value>(No column name)</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
     <value>The requested query does not exist</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
     <value>This editor is not connected to a database</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
     <value>A query is already in progress for this editor session. Please cancel this query or wait for its completion.</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
     <value>Sender for OnInfoMessage event must be a SqlConnection</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceResultSetReaderNull" xml:space="preserve">
     <value>Reader cannot be null</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
     <value>Result cannot be saved until query execution has completed</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
     <value>Internal error occurred while starting save task</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
     <value>A save request to the same path is in progress</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceSaveAsFail" xml:space="preserve">
     <value>Failed to save {0}: {1}</value>
@@ -273,18 +311,23 @@
   </data>
   <data name="QueryServiceResultSetNotRead" xml:space="preserve">
     <value>Cannot read subset unless the results have been read from the server</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
     <value>Start row cannot be less than 0 or greater than the number of rows in the result set</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
     <value>Row count must be a positive integer</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
     <value>Could not retrieve column schema for result set</value>
+    <comment></comment>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
     <value>Could not retrieve an execution plan from the result set </value>
+    <comment></comment>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</value>
@@ -298,6 +341,7 @@
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>No results were found.</value>
+    <comment></comment>
   </data>
   <data name="PeekDefinitionDatabaseError" xml:space="preserve">
     <value>No database object was retrieved.</value>
@@ -305,15 +349,19 @@
   </data>
   <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
     <value>Please connect to a server.</value>
+    <comment></comment>
   </data>
   <data name="PeekDefinitionTimedoutError" xml:space="preserve">
     <value>Operation timed out.</value>
+    <comment></comment>
   </data>
   <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
     <value>This object type is currently not supported by this feature.</value>
+    <comment></comment>
   </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
     <value>Position is outside of file line range</value>
+    <comment></comment>
   </data>
   <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
     <value>Position is outside of column range for line {0}</value>
@@ -325,96 +373,121 @@
     <comment>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
-
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
+    <comment></comment>
   </data>
   <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</value>
+    <comment></comment>
   </data>
   <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}</value>
+    <comment></comment>
   </data>
   <data name="EE_BatchError_Exception" xml:space="preserve">
     <value>An error occurred while the batch was being processed. The error message is: {0}</value>
+    <comment></comment>
   </data>
   <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value />
+    <value></value>
+    <comment></comment>
   </data>
   <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
     <value>The previous execution is not yet complete.</value>
+    <comment></comment>
   </data>
   <data name="EE_ScriptError_Error" xml:space="preserve">
     <value>A scripting error occurred.</value>
+    <comment></comment>
   </data>
   <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
     <value>Incorrect syntax was encountered while {0} was being parsed.</value>
+    <comment></comment>
   </data>
   <data name="EE_ScriptError_FatalError" xml:space="preserve">
     <value>A fatal error occurred.</value>
+    <comment></comment>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
     <value>Execution completed {0} times...</value>
+    <comment></comment>
   </data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
     <value>You cancelled the query.</value>
+    <comment></comment>
   </data>
   <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
     <value>An error occurred while the batch was being executed.</value>
+    <comment></comment>
   </data>
   <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
     <value>An error occurred while the batch was being executed, but the error has been ignored.</value>
+    <comment></comment>
   </data>
   <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
     <value>Starting execution loop of {0} times...</value>
+    <comment></comment>
   </data>
   <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
     <value>Command {0} is not supported.</value>
+    <comment></comment>
   </data>
   <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
     <value>The variable {0} could not be found.</value>
+    <comment></comment>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
     <value>SQL Execution error: {0}</value>
+    <comment></comment>
   </data>
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
     <value>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</value>
+    <comment></comment>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
     <value>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</value>
+    <comment></comment>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
     <value>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
+    <comment></comment>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
     <value>Batch parser wrapper execution engine batch ResultSet finished.</value>
+    <comment></comment>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
     <value>Canceling batch parser wrapper batch execution.</value>
+    <comment></comment>
   </data>
   <data name="EE_ScriptError_Warning" xml:space="preserve">
     <value>Scripting warning.</value>
+    <comment></comment>
   </data>
   <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
     <value>For more information about this error, see the troubleshooting topics in the product documentation.</value>
+    <comment></comment>
   </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
     <value>File '{0}' recursively included.</value>
+    <comment></comment>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
     <value>Missing end comment mark '*/'.</value>
+    <comment></comment>
   </data>
   <data name="BatchParser_StringNotTerminated" xml:space="preserve">
     <value>Unclosed quotation mark after the character string.</value>
+    <comment></comment>
   </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>Incorrect syntax was encountered while parsing '{0}'.</value>
+    <comment></comment>
   </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>Variable {0} is not defined.</value>
-  </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>EN_LOCALIZATION</value>
+    <comment></comment>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>EN_LOCALIZATION</value>

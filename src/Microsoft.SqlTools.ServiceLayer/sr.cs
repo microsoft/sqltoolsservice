@@ -652,7 +652,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 return Keys.GetString(Keys.BatchParser_VariableNotDefined);
             }
         }
-      
+
         public static string TestLocalizationConstant
         {
             get
@@ -997,6 +997,7 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string BatchParser_VariableNotDefined = "BatchParser_VariableNotDefined";
+
 
             public const string TestLocalizationConstant = "TestLocalizationConstant";
 
