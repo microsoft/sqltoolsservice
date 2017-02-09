@@ -60,6 +60,105 @@ namespace Microsoft.SqlTools.ServiceLayer {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to File &apos;{0}&apos; recursively included..
+        /// </summary>
+        public static string BatchParser_CircularReference {
+            get {
+                return ResourceManager.GetString("BatchParser_CircularReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Missing end comment mark &apos;*/&apos;..
+        /// </summary>
+        public static string BatchParser_CommentNotTerminated {
+            get {
+                return ResourceManager.GetString("BatchParser_CommentNotTerminated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Incorrect syntax was encountered while parsing &apos;{0}&apos;..
+        /// </summary>
+        public static string BatchParser_IncorrectSyntax {
+            get {
+                return ResourceManager.GetString("BatchParser_IncorrectSyntax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Unclosed quotation mark after the character string..
+        /// </summary>
+        public static string BatchParser_StringNotTerminated {
+            get {
+                return ResourceManager.GetString("BatchParser_StringNotTerminated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Variable {0} is not defined..
+        /// </summary>
+        public static string BatchParser_VariableNotDefined {
+            get {
+                return ResourceManager.GetString("BatchParser_VariableNotDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Canceling batch parser wrapper batch execution..
+        /// </summary>
+        public static string BatchParserWrapperExecutionEngineBatchCancelling {
+            get {
+                return ResourceManager.GetString("BatchParserWrapperExecutionEngineBatchCancelling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}.
+        /// </summary>
+        public static string BatchParserWrapperExecutionEngineBatchMessage {
+            get {
+                return ResourceManager.GetString("BatchParserWrapperExecutionEngineBatchMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Batch parser wrapper execution engine batch ResultSet finished..
+        /// </summary>
+        public static string BatchParserWrapperExecutionEngineBatchResultSetFinished {
+            get {
+                return ResourceManager.GetString("BatchParserWrapperExecutionEngineBatchResultSetFinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}.
+        /// </summary>
+        public static string BatchParserWrapperExecutionEngineBatchResultSetProcessing {
+            get {
+                return ResourceManager.GetString("BatchParserWrapperExecutionEngineBatchResultSetProcessing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to SQL Execution error: {0}.
+        /// </summary>
+        public static string BatchParserWrapperExecutionEngineError {
+            get {
+                return ResourceManager.GetString("BatchParserWrapperExecutionEngineError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}.
+        /// </summary>
+        public static string BatchParserWrapperExecutionError {
+            get {
+                return ResourceManager.GetString("BatchParserWrapperExecutionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to Connection details object cannot be null.
         /// </summary>
         public static string ConnectionParamsValidateNullConnection {
@@ -339,6 +438,15 @@ namespace Microsoft.SqlTools.ServiceLayer {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to Scripting warning..
+        /// </summary>
+        public static string EE_ScriptError_Warning {
+            get {
+                return ResourceManager.GetString("EE_ScriptError_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to Message header must separate key and value using &apos;:&apos;.
         /// </summary>
         public static string HostingHeaderMissingColon {
@@ -515,6 +623,15 @@ namespace Microsoft.SqlTools.ServiceLayer {
         public static string QueryServiceErrorFormat {
             get {
                 return ResourceManager.GetString("QueryServiceErrorFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Could not retrieve an execution plan from the result set .
+        /// </summary>
+        public static string QueryServiceExecutionPlanNotFound {
+            get {
+                return ResourceManager.GetString("QueryServiceExecutionPlanNotFound", resourceCulture);
             }
         }
         
@@ -704,6 +821,24 @@ namespace Microsoft.SqlTools.ServiceLayer {
         public static string QueryServiceSubsetResultSetOutOfRange {
             get {
                 return ResourceManager.GetString("QueryServiceSubsetResultSetOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to EN_LOCALIZATION.
+        /// </summary>
+        public static string TestLocalizationConstant {
+            get {
+                return ResourceManager.GetString("TestLocalizationConstant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to For more information about this error, see the troubleshooting topics in the product documentation..
+        /// </summary>
+        public static string TroubleshootingAssistanceMessage {
+            get {
+                return ResourceManager.GetString("TroubleshootingAssistanceMessage", resourceCulture);
             }
         }
         

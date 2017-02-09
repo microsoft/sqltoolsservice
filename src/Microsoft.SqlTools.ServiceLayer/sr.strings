@@ -237,7 +237,10 @@ BatchParser_IncorrectSyntax = Incorrect syntax was encountered while parsing '{0
 
 BatchParser_VariableNotDefined = Variable {0} is not defined.
 
+############################################################################
+# Workspace Service
 
+TestLocalizationConstant = EN_LOCALIZATION
 
 
 
