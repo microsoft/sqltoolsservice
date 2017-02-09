@@ -123,9 +123,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             return FormatMultipartIdentifier(identifier.Split('.'));
         }
 
+        /// <summary>
+        /// Escapes a multipart identifier such as a table name, given an array of the parts of the
+        /// multipart identifier.
+        /// </summary>
+        /// <param name="identifiers">The parts of the identifier to escape</param>
+        /// <returns>An escaped version of the multipart identifier</returns>
         public static string FormatMultipartIdentifier(string[] identifiers)
         {
-            IEnumerable<string> escapedParts = identifiers.Select(p => FormatIdentifier(p.Trim('[', ']')));
+            IEnumerable<string> escapedParts = identifiers.Select(FormatIdentifier);
             return string.Join(".", escapedParts);
         }
 
@@ -233,6 +239,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <returns>The escaped string</returns>
         private static string EscapeString(string value, char escapeCharacter)
         {
+            Validate.IsNotNull(nameof(value), value);
+
             StringBuilder sb = new StringBuilder();
             foreach (char c in value)
             {
