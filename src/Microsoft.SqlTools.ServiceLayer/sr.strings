@@ -188,8 +188,7 @@ EE_BatchSqlMessageNoLineInfo = Msg {0}, Level {1}, State {2}
 
 EE_BatchError_Exception = An error occurred while the batch was being processed. The error message is: {0}
 
-EE_BatchExecutionInfo_RowsAffected = 
-	({0} row(s) affected)
+EE_BatchExecutionInfo_RowsAffected = ({0} row(s) affected)
 
 EE_ExecutionNotYetCompleteError = The previous execution is not yet complete.
 

@@ -321,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer {
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to .
+        ///    Looks up a localized string similar to ({0} row(s) affected).
         /// </summary>
         public static string EE_BatchExecutionInfo_RowsAffected {
             get {
@@ -488,6 +488,15 @@ namespace Microsoft.SqlTools.ServiceLayer {
         public static string PeekDefinitionAzureError {
             get {
                 return ResourceManager.GetString("PeekDefinitionAzureError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to No database object was retrieved..
+        /// </summary>
+        public static string PeekDefinitionDatabaseError {
+            get {
+                return ResourceManager.GetString("PeekDefinitionDatabaseError", resourceCulture);
             }
         }
         

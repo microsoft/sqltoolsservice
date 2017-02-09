@@ -390,7 +390,7 @@
     <comment></comment>
   </data>
   <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value></value>
+    <value>({0} row(s) affected)</value>
     <comment></comment>
   </data>
   <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
