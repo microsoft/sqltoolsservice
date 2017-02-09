@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                     "   Options:" + Environment.NewLine +
                     "        [--enable-logging]" + Environment.NewLine +
                     "        [--help]" + Environment.NewLine +
-                    "        [--locale]" + Environment.NewLine,
+                    "        [--locale **] (default: 'en')" + Environment.NewLine,
                     ErrorMessage);
                 return str;
             }
