@@ -373,4 +373,8 @@
     <comment>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>EN_LOCALIZATION</value>
+    <comment></comment>
+  </data>
 </root>
