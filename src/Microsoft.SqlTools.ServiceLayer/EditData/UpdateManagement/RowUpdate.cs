@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             {
                 string formattedColumnName = SqlScriptFormatter.FormatIdentifier(kvp.Value.Column.ColumnName);
                 string formattedValue = SqlScriptFormatter.FormatValue(kvp.Value.Value, kvp.Value.Column);
-                return $"({formattedColumnName} = {formattedValue})";
+                return $"{formattedColumnName} = {formattedValue}";
             });
             string setClause = string.Join(", ", setComponents);
 
