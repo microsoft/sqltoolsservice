@@ -324,6 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 long ticks = BitConverter.ToInt64(buffer, 0);
                 return new DateTime(ticks);
+
             }, null, dt =>
             {
                 // Switch based on the type of column
@@ -354,6 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
 
                 return dt.ToString(formatString);
+
             });
         }
 

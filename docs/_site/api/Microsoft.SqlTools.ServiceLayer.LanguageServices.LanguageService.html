@@ -1,0 +1,607 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class LanguageService
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class LanguageService
+   ">
+    <meta name="generator" content="docfx 1.0.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content">
+              
+              
+              <h1 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService">Class LanguageService
+              </h1>
+              <div class="markdown level0 summary"><p>Main class for Language Service functionality including anything that requires knowledge of
+the language to perform, such as definitions, intellisense, etc.</p>
+</div>
+              <div class="markdown level0 conceptual"></div>
+              <div class="inheritance">
+                <h5>Inheritance</h5>
+                  <div class="level0"><span class="xref">System.Object</span></div>
+                  <div class="level1"><span class="xref">LanguageService</span></div>
+              </div>
+              <div class="inheritedMembers">
+                <h5>Inherited Members</h5>
+                <div>
+                  <span class="xref">System.Object.Equals(System.Object)</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.GetHashCode()</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.GetType()</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.MemberwiseClone()</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.ToString()</span>
+                </div>
+              </div>
+              <h6><strong>Namespace</strong>:Microsoft.SqlTools.ServiceLayer.LanguageServices</h6>
+              <h6><strong>Assembly</strong>:Microsoft.SqlTools.ServiceLayer.dll</h6>
+              <h5 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_syntax">Syntax</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public sealed class LanguageService</code></pre>
+              </div>
+              <h3 id="properties">Properties
+              </h3>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_Instance.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L124">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_Instance_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_Instance" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.Instance">Instance</h4>
+              <div class="markdown level1 summary"><p>Gets the singleton instance object</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public static LanguageService Instance { get; }</code></pre>
+              </div>
+              <h5 class="propertyValue">Property Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.html">LanguageService</a></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h3 id="methods">Methods
+              </h3>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_GetCompletionItems_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_TextDocumentPosition_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition%2CMicrosoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile%2CMicrosoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L962">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_GetCompletionItems_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_GetCompletionItems_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_TextDocumentPosition_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.GetCompletionItems(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition,Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)">GetCompletionItems(TextDocumentPosition, ScriptFile, ConnectionInfo)</h4>
+              <div class="markdown level1 summary"><p>Return the completion item list for the current text position.
+This method does not await cache builds since it expects to return quickly</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public CompletionItem[] GetCompletionItems(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.TextDocumentPosition.html">TextDocumentPosition</a></td>
+                    <td><span class="parametername">textDocumentPosition</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile.html">ScriptFile</a></td>
+                    <td><span class="parametername">scriptFile</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.html">ConnectionInfo</a></td>
+                    <td><span class="parametername">connInfo</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts.CompletionItem.html">CompletionItem</a>[]</td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeConfigurationNotification_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsSettings_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsSettings_Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings%2CMicrosoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings%2CMicrosoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L449">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeConfigurationNotification_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeConfigurationNotification_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsSettings_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsSettings_Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeConfigurationNotification(Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)">HandleDidChangeConfigurationNotification(SqlToolsSettings, SqlToolsSettings, EventContext)</h4>
+              <div class="markdown level1 summary"><p>Handle the file configuration change notification</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public Task HandleDidChangeConfigurationNotification(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings.html">SqlToolsSettings</a></td>
+                    <td><span class="parametername">newSettings</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsSettings.html">SqlToolsSettings</a></td>
+                    <td><span class="parametername">oldSettings</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext.html">EventContext</a></td>
+                    <td><span class="parametername">eventContext</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Threading.Tasks.Task</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeTextDocumentNotification_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile___Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile%5B%5D%2CMicrosoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L431">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeTextDocumentNotification_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidChangeTextDocumentNotification_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile___Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidChangeTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile[],Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)">HandleDidChangeTextDocumentNotification(ScriptFile[], EventContext)</h4>
+              <div class="markdown level1 summary"><p>Handles text document change events </p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public Task HandleDidChangeTextDocumentNotification(ScriptFile[] changedFiles, EventContext eventContext)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile.html">ScriptFile</a>[]</td>
+                    <td><span class="parametername">changedFiles</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext.html">EventContext</a></td>
+                    <td><span class="parametername">eventContext</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Threading.Tasks.Task</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidOpenTextDocumentNotification_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile%2CMicrosoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L410">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidOpenTextDocumentNotification_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_HandleDidOpenTextDocumentNotification_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Hosting_Protocol_EventContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.HandleDidOpenTextDocumentNotification(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext)">HandleDidOpenTextDocumentNotification(ScriptFile, EventContext)</h4>
+              <div class="markdown level1 summary"><p>Handle the file open notification </p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public Task HandleDidOpenTextDocumentNotification(ScriptFile scriptFile, EventContext eventContext)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile.html">ScriptFile</a></td>
+                    <td><span class="parametername">scriptFile</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.EventContext.html">EventContext</a></td>
+                    <td><span class="parametername">eventContext</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Threading.Tasks.Task</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_InitializeService_Microsoft_SqlTools_ServiceLayer_Hosting_ServiceHost_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsContext_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost%2CMicrosoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L201">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_InitializeService_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_InitializeService_Microsoft_SqlTools_ServiceLayer_Hosting_ServiceHost_Microsoft_SqlTools_ServiceLayer_SqlContext_SqlToolsContext_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.InitializeService(Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost,Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext)">InitializeService(ServiceHost, SqlToolsContext)</h4>
+              <div class="markdown level1 summary"><p>Initializes the Language Service instance</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost.html">ServiceHost</a></td>
+                    <td><span class="parametername">serviceHost</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext.html">SqlToolsContext</a></td>
+                    <td><span class="parametername">context</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_ParseAndBind_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile%2CMicrosoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L507">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_ParseAndBind_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_ParseAndBind_Microsoft_SqlTools_ServiceLayer_Workspace_Contracts_ScriptFile_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.ParseAndBind(Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile,Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)">ParseAndBind(ScriptFile, ConnectionInfo)</h4>
+              <div class="markdown level1 summary"><p>Parses the SQL text and binds it to the SMO metadata provider if connected </p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.ScriptFile.html">ScriptFile</a></td>
+                    <td><span class="parametername">scriptFile</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.html">ConnectionInfo</a></td>
+                    <td><span class="parametername">connInfo</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">Microsoft.SqlServer.Management.SqlParser.Parser.ParseResult</span></td>
+                    <td><p>The ParseResult instance returned from SQL Parser</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_RemoveAutoCompleteCacheUriReference_Microsoft_SqlTools_ServiceLayer_Connection_Contracts_ConnectionSummary_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L492">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_RemoveAutoCompleteCacheUriReference_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_RemoveAutoCompleteCacheUriReference_Microsoft_SqlTools_ServiceLayer_Connection_Contracts_ConnectionSummary_System_String_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.RemoveAutoCompleteCacheUriReference(Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary,System.String)">RemoveAutoCompleteCacheUriReference(ConnectionSummary, String)</h4>
+              <div class="markdown level1 summary"><p>Remove a reference to an autocomplete cache from a URI. If
+it is the last URI connected to a particular connection,
+then remove the cache.</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public Task RemoveAutoCompleteCacheUriReference(ConnectionSummary summary, string ownerUri)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Connection.Contracts.ConnectionSummary.html">ConnectionSummary</a></td>
+                    <td><span class="parametername">summary</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.String</span></td>
+                    <td><span class="parametername">ownerUri</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Threading.Tasks.Task</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_UpdateLanguageServiceOnConnection_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L591">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_UpdateLanguageServiceOnConnection_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService_UpdateLanguageServiceOnConnection_Microsoft_SqlTools_ServiceLayer_Connection_ConnectionInfo_" data-uid="Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService.UpdateLanguageServiceOnConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo)">UpdateLanguageServiceOnConnection(ConnectionInfo)</h4>
+              <div class="markdown level1 summary"><p>Update the autocomplete metadata provider when the user connects to a database</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public Task UpdateLanguageServiceOnConnection(ConnectionInfo info)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.Connection.ConnectionInfo.html">ConnectionInfo</a></td>
+                    <td><span class="parametername">info</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Threading.Tasks.Task</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_LanguageServices_LanguageService.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/LanguageServices/LanguageService.cs/#L35" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

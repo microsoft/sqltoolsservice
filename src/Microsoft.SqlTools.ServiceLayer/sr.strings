@@ -177,6 +177,66 @@ WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of colu
 
 WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
 
+############################################################################
+# DacFx Resources
+
+EE_BatchSqlMessageNoProcedureInfo = Msg {0}, Level {1}, State {2}, Line {3}
+
+EE_BatchSqlMessageWithProcedureInfo = Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}
+
+EE_BatchSqlMessageNoLineInfo = Msg {0}, Level {1}, State {2}
+
+EE_BatchError_Exception = An error occurred while the batch was being processed. The error message is: {0}
+
+EE_BatchExecutionInfo_RowsAffected = ({0} row(s) affected)
+
+EE_ExecutionNotYetCompleteError = The previous execution is not yet complete.
+
+EE_ScriptError_Error = A scripting error occurred.
+
+EE_ScriptError_ParsingSyntax = Incorrect syntax was encountered while {0} was being parsed.
+
+EE_ScriptError_FatalError = A fatal error occurred.
+
+EE_ExecutionInfo_FinalizingLoop	= Execution completed {0} times...
+
+EE_ExecutionInfo_QueryCancelledbyUser = You cancelled the query.
+
+EE_BatchExecutionError_Halting = An error occurred while the batch was being executed.
+
+EE_BatchExecutionError_Ignoring	= An error occurred while the batch was being executed, but the error has been ignored.
+
+EE_ExecutionInfo_InitilizingLoop = Starting execution loop of {0} times...
+
+EE_ExecutionError_CommandNotSupported = Command {0} is not supported.
+
+EE_ExecutionError_VariableNotFound = The variable {0} could not be found.
+
+BatchParserWrapperExecutionEngineError = SQL Execution error: {0}
+
+BatchParserWrapperExecutionError = Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}
+
+BatchParserWrapperExecutionEngineBatchMessage = Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}
+
+BatchParserWrapperExecutionEngineBatchResultSetProcessing = Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}
+
+BatchParserWrapperExecutionEngineBatchResultSetFinished = Batch parser wrapper execution engine batch ResultSet finished.
+
+BatchParserWrapperExecutionEngineBatchCancelling = Canceling batch parser wrapper batch execution.
+
+EE_ScriptError_Warning = Scripting warning.
+
+TroubleshootingAssistanceMessage = For more information about this error, see the troubleshooting topics in the product documentation.
+
+BatchParser_CircularReference = File '{0}' recursively included.
+
+BatchParser_CommentNotTerminated = Missing end comment mark '*/'.
+
+BatchParser_StringNotTerminated = Unclosed quotation mark after the character string.
+
+BatchParser_IncorrectSyntax = Incorrect syntax was encountered while parsing '{0}'.
+
+BatchParser_VariableNotDefined = Variable {0} is not defined.
 
 ############################################################################
 # Workspace Service

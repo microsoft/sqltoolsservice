@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             this.serverConnection = serverConnection;
             this.connectionInfo = connInfo;
-            this.tempPath = FileUtils.GetPeekDefinitionTempFolder();
+            this.tempPath = FileUtilities.GetPeekDefinitionTempFolder();
             Initialize();
         }
 

@@ -1,0 +1,24 @@
+﻿GO 2
+BEGIN
+:r input-2.txt
+:r "input-2.txt"
+:setvar ABC "My Value"
+MIDDLE
+#$(ABC)#
+  :setvar ABC "NNNNNNNNNNNNNNNNN"
+END
+GO
+	:setvar ABC
+:setvar B "value of B"
+:setvar A "Long value with 'fake' variable ref: $(B)"
+~$(ABC)~$~$$(A)~
+GO
+:setvar _var_1-1 VALUE
+select [1] from x
+GO 2
+:on error ignore
+:on error exit -- comment
+select 1
+/ * fake comment */
+- - fake comment
+:setv
