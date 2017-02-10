@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             string desc = error != null ? error.Message : null;
             if (error.Number == 7202)
             {
-                desc += " \r\n" + SR.TroubleshootingAssistanceMessage;
+                desc += " " + Environment.NewLine + SR.TroubleshootingAssistanceMessage;
             }
 
             int lineNumber = error != null ? error.LineNumber : -1;

@@ -4,34 +4,30 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using ExecutionEngineCode;
-    using ServiceLayer;
-
+ 
     /// <summary>
     /// Wraps the SMO Batch parser to make it a easily useable component.
     /// </summary>
     public sealed class BatchParserWrapper : IDisposable
     {
-        #region Private members
 
         private List<Tuple<int /*startLine*/, int/*startColumn*/>> startLineColumns;
         private List<int /*length*/> lengths;
         private ExecutionEngine executionEngine;
         private BatchEventNotificationHandler notificationHandler;
-
-        #endregion
-
+        
         /// <summary>
         /// Helper method used to Convert line/column information in a file to offset
         /// </summary>
         private static List<BatchDefinition> ConvertToBatchDefinitionList(string content,
-            IList<System.Tuple<int, int>> positions, List<int> lengths)
+            IList<Tuple<int, int>> positions, List<int> lengths)
         {
 
             List<BatchDefinition> batchDefinitionList = new List<BatchDefinition>();
@@ -60,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     }
 
                     // get endLine, endColumn for the current batch and the lineStartOffset for the next batch
-                    System.Tuple<int, int, int> batchInfo = ReadLines(reader, lineStartOffset, lineDifference, endLine);
+                    Tuple<int, int, int> batchInfo = ReadLines(reader, lineStartOffset, lineDifference, endLine);
                     endLine = batchInfo.Item1;
                     endColumn = batchInfo.Item2;
                     lineStartOffset = batchInfo.Item3;
@@ -292,8 +288,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     string batchText = args.Batch.Text;
                     int batchTextLength = batchText.Length;
 
-                    if (batchText.EndsWith(Environment.NewLine, StringComparison.Ordinal) == false 
-                        && batchText.EndsWith("\n", StringComparison.Ordinal) == true )
+                    if (!batchText.EndsWith(Environment.NewLine, StringComparison.Ordinal) 
+                        && batchText.EndsWith("\n", StringComparison.Ordinal))
                     {
                         batchTextLength -= 1;
                     }
@@ -324,9 +320,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// </summary>
         internal class BatchEventNotificationHandler : IBatchEventsHandler
         {
-
-            #region IBatchEventHandlers Members
-
             public void OnBatchError(object sender, BatchErrorEventArgs args)
             {
                 if (args != null)
@@ -369,8 +362,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             {
                 Logger.Write(LogLevel.Normal, SR.BatchParserWrapperExecutionEngineBatchCancelling);
             }
-
-            #endregion
         }
 
         #endregion

@@ -13,11 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// </summary>
     internal class BatchParserExecutionStartEventArgs : EventArgs
     {
-
-        #region Private members
+        
         private readonly Batch batch = null;
         private readonly TextSpan textSpan;
-        #endregion
 
         private BatchParserExecutionStartEventArgs() 
         {

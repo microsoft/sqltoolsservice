@@ -13,15 +13,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 {
     internal class BatchEventHandler: IBatchEventsHandler
     {
-        #region private variables
         List<int> resultCounts = new List<int>();
         List<string> sqlMessages = new List<string>();
         List<string> errorMessage = new List<string>();
         int batchfinishedEventCounter = 0;
         SqlDataReader dr = null;
         bool cancelEventFired = false;
-       
-        #endregion
 
         #region Public properties
         public List<int> ResultCounts
@@ -110,24 +107,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             lock (this)
             { 
                 Console.WriteLine("\tOnBatchResultProcessing...");
-                try
+                dr = args.DataReader as SqlDataReader;
+                int count = 0;
+                while (dr.Read() && !cancelEventFired)
                 {
-                    dr = args.DataReader as SqlDataReader;
-                    int count = 0;
-                    while (dr.Read() && !cancelEventFired)
-                    {
-                        count++;
-                    }
-                    Console.WriteLine("\t\tOnBatchResultProcessing: Records returned: " + count);
-                    resultCounts.Add(count);
+                    count++;
                 }
-                catch (Exception)
-                {
-                    throw;
-                }
-                finally
-                {
-                }
+                Console.WriteLine("\t\tOnBatchResultProcessing: Records returned: " + count);
+                resultCounts.Add(count);
             }
         }
 

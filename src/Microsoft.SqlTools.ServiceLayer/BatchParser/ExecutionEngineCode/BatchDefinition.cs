@@ -15,11 +15,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// </summary>
         public BatchDefinition(string batchText, int startLine, int endLine, int startColumn, int endColumn)
         {
-            this.BatchText = batchText;
-            this.StartLine = startLine;
-            this.EndLine = endLine;
-            this.StartColumn = startColumn;
-            this.EndColumn = endColumn;
+            BatchText = batchText;
+            StartLine = startLine;
+            EndLine = endLine;
+            StartColumn = startColumn;
+            EndColumn = endColumn;
         }
         
         /// <summary>

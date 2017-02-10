@@ -13,13 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// </summary>
     internal class BatchMessageEventArgs : EventArgs
     {
-        #region Private fields
         private readonly string message = string.Empty;
         private readonly string detailedMessage = string.Empty;
         private readonly SqlError error;
-        #endregion
-
-        #region Constructors / Destructor
                 
         private BatchMessageEventArgs()
         {
@@ -39,9 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             detailedMessage = detailedMsg;
             this.error = error;
         }
-        #endregion
-
-        #region Public properties
 
         public string Message
         {
@@ -60,7 +53,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         }
 
         public SqlError Error { get { return error; } }
-        #endregion
 
     }
 }

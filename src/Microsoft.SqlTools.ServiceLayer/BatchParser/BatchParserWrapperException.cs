@@ -13,18 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <summary>
         /// Get description of the BatchParserWrapperException
         /// </summary>
-        public string Description
-        {
-            get { return description; }
-            set { description = value; }
-        }
-
-        private string description;
-
-        public BatchParserWrapperException()
-           : base()
-        {
-        }
-
+        public string Description { get; set; }
+        
     }
 }

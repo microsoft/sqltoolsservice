@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 PositionStruct beginPos = token.Begin;
                 PositionStruct endPos = new PositionStruct(beginPos.Line + 1, 1, beginPos.Offset, beginPos.Filename);
 
-                tokenBuffer.Add(new Token(LexerTokenType.NewLine, beginPos, endPos, "\r\n", beginPos.Filename));
+                tokenBuffer.Add(new Token(LexerTokenType.NewLine, beginPos, endPos, Environment.NewLine, beginPos.Filename));
             }
             else
             {

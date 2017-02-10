@@ -16,7 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// </summary>
     internal class BatchParserSqlCmd : BatchParser
     {
-        #region Private fields
         /// <summary>
         /// The internal variables that can be used in SqlCommand substitution.
         /// These variables take precedence over environment variables.
@@ -24,15 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         private ConnectionChangedDelegate connectionChangedDelegate;
         private ErrorActionChangedDelegate errorActionChangedDelegate;
-        #endregion
-
-        #region Public delegates
+        
         public delegate void ConnectionChangedDelegate(SqlConnectionStringBuilder connectionstringBuilder);
-        public delegate void ErrorActionChangedDelegate(OnErrorAction ea);        
-        #endregion
-
-        #region Constructors / Destructor
-
+        public delegate void ErrorActionChangedDelegate(OnErrorAction ea);   
+        
         /// <summary>
         /// Constructor taking a Parser instance
         /// </summary>
@@ -42,9 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             // nothing
         }
-        #endregion
-
-        #region Public properties
+        
         internal ConnectionChangedDelegate ConnectionChanged
         {
             get { return connectionChangedDelegate; }
@@ -56,10 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             get { return errorActionChangedDelegate; }
             set { errorActionChangedDelegate = value; }
         }
-        #endregion
-
-        #region IVariableResolver
-
+        
         /// <summary>
         /// Looks for any environment variable or internal variable.
         /// </summary>
@@ -115,10 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             get { return internalVariables; }
             set { internalVariables = value; }
         }
-
-        #endregion
-
-        #region ICommandHandler Members
+        
+        
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "ppIBatchSource")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "fileName")]
         public override BatchParserAction Include(TextBlock filename, out TextReader stream, out string newFilename)
@@ -141,8 +128,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             }
             return BatchParserAction.Continue;
         }
-
-        #endregion
 
     }
 }

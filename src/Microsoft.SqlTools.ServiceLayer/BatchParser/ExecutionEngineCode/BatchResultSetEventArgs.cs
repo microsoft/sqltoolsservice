@@ -13,11 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// </summary>
     internal class BatchResultSetEventArgs : EventArgs
     {
-
-        #region Private fields
+        
         private readonly IDataReader dataReader = null;
         private readonly ShowPlanType expectedShowPlan = ShowPlanType.None;
-        #endregion
         
         /// <summary>
         /// Default constructor

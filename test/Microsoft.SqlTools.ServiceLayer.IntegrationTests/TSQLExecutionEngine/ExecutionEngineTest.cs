@@ -23,11 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
    
     public class ExecutionEngineTest : IDisposable
     {
-        #region Private variables
         private SqlConnection connection;
         private List<int> expResultCounts = new List<int>();
         private List<string> expErrorMessage = new List<string>();
-        #endregion
 
         #region Test Initialize And Cleanup
 

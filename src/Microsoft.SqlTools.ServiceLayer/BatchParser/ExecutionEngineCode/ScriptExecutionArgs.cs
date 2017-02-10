@@ -12,14 +12,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
     internal class ScriptExecutionArgs : EventArgs
     {
-        #region Private fields
-
         private IDbConnection connection;
         private IBatchEventsHandler batchEventHandlers;
         private int startingLine;
         private Dictionary<string, string> cmdVariables;
-
-        #endregion
 
         #region Constructors / Destructor
 

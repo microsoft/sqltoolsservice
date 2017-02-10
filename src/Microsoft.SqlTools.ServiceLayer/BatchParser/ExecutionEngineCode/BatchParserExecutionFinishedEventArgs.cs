@@ -12,11 +12,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     /// </summary>
     internal class BatchParserExecutionFinishedEventArgs : EventArgs
     {
-
-        #region Private members
+        
         private readonly Batch batch = null;
         private readonly ScriptExecutionResult result;
-        #endregion
 
         private BatchParserExecutionFinishedEventArgs() 
         {

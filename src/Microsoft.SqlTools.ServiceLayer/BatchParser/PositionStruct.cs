@@ -10,10 +10,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
     [Serializable]
     internal struct PositionStruct
     {
-        private int line;
-        private int column;
-        private int offset;
-        private string filename;
+        private readonly int line;
+        private readonly int column;
+        private readonly int offset;
+        private readonly string filename;
 
         /// <summary>
         /// Constructor for the PositionStruct class

@@ -10,8 +10,8 @@ using System.Text;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 {
@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 catch (BatchParserException ex)
                 {
                     lexerError = true;
-                    outputBuilder.AppendLine(string.Format("[ERROR: code {0} at {1} - {2} in {3}, message: {4}]", ex.ErrorCode, GetPositionString(ex.Begin), GetPositionString(ex.End), GetFilenameOnly(ex.Begin.Filename), ex.Message));
+                    outputBuilder.AppendLine(string.Format(CultureInfo.CurrentCulture, "[ERROR: code {0} at {1} - {2} in {3}, message: {4}]", ex.ErrorCode, GetPositionString(ex.Begin), GetPositionString(ex.End), GetFilenameOnly(ex.Begin.Filename), ex.Message));
                 }
                 output.AppendLine("Lexer tokenized input:");
                 output.AppendLine("======================");
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             }
             catch (BatchParserException ex)
             {
-                output.AppendLine(string.Format("[PARSER ERROR: code {0} at {1} - {2} in {3}, token text: {4}, message: {5}]", ex.ErrorCode, GetPositionString(ex.Begin), GetPositionString(ex.End), GetFilenameOnly(ex.Begin.Filename), ex.Text, ex.Message));
+                output.AppendLine(string.Format(CultureInfo.CurrentCulture, "[PARSER ERROR: code {0} at {1} - {2} in {3}, token text: {4}, message: {5}]", ex.ErrorCode, GetPositionString(ex.Begin), GetPositionString(ex.End), GetFilenameOnly(ex.Begin.Filename), ex.Text, ex.Message));
             }
         }
 
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 }
                 string tokenFilename = token.Filename;
                 tokenFilename = GetFilenameOnly(tokenFilename);
-                return string.Format("[Token {0} at {1}({2}:{3} [{4}] - {5}:{6} [{7}]): '{8}']", 
+                return string.Format(CultureInfo.CurrentCulture, "[Token {0} at {1}({2}:{3} [{4}] - {5}:{6} [{7}]): '{8}']", 
                     token.TokenType, 
                     tokenFilename,
                     token.Begin.Line, token.Begin.Column, token.Begin.Offset,
@@ -211,25 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
         {
             return fullPath != null ? Path.GetFileName(fullPath) : null;
         }
-
-        private static bool CompareStrings(string baseline, string output)
-        {
-            string[] baselineArray = baseline.Split(new string[] {"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
-            string[] outputArray = output.Split(new string[] {"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
-            if (outputArray.Length != baselineArray.Length)
-            {
-                return false;
-            }
-            for (int i = 0; i < baselineArray.Length; i++)
-            {
-                if (string.Compare(baselineArray[i], outputArray[i], StringComparison.Ordinal) != 0)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
+        
         public override void Run()
         {
             string inputFilename = GetTestscriptFilePath(CurrentTestName);
@@ -247,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             }
             catch (FileNotFoundException)
             {
-                baseline = "";
+                baseline = string.Empty;
             }
 
             string outputString = output.ToString();
@@ -259,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
                 Console.WriteLine(":: Output does not match the baseline!");
-                Console.WriteLine(":: windiff \"" + baselineFilename + "\" \"" + outputFilename + "\"");
+                Console.WriteLine("code --diff \"" + baselineFilename + "\" \"" + outputFilename + "\"");
                 Console.WriteLine();
                 Console.WriteLine(":: To update the baseline:");
                 Console.WriteLine("copy \"" + outputFilename + "\" \"" + baselineFilename + "\"");

@@ -10,8 +10,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     internal class TextBlock
     {
-        private Parser parser;
-        private IEnumerable<Token> tokens;
+        private readonly Parser parser;
+        private readonly IEnumerable<Token> tokens;
 
         /// <summary>
         /// Constructor for the TextBlock class 

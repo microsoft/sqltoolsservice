@@ -23,7 +23,37 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
     internal class ExecutionEngine : IDisposable
     {
 
-       #region Private members
+        #region Private fields
+        private OnErrorAction errorAction = OnErrorAction.Ignore;
+        private int numBatchExecutionTimes = 1;
+        private IDbConnection connection = null;
+        private bool isSqlCmdConnection;
+
+        private Parser commandParser = null;
+        private int executionTimeout;
+        private int startingLine;
+        private ExecutionState executionState = ExecutionState.Initial;
+        private string script;
+        private ScriptExecutionResult result = ScriptExecutionResult.Failure;
+        private bool isLocalParse;
+        private ExecutionEngineConditions conditions = null;
+        private IList<Batch> preConditionBatches = new List<Batch>();
+        private IList<Batch> postConditionBatches = new List<Batch>();
+        private IBatchEventsHandler batchEventHandlers = null;
+        private Batch currentBatch = new Batch();
+        private ShowPlanType expectedShowPlan;
+        private int currentBatchIndex = -1;
+        private int scriptTrackingId = 1;
+        private object stateSyncLock = new object();
+
+        /// <summary>
+        /// The internal variables that can be used in SqlCommand substitution.
+        /// These variables take precedence over environment variables.
+        /// </summary>
+        private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+        #endregion
+
+        #region Private members
 
         /// <summary>
         /// Batch to be executed
@@ -989,36 +1019,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         #endregion
 
-        #region Private fields
-        private OnErrorAction errorAction = OnErrorAction.Ignore;
-        private int numBatchExecutionTimes = 1;
-        private IDbConnection connection = null;
-        private bool isSqlCmdConnection;
-
-        private Parser commandParser = null;
-        private int executionTimeout;
-        private int startingLine;
-        private ExecutionState executionState = ExecutionState.Initial;
-        private string script;
-        private ScriptExecutionResult result = ScriptExecutionResult.Failure;
-        private bool isLocalParse;
-        private ExecutionEngineConditions conditions = null;
-        private IList<Batch> preConditionBatches = new List<Batch>();
-        private IList<Batch> postConditionBatches = new List<Batch>();
-        private IBatchEventsHandler batchEventHandlers = null;
-        private Batch currentBatch = new Batch();
-        private ShowPlanType expectedShowPlan;
-        private int currentBatchIndex = -1; 
-        private int scriptTrackingId = 1;
-        private object stateSyncLock = new object();
-                
-        /// <summary>
-        /// The internal variables that can be used in SqlCommand substitution.
-        /// These variables take precedence over environment variables.
-        /// </summary>
-        private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-        #endregion
-        
         #region Public members
         
         /// <summary>
