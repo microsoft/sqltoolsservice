@@ -164,13 +164,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
                 if (IsKeywordToken(Script.TokenManager.TokenList[i].TokenId))
                 {
-                    if (FormatOptions.UppercaseKeywords == true)
+                    if (FormatOptions.UppercaseKeywords)
                     {
                         TokenData tok = Script.TokenManager.TokenList[i];
                         Replacements.Add(new Replacement(tok.StartIndex, sql, sql.ToUpperInvariant()));
                         sql = sql.ToUpperInvariant();
                     }
-                    else if (FormatOptions.LowercaseKeywords == true)
+                    else if (FormatOptions.LowercaseKeywords)
                     {
                         TokenData tok = Script.TokenManager.TokenList[i];
                         Replacements.Add(new Replacement(tok.StartIndex, sql, sql.ToLowerInvariant()));
