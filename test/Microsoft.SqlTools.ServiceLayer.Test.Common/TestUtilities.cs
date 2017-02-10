@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         private static string ReadTextAndNormalizeLineEndings(string filePath)
         {
             string text = File.ReadAllText(filePath);
-            return text;//.Replace("\r\n", Environment.NewLine);
+            return text.Replace("\r\n", Environment.NewLine);
         }
     }
 }

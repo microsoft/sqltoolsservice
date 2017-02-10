@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         {
             get
             {
-                return Path.Combine(RunEnvironmentInfo.GetTestDataLocation(), "TestData", "TSqlFormatter");
+                return Path.Combine(RunEnvironmentInfo.GetTestDataLocation(), "TSqlFormatter");
             }
         }
     }
