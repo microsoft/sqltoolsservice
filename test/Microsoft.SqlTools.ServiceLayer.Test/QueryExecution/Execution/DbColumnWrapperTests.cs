@@ -29,6 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
                 {
                     this.DataTypeName = dataTypeName;
                 }
+                else
+                {
+                    this.DataTypeName = "int";
+                    this.DataType = typeof(int);
+                }
 
                 if (columnSize.HasValue)
                 {
@@ -59,6 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // check various properties are either null or not null
             var column = new TestColumn();
             var wrapper = new DbColumnWrapper(column);
+            Assert.NotNull(wrapper.DataTypeName);
             Assert.NotNull(wrapper.DataType);
             Assert.Null(wrapper.AllowDBNull);
             Assert.Null(wrapper.BaseCatalogName);
@@ -73,12 +79,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Null(wrapper.IsHidden);
             Assert.Null(wrapper.IsIdentity);
             Assert.Null(wrapper.IsKey);
-            Assert.Null(wrapper. IsReadOnly);
+            Assert.Null(wrapper.IsReadOnly);
             Assert.Null(wrapper.IsUnique);
             Assert.Null(wrapper.NumericPrecision);
             Assert.Null(wrapper.NumericScale);
-            Assert.Null(wrapper.UdtAssemblyQualifiedName); 	        
-            Assert.Null(wrapper.DataTypeName);
+            Assert.Null(wrapper.UdtAssemblyQualifiedName);
         }
 
         /// <summary>
