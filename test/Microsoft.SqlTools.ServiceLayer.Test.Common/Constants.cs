@@ -8,5 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     public static class Constants
     {
         public const string SqlConectionSettingsEnvironmentVariable = "SettingsFileName";
+        public const string ProjectPath = "ProjectPath";
+        public const string BVTLocalRoot = "BVT_LOCALROOT";
     }
 }

@@ -113,9 +113,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         public SqlToolsSettingsValues()
         {
-            
-            this.IntelliSense = new IntelliSenseSettings();
-            this.QueryExecutionSettings = new QueryExecutionSettings();
+            IntelliSense = new IntelliSenseSettings();
+            QueryExecutionSettings = new QueryExecutionSettings();
+            Format = new FormatterSettings();
         }
 
         /// <summary>
@@ -127,5 +127,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Gets or sets the query execution settings
         /// </summary>
         public QueryExecutionSettings QueryExecutionSettings { get; set; }
+
+        /// <summary>
+        /// Gets or sets the formatter settings
+        /// </summary>
+        [JsonProperty("format")]
+        public FormatterSettings Format { get; set; }
     }
 }

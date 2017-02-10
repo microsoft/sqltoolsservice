@@ -141,11 +141,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetLocationFromFileForValidFilePathTest()
         {
-            String filePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:\\test\\script.sql" : "/test/script.sql";
+            string filePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:\\test\\script.sql" : "/test/script.sql";
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             Location[] locations = peekDefinition.GetLocationFromFile(filePath, 0);
 
-            String expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
+            string expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
             Assert.Equal(locations[0].Uri, expectedFilePath);
         }
 

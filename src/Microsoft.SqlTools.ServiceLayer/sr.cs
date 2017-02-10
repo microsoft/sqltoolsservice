@@ -117,6 +117,62 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ServiceAlreadyRegistered
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceAlreadyRegistered);
+            }
+        }
+
+        public static string MultipleServicesFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.MultipleServicesFound);
+            }
+        }
+
+        public static string IncompatibleServiceForExtensionLoader
+        {
+            get
+            {
+                return Keys.GetString(Keys.IncompatibleServiceForExtensionLoader);
+            }
+        }
+
+        public static string ServiceProviderNotSet
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceProviderNotSet);
+            }
+        }
+
+        public static string ServiceNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceNotFound);
+            }
+        }
+
+        public static string ServiceNotOfExpectedType
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceNotOfExpectedType);
+            }
+        }
+
+        public static string ErrorUnexpectedCodeObjectType
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorUnexpectedCodeObjectType);
+            }
+        }
+
         public static string HostingUnexpectedEndOfStream
         {
             get
@@ -405,6 +461,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ErrorEmptyStringReplacement
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorEmptyStringReplacement);
+            }
+        }
+
         public static string WorkspaceServicePositionLineOutOfRange
         {
             get
@@ -524,6 +588,27 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CredentialServiceWin32CredentialDisposed = "CredentialServiceWin32CredentialDisposed";
+
+
+            public const string ServiceAlreadyRegistered = "ServiceAlreadyRegistered";
+
+
+            public const string MultipleServicesFound = "MultipleServicesFound";
+
+
+            public const string IncompatibleServiceForExtensionLoader = "IncompatibleServiceForExtensionLoader";
+
+
+            public const string ServiceProviderNotSet = "ServiceProviderNotSet";
+
+
+            public const string ServiceNotFound = "ServiceNotFound";
+
+
+            public const string ServiceNotOfExpectedType = "ServiceNotOfExpectedType";
+
+
+            public const string ErrorUnexpectedCodeObjectType = "ErrorUnexpectedCodeObjectType";
 
 
             public const string HostingUnexpectedEndOfStream = "HostingUnexpectedEndOfStream";
@@ -650,6 +735,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
+
+
+            public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
 
 
             public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";

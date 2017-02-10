@@ -60,6 +60,21 @@ CredentialsServiceTargetForLookup = Target must be specified to check existance 
 CredentialServiceWin32CredentialDisposed = Win32Credential object is already disposed
 
 ############################################################################
+# Extensibility
+
+ServiceAlreadyRegistered = Cannot register service for type {0}, one or more services already registered
+MultipleServicesFound = Multiple services found for type {0}, expected only 1
+IncompatibleServiceForExtensionLoader = Service of type {0} cannot be created by ExtensionLoader<{1}>
+ServiceProviderNotSet = SetServiceProvider() was not called to establish the required service provider
+ServiceNotFound = Service {0} was not found in the service provider
+ServiceNotOfExpectedType = Service of Type {0} is not compatible with registered Type {1}
+
+############################################################################
+# Formatter
+
+ErrorUnexpectedCodeObjectType = Cannot convert SqlCodeObject Type {0} to Type {1}
+
+############################################################################
 # Hosting
 
 HostingUnexpectedEndOfStream = MessageReader's input stream ended unexpectedly, terminating
@@ -165,6 +180,8 @@ PeekDefinitionNotConnectedError = Please connect to a server.
 PeekDefinitionTimedoutError = Operation timed out.
 
 PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
+
+ErrorEmptyStringReplacement = Replacement of an empty string by an empty string.
 
 ############################################################################
 # Workspace Service
