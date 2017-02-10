@@ -8,6 +8,15 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter
 {
+    [Export(typeof(ASTNodeFormatterFactory))]
+    internal class SqlBatchFormatterFactory : ASTNodeFormatterFactoryT<SqlBatch>
+    {
+        protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlBatch codeObject)
+        {
+            return new SqlBatchFormatter(visitor, codeObject);
+        }
+    }
+
     class SqlBatchFormatter : NewLineSeparatedListFormatter
     {
         public SqlBatchFormatter(FormatterVisitor visitor, SqlCodeObject codeObject)

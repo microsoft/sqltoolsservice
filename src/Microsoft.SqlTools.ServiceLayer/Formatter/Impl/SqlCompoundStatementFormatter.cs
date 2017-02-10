@@ -10,7 +10,16 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter
 {
-    [Export(typeof(ASTNodeFormatter))]
+
+    [Export(typeof(ASTNodeFormatterFactory))]
+    internal class SqlCompoundStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlCompoundStatement>
+    {
+        protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlCompoundStatement codeObject)
+        {
+            return new SqlCompoundStatementFormatter(visitor, codeObject);
+        }
+    }
+
     class SqlCompoundStatementFormatter : NewLineSeparatedListFormatter
     {
         internal SqlCompoundStatementFormatter(FormatterVisitor visitor, SqlCompoundStatement codeObject)
