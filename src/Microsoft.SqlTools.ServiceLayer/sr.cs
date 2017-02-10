@@ -437,6 +437,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string PeekDefinitionDatabaseError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionDatabaseError);
+            }
+        }
+
         public static string PeekDefinitionNotConnectedError
         {
             get
@@ -474,6 +482,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.WorkspaceServicePositionLineOutOfRange);
+            }
+        }
+
+        public static string TestLocalizationConstant
+        {
+            get
+            {
+                return Keys.GetString(Keys.TestLocalizationConstant);
             }
         }
 
@@ -728,6 +744,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string PeekDefinitionNoResultsError = "PeekDefinitionNoResultsError";
 
 
+            public const string PeekDefinitionDatabaseError = "PeekDefinitionDatabaseError";
+
+
             public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
 
 
@@ -747,6 +766,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
+
+
+            public const string TestLocalizationConstant = "TestLocalizationConstant";
 
 
             private Keys()

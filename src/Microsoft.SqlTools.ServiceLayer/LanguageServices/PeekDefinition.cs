@@ -72,10 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         try
                         {
-                            // Reuse existing connection 
+                            // Reuse existing connection
                             Server server = new Server(this.serverConnection);
                             // The default database name is the database name of the server connection
-                            string dbName = this.serverConnection.DatabaseName;                          
+                            string dbName = this.serverConnection.DatabaseName;
                             if (this.connectionInfo != null)
                             {
                                 // If there is a query DbConnection, use that connection to get the database name
@@ -86,10 +86,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     if (!string.IsNullOrEmpty(connection.Database))
                                     {
                                         dbName  = connection.Database;
-                                    }                               
-                                }                              
+                                    }
+                                }
                             }
                             this.database = new Database(server, dbName);
+                            this.database.Refresh();
                         }
                         catch (ConnectionFailureException cfe)
                         {
@@ -146,8 +147,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         continue;
                     }
-                    // if declarartionItem matches the selected token, script SMO using that type
-                    if (declarationItem.Title.Equals(tokenText))
+                    if (this.Database == null)
+                    {
+                        return GetDefinitionErrorResult(SR.PeekDefinitionDatabaseError);
+                    }
+                    StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+                    // if declarationItem matches the selected token, script SMO using that type
+                    if (declarationItem.Title.Equals (tokenText, caseSensitivity))
                     {
                         return GetDefinitionUsingDeclarationType(declarationItem.Type, declarationItem.DatabaseQualifiedName, tokenText, schemaName);
                     }
@@ -172,7 +178,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal DefinitionResult GetDefinitionUsingQuickInfoText(string quickInfoText, string tokenText, string schemaName)
         {
-            string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText);
+            if (this.Database == null)
+            {
+                return GetDefinitionErrorResult(SR.PeekDefinitionDatabaseError);
+            }
+            StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
             if (tokenType != null)
             {
                 if (sqlScriptGettersFromQuickInfo.ContainsKey(tokenType.ToLowerInvariant()))
@@ -183,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // If all fails, the default schema name is assumed to be "dbo"
                     if ((connectionInfo != null && connectionInfo.ConnectionDetails.AuthenticationType.Equals(Constants.SqlLoginAuthenticationType)) && string.IsNullOrEmpty(schemaName))
                     {
-                        string fullObjectName = this.GetFullObjectNameFromQuickInfo(quickInfoText, tokenText);
+                        string fullObjectName = this.GetFullObjectNameFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
                         schemaName = this.GetSchemaFromDatabaseQualifiedName(fullObjectName, tokenText);
                     }
                     Location[] locations = GetSqlObjectDefinition(
@@ -377,8 +388,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="quickInfoText">QuickInfo Text for this token</param>
         /// <param name="tokenText">Token Text</param>
+        /// <param name="caseSensitivity">StringComparison enum</param>
         /// <returns></returns>
-        internal string GetFullObjectNameFromQuickInfo(string quickInfoText, string tokenText)
+        internal string GetFullObjectNameFromQuickInfo(string quickInfoText, string tokenText, StringComparison caseSensitivity)
         {
             if (string.IsNullOrEmpty(quickInfoText) || string.IsNullOrEmpty(tokenText))
             {
@@ -386,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             // extract full object name from quickInfo text
             string[] tokens = quickInfoText.Split(' ');
-            List<string> tokenList = tokens.Where(el => el.Contains(tokenText)).ToList();
+            List<string> tokenList = tokens.Where(el => el.IndexOf(tokenText, caseSensitivity) >= 0).ToList();
             return (tokenList?.Count() > 0) ? tokenList[0] : null;
         }
 
@@ -395,8 +407,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="quickInfoText">QuickInfo Text for this token</param>
         /// <param name="tokenText"Token Text></param>
+        /// <param name="caseSensitivity">StringComparison enum</param>
         /// <returns></returns>
-        internal string GetTokenTypeFromQuickInfo(string quickInfoText, string tokenText)
+        internal string GetTokenTypeFromQuickInfo(string quickInfoText, string tokenText, StringComparison caseSensitivity)
         {
             if (string.IsNullOrEmpty(quickInfoText) || string.IsNullOrEmpty(tokenText))
             {
@@ -404,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             // extract string denoting the token type from quickInfo text
             string[] tokens = quickInfoText.Split(' ');
-            List<int> indexList = tokens.Select((s, i) => new { i, s }).Where(el => (el.s).Contains(tokenText)).Select(el => el.i).ToList();
+            List<int> indexList = tokens.Select((s, i) => new { i, s }).Where(el => (el.s).IndexOf(tokenText, caseSensitivity) >= 0 ).Select(el => el.i).ToList();
             return (indexList?.Count() > 0) ? String.Join(" ", tokens.Take(indexList[0])) : null;
         }
 

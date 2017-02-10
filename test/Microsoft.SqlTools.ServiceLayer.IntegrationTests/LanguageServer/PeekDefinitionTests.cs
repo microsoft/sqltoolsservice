@@ -29,24 +29,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
         private const string OwnerUri = "testFile1";
         private const string ReturnTableFunctionName = "pd_returnTable";
         private const string ReturnTableTableFunctionQuery = @"
-CREATE FUNCTION [dbo].[" + ReturnTableFunctionName + @"] ()  
-RETURNS TABLE  
-AS  
-RETURN   
-(  
-    select * from master.dbo.spt_monitor 
-);  
+CREATE FUNCTION [dbo].[" + ReturnTableFunctionName + @"] ()
+RETURNS TABLE
+AS
+RETURN
+(
+    select * from master.dbo.spt_monitor
+);
 
 GO";
 
         private const string AddTwoFunctionName = "pd_addTwo";
         private const string AddTwoFunctionQuery = @"
-CREATE FUNCTION[dbo].[" + AddTwoFunctionName + @"](@number int)  
+CREATE FUNCTION[dbo].[" + AddTwoFunctionName + @"](@number int)
 RETURNS int
-AS   
+AS
 BEGIN
     RETURN @number + 2;
-        END;  
+        END;
 
 GO";
 
@@ -147,11 +147,14 @@ GO";
         /// Test GetDefinition with an unsupported type(schema - dbo). Expect a error result.
         /// </summary>
         [Fact]
-        public void GetUnsupportedDefinitionErrorTest()
+        public async Task GetUnsupportedDefinitionErrorTest()
         {
+            TestConnectionResult connectionResult = TestObjects.InitLiveConnectionInfo();
+            connectionResult.ScriptFile.Contents = "select * from dbo.func ()";
+            string ownerUri = connectionResult.ScriptFile.ClientFilePath;
             TextDocumentPosition textDocument = new TextDocumentPosition
             {
-                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
+                TextDocument = new TextDocumentIdentifier { Uri = ownerUri },
                 Position = new Position
                 {
                     Line = 0,
@@ -159,17 +162,16 @@ GO";
                     Character = 15
                 }
             };
-
-            TestConnectionResult connectionResult = TestObjects.InitLiveConnectionInfo();
-            connectionResult.ScriptFile.Contents = "select * from dbo.func ()";
-            var languageService = new LanguageService();
-            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            languageService.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+            connectionResult.TextDocumentPosition = textDocument;
+            var languageService = LanguageService.Instance;
+            await languageService.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
+            ScriptParseInfo parseInfo = languageService.GetScriptParseInfo(connectionResult.ScriptFile.ClientFilePath);
+            Assert.NotNull(parseInfo);
 
             // When I call the language service
             var result = languageService.GetDefinition(textDocument, connectionResult.ScriptFile, connectionResult.ConnectionInfo);
 
-            // Then I expect null locations and an error to be reported
+            // Then I expect non null result with error flag set
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
         }
@@ -642,7 +644,7 @@ GO";
 
         /// <summary>
         /// Test get definition using quickInfo text for a view object with active connection
-        /// Expect a non-null result with location 
+        /// Expect a non-null result with location
         /// </summary>
         [Fact]
         public void GetDefinitionUsingQuickInfoTextWithNonexistentObjectTest()

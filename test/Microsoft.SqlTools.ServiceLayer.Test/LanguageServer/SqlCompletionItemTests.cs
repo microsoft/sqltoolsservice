@@ -525,6 +525,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
         }
 
         [Fact]
+        public void TempTablesShouldNotBeEscaped()
+        {
+            string declarationTitle = "#TestTable";
+            string expected = declarationTitle;
+            DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(completionItem.Label, expected);
+            Assert.Equal(completionItem.InsertText, expected);
+            Assert.Equal(completionItem.Detail, expected);
+        }
+
+        [Fact]
         public void KindShouldBeModuleGivenSchemaDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.Module;
