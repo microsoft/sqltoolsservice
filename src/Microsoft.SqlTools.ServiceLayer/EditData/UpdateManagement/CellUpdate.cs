@@ -7,6 +7,7 @@ using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -27,45 +28,92 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="valueAsString">The string from the client to convert to an object</param>
         public CellUpdate(DbColumn column, string valueAsString)
         {
+            Validate.IsNotNull(nameof(column), column);
+            Validate.IsNotNull(nameof(valueAsString), valueAsString);
+
             // Store the state that won't be changed
             Column = column;
             Type columnType = column.DataType;
 
             // Check for null
-            if (valueAsString.Equals(NullString, StringComparison.OrdinalIgnoreCase))
+            if (valueAsString == NullString)
             {
                 Value = DBNull.Value;
+                ValueAsString = valueAsString;
+                return;
             }
-            // Perform different conversions for different column types
-            if (columnType == typeof(string) || columnType == typeof(System.Xml.XmlReader))
-            {
-                // If user typed 'NULL' they mean NULL as text
-                Value = valueAsString == TextNullString ? NullString : valueAsString;
-            } 
-            else if (columnType == typeof(byte[]))
+
+            // Binary columns need special attention
+            if (columnType == typeof(byte[]))
             {
                 string trimmedString = valueAsString.Trim();
-                int intVal;
-                if (int.TryParse(trimmedString, NumberStyles.None, CultureInfo.InvariantCulture, out intVal))
+
+                byte[] byteArray;
+                uint uintVal;
+                if(uint.TryParse(trimmedString, NumberStyles.None, CultureInfo.InvariantCulture, out uintVal))
                 {
-                    // User typed something like 10
-                    Value = intVal;
-                }
-                else if (int.TryParse(trimmedString, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out intVal))
-                {
-                    // User typed something like 0x10
-                    Value = intVal;
+                    // Get the bytes
+                    byteArray = BitConverter.GetBytes(uintVal);
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        Array.Reverse(byteArray);
+                    }
+                    Value = byteArray;
+
+                    // User typed something numeric (may be hex or dec)
+                    if ((uintVal & 0xFFFFFF00) == 0)
+                    {
+                        // Value can fit in a single byte
+                        Value = new[] {byteArray[3]};
+                    }
+                    else if ((uintVal & 0xFFFF0000) == 0)
+                    {
+                        // Value can fit in two bytes
+                        Value = new[] {byteArray[2], byteArray[3]};
+                    }
+                    else if ((uintVal & 0xFF000000) == 0)
+                    {
+                        // Value can fit in three bytes
+                        Value = new[] {byteArray[1], byteArray[2], byteArray[3]};
+                    }
                 }
                 else if (HexRegex.IsMatch(valueAsString))
                 {
-                    // User typed something like 0xFFFFFFFFFF...
-                    Value = valueAsString;
+                    // User typed something that starts with a hex identifier (0x)
+                    // Strip off the 0x, pad with zero if necessary
+                    trimmedString = trimmedString.Substring(2);
+                    if (trimmedString.Length % 2 == 1)
+                    {
+                        trimmedString = "0" + trimmedString;
+                    }
+
+                    // Convert to a byte array
+                    byteArray = new byte[trimmedString.Length / 2];
+                    for (int i = 0; i < trimmedString.Length; i += 2)
+                    {
+                        string bString = $"{trimmedString[i]}{trimmedString[i+1]}";
+                        byte bVal = byte.Parse(bString, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
+                        byteArray[i / 2] = bVal;
+                    }
+                    Value = byteArray;
                 }
                 else
                 {
-                    // @TODO: What?
+                    // Invalid format
+                    // @TODO: Move to constants file
                     throw new InvalidOperationException("You cannot use the Result pane to set this field data to values other than NULL.");
                 }
+
+                // Generate the hex string as the return value
+                ValueAsString = "0x" + BitConverter.ToString((byte[])Value).Replace("-", string.Empty);
+                return;
+            }
+
+            // These column types will use the .ToString method to provide the ValueAsString return
+            if (columnType == typeof(string))
+            {
+                // If user typed 'NULL' they mean NULL as text
+                Value = valueAsString == TextNullString ? NullString : valueAsString;
             }
             else if (columnType == typeof(Guid))
             {

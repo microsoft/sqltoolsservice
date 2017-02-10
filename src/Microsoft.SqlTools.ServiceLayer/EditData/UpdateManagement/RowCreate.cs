@@ -20,12 +20,22 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         private readonly CellUpdate[] newCells;
 
+        /// <summary>
+        /// Creates a new Row Creation edit to the result set
+        /// </summary>
+        /// <param name="rowId">Internal ID of the row that is being created</param>
+        /// <param name="associatedResultSet">The result set for the rows in the table we're editing</param>
+        /// <param name="associatedMetadata">The metadata for table we're editing</param>
         public RowCreate(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
         }
 
+        /// <summary>
+        /// Generates the INSERT INTO statement that will apply the row creation
+        /// </summary>
+        /// <returns>INSERT INTO statement</returns>
         public override string GetScript()
         {
             List<string> columnNames = new List<string>();
