@@ -2,8 +2,7 @@
   "name": "Microsoft.SqlTools.ServiceLayer.Test",
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable",
-    "define": []
+    "debugType": "portable"
   },
   "configurations": {
     "Integration": {

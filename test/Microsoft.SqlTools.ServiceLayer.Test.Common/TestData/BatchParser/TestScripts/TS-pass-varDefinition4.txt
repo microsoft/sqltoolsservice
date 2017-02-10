@@ -1,6 +1,0 @@
-:setvar a ""
-:setvar a
-:setvar a """"
-/* double-quote followed by new line: */
-:setvar a """
-"

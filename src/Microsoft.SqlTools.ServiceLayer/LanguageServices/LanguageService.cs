@@ -1234,9 +1234,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal void DeletePeekDefinitionScripts()
         {
             // Delete temp folder created to store peek definition scripts
-            if (FileUtilities.SafeDirectoryExists(FileUtilities.PeekDefinitionTempFolder))
+            if (FileUtils.SafeDirectoryExists(FileUtils.PeekDefinitionTempFolder))
             {
-                FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
+                FileUtils.SafeDirectoryDelete(FileUtils.PeekDefinitionTempFolder, true);
             }
         }
     }

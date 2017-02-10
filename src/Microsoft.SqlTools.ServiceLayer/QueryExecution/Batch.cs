@@ -1,4 +1,4 @@
-// 
+﻿// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
@@ -487,7 +487,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (se != null)
             {
                 var errors = se.Errors.Cast<SqlError>().ToList();
-
+                
                 // Detect user cancellation errors
                 if (errors.Any(error => error.Class == 11 && error.Number == 0))
                 {

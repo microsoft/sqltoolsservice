@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="fileName">The file to dispose of</param>
         public void DisposeFile(string fileName)
         {
-            FileUtilities.SafeFileDelete(fileName);
+            FileUtils.SafeFileDelete(fileName);
         }
     }
 }

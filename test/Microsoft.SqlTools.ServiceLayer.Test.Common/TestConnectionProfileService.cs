@@ -92,9 +92,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             InstanceInfo instanceInfo = GetInstance(key);
             if (instanceInfo != null)
             {
-                ConnectParams connectParam = CreateConnectParams(instanceInfo, key, databaseName);
+                ConnectParams connenctParam = CreateConnectParams(instanceInfo, key, databaseName);
 
-                return connectParam;
+                return connenctParam;
             }
             return null;
         }

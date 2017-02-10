@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
-
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
@@ -17,7 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     {
         int WriteRow(StorageDataReader dataReader);
         void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns);
-
         void FlushBuffer();
     }
 }

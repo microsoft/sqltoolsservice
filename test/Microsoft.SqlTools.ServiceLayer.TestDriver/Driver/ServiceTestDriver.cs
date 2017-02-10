@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             if (!File.Exists(serviceHostExecutable))
             {
                 throw new FileNotFoundException($"Failed to find Microsoft.SqlTools.ServiceLayer.exe at provided location '{serviceHostExecutable}'. " +
-                                                "Please set SQLTOOLSSERVICE_EXE environment variable to location of exe");
+                                                "Please set SQLTOOLSERVICE_EXE environment variable to location of exe");
             }
 
             //setup the service host for code coverage if the envvar is enabled

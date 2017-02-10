@@ -1,2 +1,0 @@
-:setvar 0var
--- invalid variable name

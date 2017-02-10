@@ -29,6 +29,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
         {
             base.NumericScale = scale;
         }
-
     }
 }

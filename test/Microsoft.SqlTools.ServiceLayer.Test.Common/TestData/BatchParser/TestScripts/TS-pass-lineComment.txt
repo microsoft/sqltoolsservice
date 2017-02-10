@@ -1,5 +1,0 @@
--- Line comment
-a--b also a comment
- -- comment
-	--comment
--- comment -- comment
