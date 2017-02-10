@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
@@ -46,6 +47,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
             var queryServiceErrorFormat = SR.QueryServiceErrorFormat(1, 1, 1, 1, "\n", "..");
             var queryServiceQueryFailed = SR.QueryServiceQueryFailed("..");
             var workspaceServiceBufferPositionOutOfOrder = SR.WorkspaceServiceBufferPositionOutOfOrder(1, 2, 3, 4);
+        }
+
+        [Fact]
+        public void SrStringsTestWithEnLocalization()
+        {
+            string locale = "en";
+            var args = new string[] { "--locale " + locale };
+            CommandOptions options = new CommandOptions(args);
+            Assert.Equal(SR.Culture.Name, options.Locale);
+            Assert.Equal(options.Locale, locale);
+
+            var TestLocalizationConstant = SR.TestLocalizationConstant;
+            Assert.Equal(TestLocalizationConstant, "EN_LOCALIZATION");
+        }
+
+        [Fact]
+        public void SrStringsTestWithEsLocalization()
+        {
+            string locale = "es";
+            var args = new string[] { "--locale " + locale };
+            CommandOptions options = new CommandOptions(args);
+            Assert.Equal(SR.Culture.Name, options.Locale);
+            Assert.Equal(options.Locale, locale);
+
+            var TestLocalizationConstant = SR.TestLocalizationConstant;
+            Assert.Equal(TestLocalizationConstant, "ES_LOCALIZATION");
+        }
+
+        [Fact]
+        public void SrStringsTestWithNullLocalization()
+        {
+            SR.Culture = null;
+            var args = new string[] { "" };
+            CommandOptions options = new CommandOptions(args);
+            Assert.Null(SR.Culture);
+            Assert.Equal(options.Locale, "");
+
+            var TestLocalizationConstant = SR.TestLocalizationConstant;
+            Assert.Equal(TestLocalizationConstant, "EN_LOCALIZATION");
         }
     }
 }

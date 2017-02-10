@@ -175,6 +175,8 @@ PeekDefinitionError(string errorMessage) = An unexpected error occurred during P
 
 PeekDefinitionNoResultsError = No results were found.
 
+PeekDefinitionDatabaseError = No database object was retrieved.
+
 PeekDefinitionNotConnectedError = Please connect to a server.
 
 PeekDefinitionTimedoutError = Operation timed out.
@@ -191,3 +193,9 @@ WorkspaceServicePositionLineOutOfRange = Position is outside of file line range
 WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of column range for line {0}
 
 WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
+
+
+############################################################################
+# Workspace Service
+
+TestLocalizationConstant = EN_LOCALIZATION
