@@ -5,6 +5,9 @@
 
 using System;
 using System.Globalization;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -78,6 +81,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     TestServiceProvider.Instance.RunQuery(ServerType, MasterDatabaseName, dropDatabaseQuery);
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns connection info after making a connection to the database
+        /// </summary>
+        /// <param name="serverType"></param>
+        /// <param name="databaseName"></param>
+        /// <param name="scriptFilePath"></param>
+        /// <returns></returns>
+        public ConnectionInfo InitLiveConnectionInfo(TestServerType serverType, string databaseName, string scriptFilePath)
+        {
+            ConnectParams connectParams = TestConnectionProfileService.Instance.GetConnectionParameters(serverType, databaseName);
+
+            string ownerUri = scriptFilePath;
+            var connectionService = ConnectionService.Instance;
+            var connectionResult = connectionService.Connect(new ConnectParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = connectParams.Connection
+            });
+
+            connectionResult.Wait();
+
+            ConnectionInfo connInfo = null;
+            connectionService.TryFindConnection(ownerUri, out connInfo);
+            Assert.NotNull(connInfo);
+            return connInfo;
         }
 
         public void Dispose()
