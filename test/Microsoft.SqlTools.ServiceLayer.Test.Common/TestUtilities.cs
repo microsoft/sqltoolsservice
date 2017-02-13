@@ -16,8 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             if (!baselinePath.Exists)
             {
                 throw new ComparisonFailureException("echo Test Failed:   Baseline file " + baselinePath.FullName + " does not exist" +
-                   Environment.NewLine + Environment.NewLine + "echo test > \"" + baselinePath.FullName + "\"" +
-                   Environment.NewLine + Environment.NewLine + "tf add \"" + baselinePath.FullName + "\"\r\n");
+                   Environment.NewLine + Environment.NewLine + "echo test > \"" + baselinePath.FullName + "\"");
             }
 
             if (!outputPath.Exists)
@@ -47,9 +46,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// Normalizes line endings in a file to facilitate comparisons regardless of OS. On Windows line endings are \r\n, while
         /// on other systems only \n is used
         /// </summary>
-        private static string ReadTextAndNormalizeLineEndings(string filePath)
+        public static string ReadTextAndNormalizeLineEndings(string filePath)
         {
             string text = File.ReadAllText(filePath);
+            return NormalizeLineEndings(text);
+        }
+
+        public static string NormalizeLineEndings(string text)
+        {
             return text.Replace("\r\n", Environment.NewLine);
         }
     }

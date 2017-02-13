@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             base.ProcessChild(child);
             if (child is SqlForBrowseClause)
             {
-                this.Visitor.Context.DecrementIndentLevel();
+                DecrementIndentLevel();
             }
         }
 
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             for (int i = lastChildEndTokenNumber; i < endTokenNumber; i++)
             {
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             }
         }
 
@@ -60,18 +60,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             {
                 #region Find the "FOR" token
                 int forTokenIndex = previousChild.Position.endTokenNumber;
-                TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[forTokenIndex];
-                while (td.TokenId != FormatterTokens.TOKEN_FOR && forTokenIndex < this.CodeObject.Position.endTokenNumber)
+                TokenData td = TokenManager.TokenList[forTokenIndex];
+                while (td.TokenId != FormatterTokens.TOKEN_FOR && forTokenIndex < CodeObject.Position.endTokenNumber)
                 {
                     Debug.Assert(
-                            this.Visitor.Context.Script.TokenManager.IsTokenComment(td.TokenId)
-                         || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId)
-                         , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the FOR token.", this.Visitor.Context.GetTokenRangeAsOriginalString(forTokenIndex, forTokenIndex + 1))
+                            TokenManager.IsTokenComment(td.TokenId)
+                         || TokenManager.IsTokenWhitespace(td.TokenId)
+                         , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the FOR token.", Visitor.Context.GetTokenRangeAsOriginalString(forTokenIndex, forTokenIndex + 1))
                          );
                     ++forTokenIndex;
-                    td = this.Visitor.Context.Script.TokenManager.TokenList[forTokenIndex];
+                    td = TokenManager.TokenList[forTokenIndex];
                 }
-                Debug.Assert(forTokenIndex < this.CodeObject.Position.endTokenNumber, "No FOR token.");
+                Debug.Assert(forTokenIndex < CodeObject.Position.endTokenNumber, "No FOR token.");
                 #endregion // Find the "FOR" token
 
                 
@@ -79,50 +79,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 for (int i = previousChild.Position.endTokenNumber; i < forTokenIndex; i++)
                 {
                     Debug.Assert(
-                            this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                         || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                         , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the FOR token.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
+                            TokenManager.IsTokenComment(TokenManager.TokenList[i].TokenId)
+                         || TokenManager.IsTokenWhitespace(TokenManager.TokenList[i].TokenId)
+                         , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the FOR token.", Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
                          );
-                    this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
                 }
                 #endregion // Process the tokens before the "FOR" token
 
                 #region Process the "FOR" token
                 if (previousChild.Position.endTokenNumber >= forTokenIndex
-                    || !this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[forTokenIndex - 1].TokenId))
+                    || !TokenManager.IsTokenWhitespace(TokenManager.TokenList[forTokenIndex - 1].TokenId))
                 {
-                    td = this.Visitor.Context.Script.TokenManager.TokenList[forTokenIndex];
-                    this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            td.StartIndex,
-                            "",
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()
-                            )
-                        );
+                    td = TokenManager.TokenList[forTokenIndex];
+                    AddIndentedNewLineReplacement(td.StartIndex);
                 }
-                this.Visitor.Context.ProcessTokenRange(forTokenIndex, forTokenIndex + 1);
-                this.Visitor.Context.IncrementIndentLevel();
+                Visitor.Context.ProcessTokenRange(forTokenIndex, forTokenIndex + 1);
+                IncrementIndentLevel();
 
                 int nextToken = forTokenIndex + 1;
-                Debug.Assert(nextToken < this.CodeObject.Position.endTokenNumber, "View Definition ends unexpectedly after the FOR token.");
+                Debug.Assert(nextToken < CodeObject.Position.endTokenNumber, "View Definition ends unexpectedly after the FOR token.");
                 // Ensure a whitespace after the "FOR" token
-                if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId))
+                if (!TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId))
                 {
-                    td = this.Visitor.Context.Script.TokenManager.TokenList[forTokenIndex];
-                    this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            td.StartIndex,
-                            "",
-                            " "
-                            )
-                        );
+                    td = TokenManager.TokenList[forTokenIndex];
+                    AddIndentedNewLineReplacement(td.StartIndex);
                 }
                 #endregion // Process the "FOR" token
 
                 #region Process tokens after the FOR token
                 for (int i = nextToken; i < nextChild.Position.startTokenNumber; i++)
                 {
-                    this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
+                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
                 }
                 #endregion // Process tokens after the FOR token
             }

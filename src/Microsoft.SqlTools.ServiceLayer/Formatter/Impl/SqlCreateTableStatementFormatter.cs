@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             bool foundComment = false;
             for (int i = startTokenNumber; i < firstChildStartTokenNumber; i++)
             {
-                TokenData td = Visitor.Context.Script.TokenManager.TokenList[i];
+                TokenData td = TokenManager.TokenList[i];
 
                 if (td.TokenId == FormatterTokens.LEX_END_OF_LINE_COMMENT)
                 {
@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             }
             else
             {
-                Visitor.Context.ProcessTokenRange(startTokenNumber, firstChildStartTokenNumber);
+                ProcessTokenRange(startTokenNumber, firstChildStartTokenNumber);
             }
         }
 
@@ -74,13 +74,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             // which closes the list of column definitions is on a new line and that all the tokens preceding it (which should only be comments)
             // are also each on a separate line and indented
 
-            Visitor.Context.IncrementIndentLevel();
+            IncrementIndentLevel();
 
             int closeParenToken = -1;
 
             for (int i = lastChildEndTokenNumber; i < endTokenNumber && closeParenToken < 0; i++)
             {
-                if (Visitor.Context.Script.TokenManager.TokenList[i].TokenId == 41) closeParenToken = i;
+                if (TokenManager.TokenList[i].TokenId == 41) closeParenToken = i;
             }
 
             if (closeParenToken > 0)
@@ -90,27 +90,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesInWhitespace);
                 }
 
-                Visitor.Context.DecrementIndentLevel();
+                DecrementIndentLevel();
 
-                TokenData td2 = Visitor.Context.Script.TokenManager.TokenList[closeParenToken - 1];
+                TokenData td2 = TokenManager.TokenList[closeParenToken - 1];
 
-                if (Visitor.Context.Script.TokenManager.IsTokenWhitespace(td2.TokenId))
+                if (TokenManager.IsTokenWhitespace(td2.TokenId))
                 {
                     SimpleProcessToken(closeParenToken - 1, FormatterUtilities.NormalizeNewLinesInWhitespace);
                 }
                 else
                 {
-                    TokenData td = Visitor.Context.Script.TokenManager.TokenList[closeParenToken];
-                    Visitor.Context.Replacements.Add(new Replacement(td.StartIndex, "", Environment.NewLine + Visitor.Context.GetIndentString()));
+                    TokenData td = TokenManager.TokenList[closeParenToken];
+                    AddIndentedNewLineReplacement(td.StartIndex);
                 }
 
                 // Add the closed parenthesis and the additional unparsed elements of the statement
                 // which should keep their old formatting
-                Visitor.Context.ProcessTokenRange(closeParenToken, endTokenNumber);
+                ProcessTokenRange(closeParenToken, endTokenNumber);
             }
             else
             {
-                Visitor.Context.ProcessTokenRange(lastChildEndTokenNumber, endTokenNumber);
+                ProcessTokenRange(lastChildEndTokenNumber, endTokenNumber);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 int openParenToken = -1;
                 for (int i = previousChild.Position.endTokenNumber; i < nextChild.Position.startTokenNumber; i++)
                 {
-                    TokenData currentToken = Visitor.Context.Script.TokenManager.TokenList[i];
+                    TokenData currentToken = TokenManager.TokenList[i];
                     if (currentToken.TokenId == 40)
                     {
                         openParenToken = i;
@@ -146,9 +146,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 }
 
                 // If there is a whitespace before the open parenthisis, normalize it to a new line
-                TokenData td = Visitor.Context.Script.TokenManager.TokenList[openParenToken - 1];
+                TokenData td = TokenManager.TokenList[openParenToken - 1];
 
-                if (Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId))
+                if (TokenManager.IsTokenWhitespace(td.TokenId))
                 {
                     if (previousChild.Position.endTokenNumber < openParenToken)
                     {
@@ -161,32 +161,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     {
                         SimpleProcessToken(openParenToken - 1, FormatterUtilities.NormalizeToOneSpace);
                     }
-                    TokenData tok = Visitor.Context.Script.TokenManager.TokenList[openParenToken];
-                    Visitor.Context.Replacements.Add(new Replacement(tok.StartIndex, "", Environment.NewLine + Visitor.Context.GetIndentString()));
+                    TokenData tok = TokenManager.TokenList[openParenToken];
+                    AddIndentedNewLineReplacement(tok.StartIndex);
                 }
 
                 // append open-paren token
-                Visitor.Context.ProcessTokenRange(openParenToken, openParenToken + 1);
+                ProcessTokenRange(openParenToken, openParenToken + 1);
 
                 // process tokens between open paren & first child start
-                Visitor.Context.IncrementIndentLevel();
+                IncrementIndentLevel();
                 for (int i = openParenToken + 1; i < nextChild.Position.startTokenNumber; i++)
                 {
                     SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesInWhitespace);
                 }
 
                 // ensure we have at least one new line
-                if (openParenToken + 1 >= nextChild.Position.startTokenNumber || !Visitor.Context.Script.TokenManager.IsTokenWhitespace(Visitor.Context.Script.TokenManager.TokenList[nextChild.Position.startTokenNumber - 1].TokenId))
+                if (openParenToken + 1 >= nextChild.Position.startTokenNumber || !TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextChild.Position.startTokenNumber - 1].TokenId))
                 {
-                    TokenData tok = Visitor.Context.Script.TokenManager.TokenList[nextChild.Position.startTokenNumber];
-                    Visitor.Context.Replacements.Add(new Replacement(tok.StartIndex, "", Environment.NewLine + Visitor.Context.GetIndentString()));
+                    TokenData tok = TokenManager.TokenList[nextChild.Position.startTokenNumber];
+                    AddIndentedNewLineReplacement(tok.StartIndex);
                 }
-                Visitor.Context.DecrementIndentLevel();
+                DecrementIndentLevel();
 
             }
             else
             {
-                Visitor.Context.ProcessTokenRange(previousChild.Position.endTokenNumber, nextChild.Position.startTokenNumber);
+                ProcessTokenRange(previousChild.Position.endTokenNumber, nextChild.Position.startTokenNumber);
             }
 
         }

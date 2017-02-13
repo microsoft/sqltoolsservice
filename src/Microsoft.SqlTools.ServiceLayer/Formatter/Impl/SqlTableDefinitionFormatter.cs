@@ -29,15 +29,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public SqlTableDefinitionFormatter(FormatterVisitor visitor, SqlTableDefinition codeObject)
             : base(visitor, codeObject)
         {
-            this.CommaSeparatedListFormatter = new CommaSeparatedListFormatter(visitor, codeObject, true);
+            CommaSeparatedListFormatter = new CommaSeparatedListFormatter(visitor, codeObject, true);
 
             // figure out the size of paddings required to align column definitions in a "columnar" form
-            if (this.Visitor.Context.FormatOptions.AlignColumnDefinitionsInColumns)
+            if (FormatOptions.AlignColumnDefinitionsInColumns)
             {
                 int range1MaxLength = 0;
                 int range2MaxLength = 0;
 
-                foreach (SqlCodeObject child in this.CodeObject.Children)
+                foreach (SqlCodeObject child in CodeObject.Children)
                 {
                     if (child is SqlColumnDefinition && !(child is SqlComputedColumnDefinition))
                     {
@@ -67,25 +67,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 List<PaddedSpaceSeparatedListFormatter.ColumnSpacingFormatDefinition> columnSpacingFormatDefinitions = new List<PaddedSpaceSeparatedListFormatter.ColumnSpacingFormatDefinition>(2);
                 columnSpacingFormatDefinitions.Add(d1);
                 columnSpacingFormatDefinitions.Add(d2);
-                this.Visitor.Context.CurrentColumnSpacingFormatDefinitions = columnSpacingFormatDefinitions;
+                Visitor.Context.CurrentColumnSpacingFormatDefinitions = columnSpacingFormatDefinitions;
             }
         }
 
         internal override void ProcessChild(SqlCodeObject child)
         {
             Validate.IsNotNull(nameof(child), child);
-            this.CommaSeparatedListFormatter.ProcessChild(child);
+            CommaSeparatedListFormatter.ProcessChild(child);
         }
 
         internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
         {
-            this.CommaSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
+            CommaSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
         }
 
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            this.Visitor.Context.CurrentColumnSpacingFormatDefinitions = null;
-            this.CommaSeparatedListFormatter.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
+            Visitor.Context.CurrentColumnSpacingFormatDefinitions = null;
+            CommaSeparatedListFormatter.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             Validate.IsNotNull(nameof(previousChild), previousChild);
             Validate.IsNotNull(nameof(nextChild), nextChild);
 
-            this.CommaSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
+            CommaSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
         }
     }
 }

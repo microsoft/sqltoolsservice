@@ -32,35 +32,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
         {
-            if (this.CodeObject.Left is SqlQuerySpecification) this.Visitor.Context.IncrementIndentLevel();
+            if (CodeObject.Left is SqlQuerySpecification)
+            {
+                IncrementIndentLevel();
+            }
 
             // if the start token is not a whitespace, we need to insert the indent string
-            if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[startTokenNumber].TokenId))
+            TokenData td = GetTokenData(startTokenNumber);
+            if (!IsTokenWhitespace(td))
             {
-                string newWhiteSpace = this.Visitor.Context.GetIndentString();
-                TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[startTokenNumber];
-                this.Visitor.Context.Replacements.Add(new Replacement(td.StartIndex, "", newWhiteSpace));
+                string newWhiteSpace = GetIndentString();
+                AddReplacement(new Replacement(td.StartIndex, string.Empty, newWhiteSpace));
             }
 
             for (int i = startTokenNumber; i < firstChildStartTokenNumber; i++)
             {
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             }
 
             if (firstChildStartTokenNumber - 1 >= startTokenNumber)
             {
-                string newWhiteSpace = this.Visitor.Context.GetIndentString();
-
-                if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[firstChildStartTokenNumber - 1].TokenId))
-                {
-                    newWhiteSpace = Environment.NewLine + newWhiteSpace;
-                }
-
-                TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[firstChildStartTokenNumber];
-                this.Visitor.Context.Replacements.Add(new Replacement(td.StartIndex, "", newWhiteSpace));
+                IndentChild(firstChildStartTokenNumber);
             }
         }
 
+        private void IndentChild(int firstChildStartTokenNumber)
+        {
+            string newWhiteSpace = GetIndentString();
+
+            if (!IsTokenWhitespace(PreviousTokenData(firstChildStartTokenNumber)))
+            {
+                newWhiteSpace = Environment.NewLine + newWhiteSpace;
+            }
+
+            TokenData td = GetTokenData(firstChildStartTokenNumber);
+            AddReplacement(td.StartIndex, string.Empty, newWhiteSpace);
+        }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
         {
@@ -77,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             int operatorTokenNumber = nextChild.Position.startTokenNumber;
             for (int i = previousChild.Position.endTokenNumber; !foundOperator && i < nextChild.Position.startTokenNumber; i++)
             {
-                TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[i];
+                TokenData td = GetTokenData(i);
                 if ( td.TokenId == FormatterTokens.TOKEN_UNION ||
                      td.TokenId == FormatterTokens.TOKEN_INTERSECT ||
                      td.TokenId == FormatterTokens.TOKEN_EXCEPT )
@@ -105,28 +112,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             #region BeforeOperator
 
             // If the first token is not a whitespace and it, we need to insert a newline in front
-            if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[previousChild.Position.endTokenNumber].TokenId))
+            TokenData endTokenData = GetTokenData(previousChild.Position.endTokenNumber);
+            if (!IsTokenWhitespace(endTokenData))
             {
-                string newWhiteSpace = Environment.NewLine + this.Visitor.Context.GetIndentString();
-                TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[previousChild.Position.endTokenNumber];
-                this.Visitor.Context.Replacements.Add(new Replacement(td.StartIndex, "", newWhiteSpace));
+                AddIndentedNewLineReplacement(endTokenData.StartIndex);
             }
 
             for (int i = previousChild.Position.endTokenNumber; i < operatorTokenNumber - 1; i++)
             {
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             }
 
-            if (this.CodeObject.Left is SqlQuerySpecification) this.Visitor.Context.DecrementIndentLevel();
+            if (CodeObject.Left is SqlQuerySpecification)
+            {
+                DecrementIndentLevel();
+            }
 
             if (operatorTokenNumber - 1 >= previousChild.Position.endTokenNumber)
             {
-                this.SimpleProcessToken(operatorTokenNumber - 1, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-                if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[operatorTokenNumber - 1].TokenId))
+                SimpleProcessToken(operatorTokenNumber - 1, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                if (!IsTokenWhitespace(PreviousTokenData(operatorTokenNumber)))
                 {
-                    string newWhiteSpace = Environment.NewLine + this.Visitor.Context.GetIndentString();
-                    TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[operatorTokenNumber];
-                    this.Visitor.Context.Replacements.Add(new Replacement(td.StartIndex, "", newWhiteSpace));
+                    TokenData td = GetTokenData(operatorTokenNumber);
+                    AddIndentedNewLineReplacement(td.StartIndex);
                 }
             }
             
@@ -148,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
                 for (int i = operatorTokenNumber; !foundModifier && i < nextChild.Position.startTokenNumber; i++)
                 {
-                    if (this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_ALL)
+                    if (GetTokenData(i).TokenId == FormatterTokens.TOKEN_ALL)
                     {
                         foundModifier = true;
                         modifierTokenNumber = i;
@@ -167,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 firstTokenAfterOperator = operatorTokenNumber + 1;
             }
 
-            this.Visitor.Context.ProcessTokenRange(operatorTokenNumber, firstTokenAfterOperator);
+            ProcessTokenRange(operatorTokenNumber, firstTokenAfterOperator);
 
             #endregion // Operator
 
@@ -175,19 +183,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             // [firstTokenAfterOperator, nextChild.Position.startTokenNumber)
             #region AfterOperator
 
-            if (this.CodeObject.Right is SqlQuerySpecification) this.Visitor.Context.IncrementIndentLevel();
+            if (CodeObject.Right is SqlQuerySpecification)
+            {
+                IncrementIndentLevel();
+            }
 
             // if the first token is not a whitespace, we need to insert a newline in front
-            if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[firstTokenAfterOperator].TokenId))
+            if (!TokenManager.IsTokenWhitespace(TokenManager.TokenList[firstTokenAfterOperator].TokenId))
             {
-                string newWhiteSpace = Environment.NewLine + this.Visitor.Context.GetIndentString();
-                TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[firstTokenAfterOperator];
-                this.Visitor.Context.Replacements.Add(new Replacement(td.StartIndex, "", newWhiteSpace));
+                TokenData td = GetTokenData(firstTokenAfterOperator);
+                AddIndentedNewLineReplacement(td.StartIndex);
             }
 
             for (int i = firstTokenAfterOperator; i < nextChild.Position.startTokenNumber; i++)
             {
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             }
 
             #endregion // AfterOperator
@@ -196,7 +206,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            if (this.CodeObject.Right is SqlQuerySpecification) this.Visitor.Context.DecrementIndentLevel();
+            if (CodeObject.Right is SqlQuerySpecification)
+            {
+                DecrementIndentLevel();
+            }
             base.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
         }
     }

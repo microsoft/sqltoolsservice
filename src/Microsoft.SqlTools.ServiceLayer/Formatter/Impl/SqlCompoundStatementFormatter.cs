@@ -32,33 +32,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             
             for (int i = startTokenNumber; i < firstChildStartTokenNumber; i++)
             {
-                if (this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_BEGIN_CS)
+                if (TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_BEGIN_CS)
                 {
-                    this.Visitor.Context.IncrementIndentLevel();
+                    IncrementIndentLevel();
                 }
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             }
         }
 
         internal override void  ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            this.Visitor.Context.DecrementIndentLevel();
+            DecrementIndentLevel();
 
             for (int i = lastChildEndTokenNumber; i < endTokenNumber; i++)
             {
-                if (this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_END_CS
-                    && !this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i-1].TokenId))
+                if (TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_END_CS
+                    && !TokenManager.IsTokenWhitespace(TokenManager.TokenList[i-1].TokenId))
                 {
-                    TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[i];
-                    this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            td.StartIndex,
-                            string.Empty,
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()
-                            )
-                        );
+                    TokenData td = TokenManager.TokenList[i];
+                    AddIndentedNewLineReplacement(td.StartIndex);
                 }
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             }
         }
  

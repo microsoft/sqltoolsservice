@@ -30,23 +30,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
         public override void Format()
         {
-            int startTokenIndex = this.CodeObject.Position.startTokenNumber;
-            int endTokenIndex = this.CodeObject.Position.endTokenNumber;
+            int startTokenIndex = CodeObject.Position.startTokenNumber;
+            int endTokenIndex = CodeObject.Position.endTokenNumber;
 
             if (startTokenIndex == endTokenIndex - 1 &&
-                this.CodeObject.TokenManager.TokenList[startTokenIndex].TokenId == FormatterTokens.TOKEN_ID)
+                CodeObject.TokenManager.TokenList[startTokenIndex].TokenId == FormatterTokens.TOKEN_ID)
             {
-                string sql = this.Visitor.Context.GetTokenRangeAsOriginalString(startTokenIndex, startTokenIndex + 1);
-                if (this.Visitor.Context.FormatOptions.UppercaseDataTypes)
+                string sql = GetTokenRangeAsOriginalString(startTokenIndex, startTokenIndex + 1);
+                if (FormatOptions.UppercaseDataTypes)
                 {
-                    TokenData tok = this.Visitor.Context.Script.TokenManager.TokenList[startTokenIndex];
-                    this.Visitor.Context.Replacements.Add(new Replacement(tok.StartIndex, sql, sql.ToUpperInvariant()));
+                    TokenData tok = TokenManager.TokenList[startTokenIndex];
+                    AddReplacement(tok.StartIndex, sql, sql.ToUpperInvariant());
                     sql = sql.ToUpperInvariant();
                 }
-                else if (this.Visitor.Context.FormatOptions.LowercaseDataTypes)
+                else if (FormatOptions.LowercaseDataTypes)
                 {
-                    TokenData tok = this.Visitor.Context.Script.TokenManager.TokenList[startTokenIndex];
-                    this.Visitor.Context.Replacements.Add(new Replacement(tok.StartIndex, sql, sql.ToLowerInvariant()));
+                    TokenData tok = TokenManager.TokenList[startTokenIndex];
+                    AddReplacement(tok.StartIndex, sql, sql.ToLowerInvariant());
                     sql = sql.ToLowerInvariant();
                 }
 

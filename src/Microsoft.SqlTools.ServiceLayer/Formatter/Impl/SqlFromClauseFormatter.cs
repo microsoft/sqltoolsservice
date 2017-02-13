@@ -26,23 +26,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         internal SqlFromClauseFormatter(FormatterVisitor visitor, SqlFromClause codeObject)
             : base(visitor, codeObject)
         {
-            this.CommaSeparatedListFormatter = new CommaSeparatedListFormatter(visitor, codeObject, this.Visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements);
+            CommaSeparatedListFormatter = new CommaSeparatedListFormatter(visitor, codeObject, FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements);
         }
 
         internal override void ProcessChild(SqlCodeObject child)
         {
             Validate.IsNotNull(nameof(child), child);
-            this.CommaSeparatedListFormatter.ProcessChild(child);
+            CommaSeparatedListFormatter.ProcessChild(child);
         }
 
         internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
         {
-            this.CommaSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
+            CommaSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
         }
 
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            this.CommaSeparatedListFormatter.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
+            CommaSeparatedListFormatter.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             Validate.IsNotNull(nameof(previousChild), previousChild);
             Validate.IsNotNull(nameof(nextChild), nextChild);
 
-            this.CommaSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
+            CommaSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
         }
 
     }

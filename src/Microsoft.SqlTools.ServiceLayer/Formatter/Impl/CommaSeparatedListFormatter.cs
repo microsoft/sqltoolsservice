@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Composition;
 using System.Diagnostics;
 using Babel.ParserGenerator;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
@@ -20,12 +19,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         internal CommaSeparatedListFormatter(FormatterVisitor visitor, SqlCodeObject codeObject, bool placeEachElementOnNewLine)
             : base(visitor, codeObject)
         {
-            this.PlaceEachElementOnNewLine = placeEachElementOnNewLine;
+            PlaceEachElementOnNewLine = placeEachElementOnNewLine;
         }
 
         internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
         {
-            this.Visitor.Context.IncrementIndentLevel();
+            IncrementIndentLevel();
 
             NormalizeWhitespace f = FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace;
             if (PlaceEachElementOnNewLine)
@@ -35,14 +34,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
             for (int i = startTokenNumber; i < firstChildStartTokenNumber; i++)
             {
-                this.SimpleProcessToken(i, f);
+                SimpleProcessToken(i, f);
             }
         }
 
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            this.Visitor.Context.DecrementIndentLevel();
-            this.Visitor.Context.ProcessTokenRange(lastChildEndTokenNumber, endTokenNumber);
+            DecrementIndentLevel();
+            ProcessTokenRange(lastChildEndTokenNumber, endTokenNumber);
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
@@ -58,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
             for (int i = start; i < end && HasToken(i); i++)
             {
-                TokenData td = Visitor.Context.Script.TokenManager.TokenList[i];
+                TokenData td = GetTokenData(i);
                 if (td.TokenId == 44)
                 {
                     commaToken = i;
@@ -74,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
             if (foundNonWhitespaceTokenBeforeComma)
             {
-                this.Visitor.Context.ProcessTokenRange(start, commaToken);
+                ProcessTokenRange(start, commaToken);
             }
             else
             {
@@ -93,14 +92,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 // strip whitespace before comma
                 for (int i = start; i < commaToken; i++)
                 {
-                    this.SimpleProcessToken(i, FormatterUtilities.StripAllWhitespace);
+                    SimpleProcessToken(i, FormatterUtilities.StripAllWhitespace);
                 }
             }
 
             // include comma after each element?
-            if (!Visitor.Context.FormatOptions.PlaceCommasBeforeNextStatement)
+            if (!FormatOptions.PlaceCommasBeforeNextStatement)
             {
-                Visitor.Context.ProcessTokenRange(commaToken, commaToken + 1);
+                ProcessTokenRange(commaToken, commaToken + 1);
             }
             else
             {
@@ -134,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             }
 
             // do we need to place the comma before the next statement in the list?
-            if (this.Visitor.Context.FormatOptions.PlaceCommasBeforeNextStatement)
+            if (FormatOptions.PlaceCommasBeforeNextStatement)
             {
                 SimpleProcessToken(commaToken, FormatterUtilities.NormalizeNewLinesInWhitespace);
                 TokenData tok = GetTokenData(end);

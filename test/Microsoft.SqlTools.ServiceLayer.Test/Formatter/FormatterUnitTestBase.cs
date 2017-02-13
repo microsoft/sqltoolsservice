@@ -36,9 +36,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
 
         protected void LoadAndFormatAndCompare(string testName, FileInfo inputFile, FileInfo baselineFile, FormatOptions options, bool verifyFormat)
         {
-            string inputSql = File.ReadAllText(inputFile.FullName);
+            // Normalize all line endings for intput files, baselines and output
+            string inputSql = TestUtilities.ReadTextAndNormalizeLineEndings(inputFile.FullName);
             string formattedSql = string.Empty;
             formattedSql = FormatterService.Format(inputSql, options, verifyFormat);
+
+            formattedSql = TestUtilities.NormalizeLineEndings(formattedSql);
 
             string assemblyPath = GetType().GetTypeInfo().Assembly.Location;
             string directory = Path.Combine(Path.GetDirectoryName(assemblyPath), "FormatterTests");

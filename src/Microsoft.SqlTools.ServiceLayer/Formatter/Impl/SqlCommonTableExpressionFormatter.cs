@@ -30,26 +30,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public SqlCommonTableExpressionFormatter(FormatterVisitor visitor, SqlCommonTableExpression codeObject)
             : base(visitor, codeObject)
         {
-            CommaSeparatedList = new CommaSeparatedListFormatter(this.Visitor, this.CodeObject, this.Visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements);
+            CommaSeparatedList = new CommaSeparatedListFormatter(Visitor, CodeObject, FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements);
         }
 
         internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
         {
-            this.Visitor.Context.IncrementIndentLevel();
+            IncrementIndentLevel();
             base.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
         }
 
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            this.Visitor.Context.DecrementIndentLevel();
+            DecrementIndentLevel();
             base.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
         }
 
         public override void Format()
         {
-            int nextToken = this.CodeObject.Position.startTokenNumber;
-
-            nextToken = ProcessExpressionName(nextToken);
+            int nextToken = ProcessExpressionName(CodeObject.Position.startTokenNumber);
 
             nextToken = ProcessColumns(nextToken);
 
@@ -61,392 +59,262 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private int ProcessQueryExpression(int nextToken)
         {
-            #region Find the open parenthesis
-            int openParenIndex = nextToken;
+            int openParenIndex = FindOpenParenthesis(nextToken);
+            ProcessAndNormalizeTokenRange(nextToken, openParenIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+            nextToken = ProcessOpenParenthesis(nextToken, openParenIndex, isNewlineRequired: true);
 
-            TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[openParenIndex];
-            while (td.TokenId != 40 && openParenIndex < this.CodeObject.Position.endTokenNumber)
+            ProcessTokenRangeEnsuringOneNewLineMinumum(nextToken, CodeObject.QueryExpression.Position.startTokenNumber);
+
+            ProcessChild(CodeObject.QueryExpression);
+            nextToken = CodeObject.QueryExpression.Position.endTokenNumber;
+
+            int closedParenIndex = FindClosedParenthesis(nextToken);
+            
+            ProcessRegionAfterQueryExpression(nextToken, closedParenIndex);
+            
+            // Process closed parenthesis
+            ProcessTokenRange(closedParenIndex, closedParenIndex + 1);
+            nextToken = closedParenIndex + 1;
+
+            return nextToken;
+        }
+
+        private int FindOpenParenthesis(int openParenIndex)
+        {
+            return FindTokenWithId(openParenIndex, 40);
+        }
+        private void ProcessTokenRangeEnsuringOneNewLineMinumum(int startindex, int endIndex)
+        {
+            ProcessAndNormalizeTokenRange(startindex, endIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+        }
+
+        private void ProcessAndNormalizeTokenRange(int startindex, int endIndex, NormalizeWhitespace normalizer)
+        {
+            for (int i = startindex; i < endIndex; i++)
             {
-                Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(td.TokenId)
-                 || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId)
-                 , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the open parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(openParenIndex, openParenIndex + 1))
-                 );
-                ++openParenIndex;
-                td = this.Visitor.Context.Script.TokenManager.TokenList[openParenIndex];
+                ProcessTokenAndNormalize(i, normalizer);
             }
-            Debug.Assert(openParenIndex < this.CodeObject.Position.endTokenNumber, "No open parenthesis in the columns definition.");
-            #endregion // Find the open parenthesis
+        }
 
-            #region Process tokens before the open parenthesis
-
-            for (int i = nextToken; i < openParenIndex; i++)
+        /// <summary>
+        /// if there was no whitespace before the parenthesis to be converted into a newline, 
+        /// and the references need to be on a newline, then append a newline
+        /// </summary>
+        private int ProcessOpenParenthesis(int nextToken, int openParenIndex, bool isNewlineRequired)
+        {
+            // if a newline is required and there was no whitespace before the parenthesis to be 
+            // converted into a newline, then append a newline
+            
+            if (isNewlineRequired
+                && (nextToken >= openParenIndex
+                    || !IsTokenWhitespace(PreviousTokenData(openParenIndex))))
             {
-                Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                 || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                 , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the open parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                 );
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                // Note: nextToken index value does not match the Startindex of the TokenData. When adding
+                // indentation, always get the TokenData and its StartIndex value
+                TokenData td = GetTokenData(openParenIndex);
+                AddIndentedNewLineReplacement(td.StartIndex);
             }
-            #endregion // Process tokens before the open parenthesis
+            ProcessTokenRange(openParenIndex, openParenIndex + 1);
+            IncrementIndentLevel();
 
-            #region Process open parenthesis
-            // if there was no whitespace before the parenthesis to be converted into a newline, and the references need to be on a newline, then append a newline
-            if (nextToken >= openParenIndex
-            || !this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[openParenIndex - 1].TokenId))
-            {
-                td = this.Visitor.Context.Script.TokenManager.TokenList[openParenIndex];
-                this.Visitor.Context.Replacements.Add(
-                    new Replacement(
-                        td.StartIndex,
-                        "",
-                        Environment.NewLine + this.Visitor.Context.GetIndentString()
-                        )
-                    );
-            }
-            this.Visitor.Context.ProcessTokenRange(openParenIndex, openParenIndex + 1);
-            this.Visitor.Context.IncrementIndentLevel();
-
+            // Move our pointer past the parenthesis
             nextToken = openParenIndex + 1;
-            Debug.Assert(nextToken < this.CodeObject.Position.endTokenNumber, "Unexpected end of View Definition after open parenthesis in the columns definition.");
+            TokenData nextTokenData = GetTokenData(nextToken);
+            Debug.Assert(nextToken < CodeObject.Position.endTokenNumber, "Unexpected end of View Definition after open parenthesis in the columns definition.");
 
             // Ensure a newline after the open parenthesis
-            if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId))
+            if (isNewlineRequired
+                && !IsTokenWhitespace(nextTokenData))
             {
-                td = this.Visitor.Context.Script.TokenManager.TokenList[nextToken];
-                this.Visitor.Context.Replacements.Add(
-                    new Replacement(
-                        td.StartIndex,
-                        "",
-                        Environment.NewLine + this.Visitor.Context.GetIndentString()
-                        )
-                    );
+                AddIndentedNewLineReplacement(nextTokenData.StartIndex);
             }
-            #endregion // Process open parenthesis
+            return nextToken;
+        }
+        
+        private int FindClosedParenthesis(int nextToken)
+        {
+            return FindTokenWithId(nextToken, 41);
+        }
 
-            #region Process tokens before the query expression
-            for (int i = nextToken; i < this.CodeObject.QueryExpression.Position.startTokenNumber; i++)
+        private void ProcessRegionAfterQueryExpression(int startIndex, int closedParenIndex)
+        {
+            ProcessRegionBeforeClosedParenthesis(startIndex, closedParenIndex,
+                FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum, 
+                isNewlineRequired: true);
+        }
+
+        private void ProcessRegionBeforeClosedParenthesis(int startIndex, int closedParenIndex, NormalizeWhitespace normalizer, bool isNewlineRequired)
+        {
+            for (int i = startIndex; i < closedParenIndex - 1; i++)
             {
-                Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                 || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                 , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" after the open parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                 );
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                ProcessTokenAndNormalize(i, normalizer);
             }
-            #endregion // Process tokens before the query expression
-
-            #region Process query expression
-            this.ProcessChild(this.CodeObject.QueryExpression);
-            nextToken = this.CodeObject.QueryExpression.Position.endTokenNumber;
-            #endregion // Process query expression
-
-            #region Find closed parenthesis
-            int closedParenIndex = nextToken;
-            td = this.Visitor.Context.Script.TokenManager.TokenList[closedParenIndex];
-            while (td.TokenId != 41 && closedParenIndex < this.CodeObject.Position.endTokenNumber)
+            DecrementIndentLevel();
+            if (startIndex < closedParenIndex)
             {
-                Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(td.TokenId)
-                 || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId)
-                 , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the closed parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(closedParenIndex, closedParenIndex + 1))
-                 );
-                ++closedParenIndex;
-                td = this.Visitor.Context.Script.TokenManager.TokenList[closedParenIndex];
-            }
-            Debug.Assert(closedParenIndex < this.CodeObject.Position.endTokenNumber, "No closing parenthesis after the columns definition.");
-            #endregion // Find closed parenthesis
-
-            #region Process region between query expression and the closed parenthesis
-            for (int i = nextToken; i < closedParenIndex - 1; i++)
-            {
-                Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                 || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                 , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the closed parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                 );
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-            }
-            this.Visitor.Context.DecrementIndentLevel();
-            if (nextToken < closedParenIndex)
-            {
-                this.SimpleProcessToken(closedParenIndex - 1, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(closedParenIndex - 1, normalizer);
             }
 
             // Enforce a whitespace before the closing parenthesis
-            td = this.Visitor.Context.Script.TokenManager.TokenList[closedParenIndex - 1];
-            if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId))
+            TokenData td = PreviousTokenData(closedParenIndex);
+            if (isNewlineRequired && !IsTokenWhitespace(td))
             {
-                td = this.Visitor.Context.Script.TokenManager.TokenList[closedParenIndex];
-                this.Visitor.Context.Replacements.Add(
-                    new Replacement(
-                        td.StartIndex,
-                        "",
-                        Environment.NewLine + this.Visitor.Context.GetIndentString()
-                        )
-                    );
+                td = GetTokenData(closedParenIndex);
+                AddIndentedNewLineReplacement(td.StartIndex);
             }
-            #endregion // Process region between query expression and the closed parenthesis
+        }
 
-            #region Process closed parenthesis
-            this.Visitor.Context.ProcessTokenRange(closedParenIndex, closedParenIndex + 1);
-            nextToken = closedParenIndex + 1;
-            #endregion // Process closed parenthesis
+        private int FindTokenWithId(int tokenIndex, int id)
+        {
+            TokenData td = GetTokenData(tokenIndex);
+            while (td.TokenId != id && tokenIndex < CodeObject.Position.endTokenNumber)
+            {
+                DebugAssertTokenIsWhitespaceOrComment(td, tokenIndex);
+                ++tokenIndex;
+                td = GetTokenData(tokenIndex);
+            }
+            Debug.Assert(tokenIndex < CodeObject.Position.endTokenNumber, "No token with ID" + id + " found in the columns definition.");
+            return tokenIndex;
+        }
 
-            return nextToken;
+        private void DebugAssertTokenIsWhitespaceOrComment(TokenData td, int tokenIndex)
+        {
+            Debug.Assert(TokenManager.IsTokenComment(td.TokenId)|| IsTokenWhitespace(td), string.Format(CultureInfo.CurrentCulture, 
+                "Unexpected token \"{0}\" before the parenthesis.", GetTextForCurrentToken(tokenIndex))
+            );
+        }
+
+        private void ProcessTokenEnsuringOneNewLineMinimum(int tokenIndex)
+        {
+            ProcessTokenAndNormalize(tokenIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+        }
+
+        private void ProcessTokenAndNormalize(int tokenIndex, NormalizeWhitespace normalizeFunction)
+        {
+            TokenData iTokenData = GetTokenData(tokenIndex);
+            DebugAssertTokenIsWhitespaceOrComment(iTokenData, tokenIndex);
+            normalizeFunction = normalizeFunction ?? FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
+            SimpleProcessToken(tokenIndex, normalizeFunction);
         }
 
         private int ProcessAsToken(int nextToken)
         {
-            #region Find the "AS" token
-            int asTokenIndex = nextToken;
-            TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[asTokenIndex];
-            while (td.TokenId != FormatterTokens.TOKEN_AS && asTokenIndex < this.CodeObject.Position.endTokenNumber)
-            {
-                Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(td.TokenId)
-                 || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId)
-                 , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the AS token.", this.Visitor.Context.GetTokenRangeAsOriginalString(asTokenIndex, asTokenIndex + 1))
-                 );
-                ++asTokenIndex;
-                td = this.Visitor.Context.Script.TokenManager.TokenList[asTokenIndex];
-            }
-            Debug.Assert(asTokenIndex < this.CodeObject.Position.endTokenNumber, "No AS token in the options definition.");
-            #endregion // Find the "AS" token
+            int asTokenIndex = FindTokenWithId(nextToken, FormatterTokens.TOKEN_AS);
 
-            #region Process the tokens before "AS"
-            for (int i = nextToken; i < asTokenIndex; i++)
-            {
-                Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                 || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                 , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the AS token.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                 );
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-            }
-            #endregion // Process the tokens before "AS"
+            // Preprocess
+            ProcessTokenRangeEnsuringOneNewLineMinumum(nextToken, asTokenIndex);
 
-            #region Process "AS"
+            // Process As
             if (nextToken >= asTokenIndex
-                || !this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[asTokenIndex - 1].TokenId))
+                || !IsTokenWhitespace(PreviousTokenData(asTokenIndex)))
             {
-                td = this.Visitor.Context.Script.TokenManager.TokenList[asTokenIndex];
-                this.Visitor.Context.Replacements.Add(
-                    new Replacement(
-                        td.StartIndex,
-                        "",
-                        Environment.NewLine + this.Visitor.Context.GetIndentString()
-                        )
-                    );
+                TokenData td = GetTokenData(asTokenIndex);
+                AddIndentedNewLineReplacement(td.StartIndex);
             }
-            this.Visitor.Context.ProcessTokenRange(asTokenIndex, asTokenIndex + 1);
+            ProcessTokenRange(asTokenIndex, asTokenIndex + 1);
 
-            nextToken = asTokenIndex + 1;
-            Debug.Assert(nextToken < this.CodeObject.Position.endTokenNumber, "View definition ends unexpectedly after the AS token.");
-
-            // Ensure a whitespace after the "AS" token
-            if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId))
-            {
-                td = this.Visitor.Context.Script.TokenManager.TokenList[nextToken];
-                this.Visitor.Context.Replacements.Add(
-                    new Replacement(
-                        td.StartIndex,
-                        "",
-                        Environment.NewLine + this.Visitor.Context.GetIndentString()
-                        )
-                    );
-            }
-            #endregion // Process "AS"
+            // Post Process
+            nextToken = EnsureWhitespaceAfterAs(asTokenIndex);
 
             return nextToken;
         }
 
-        private int ProcessColumns(int nextToken)
+        private int EnsureWhitespaceAfterAs(int asTokenIndex)
         {
-            if (this.CodeObject.ColumnList != null && this.CodeObject.ColumnList.Count > 0)
+            int nextToken = asTokenIndex + 1;
+            Debug.Assert(nextToken < CodeObject.Position.endTokenNumber, "View definition ends unexpectedly after the AS token.");
+
+            TokenData nextTokenData = GetTokenData(nextToken);
+            // Ensure a whitespace after the "AS" token
+            if (!IsTokenWhitespace(nextTokenData))
             {
-                NormalizeWhitespace f = FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace;
-                if (this.Visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements)
-                {
-                    f = FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
-                }
-
-                #region Find the open parenthesis
-                int openParenIndex = nextToken;
-
-                TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[openParenIndex];
-                while (td.TokenId != 40 && openParenIndex < this.CodeObject.Position.endTokenNumber)
-                {
-                    Debug.Assert(
-                        this.Visitor.Context.Script.TokenManager.IsTokenComment(td.TokenId)
-                     || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the open parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(openParenIndex, openParenIndex + 1))
-                     );
-                    ++openParenIndex;
-                    td = this.Visitor.Context.Script.TokenManager.TokenList[openParenIndex];
-                }
-                Debug.Assert(openParenIndex < this.CodeObject.Position.endTokenNumber, "No open parenthesis in the columns definition.");
-                #endregion // Find the open parenthesis
-
-                #region Process tokens before the open parenthesis
-                for (int i = nextToken; i < openParenIndex; i++)
-                {
-                    Debug.Assert(
-                        this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                     || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the open parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-                    this.SimpleProcessToken(i, f);
-                }
-                #endregion // Process tokens before the open parenthesis
-
-                #region Process open parenthesis
-                // if a newline is required and there was no whitespace before the parenthesis to be converted into a newline, then append a newline
-                if (this.Visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements
-                    && (  nextToken >= openParenIndex
-                       || !this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[openParenIndex - 1].TokenId)))
-                {
-                    td = this.Visitor.Context.Script.TokenManager.TokenList[openParenIndex];
-                    this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            td.StartIndex,
-                            "",
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()
-                            )
-                        );
-                }
-                this.Visitor.Context.ProcessTokenRange(openParenIndex, openParenIndex + 1);
-                this.Visitor.Context.IncrementIndentLevel();
-
-                nextToken = openParenIndex + 1;
-                Debug.Assert(nextToken < this.CodeObject.Position.endTokenNumber, "Unexpected end of View Definition after open parenthesis in the columns definition.");
-
-                // If needed, ensure a newline after the open parenthesis
-                if (    this.Visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements
-                    && !this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId))
-                {
-                    td = this.Visitor.Context.Script.TokenManager.TokenList[nextToken];
-                    this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            td.StartIndex,
-                            "",
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()
-                            )
-                        );
-                }
-                #endregion // Process open parenthesis
-
-                #region Process tokens before the columns
-                // find where the columns start
-                IEnumerator<SqlIdentifier> columnEnum = this.CodeObject.ColumnList.GetEnumerator();
-                Debug.Assert(columnEnum.MoveNext(), "The list of columns is empty.");
-                for (int i = nextToken; i < columnEnum.Current.Position.startTokenNumber; i++)
-                {
-                    Debug.Assert(
-                        this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                     || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" after the open parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-                    this.SimpleProcessToken(i, f);
-                }
-                #endregion
-
-                #region Process columns
-                this.ProcessChild(columnEnum.Current);
-                SqlIdentifier previousColumn = columnEnum.Current;
-                while (columnEnum.MoveNext())
-                {
-                    this.CommaSeparatedList.ProcessInterChildRegion(previousColumn, columnEnum.Current);
-                    this.ProcessChild(columnEnum.Current);
-                    previousColumn = columnEnum.Current;
-                }
-                nextToken = previousColumn.Position.endTokenNumber;
-                #endregion // Process columns
-
-                #region Find closed parenthesis
-                int closedParenIndex = nextToken;
-                td = this.Visitor.Context.Script.TokenManager.TokenList[closedParenIndex];
-                while (td.TokenId != 41 && closedParenIndex < this.CodeObject.Position.endTokenNumber)
-                {
-                    Debug.Assert(
-                        this.Visitor.Context.Script.TokenManager.IsTokenComment(td.TokenId)
-                     || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the closed parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(closedParenIndex, closedParenIndex + 1))
-                     );
-                    ++closedParenIndex;
-                    td = this.Visitor.Context.Script.TokenManager.TokenList[closedParenIndex];
-                }
-                Debug.Assert(closedParenIndex < this.CodeObject.Position.endTokenNumber, "No closing parenthesis after the columns definition.");
-                #endregion // Find closed parenthesis
-
-                #region Process region between columns and the closed parenthesis
-                for (int i = nextToken; i < closedParenIndex - 1; i++)
-                {
-                    Debug.Assert(
-                        this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                     || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the closed parenthesis.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-                    this.SimpleProcessToken(i, f);
-                }
-                this.Visitor.Context.DecrementIndentLevel();
-                if (nextToken < closedParenIndex)
-                {
-                    this.SimpleProcessToken(closedParenIndex - 1, f);
-                }
-
-                // If needed, ensure a newline before the closing parenthesis
-
-                td = this.Visitor.Context.Script.TokenManager.TokenList[closedParenIndex - 1];
-                if (    this.Visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements
-                    && !this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(td.TokenId))
-                {
-                    td = this.Visitor.Context.Script.TokenManager.TokenList[closedParenIndex];
-                    this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            td.StartIndex,
-                            "",
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()
-                            )
-                        );
-                }
-                #endregion // Process region between columns and the closed parenthesis
-
-                #region Process closed parenthesis
-                this.Visitor.Context.ProcessTokenRange(closedParenIndex, closedParenIndex + 1);
-                nextToken = closedParenIndex + 1;
-                #endregion // Process closed parenthesis
+                AddIndentedNewLineReplacement(nextTokenData.StartIndex);
             }
 
             return nextToken;
+        }
+        
+        private int ProcessColumns(int nextToken)
+        {
+            if (CodeObject.ColumnList != null && CodeObject.ColumnList.Count > 0)
+            {
+                NormalizeWhitespace normalizer = GetColumnWhitespaceNormalizer();
+
+                int openParenIndex = FindOpenParenthesis(nextToken);
+
+                // Process up to the open parenthesis
+                ProcessAndNormalizeTokenRange(nextToken, openParenIndex, normalizer);
+
+                nextToken = ProcessOpenParenthesis(nextToken, openParenIndex, isNewlineRequired: FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements);
+
+                // find where the columns start, and process everything before it
+                IEnumerator<SqlIdentifier> columnEnum = FindColumnStart();
+                ProcessAndNormalizeTokenRange(nextToken, columnEnum.Current.Position.startTokenNumber, normalizer);
+                
+                nextToken = ProcessColumnList(columnEnum);
+
+                int closedParenIndex = FindClosedParenthesis(nextToken);
+
+                // Process region between columns and the closed parenthesis
+                ProcessRegionBeforeClosedParenthesis(nextToken, closedParenIndex, normalizer,
+                    isNewlineRequired: FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements);
+                
+                // Process closed parenthesis
+                ProcessTokenRange(closedParenIndex, closedParenIndex + 1);
+                nextToken = closedParenIndex + 1;
+            }
+
+            return nextToken;
+        }
+        
+        private int ProcessColumnList(IEnumerator<SqlIdentifier> columnEnum)
+        {
+            int nextToken;
+            ProcessChild(columnEnum.Current);
+            SqlIdentifier previousColumn = columnEnum.Current;
+            while (columnEnum.MoveNext())
+            {
+                CommaSeparatedList.ProcessInterChildRegion(previousColumn, columnEnum.Current);
+                ProcessChild(columnEnum.Current);
+                previousColumn = columnEnum.Current;
+            }
+            nextToken = previousColumn.Position.endTokenNumber;
+            return nextToken;
+        }
+
+        /// <summary>
+        /// Moves to the first column index
+        /// </summary>
+        private IEnumerator<SqlIdentifier> FindColumnStart()
+        {
+            IEnumerator<SqlIdentifier> columnEnum = CodeObject.ColumnList.GetEnumerator();
+            bool hasColumns = columnEnum.MoveNext();
+            Debug.Assert(hasColumns, "The list of columns is empty.");
+            return columnEnum;
+        }
+
+        private NormalizeWhitespace GetColumnWhitespaceNormalizer()
+        {
+            if (FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements)
+            {
+                return FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
+            }
+            return FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace;
         }
 
         private int ProcessExpressionName(int nextToken)
         {
-            #region Process the tokens preceeding the expression name
-            SqlIdentifier name = this.CodeObject.Name;
+            SqlIdentifier name = CodeObject.Name;
             for (int i = nextToken; i < name.Position.startTokenNumber; i++)
             {
-                Debug.Assert(
-                        this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                     || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the expression name.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
+                ProcessTokenEnsuringOneNewLineMinimum(i);
             }
-            #endregion // Process the tokens preceeding the expression name
-
-            #region Process the expression name
-            this.Visitor.Context.ProcessTokenRange(name.Position.startTokenNumber, name.Position.endTokenNumber);
-            #endregion // Process the expression name
+            
+            ProcessTokenRange(name.Position.startTokenNumber, name.Position.endTokenNumber);
             
             nextToken = name.Position.endTokenNumber;
 
             return nextToken;
         }
-
-
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         internal PaddedSpaceSeparatedListFormatter(FormatterVisitor visitor, SqlCodeObject codeObject, List<ColumnSpacingFormatDefinition> spacingDefinitions, bool incrementIndentLevelOnPrefixRegion)
             : base(visitor, codeObject, incrementIndentLevelOnPrefixRegion)
         {
-            this.ColumnSpacingDefinitions = spacingDefinitions;
+            ColumnSpacingDefinitions = spacingDefinitions;
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
@@ -31,14 +31,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
             // first, figure out how big to make the pad
             int padLength = 1;
-            if (this.ColumnSpacingDefinitions != null && nextColumn < this.ColumnSpacingDefinitions.Count)
+            if (ColumnSpacingDefinitions != null && nextColumn < ColumnSpacingDefinitions.Count)
             {
-                if (previousChild.GetType() == this.ColumnSpacingDefinitions[nextColumn].PreviousType &&
-                    (this.ColumnSpacingDefinitions[nextColumn].NextType == null || nextChild.GetType() == this.ColumnSpacingDefinitions[nextColumn].NextType))
+                if (previousChild.GetType() == ColumnSpacingDefinitions[nextColumn].PreviousType &&
+                    (ColumnSpacingDefinitions[nextColumn].NextType == null || nextChild.GetType() == ColumnSpacingDefinitions[nextColumn].NextType))
                 {
                     string text = previousChild.TokenManager.GetText(previousChild.Position.startTokenNumber, previousChild.Position.endTokenNumber);
                     int stringLength = text.Length;
-                    padLength = this.ColumnSpacingDefinitions[nextColumn].PaddedLength - stringLength;
+                    padLength = ColumnSpacingDefinitions[nextColumn].PaddedLength - stringLength;
 
                     Debug.Assert(padLength > 0, "unexpected value for Pad Length");
                     padLength = Math.Max(padLength, 1);
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
             for (int i = start; i < end; i++)
             {
-                this.SimpleProcessToken(i, (string original, FormatContext context) => { return FormatterUtilities.NormalizeNewLinesOrCondenseToNSpaces(original, context, padLength); });
+                SimpleProcessToken(i, (string original, FormatContext context) => { return FormatterUtilities.NormalizeNewLinesOrCondenseToNSpaces(original, context, padLength); });
             }
 
         }
@@ -61,9 +61,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             internal ColumnSpacingFormatDefinition(Type previousType, Type nextType, int padLength)
             {
-                this.PreviousType = previousType;
-                this.NextType = nextType;
-                this.PaddedLength = padLength;
+                PreviousType = previousType;
+                NextType = nextType;
+                PaddedLength = padLength;
             }
 
             internal Type PreviousType { get; private set; }

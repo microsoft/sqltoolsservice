@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             if (IncremenetIndentLevelOnPrefixRegion)
             {
-                Visitor.Context.IncrementIndentLevel();
+                IncrementIndentLevel();
             }
             base.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
         }
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             if (IncremenetIndentLevelOnPrefixRegion)
             {
-                Visitor.Context.DecrementIndentLevel();
+                DecrementIndentLevel();
             }
             base.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
         }
@@ -58,15 +58,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             {
                 for (int i = start; i < end; i++)
                 {
-                    this.SimpleProcessToken(i, this.FormatWhitespace);
+                    SimpleProcessToken(i, FormatWhitespace);
                 }
             }
             else
             {
                 // Insert the minimum whitespace
-                string minWhite = FormatWhitespace(" ", this.Visitor.Context);
-                int insertLocation = Visitor.Context.Script.TokenManager.TokenList[start].StartIndex;
-                Visitor.Context.Replacements.Add(new Replacement(insertLocation, "", minWhite));
+                string minWhite = FormatWhitespace(" ", Visitor.Context);
+                int insertLocation = TokenManager.TokenList[start].StartIndex;
+                AddReplacement(insertLocation, "", minWhite);
             }
         }
 

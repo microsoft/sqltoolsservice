@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         internal SqlSelectClauseFormatter(FormatterVisitor visitor, SqlSelectClause codeObject)
             : base(visitor, codeObject, visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements)
         {
-            this.NewLineSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, true);
+            NewLineSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, true);
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
             if (previousChild is SqlTopSpecification)
             {
-                this.NewLineSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
+                NewLineSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
             }
             else
             {

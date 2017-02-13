@@ -24,13 +24,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
     class SqlProcedureDefinitionFormatter : CommaSeparatedListFormatter
     {
         NewLineSeparatedListFormatter NewLineSeparatedListFormatter { get; set; }
-        bool _foundTokenWith;
+        bool foundTokenWith;
 
         internal SqlProcedureDefinitionFormatter(FormatterVisitor visitor, SqlProcedureDefinition codeObject)
             : base(visitor, codeObject, true)
         {
-            this.NewLineSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, false);
-            this._foundTokenWith = false;
+            NewLineSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, false);
+            foundTokenWith = false;
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
@@ -40,20 +40,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
             if (nextChild is SqlModuleOption)
             {
-                if (!_foundTokenWith) this.Visitor.Context.DecrementIndentLevel();
+                if (!foundTokenWith)
+                {
+                    DecrementIndentLevel();
+                }
                 for (int i = previousChild.Position.endTokenNumber; i < nextChild.Position.startTokenNumber; i++)
                 {
-                    if (!_foundTokenWith && this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_WITH)
+                    if (!foundTokenWith && TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_WITH)
                     {
-                        this.Visitor.Context.IncrementIndentLevel();
-                        _foundTokenWith = true;
+                        IncrementIndentLevel();
+                        foundTokenWith = true;
                     }
-                    this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
                 }
             }
             else if (previousChild is SqlObjectIdentifier)
             {
-                this.NewLineSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
+                NewLineSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
             }
             else
             {
@@ -63,31 +66,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            this.Visitor.Context.DecrementIndentLevel();
+            DecrementIndentLevel();
             NormalizeWhitespace f = FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
             for (int i = lastChildEndTokenNumber; i < endTokenNumber; i++)
             {
-                if (this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_AS
-                    && !this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i-1].TokenId))
+                if (TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_AS
+                    && !TokenManager.IsTokenWhitespace(TokenManager.TokenList[i-1].TokenId))
                 {
-                    TokenData td = this.Visitor.Context.Script.TokenManager.TokenList[i];
-                    this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            td.StartIndex,
-                            "",
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()
-                            )
-                        );
+                    TokenData td = TokenManager.TokenList[i];
+                    AddIndentedNewLineReplacement(td.StartIndex);
                 }
-                if (this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_FOR)
+                if (TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_FOR)
                 {
                     f = FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace;
                 }
-                else if (this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_REPLICATION)
+                else if (TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_REPLICATION)
                 {
                     f = FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
                 }
-                this.SimpleProcessToken(i, f);
+                SimpleProcessToken(i, f);
             }
         }
     }

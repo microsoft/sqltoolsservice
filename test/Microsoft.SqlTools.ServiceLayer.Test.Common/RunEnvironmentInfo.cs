@@ -1,4 +1,5 @@
-﻿//
+
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -57,13 +58,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     string assemblyDir = Path.GetDirectoryName(typeof(Scripts).GetTypeInfo().Assembly.Location);
                     string defaultPath = Path.Combine(assemblyDir, GoUpNDirectories(4));
                     testFolderPath = Path.Combine(defaultPath, "Microsoft.SqlTools.ServiceLayer.Test.Common", "TestData");
-                    
+
                     cachedTestFolderPath = testFolderPath;
                 }
             }
             return testFolderPath;
         }
-
         private static string GoUpNDirectories(int n)
         {
             string up = ".." + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "\\" : "/");

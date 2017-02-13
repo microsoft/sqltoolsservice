@@ -33,9 +33,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             if (!r.IsIdentity())
             {
-                r.CumulativeOffset = this.offset;
+                r.CumulativeOffset = offset;
                 Replacements.Enqueue(r);
-                this.offset += r.InducedOffset;
+                offset += r.InducedOffset;
             }
         }
 

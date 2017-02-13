@@ -4,9 +4,11 @@
 //
 
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
@@ -33,14 +35,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
             };
         }
 
-        private string defaultSqlContents = @"create TABLE T1 ( C1 int NOT NULL, C2 nvarchar(50) NULL)";
+        private string defaultSqlContents = TestUtilities.NormalizeLineEndings(@"create TABLE T1 ( C1 int NOT NULL, C2 nvarchar(50) NULL)");
         // TODO fix bug where '\r' is appended
-        private string formattedSqlContents =@"create TABLE T1
+        private string formattedSqlContents = TestUtilities.NormalizeLineEndings(@"create TABLE T1
 (
     C1 int NOT NULL,
     C2 nvarchar(50) NULL
-)";
-
+)");
+        
         [Fact]
         public async Task FormatDocumentShouldReturnSingleEdit()
         {
@@ -56,20 +58,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
                     AssertFormattingEqual(formattedSqlContents, edits[0].NewText);
 
                 }));
-            
         }
 
         private static void AssertFormattingEqual(string expected, string actual)
         {
             if (string.Compare(expected, actual) != 0)
             {
-                Console.WriteLine("======================");
-                Console.WriteLine("Comparison failed:");
-                Console.WriteLine("==Expected==");
-                Console.WriteLine(expected);
-                Console.WriteLine("==Actual==");
-                Console.WriteLine(actual);
-                Assert.Equal(expected, actual);
+                StringBuilder error = new StringBuilder();
+                error.AppendLine("======================");
+                error.AppendLine("Comparison failed:");
+                error.AppendLine("==Expected==");
+                error.AppendLine(expected);
+                error.AppendLine("==Actual==");
+                error.AppendLine(actual);
+                Assert.False(false, error.ToString());
             }
         }
 

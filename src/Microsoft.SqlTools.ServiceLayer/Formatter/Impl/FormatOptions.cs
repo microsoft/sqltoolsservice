@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public bool UseSpaces
         {
             get { return !UseTabs; }
-            set { this.UseTabs = !value; }
+            set { UseTabs = !value; }
         }
 
         public bool EncloseIdentifiersInSquareBrackets
@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private void RaisePropertyChanged(string propertyName)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             for (int i = startTokenNumber; i < firstChildStartTokenNumber; i++)
             {
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             }
         }
 

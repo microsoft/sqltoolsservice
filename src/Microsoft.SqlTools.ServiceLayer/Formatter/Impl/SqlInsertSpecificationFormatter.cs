@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Composition;
 using System.Diagnostics;
 using System.Globalization;
+using Babel.ParserGenerator;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter
@@ -32,29 +33,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public override void Format()
         {
 
-            IEnumerator<SqlCodeObject> firstChildEnum = this.CodeObject.Children.GetEnumerator();
+            IEnumerator<SqlCodeObject> firstChildEnum = CodeObject.Children.GetEnumerator();
             if (firstChildEnum.MoveNext())
             {
                 //
                 // format the text from the start of the object to the start of it's first child
                 // 
-                this.ProcessPrefixRegion(this.CodeObject.Position.startTokenNumber, firstChildEnum.Current.Position.startTokenNumber);
+                ProcessPrefixRegion(CodeObject.Position.startTokenNumber, firstChildEnum.Current.Position.startTokenNumber);
                 int nextToken = firstChildEnum.Current.Position.startTokenNumber;
 
                 // handle top specification
-                nextToken = this.ProcessTopSpecification(nextToken);
+                nextToken = ProcessTopSpecification(nextToken);
 
                 // handle target
-                nextToken = this.ProcessTarget(nextToken);
+                nextToken = ProcessTarget(nextToken);
 
                 // handle target columns
-                nextToken = this.ProcessColumns(nextToken);
+                nextToken = ProcessColumns(nextToken);
 
                 // handle output clause
-                nextToken = this.ProcessOutputClause(nextToken);
+                nextToken = ProcessOutputClause(nextToken);
 
                 // handle values / derived table / execute statement / dml_table_source
-                nextToken = this.ProcessValues(nextToken);
+                nextToken = ProcessValues(nextToken);
             }
             else
             {
@@ -65,21 +66,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         internal int ProcessTopSpecification(int nextToken)
         {
-            if (this.CodeObject.TopSpecification != null)
+            if (CodeObject.TopSpecification != null)
             {
-                for (int i = nextToken; i < this.CodeObject.TopSpecification.Position.startTokenNumber; i++)
+                for (int i = nextToken; i < CodeObject.TopSpecification.Position.startTokenNumber; i++)
                 {
                     Debug.Assert(
-                       this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                    || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId)
-                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the top specification.", this.Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
+                       TokenManager.IsTokenComment(TokenManager.TokenList[i].TokenId)
+                    || TokenManager.IsTokenWhitespace(TokenManager.TokenList[i].TokenId)
+                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the top specification.", Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
                     );
-                    this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
+                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
                 }
 
-                this.ProcessChild(this.CodeObject.TopSpecification);
+                ProcessChild(CodeObject.TopSpecification);
 
-                nextToken = this.CodeObject.TopSpecification.Position.endTokenNumber;
+                nextToken = CodeObject.TopSpecification.Position.endTokenNumber;
             }
 
             return nextToken;
@@ -88,13 +89,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private int ProcessTarget(int nextToken)
         {
-            Debug.Assert(this.CodeObject.Target != null, "No target in insert statement.");
+            Debug.Assert(CodeObject.Target != null, "No target in insert statement.");
 
             // find out if there is an "INTO" token
-            int intoTokenIndexOrTargetStartTokenIndex = this.CodeObject.Target.Position.startTokenNumber;
-            for (int i = nextToken; i < this.CodeObject.Target.Position.startTokenNumber; i++)
+            int intoTokenIndexOrTargetStartTokenIndex = CodeObject.Target.Position.startTokenNumber;
+            for (int i = nextToken; i < CodeObject.Target.Position.startTokenNumber; i++)
             {
-                if (this.Visitor.Context.Script.TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_INTO)
+                if (TokenManager.TokenList[i].TokenId == FormatterTokens.TOKEN_INTO)
                 {
                     intoTokenIndexOrTargetStartTokenIndex = i;
                 }
@@ -103,57 +104,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             for (int i = nextToken; i < intoTokenIndexOrTargetStartTokenIndex; i++)
             {
                 Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId)
-                    || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId)
-                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the target.", this.Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
+                    TokenManager.IsTokenComment(TokenManager.TokenList[nextToken].TokenId)
+                    || TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId)
+                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the target.", Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
                     );
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             }
 
-            this.Visitor.Context.IncrementIndentLevel();
+            IncrementIndentLevel();
 
-            for (int i = intoTokenIndexOrTargetStartTokenIndex ; i < this.CodeObject.Target.Position.startTokenNumber; i++)
+            for (int i = intoTokenIndexOrTargetStartTokenIndex ; i < CodeObject.Target.Position.startTokenNumber; i++)
             {
                 Debug.Assert(
-                    this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId)
-                    || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId)
-                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the target.", this.Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
+                    TokenManager.IsTokenComment(TokenManager.TokenList[nextToken].TokenId)
+                    || TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId)
+                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the target.", Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
                     );
-                this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
+                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
             }
 
-            this.ProcessChild(this.CodeObject.Target);
+            ProcessChild(CodeObject.Target);
 
-            nextToken = this.CodeObject.Target.Position.endTokenNumber;
-            this.Visitor.Context.DecrementIndentLevel();
+            nextToken = CodeObject.Target.Position.endTokenNumber;
+            DecrementIndentLevel();
 
             return nextToken;
         }
 
         private int ProcessColumns(int nextToken)
         {
-            if (this.CodeObject.TargetColumns != null)
+            if (CodeObject.TargetColumns != null)
             {
-                if (this.CodeObject.TargetColumns.Count > 0)
+                if (CodeObject.TargetColumns.Count > 0)
                 {
-                    this.Visitor.Context.IncrementIndentLevel();
+                    IncrementIndentLevel();
 
                     // if the next token is not a whitespace, a newline is enforced.
-                    if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId))
+                    TokenData nextTokenData = GetTokenData(nextToken);
+                    if (!IsTokenWhitespace(nextTokenData))
                     {
-                        this.Visitor.Context.Replacements.Add(
-                            new Replacement
-                                (this.Visitor.Context.Script.TokenManager.TokenList[nextToken].StartIndex,
-                                string.Empty,
-                                Environment.NewLine + this.Visitor.Context.GetIndentString()));
+                        AddIndentedNewLineReplacement(nextTokenData.StartIndex);
                     }
 
                     NormalizeWhitespace f = FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
 
                     // process tokens until we reach the closed parenthesis (with id 41)
-                    for (int id = this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId; id != 41; id = this.Visitor.Context.Script.TokenManager.TokenList[++nextToken].TokenId)
+                    for (int id = TokenManager.TokenList[nextToken].TokenId; id != 41; id = TokenManager.TokenList[++nextToken].TokenId)
                     {
-                        this.SimpleProcessToken(nextToken, f);
+                        SimpleProcessToken(nextToken, f);
                         if (id == 40) // open parenthesis (id == 40) changes the formatting
                         {
                             f = FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace;
@@ -161,11 +159,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     }
 
                     // process the cosed paren
-                    this.SimpleProcessToken(nextToken, f);
+                    SimpleProcessToken(nextToken, f);
 
                     nextToken++;
 
-                    this.Visitor.Context.DecrementIndentLevel();
+                    DecrementIndentLevel();
                 }
             }
 
@@ -177,27 +175,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             if (CodeObject.Source != null && HasToken(nextToken))
             {
+                TokenData nextTokenData = GetTokenData(nextToken);
                 // if the next token is not a whitespace, a newline is enforced.
-                if (!IsTokenWithIdWhitespace(nextToken))
+                if (!IsTokenWhitespace(nextTokenData))
                 {
-                    Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            this.Visitor.Context.Script.TokenManager.TokenList[nextToken].StartIndex,
-                            "",
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()));
+                    AddIndentedNewLineReplacement(nextTokenData.StartIndex);
                 }
 
-                for (int i = nextToken; i < this.CodeObject.Source.Position.startTokenNumber; i++)
+                for (int i = nextToken; i < CodeObject.Source.Position.startTokenNumber; i++)
                 {
                     Debug.Assert(
-                        this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId)
-                        || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId)
-                        , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the source.", this.Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
+                        TokenManager.IsTokenComment(TokenManager.TokenList[nextToken].TokenId)
+                        || TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId)
+                        , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the source.", Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
                         );
-                    this.SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
                 }
 
-                this.ProcessChild(this.CodeObject.Source);
+                ProcessChild(CodeObject.Source);
             }
 
             return nextToken;
@@ -207,40 +202,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private int ProcessOutputClause(int nextToken)
         {
-            if (this.CodeObject.OutputIntoClause != null)
+            if (CodeObject.OutputIntoClause != null)
             {
-                if (nextToken == this.CodeObject.OutputIntoClause.Position.startTokenNumber)
+                if (nextToken == CodeObject.OutputIntoClause.Position.startTokenNumber)
                 {
-                    this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            this.Visitor.Context.Script.TokenManager.TokenList[nextToken].StartIndex,
-                            "",
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()));
+                    AddIndentedNewLineReplacement(GetTokenData(nextToken).StartIndex);
                 }
                 else
                 {
-                    while (nextToken < this.CodeObject.OutputIntoClause.Position.startTokenNumber)
+                    while (nextToken < CodeObject.OutputIntoClause.Position.startTokenNumber)
                     {
                         Debug.Assert(
-                            this.Visitor.Context.Script.TokenManager.IsTokenComment(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId)
-                            || this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken].TokenId)
-                            , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the output into clause.", this.Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
+                            TokenManager.IsTokenComment(TokenManager.TokenList[nextToken].TokenId)
+                            || TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId)
+                            , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the output into clause.", Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
                             );
-                        this.SimpleProcessToken(nextToken, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                        SimpleProcessToken(nextToken, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
                         nextToken++;
                     }
 
-                    if (!this.Visitor.Context.Script.TokenManager.IsTokenWhitespace(this.Visitor.Context.Script.TokenManager.TokenList[nextToken - 1].TokenId))
+                    TokenData previousTokenData = PreviousTokenData(nextToken);
+                    if (!IsTokenWhitespace(previousTokenData))
                     {
-                        this.Visitor.Context.Replacements.Add(
-                        new Replacement(
-                            this.Visitor.Context.Script.TokenManager.TokenList[nextToken - 1].StartIndex,
-                            "",
-                            Environment.NewLine + this.Visitor.Context.GetIndentString()));
+                        AddIndentedNewLineReplacement(previousTokenData.StartIndex);
                     }
                 }
-                this.ProcessChild(this.CodeObject.OutputIntoClause);
-                nextToken = this.CodeObject.OutputIntoClause.Position.endTokenNumber;
+                ProcessChild(CodeObject.OutputIntoClause);
+                nextToken = CodeObject.OutputIntoClause.Position.endTokenNumber;
 
             }
 

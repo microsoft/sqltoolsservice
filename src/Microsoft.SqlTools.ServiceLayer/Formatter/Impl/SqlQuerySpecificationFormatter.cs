@@ -26,23 +26,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         internal SqlQuerySpecificationFormatter(FormatterVisitor visitor, SqlQuerySpecification codeObject)
             : base(visitor, codeObject)
         {
-            this.WhiteSpaceSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, false);
+            WhiteSpaceSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, false);
         }
 
         internal override void ProcessChild(SqlCodeObject child)
         {
             Validate.IsNotNull(nameof(child), child);
-            this.WhiteSpaceSeparatedListFormatter.ProcessChild(child);
+            WhiteSpaceSeparatedListFormatter.ProcessChild(child);
         }
 
         internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
         {
-            this.WhiteSpaceSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
+            WhiteSpaceSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
         }
 
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            this.WhiteSpaceSeparatedListFormatter.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
+            WhiteSpaceSeparatedListFormatter.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             Validate.IsNotNull(nameof(previousChild), previousChild);
             Validate.IsNotNull(nameof(nextChild), nextChild);
 
-            this.WhiteSpaceSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
+            WhiteSpaceSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
         }
 
     }
