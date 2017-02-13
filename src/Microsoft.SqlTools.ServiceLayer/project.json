@@ -28,6 +28,7 @@
     "NETStandard.Library": "1.6.0",
     "Microsoft.NETCore.Runtime.CoreCLR": "1.0.2",
     "Microsoft.NETCore.DotNetHostPolicy": "1.0.1",
+    "Microsoft.DiaSymReader.Native": "1.4.1",
     "System.Diagnostics.Process": "4.1.0",
     "System.Threading.Thread": "4.0.0",
     "System.Runtime.Loader": "4.0.0",

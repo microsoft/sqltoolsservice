@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 {
     public class ServiceIntegrationTests
     {
+
         #region Get SQL Tests
 
         [Fact]
@@ -182,35 +183,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         #region Execution Tests
         // NOTE: In order to limit test duplication, we're running the ExecuteDocumentSelection
         // version of execute query. The code paths are almost identical.
-
-        [Fact]
-        private async Task QueryExecuteAllBatchesNoOp()
-        {
-            // If:
-            // ... I request to execute a valid query with all batches as no op
-            var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.NoOpQuery));
-            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
-
-            var efv = new EventFlowValidator<ExecuteRequestResult>()
-                .AddStandardQueryResultValidator()
-                .AddStandardMessageValidator()
-                .AddEventValidation(QueryCompleteEvent.Type, p =>
-                {
-                    // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
-                    Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(0, p.BatchSummaries.Length);
-                }).Complete();
-            await Common.AwaitExecution(queryService, queryParams, efv.Object);
-
-            // Then:
-            // ... All events should have been called as per their flow validator
-            efv.Validate();
-
-            // ... There should be one active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
-        }
 
         [Fact]
         public async Task QueryExecuteSingleBatchNoResultsTest()
