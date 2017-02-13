@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
             WorkspaceServiceMock = new Mock<WorkspaceService<SqlToolsSettings>>();
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             ServiceProvider.RegisterSingleService(WorkspaceServiceMock.Object);
-            Program.InitializeHostedServices(ServiceProvider, HostMock.Object);
+            HostLoader.InitializeHostedServices(ServiceProvider, HostMock.Object);
             FormatterService = ServiceProvider.GetService<TSqlFormatterService>();
         }
 
