@@ -230,7 +230,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static ConnectionInfo CreateTestConnectionInfo(Dictionary<string, string>[][] data, bool throwOnRead)
         {
-            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, StandardConnectionDetails);
+            // Create a connection info and add the default connection to it
+            ISqlConnectionFactory factory = CreateMockFactory(data, throwOnRead);
+            ConnectionInfo ci = new ConnectionInfo(factory, OwnerUri, StandardConnectionDetails);
+            ci.ConnectionTypeToConnectionMap[ConnectionType.Default] = factory.CreateSqlConnection(null);
+            return ci;
         }
 
         public static ConnectionInfo CreateConnectedConnectionInfo(Dictionary<string, string>[][] data, bool throwOnRead, string type = ConnectionType.Default)

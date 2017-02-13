@@ -29,6 +29,8 @@ ConnectionServiceListDbErrorNullOwnerUri = OwnerUri cannot be null or empty
 
 ConnectionServiceListDbErrorNotConnected(string uri) = SpecifiedUri '{0}' does not have existing connection
 
+ConnectionServiceDbErrorDefaultNotConnected(string uri) = Specified URI '{0}' does not have a default connection
+
 ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
 
 ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
