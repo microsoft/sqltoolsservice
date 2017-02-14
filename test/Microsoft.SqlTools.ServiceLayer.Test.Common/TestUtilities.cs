@@ -80,9 +80,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public static string NormalizeLineEndings(string text)
         {
-            // To be consistent, we always convert to \n. If we used Environment.NewLine instead, we miss
-            // the case where 1 file has \n encoding but we're comparing on Windows (which uses \r\n)
-            return text.Replace("\r\n", "\n");
+            // To work on all platforms, we first stript \r and then replace any remaining \n characters
+            // with a newline string. This helps keep things consistent with file formats for each OS
+            string noCrs = text.Replace("\r", "");
+            return noCrs.Replace("\n", Environment.NewLine);
         }
+        
     }
 }
