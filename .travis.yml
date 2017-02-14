@@ -39,5 +39,5 @@ script:
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.Test
 
 env:
-  - ProjectPath=home/travis/build/Microsoft/sqltoolsservice
+  - ProjectPath=/home/travis/build/Microsoft/sqltoolsservice
   
