@@ -1,4 +1,6 @@
 #addin "Newtonsoft.Json"
+#addin "mssql.ResX"
+#addin "mssql.XliffParser"
 
 #load "scripts/runhelpers.cake"
 #load "scripts/archiving.cake"
@@ -9,7 +11,8 @@ using System.ComponentModel;
 using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Cake.Common.IO
+using Cake.Common.IO;
+using XliffParser;
 
 // Basic arguments
 var target = Argument("target", "Default");
@@ -511,10 +514,13 @@ Task("SRGen")
 	.Does(() =>
 {
 	var projects = System.IO.Directory.GetFiles(sourceFolder, "project.json", SearchOption.AllDirectories).ToList();
+ 
 	foreach(var project in projects) {
 		var projectDir = System.IO.Path.GetDirectoryName(project);
+        var localizationDir = System.IO.Path.Combine(projectDir, "Localization");  
 		var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
-		var projectStrings = System.IO.Path.Combine(projectDir, "sr.strings");
+        var projectNameSpace = projectName + ".Localization";
+		var projectStrings = System.IO.Path.Combine(localizationDir, "sr.strings");
 
 		if (!System.IO.File.Exists(projectStrings))
 		{
@@ -523,8 +529,10 @@ Task("SRGen")
 		}
 
 		var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
-		var outputResx = System.IO.Path.Combine(projectDir, "sr.resx");
-		var outputCs = System.IO.Path.Combine(projectDir, "sr.cs");
+		var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
+        var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
+        var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
+		var outputCs = System.IO.Path.Combine(localizationDir, "sr.cs");
 
 		// Delete preexisting resx and designer files
 		if (System.IO.File.Exists(outputResx))
@@ -538,10 +546,24 @@ Task("SRGen")
 
 		// Run SRGen
 		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
-			srgenPath, outputResx, outputCs, projectName, projectName, projectStrings);
+			srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
 		Information("{0}", dotnetArgs);
 		Run(dotnetcli, dotnetArgs)
 			.ExceptionOnError("Failed to run SRGen.");
+
+        // Update XLF file from new Resx file
+        var doc = new XliffParser.XlfDocument(outputXlf);
+        doc.UpdateFromSource();
+        doc.Save();
+
+        // Update ResX files from new xliff files
+        var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
+        foreach(var docName in xlfDocNames)
+        {
+            var xlfDoc = new XliffParser.XlfDocument(docName);
+            var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
+            xlfDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
+        }
 	}
 });
 

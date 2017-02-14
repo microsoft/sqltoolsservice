@@ -1,0 +1,474 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en">
+    <body>
+      <trans-unit id="ConnectionServiceConnectErrorNullParams">
+        <source>Connection parameters cannot be null</source>
+        <target state="new">Connection parameters cannot be null</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceListDbErrorNullOwnerUri">
+        <source>OwnerUri cannot be null or empty</source>
+        <target state="new">OwnerUri cannot be null or empty</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceListDbErrorNotConnected">
+        <source>SpecifiedUri '{0}' does not have existing connection</source>
+        <target state="new">SpecifiedUri '{0}' does not have existing connection</target>
+        <note>.
+ Parameters: 0 - uri (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAuthType">
+        <source>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</source>
+        <target state="new">Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</target>
+        <note>.
+ Parameters: 0 - authType (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidIntent">
+        <source>Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</source>
+        <target state="new">Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</target>
+        <note>.
+ Parameters: 0 - intent (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnectionCanceled">
+        <source>Connection canceled</source>
+        <target state="new">Connection canceled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionParamsValidateNullOwnerUri">
+        <source>OwnerUri cannot be null or empty</source>
+        <target state="new">OwnerUri cannot be null or empty</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionParamsValidateNullConnection">
+        <source>Connection details object cannot be null</source>
+        <target state="new">Connection details object cannot be null</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionParamsValidateNullServerName">
+        <source>ServerName cannot be null or empty</source>
+        <target state="new">ServerName cannot be null or empty</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionParamsValidateNullSqlAuth">
+        <source>{0} cannot be null or empty when using SqlLogin authentication</source>
+        <target state="new">{0} cannot be null or empty when using SqlLogin authentication</target>
+        <note>.
+ Parameters: 0 - component (string) </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceInvalidCriticalHandle">
+        <source>Invalid CriticalHandle!</source>
+        <target state="new">Invalid CriticalHandle!</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CredentialsServicePasswordLengthExceeded">
+        <source>The password has exceeded 512 bytes</source>
+        <target state="new">The password has exceeded 512 bytes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForDelete">
+        <source>Target must be specified to delete a credential</source>
+        <target state="new">Target must be specified to delete a credential</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForLookup">
+        <source>Target must be specified to check existance of a credential</source>
+        <target state="new">Target must be specified to check existance of a credential</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CredentialServiceWin32CredentialDisposed">
+        <source>Win32Credential object is already disposed</source>
+        <target state="new">Win32Credential object is already disposed</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingUnexpectedEndOfStream">
+        <source>MessageReader's input stream ended unexpectedly, terminating</source>
+        <target state="new">MessageReader's input stream ended unexpectedly, terminating</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingColon">
+        <source>Message header must separate key and value using ':'</source>
+        <target state="new">Message header must separate key and value using ':'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingContentLengthHeader">
+        <source>Fatal error: Content-Length header must be provided</source>
+        <target state="new">Fatal error: Content-Length header must be provided</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingContentLengthValue">
+        <source>Fatal error: Content-Length value is not an integer</source>
+        <target state="new">Fatal error: Content-Length value is not an integer</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceCancelAlreadyCompleted">
+        <source>The query has already completed, it cannot be cancelled</source>
+        <target state="new">The query has already completed, it cannot be cancelled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceCancelDisposeFailed">
+        <source>Query successfully cancelled, failed to dispose query. Owner URI not found.</source>
+        <target state="new">Query successfully cancelled, failed to dispose query. Owner URI not found.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceQueryCancelled">
+        <source>Query was canceled by user</source>
+        <target state="new">Query was canceled by user</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceSubsetBatchNotCompleted">
+        <source>The batch has not completed, yet</source>
+        <target state="new">The batch has not completed, yet</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceSubsetBatchOutOfRange">
+        <source>Batch index cannot be less than 0 or greater than the number of batches</source>
+        <target state="new">Batch index cannot be less than 0 or greater than the number of batches</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceSubsetResultSetOutOfRange">
+        <source>Result set index cannot be less than 0 or greater than the number of result sets</source>
+        <target state="new">Result set index cannot be less than 0 or greater than the number of result sets</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceDataReaderByteCountInvalid">
+        <source>Maximum number of bytes to return must be greater than zero</source>
+        <target state="new">Maximum number of bytes to return must be greater than zero</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceDataReaderCharCountInvalid">
+        <source>Maximum number of chars to return must be greater than zero</source>
+        <target state="new">Maximum number of chars to return must be greater than zero</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceDataReaderXmlCountInvalid">
+        <source>Maximum number of XML bytes to return must be greater than zero</source>
+        <target state="new">Maximum number of XML bytes to return must be greater than zero</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceFileWrapperWriteOnly">
+        <source>Access method cannot be write-only</source>
+        <target state="new">Access method cannot be write-only</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceFileWrapperNotInitialized">
+        <source>FileStreamWrapper must be initialized before performing operations</source>
+        <target state="new">FileStreamWrapper must be initialized before performing operations</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceFileWrapperReadOnly">
+        <source>This FileStreamWrapper cannot be used for writing</source>
+        <target state="new">This FileStreamWrapper cannot be used for writing</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceAffectedOneRow">
+        <source>(1 row affected)</source>
+        <target state="new">(1 row affected)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceAffectedRows">
+        <source>({0} rows affected)</source>
+        <target state="new">({0} rows affected)</target>
+        <note>.
+ Parameters: 0 - rows (long) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceCompletedSuccessfully">
+        <source>Commands completed successfully.</source>
+        <target state="new">Commands completed successfully.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceErrorFormat">
+        <source>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</source>
+        <target state="new">Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</target>
+        <note>.
+ Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceQueryFailed">
+        <source>Query failed: {0}</source>
+        <target state="new">Query failed: {0}</target>
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceColumnNull">
+        <source>(No column name)</source>
+        <target state="new">(No column name)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceRequestsNoQuery">
+        <source>The requested query does not exist</source>
+        <target state="new">The requested query does not exist</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceQueryInvalidOwnerUri">
+        <source>This editor is not connected to a database</source>
+        <target state="new">This editor is not connected to a database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceQueryInProgress">
+        <source>A query is already in progress for this editor session. Please cancel this query or wait for its completion.</source>
+        <target state="new">A query is already in progress for this editor session. Please cancel this query or wait for its completion.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceMessageSenderNotSql">
+        <source>Sender for OnInfoMessage event must be a SqlConnection</source>
+        <target state="new">Sender for OnInfoMessage event must be a SqlConnection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetReaderNull">
+        <source>Reader cannot be null</source>
+        <target state="new">Reader cannot be null</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceSaveAsResultSetNotComplete">
+        <source>Result cannot be saved until query execution has completed</source>
+        <target state="new">Result cannot be saved until query execution has completed</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceSaveAsMiscStartingError">
+        <source>Internal error occurred while starting save task</source>
+        <target state="new">Internal error occurred while starting save task</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceSaveAsInProgress">
+        <source>A save request to the same path is in progress</source>
+        <target state="new">A save request to the same path is in progress</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceSaveAsFail">
+        <source>Failed to save {0}: {1}</source>
+        <target state="new">Failed to save {0}: {1}</target>
+        <note>.
+ Parameters: 0 - fileName (string), 1 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetNotRead">
+        <source>Cannot read subset unless the results have been read from the server</source>
+        <target state="new">Cannot read subset unless the results have been read from the server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetStartRowOutOfRange">
+        <source>Start row cannot be less than 0 or greater than the number of rows in the result set</source>
+        <target state="new">Start row cannot be less than 0 or greater than the number of rows in the result set</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetRowCountOutOfRange">
+        <source>Row count must be a positive integer</source>
+        <target state="new">Row count must be a positive integer</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetNoColumnSchema">
+        <source>Could not retrieve column schema for result set</source>
+        <target state="new">Could not retrieve column schema for result set</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="QueryServiceExecutionPlanNotFound">
+        <source>Could not retrieve an execution plan from the result set </source>
+        <target state="new">Could not retrieve an execution plan from the result set </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionAzureError">
+        <source>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</source>
+        <target state="new">This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</target>
+        <note>.
+ Parameters: 0 - errorMessage (string) </note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionError">
+        <source>An unexpected error occurred during Peek Definition execution: {0}</source>
+        <target state="new">An unexpected error occurred during Peek Definition execution: {0}</target>
+        <note>.
+ Parameters: 0 - errorMessage (string) </note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionNoResultsError">
+        <source>No results were found.</source>
+        <target state="new">No results were found.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionDatabaseError">
+        <source>No database object was retrieved.</source>
+        <target state="new">No database object was retrieved.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionNotConnectedError">
+        <source>Please connect to a server.</source>
+        <target state="new">Please connect to a server.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionTimedoutError">
+        <source>Operation timed out.</source>
+        <target state="new">Operation timed out.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionTypeNotSupportedError">
+        <source>This object type is currently not supported by this feature.</source>
+        <target state="new">This object type is currently not supported by this feature.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WorkspaceServicePositionLineOutOfRange">
+        <source>Position is outside of file line range</source>
+        <target state="new">Position is outside of file line range</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WorkspaceServicePositionColumnOutOfRange">
+        <source>Position is outside of column range for line {0}</source>
+        <target state="new">Position is outside of column range for line {0}</target>
+        <note>.
+ Parameters: 0 - line (int) </note>
+      </trans-unit>
+      <trans-unit id="WorkspaceServiceBufferPositionOutOfOrder">
+        <source>Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</source>
+        <target state="new">Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</target>
+        <note>.
+ Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
+        <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
+        <target state="new">Msg {0}, Level {1}, State {2}, Line {3}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
+        <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
+        <target state="new">Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageNoLineInfo">
+        <source>Msg {0}, Level {1}, State {2}</source>
+        <target state="new">Msg {0}, Level {1}, State {2}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchError_Exception">
+        <source>An error occurred while the batch was being processed. The error message is: {0}</source>
+        <target state="new">An error occurred while the batch was being processed. The error message is: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
+        <source>({0} row(s) affected)</source>
+        <target state="new">({0} row(s) affected)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionNotYetCompleteError">
+        <source>The previous execution is not yet complete.</source>
+        <target state="new">The previous execution is not yet complete.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_Error">
+        <source>A scripting error occurred.</source>
+        <target state="new">A scripting error occurred.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_ParsingSyntax">
+        <source>Incorrect syntax was encountered while {0} was being parsed.</source>
+        <target state="new">Incorrect syntax was encountered while {0} was being parsed.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_FatalError">
+        <source>A fatal error occurred.</source>
+        <target state="new">A fatal error occurred.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
+        <source>Execution completed {0} times...</source>
+        <target state="new">Execution completed {0} times...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
+        <source>You cancelled the query.</source>
+        <target state="new">You cancelled the query.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Halting">
+        <source>An error occurred while the batch was being executed.</source>
+        <target state="new">An error occurred while the batch was being executed.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Ignoring">
+        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
+        <target state="new">An error occurred while the batch was being executed, but the error has been ignored.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_InitilizingLoop">
+        <source>Starting execution loop of {0} times...</source>
+        <target state="new">Starting execution loop of {0} times...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionError_CommandNotSupported">
+        <source>Command {0} is not supported.</source>
+        <target state="new">Command {0} is not supported.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionError_VariableNotFound">
+        <source>The variable {0} could not be found.</source>
+        <target state="new">The variable {0} could not be found.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineError">
+        <source>SQL Execution error: {0}</source>
+        <target state="new">SQL Execution error: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionError">
+        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
+        <target state="new">Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
+        <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
+        <target state="new">Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
+        <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
+        <target state="new">Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
+        <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
+        <target state="new">Batch parser wrapper execution engine batch ResultSet finished.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
+        <source>Canceling batch parser wrapper batch execution.</source>
+        <target state="new">Canceling batch parser wrapper batch execution.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_Warning">
+        <source>Scripting warning.</source>
+        <target state="new">Scripting warning.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TroubleshootingAssistanceMessage">
+        <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
+        <target state="new">For more information about this error, see the troubleshooting topics in the product documentation.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_CircularReference">
+        <source>File '{0}' recursively included.</source>
+        <target state="new">File '{0}' recursively included.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_CommentNotTerminated">
+        <source>Missing end comment mark '*/'.</source>
+        <target state="new">Missing end comment mark '*/'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_StringNotTerminated">
+        <source>Unclosed quotation mark after the character string.</source>
+        <target state="new">Unclosed quotation mark after the character string.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_IncorrectSyntax">
+        <source>Incorrect syntax was encountered while parsing '{0}'.</source>
+        <target state="new">Incorrect syntax was encountered while parsing '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_VariableNotDefined">
+        <source>Variable {0} is not defined.</source>
+        <target state="new">Variable {0} is not defined.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TestLocalizationConstant">
+        <source>EN_LOCALIZATION</source>
+        <target state="new">EN_LOCALIZATION</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
