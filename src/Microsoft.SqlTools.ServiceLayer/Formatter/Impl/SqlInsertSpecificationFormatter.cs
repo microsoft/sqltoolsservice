@@ -68,15 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             if (CodeObject.TopSpecification != null)
             {
-                for (int i = nextToken; i < CodeObject.TopSpecification.Position.startTokenNumber; i++)
-                {
-                    Debug.Assert(
-                       TokenManager.IsTokenComment(TokenManager.TokenList[i].TokenId)
-                    || TokenManager.IsTokenWhitespace(TokenManager.TokenList[i].TokenId)
-                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the top specification.", Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                    );
-                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
-                }
+                ProcessAndNormalizeTokenRange(nextToken, CodeObject.TopSpecification.Position.startTokenNumber,
+                    FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
 
                 ProcessChild(CodeObject.TopSpecification);
 
@@ -101,28 +94,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 }
             }
 
-            for (int i = nextToken; i < intoTokenIndexOrTargetStartTokenIndex; i++)
-            {
-                Debug.Assert(
-                    TokenManager.IsTokenComment(TokenManager.TokenList[nextToken].TokenId)
-                    || TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId)
-                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the target.", Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
-                    );
-                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-            }
-
+            ProcessAndNormalizeTokenRange(nextToken, intoTokenIndexOrTargetStartTokenIndex,
+                FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+            
             IncrementIndentLevel();
 
-            for (int i = intoTokenIndexOrTargetStartTokenIndex ; i < CodeObject.Target.Position.startTokenNumber; i++)
-            {
-                Debug.Assert(
-                    TokenManager.IsTokenComment(TokenManager.TokenList[nextToken].TokenId)
-                    || TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId)
-                    , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the target.", Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
-                    );
-                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
-            }
-
+            ProcessAndNormalizeTokenRange(intoTokenIndexOrTargetStartTokenIndex, CodeObject.Target.Position.startTokenNumber,
+                FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
+            
             ProcessChild(CodeObject.Target);
 
             nextToken = CodeObject.Target.Position.endTokenNumber;
@@ -182,24 +161,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     AddIndentedNewLineReplacement(nextTokenData.StartIndex);
                 }
 
-                for (int i = nextToken; i < CodeObject.Source.Position.startTokenNumber; i++)
-                {
-                    Debug.Assert(
-                        TokenManager.IsTokenComment(TokenManager.TokenList[nextToken].TokenId)
-                        || TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId)
-                        , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the source.", Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
-                        );
-                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-                }
+                ProcessAndNormalizeTokenRange(nextToken, CodeObject.Source.Position.startTokenNumber,
+                    FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
 
                 ProcessChild(CodeObject.Source);
             }
 
             return nextToken;
         }
-
-
-
+        
         private int ProcessOutputClause(int nextToken)
         {
             if (CodeObject.OutputIntoClause != null)
@@ -212,11 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 {
                     while (nextToken < CodeObject.OutputIntoClause.Position.startTokenNumber)
                     {
-                        Debug.Assert(
-                            TokenManager.IsTokenComment(TokenManager.TokenList[nextToken].TokenId)
-                            || TokenManager.IsTokenWhitespace(TokenManager.TokenList[nextToken].TokenId)
-                            , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the output into clause.", Visitor.Context.GetTokenRangeAsOriginalString(nextToken, nextToken + 1))
-                            );
+                        DebugAssertTokenIsWhitespaceOrComment(GetTokenData(nextToken), nextToken);
                         SimpleProcessToken(nextToken, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
                         nextToken++;
                     }
@@ -229,13 +195,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 }
                 ProcessChild(CodeObject.OutputIntoClause);
                 nextToken = CodeObject.OutputIntoClause.Position.endTokenNumber;
-
             }
 
             return nextToken;
         }
-
-
-
     }
 }

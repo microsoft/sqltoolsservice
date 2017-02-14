@@ -92,28 +92,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 TokenData td = TokenManager.TokenList[openParenIndex];
                 while (td.TokenId != 40 && openParenIndex < CodeObject.Position.endTokenNumber)
                 {
-                    Debug.Assert(
-                        TokenManager.IsTokenComment(td.TokenId)
-                     || TokenManager.IsTokenWhitespace(td.TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the open parenthesis.", Visitor.Context.GetTokenRangeAsOriginalString(openParenIndex, openParenIndex + 1))
-                     );
+                    DebugAssertTokenIsWhitespaceOrComment(td, openParenIndex);
                     ++openParenIndex;
                     td = TokenManager.TokenList[openParenIndex];
                 }
                 Debug.Assert(openParenIndex < CodeObject.Position.endTokenNumber, "No open parenthesis in the columns definition.");
                 #endregion // Find the open parenthesis
 
-                #region Process tokens before the open parenthesis
-                for (int i = nextToken; i < openParenIndex; i++)
-                {
-                    Debug.Assert(
-                        TokenManager.IsTokenComment(TokenManager.TokenList[i].TokenId)
-                     || TokenManager.IsTokenWhitespace(TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the open parenthesis.", Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-                }
-                #endregion // Process tokens before the open parenthesis
+
+                // Process tokens before the open parenthesis
+                ProcessAndNormalizeTokenRange(nextToken, openParenIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                              
 
                 #region Process open parenthesis
                 // if there was no whitespace before the parenthesis to be converted into a newline, then append a newline
@@ -257,35 +246,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     AddIndentedNewLineReplacement(td.StartIndex);
                 }
                 #endregion // Process "WITH"
-
-                #region Process the tokens before the options
+                
                 // find where the options start
                 IEnumerator<SqlModuleOption> optionEnum = CodeObject.Options.GetEnumerator();
-                Debug.Assert(optionEnum.MoveNext(), "Empty list of options.");
-                for (int i = nextToken; i < optionEnum.Current.Position.startTokenNumber; i++)
+                if (optionEnum.MoveNext())
                 {
-                    Debug.Assert(
-                        TokenManager.IsTokenComment(TokenManager.TokenList[i].TokenId)
-                     || TokenManager.IsTokenWhitespace(TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" after the WITH token.", Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-                }
-                #endregion // Process the tokens before the options
-
-                #region Process the options
-                ProcessChild(optionEnum.Current);
-                SqlModuleOption previousOption = optionEnum.Current;
-                while (optionEnum.MoveNext())
-                {
-                    CommaSeparatedList.ProcessInterChildRegion(previousOption, optionEnum.Current);
+                    ProcessAndNormalizeTokenRange(nextToken, optionEnum.Current.Position.startTokenNumber,
+                        FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                    
+                    // Process options
                     ProcessChild(optionEnum.Current);
-                    previousOption = optionEnum.Current;
+                    SqlModuleOption previousOption = optionEnum.Current;
+                    while (optionEnum.MoveNext())
+                    {
+                        CommaSeparatedList.ProcessInterChildRegion(previousOption, optionEnum.Current);
+                        ProcessChild(optionEnum.Current);
+                        previousOption = optionEnum.Current;
+                    }
+                    nextToken = previousOption.Position.endTokenNumber;
                 }
-                nextToken = previousOption.Position.endTokenNumber;
                 DecrementIndentLevel();
-                #endregion // Process the options
-
             }
             return nextToken;
         }
@@ -344,48 +324,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private int ProcessQueryWithClause(int nextToken)
         {
-            if (CodeObject.QueryWithClause != null)
-            {
-                #region Process tokens before the query with clause
-                for (int i = nextToken; i < CodeObject.QueryWithClause.Position.startTokenNumber; i++)
-                {
-                    Debug.Assert(
-                        TokenManager.IsTokenComment(TokenManager.TokenList[i].TokenId)
-                     || TokenManager.IsTokenWhitespace(TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the query with clause.", Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-                }
-                #endregion // Process tokens before the query with clause
-
-                #region Process query with clause
-                ProcessChild(CodeObject.QueryWithClause);
-                #endregion // Process query with clause
-                nextToken = CodeObject.QueryWithClause.Position.endTokenNumber;
-            }
-            return nextToken;
+            return ProcessQuerySection(nextToken, CodeObject.QueryWithClause);
         }
 
         private int ProcessQueryExpression(int nextToken)
         {
-            #region Process tokens before the query expression
-            for (int i = nextToken; i < CodeObject.QueryExpression.Position.startTokenNumber; i++)
+            return ProcessQuerySection(nextToken, CodeObject.QueryExpression);
+        }
+        
+        /// <summary>
+        /// processes any section in a query, since the basic behavior is constant
+        /// </summary>
+        private int ProcessQuerySection(int nextToken, SqlCodeObject queryObject)
+        {
+            if (queryObject != null)
             {
-                Debug.Assert(
-                        TokenManager.IsTokenComment(TokenManager.TokenList[i].TokenId)
-                     || TokenManager.IsTokenWhitespace(TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" before the query expression.", Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-                SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                ProcessAndNormalizeTokenRange(nextToken, queryObject.Position.startTokenNumber,
+                    FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+                ProcessChild(queryObject);
+                nextToken = queryObject.Position.endTokenNumber;
             }
-            #endregion // Process tokens before the query specification
-
-            #region Process query expression
-            ProcessChild(CodeObject.QueryExpression);
-            nextToken = CodeObject.QueryExpression.Position.endTokenNumber;
-            #endregion // Process query expression
-
             return nextToken;
-        }        
+        }  
     }
 }
