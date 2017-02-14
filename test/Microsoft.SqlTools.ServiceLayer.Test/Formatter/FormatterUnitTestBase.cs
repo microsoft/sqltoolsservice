@@ -36,8 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
 
         protected void LoadAndFormatAndCompare(string testName, FileInfo inputFile, FileInfo baselineFile, FormatOptions options, bool verifyFormat)
         {
-            // Normalize all line endings for intput files, baselines and output
-            string inputSql = TestUtilities.ReadTextAndNormalizeLineEndings(inputFile.FullName);
+            // Do not normalize text before input, or we have trouble with \r handling on Windows
+            string inputSql = File.ReadAllText(inputFile.FullName);
             string formattedSql = string.Empty;
             formattedSql = FormatterService.Format(inputSql, options, verifyFormat);
 
