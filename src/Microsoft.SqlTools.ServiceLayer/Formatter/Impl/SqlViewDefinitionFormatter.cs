@@ -136,33 +136,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     AddIndentedNewLineReplacement(td.StartIndex);
                 }
                 #endregion // Process open parenthesis
-
-                #region Process tokens before the columns
+                
                 // find where the columns start
                 IEnumerator<SqlIdentifier> columnEnum = CodeObject.ColumnList.GetEnumerator();
-                Debug.Assert(columnEnum.MoveNext(), "The list of columns is empty.");
-                for (int i = nextToken; i < columnEnum.Current.Position.startTokenNumber; i++)
+                if (columnEnum.MoveNext())
                 {
-                    Debug.Assert(
-                        TokenManager.IsTokenComment(TokenManager.TokenList[i].TokenId)
-                     || TokenManager.IsTokenWhitespace(TokenManager.TokenList[i].TokenId)
-                     , string.Format(CultureInfo.CurrentCulture, "Unexpected token \"{0}\" after the open parenthesis.", Visitor.Context.GetTokenRangeAsOriginalString(i, i + 1))
-                     );
-                    SimpleProcessToken(i, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-                }
-                #endregion
+                    ProcessAndNormalizeTokenRange(nextToken, columnEnum.Current.Position.startTokenNumber,
+                        FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
 
-                #region Process columns
-                ProcessChild(columnEnum.Current);
-                SqlIdentifier previousColumn = columnEnum.Current;
-                while (columnEnum.MoveNext())
-                {
-                    CommaSeparatedList.ProcessInterChildRegion(previousColumn, columnEnum.Current);
                     ProcessChild(columnEnum.Current);
-                    previousColumn = columnEnum.Current;
+                    SqlIdentifier previousColumn = columnEnum.Current;
+                    while (columnEnum.MoveNext())
+                    {
+                        CommaSeparatedList.ProcessInterChildRegion(previousColumn, columnEnum.Current);
+                        ProcessChild(columnEnum.Current);
+                        previousColumn = columnEnum.Current;
+                    }
+                    nextToken = previousColumn.Position.endTokenNumber;
                 }
-                nextToken = previousColumn.Position.endTokenNumber;
-                #endregion // Process columns
 
                 #region Find closed parenthesis
                 int closedParenIndex = nextToken;

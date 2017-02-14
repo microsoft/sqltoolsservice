@@ -83,18 +83,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             return FindTokenWithId(openParenIndex, 40);
         }
-        private void ProcessTokenRangeEnsuringOneNewLineMinumum(int startindex, int endIndex)
-        {
-            ProcessAndNormalizeTokenRange(startindex, endIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
-        }
-
-        private void ProcessAndNormalizeTokenRange(int startindex, int endIndex, NormalizeWhitespace normalizer)
-        {
-            for (int i = startindex; i < endIndex; i++)
-            {
-                ProcessTokenAndNormalize(i, normalizer);
-            }
-        }
 
         /// <summary>
         /// if there was no whitespace before the parenthesis to be converted into a newline, 
@@ -177,25 +165,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             return tokenIndex;
         }
 
-        private void DebugAssertTokenIsWhitespaceOrComment(TokenData td, int tokenIndex)
-        {
-            Debug.Assert(TokenManager.IsTokenComment(td.TokenId)|| IsTokenWhitespace(td), string.Format(CultureInfo.CurrentCulture, 
-                "Unexpected token \"{0}\" before the parenthesis.", GetTextForCurrentToken(tokenIndex))
-            );
-        }
-
         private void ProcessTokenEnsuringOneNewLineMinimum(int tokenIndex)
         {
             ProcessTokenAndNormalize(tokenIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
         }
 
-        private void ProcessTokenAndNormalize(int tokenIndex, NormalizeWhitespace normalizeFunction)
-        {
-            TokenData iTokenData = GetTokenData(tokenIndex);
-            DebugAssertTokenIsWhitespaceOrComment(iTokenData, tokenIndex);
-            normalizeFunction = normalizeFunction ?? FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
-            SimpleProcessToken(tokenIndex, normalizeFunction);
-        }
 
         private int ProcessAsToken(int nextToken)
         {
@@ -249,9 +223,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
                 // find where the columns start, and process everything before it
                 IEnumerator<SqlIdentifier> columnEnum = FindColumnStart();
-                ProcessAndNormalizeTokenRange(nextToken, columnEnum.Current.Position.startTokenNumber, normalizer);
-                
-                nextToken = ProcessColumnList(columnEnum);
+                if (columnEnum.Current != null)
+                {
+                    ProcessAndNormalizeTokenRange(nextToken, columnEnum.Current.Position.startTokenNumber, normalizer);
+                    nextToken = ProcessColumnList(columnEnum);
+                }
 
                 int closedParenIndex = FindClosedParenthesis(nextToken);
 

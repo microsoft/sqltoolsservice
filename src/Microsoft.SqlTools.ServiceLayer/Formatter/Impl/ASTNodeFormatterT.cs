@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Babel.ParserGenerator;
@@ -57,6 +58,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         protected void ProcessTokenRange(int startTokenNumber, int endTokenNumber)
         {
             Visitor.Context.ProcessTokenRange(startTokenNumber, endTokenNumber);
+        }
+
+        protected void ProcessTokenRangeEnsuringOneNewLineMinumum(int startindex, int endIndex)
+        {
+            ProcessAndNormalizeTokenRange(startindex, endIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+        }
+
+        protected void ProcessAndNormalizeTokenRange(int startindex, int endIndex, NormalizeWhitespace normalizer)
+        {
+            for (int i = startindex; i < endIndex; i++)
+            {
+                ProcessTokenAndNormalize(i, normalizer);
+            }
+        }
+
+        protected void ProcessTokenAndNormalize(int tokenIndex, NormalizeWhitespace normalizeFunction)
+        {
+            TokenData iTokenData = GetTokenData(tokenIndex);
+            DebugAssertTokenIsWhitespaceOrComment(iTokenData, tokenIndex);
+            normalizeFunction = normalizeFunction ?? FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
+            SimpleProcessToken(tokenIndex, normalizeFunction);
+        }
+
+        protected void DebugAssertTokenIsWhitespaceOrComment(TokenData td, int tokenIndex)
+        {
+            Debug.Assert(TokenManager.IsTokenComment(td.TokenId) || IsTokenWhitespace(td), string.Format(CultureInfo.CurrentCulture,
+                "Unexpected token \"{0}\" before the parenthesis.", GetTextForCurrentToken(tokenIndex))
+            );
         }
 
         /// <summary>
