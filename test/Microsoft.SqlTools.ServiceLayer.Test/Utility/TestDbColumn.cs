@@ -29,5 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
         {
             base.NumericScale = scale;
         }
+
+        public TestDbColumn(string columnName, bool isAutoIncrement)
+            : this(columnName)
+        {
+            base.IsAutoIncrement = isAutoIncrement;
+        }
     }
 }
