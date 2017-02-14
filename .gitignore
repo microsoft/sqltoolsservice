@@ -166,7 +166,6 @@ publish/
 # NuGet Packages
 *.nuget.props
 *.nuget.targets
-*.nupkg
 **/packages/*
 
 # NuGet package restore lockfiles
