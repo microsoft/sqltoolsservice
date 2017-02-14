@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             if (CodeObject.TopSpecification != null)
             {
-                ProcessAndNormalizeTokenRange(nextToken, CodeObject.TopSpecification.Position.startTokenNumber,
+                ProcessAndNormalizeWhitespaceRange(nextToken, CodeObject.TopSpecification.Position.startTokenNumber,
                     FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
 
                 ProcessChild(CodeObject.TopSpecification);
@@ -94,13 +94,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 }
             }
 
-            ProcessAndNormalizeTokenRange(nextToken, intoTokenIndexOrTargetStartTokenIndex,
+            // Process up to the INTO or Target index. If INTO isn't there, expect all whitespace tokens
+            ProcessAndNormalizeWhitespaceRange(nextToken, intoTokenIndexOrTargetStartTokenIndex,
                 FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
             
             IncrementIndentLevel();
 
+            // Process the INTO token and all whitespace up to the target start
             ProcessAndNormalizeTokenRange(intoTokenIndexOrTargetStartTokenIndex, CodeObject.Target.Position.startTokenNumber,
-                FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace);
+                FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace, areAllTokensWhitespace: false);
             
             ProcessChild(CodeObject.Target);
 
@@ -161,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     AddIndentedNewLineReplacement(nextTokenData.StartIndex);
                 }
 
-                ProcessAndNormalizeTokenRange(nextToken, CodeObject.Source.Position.startTokenNumber,
+                ProcessAndNormalizeWhitespaceRange(nextToken, CodeObject.Source.Position.startTokenNumber,
                     FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
 
                 ProcessChild(CodeObject.Source);

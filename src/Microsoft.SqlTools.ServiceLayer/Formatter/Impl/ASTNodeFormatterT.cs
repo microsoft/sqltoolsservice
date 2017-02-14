@@ -62,21 +62,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         protected void ProcessTokenRangeEnsuringOneNewLineMinumum(int startindex, int endIndex)
         {
-            ProcessAndNormalizeTokenRange(startindex, endIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
+            ProcessAndNormalizeWhitespaceRange(startindex, endIndex, FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum);
         }
 
-        protected void ProcessAndNormalizeTokenRange(int startindex, int endIndex, NormalizeWhitespace normalizer)
+        protected void ProcessAndNormalizeWhitespaceRange(int startindex, int endIndex, NormalizeWhitespace normalizer)
+        {
+            ProcessAndNormalizeTokenRange(startindex, endIndex, normalizer, true);
+        }
+
+
+        protected void ProcessAndNormalizeTokenRange(int startindex, int endIndex, 
+            NormalizeWhitespace normalizer, bool areAllTokensWhitespace)
         {
             for (int i = startindex; i < endIndex; i++)
             {
-                ProcessTokenAndNormalize(i, normalizer);
+                ProcessTokenAndNormalize(i, normalizer, areAllTokensWhitespace);
             }
         }
 
-        protected void ProcessTokenAndNormalize(int tokenIndex, NormalizeWhitespace normalizeFunction)
+        protected void ProcessTokenAndNormalize(int tokenIndex, NormalizeWhitespace normalizeFunction, bool areAllTokensWhitespace = true)
         {
             TokenData iTokenData = GetTokenData(tokenIndex);
-            DebugAssertTokenIsWhitespaceOrComment(iTokenData, tokenIndex);
+
+            if (areAllTokensWhitespace)
+            {
+                DebugAssertTokenIsWhitespaceOrComment(iTokenData, tokenIndex);
+            }
             normalizeFunction = normalizeFunction ?? FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
             SimpleProcessToken(tokenIndex, normalizeFunction);
         }
@@ -84,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         protected void DebugAssertTokenIsWhitespaceOrComment(TokenData td, int tokenIndex)
         {
             Debug.Assert(TokenManager.IsTokenComment(td.TokenId) || IsTokenWhitespace(td), string.Format(CultureInfo.CurrentCulture,
-                "Unexpected token \"{0}\" before the parenthesis.", GetTextForCurrentToken(tokenIndex))
+                "Unexpected token \"{0}\", expected whitespace or comment.", GetTextForCurrentToken(tokenIndex))
             );
         }
 
@@ -295,7 +306,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             return Visitor.Context.GetIndentString();
         }
-
+        
+        /// <summary>
+        /// Finds an expected token 
+        /// </summary>
+        /// <param name="currentIndex">Current index to start the search at</param>
+        /// <param name="id">ID defining the type of token being looked for - e.g. parenthesis, INSERT</param>
+        protected int FindTokenWithId(int currentIndex, int id)
+        {
+            TokenData td = GetTokenData(currentIndex);
+            while (td.TokenId != id && currentIndex < CodeObject.Position.endTokenNumber)
+            {
+                DebugAssertTokenIsWhitespaceOrComment(td, currentIndex);
+                ++currentIndex;
+                td = GetTokenData(currentIndex);
+            }
+            Debug.Assert(currentIndex < CodeObject.Position.endTokenNumber, "No token with ID" + id + " found in the columns definition.");
+            return currentIndex;
+        }
+        
         internal delegate string NormalizeWhitespace(string original, FormatContext context);
     }
 }
