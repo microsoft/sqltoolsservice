@@ -37,9 +37,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     "code --diff \"" + baselinePath.FullName + "\" \"" + outputPath.FullName + "\"" +
                     "\r\n\r\n";
                 
-
-                throw new ComparisonFailureException(header + diffCmdMessage + editAndCopyMessage, editAndCopyMessage);
+                string diffContents = FindFirstDifference(baseline, actual);
+                throw new ComparisonFailureException(header + diffCmdMessage + editAndCopyMessage + diffContents, editAndCopyMessage);
             }
+        }
+
+
+        private static string FindFirstDifference(string baseline, string actual)
+        {
+            int index = 0;
+            int minEnd = Math.Min(baseline.Length, actual.Length);
+            while (index < minEnd && baseline[index] == actual[index]) 
+                index++;
+
+            int firstDiffIndex = (index == minEnd && baseline.Length == actual.Length) ? -1 : index;
+
+            int startRange = Math.Max(firstDiffIndex - 50, 0);
+            int endRange = Math.Min(firstDiffIndex + 50, minEnd);
+
+            string baselineDiff = ShowWhitespace(baseline.Substring(startRange, endRange));
+            string actualDiff = ShowWhitespace(actual.Substring(startRange, endRange));
+            return "\r\nFirst Diff:\r\n===== Baseline =====\r\n" 
+                + baselineDiff
+                + "\r\n===== Actual =====\r\n"
+                + actualDiff;
+        }
+
+        private static string ShowWhitespace(string input)
+        {
+            return input.Replace("\r", "\\r").Replace("\n", "\\n");
         }
 
         /// <summary>
