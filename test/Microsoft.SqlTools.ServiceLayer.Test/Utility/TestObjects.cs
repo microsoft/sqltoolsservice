@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -199,12 +198,12 @@ namespace Microsoft.SqlTools.Test.Utility
     /// </summary>
     public class TestSqlCommand : DbCommand
     {
-        internal TestSqlCommand(Dictionary<string, string>[][] data)
+        internal TestSqlCommand(TestResultSet[] data)
         {
             Data = data;
         }
 
-        internal Dictionary<string, string>[][] Data { get; set; }
+        internal TestResultSet[] Data { get; set; }
 
         public override void Cancel()
         {
@@ -251,12 +250,12 @@ namespace Microsoft.SqlTools.Test.Utility
     /// </summary>
     public class TestSqlConnection : DbConnection
     {
-        internal TestSqlConnection(Dictionary<string, string>[][] data)
+        internal TestSqlConnection(TestResultSet[] data)
         {
             Data = data;
         }
         
-        internal Dictionary<string, string>[][] Data { get; set; }
+        internal TestResultSet[] Data { get; set; }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {

@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request to execute a valid query with results
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false,
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false,
                 workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
@@ -245,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request to execute a valid query with one batch and multiple result sets
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
-            var dataset = new[] {Common.StandardTestData, Common.StandardTestData};
+            var dataset = new[] {Common.StandardTestResultSet, Common.StandardTestResultSet};
             var queryService = Common.GetPrimedExecutionService(dataset, true, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
@@ -273,8 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request a to execute a valid query with multiple batches
             var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery));
-            var dataSet = new[] {Common.StandardTestData};
-            var queryService = Common.GetPrimedExecutionService(dataSet, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()

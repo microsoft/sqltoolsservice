@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I have a query that has results in the form of an execution plan 
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] {Common.GetExecutionPlanTestData()}, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams
             {
                 QuerySelection = null,
@@ -185,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] { Common.GetExecutionPlanTestData() }, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams
             {
                 QuerySelection = null,
