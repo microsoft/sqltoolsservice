@@ -513,43 +513,43 @@ Task("SetPackageVersions")
 Task("SRGen")
 	.Does(() =>
 {
-	var projects = System.IO.Directory.GetFiles(sourceFolder, "project.json", SearchOption.AllDirectories).ToList();
- 
-	foreach(var project in projects) {
-		var projectDir = System.IO.Path.GetDirectoryName(project);
+    var projects = System.IO.Directory.GetFiles(sourceFolder, "project.json", SearchOption.AllDirectories).ToList();
+
+    foreach(var project in projects) {
+        var projectDir = System.IO.Path.GetDirectoryName(project);
         var localizationDir = System.IO.Path.Combine(projectDir, "Localization");  
-		var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
+        var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
         var projectNameSpace = projectName + ".Localization";
-		var projectStrings = System.IO.Path.Combine(localizationDir, "sr.strings");
+        var projectStrings = System.IO.Path.Combine(localizationDir, "sr.strings");
 
-		if (!System.IO.File.Exists(projectStrings))
-		{
-			Information("Project {0} doesn't contain 'sr.strings' file", projectName);
-			continue;
-		}
+        if (!System.IO.File.Exists(projectStrings))
+        {
+            Information("Project {0} doesn't contain 'sr.strings' file", projectName);
+            continue;
+        }
 
-		var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
-		var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
+        var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
+        var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
         var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
         var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
-		var outputCs = System.IO.Path.Combine(localizationDir, "sr.cs");
+        var outputCs = System.IO.Path.Combine(localizationDir, "sr.cs");
 
-		// Delete preexisting resx and designer files
-		if (System.IO.File.Exists(outputResx))
-		{
-			System.IO.File.Delete(outputResx);
-		}
-		if (System.IO.File.Exists(outputCs))
-		{
-			System.IO.File.Delete(outputCs);
-		}
+        // Delete preexisting resx and designer files
+        if (System.IO.File.Exists(outputResx))
+        {
+            System.IO.File.Delete(outputResx);
+        }
+        if (System.IO.File.Exists(outputCs))
+        {
+            System.IO.File.Delete(outputCs);
+        }
 
-		// Run SRGen
-		var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
-			srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
-		Information("{0}", dotnetArgs);
-		Run(dotnetcli, dotnetArgs)
-			.ExceptionOnError("Failed to run SRGen.");
+        // Run SRGen
+        var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
+        srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
+        Information("{0}", dotnetArgs);
+        Run(dotnetcli, dotnetArgs)
+        .ExceptionOnError("Failed to run SRGen.");
 
         // Update XLF file from new Resx file
         var doc = new XliffParser.XlfDocument(outputXlf);
