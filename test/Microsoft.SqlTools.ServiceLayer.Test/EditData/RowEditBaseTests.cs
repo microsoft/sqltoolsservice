@@ -4,12 +4,9 @@ using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
@@ -53,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // Setup: Create a result set and metadata provider with a single column
             var cols = new[] {col};
             ResultSet rs = GetResultSet(cols, new[] {val});
-            IEditTableMetadata etm = GetMetadataProvider(cols);
+            IEditTableMetadata etm = Common.GetMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseSingleKey(nullClause);
@@ -76,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // Setup: Create a result set and metadata provider with multiple key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
             ResultSet rs = GetResultSet(cols, new object[] {"abc", "def"});
-            IEditTableMetadata etm = GetMetadataProvider(cols);
+            IEditTableMetadata etm = Common.GetMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseMultipleKeys();
@@ -90,26 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             var resultSet = new ResultSet(testReader, 0,0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
             resultSet.ReadResultToEnd(CancellationToken.None).Wait();
             return resultSet;
-        }
-
-        private static IEditTableMetadata GetMetadataProvider(DbColumn[] columns)
-        {
-            // Create a Column Metadata Provider
-            var columnMetas = columns.Select((c,i) =>
-            {
-                var columnMetaMock = new Mock<IEditColumnWrapper>();
-                columnMetaMock.Setup(m => m.DbColumn).Returns(new DbColumnWrapper(c));
-                columnMetaMock.Setup(m => m.Ordinal).Returns(i);
-                columnMetaMock.Setup(m => m.EscapedName).Returns(c.ColumnName);
-                return columnMetaMock.Object;
-            }).ToArray();
-
-            // Create a table metadata provider
-            var tableMetaMock = new Mock<IEditTableMetadata>();
-            tableMetaMock.Setup(m => m.KeyColumns).Returns(columnMetas);
-            tableMetaMock.Setup(m => m.Columns).Returns(columnMetas);
-
-            return tableMetaMock.Object;
         }
 
         private class RowEditTester : RowEditBase

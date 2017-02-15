@@ -4,14 +4,10 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
@@ -24,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // Setup: Create the values to store
             const long rowId = 100;
             ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            IEditTableMetadata etm = GetMetadata();
+            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
 
             // If: I create a RowCreate instance
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -42,12 +38,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // Setup: Generate the parameters for the row create
             const long rowId = 100;
-            ResultSet rs = GetResultSet(GetColumns(includeIdentity), includeIdentity);
-            IEditTableMetadata etm = GetMetadata();
+            DbColumn[] columns = Common.GetColumns(includeIdentity);
+            ResultSet rs = Common.GetResultSet(columns, includeIdentity);
+            IEditTableMetadata etm = Common.GetMetadata(columns);
 
             // If: I ask for a script to be generated without an identity column
             RowCreate rc = new RowCreate(rowId, rs, etm);
-            AddCells(rc, includeIdentity);
+            Common.AddCells(rc, includeIdentity);
             string script = rc.GetScript();
 
             // Then:
@@ -71,59 +68,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // Setup: Generate the parameters for the row create
             const long rowId = 100;
-            ResultSet rs = GetResultSet(GetColumns(false), false);
-            IEditTableMetadata etm = GetMetadata();
+            DbColumn[] columns = Common.GetColumns(false);
+            ResultSet rs = Common.GetResultSet(columns, false);
+            IEditTableMetadata etm = Common.GetMetadata(columns);
 
             // If: I ask for a script to be generated without setting any values
             // Then: An exception should be thrown for missing cells
             RowCreate rc = new RowCreate(rowId, rs, etm);
             Assert.Throws<InvalidOperationException>(() => rc.GetScript());
-        }
-
-        private static DbColumn[] GetColumns(bool includeIdentity)
-        {
-            List<DbColumn> columns = new List<DbColumn>();
-
-            if (includeIdentity)
-            {
-                columns.Add(new TestDbColumn("id", true));
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                columns.Add(new TestDbColumn($"col{i}"));
-            }
-            return columns.ToArray();
-        }
-
-        private static IEditTableMetadata GetMetadata()
-        {
-            // NOTE: The RowCreate is special in that it doesn't utilize the IEditTableMetadata
-            // therefore, we don't need to properly mock it out
-            Mock<IEditTableMetadata> mock = new Mock<IEditTableMetadata>();
-            return mock.Object;
-        }
-
-        private static ResultSet GetResultSet(DbColumn[] columns, bool includeIdentity)
-        {
-            object[][] rows = includeIdentity
-                ? new[] {new object[] {"id", "1", "2", "3"}}
-                : new[] {new object[] {"1", "2", "3"}};
-            var testResultSet = new TestResultSet(columns, rows);
-            var reader = new TestDbDataReader(new[] {testResultSet});
-            var resultSet = new ResultSet(reader, 0, 0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
-            resultSet.ReadResultToEnd(CancellationToken.None).Wait();
-            return resultSet;
-        }
-
-        private static void AddCells(RowCreate rc, bool includeIdentity)
-        {
-            // Skip the first column since if identity, since identity columns can't be updated
-            int start = includeIdentity ? 1 : 0;
-            for(int i = start; i < rc.AssociatedResultSet.Columns.Length; i++)
-            {
-                rc.SetCell(i, "123");
-            }
         }
     }
 }
