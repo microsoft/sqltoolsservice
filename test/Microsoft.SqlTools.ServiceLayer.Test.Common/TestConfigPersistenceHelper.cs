@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     return Enumerable.Empty<TestServerIdentity>();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Enumerable.Empty<TestServerIdentity>();
             }

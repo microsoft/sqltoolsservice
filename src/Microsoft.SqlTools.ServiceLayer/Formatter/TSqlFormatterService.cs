@@ -1,0 +1,266 @@
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.Collections.Generic;
+using System.Composition;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.Extensibility;
+using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+
+namespace Microsoft.SqlTools.ServiceLayer.Formatter
+{
+
+    [Export(typeof(IHostedService))]
+    public class TSqlFormatterService : HostedService<TSqlFormatterService>, IComposableService
+    {
+        private FormatterSettings settings;
+        /// <summary>
+        /// The default constructor is required for MEF-based composable services
+        /// </summary>
+        public TSqlFormatterService()
+        {
+            settings = new FormatterSettings();
+        }
+        
+        public override void InitializeService(IProtocolEndpoint serviceHost)
+        {
+            serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest);
+            serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest);
+            
+            WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
+        }
+
+        /// <summary>
+        /// Gets the workspace service. Note: should handle case where this is null in cases where unit tests do not set this up
+        /// </summary>
+        private WorkspaceService<SqlToolsSettings> WorkspaceService
+        {
+            get { return ServiceProvider.GetService<WorkspaceService<SqlToolsSettings>>(); }
+        }
+
+
+        /// <summary>
+        /// Ensure formatter settings are always up to date
+        /// </summary>
+        public Task HandleDidChangeConfigurationNotification(
+            SqlToolsSettings newSettings,
+            SqlToolsSettings oldSettings,
+            EventContext eventContext)
+        {
+            // update the current settings to reflect any changes (assuming formatter settings exist)
+            settings = newSettings.SqlTools.Format ?? settings;
+            return Task.FromResult(true);
+        }
+
+        public async Task HandleDocFormatRequest(DocumentFormattingParams docFormatParams, RequestContext<TextEdit[]> requestContext)
+        {
+            Func<Task<TextEdit[]>> requestHandler = () =>
+            {
+                return FormatAndReturnEdits(docFormatParams);
+            };
+            await HandleRequest(requestHandler, requestContext, "HandleDocFormatRequest");
+        }
+
+        public async Task HandleDocRangeFormatRequest(DocumentRangeFormattingParams docRangeFormatParams, RequestContext<TextEdit[]> requestContext)
+        {
+            Func<Task<TextEdit[]>> requestHandler = () =>
+            {
+                return FormatRangeAndReturnEdits(docRangeFormatParams);
+            };
+            await HandleRequest(requestHandler, requestContext, "HandleDocRangeFormatRequest");
+        }
+
+        private async Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                var range = docFormatParams.Range;
+                ScriptFile scriptFile = GetFile(docFormatParams);
+                TextEdit textEdit = new TextEdit { Range = range };
+                string text = scriptFile.GetTextInRange(range.ToBufferRange());
+                return DoFormat(docFormatParams, textEdit, text);
+            });
+        }
+
+        private async Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                var scriptFile = GetFile(docFormatParams);
+                if (scriptFile.FileLines.Count == 0)
+                {
+                    return new TextEdit[0];
+                }
+                TextEdit textEdit = PrepareEdit(scriptFile);
+                string text = scriptFile.Contents;
+                return DoFormat(docFormatParams, textEdit, text);
+            });
+        }
+
+        private TextEdit[] DoFormat(DocumentFormattingParams docFormatParams, TextEdit edit, string text)
+        {
+            Validate.IsNotNull(nameof(docFormatParams), docFormatParams);
+
+            FormatOptions options = GetOptions(docFormatParams);
+            List<TextEdit> edits = new List<TextEdit>();
+            edit.NewText = Format(text, options, false);
+            // TODO do not add if no formatting needed?
+            edits.Add(edit);
+            return edits.ToArray();
+        }
+
+        private FormatOptions GetOptions(DocumentFormattingParams docFormatParams)
+        {
+            FormatOptions options = new FormatOptions();
+            if (docFormatParams.Options != null)
+            {
+                options.UseSpaces = docFormatParams.Options.InsertSpaces;
+                options.SpacesPerIndent = docFormatParams.Options.TabSize;
+            }
+            if (settings != null)
+            {
+                if (settings.AlignColumnDefinitionsInColumns.HasValue) { options.AlignColumnDefinitionsInColumns = settings.AlignColumnDefinitionsInColumns.Value; }
+
+                if (settings.PlaceCommasBeforeNextStatement.HasValue) { options.PlaceCommasBeforeNextStatement = settings.PlaceCommasBeforeNextStatement.Value; }
+
+                if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
+
+                if (settings.UseBracketForIdentifiers.HasValue) { options.EncloseIdentifiersInSquareBrackets = settings.UseBracketForIdentifiers.Value; }
+                
+            }
+            return options;
+        }
+
+        internal static void UpdateFormatOptionsFromSettings(FormatOptions options, FormatterSettings settings)
+        {
+            Validate.IsNotNull(nameof(options), options);
+            if (settings != null)
+            {
+                if (settings.AlignColumnDefinitionsInColumns.HasValue) { options.AlignColumnDefinitionsInColumns = settings.AlignColumnDefinitionsInColumns.Value; }
+
+                if (settings.PlaceCommasBeforeNextStatement.HasValue) { options.PlaceCommasBeforeNextStatement = settings.PlaceCommasBeforeNextStatement.Value; }
+
+                if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
+
+                if (settings.UseBracketForIdentifiers.HasValue) { options.EncloseIdentifiersInSquareBrackets = settings.UseBracketForIdentifiers.Value; }
+                
+                options.DatatypeCasing = settings.DatatypeCasing;
+                options.KeywordCasing = settings.KeywordCasing;
+            }
+        }
+        
+        private ScriptFile GetFile(DocumentFormattingParams docFormatParams)
+        {
+            return WorkspaceService.Workspace.GetFile(docFormatParams.TextDocument.Uri);
+        }
+
+        private static TextEdit PrepareEdit(ScriptFile scriptFile)
+        {
+            int fileLines = scriptFile.FileLines.Count;
+            Position start = new Position { Line = 0, Character = 0 };
+            int lastChar = scriptFile.FileLines[scriptFile.FileLines.Count - 1].Length;
+            Position end = new Position { Line = scriptFile.FileLines.Count - 1, Character = lastChar };
+
+            TextEdit edit = new TextEdit
+            {
+                Range = new Range { Start = start, End = end }
+            };
+            return edit;
+        }
+
+        private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
+        {
+            Logger.Write(LogLevel.Verbose, requestType);
+
+            try
+            {
+                T result = await handler();
+                await requestContext.SendResult(result);
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
+
+
+
+        public string Format(TextReader input)
+        {
+            string originalSql = input.ReadToEnd();
+            return Format(originalSql, new FormatOptions());
+        }
+
+        public string Format(string input, FormatOptions options)
+        {
+            return Format(input, options, true);
+        }
+
+        public string Format(string input, FormatOptions options, bool verifyOutput)
+        {
+            string result = null;
+            DoFormat(input, options, verifyOutput, visitor =>
+            {
+                result = visitor.Context.FormattedSql;
+            });
+
+            return result;
+        }
+
+        public void Format(string input, FormatOptions options, bool verifyOutput, Replacement.OnReplace replace)
+        {
+            DoFormat(input, options, verifyOutput, visitor =>
+            {
+                foreach (Replacement r in visitor.Context.Replacements)
+                {
+                    r.Apply(replace);
+                }
+            });
+        }
+
+        private void DoFormat(string input, FormatOptions options, bool verifyOutput, Action<FormatterVisitor> postFormatAction)
+        {
+            Validate.IsNotNull(nameof(input), input);
+            Validate.IsNotNull(nameof(options), options);
+
+            ParseResult result = Parser.Parse(input);
+            FormatContext context = new FormatContext(result.Script, options);
+
+            FormatterVisitor visitor = new FormatterVisitor(context, ServiceProvider);
+            result.Script.Accept(visitor);
+            if (verifyOutput)
+            {
+                visitor.VerifyFormat();
+            }
+
+            postFormatAction?.Invoke(visitor);
+        }
+    }
+
+    internal static class RangeExtensions
+    {
+        public static BufferRange ToBufferRange(this Range range)
+        {
+            // It turns out that VSCode sends Range objects as 0-indexed lines, while
+            // our BufferPosition and BufferRange logic assumes 1-indexed. Therefore
+            // need to increment all ranges by 1 when copying internally and reduce
+            // when returning to the caller
+            return new BufferRange(
+                new BufferPosition(range.Start.Line + 1, range.Start.Character + 1),
+                new BufferPosition(range.End.Line + 1, range.End.Character + 1)
+            );
+        }
+    }
+}

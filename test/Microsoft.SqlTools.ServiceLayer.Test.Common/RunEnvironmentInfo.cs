@@ -1,3 +1,4 @@
+
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -5,10 +6,15 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
+    /// <summary>
+    /// Contains environment information needed when running tests. 
+    /// </summary>
     public class RunEnvironmentInfo
     {
         private static string cachedTestFolderPath;
@@ -30,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public static string GetTestDataLocation()
         {
             string testFolderPath;
-            string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test.Common\TestData";
+            string testPath = Path.Combine("test", "Microsoft.SqlTools.ServiceLayer.Test.Common", "TestData");
             string projectPath = Environment.GetEnvironmentVariable(Constants.ProjectPath);
 
             if (projectPath != null)
@@ -45,13 +51,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 }
                 else
                 {
-                    string defaultPath = Path.Combine(typeof(Scripts).GetTypeInfo().Assembly.Location, @"..\..\..\..\..");
-                    testFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.Test.Common\TestData");
+                    // We are running tests locally, which means we expect to be running inside the bin\debug\netcoreapp directory
+                    // Test Files should be found at the root of the project so go back the necessary number of directories for this 
+                    // to be found. We are manually specifying the testFolderPath here for clarity on where to expect this
+
+                    string assemblyDir = Path.GetDirectoryName(typeof(Scripts).GetTypeInfo().Assembly.Location);
+                    string defaultPath = Path.Combine(assemblyDir, GoUpNDirectories(4));
+                    testFolderPath = Path.Combine(defaultPath, "Microsoft.SqlTools.ServiceLayer.Test.Common", "TestData");
+
                     cachedTestFolderPath = testFolderPath;
                 }
             }
             return testFolderPath;
         }
-
+        private static string GoUpNDirectories(int n)
+        {
+            string up = ".." + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "\\" : "/");
+            return string.Concat(Enumerable.Repeat(up, n));
+        }
     }
 }
