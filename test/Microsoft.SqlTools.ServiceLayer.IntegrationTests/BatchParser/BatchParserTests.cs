@@ -216,14 +216,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             try
             {
-                baseline = GetFileContent(baselineFilename);
+                baseline = GetFileContent(baselineFilename).Replace("\r\n", "\n");
             }
             catch (FileNotFoundException)
             {
                 baseline = string.Empty;
             }
 
-            string outputString = output.ToString();
+            string outputString = output.ToString().Replace("\r\n", "\n");
 
             Console.WriteLine(baselineFilename);
 
