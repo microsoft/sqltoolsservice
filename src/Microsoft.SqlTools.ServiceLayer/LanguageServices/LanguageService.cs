@@ -446,11 +446,48 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// 
+        /// Handle the rebuild IntelliSense cache notification
         /// </summary>
-        public async Task HandleRebuildIntelliSenseNotification(ScriptFile openFile, EventContext eventContext)
+        public async Task HandleRebuildIntelliSenseNotification(ScriptFile scriptFile, EventContext eventContext)
         {
-            await Task.FromResult(true);
+            ConnectionInfo connInfo;
+            LanguageService.ConnectionServiceInstance.TryFindConnection(
+                scriptFile.ClientFilePath,
+                out connInfo);
+
+            await Task.Run(() =>
+            {
+                ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
+                if (scriptInfo != null && scriptInfo.IsConnected && 
+                    Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                {
+                    try
+                    {
+                        this.BindingQueue.AddConnectionContext(connInfo, overwrite: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                    }
+                    finally
+                    {
+                        // Set Metadata Build event to Signal state.
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                    }
+                }
+
+                // if not in the preview window and diagnostics are enabled then run diagnostics
+                if (!IsPreviewWindow(scriptFile)
+                    && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
+                {
+                    RunScriptDiagnostics(
+                        new ScriptFile[] { scriptFile },
+                        eventContext);
+                }
+
+                // Send a notification to signal that autocomplete is ready
+                ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
+            });            
         }
 
         /// <summary>
