@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Query GetBasicExecutedQuery()
         {
-            ConnectionInfo ci = CreateTestConnectionInfo(StandardTestDataSet, false);
+            ConnectionInfo ci = CreateConnectedConnectionInfo(StandardTestDataSet, false);
 
             // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
             // ConnectionInfo with the same URI as the query, so we will manually set it
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Query GetBasicExecutedQuery(QueryExecutionSettings querySettings)
         {
-            ConnectionInfo ci = CreateTestConnectionInfo(StandardTestDataSet, false);
+            ConnectionInfo ci = CreateConnectedConnectionInfo(StandardTestDataSet, false);
 
             // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
             // ConnectionInfo with the same URI as the query, so we will manually set it

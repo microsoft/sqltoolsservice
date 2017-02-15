@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -49,6 +50,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 scriptStart += " WITH(SNAPSHOT)";
             }
             Assert.StartsWith(scriptStart, script);
+        }
+
+        [Fact]
+        public void SetCell()
+        {
+            DbColumn[] columns = Common.GetColumns(true);
+            ResultSet rs = Common.GetResultSet(columns, true);
+            IEditTableMetadata etm = Common.GetMetadata(columns, false);
+
+            // If: I set a cell on a delete row edit
+            // Then: It should throw as invalid operation
+            RowDelete rd = new RowDelete(0, rs, etm);
+            Assert.Throws<InvalidOperationException>(() => rd.SetCell(0, null));
         }
     }
 }

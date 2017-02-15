@@ -22,6 +22,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     public abstract class RowEditBase
     {
         /// <summary>
+        /// Internal parameterless constructor, required for mocking
+        /// </summary>
+        protected internal RowEditBase() { }
+
+        /// <summary>
         /// Base constructor for a row edit. Stores the state that should be available to all row
         /// edit implementations.
         /// </summary>
