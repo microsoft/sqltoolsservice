@@ -564,7 +564,7 @@ Task("SRGen")
             var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
             xlfDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
         }
-	}
+    }
 });
 
 /// <summary>
