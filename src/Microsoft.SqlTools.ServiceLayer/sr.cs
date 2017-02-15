@@ -117,6 +117,62 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ServiceAlreadyRegistered
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceAlreadyRegistered);
+            }
+        }
+
+        public static string MultipleServicesFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.MultipleServicesFound);
+            }
+        }
+
+        public static string IncompatibleServiceForExtensionLoader
+        {
+            get
+            {
+                return Keys.GetString(Keys.IncompatibleServiceForExtensionLoader);
+            }
+        }
+
+        public static string ServiceProviderNotSet
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceProviderNotSet);
+            }
+        }
+
+        public static string ServiceNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceNotFound);
+            }
+        }
+
+        public static string ServiceNotOfExpectedType
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceNotOfExpectedType);
+            }
+        }
+
+        public static string ErrorUnexpectedCodeObjectType
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorUnexpectedCodeObjectType);
+            }
+        }
+
         public static string HostingUnexpectedEndOfStream
         {
             get
@@ -381,6 +437,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string PeekDefinitionDatabaseError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionDatabaseError);
+            }
+        }
+
         public static string PeekDefinitionNotConnectedError
         {
             get
@@ -405,11 +469,259 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ErrorEmptyStringReplacement
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorEmptyStringReplacement);
+            }
+        }
+
         public static string WorkspaceServicePositionLineOutOfRange
         {
             get
             {
                 return Keys.GetString(Keys.WorkspaceServicePositionLineOutOfRange);
+            }
+        }
+
+        public static string EE_BatchSqlMessageNoProcedureInfo
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_BatchSqlMessageNoProcedureInfo);
+            }
+        }
+
+        public static string EE_BatchSqlMessageWithProcedureInfo
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_BatchSqlMessageWithProcedureInfo);
+            }
+        }
+
+        public static string EE_BatchSqlMessageNoLineInfo
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_BatchSqlMessageNoLineInfo);
+            }
+        }
+
+        public static string EE_BatchError_Exception
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_BatchError_Exception);
+            }
+        }
+
+        public static string EE_BatchExecutionInfo_RowsAffected
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_BatchExecutionInfo_RowsAffected);
+            }
+        }
+
+        public static string EE_ExecutionNotYetCompleteError
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ExecutionNotYetCompleteError);
+            }
+        }
+
+        public static string EE_ScriptError_Error
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ScriptError_Error);
+            }
+        }
+
+        public static string EE_ScriptError_ParsingSyntax
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ScriptError_ParsingSyntax);
+            }
+        }
+
+        public static string EE_ScriptError_FatalError
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ScriptError_FatalError);
+            }
+        }
+
+        public static string EE_ExecutionInfo_FinalizingLoop
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ExecutionInfo_FinalizingLoop);
+            }
+        }
+
+        public static string EE_ExecutionInfo_QueryCancelledbyUser
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ExecutionInfo_QueryCancelledbyUser);
+            }
+        }
+
+        public static string EE_BatchExecutionError_Halting
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_BatchExecutionError_Halting);
+            }
+        }
+
+        public static string EE_BatchExecutionError_Ignoring
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_BatchExecutionError_Ignoring);
+            }
+        }
+
+        public static string EE_ExecutionInfo_InitilizingLoop
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ExecutionInfo_InitilizingLoop);
+            }
+        }
+
+        public static string EE_ExecutionError_CommandNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ExecutionError_CommandNotSupported);
+            }
+        }
+
+        public static string EE_ExecutionError_VariableNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ExecutionError_VariableNotFound);
+            }
+        }
+
+        public static string BatchParserWrapperExecutionEngineError
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParserWrapperExecutionEngineError);
+            }
+        }
+
+        public static string BatchParserWrapperExecutionError
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParserWrapperExecutionError);
+            }
+        }
+
+        public static string BatchParserWrapperExecutionEngineBatchMessage
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParserWrapperExecutionEngineBatchMessage);
+            }
+        }
+
+        public static string BatchParserWrapperExecutionEngineBatchResultSetProcessing
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParserWrapperExecutionEngineBatchResultSetProcessing);
+            }
+        }
+
+        public static string BatchParserWrapperExecutionEngineBatchResultSetFinished
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParserWrapperExecutionEngineBatchResultSetFinished);
+            }
+        }
+
+        public static string BatchParserWrapperExecutionEngineBatchCancelling
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParserWrapperExecutionEngineBatchCancelling);
+            }
+        }
+
+        public static string EE_ScriptError_Warning
+        {
+            get
+            {
+                return Keys.GetString(Keys.EE_ScriptError_Warning);
+            }
+        }
+
+        public static string TroubleshootingAssistanceMessage
+        {
+            get
+            {
+                return Keys.GetString(Keys.TroubleshootingAssistanceMessage);
+            }
+        }
+
+        public static string BatchParser_CircularReference
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParser_CircularReference);
+            }
+        }
+
+        public static string BatchParser_CommentNotTerminated
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParser_CommentNotTerminated);
+            }
+        }
+
+        public static string BatchParser_StringNotTerminated
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParser_StringNotTerminated);
+            }
+        }
+
+        public static string BatchParser_IncorrectSyntax
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParser_IncorrectSyntax);
+            }
+        }
+
+        public static string BatchParser_VariableNotDefined
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchParser_VariableNotDefined);
+            }
+        }
+
+        public static string TestLocalizationConstant
+        {
+            get
+            {
+                return Keys.GetString(Keys.TestLocalizationConstant);
             }
         }
 
@@ -524,6 +836,27 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CredentialServiceWin32CredentialDisposed = "CredentialServiceWin32CredentialDisposed";
+
+
+            public const string ServiceAlreadyRegistered = "ServiceAlreadyRegistered";
+
+
+            public const string MultipleServicesFound = "MultipleServicesFound";
+
+
+            public const string IncompatibleServiceForExtensionLoader = "IncompatibleServiceForExtensionLoader";
+
+
+            public const string ServiceProviderNotSet = "ServiceProviderNotSet";
+
+
+            public const string ServiceNotFound = "ServiceNotFound";
+
+
+            public const string ServiceNotOfExpectedType = "ServiceNotOfExpectedType";
+
+
+            public const string ErrorUnexpectedCodeObjectType = "ErrorUnexpectedCodeObjectType";
 
 
             public const string HostingUnexpectedEndOfStream = "HostingUnexpectedEndOfStream";
@@ -643,6 +976,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string PeekDefinitionNoResultsError = "PeekDefinitionNoResultsError";
 
 
+            public const string PeekDefinitionDatabaseError = "PeekDefinitionDatabaseError";
+
+
             public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
 
 
@@ -652,6 +988,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
 
 
+            public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
+
+
             public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";
 
 
@@ -659,6 +998,96 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
+
+
+            public const string EE_BatchSqlMessageNoProcedureInfo = "EE_BatchSqlMessageNoProcedureInfo";
+
+
+            public const string EE_BatchSqlMessageWithProcedureInfo = "EE_BatchSqlMessageWithProcedureInfo";
+
+
+            public const string EE_BatchSqlMessageNoLineInfo = "EE_BatchSqlMessageNoLineInfo";
+
+
+            public const string EE_BatchError_Exception = "EE_BatchError_Exception";
+
+
+            public const string EE_BatchExecutionInfo_RowsAffected = "EE_BatchExecutionInfo_RowsAffected";
+
+
+            public const string EE_ExecutionNotYetCompleteError = "EE_ExecutionNotYetCompleteError";
+
+
+            public const string EE_ScriptError_Error = "EE_ScriptError_Error";
+
+
+            public const string EE_ScriptError_ParsingSyntax = "EE_ScriptError_ParsingSyntax";
+
+
+            public const string EE_ScriptError_FatalError = "EE_ScriptError_FatalError";
+
+
+            public const string EE_ExecutionInfo_FinalizingLoop = "EE_ExecutionInfo_FinalizingLoop";
+
+
+            public const string EE_ExecutionInfo_QueryCancelledbyUser = "EE_ExecutionInfo_QueryCancelledbyUser";
+
+
+            public const string EE_BatchExecutionError_Halting = "EE_BatchExecutionError_Halting";
+
+
+            public const string EE_BatchExecutionError_Ignoring = "EE_BatchExecutionError_Ignoring";
+
+
+            public const string EE_ExecutionInfo_InitilizingLoop = "EE_ExecutionInfo_InitilizingLoop";
+
+
+            public const string EE_ExecutionError_CommandNotSupported = "EE_ExecutionError_CommandNotSupported";
+
+
+            public const string EE_ExecutionError_VariableNotFound = "EE_ExecutionError_VariableNotFound";
+
+
+            public const string BatchParserWrapperExecutionEngineError = "BatchParserWrapperExecutionEngineError";
+
+
+            public const string BatchParserWrapperExecutionError = "BatchParserWrapperExecutionError";
+
+
+            public const string BatchParserWrapperExecutionEngineBatchMessage = "BatchParserWrapperExecutionEngineBatchMessage";
+
+
+            public const string BatchParserWrapperExecutionEngineBatchResultSetProcessing = "BatchParserWrapperExecutionEngineBatchResultSetProcessing";
+
+
+            public const string BatchParserWrapperExecutionEngineBatchResultSetFinished = "BatchParserWrapperExecutionEngineBatchResultSetFinished";
+
+
+            public const string BatchParserWrapperExecutionEngineBatchCancelling = "BatchParserWrapperExecutionEngineBatchCancelling";
+
+
+            public const string EE_ScriptError_Warning = "EE_ScriptError_Warning";
+
+
+            public const string TroubleshootingAssistanceMessage = "TroubleshootingAssistanceMessage";
+
+
+            public const string BatchParser_CircularReference = "BatchParser_CircularReference";
+
+
+            public const string BatchParser_CommentNotTerminated = "BatchParser_CommentNotTerminated";
+
+
+            public const string BatchParser_StringNotTerminated = "BatchParser_StringNotTerminated";
+
+
+            public const string BatchParser_IncorrectSyntax = "BatchParser_IncorrectSyntax";
+
+
+            public const string BatchParser_VariableNotDefined = "BatchParser_VariableNotDefined";
+
+
+            public const string TestLocalizationConstant = "TestLocalizationConstant";
 
 
             private Keys()

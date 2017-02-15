@@ -1,0 +1,4 @@
+/* 
+-- not a line comment
+*/
+- - not a comment

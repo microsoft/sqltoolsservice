@@ -1,0 +1,1245 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ServiceBufferFileStreamWriter
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ServiceBufferFileStreamWriter
+   ">
+    <meta name="generator" content="docfx 1.0.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content">
+              
+              
+              <h1 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter">Class ServiceBufferFileStreamWriter
+              </h1>
+              <div class="markdown level0 summary"><p>Writer for service buffer formatted file streams</p>
+</div>
+              <div class="markdown level0 conceptual"></div>
+              <div class="inheritance">
+                <h5>Inheritance</h5>
+                  <div class="level0"><span class="xref">System.Object</span></div>
+                  <div class="level1"><span class="xref">ServiceBufferFileStreamWriter</span></div>
+              </div>
+              <div class="inheritedMembers">
+                <h5>Inherited Members</h5>
+                <div>
+                  <span class="xref">System.Object.Equals(System.Object)</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.GetHashCode()</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.GetType()</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.MemberwiseClone()</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.ToString()</span>
+                </div>
+              </div>
+              <h6><strong>Namespace</strong>:Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage</h6>
+              <h6><strong>Assembly</strong>:Microsoft.SqlTools.ServiceLayer.dll</h6>
+              <h5 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_syntax">Syntax</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public class ServiceBufferFileStreamWriter : IFileStreamWriter, IDisposable</code></pre>
+              </div>
+              <h3 id="constructors">Constructors
+              </h3>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter__ctor_System_IO_Stream_System_Int32_System_Int32_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.%23ctor(System.IO.Stream%2CSystem.Int32%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L51">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter__ctor_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.#ctor*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter__ctor_System_IO_Stream_System_Int32_System_Int32_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.#ctor(System.IO.Stream,System.Int32,System.Int32)">ServiceBufferFileStreamWriter(Stream, Int32, Int32)</h4>
+              <div class="markdown level1 summary"><p>Constructs a new writer</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public ServiceBufferFileStreamWriter(Stream stream, int maxCharsToStore, int maxXmlCharsToStore)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.IO.Stream</span></td>
+                    <td><span class="parametername">stream</span></td>
+                    <td><p>The file wrapper to use as the underlying file stream</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">maxCharsToStore</span></td>
+                    <td><p>Maximum number of characters to store for long text fields</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">maxXmlCharsToStore</span></td>
+                    <td><p>Maximum number of characters to store for XML fields</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h3 id="methods">Methods
+              </h3>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Dispose.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Dispose%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L603">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Dispose_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Dispose*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Dispose" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Dispose">Dispose()</h4>
+              <div class="markdown level1 summary"></div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
+              </div>
+              <h5 class="implements">Implements</h5>
+                  <div><span class="xref">System.IDisposable.Dispose()</span></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Dispose_System_Boolean_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Dispose(System.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L609">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Dispose_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Dispose*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Dispose_System_Boolean_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Dispose(System.Boolean)">Dispose(Boolean)</h4>
+              <div class="markdown level1 summary"></div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected virtual void Dispose(bool disposing)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Boolean</span></td>
+                    <td><span class="parametername">disposing</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Finalize.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Finalize%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L625">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Finalize_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Finalize*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_Finalize" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.Finalize">Finalize()</h4>
+              <div class="markdown level1 summary"></div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected void Finalize()</code></pre>
+              </div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_FlushBuffer.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.FlushBuffer%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L531">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_FlushBuffer_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.FlushBuffer*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_FlushBuffer" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.FlushBuffer">FlushBuffer()</h4>
+              <div class="markdown level1 summary"><p>Flushes the internal buffer to the file stream</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public void FlushBuffer()</code></pre>
+              </div>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_FlushBuffer">IFileStreamWriter.FlushBuffer()</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteBoolean_System_Boolean_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteBoolean(System.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L313">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteBoolean_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteBoolean*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteBoolean_System_Boolean_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteBoolean(System.Boolean)">WriteBoolean(Boolean)</h4>
+              <div class="markdown level1 summary"><p>Writes a bool to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteBoolean(bool val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Boolean</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the bool</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteBoolean_System_Boolean_">IFileStreamWriter.WriteBoolean(Boolean)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteByte_System_Byte_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteByte(System.Byte)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L324">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteByte_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteByte*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteByte_System_Byte_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteByte(System.Byte)">WriteByte(Byte)</h4>
+              <div class="markdown level1 summary"><p>Writes a byte to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteByte(byte val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Byte</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the byte</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteByte_System_Byte_">IFileStreamWriter.WriteByte(Byte)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteBytes_System_Byte___.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteBytes(System.Byte%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L483">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteBytes_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteBytes*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteBytes_System_Byte___" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteBytes(System.Byte[])">WriteBytes(Byte[])</h4>
+              <div class="markdown level1 summary"><p>Writes a byte[] to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteBytes(byte[] bytesVal)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Byte</span>[]</td>
+                    <td><span class="parametername">bytesVal</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the byte[]</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteBytes_System_Byte___">IFileStreamWriter.WriteBytes(Byte[])</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteChar_System_Char_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteChar(System.Char)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L301">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteChar_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteChar*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteChar_System_Char_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteChar(System.Char)">WriteChar(Char)</h4>
+              <div class="markdown level1 summary"><p>Writes a char to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteChar(char val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Char</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the char</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteChar_System_Char_">IFileStreamWriter.WriteChar(Char)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDateTime_Microsoft_SqlTools_ServiceLayer_QueryExecution_Contracts_DbColumnWrapper_System_DateTime_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDateTime(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper%2CSystem.DateTime)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L401">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDateTime_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDateTime*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDateTime_Microsoft_SqlTools_ServiceLayer_QueryExecution_Contracts_DbColumnWrapper_System_DateTime_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDateTime(Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper,System.DateTime)">WriteDateTime(DbColumnWrapper, DateTime)</h4>
+              <div class="markdown level1 summary"><p>Writes a DateTime to the file as precision and ticks</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteDateTime(DbColumnWrapper col, DateTime dtVal)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.DbColumnWrapper.html">DbColumnWrapper</a></td>
+                    <td><span class="parametername">col</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.DateTime</span></td>
+                    <td><span class="parametername">dtVal</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the DateTime</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteDateTime_Microsoft_SqlTools_ServiceLayer_QueryExecution_Contracts_DbColumnWrapper_System_DateTime_">IFileStreamWriter.WriteDateTime(DbColumnWrapper, DateTime)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDateTimeOffset_System_DateTimeOffset_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDateTimeOffset(System.DateTimeOffset)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L423">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDateTimeOffset_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDateTimeOffset*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDateTimeOffset_System_DateTimeOffset_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDateTimeOffset(System.DateTimeOffset)">WriteDateTimeOffset(DateTimeOffset)</h4>
+              <div class="markdown level1 summary"><p>Writes a DateTimeOffset to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteDateTimeOffset(DateTimeOffset dtoVal)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.DateTimeOffset</span></td>
+                    <td><span class="parametername">dtoVal</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the DateTimeOffset</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteDateTimeOffset_System_DateTimeOffset_">IFileStreamWriter.WriteDateTimeOffset(DateTimeOffset)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDecimal_System_Decimal_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDecimal(System.Decimal)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L384">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDecimal_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDecimal*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDecimal_System_Decimal_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDecimal(System.Decimal)">WriteDecimal(Decimal)</h4>
+              <div class="markdown level1 summary"><p>Writes a decimal to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteDecimal(decimal val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Decimal</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the decimal</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteDecimal_System_Decimal_">IFileStreamWriter.WriteDecimal(Decimal)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDouble_System_Double_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDouble(System.Double)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L347">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDouble_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDouble*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteDouble_System_Double_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteDouble(System.Double)">WriteDouble(Double)</h4>
+              <div class="markdown level1 summary"><p>Writes a double to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteDouble(double val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Double</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the double</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteDouble_System_Double_">IFileStreamWriter.WriteDouble(Double)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteGuid_System_Guid_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteGuid(System.Guid)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L512">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteGuid_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteGuid*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteGuid_System_Guid_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteGuid(System.Guid)">WriteGuid(Guid)</h4>
+              <div class="markdown level1 summary"><p>Stores a GUID value to the file by treating it as a byte array</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteGuid(Guid val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Guid</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td><p>The GUID to write to the file</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes written to the file</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteGuid_System_Guid_">IFileStreamWriter.WriteGuid(Guid)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt16_System_Int16_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt16(System.Int16)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L265">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt16_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt16*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt16_System_Int16_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt16(System.Int16)">WriteInt16(Int16)</h4>
+              <div class="markdown level1 summary"><p>Writes a short to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteInt16(short val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int16</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the short</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteInt16_System_Int16_">IFileStreamWriter.WriteInt16(Int16)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt32_System_Int32_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt32(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L277">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt32_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt32*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt32_System_Int32_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt32(System.Int32)">WriteInt32(Int32)</h4>
+              <div class="markdown level1 summary"><p>Writes a int to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteInt32(int val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the int</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteInt32_System_Int32_">IFileStreamWriter.WriteInt32(Int32)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt64_System_Int64_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt64(System.Int64)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L289">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt64*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteInt64_System_Int64_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteInt64(System.Int64)">WriteInt64(Int64)</h4>
+              <div class="markdown level1 summary"><p>Writes a long to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteInt64(long val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int64</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the long</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteInt64_System_Int64_">IFileStreamWriter.WriteInt64(Int64)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteMoney_System_Data_SqlTypes_SqlMoney_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteMoney(System.Data.SqlTypes.SqlMoney)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L523">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteMoney_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteMoney*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteMoney_System_Data_SqlTypes_SqlMoney_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteMoney(System.Data.SqlTypes.SqlMoney)">WriteMoney(SqlMoney)</h4>
+              <div class="markdown level1 summary"><p>Stores a SqlMoney value to the file by treating it as a decimal</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteMoney(SqlMoney val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Data.SqlTypes.SqlMoney</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td><p>The SqlMoney value to write to the file</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes written to the file</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteMoney_System_Data_SqlTypes_SqlMoney_">IFileStreamWriter.WriteMoney(SqlMoney)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteNull.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteNull%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L255">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteNull_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteNull*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteNull" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteNull">WriteNull()</h4>
+              <div class="markdown level1 summary"><p>Writes null to the file as one 0x00 byte</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteNull()</code></pre>
+              </div>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the null</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteNull">IFileStreamWriter.WriteNull()</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteRow_Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_StorageDataReader_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteRow(Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L159">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteRow_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteRow*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteRow_Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_StorageDataReader_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteRow(Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader)">WriteRow(StorageDataReader)</h4>
+              <div class="markdown level1 summary"><p>Writes an entire row to the file stream</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteRow(StorageDataReader reader)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.StorageDataReader.html">StorageDataReader</a></td>
+                    <td><span class="parametername">reader</span></td>
+                    <td><p>A primed reader</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to write the row</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteRow_Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_StorageDataReader_">IFileStreamWriter.WriteRow(StorageDataReader)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteSingle_System_Single_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteSingle(System.Single)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L335">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteSingle_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteSingle*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteSingle_System_Single_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteSingle(System.Single)">WriteSingle(Single)</h4>
+              <div class="markdown level1 summary"><p>Writes a float to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteSingle(float val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Single</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the float</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteSingle_System_Single_">IFileStreamWriter.WriteSingle(Single)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteSqlDecimal_System_Data_SqlTypes_SqlDecimal_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteSqlDecimal(System.Data.SqlTypes.SqlDecimal)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L359">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteSqlDecimal_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteSqlDecimal*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteSqlDecimal_System_Data_SqlTypes_SqlDecimal_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteSqlDecimal(System.Data.SqlTypes.SqlDecimal)">WriteSqlDecimal(SqlDecimal)</h4>
+              <div class="markdown level1 summary"><p>Writes a SqlDecimal to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteSqlDecimal(SqlDecimal val)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Data.SqlTypes.SqlDecimal</span></td>
+                    <td><span class="parametername">val</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the SqlDecimal</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteSqlDecimal_System_Data_SqlTypes_SqlDecimal_">IFileStreamWriter.WriteSqlDecimal(SqlDecimal)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteString_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteString(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L449">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteString_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteString*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteString_System_String_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteString(System.String)">WriteString(String)</h4>
+              <div class="markdown level1 summary"><p>Writes a string to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteString(string sVal)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.String</span></td>
+                    <td><span class="parametername">sVal</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the string</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteString_System_String_">IFileStreamWriter.WriteString(String)</a></div>
+              <span class="small pull-right mobile-hide">
+                <span class="divider">|</span>
+                <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteTimeSpan_System_TimeSpan_.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteTimeSpan(System.TimeSpan)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+              </span>
+              <span class="small pull-right mobile-hide">
+                <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L440">View Source</a>
+              </span>
+              <a id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteTimeSpan_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteTimeSpan*"></a>
+              <h4 id="Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter_WriteTimeSpan_System_TimeSpan_" data-uid="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter.WriteTimeSpan(System.TimeSpan)">WriteTimeSpan(TimeSpan)</h4>
+              <div class="markdown level1 summary"><p>Writes a TimeSpan to the file</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int WriteTimeSpan(TimeSpan timeSpan)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.TimeSpan</span></td>
+                    <td><span class="parametername">timeSpan</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>Number of bytes used to store the TimeSpan</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="implements">Implements</h5>
+                  <div><a class="xref" href="Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.IFileStreamWriter.html#Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_IFileStreamWriter_WriteTimeSpan_System_TimeSpan_">IFileStreamWriter.WriteTimeSpan(TimeSpan)</a></div>
+            </article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/Microsoft/sqltoolsservice/new/master/docs/apispec/new?filename=Microsoft_SqlTools_ServiceLayer_QueryExecution_DataStorage_ServiceBufferFileStreamWriter.md&amp;value=---%0Auid%3A%20Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage.ServiceBufferFileStreamWriter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/Microsoft/sqltoolsservice/blob/master/src/Microsoft.SqlTools.ServiceLayer/QueryExecution/DataStorage/ServiceBufferFileStreamWriter.cs/#L20" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

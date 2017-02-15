@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     /// </summary>
     public class SqlCompletionItem
     {
-        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@][\p{L}\p{N}@$#_]{0,127}$");
+        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@#][\p{L}\p{N}@$#_]{0,127}$");
         private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]"};
         private static DelimitedIdentifier[] DelimitedIdentifiers =
             new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier {Start = "\"", End = "\"" } };

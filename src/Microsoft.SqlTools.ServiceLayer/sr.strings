@@ -60,6 +60,21 @@ CredentialsServiceTargetForLookup = Target must be specified to check existance 
 CredentialServiceWin32CredentialDisposed = Win32Credential object is already disposed
 
 ############################################################################
+# Extensibility
+
+ServiceAlreadyRegistered = Cannot register service for type {0}, one or more services already registered
+MultipleServicesFound = Multiple services found for type {0}, expected only 1
+IncompatibleServiceForExtensionLoader = Service of type {0} cannot be created by ExtensionLoader<{1}>
+ServiceProviderNotSet = SetServiceProvider() was not called to establish the required service provider
+ServiceNotFound = Service {0} was not found in the service provider
+ServiceNotOfExpectedType = Service of Type {0} is not compatible with registered Type {1}
+
+############################################################################
+# Formatter
+
+ErrorUnexpectedCodeObjectType = Cannot convert SqlCodeObject Type {0} to Type {1}
+
+############################################################################
 # Hosting
 
 HostingUnexpectedEndOfStream = MessageReader's input stream ended unexpectedly, terminating
@@ -160,11 +175,15 @@ PeekDefinitionError(string errorMessage) = An unexpected error occurred during P
 
 PeekDefinitionNoResultsError = No results were found.
 
+PeekDefinitionDatabaseError = No database object was retrieved.
+
 PeekDefinitionNotConnectedError = Please connect to a server.
 
 PeekDefinitionTimedoutError = Operation timed out.
 
 PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
+
+ErrorEmptyStringReplacement = Replacement of an empty string by an empty string.
 
 ############################################################################
 # Workspace Service
@@ -174,3 +193,69 @@ WorkspaceServicePositionLineOutOfRange = Position is outside of file line range
 WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of column range for line {0}
 
 WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
+
+############################################################################
+# DacFx Resources
+
+EE_BatchSqlMessageNoProcedureInfo = Msg {0}, Level {1}, State {2}, Line {3}
+
+EE_BatchSqlMessageWithProcedureInfo = Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}
+
+EE_BatchSqlMessageNoLineInfo = Msg {0}, Level {1}, State {2}
+
+EE_BatchError_Exception = An error occurred while the batch was being processed. The error message is: {0}
+
+EE_BatchExecutionInfo_RowsAffected = ({0} row(s) affected)
+
+EE_ExecutionNotYetCompleteError = The previous execution is not yet complete.
+
+EE_ScriptError_Error = A scripting error occurred.
+
+EE_ScriptError_ParsingSyntax = Incorrect syntax was encountered while {0} was being parsed.
+
+EE_ScriptError_FatalError = A fatal error occurred.
+
+EE_ExecutionInfo_FinalizingLoop	= Execution completed {0} times...
+
+EE_ExecutionInfo_QueryCancelledbyUser = You cancelled the query.
+
+EE_BatchExecutionError_Halting = An error occurred while the batch was being executed.
+
+EE_BatchExecutionError_Ignoring	= An error occurred while the batch was being executed, but the error has been ignored.
+
+EE_ExecutionInfo_InitilizingLoop = Starting execution loop of {0} times...
+
+EE_ExecutionError_CommandNotSupported = Command {0} is not supported.
+
+EE_ExecutionError_VariableNotFound = The variable {0} could not be found.
+
+BatchParserWrapperExecutionEngineError = SQL Execution error: {0}
+
+BatchParserWrapperExecutionError = Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}
+
+BatchParserWrapperExecutionEngineBatchMessage = Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}
+
+BatchParserWrapperExecutionEngineBatchResultSetProcessing = Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}
+
+BatchParserWrapperExecutionEngineBatchResultSetFinished = Batch parser wrapper execution engine batch ResultSet finished.
+
+BatchParserWrapperExecutionEngineBatchCancelling = Canceling batch parser wrapper batch execution.
+
+EE_ScriptError_Warning = Scripting warning.
+
+TroubleshootingAssistanceMessage = For more information about this error, see the troubleshooting topics in the product documentation.
+
+BatchParser_CircularReference = File '{0}' recursively included.
+
+BatchParser_CommentNotTerminated = Missing end comment mark '*/'.
+
+BatchParser_StringNotTerminated = Unclosed quotation mark after the character string.
+
+BatchParser_IncorrectSyntax = Incorrect syntax was encountered while parsing '{0}'.
+
+BatchParser_VariableNotDefined = Variable {0} is not defined.
+
+############################################################################
+# Workspace Service
+
+TestLocalizationConstant = EN_LOCALIZATION

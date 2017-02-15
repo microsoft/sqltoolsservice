@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.False(sqlToolsSettings.IsSuggestionsEnabled);          
         }
 
-         /// <summary>
+        /// <summary>
         /// Validate that the IsQuickInfoEnabled flag behavior
         /// </summary>
         [Fact]

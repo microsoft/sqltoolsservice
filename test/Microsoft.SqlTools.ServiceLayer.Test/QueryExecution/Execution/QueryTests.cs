@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Castle.Components.DictionaryAdapter;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -136,20 +135,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I Then execute the query
             query.Execute();
-            query.ExecutionTask.Wait();
 
             // Then:
             // ... There should be no batches
-            Assert.Empty(query.Batches);
+            Assert.Equal(1, query.Batches.Length);
 
-            // ... The query should have completed successfully with no batch summaries returned
-            Assert.True(query.HasExecuted);
-            Assert.Empty(query.BatchSummaries);
+            // ... The query shouldn't have completed successfully
+            Assert.False(query.HasExecuted);
 
-            // ... The message callback should have been called exactly once
-            // ... The message must not have a batch associated with it
-            Assert.Equal(1, messages.Count);
-            Assert.Null(messages[0].BatchId);
+            // ... The message callback should have been called 0 times
+            Assert.Equal(0, messages.Count);
         }
 
         [Fact]
@@ -215,26 +210,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // .. I then execute the query
             query.Execute();
-            query.ExecutionTask.Wait();
 
             // Then:
-            // ... I should get back a query with one batch (no op batch is not included)
+            // ... I should get back a query with two batches
             Assert.NotEmpty(query.Batches);
-            Assert.Equal(1, query.Batches.Length);
+            Assert.Equal(2, query.Batches.Length);
 
-            // ... The query should have completed successfully with one batch summary returned
-            Assert.True(query.HasExecuted);
-            Assert.NotEmpty(query.BatchSummaries);
-            Assert.Equal(1, query.BatchSummaries.Length);
+            //// ... The query shouldn't have completed successfully unless all batches were executed
+            Assert.False(query.HasExecuted);
 
-            // ... The batch callbacks should have been called precisely 1 time
-            Assert.Equal(1, batchStartCallbacksReceived);
-            Assert.Equal(1, batchCompletionCallbacksReceived);
-            Assert.Equal(1, batchMessageCallbacksReceived);
+            //// ... The batch callbacks should have been called 0 times
+            Assert.Equal(0, batchStartCallbacksReceived);
+            Assert.Equal(0, batchCompletionCallbacksReceived);
+            Assert.Equal(0, batchMessageCallbacksReceived);
         }
 
         [Fact]
-        public async Task QueryExecuteMultipleNoOpBatches()
+        public void QueryExecuteMultipleNoOpBatches()
         {
             // Setup:
             // ... Keep track of how many messages were sent
@@ -253,20 +245,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // .. I then execute the query
             query.Execute();
-            await query.ExecutionTask;
 
             // Then:
             // ... I should get back a query with no batches
-            Assert.Empty(query.Batches);
+            Assert.Equal(2, query.Batches.Length);
 
-            // ... The query should have completed successfully with one zero batch summaries returned
-            Assert.True(query.HasExecuted);
-            Assert.Empty(query.BatchSummaries);
+            // ... The query shouldn't have completed successfully
+            Assert.False(query.HasExecuted);
 
             // ... The message callback should have been called exactly once
-            // ... The message must not have a batch associated with it
-            Assert.Equal(1, messages.Count);
-            Assert.Null(messages[0].BatchId);
+            Assert.Equal(0, messages.Count);
         }
 
         [Fact]
