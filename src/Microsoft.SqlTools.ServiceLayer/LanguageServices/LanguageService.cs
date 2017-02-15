@@ -212,6 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
+            serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -229,9 +230,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
-
-            // Register the IntelliSense rebuild handler
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterRebuildIntelliSenseCallback(HandleRebuildIntelliSenseNotification);
 
             // Register a callback for when a connection is created
             ConnectionServiceInstance.RegisterOnConnectionTask(UpdateLanguageServiceOnConnection);
@@ -448,8 +446,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Handle the rebuild IntelliSense cache notification
         /// </summary>
-        public async Task HandleRebuildIntelliSenseNotification(ScriptFile scriptFile, EventContext eventContext)
+        public async Task HandleRebuildIntelliSenseNotification(
+            RebuildIntelliSenseParams configChangeParams,
+            EventContext eventContext)
         {
+            Logger.Write(LogLevel.Verbose, "HandleRebuildIntelliSenseNotification");
+
+            // Skip closing this file if the file doesn't exist
+            var scriptFile = this.CurrentWorkspace.GetFile(configChangeParams.OwnerUri);
+            if (scriptFile == null)
+            {
+                return;
+            }
+
             ConnectionInfo connInfo;
             LanguageService.ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientFilePath,

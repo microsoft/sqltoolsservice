@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
@@ -46,7 +45,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
             TextDocOpenCallbacks = new List<TextDocOpenCallback>();
             TextDocCloseCallbacks = new List<TextDocCloseCallback>();
-            RebuildIntelliSenseCallbacks = new List<RebuildIntelliSenseCallback>();
 
             CurrentSettings = new TConfig();
         }
@@ -96,13 +94,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public delegate Task TextDocCloseCallback(ScriptFile closedFile, EventContext eventContext);
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="openFile"></param>
-        /// <param name="eventContext"></param>
-        public delegate Task RebuildIntelliSenseCallback(ScriptFile openFile, EventContext eventContext);        
-
-        /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
         /// </summary>
         private List<ConfigChangeCallback> ConfigChangeCallbacks { get; set; }
@@ -121,11 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// List of callbacks to call when a text document is closed
         /// </summary>
         private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
-
-        /// <summary>
-        /// List of callbacks to call when a rebuild IntelliSense is request
-        /// </summary>
-        private List<RebuildIntelliSenseCallback> RebuildIntelliSenseCallbacks { get; set; }        
+ 
 
         #endregion
 
@@ -141,7 +128,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             serviceHost.SetEventHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);
             serviceHost.SetEventHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
             serviceHost.SetEventHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
-            serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
             
             // Register an initialization handler that sets the workspace path
             serviceHost.RegisterInitializeTask(async (parameters, contect) =>
@@ -205,15 +191,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             TextDocOpenCallbacks.Add(task);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="task"></param>
-        public void RegisterRebuildIntelliSenseCallback(RebuildIntelliSenseCallback task)
-        {
-            RebuildIntelliSenseCallbacks.Add(task);
-        }              
 
         #endregion
 
@@ -311,29 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             var configUpdateTasks = ConfigChangeCallbacks.Select(
                 t => t(configChangeParams.Settings, CurrentSettings, eventContext));
             await Task.WhenAll(configUpdateTasks);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        internal async Task HandleRebuildIntelliSenseNotification(
-            RebuildIntelliSenseParams configChangeParams,
-            EventContext eventContext)
-        {
-            Logger.Write(LogLevel.Verbose, "HandleRebuildIntelliSenseNotification");
-
-            // Skip closing this file if the file doesn't exist
-            var scriptFile = Workspace.GetFile(configChangeParams.OwnerUri);
-            if (scriptFile == null)
-            {
-                return;
-            }
-
-            // Propagate the changes to the event handlers
-            var tasks = RebuildIntelliSenseCallbacks.Select(
-                t => t(scriptFile, eventContext));
-            await Task.WhenAll(tasks);
-        }        
+        }  
 
         #endregion
 
