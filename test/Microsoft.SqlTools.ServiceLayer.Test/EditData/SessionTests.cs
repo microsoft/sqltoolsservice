@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -8,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Xunit;
@@ -303,6 +305,57 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // ... A new update row edit should have been added to the cache
             Assert.Contains(0, s.EditCache.Keys);
             Assert.IsType<RowUpdate>(s.EditCache[0]);
+        }
+
+        #endregion
+
+        #region Script Edits Tests
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" \t\r\n")]
+        public void ScriptNullOrEmptyOutput(string outputPath)
+        {
+            // Setup: Create a session with a proper query and metadata
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            Session s = new Session(q, etm);
+
+            // If: I try to script the edit cache with a null or whitespace output path
+            // Then: It should throw an exception
+            Assert.Throws<ArgumentNullException>(() => s.ScriptEdits(outputPath));
+        }
+
+        [Fact]
+        public void ScriptProvidedOutputPath()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            Session s = new Session(q, etm);
+
+            // ... Add two mock edits that will generate a script
+            Mock<RowEditBase> edit = new Mock<RowEditBase>();
+            edit.Setup(e => e.GetScript()).Returns("test");
+            s.EditCache[0] = edit.Object;
+            s.EditCache[1] = edit.Object;
+
+            using (SelfCleaningTempFile file = new SelfCleaningTempFile())
+            {
+                // If: I script the edit cache to a local output path
+                string outputPath = s.ScriptEdits(file.FilePath);
+
+                // Then: 
+                // ... The output path used should be the same as the one we provided
+                Assert.Equal(file.FilePath, outputPath);
+
+                // ... The written file should have two lines, one for each edit
+                Assert.Equal(2, File.ReadAllLines(outputPath).Length);
+            }
         }
 
         #endregion

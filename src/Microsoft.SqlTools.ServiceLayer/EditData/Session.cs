@@ -125,12 +125,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public string ScriptEdits(string outputPath)
         {
             // Validate the output path
-            if (outputPath == null)
-            {
-                // If output path isn't provided, we'll use a temporary location
-                outputPath = Path.GetTempFileName();
-            }
-            else if (outputPath.Trim() == string.Empty)
+            // @TODO: Reinstate this code once we have an interface around file generation
+            //if (outputPath == null)
+            //{
+            //    // If output path isn't provided, we'll use a temporary location
+            //    outputPath = Path.GetTempFileName();
+            //}
+            //else 
+            if (outputPath == null || outputPath.Trim() == string.Empty)
             {
                 // If output path is empty, that's an error
                 // @TODO: Move to constants file
