@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.SqlTools.ServiceLayer {
+namespace Microsoft.SqlTools.ServiceLayer.Localization {
     using System;
     using System.Reflection;
     
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.SqlTools.ServiceLayer.sr", typeof(sr).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.sr", typeof(sr).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -447,6 +447,24 @@ namespace Microsoft.SqlTools.ServiceLayer {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to Replacement of an empty string by an empty string..
+        /// </summary>
+        public static string ErrorEmptyStringReplacement {
+            get {
+                return ResourceManager.GetString("ErrorEmptyStringReplacement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Cannot convert SqlCodeObject Type {0} to Type {1}.
+        /// </summary>
+        public static string ErrorUnexpectedCodeObjectType {
+            get {
+                return ResourceManager.GetString("ErrorUnexpectedCodeObjectType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to Message header must separate key and value using &apos;:&apos;.
         /// </summary>
         public static string HostingHeaderMissingColon {
@@ -479,6 +497,24 @@ namespace Microsoft.SqlTools.ServiceLayer {
         public static string HostingUnexpectedEndOfStream {
             get {
                 return ResourceManager.GetString("HostingUnexpectedEndOfStream", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;.
+        /// </summary>
+        public static string IncompatibleServiceForExtensionLoader {
+            get {
+                return ResourceManager.GetString("IncompatibleServiceForExtensionLoader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Multiple services found for type {0}, expected only 1.
+        /// </summary>
+        public static string MultipleServicesFound {
+            get {
+                return ResourceManager.GetString("MultipleServicesFound", resourceCulture);
             }
         }
         
@@ -830,6 +866,42 @@ namespace Microsoft.SqlTools.ServiceLayer {
         public static string QueryServiceSubsetResultSetOutOfRange {
             get {
                 return ResourceManager.GetString("QueryServiceSubsetResultSetOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Cannot register service for type {0}, one or more services already registered.
+        /// </summary>
+        public static string ServiceAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ServiceAlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Service {0} was not found in the service provider.
+        /// </summary>
+        public static string ServiceNotFound {
+            get {
+                return ResourceManager.GetString("ServiceNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Service of Type {0} is not compatible with registered Type {1}.
+        /// </summary>
+        public static string ServiceNotOfExpectedType {
+            get {
+                return ResourceManager.GetString("ServiceNotOfExpectedType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to SetServiceProvider() was not called to establish the required service provider.
+        /// </summary>
+        public static string ServiceProviderNotSet {
+            get {
+                return ResourceManager.GetString("ServiceProviderNotSet", resourceCulture);
             }
         }
         
