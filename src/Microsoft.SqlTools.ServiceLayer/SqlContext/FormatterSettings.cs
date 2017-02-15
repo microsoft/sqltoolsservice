@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using static Microsoft.SqlTools.ServiceLayer.Formatter.FormatOptions;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
@@ -83,19 +83,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             get;
             set;
-        }
-
-        public void Update(FormatterSettings settings)
-        {
-            if (settings != null)
-            {
-                AlignColumnDefinitionsInColumns = settings.AlignColumnDefinitionsInColumns;
-                DatatypeCasing = settings.DatatypeCasing;
-                UseBracketForIdentifiers = settings.UseBracketForIdentifiers;
-                KeywordCasing = settings.KeywordCasing;
-                PlaceCommasBeforeNextStatement = settings.PlaceCommasBeforeNextStatement;
-                PlaceSelectStatementReferencesOnNewLine = settings.PlaceSelectStatementReferencesOnNewLine;
-            }
-        }
+        }        
     }
 }

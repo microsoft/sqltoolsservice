@@ -7,10 +7,16 @@
 namespace Microsoft.SqlTools.ServiceLayer.Extensibility
 {
     /// <summary>
-    /// A Service that expects to lookup other services. 
+    /// A Service that expects to lookup other services. Using this interface on an exported service
+    /// will ensure the <see cref="SetServiceProvider(IMultiServiceProvider)"/> method is called during
+    /// service initialization
     /// </summary>
-    interface IComposableService
+    public interface IComposableService
     {
+        /// <summary>
+        /// Supports settings the service provider being used to initialize the service.
+        /// This is useful to look up other services and use them in your own service.
+        /// </summary>
         void SetServiceProvider(IMultiServiceProvider provider);
     }
 }

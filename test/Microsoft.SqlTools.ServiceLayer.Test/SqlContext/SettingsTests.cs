@@ -97,28 +97,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             sqlToolsSettings.SqlTools.IntelliSense.EnableQuickInfo = false;
             Assert.False(sqlToolsSettings.IsQuickInfoEnabled);          
         }
-
-        /// <summary>
-        /// Validate that the IsQuickInfoEnabled flag behavior
-        /// </summary>
-        [Fact]
-        public void ValidateFormatSettingsParsedFromJson()
-        {
-            var sqlToolsSettings = new SqlToolsSettings();
-
-            // quick info is enabled if IntelliSense and quick info flags are set
-            sqlToolsSettings.SqlTools.IntelliSense.EnableIntellisense = true;
-            sqlToolsSettings.SqlTools.IntelliSense.EnableQuickInfo = true;
-            Assert.True(sqlToolsSettings.IsQuickInfoEnabled);
-
-            // quick info is disabled if either IntelliSense and quick info flags is not set
-            sqlToolsSettings.SqlTools.IntelliSense.EnableIntellisense = false;
-            sqlToolsSettings.SqlTools.IntelliSense.EnableQuickInfo = true;
-            Assert.False(sqlToolsSettings.IsQuickInfoEnabled);
-
-            sqlToolsSettings.SqlTools.IntelliSense.EnableIntellisense = true;
-            sqlToolsSettings.SqlTools.IntelliSense.EnableQuickInfo = false;
-            Assert.False(sqlToolsSettings.IsQuickInfoEnabled);
-        }
     }
 }

@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         public void CTE_UpperCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
-            options.KeywordCasing = FormatOptions.CasingOptions.Uppercase;
+            options.KeywordCasing = CasingOptions.Uppercase;
             options.PlaceEachReferenceOnNewLineInQueryStatements = true;
             LoadAndFormatAndCompare("CTE_UpperCaseKeywords", GetInputFile("CTE.sql"), 
                 GetBaselineFile("CTE_UpperCaseKeywords.sql"), options, true);
@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         public void CTE_LowerCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
-            options.KeywordCasing = FormatOptions.CasingOptions.Lowercase;
+            options.KeywordCasing = CasingOptions.Lowercase;
             options.PlaceEachReferenceOnNewLineInQueryStatements = true;
             LoadAndFormatAndCompare("CTE_LowerCaseKeywords", GetInputFile("CTE.sql"), 
                 GetBaselineFile("CTE_LowerCaseKeywords.sql"), options, true);

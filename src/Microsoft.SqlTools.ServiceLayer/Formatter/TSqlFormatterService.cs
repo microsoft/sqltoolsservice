@@ -99,6 +99,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             return await Task.Factory.StartNew(() =>
             {
                 var scriptFile = GetFile(docFormatParams);
+                if (scriptFile.FileLines.Count == 0)
+                {
+                    return new TextEdit[0];
+                }
                 TextEdit textEdit = PrepareEdit(scriptFile);
                 string text = scriptFile.Contents;
                 return DoFormat(docFormatParams, textEdit, text);
@@ -134,27 +138,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
 
                 if (settings.UseBracketForIdentifiers.HasValue) { options.EncloseIdentifiersInSquareBrackets = settings.UseBracketForIdentifiers.Value; }
+                
+            }
+            return options;
+        }
 
+        internal static void UpdateFormatOptionsFromSettings(FormatOptions options, FormatterSettings settings)
+        {
+            Validate.IsNotNull(nameof(options), options);
+            if (settings != null)
+            {
+                if (settings.AlignColumnDefinitionsInColumns.HasValue) { options.AlignColumnDefinitionsInColumns = settings.AlignColumnDefinitionsInColumns.Value; }
+
+                if (settings.PlaceCommasBeforeNextStatement.HasValue) { options.PlaceCommasBeforeNextStatement = settings.PlaceCommasBeforeNextStatement.Value; }
+
+                if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
+
+                if (settings.UseBracketForIdentifiers.HasValue) { options.EncloseIdentifiersInSquareBrackets = settings.UseBracketForIdentifiers.Value; }
+                
                 options.DatatypeCasing = settings.DatatypeCasing;
                 options.KeywordCasing = settings.KeywordCasing;
             }
-            return options;
         }
         
         private ScriptFile GetFile(DocumentFormattingParams docFormatParams)
         {
-            if (WorkspaceService == null)
-            {
-                // TODO throw
-            }
             return WorkspaceService.Workspace.GetFile(docFormatParams.TextDocument.Uri);
         }
 
         private static TextEdit PrepareEdit(ScriptFile scriptFile)
         {
+            int fileLines = scriptFile.FileLines.Count;
             Position start = new Position { Line = 0, Character = 0 };
             int lastChar = scriptFile.FileLines[scriptFile.FileLines.Count - 1].Length;
-            Position end = new Position { Line = scriptFile.FileLines.Count -1, Character = lastChar };
+            Position end = new Position { Line = scriptFile.FileLines.Count - 1, Character = lastChar };
 
             TextEdit edit = new TextEdit
             {
@@ -162,27 +179,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             };
             return edit;
         }
-
-        // TODO Assess whether to return a single TextEdit for the formatting, or multiple edits.
-        //private static TextEdit[] ConvertToEdits(ScriptFile scriptFile, ReplacementQueue replacements)
-        //{
-        //    List<TextEdit> edits = new List<TextEdit>();
-        //    foreach (Replacement replacement in replacements)
-        //    {
-        //        BufferRange bufferRange = scriptFile.GetRangeBetweenOffsets(replacement.StartIndex, replacement.EndIndex);
-        //        var textEdit = new TextEdit()
-        //        {
-        //            NewText = replacement.NewValue,
-        //            Range = new Range
-        //            {
-        //                Start = new Position { Line = bufferRange.Start.Line, Character = bufferRange.Start.Column },
-        //                End = new Position { Line = bufferRange.End.Line, Character = bufferRange.End.Column }
-        //            }
-        //        };
-        //        edits.Add(textEdit);
-        //    }
-        //    return edits.ToArray();
-        //}
 
         private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
         {

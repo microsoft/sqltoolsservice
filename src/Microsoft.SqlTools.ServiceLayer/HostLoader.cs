@@ -24,23 +24,32 @@ namespace Microsoft.SqlTools.ServiceLayer
     /// </summary>
     public static class HostLoader
     {
+        private static object lockObject = new object();
+        private static bool isLoaded;
 
         internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
         {
-
-            // Grab the instance of the service host
             ServiceHost serviceHost = ServiceHost.Instance;
-            serviceHost.Initialize();
+            lock (lockObject)
+            {
+                if (!isLoaded)
+                {
+                    // Grab the instance of the service host
+                    serviceHost.Initialize();
 
-            InitializeRequestHandlersAndServices(serviceHost, sqlToolsContext);
+                    InitializeRequestHandlersAndServices(serviceHost, sqlToolsContext);
 
-            // Start the service only after all request handlers are setup. This is vital
-            // as otherwise the 
-            serviceHost.Start().Wait();
+                    // Start the service only after all request handlers are setup. This is vital
+                    // as otherwise the Initialize event can be lost - it's processed and discarded before the handler
+                    // is hooked up to receive the message
+                    serviceHost.Start().Wait();
+                    isLoaded = true;
+                }
+            }
             return serviceHost;
         }
 
-        internal static void InitializeRequestHandlersAndServices(ServiceHost serviceHost, SqlToolsContext sqlToolsContext)
+        private static void InitializeRequestHandlersAndServices(ServiceHost serviceHost, SqlToolsContext sqlToolsContext)
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
@@ -73,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer
 
         /// <summary>
         /// Internal to support testing. Initializes <see cref="IHostedService"/> instances in the service,
-        /// an registers them for their preferred service type
+        /// and registers them for their preferred service type
         /// </summary>
         internal static void InitializeHostedServices(RegisteredServiceProvider provider, IProtocolEndpoint host)
         {

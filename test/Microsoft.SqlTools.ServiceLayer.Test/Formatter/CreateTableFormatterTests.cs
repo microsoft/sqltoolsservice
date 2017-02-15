@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         public void CreateTable_UpperCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
-            options.KeywordCasing = FormatOptions.CasingOptions.Uppercase;
+            options.KeywordCasing = CasingOptions.Uppercase;
             LoadAndFormatAndCompare("CreateTable_UpperCaseKeywords", GetInputFile("CreateTable.sql"), GetBaselineFile("CreateTable_UpperCaseKeywords.sql"), options, true);
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         public void CreateTable_LowerCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
-            options.KeywordCasing = FormatOptions.CasingOptions.Lowercase;
+            options.KeywordCasing = CasingOptions.Lowercase;
             LoadAndFormatAndCompare("CreateTable_LowerCaseKeywords", GetInputFile("CreateTable.sql"), GetBaselineFile("CreateTable_LowerCaseKeywords.sql"), options, true);
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         public void CreateTable_UpperCaseDataTypes()
         {
             FormatOptions options = new FormatOptions();
-            options.DatatypeCasing = FormatOptions.CasingOptions.Uppercase;
+            options.DatatypeCasing = CasingOptions.Uppercase;
             LoadAndFormatAndCompare("CreateTable_UpperCaseDataTypes", GetInputFile("CreateTable.sql"), GetBaselineFile("CreateTable_UpperCaseDataTypes.sql"), options, true);
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         public void CreateTable_LowerCaseDataTypes()
         {
             FormatOptions options = new FormatOptions();
-            options.DatatypeCasing = FormatOptions.CasingOptions.Lowercase;
+            options.DatatypeCasing = CasingOptions.Lowercase;
             LoadAndFormatAndCompare("CreateTable_LowerCaseDataTypes", GetInputFile("CreateTable.sql"), GetBaselineFile("CreateTable_LowerCaseDataTypes.sql"), options, true);
         }
 

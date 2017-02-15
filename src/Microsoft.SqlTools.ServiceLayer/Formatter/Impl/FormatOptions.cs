@@ -3,16 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.ComponentModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter
 {
+
+    public enum CasingOptions { None, Uppercase, Lowercase };
+
     /// <summary>
     /// The supported options to use when formatting text
     /// </summary>
     public class FormatOptions : INotifyPropertyChanged
     {
-        public enum CasingOptions { None, Uppercase, Lowercase };
 
         private int spacesPerIndent;
         private bool useTabs = false;
@@ -110,8 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             get { return KeywordCasing == CasingOptions.None; }
         }
-
-
+        
         public CasingOptions DatatypeCasing
         {
             get { return datatypeCasing; }
@@ -134,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             get { return DatatypeCasing == CasingOptions.None; }
         }
-
+        
         public bool AlignColumnDefinitionsInColumns
         {
             get { return alignColumnDefinitionsInColumns; }
@@ -144,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 RaisePropertyChanged("AlignColumnDefinitionsInColumns");
             }
         }
-
+        
         private void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

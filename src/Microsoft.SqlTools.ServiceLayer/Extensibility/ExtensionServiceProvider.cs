@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Extensibility
     /// </summary>
     public class ExtensionStore
     {
-        CompositionHost host;
+        private CompositionHost host;
         private IList exports;
         private Type contractType;
         

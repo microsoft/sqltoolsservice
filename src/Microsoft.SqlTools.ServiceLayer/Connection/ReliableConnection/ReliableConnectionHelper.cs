@@ -368,10 +368,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             IDbCommand cmd = null;
             try
             {
-                // Skipping this debug assert as it is causing debug errors to be logged on Mac when tests with mock
-                // connections are run
-                // Debug.Assert(conn.State == ConnectionState.Open, "connection passed to ExecuteReader should be open.");
-
                 cmd = conn.CreateCommand();
 
                 if (initializeCommand == null)

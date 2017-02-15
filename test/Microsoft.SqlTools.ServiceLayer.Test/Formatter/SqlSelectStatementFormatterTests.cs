@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         public void SimpleQuery_UpperCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
-            options.KeywordCasing = FormatOptions.CasingOptions.Uppercase;
+            options.KeywordCasing = CasingOptions.Uppercase;
             options.PlaceEachReferenceOnNewLineInQueryStatements = true;
             LoadAndFormatAndCompare("SimpleQuery_UpperCaseKeywords", GetInputFile("SimpleQuery.sql"),
                 GetBaselineFile("SimpleQuery_UpperCaseKeywords.sql"), options, true);
@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         public void SimpleQuery_LowerCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
-            options.KeywordCasing = FormatOptions.CasingOptions.Lowercase;
+            options.KeywordCasing = CasingOptions.Lowercase;
             options.PlaceEachReferenceOnNewLineInQueryStatements = true;
             LoadAndFormatAndCompare("SimpleQuery_LowerCaseKeywords", GetInputFile("SimpleQuery.sql"), 
                 GetBaselineFile("SimpleQuery_LowerCaseKeywords.sql"), options, true);
