@@ -10,8 +10,14 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Test.Utility;
+using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
@@ -181,6 +187,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             Assert.True(this.bindCallCount == 0);
             Assert.True(this.timeoutCallCount == 1);
             Assert.True(this.isCancelationRequested);
+        }
+
+        /// <summary>
+        /// Test overwriting the binding queue context
+        /// </summary>
+        [Fact]
+        public void OverwriteBindingContext()
+        {
+            InitializeTestSettings();
+
+            // default settings are stored in the workspace service
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
+
+            // set up file for returning the query
+            var fileMock = new Mock<ScriptFile>();
+            fileMock.SetupGet(file => file.Contents).Returns(QueryExecution.Common.StandardQuery);
+            fileMock.SetupGet(file => file.ClientFilePath).Returns("file://file1.sql");
+
+            // set up workspace mock
+            var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
+            workspaceService.Setup(service => service.Workspace.GetFile(It.IsAny<string>()))
+                .Returns(fileMock.Object);
+
+            // setup binding queue mock
+            // var bindingQueue = new Mock<ConnectedBindingQueue>();
+            // bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>(), It.IsAny<bool>()))
+            //      .Returns("connectionKey");
+
+            // inject mock instances into the Language Service
+            LanguageService.WorkspaceServiceInstance = workspaceService.Object;
+            LanguageService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
+            ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
+            LanguageService.ConnectionServiceInstance.OwnerToConnectionMap.Add("file://file1.sql", connectionInfo);
+           // LanguageService.Instance.BindingQueue =  bindingQueue.Object;
+
+
+            var connectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(connectionInfo);
         }
     }
 }
