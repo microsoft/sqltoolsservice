@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Credentials
         /// </summary>
         internal CredentialService(ICredentialStore store, StoreConfig config)
         {
-            this.credStore = store != null ? store : GetStoreForOS(config);
+            credStore = store != null ? store : GetStoreForOS(config);
         }
 
         /// <summary>

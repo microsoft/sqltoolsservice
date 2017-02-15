@@ -18,7 +18,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
@@ -101,6 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             startTime = DateTime.Now;
 
             // Launch the process
+            this.protocolClient.Initialize();
             await this.protocolClient.Start();
             await Task.Delay(1000); // Wait for the service host to start
 
