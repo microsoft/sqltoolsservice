@@ -79,6 +79,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             rt.ValidateWhereClauseMultipleKeys();
         }
 
+        [Fact]
+        public void GetWhereClauseNoKeyColumns()
+        {
+            // Setup: Create a result set and metadata provider with no key columns
+            DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
+            ResultSet rs = GetResultSet(cols, new object[] {"abc", "def"});
+            IEditTableMetadata etm = Common.GetMetadata(new DbColumn[] {});
+
+            RowEditTester rt = new RowEditTester(rs, etm);
+            rt.ValidateWhereClauseNoKeys();
+        }
+
         private static ResultSet GetResultSet(DbColumn[] columns, object[] row)
         {
             object[][] rows = {row};
@@ -140,6 +152,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 //     with and
                 Assert.True(wc.CommandText.StartsWith("WHERE "));
                 Assert.True(wc.CommandText.EndsWith(string.Join(" AND ", wc.ClauseComponents)));
+            }
+
+            public void ValidateWhereClauseNoKeys()
+            {
+                // If: I generate a where clause from metadata that doesn't have keys
+                // Then: An exception should be thrown
+                Assert.Throws<InvalidOperationException>(() => GetWhereClause(false));
             }
 
             public override string GetScript()

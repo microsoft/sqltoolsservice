@@ -45,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             : this(columnName)
         {
             base.IsAutoIncrement = isAutoIncrement;
+            base.IsIdentity = isAutoIncrement;
         }
     }
 }

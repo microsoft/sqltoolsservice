@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -93,6 +94,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         protected WhereClause GetWhereClause(bool parameterize)
         {
             WhereClause output = new WhereClause();
+
+            if (!AssociatedObjectMetadata.KeyColumns.Any())
+            {
+                // @TODO Move to constants file
+                throw new InvalidOperationException("No key columns were found");
+            }
 
             IList<DbCellValue> row = AssociatedResultSet.GetRow(RowId);
             foreach (IEditColumnWrapper col in AssociatedObjectMetadata.KeyColumns)

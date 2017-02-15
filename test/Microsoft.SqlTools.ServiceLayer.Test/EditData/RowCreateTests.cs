@@ -52,13 +52,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Assert.NotNull(script);
 
             // ... It should be formatted as an insert script
-            Regex r = new Regex(@"INSERT INTO .*\((.*)\) VALUES \((.*)\)");
+            Regex r = new Regex(@"INSERT INTO (.+)\((.*)\) VALUES \((.*)\)");
             var m = r.Match(script);
             Assert.True(m.Success);
 
             // ... It should have 3 columns and 3 values (regardless of the presence of an identity col)
-            string cols = m.Groups[1].Value;
-            string vals = m.Groups[2].Value;
+            string tbl = m.Groups[1].Value;
+            string cols = m.Groups[2].Value;
+            string vals = m.Groups[3].Value;
+            Assert.Equal(etm.EscapedMultipartName, tbl);
             Assert.Equal(3, cols.Split(',').Length);
             Assert.Equal(3, vals.Split(',').Length);
         }

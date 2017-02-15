@@ -77,7 +77,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             CellUpdate update = new CellUpdate(AssociatedResultSet.Columns[columnId], newValue);
 
             // If the value is the same as the old value, we shouldn't make changes
-            if (update.Value == associatedRow[columnId].RawObject)
+            // NOTE: We must use .Equals in order to ignore object to object comparisons
+            if (update.Value.Equals(associatedRow[columnId].RawObject))
             {
                 // Remove any pending change and stop processing this
                 if (cellUpdates.ContainsKey(columnId))

@@ -1,9 +1,8 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -24,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 columnMetaMock.Setup(m => m.DbColumn).Returns(new DbColumnWrapper(c));
                 columnMetaMock.Setup(m => m.Ordinal).Returns(i);
                 columnMetaMock.Setup(m => m.EscapedName).Returns(c.ColumnName);
+                columnMetaMock.Setup(m => m.IsKey).Returns(c.IsIdentity.HasTrue());
                 return columnMetaMock.Object;
             }).ToArray();
 
@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             return resultSet;
         }
 
-        public static void AddCells(RowCreate rc, bool includeIdentity)
+        public static void AddCells(RowEditBase rc, bool includeIdentity)
         {
             // Skip the first column since if identity, since identity columns can't be updated
             int start = includeIdentity ? 1 : 0;
