@@ -8,7 +8,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using Xunit;
@@ -71,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                     {
                         lexer.ConsumeToken();
                         token = lexer.CurrentToken;
-                        roundtripTextBuilder.Append(token.Text);
+                        roundtripTextBuilder.Append(token.Text.Replace("\r\n", "\n"));
                         outputBuilder.AppendLine(GetTokenString(token));
                         tokenizedInput.Append('[').Append(GetTokenCode(token.TokenType)).Append(':').Append(token.Text).Append(']');
                     } while (token.TokenType != LexerTokenType.Eof);
@@ -185,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 string tokenText = token.Text;
                 if (tokenText != null)
                 {
-                    tokenText = tokenText.Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
+                    tokenText = tokenText.Replace("\n", "\\n").Replace("\r", "").Replace("\t", "\\t");
                 }
                 string tokenFilename = token.Filename;
                 tokenFilename = GetFilenameOnly(tokenFilename);
