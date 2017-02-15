@@ -134,7 +134,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     // disconnect existing connection
                     var bindingContext = this.BindingContextMap[key];
-                    bindingContext.ServerConnection.Disconnect();
+                    if (bindingContext.ServerConnection != null && bindingContext.ServerConnection.IsOpen)
+                    {
+                        bindingContext.ServerConnection.Disconnect();
+                    }
 
                     // remove key from the map
                     this.BindingContextMap.Remove(key);

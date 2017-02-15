@@ -135,5 +135,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             SignatureHelp signatureHelp = service.GetSignatureHelp(textDocument, result.ScriptFile);
             Assert.NotNull(signatureHelp);
         }
+
+        /// <summary>
+        /// Test overwriting the binding queue context
+        /// </summary>
+        [Fact]
+        public void OverwriteBindingContext()
+        {
+            var result = TestObjects.InitLiveConnectionInfo();
+
+            // add a new connection context
+            var connectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
+            Assert.True(LanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
+
+            // cache the server connection
+            var orgServerConnection = LanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection;
+            Assert.NotNull(orgServerConnection);
+
+            // add a new connection context
+            connectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
+            Assert.True(LanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
+            Assert.False(object.ReferenceEquals(LanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection, orgServerConnection));            
+        }        
     }
 }
