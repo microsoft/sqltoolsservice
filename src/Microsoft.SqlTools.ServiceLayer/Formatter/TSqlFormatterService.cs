@@ -33,12 +33,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             settings = new FormatterSettings();
         }
-        
+
+
+
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest);
             serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest);
-            
+
+
+
             WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
         }
 
@@ -123,24 +127,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private FormatOptions GetOptions(DocumentFormattingParams docFormatParams)
         {
+            return MergeFormatOptions(docFormatParams.Options, settings);
+        }
+
+        internal static FormatOptions MergeFormatOptions(FormattingOptions formatRequestOptions, FormatterSettings settings)
+
+        {
             FormatOptions options = new FormatOptions();
-            if (docFormatParams.Options != null)
+            if (formatRequestOptions != null)
             {
-                options.UseSpaces = docFormatParams.Options.InsertSpaces;
-                options.SpacesPerIndent = docFormatParams.Options.TabSize;
+                options.UseSpaces = formatRequestOptions.InsertSpaces;
+                options.SpacesPerIndent = formatRequestOptions.TabSize;
             }
-            if (settings != null)
-            {
-                if (settings.AlignColumnDefinitionsInColumns.HasValue) { options.AlignColumnDefinitionsInColumns = settings.AlignColumnDefinitionsInColumns.Value; }
-
-                if (settings.PlaceCommasBeforeNextStatement.HasValue) { options.PlaceCommasBeforeNextStatement = settings.PlaceCommasBeforeNextStatement.Value; }
-
-                if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
-
-                if (settings.UseBracketForIdentifiers.HasValue) { options.EncloseIdentifiersInSquareBrackets = settings.UseBracketForIdentifiers.Value; }
-                
-            }
+            UpdateFormatOptionsFromSettings(options, settings);
             return options;
+
         }
 
         internal static void UpdateFormatOptionsFromSettings(FormatOptions options, FormatterSettings settings)

@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Formatter;
+using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -85,6 +86,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         [Fact]
         public void CanCopyAlteredFormatSettingsToOptions()
         {
+            SqlToolsSettings sqlToolsSettings = CreateNonDefaultFormatSettings();
+
+            FormatOptions options = new FormatOptions();
+            TSqlFormatterService.UpdateFormatOptionsFromSettings(options, sqlToolsSettings.SqlTools.Format);
+
+            AssertOptionsHaveExpectedNonDefaultValues(options);
+        }
+
+        private static SqlToolsSettings CreateNonDefaultFormatSettings()
+        {
             var sqlToolsSettings = new SqlToolsSettings();
             sqlToolsSettings.SqlTools.Format.AlignColumnDefinitionsInColumns = true;
             sqlToolsSettings.SqlTools.Format.DatatypeCasing = CasingOptions.Lowercase;
@@ -92,17 +103,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
             sqlToolsSettings.SqlTools.Format.PlaceCommasBeforeNextStatement = true;
             sqlToolsSettings.SqlTools.Format.PlaceSelectStatementReferencesOnNewLine = true;
             sqlToolsSettings.SqlTools.Format.UseBracketForIdentifiers = true;
+            return sqlToolsSettings;
+        }
 
-            FormatOptions options = new FormatOptions();
-            TSqlFormatterService.UpdateFormatOptionsFromSettings(options, sqlToolsSettings.SqlTools.Format);
-
+        private static void AssertOptionsHaveExpectedNonDefaultValues(FormatOptions options)
+        {
             Assert.True(options.AlignColumnDefinitionsInColumns);
             Assert.Equal(CasingOptions.Lowercase, options.DatatypeCasing);
             Assert.Equal(CasingOptions.Uppercase, options.KeywordCasing);
             Assert.True(options.PlaceCommasBeforeNextStatement);
             Assert.True(options.PlaceEachReferenceOnNewLineInQueryStatements);
             Assert.True(options.EncloseIdentifiersInSquareBrackets);
+
+            Assert.False(options.UppercaseDataTypes);
+            Assert.True(options.UppercaseKeywords);
+            Assert.True(options.LowercaseDataTypes);
+            Assert.False(options.LowercaseKeywords);
+            Assert.False(options.DoNotFormatDataTypes);
+            Assert.False(options.DoNotFormatKeywords);
         }
 
+        [Fact]
+        public void CanMergeRequestOptionsAndSettings()
+        {
+            var sqlToolsSettings = CreateNonDefaultFormatSettings();
+
+            FormatOptions options = TSqlFormatterService.MergeFormatOptions(
+                new FormattingOptions { InsertSpaces = true, TabSize = 2 }, 
+                sqlToolsSettings.SqlTools.Format);
+
+            AssertOptionsHaveExpectedNonDefaultValues(options);
+            Assert.False(options.UseTabs);
+            Assert.True(options.UseSpaces);
+            Assert.Equal(2, options.SpacesPerIndent);
+        }
     }
 }
