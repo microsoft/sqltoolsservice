@@ -230,6 +230,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
 
+            // Register the IntelliSense rebuild handler
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterRebuildIntelliSenseCallback(HandleRebuildIntelliSenseNotification);
+
             // Register a callback for when a connection is created
             ConnectionServiceInstance.RegisterOnConnectionTask(UpdateLanguageServiceOnConnection);
 
@@ -439,6 +442,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     eventContext);
             }
 
+            await Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public async Task HandleRebuildIntelliSenseNotification(ScriptFile openFile, EventContext eventContext)
+        {
             await Task.FromResult(true);
         }
 
