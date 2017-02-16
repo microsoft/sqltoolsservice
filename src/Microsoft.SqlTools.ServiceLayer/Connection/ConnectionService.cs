@@ -328,7 +328,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         }
                         catch (ObjectDisposedException)
                         {
-                            // Ignore
+                            // If ObjectDisposedException was thrown, then execution has already exited the 
+                            // "using" statment and source was disposed, meaning that the openTask completed 
+                            // successfully. This results in a ObjectDisposedException when trying to access
+                            // source.Token and should be ignored. 
                         }
                     });
 
