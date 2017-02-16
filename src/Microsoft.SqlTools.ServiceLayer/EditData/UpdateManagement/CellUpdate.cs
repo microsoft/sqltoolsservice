@@ -100,8 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 else
                 {
                     // Invalid format
-                    // @TODO: Move to constants file
-                    throw new InvalidOperationException("You cannot use the Result pane to set this field data to values other than NULL.");
+                    throw new FormatException(SR.EditDataInvalidFormatBinary);
                 }
 
                 // Generate the hex string as the return value
@@ -147,9 +146,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                             Value = false;
                             break;
                         default:
-                            // @TODO: Move to constants file
                             throw new ArgumentOutOfRangeException(nameof(valueAsString),
-                                "Boolean columns must be numeric 1 or 0, or string true or false");
+                                SR.EditDataInvalidFormatBoolean);
                     }
                 }
                 else

@@ -35,16 +35,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // Criterion 1) Query has finished executing
             if (!query.HasExecuted)
             {
-                // @TODO: Add to constants file
-                throw new InvalidOperationException("Query has not completed execution");
+                throw new InvalidOperationException(SR.EditDataQueryNotCompleted);
             }
 
             // Criterion 2) Query only has a single result set
             ResultSet[] queryResultSets = query.Batches.SelectMany(b => b.ResultSets).ToArray();
             if (queryResultSets.Length != 1)
             {
-                // @TODO: Add to constants file
-                throw new InvalidOperationException("Query did not generate exactly one result set");
+                throw new InvalidOperationException(SR.EditDataQueryImproperResultSets);
             }
 
             // Setup the internal state
@@ -72,9 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 // Revert the next row ID
                 NextRowId--;
-
-                // @TODO: Move to constants file
-                throw new InvalidOperationException("Failed to add new row to update cache.");
+                throw new InvalidOperationException(SR.EditDataFailedAddRow);
             }
 
             return newRowId;
@@ -92,16 +88,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // Sanity check the row ID
             if (rowId >= NextRowId || rowId < 0)
             {
-                // @TODO: Move to constants file
-                throw new ArgumentOutOfRangeException(nameof(rowId), "Give row ID is outside the range of rows in the cache");
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
             }
 
             // Create a new row delete update and add to cache
             RowDelete deleteRow = new RowDelete(rowId, associatedResultSet, objectMetadata);
             if (!EditCache.TryAdd(rowId, deleteRow))
             {
-                // @TODO: Move to constants file
-                throw new InvalidOperationException("An update is already pending for this row and must be reverted first.");
+                throw new InvalidOperationException(SR.EditDataUpdatePending);
             }
         }
 
@@ -118,8 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             RowEditBase removedEdit;
             if (!EditCache.TryRemove(rowId, out removedEdit))
             {
-                // @TODO Move to constants file
-                throw new ArgumentOutOfRangeException(nameof(rowId), "Given row ID does not have pending updated");
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataUpdateNotPending);
             }
         }
 
@@ -136,8 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             if (outputPath == null || outputPath.Trim() == string.Empty)
             {
                 // If output path is empty, that's an error
-                // @TODO: Move to constants file
-                throw new ArgumentNullException(nameof(outputPath), "An output filename must be provided");
+                throw new ArgumentNullException(nameof(outputPath), SR.EditDataScriptFilePathNull);
             }
 
             // Open a handle to the output file
@@ -173,8 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // Sanity check to make sure that the row ID is in the range of possible values
             if (rowId >= NextRowId || rowId < 0)
             {
-                // @TODO: Move to constants file
-                throw new ArgumentOutOfRangeException(nameof(rowId), "Give row ID is outside the range of rows in the cache");
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataRowOutOfRange);
             }
 
             // Attempt to get the row that is being edited, create a new update object if one
