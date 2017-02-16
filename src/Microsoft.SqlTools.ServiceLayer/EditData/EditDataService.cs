@@ -92,9 +92,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleCreateRowRequest(EditCreateRowParams createParams,
             RequestContext<EditCreateRowResult> requestContext)
         {
-            Session session = GetActiveSessionOrThrow(createParams.OwnerUri);
             try
             {
+                Session session = GetActiveSessionOrThrow(createParams.OwnerUri);
+
                 // Create the row and get send the ID of the row back
                 long newRowId = session.CreateRow();
                 EditCreateRowResult createResult = new EditCreateRowResult
@@ -112,9 +113,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
             RequestContext<EditDeleteRowResult> requestContext)
         {
-            Session session = GetActiveSessionOrThrow(deleteParams.OwnerUri);
             try
             {
+                Session session = GetActiveSessionOrThrow(deleteParams.OwnerUri);
+
                 // Add the delete row to the edit cache
                 session.DeleteRow(deleteParams.RowId);
                 await requestContext.SendResult(new EditDeleteRowResult());
@@ -129,20 +131,27 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleDisposeRequest(EditDisposeParams disposeParams,
             RequestContext<EditDisposeResult> requestContext)
         {
-            // Sanity check the owner URI
-            Validate.IsNotNullOrWhitespaceString(nameof(disposeParams.OwnerUri), disposeParams.OwnerUri);
-
-            // Attempt to remove the session
-            Session session;
-            if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out session))
+            try
             {
-                // @TODO: Move to constants file
-                await requestContext.SendError("Failed to dispose session, session does not exist.");
-                return;
-            }
+                // Sanity check the owner URI
+                Validate.IsNotNullOrWhitespaceString(nameof(disposeParams.OwnerUri), disposeParams.OwnerUri);
 
-            // Everything was successful, return success
-            await requestContext.SendResult(new EditDisposeResult());
+                // Attempt to remove the session
+                Session session;
+                if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out session))
+                {
+                    // @TODO: Move to constants file
+                    await requestContext.SendError("Failed to dispose session, session does not exist.");
+                    return;
+                }
+
+                // Everything was successful, return success
+                await requestContext.SendResult(new EditDisposeResult());
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         internal async Task HandleInitializeRequest(EditInitializeParams initParams,
@@ -228,9 +237,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleRevertRowRequest(EditRevertRowParams revertParams,
             RequestContext<EditRevertRowResult> requestContext)
         {
-            Session session = GetActiveSessionOrThrow(revertParams.OwnerUri);
             try
             {
+                Session session = GetActiveSessionOrThrow(revertParams.OwnerUri);
                 session.RevertRow(revertParams.RowId);
                 await requestContext.SendResult(new EditRevertRowResult());
             }
@@ -243,12 +252,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
             RequestContext<EditUpdateCellResult> requestContext)
         {
-            Session session = GetActiveSessionOrThrow(updateParams.OwnerUri);
             try
             {
-                // @TODO: Figure out how to send back corrections
-                session.UpdateCell(updateParams.RowId, updateParams.ColumnId, updateParams.NewValue);
-                await requestContext.SendResult(new EditUpdateCellResult());
+                Session session = GetActiveSessionOrThrow(updateParams.OwnerUri);
+                var result = session.UpdateCell(updateParams.RowId, updateParams.ColumnId, updateParams.NewValue);
+                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {

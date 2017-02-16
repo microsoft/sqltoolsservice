@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -80,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>
         /// The updated value as a string of the object generated from <paramref name="newValue"/>
         /// </returns>
-        public override string SetCell(int columnId, string newValue)
+        public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
             // Validate the column and the value and convert to object
             ValidateColumnIsUpdatable(columnId);
@@ -88,7 +89,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             // Add the cell update to the 
             newCells[columnId] = update;
-            return update.ValueAsString;
+
+            // Put together a result of the change
+            EditUpdateCellResult eucr = new EditUpdateCellResult
+            {
+                HasCorrections = update.ValueAsString != newValue,
+                NewValue = update.ValueAsString != newValue ? update.ValueAsString : null,
+                IsNull = update.Value == DBNull.Value,
+                IsRevert = false            // Editing cells of new rows cannot be reverts
+            }; 
+            return eucr;
         }
     }
 }

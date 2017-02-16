@@ -6,6 +6,7 @@
 using System;
 using System.Data.Common;
 using System.Globalization;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
@@ -41,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="columnId"></param>
         /// <param name="newValue"></param>
         /// <returns></returns>
-        public override string SetCell(int columnId, string newValue)
+        public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
             // @TODO: Move to constants file
             throw new InvalidOperationException("A delete is pending for this row, a cell update cannot be applied.");

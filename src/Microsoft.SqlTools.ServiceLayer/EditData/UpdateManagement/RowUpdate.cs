@@ -3,9 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -70,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// The string representation of the new value (after conversion to target object) if the
         /// a change is made. <c>null</c> is returned if the cell is reverted to it's original value.
         /// </returns>
-        public override string SetCell(int columnId, string newValue)
+        public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
             // Validate the value and convert to object
             ValidateColumnIsUpdatable(columnId);            
@@ -85,12 +87,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 {
                     cellUpdates.Remove(columnId);
                 }
-                return null;
+                return new EditUpdateCellResult
+                {
+                    HasCorrections = false,
+                    NewValue = associatedRow[columnId].DisplayValue,
+                    IsRevert = true,
+                    IsNull = associatedRow[columnId].IsNull
+                };
             }
 
             // The change is real, so set it
             cellUpdates[columnId] = update;
-            return update.ValueAsString;
+            return new EditUpdateCellResult
+            {
+                HasCorrections = update.ValueAsString != newValue,
+                NewValue = update.ValueAsString != newValue ? update.ValueAsString : null,
+                IsNull = update.Value == DBNull.Value,
+                IsRevert = false            // If we're in this branch, it is not a revert
+            };
         }
     }
 }

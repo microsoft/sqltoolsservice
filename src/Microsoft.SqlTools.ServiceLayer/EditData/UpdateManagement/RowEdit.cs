@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -68,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="columnId">Ordinal of the column in the row to update</param>
         /// <param name="newValue">The new value for the cell</param>
         /// <returns>The value of the cell after applying validation logic</returns>
-        public abstract string SetCell(int columnId, string newValue);
+        public abstract EditUpdateCellResult SetCell(int columnId, string newValue);
 
         /// <summary>
         /// Performs validation of column ID and if column can be updated.

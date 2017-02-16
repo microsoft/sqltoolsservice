@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -167,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="rowId">The internal ID of the row to edit</param>
         /// <param name="columnId">The ordinal of the column to edit in the row</param>
         /// <param name="newValue">The new string value of the cell to update</param>
-        public void UpdateCell(long rowId, int columnId, string newValue)
+        public EditUpdateCellResult UpdateCell(long rowId, int columnId, string newValue)
         {
             // Sanity check to make sure that the row ID is in the range of possible values
             if (rowId >= NextRowId || rowId < 0)
@@ -181,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             RowEditBase editRow = EditCache.GetOrAdd(rowId, new RowUpdate(rowId, associatedResultSet, objectMetadata));
 
             // Pass the call to the row update
-            editRow.SetCell(columnId, newValue);
+            return editRow.SetCell(columnId, newValue);
         }
 
         #endregion
