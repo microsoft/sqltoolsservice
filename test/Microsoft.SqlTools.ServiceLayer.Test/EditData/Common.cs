@@ -14,6 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
 {
     public class Common
     {
+        public const string OwnerUri = "testFile";
+
         public static IEditTableMetadata GetMetadata(DbColumn[] columns, bool allKeys = true, bool isHekaton = false)
         {
             // Create a Column Metadata Provider

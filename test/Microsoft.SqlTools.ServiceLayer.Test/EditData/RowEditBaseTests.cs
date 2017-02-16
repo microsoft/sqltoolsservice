@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
@@ -166,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 throw new NotImplementedException();
             }
 
-            public override string SetCell(int columnId, string newValue)
+            public override EditUpdateCellResult SetCell(int columnId, string newValue)
             {
                 throw new NotImplementedException();
             }

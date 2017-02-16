@@ -109,13 +109,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 return;
             }
 
-            // These column types will use the .ToString method to provide the ValueAsString return
+            // Special case for strings because the string value should stay the same as provided
             if (columnType == typeof(string))
             {
                 // If user typed 'NULL' they mean NULL as text
                 Value = valueAsString == TextNullString ? NullString : valueAsString;
+                ValueAsString = valueAsString;
+                return;
             }
-            else if (columnType == typeof(Guid))
+
+            // These column types will use the .ToString method to provide the ValueAsString return
+            if (columnType == typeof(Guid))
             {
                 Value = Guid.Parse(valueAsString);
             }

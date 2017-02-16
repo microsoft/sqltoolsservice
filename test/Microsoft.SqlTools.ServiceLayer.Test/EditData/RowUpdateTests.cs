@@ -40,11 +40,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Common.AddCells(ru, true);
 
             // ... Then I update a cell back to it's old value
-            string output = ru.SetCell(1, (string) rs.GetRow(0)[1].RawObject);
+            var output = ru.SetCell(1, (string) rs.GetRow(0)[1].RawObject);
 
             // Then:
-            // ... The output should be null
-            Assert.Null(output);
+            // ... The output should indicate a revert
+            Assert.NotNull(output);
+            Assert.True(output.IsRevert);
+            Assert.False(output.HasCorrections);
+            Assert.False(output.IsNull);
+            Assert.Equal(rs.GetRow(0)[1].DisplayValue, output.NewValue);
 
             // ... It should be formatted as an update script
             Regex r = new Regex(@"UPDATE .+ SET (.*) WHERE");

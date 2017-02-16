@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // Then: The value should be NULL
             Assert.IsType<string>(cu.Value);
             Assert.Equal("NULL", cu.Value);
-            Assert.Equal("NULL", cu.ValueAsString);
+            Assert.Equal("'NULL'", cu.ValueAsString);
             Assert.Equal(col, cu.Column);
         }
 
