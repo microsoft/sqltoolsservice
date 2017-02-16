@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 {
     public class ServiceIntegrationTests
     {
+
         #region Get SQL Tests
 
         [Fact]
@@ -273,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request to execute a valid query with one batch and multiple result sets
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
-            var dataset = new[] { Common.StandardTestResultSet, Common.StandardTestResultSet };
+            var dataset = new[] {Common.StandardTestResultSet, Common.StandardTestResultSet};
             var queryService = Common.GetPrimedExecutionService(dataset, true, false, workspaceService);
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 

@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// <summary>
         /// Provide initialization that must occur after the service host is started
         /// </summary>
-        public void Initialize()
+        public void InitializeRequestHandlers()
         {
             // Register the requests that this service host will handle
             this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
@@ -153,6 +153,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         TextDocumentSync = TextDocumentSyncKind.Incremental,
                         DefinitionProvider = true,
                         ReferencesProvider = false,
+                        DocumentFormattingProvider = true,
+                        DocumentRangeFormattingProvider = true,
                         DocumentHighlightProvider = false,
                         HoverProvider = true,
                         CompletionProvider = new CompletionOptions

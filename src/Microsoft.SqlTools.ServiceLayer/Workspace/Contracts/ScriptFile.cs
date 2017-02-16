@@ -61,11 +61,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         {
             get
             {
-                return string.Join("\r\n", this.FileLines);
+                return string.Join("\r\n", FileLines);
             }
             set
             {
-                this.FileLines = value != null ? value.Split('\n') : null;
+                FileLines = value != null ? value.Split('\n') : null;
             }
         }
 
@@ -118,12 +118,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             string clientFilePath,
             TextReader textReader)
         {
-            this.FilePath = filePath;
-            this.ClientFilePath = clientFilePath;
-            this.IsAnalysisEnabled = true;
-            this.IsInMemory = Workspace.IsPathInMemory(filePath);
+            FilePath = filePath;
+            ClientFilePath = clientFilePath;
+            IsAnalysisEnabled = true;
+            IsInMemory = Workspace.IsPathInMemory(filePath);
 
-            this.SetFileContents(textReader.ReadToEnd());
+            SetFileContents(textReader.ReadToEnd());
         }
 
         /// <summary>
@@ -137,11 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             string clientFilePath,
             string initialBuffer)
         {
-            this.FilePath = filePath;
-            this.ClientFilePath = clientFilePath;
-            this.IsAnalysisEnabled = true;
+            FilePath = filePath;
+            ClientFilePath = clientFilePath;
+            IsAnalysisEnabled = true;
 
-            this.SetFileContents(initialBuffer);
+            SetFileContents(initialBuffer);
         }
 
         #endregion
@@ -157,9 +157,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         {
             Validate.IsWithinRange(
                 "lineNumber", lineNumber,
-                1, this.FileLines.Count + 1);
+                1, FileLines.Count + 1);
 
-            return this.FileLines[lineNumber - 1];
+            return FileLines[lineNumber - 1];
+        }
+
+        /// <summary>
+        /// Gets the text under a specific range
+        /// </summary>
+        public string GetTextInRange(BufferRange range)
+        {
+            return string.Join(Environment.NewLine, GetLinesInRange(range));
         }
 
         /// <summary>
@@ -170,8 +178,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <returns>An array of strings from the specified range of the file.</returns>
         public virtual string[] GetLinesInRange(BufferRange bufferRange)
         {
-            this.ValidatePosition(bufferRange.Start);
-            this.ValidatePosition(bufferRange.End);
+            ValidatePosition(bufferRange.Start);
+            ValidatePosition(bufferRange.End);
 
             List<string> linesInRange = new List<string>();
 
@@ -180,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
 
             for (int line = startLine; line <= endLine; line++)
             {
-                string currentLine = this.FileLines[line - 1];
+                string currentLine = FileLines[line - 1];
                 int startColumn =
                     line == startLine
                     ? bufferRange.Start.Column
@@ -208,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <param name="bufferPosition">The position in the buffer to be validated.</param>
         public void ValidatePosition(BufferPosition bufferPosition)
         {
-            this.ValidatePosition(
+            ValidatePosition(
                 bufferPosition.Line,
                 bufferPosition.Column);
         }
@@ -221,14 +229,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <param name="column">The 1-based column to be validated.</param>
         public void ValidatePosition(int line, int column)
         {
-            if (line < 1 || line > this.FileLines.Count + 1)
+            if (line < 1 || line > FileLines.Count + 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(line), SR.WorkspaceServicePositionLineOutOfRange);
             }
 
             // The maximum column is either one past the length of the string
             // or 1 if the string is empty.
-            string lineString = this.FileLines[line - 1];
+            string lineString = FileLines[line - 1];
             int maxColumn = lineString.Length > 0 ? lineString.Length + 1 : 1;
 
             if (column < 1 || column > maxColumn)
@@ -243,28 +251,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <param name="fileChange">The FileChange to apply to the file's contents.</param>
         public void ApplyChange(FileChange fileChange)
         {
-            this.ValidatePosition(fileChange.Line, fileChange.Offset);
-            this.ValidatePosition(fileChange.EndLine, fileChange.EndOffset);
+            ValidatePosition(fileChange.Line, fileChange.Offset);
+            ValidatePosition(fileChange.EndLine, fileChange.EndOffset);
 
             // Break up the change lines
             string[] changeLines = fileChange.InsertString.Split('\n');
 
             // Get the first fragment of the first line
             string firstLineFragment = 
-                this.FileLines[fileChange.Line - 1]
+                FileLines[fileChange.Line - 1]
                     .Substring(0, fileChange.Offset - 1);
 
             // Get the last fragment of the last line
-            string endLine = this.FileLines[fileChange.EndLine - 1];
+            string endLine = FileLines[fileChange.EndLine - 1];
             string lastLineFragment = 
                 endLine.Substring(
                     fileChange.EndOffset - 1, 
-                    (this.FileLines[fileChange.EndLine - 1].Length - fileChange.EndOffset) + 1);
+                    (FileLines[fileChange.EndLine - 1].Length - fileChange.EndOffset) + 1);
 
             // Remove the old lines
             for (int i = 0; i <= fileChange.EndLine - fileChange.Line; i++)
             {
-                this.FileLines.RemoveAt(fileChange.Line - 1); 
+                FileLines.RemoveAt(fileChange.Line - 1); 
             }
 
             // Build and insert the new lines
@@ -287,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
                     finalLine = finalLine + lastLineFragment;
                 }
 
-                this.FileLines.Insert(currentLineNumber - 1, finalLine);
+                FileLines.Insert(currentLineNumber - 1, finalLine);
                 currentLineNumber++;
             }
         }
@@ -301,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <returns>The zero-based offset for the given file position.</returns>
         public int GetOffsetAtPosition(int lineNumber, int columnNumber)
         {
-            Validate.IsWithinRange("lineNumber", lineNumber, 1, this.FileLines.Count);
+            Validate.IsWithinRange("lineNumber", lineNumber, 1, FileLines.Count);
             Validate.IsGreaterThan("columnNumber", columnNumber, 0);
 
             int offset = 0;
@@ -316,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
                 else
                 {
                     // Add an offset to account for the current platform's newline characters
-                    offset += this.FileLines[i].Length + Environment.NewLine.Length;
+                    offset += FileLines[i].Length + Environment.NewLine.Length;
                 }
             }
 
@@ -339,9 +347,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             int newLine = originalPosition.Line + lineOffset,
                 newColumn = originalPosition.Column + columnOffset;
 
-            this.ValidatePosition(newLine, newColumn);
+            ValidatePosition(newLine, newColumn);
 
-            string scriptLine = this.FileLines[newLine - 1];
+            string scriptLine = FileLines[newLine - 1];
             newColumn = Math.Min(scriptLine.Length + 1, newColumn);
 
             return new FilePosition(this, newLine, newColumn);
@@ -379,9 +387,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             BufferPosition endPosition = startPosition;
 
             int line = 0;
-            while (line < this.FileLines.Count)
+            while (line < FileLines.Count)
             {
-                if (searchedOffset <= currentOffset + this.FileLines[line].Length)
+                if (searchedOffset <= currentOffset + FileLines[line].Length)
                 {
                     int column = searchedOffset - currentOffset;
 
@@ -415,7 +423,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
                 }
 
                 // Increase the current offset and include newline length
-                currentOffset += this.FileLines[line].Length + Environment.NewLine.Length;
+                currentOffset += FileLines[line].Length + Environment.NewLine.Length;
                 line++;
             }
 
@@ -430,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         {
             // Split the file contents into lines and trim
             // any carriage returns from the strings.
-            this.FileLines =
+            FileLines =
                 fileContents
                     .Split('\n')
                     .Select(line => line.TrimEnd('\r'))

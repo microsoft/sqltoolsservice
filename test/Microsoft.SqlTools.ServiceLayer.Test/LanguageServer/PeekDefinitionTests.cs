@@ -141,11 +141,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         [Fact]
         public void GetLocationFromFileForValidFilePathTest()
         {
-            String filePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:\\test\\script.sql" : "/test/script.sql";
+            string filePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:\\test\\script.sql" : "/test/script.sql";
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             Location[] locations = peekDefinition.GetLocationFromFile(filePath, 0);
 
-            String expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
+            string expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
             Assert.Equal(locations[0].Uri, expectedFilePath);
         }
 
@@ -196,34 +196,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// Test Deletion of peek definition scripts for a valid temp folder that exists
+        /// Test deletion of peek definition scripts for a valid temp folder that exists
         /// </summary>
         [Fact]
         public void DeletePeekDefinitionScriptsTest()
         {
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             var languageService = LanguageService.Instance;
-            Assert.True(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
+            Assert.True(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             languageService.DeletePeekDefinitionScripts();
-            Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
+            Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
         }
 
         /// <summary>
-        /// Test Deletion of peek definition scripts for a temp folder that does not exist
+        /// Test deletion of peek definition scripts for a temp folder that does not exist
         /// </summary>
         [Fact]
         public void DeletePeekDefinitionScriptsWhenFolderDoesNotExistTest()
         {
             var languageService = LanguageService.Instance;
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
-            ServiceLayer.QueryExecution.FileUtils.SafeDirectoryDelete(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder, true);
-            Assert.False(Directory.Exists(ServiceLayer.QueryExecution.FileUtils.PeekDefinitionTempFolder));
+            FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
+            Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             // Expected not to throw any exception
             languageService.DeletePeekDefinitionScripts();
         }
 
         /// <summary>
-        /// Test Extracting the full object name from quickInfoText.
+        /// Test extracting the full object name from quickInfoText.
         /// Given a valid object name string and a vaild quickInfo string containing the object name
         /// Expect the full object name (database.schema.objectName)
         /// </summary>
@@ -233,13 +233,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string objectName = "testTable";
             string quickInfoText = "table master.dbo.testTable";
-            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             string expected = "master.dbo.testTable";
             Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// Test Extracting the full object name from quickInfoText.
+        /// Test extracting the full object name from quickInfoText with case insensitive comparison.
+        /// Given a valid object name string and a vaild quickInfo string containing the object name
+        /// Expect the full object name (database.schema.objectName)
+        /// </summary>
+        [Fact]
+        public void GetFullObjectNameFromQuickInfoWithValidStringsandIgnoreCaseTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "testtable";
+            string quickInfoText = "table master.dbo.testTable";
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.OrdinalIgnoreCase);
+            string expected = "master.dbo.testTable";
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
+        /// Test extracting the full object name from quickInfoText.
         /// Given a null object name string and a vaild quickInfo string containing the object name( and vice versa)
         /// Expect null
         /// </summary>
@@ -251,22 +267,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             string objectName = null;
             string quickInfoText = "table master.dbo.testTable";
-            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
 
             quickInfoText = null;
             objectName = "tableName";
-            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
 
             quickInfoText = null;
             objectName = null;
-            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// Test Extracting the full object name from quickInfoText.
+        /// Test extracting the full object name from quickInfoText.
         /// Given a valid object name string and a vaild quickInfo string that does not contain the object name
         /// Expect null
         /// </summary>
@@ -276,13 +292,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string objectName = "test";
             string quickInfoText = "table master.dbo.tableName";
-            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             string expected = null;
             Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// Test Extracting the object type from quickInfoText.
+        /// Test extracting the object type from quickInfoText.
         /// Given a valid object name string and a vaild quickInfo string containing the object name
         /// Expect correct object type
         /// </summary>
@@ -292,13 +308,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string objectName = "tableName";
             string quickInfoText = "table master.dbo.tableName";
-            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
+            string expected = "table";
+            Assert.Equal(expected, result);
+        }
+
+
+        /// <summary>
+        /// Test extracting the object type from quickInfoText with case insensitive comparison.
+        /// Given a valid object name string and a vaild quickInfo string containing the object name
+        /// Expect correct object type
+        /// </summary>
+        [Fact]
+        public void GetTokenTypeFromQuickInfoWithValidStringsandIgnoreCaseTest()
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            string objectName = "tablename";
+            string quickInfoText = "table master.dbo.tableName";
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.OrdinalIgnoreCase);
             string expected = "table";
             Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// Test Extracting theobject type from quickInfoText.
+        /// Test extracting theobject type from quickInfoText.
         /// Given a null object name string and a vaild quickInfo string containing the object name( and vice versa)
         /// Expect null
         /// </summary>
@@ -310,22 +343,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
 
             string objectName = null;
             string quickInfoText = "table master.dbo.testTable";
-            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
 
             quickInfoText = null;
             objectName = "tableName";
-            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
 
             quickInfoText = null;
             objectName = null;
-            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// Test Extracting the object type from quickInfoText.
+        /// Test extracting the object type from quickInfoText.
         /// Given a valid object name string and a vaild quickInfo string that does not containthe object name
         /// Expect null
         /// </summary>
@@ -335,14 +368,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
             PeekDefinition peekDefinition = new PeekDefinition(null, null);
             string objectName = "test";
             string quickInfoText = "table master.dbo.tableName";
-            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName);
+            string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
             string expected = null;
             Assert.Equal(expected, result);
         }
 
         /// <summary>
-        /// test Getting definition using quickInfo text without a live connection
-        /// Expect an error result( because you cannot script without a live connection)
+        /// Test getting definition using quickInfo text without a live connection
+        /// Expect an error result (because you cannot script without a live connection)
         /// </summary>
         [Fact]
         public void GetDefinitionUsingQuickInfoWithoutConnectionTest()
@@ -356,8 +389,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         }
 
         /// <summary>
-        /// test Getting definition using declarration Type without a live connection
-        /// Expect an error result( because you cannot script without a live connection)
+        /// Test getting definition using declaration Type without a live connection
+        /// Expect an error result (because you cannot script without a live connection)
         /// </summary>
         [Fact]
         public void GetDefinitionUsingDeclarationItemWithoutConnectionTest()

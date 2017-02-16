@@ -1,0 +1,70 @@
+﻿/* Lexer tests */
+:setvar a "df df""
+"
+ABC
+:r
+:r input2.txt
+	:r
+:setvar	
+:setvar
+:setvariable asd
+GOTO
+:on errors
+:on error exit
+:on error ignore
+DEF
+
+go
+go
+abc--def
+	select '$$' '$$(s)asd)' werwer$$(Y)ss
+:Setvar   x   y
+:Setvar   Y   "VALUE OF Y"
+  from    x
+   GO 2
+  :SETVAR Z "WE"
+:include x
+This is a comment: /*
+:SETVAR w e
+"
+*/
+Select 1
+go 3
+:on error exit
+go
+ select 2Y==>$(Y)
+ A==>$(a)<==
+:setvar x "y"
+:setvar z "z"
+select $(x_y)
+ from DUAL
+
+ -- on error commands
+ :on error exit
+ :on error ignore
+ :on error $(variable)
+ :on error invalid value
+
+ -- Line comment
+ /* Multi line
+    block comment
+-- with nested line comment */
+
+/*** block comment 2 ***/
+select '/*', '*/'
+
+-- Unsupported commands
+:reset
+:ed
+:!!
+:quit
+:exit
+:serverlist
+:list
+:error errorfile.txt
+:out stdout
+:perftrace perftrace.txt
+:connect server\instance
+:help
+:xml on
+:listvar

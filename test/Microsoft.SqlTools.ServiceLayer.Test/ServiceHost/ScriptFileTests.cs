@@ -119,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         [Fact]
         public void CanApplySingleLineInsert()
         {
-            this.AssertFileChange(
+            AssertFileChange(
                 "This is a test.",
                 "This is a working test.",
                 new FileChange
@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         [Fact]
         public void CanApplySingleLineReplace()
         {
-            this.AssertFileChange(
+            AssertFileChange(
                 "This is a potentially broken test.",
                 "This is a working test.",
                 new FileChange
@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         [Fact]
         public void CanApplySingleLineDelete()
         {
-            this.AssertFileChange(
+            AssertFileChange(
                 "This is a test of the emergency broadcasting system.",
                 "This is a test.",
                 new FileChange
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         [Fact]
         public void CanApplyMultiLineInsert()
         {
-            this.AssertFileChange(
+            AssertFileChange(
                 "first\r\nsecond\r\nfifth",
                 "first\r\nsecond\r\nthird\r\nfourth\r\nfifth",
                 new FileChange
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         [Fact]
         public void CanApplyMultiLineReplace()
         {
-            this.AssertFileChange(
+            AssertFileChange(
                 "first\r\nsecoXX\r\nXXfth",
                 "first\r\nsecond\r\nthird\r\nfourth\r\nfifth",
                 new FileChange
@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         [Fact]
         public void CanApplyMultiLineReplaceWithRemovedLines()
         {
-            this.AssertFileChange(
+            AssertFileChange(
                 "first\r\nsecoXX\r\nREMOVE\r\nTHESE\r\nLINES\r\nXXfth",
                 "first\r\nsecond\r\nthird\r\nfourth\r\nfifth",
                 new FileChange
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         [Fact]
         public void CanApplyMultiLineDelete()
         {
-            this.AssertFileChange(
+            AssertFileChange(
                 "first\r\nsecond\r\nREMOVE\r\nTHESE\r\nLINES\r\nthird",
                 "first\r\nsecond\r\nthird",
                 new FileChange
@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
                 typeof(ArgumentOutOfRangeException),
                 () =>
                 {
-                    this.AssertFileChange(
+                    AssertFileChange(
                         "first\r\nsecond\r\nREMOVE\r\nTHESE\r\nLINES\r\nthird",
                         "first\r\nsecond\r\nthird",
                         new FileChange
@@ -275,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
 
         public ScriptFileGetLinesTests()
         {
-            this.scriptFile =
+            scriptFile =
                 ScriptFileTests.GetTestScriptFile(
                     "Line One\r\nLine Two\r\nLine Three\r\nLine Four\r\nLine Five\r\n");
         }
@@ -284,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         public void CanGetWholeLine()
         {
             string[] lines =
-                this.scriptFile.GetLinesInRange(
+                scriptFile.GetLinesInRange(
                     new BufferRange(5, 1, 5, 10));
 
             Assert.Equal(1, lines.Length);
@@ -295,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         public void CanGetMultipleWholeLines()
         {
             string[] lines =
-                this.scriptFile.GetLinesInRange(
+                scriptFile.GetLinesInRange(
                     new BufferRange(2, 1, 4, 10));
 
             Assert.Equal(TestStringLines.Skip(1).Take(3), lines);
@@ -305,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         public void CanGetSubstringInSingleLine()
         {
             string[] lines =
-                this.scriptFile.GetLinesInRange(
+                scriptFile.GetLinesInRange(
                     new BufferRange(4, 3, 4, 8));
 
             Assert.Equal(1, lines.Length);
@@ -316,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
         public void CanGetEmptySubstringRange()
         {
             string[] lines =
-                this.scriptFile.GetLinesInRange(
+                scriptFile.GetLinesInRange(
                     new BufferRange(4, 3, 4, 3));
 
             Assert.Equal(1, lines.Length);
@@ -334,7 +334,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
             };
 
             string[] lines =
-                this.scriptFile.GetLinesInRange(
+                scriptFile.GetLinesInRange(
                     new BufferRange(2, 6, 4, 9));
 
             Assert.Equal(expectedLines, lines);
@@ -351,7 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
             };
 
             string[] lines =
-                this.scriptFile.GetLinesInRange(
+                scriptFile.GetLinesInRange(
                     new BufferRange(2, 9, 4, 1));
 
             Assert.Equal(expectedLines, lines);
@@ -364,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
 
         public ScriptFilePositionTests()
         {
-            this.scriptFile =
+            scriptFile =
                 ScriptFileTests.GetTestScriptFile(@"
 First line
   Second line is longer
@@ -375,12 +375,12 @@ First line
         [Fact]
         public void CanOffsetByLine()
         {
-            this.AssertNewPosition(
+            AssertNewPosition(
                 1, 1,
                 2, 0,
                 3, 1);
 
-            this.AssertNewPosition(
+            AssertNewPosition(
                 3, 1,
                 -2, 0,
                 1, 1);
@@ -389,12 +389,12 @@ First line
         [Fact]
         public void CanOffsetByColumn()
         {
-            this.AssertNewPosition(
+            AssertNewPosition(
                 2, 1,
                 0, 2,
                 2, 3);
 
-            this.AssertNewPosition(
+            AssertNewPosition(
                 2, 5,
                 0, -3,
                 2, 2);
@@ -447,7 +447,7 @@ First line
         [Fact]
         public void CanFindBeginningOfLine()
         {
-            this.AssertNewPosition(
+            AssertNewPosition(
                 4, 12,
                 pos => pos.GetLineStart(),
                 4, 5);
@@ -456,7 +456,7 @@ First line
         [Fact]
         public void CanFindEndOfLine()
         {
-            this.AssertNewPosition(
+            AssertNewPosition(
                 4, 12,
                 pos => pos.GetLineEnd(),
                 4, 15);
@@ -465,7 +465,7 @@ First line
         [Fact]
         public void CanComposePositionOperations()
         {
-            this.AssertNewPosition(
+            AssertNewPosition(
                 4, 12,
                 pos => pos.AddOffset(-1, 1).GetLineStart(),
                 3, 3);
@@ -476,7 +476,7 @@ First line
             int lineOffset, int columnOffset,
             int expectedLine, int expectedColumn)
         {
-            this.AssertNewPosition(
+            AssertNewPosition(
                 originalLine, originalColumn,
                 pos => pos.AddOffset(lineOffset, columnOffset),
                 expectedLine, expectedColumn);
@@ -490,7 +490,7 @@ First line
             var newPosition =
                 positionOperation(
                     new FilePosition(
-                        this.scriptFile,
+                        scriptFile,
                         originalLine,
                         originalColumn));
 

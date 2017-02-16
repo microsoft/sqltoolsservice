@@ -1,0 +1,6 @@
+/**//***//* *//** */ */
+one comment:   /*/*/ */*/
+not a comment: / */
+/* block comment */
+/* block 
+comment */

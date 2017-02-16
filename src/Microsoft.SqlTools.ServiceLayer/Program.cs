@@ -4,12 +4,6 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Credentials;
-using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer
@@ -37,26 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer
             Logger.Write(LogLevel.Normal, "Starting SQL Tools Service Host");
 
             // set up the host details and profile paths 
-            var hostDetails = new HostDetails(version: new Version(1,0));
+            var hostDetails = new HostDetails(version: new Version(1, 0));
 
             SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
+            ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
-            // Grab the instance of the service host
-            ServiceHost serviceHost = ServiceHost.Instance;
-
-            // Start the service
-            serviceHost.Start().Wait();
-
-            // Initialize the services that will be hosted here
-            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
-            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
-            ConnectionService.Instance.InitializeService(serviceHost);
-            CredentialService.Instance.InitializeService(serviceHost);
-            QueryExecutionService.Instance.InitializeService(serviceHost);
-            EditDataService.Instance.InitializeService(serviceHost);
-
-            serviceHost.Initialize();
             serviceHost.WaitForExit();
         }
+
     }
 }

@@ -21,6 +21,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
 
         public bool? DocumentHighlightProvider { get; set; }
 
+        public bool? DocumentFormattingProvider { get; set; }
+
+        public bool? DocumentRangeFormattingProvider { get; set; }
+
         public bool? DocumentSymbolProvider { get; set; }
 
         public bool? WorkspaceSymbolProvider { get; set; }
