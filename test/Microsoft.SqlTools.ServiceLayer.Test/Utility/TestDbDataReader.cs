@@ -16,99 +16,115 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 
         #region Test Specific Implementations
 
-        private Dictionary<string, string>[][] Data { get; set; }
+        private IEnumerable<TestResultSet> Data { get; }
 
-        public IEnumerator<Dictionary<string, string>[]> ResultSet { get; private set; }
+        public IEnumerator<TestResultSet> ResultSetEnumerator { get; }
 
-        private IEnumerator<Dictionary<string, string>> Rows { get; set; }
+        private IEnumerator<object[]> RowEnumerator { get; set; }
 
-        public TestDbDataReader(Dictionary<string, string>[][] data)
+        public TestDbDataReader(IEnumerable<TestResultSet> data)
         {
             Data = data;
             if (Data != null)
             {
-                ResultSet = ((IEnumerable<Dictionary<string, string>[]>) Data).GetEnumerator();
-                ResultSet.MoveNext();
+                ResultSetEnumerator = Data.GetEnumerator();
+                ResultSetEnumerator.MoveNext();
             }
         }
 
         #endregion
 
-        public override bool HasRows
-        {
-            get { return ResultSet != null && ResultSet.Current.Length > 0; }
-        }
+        #region Properties
 
+        public override int FieldCount => ResultSetEnumerator?.Current.Columns.Count ?? 0;
+
+        public override bool HasRows => ResultSetEnumerator?.Current.Rows.Count > 0;
+
+        /// <summary>
+        /// Mimicks the behavior of SqlDbDataReader
+        /// </summary>
+        public override int RecordsAffected => RowEnumerator != null ? -1 : 1;
+
+        public override object this[int ordinal] => RowEnumerator.Current[ordinal];
+
+        #endregion
+
+        #region Implemented Methods
+
+        /// <summary>
+        /// If the row enumerator hasn't been initialized for the current result set, the
+        /// enumerator for the current result set is defined. Increments the enumerator
+        /// </summary>
+        /// <returns>True if tere were more rows, false otherwise</returns>
         public override bool Read()
         {
-            if (Rows == null)
+            if (RowEnumerator == null)
             {
-                Rows = ((IEnumerable<Dictionary<string, string>>) ResultSet.Current).GetEnumerator();
+                RowEnumerator = ResultSetEnumerator.Current.GetEnumerator();
             }
-            return Rows.MoveNext();
+            return RowEnumerator.MoveNext();
         }
 
+        /// <summary>
+        /// Increments the result set enumerator and initializes the row enumerator
+        /// </summary>
+        /// <returns></returns>
         public override bool NextResult()
         {
-            if (Data == null || !ResultSet.MoveNext())
+            if (Data == null || !ResultSetEnumerator.MoveNext())
             {
                 return false;
             }
-            Rows = ((IEnumerable<Dictionary<string, string>>)ResultSet.Current).GetEnumerator();
+            RowEnumerator = ResultSetEnumerator.Current.GetEnumerator();
             return true;
         }
 
+        /// <summary>
+        /// Retrieves the value for the cell of the current row in the given column
+        /// </summary>
+        /// <param name="ordinal">Ordinal of the column</param>
+        /// <returns>The object in the cell</returns>
         public override object GetValue(int ordinal)
         {
             return this[ordinal];
         }
 
+        /// <summary>
+        /// Stores the values of all cells in this row in the given object array
+        /// </summary>
+        /// <param name="values">Destination for all cell values</param>
+        /// <returns>Number of cells in the current row</returns>
         public override int GetValues(object[] values)
         {
-            for(int i = 0; i < Rows.Current.Count; i++)
+            for (int i = 0; i < RowEnumerator.Current.Count(); i++)
             {
                 values[i] = this[i];
             }
-            return Rows.Current.Count;
+            return RowEnumerator.Current.Count();
         }
 
-        public override object this[string name]
-        {
-            get { return Rows.Current[name]; }
-        }
-
-        public override object this[int ordinal]
-        {
-            get { return Rows.Current[Rows.Current.Keys.AsEnumerable().ToArray()[ordinal]]; }
-        }
-
-        public ReadOnlyCollection<DbColumn> GetColumnSchema()
-        {
-            if (ResultSet?.Current == null || ResultSet.Current.Length <= 0)
-            {
-                return new ReadOnlyCollection<DbColumn>(new List<DbColumn>());
-            }
-            
-            List<DbColumn> columns = new List<DbColumn>();
-            for (int i = 0; i < ResultSet.Current[0].Count; i++)
-            {
-                columns.Add(new TestDbColumn(ResultSet.Current[0].Keys.ToArray()[i]));
-            }
-            return new ReadOnlyCollection<DbColumn>(columns);
-        }
-
+        /// <summary>
+        /// Whether or not a given cell in the current row is null
+        /// </summary>
+        /// <param name="ordinal">Ordinal of the column</param>
+        /// <returns>True if the cell is null, false otherwise</returns>
         public override bool IsDBNull(int ordinal)
         {
             return this[ordinal] == null;
         }
 
-        public override int FieldCount { get { return Rows?.Current.Count ?? 0; } }
-
-        public override int RecordsAffected
+        /// <returns>Collection of test columns in the current result set</returns>
+        public ReadOnlyCollection<DbColumn> GetColumnSchema()
         {
-            // Mimics the behavior of SqlDataReader
-            get { return Rows != null ? -1 : 1; }
+            if (ResultSetEnumerator?.Current == null || ResultSetEnumerator.Current.Rows.Count <= 0)
+            {
+                return new ReadOnlyCollection<DbColumn>(new List<DbColumn>());
+            }
+
+            return new ReadOnlyCollection<DbColumn>(ResultSetEnumerator.Current.Columns);
         }
+
+        #endregion
 
         #region Not Implemented
 
@@ -207,8 +223,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
             throw new NotImplementedException();
         }
 
-        public override int Depth { get; }
-        public override bool IsClosed { get; }
+        public override object this[string name]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override int Depth { get { throw new NotImplementedException(); } }
+
+        public override bool IsClosed { get { throw new NotImplementedException(); } }
 
         #endregion        
     }

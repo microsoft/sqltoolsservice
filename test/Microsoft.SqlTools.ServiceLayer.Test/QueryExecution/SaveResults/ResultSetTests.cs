@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Xunit;
 
@@ -66,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
             // Setup:
             // ... Create a result set that has been executed
             ResultSet rs = new ResultSet(
-                GetReader(new[] { Common.StandardTestData }, false, Common.StandardQuery),
+                GetReader(Common.StandardTestDataSet, false, Common.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
                 Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
 
@@ -93,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
 
             // ... Create a result set with dummy data and read to the end
             ResultSet rs = new ResultSet(
-                GetReader(new[] {Common.StandardTestData}, false, Common.StandardQuery),
+                GetReader(Common.StandardTestDataSet, false, Common.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
                 resultFactory);
             await rs.ReadResultToEnd(CancellationToken.None);
@@ -129,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
 
             // ... Create a result set with dummy data and read to the end
             ResultSet rs = new ResultSet(
-                GetReader(new[] { Common.StandardTestData }, false, Common.StandardQuery),
+                GetReader(Common.StandardTestDataSet, false, Common.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
                 resultFactory);
             await rs.ReadResultToEnd(CancellationToken.None);
@@ -178,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
             return mockFactory.Object;
         }
 
-        private static DbDataReader GetReader(Dictionary<string, string>[][] dataSet, bool throwOnRead, string query)
+        private static DbDataReader GetReader(TestResultSet[] dataSet, bool throwOnRead, string query)
         {
             var info = Common.CreateTestConnectionInfo(dataSet, throwOnRead);
             var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));

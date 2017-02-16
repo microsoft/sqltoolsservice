@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -59,9 +60,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #endregion
 
-        public static Dictionary<string, string>[] StandardTestData
+        public static TestResultSet StandardTestResultSet => new TestResultSet(StandardColumns, StandardRows);
+
+        public static TestResultSet[] StandardTestDataSet => new[] {StandardTestResultSet};
+
+        public static TestResultSet[] ExecutionPlanTestDataSet
         {
-            get { return GetTestData(StandardRows, StandardColumns); }
+            get
+            {
+                DbColumn[] columns = { new TestDbColumn("Microsoft SQL Server 2005 XML Showplan") };
+                object[][] rows = { new object[] { "Execution Plan" } };
+                return new[] {new TestResultSet(columns, rows)};
+            }
         }
 
         #region Public Methods
@@ -69,20 +79,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         public static Batch GetBasicExecutedBatch()
         {
             Batch batch = new Batch(StandardQuery, SubsectionDocument, 1, GetFileStreamFactory(new Dictionary<string, byte[]>()));
-            batch.Execute(CreateTestConnection(new[] {StandardTestData}, false), CancellationToken.None).Wait();
+            batch.Execute(CreateTestConnection(StandardTestDataSet, false), CancellationToken.None).Wait();
             return batch;
         }
 
         public static Batch GetExecutedBatchWithExecutionPlan()
         {
             Batch batch = new Batch(StandardQuery, SubsectionDocument, 1, GetFileStreamFactory(new Dictionary<string, byte[]>()));
-            batch.Execute(CreateTestConnection(new[] {GetExecutionPlanTestData()}, false), CancellationToken.None).Wait();
+            batch.Execute(CreateTestConnection(ExecutionPlanTestDataSet, false), CancellationToken.None).Wait();
             return batch;
         }
 
         public static Query GetBasicExecutedQuery()
         {
-            ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
+            ConnectionInfo ci = CreateTestConnectionInfo(StandardTestDataSet, false);
 
             // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
             // ConnectionInfo with the same URI as the query, so we will manually set it
@@ -96,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Query GetBasicExecutedQuery(QueryExecutionSettings querySettings)
         {
-            ConnectionInfo ci = CreateTestConnectionInfo(new[] {StandardTestData}, false);
+            ConnectionInfo ci = CreateTestConnectionInfo(StandardTestDataSet, false);
 
             // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
             // ConnectionInfo with the same URI as the query, so we will manually set it
@@ -108,43 +118,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return query;
         }
 
-        public static Dictionary<string, string>[] GetTestData(int columns, int rows)
+        public static TestResultSet[] GetTestDataSet(int dataSets)
         {
-            Dictionary<string, string>[] output = new Dictionary<string, string>[rows];
-            for (int row = 0; row < rows; row++)
-            {
-                Dictionary<string, string> rowDictionary = new Dictionary<string, string>();
-                for (int column = 0; column < columns; column++)
-                {
-                    rowDictionary.Add(string.Format("column{0}", column), string.Format("val{0}{1}", column, row));
-                }
-                output[row] = rowDictionary;
-            }
-
-            return output;
-        }
-
-
-        public static Dictionary<string, string>[] GetExecutionPlanTestData()
-        {
-            Dictionary<string, string>[] output = new Dictionary<string, string>[1];
-            int col = 0;
-            int row = 0;
-            Dictionary<string, string> rowDictionary = new Dictionary<string, string>();
-            rowDictionary.Add(string.Format("Microsoft SQL Server 2005 XML Showplan", col), string.Format("Execution Plan", col, row));
-            output[row] = rowDictionary;
-            
-            return output;
-        }
-      
-        public static Dictionary<string, string>[][] GetTestDataSet(int dataSets)
-        {
-            List<Dictionary<string, string>[]> output = new List<Dictionary<string, string>[]>();
-            for(int dataSet = 0; dataSet < dataSets; dataSet++)
-            {
-                output.Add(StandardTestData);
-            }
-            return output.ToArray();
+            return Enumerable.Repeat(StandardTestResultSet, dataSets).ToArray();
         }
 
         public static async Task AwaitExecution(QueryExecutionService service, ExecuteDocumentSelectionParams qeParams,
@@ -183,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #region DbConnection Mocking
 
-        public static DbCommand CreateTestCommand(Dictionary<string, string>[][] data, bool throwOnRead)
+        public static DbCommand CreateTestCommand(TestResultSet[] data, bool throwOnRead)
         {
             var commandMock = new Mock<DbCommand> { CallBase = true };
             var commandMockSetup = commandMock.Protected()
@@ -205,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return commandMock.Object;
         }
 
-        public static DbConnection CreateTestConnection(Dictionary<string, string>[][] data, bool throwOnRead)
+        public static DbConnection CreateTestConnection(TestResultSet[] data, bool throwOnRead)
         {
             var connectionMock = new Mock<DbConnection> { CallBase = true };
             connectionMock.Protected()
@@ -219,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return connectionMock.Object;
         }
 
-        public static ISqlConnectionFactory CreateMockFactory(Dictionary<string, string>[][] data, bool throwOnRead)
+        public static ISqlConnectionFactory CreateMockFactory(TestResultSet[] data, bool throwOnRead)
         {
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
@@ -228,21 +204,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return mockFactory.Object;
         }
 
-        public static ConnectionInfo CreateTestConnectionInfo(Dictionary<string, string>[][] data, bool throwOnRead)
+        public static ConnectionInfo CreateTestConnectionInfo(TestResultSet[] data, bool throwOnRead)
         {
             return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, StandardConnectionDetails);
         }
 
-        public static ConnectionInfo CreateConnectedConnectionInfo(Dictionary<string, string>[][] data, bool throwOnRead, string type = ConnectionType.Default)
+        public static ConnectionInfo CreateConnectedConnectionInfo(TestResultSet[] data, bool throwOnRead, string type = ConnectionType.Default)
         {
             ConnectionService connectionService = ConnectionService.Instance;
             connectionService.OwnerToConnectionMap.Clear();
             connectionService.ConnectionFactory = CreateMockFactory(data, throwOnRead);
 
-            ConnectParams connectParams = new ConnectParams()
+            ConnectParams connectParams = new ConnectParams
             {
                 Connection = StandardConnectionDetails,
-                OwnerUri = Common.OwnerUri,
+                OwnerUri = OwnerUri,
                 Type = type
             };
 
@@ -254,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         #region Service Mocking
 
-        public static QueryExecutionService GetPrimedExecutionService(Dictionary<string, string>[][] data,
+        public static QueryExecutionService GetPrimedExecutionService(TestResultSet[] data,
             bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService,
             out Dictionary<string, byte[]> storage)
         {
@@ -273,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = GetFileStreamFactory(storage) };
         }
 
-        public static QueryExecutionService GetPrimedExecutionService(Dictionary<string, string>[][] data, bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService)
+        public static QueryExecutionService GetPrimedExecutionService(TestResultSet[] data, bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             Dictionary<string, byte[]> storage;
             return GetPrimedExecutionService(data, isConnected, throwOnRead, workspaceService, out storage);

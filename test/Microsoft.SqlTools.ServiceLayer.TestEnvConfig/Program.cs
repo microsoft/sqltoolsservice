@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
                 {
                     ShowUsage();
                 }
-                else if (File.Exists(arg) == false)
+                else if (!File.Exists(arg))
                 {
                     Console.WriteLine("setting file {0} does not exist.", arg);
                 }

@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             try
             {
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-                Debug.Assert(builder.Pooling == false, "Pooling should be false");
+                Debug.Assert(!builder.Pooling, "Pooling should be false");
             }
             catch (Exception ex)
             {
@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
 #endif
 
-            if (AmbientSettings.AlwaysRetryOnTransientFailure == true)
+            if (AmbientSettings.AlwaysRetryOnTransientFailure)
             {
                 useRetry = true;
             }
@@ -368,8 +368,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             IDbCommand cmd = null;
             try
             {
-                Debug.Assert(conn.State == ConnectionState.Open, "connection passed to ExecuteReader should be open.");
-
                 cmd = conn.CreateCommand();
 
                 if (initializeCommand == null)
@@ -603,11 +601,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             Validate.IsNotNullOrEmptyString(nameof(commandText), commandText);
 
             string filePath = ExecuteScalar(conn, commandText, initializeCommand, catchException) as string;
-            if (!String.IsNullOrWhiteSpace(filePath))
+            if (!string.IsNullOrWhiteSpace(filePath))
             {
                 // Remove filename from the filePath
                 Uri pathUri;
-                if (Uri.TryCreate(filePath, UriKind.Absolute, out pathUri) == false)
+                if (!Uri.TryCreate(filePath, UriKind.Absolute, out pathUri))
                 {
                     // Invalid Uri
                     return null;
@@ -931,7 +929,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
                         serverInfo = GetServerVersion(connection);
 
-                        tempDatabaseName = (String.IsNullOrEmpty(builder.InitialCatalog) == false) ?
+                        tempDatabaseName = (!string.IsNullOrEmpty(builder.InitialCatalog)) ?
                             builder.InitialCatalog : builder.AttachDBFilename;
 
                         // If at this point the dbName remained an empty string then
