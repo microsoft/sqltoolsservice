@@ -406,13 +406,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         /// <param name="text">The content for the trace file</param>
         public void WriteTraceFile(string traceFile, string text)
         {
-            Stream traceStream = GetStreamFromString(traceFile);
-            using (StreamWriter sw = new StreamWriter(traceStream, Encoding.Unicode))
-            {
-                sw.Write(text);
-                sw.Flush();
-                sw.Dispose();
-            }
+            //Stream traceStream = GetStreamFromString(traceFile);
+            //using (StreamWriter sw = new StreamWriter(traceStream, Encoding.Unicode))
+            //{
+            //    sw.Write(text);
+            //    sw.Flush();
+            //}
+            File.WriteAllText(traceFile, text);
         }
 
         /// <summary>

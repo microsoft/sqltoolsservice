@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
         public void InitializeTest()
         {
             CategoryName = "BatchParser";
-            this.TraceOutputDirectory = RunEnvironmentInfo.GetTestDataLocation();
+            this.TraceOutputDirectory = RunEnvironmentInfo.GetTraceOutputLocation();
             TestInitialize();
         }
 
@@ -50,10 +50,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             Assert.Throws<BatchParserException>(() => p.Parse());
         }
 
+        public static Stream GenerateStreamFromString(string s)
+        {
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
+
         public void TokenizeWithLexer(string filename, StringBuilder output)
         {
-            
-            using (Lexer lexer = new Lexer(new StreamReader(File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read)), filename))
+
+            //var inputFile = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+            string input = File.ReadAllText(filename).Replace("\r\n", "\n");
+            var inputStream = GenerateStreamFromString(input);
+            using (Lexer lexer = new Lexer(new StreamReader(inputStream), filename))
             {
                 
                 string inputText = File.ReadAllText(filename);
@@ -69,10 +82,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                     do
                     {
                         lexer.ConsumeToken();
-                        token = lexer.CurrentToken;
+                        token = lexer.CurrentToken;            
                         roundtripTextBuilder.Append(token.Text.Replace("\r\n", "\n"));
                         outputBuilder.AppendLine(GetTokenString(token));
-                        tokenizedInput.Append('[').Append(GetTokenCode(token.TokenType)).Append(':').Append(token.Text).Append(']');
+                        tokenizedInput.Append('[').Append(GetTokenCode(token.TokenType)).Append(':').Append(token.Text.Replace("\r\n", "\n")).Append(']');
                     } while (token.TokenType != LexerTokenType.Eof);
                 }
                 catch (BatchParserException ex)
@@ -90,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 if (lexerError == false)
                 {
                     // Verify that all text from tokens can be recombined into original string
-                    Assert.Equal<string>(inputText, roundtripTextBuilder.ToString().Replace("\r\n", "\n"));
+                    Assert.Equal<string>(inputText, roundtripTextBuilder.ToString());
                 }
             }
         }
@@ -184,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 string tokenText = token.Text;
                 if (tokenText != null)
                 {
-                    tokenText = tokenText.Replace("\n", "\\n").Replace("\r", "").Replace("\t", "\\t");
+                    tokenText = tokenText.Replace("\r\n", "\n").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
                 }
                 string tokenFilename = token.Filename;
                 tokenFilename = GetFilenameOnly(tokenFilename);

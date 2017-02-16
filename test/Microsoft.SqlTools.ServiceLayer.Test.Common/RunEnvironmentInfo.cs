@@ -12,6 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     public class RunEnvironmentInfo
     {
         private static string cachedTestFolderPath;
+        private static string cachedTraceFolderPath;
 
         public static bool IsLabMode()
         {
@@ -53,5 +54,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return testFolderPath;
         }
 
+        public static string GetTraceOutputLocation()
+        {
+            string traceFolderPath;
+            string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test.Common\Trace";
+            string projectPath = Environment.GetEnvironmentVariable(Constants.ProjectPath);
+
+            if (projectPath != null)
+            {
+                traceFolderPath = Path.Combine(projectPath, testPath);
+            }
+            else
+            {
+                if (cachedTraceFolderPath != null)
+                {
+                    traceFolderPath = cachedTraceFolderPath;
+                }
+                else
+                {
+                    string defaultPath = Path.Combine(typeof(Scripts).GetTypeInfo().Assembly.Location, @"..\..\..\..\..");
+                    traceFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.Test.Common\Trace");
+                    cachedTraceFolderPath = traceFolderPath;
+                }
+            }
+            return traceFolderPath;
+        }
     }
 }
