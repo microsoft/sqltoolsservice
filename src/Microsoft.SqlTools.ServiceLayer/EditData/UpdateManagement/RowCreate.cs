@@ -57,8 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 // If the cell doesn't have a value, but is updatable, don't try to create the script
                 if (cell == null)
                 {
-                    // @TODO: Move to constants file
-                    throw new InvalidOperationException("Cannot create a row with missing data");
+                    throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
                 }
 
                 // Add the column and the data to their respective lists

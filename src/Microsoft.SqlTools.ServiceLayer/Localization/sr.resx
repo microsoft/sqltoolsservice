@@ -405,6 +405,75 @@
     <comment>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>Edit session does not exist.</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>Database object {0} cannot be used for editing.</value>
+    <comment>.
+ Parameters: 0 - typeName (string) </comment>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>Query has not completed execution</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>Query did not generate exactly one result set</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>Failed to add new row to update cache</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>Given row ID is outside the range of rows in the edit cache</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>An update is already pending for this row and must be reverted first</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>Given row ID does not have pending updated</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>Table or view metadata could not be found</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>Invalid format for binary column</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>Boolean columns must be numeric 1 or 0, or string true or false</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>A required cell value is missing</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>A delete is pending for this row, a cell update cannot be applied.</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>Column ID must be in the range of columns for the query</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>Column cannot be edited</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>No key columns were found</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>An output filename must be provided</value>
+    <comment></comment>
+  </data>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
     <comment></comment>

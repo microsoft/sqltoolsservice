@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out session))
                 {
                     // @TODO: Move to constants file
-                    await requestContext.SendError("Failed to dispose session, session does not exist.");
+                    await requestContext.SendError(SR.EditDataSessionNotFound);
                     return;
                 }
 
@@ -291,13 +291,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     result = server.Databases[sqlConn.Database].Views[objectName];
                     break;
                 default:
-                    // @TODO: Move to constants file
-                    throw new ArgumentOutOfRangeException(nameof(objectType), "Unsupported object type for editing");
+                    throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
             }
             if (result == null)
             {
-                // @TODO: Move to constants file
-                throw new ArgumentOutOfRangeException(nameof(objectName), "Table or view could not be found");
+                throw new ArgumentOutOfRangeException(nameof(objectName), SR.EditDataObjectMetadataNotFound);
             }
 
             return result;
@@ -318,8 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             Session session;
             if (!ActiveSessions.TryGetValue(ownerUri, out session))
             {
-                // @TODO: Move to constants file
-                throw new Exception("Could not find an edit session with the given owner URI");
+                throw new Exception(SR.EditDataSessionNotFound);
             }
 
             return session;

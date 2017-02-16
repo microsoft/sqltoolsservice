@@ -44,8 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns></returns>
         public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
-            // @TODO: Move to constants file
-            throw new InvalidOperationException("A delete is pending for this row, a cell update cannot be applied.");
+            throw new InvalidOperationException(SR.EditDataDeleteSetCell);
         }
     }
 }

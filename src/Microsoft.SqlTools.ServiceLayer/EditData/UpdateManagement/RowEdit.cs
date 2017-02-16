@@ -85,15 +85,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Sanity check that the column ID is within the range of columns
             if (columnId >= AssociatedResultSet.Columns.Length || columnId < 0)
             {
-                // @TODO: Add to constants file
-                throw new ArgumentOutOfRangeException(nameof(columnId), "Column ID must be in the range of columns for the query");
+                throw new ArgumentOutOfRangeException(nameof(columnId), SR.EditDataColumnIdOutOfRange);
             }
 
             DbColumnWrapper column = AssociatedResultSet.Columns[columnId];
             if (!column.IsUpdatable)
             {
-                // @TODO: Add to constants file
-                throw new InvalidOperationException("Column cannot be edited");
+                throw new InvalidOperationException(SR.EditDataColumnCannotBeEdited);
             }
         }
 
@@ -103,8 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             if (!AssociatedObjectMetadata.KeyColumns.Any())
             {
-                // @TODO Move to constants file
-                throw new InvalidOperationException("No key columns were found");
+                throw new InvalidOperationException(SR.EditDataColumnNoKeyColumns);
             }
 
             IList<DbCellValue> row = AssociatedResultSet.GetRow(RowId);
