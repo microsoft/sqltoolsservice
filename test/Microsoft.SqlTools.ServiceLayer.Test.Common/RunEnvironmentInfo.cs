@@ -90,6 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 }
             }
             return traceFolderPath;
+        }
 
         private static string GoUpNDirectories(int n)
         {
