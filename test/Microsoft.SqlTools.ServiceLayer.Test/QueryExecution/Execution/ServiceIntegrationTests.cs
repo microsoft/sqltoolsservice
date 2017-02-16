@@ -195,13 +195,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
+                .AddStandardBatchStartValidator()
                 .AddStandardMessageValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddStandardMessageValidator()
+                .AddStandardBatchCompleteValidator()
                 .AddEventValidation(QueryCompleteEvent.Type, p =>
                 {
                     // Validate OwnerURI matches
                     Assert.Equal(Common.OwnerUri, p.OwnerUri);
                     Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(0, p.BatchSummaries.Length);
+                    Assert.Equal(2, p.BatchSummaries.Length);
+                    Assert.All(p.BatchSummaries, bs => Assert.Equal(0, bs.ResultSetSummaries.Length));
                 }).Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 

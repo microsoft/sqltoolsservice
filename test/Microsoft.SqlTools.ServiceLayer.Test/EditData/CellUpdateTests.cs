@@ -119,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // If: I attempt to create a CellUpdate for a binary column
             // Then: It should throw an exception
             DbColumn col = new CellUpdateTestDbColumn(typeof(byte[]));
-            Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, "this is totally invalid"));
+            Assert.Throws<FormatException>(() => new CellUpdate(col, "this is totally invalid"));
         }
 
         [Theory]

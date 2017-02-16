@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Data.Common;
 using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -19,16 +18,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string DeleteStatement = "DELETE FROM {0} {1}";
         private const string DeleteHekatonStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
 
+        /// <summary>
+        /// Constructs a new RowDelete object
+        /// </summary>
+        /// <param name="rowId">Internal ID of the row to be deleted</param>
+        /// <param name="associatedResultSet">Result set that is being edited</param>
+        /// <param name="associatedMetadata">Improved metadata of the object being edited</param>
         public RowDelete(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
         }
 
-        public /* override */ DbCommand GetCommitCommand()
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Generates a DELETE statement to delete this row
+        /// </summary>
+        /// <returns>String of the DELETE statement</returns>
         public override string GetScript()
         {
             string formatString = AssociatedObjectMetadata.IsHekaton ? DeleteHekatonStatement : DeleteStatement;
@@ -37,11 +41,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
-        /// This method should not be called on 
+        /// This method should not be called. A cell cannot be updated on a row that is pending
+        /// deletion.
         /// </summary>
-        /// <param name="columnId"></param>
-        /// <param name="newValue"></param>
-        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Always thrown</exception>
+        /// <param name="columnId">Ordinal of the column to update</param>
+        /// <param name="newValue">New value for the cell</param>
         public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
             throw new InvalidOperationException(SR.EditDataDeleteSetCell);

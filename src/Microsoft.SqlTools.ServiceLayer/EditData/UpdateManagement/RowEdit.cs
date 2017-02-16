@@ -95,6 +95,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
         }
 
+        /// <summary>
+        /// Generates a WHERE clause that uses the key columns of the table to uniquely identity
+        /// the row that will be updated.
+        /// </summary>
+        /// <param name="parameterize">
+        /// Whether or not to generate a parameterized where clause. If <c>true</c> verbatim values
+        /// will be replaced with paremeters (like @Param12). The parameters must be added to the
+        /// SqlCommand used to execute the commit.
+        /// </param>
+        /// <returns>A <see cref="WhereClause"/> object</returns>
         protected WhereClause GetWhereClause(bool parameterize)
         {
             WhereClause output = new WhereClause();
@@ -150,18 +160,34 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             return output;
         }
 
+        /// <summary>
+        /// Represents a WHERE clause that can be used for identifying a row in a table.
+        /// </summary>
         protected class WhereClause
         {
+            /// <summary>
+            /// Constructs and initializes a new where clause
+            /// </summary>
             public WhereClause()
             {
                 Parameters = new List<DbParameter>();
                 ClauseComponents = new List<string>();
             }
 
+            /// <summary>
+            /// SqlParameters used in a parameterized query. If this object was generated without
+            /// parameterization, this will be an empty list
+            /// </summary>
             public List<DbParameter> Parameters { get; }
 
+            /// <summary>
+            /// Strings that make up the WHERE clause, such as <c>"([col1] = 'something')"</c>
+            /// </summary>
             public List<string> ClauseComponents { get; }
 
+            /// <summary>
+            /// Total text of the WHERE clause that joins all the components with AND
+            /// </summary>
             public string CommandText => $"WHERE {string.Join(" AND ", ClauseComponents)}";
         }
     }
