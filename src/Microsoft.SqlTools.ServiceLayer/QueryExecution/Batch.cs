@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Special action which this batch performed 
         /// </summary>
-        private SpecialAction specialAction;
+        private readonly SpecialAction specialAction;
 
         #endregion
 
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Localized timestamp for when the execution completed.
         /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
         /// </summary>
-        public string ExecutionEndTimeStamp { get { return executionEndTime.ToString("o"); } }
+        public string ExecutionEndTimeStamp => executionEndTime.ToString("o");
 
         /// <summary>
         /// Localized timestamp for how long it took for the execution to complete
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Localized timestamp for when the execution began.
         /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
         /// </summary>
-        public string ExecutionStartTimeStamp { get { return executionStartTime.ToString("o"); } }
+        public string ExecutionStartTimeStamp => executionStartTime.ToString("o");
 
         /// <summary>
         /// Whether or not this batch encountered an error that halted execution
@@ -161,15 +161,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Ordinal of the batch in the query
         /// </summary>
-        public int Id { get; private set; }
+        public int Id { get; }
 
         /// <summary>
         /// The result sets of the batch execution
         /// </summary>
-        public IList<ResultSet> ResultSets
-        {
-            get { return resultSets; }
-        }
+        public IList<ResultSet> ResultSets => resultSets;
 
         /// <summary>
         /// Property for generating a set result set summaries from the result sets
@@ -381,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Generates an execution plan
         /// </summary>
         /// <param name="resultSetIndex">The index for selecting the result set</param>
-        /// <returns>An exeuction plan object</returns>
+        /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan(int resultSetIndex)
         {
             ResultSet targetResultSet;

@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Moq;
 using Xunit;
@@ -20,6 +21,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
 {
     public class ReaderWriterPairTest
     {
+        [Fact]
+        public void ReaderStreamNull()
+        {
+            // If: I create a service buffer file stream reader with a null stream
+            // Then: It should throw an exception
+            Assert.Throws<ArgumentNullException>(() => new ServiceBufferFileStreamReader(null, new QueryExecutionSettings()));
+        }
+
+        [Fact]
+        public void ReaderSettingsNull()
+        {
+            // If: I create a service buffer file stream reader with null settings
+            // Then: It should throw an exception
+            Assert.Throws<ArgumentNullException>(() => new ServiceBufferFileStreamReader(Stream.Null, null));
+        }
+
         [Fact]
         public void ReaderInvalidStreamCannotRead()
         {
@@ -30,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             invalidStream.SetupGet(s => s.CanSeek).Returns(true);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ServiceBufferFileStreamReader obj = new ServiceBufferFileStreamReader(invalidStream.Object);
+                ServiceBufferFileStreamReader obj = new ServiceBufferFileStreamReader(invalidStream.Object, new QueryExecutionSettings());
                 obj.Dispose();
             });
         }
@@ -45,9 +62,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             invalidStream.SetupGet(s => s.CanSeek).Returns(false);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ServiceBufferFileStreamReader obj = new ServiceBufferFileStreamReader(invalidStream.Object);
+                ServiceBufferFileStreamReader obj = new ServiceBufferFileStreamReader(invalidStream.Object, new QueryExecutionSettings());
                 obj.Dispose();
             });
+        }
+
+        [Fact]
+        public void WriterStreamNull()
+        {
+            // If: I create a service buffer file stream writer with a null stream
+            // Then: It should throw an exception
+            Assert.Throws<ArgumentNullException>(() => new ServiceBufferFileStreamWriter(null, new QueryExecutionSettings()));
+        }
+
+        [Fact]
+        public void WriterSettingsNull()
+        {
+            // If: I create a service buffer file stream writer with null settings
+            // Then: It should throw an exception
+            Assert.Throws<ArgumentNullException>(() => new ServiceBufferFileStreamWriter(Stream.Null, null));
         }
 
         [Fact]
@@ -60,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             invalidStream.SetupGet(s => s.CanSeek).Returns(true);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ServiceBufferFileStreamWriter obj = new ServiceBufferFileStreamWriter(invalidStream.Object, 1024, 1024);
+                ServiceBufferFileStreamWriter obj = new ServiceBufferFileStreamWriter(invalidStream.Object, new QueryExecutionSettings());
                 obj.Dispose();
             });
         }
@@ -75,20 +108,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             invalidStream.SetupGet(s => s.CanSeek).Returns(false);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ServiceBufferFileStreamWriter obj = new ServiceBufferFileStreamWriter(invalidStream.Object, 1024, 1024);
+                ServiceBufferFileStreamWriter obj = new ServiceBufferFileStreamWriter(invalidStream.Object, new QueryExecutionSettings());
                 obj.Dispose();
             });
         }
 
         [SuppressMessage("ReSharper", "UnusedParameter.Local")]
-        private static string VerifyReadWrite<T>(int valueLength, T value, Func<ServiceBufferFileStreamWriter, T, int> writeFunc, Func<ServiceBufferFileStreamReader, FileStreamReadResult> readFunc)
+        private static string VerifyReadWrite<T>(int valueLength, T value, 
+            Func<ServiceBufferFileStreamWriter, T, int> writeFunc, 
+            Func<ServiceBufferFileStreamReader, FileStreamReadResult> readFunc,
+            QueryExecutionSettings overrideSettings = null)
         {
             // Setup: Create a mock file stream
             byte[] storage = new byte[8192];
+            overrideSettings = overrideSettings ?? new QueryExecutionSettings();
             
             // If:
             // ... I write a type T to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(new MemoryStream(storage), 10, 10))
+            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(new MemoryStream(storage), overrideSettings))
             {
                 int writtenBytes = writeFunc(writer, value);
                 Assert.Equal(valueLength, writtenBytes);
@@ -96,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
 
             // ... And read the type T back
             FileStreamReadResult outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(new MemoryStream(storage)))
+            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(new MemoryStream(storage), overrideSettings))
             {
                 outValue = readFunc(reader);
             }
@@ -166,11 +203,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Boolean(bool value)
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        public void Boolean(bool value, bool preferNumeric)
         {
-            VerifyReadWrite(sizeof(bool) + 1, value, (writer, val) => writer.WriteBoolean(val), reader => reader.ReadBoolean(0));
+            string displayValue = VerifyReadWrite(sizeof(bool) + 1, value,
+                (writer, val) => writer.WriteBoolean(val),
+                reader => reader.ReadBoolean(0),
+                new QueryExecutionSettings {DisplayBitAsNumber = preferNumeric}
+            );
+
+            // Validate the display value
+            if (preferNumeric)
+            {
+                int output;
+                Assert.True(int.TryParse(displayValue, out output));
+            }
+            else
+            {
+                bool output;
+                Assert.True(bool.TryParse(displayValue, out output));
+            }
         }
 
         [Theory]
@@ -396,7 +451,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             {
                 // If:
                 // ... I write null as a string to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(stream, 10, 10))
+                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(stream, new QueryExecutionSettings()))
                 {
                     // Then:
                     // ... I should get an argument null exception
@@ -433,7 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
             {
                 // If:
                 // ... I write null as a string to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(stream, 10, 10))
+                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(stream, new QueryExecutionSettings()))
                 {
                     // Then:
                     // ... I should get an argument null exception

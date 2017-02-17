@@ -4,6 +4,7 @@
 //
 
 using System.IO;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -15,14 +16,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         #region Properties
 
         /// <summary>
-        /// The maximum number of characters to store from long text fields
+        /// The settings for query execution
         /// </summary>
-        public int MaxCharsToStore { get; set; }
-
-        /// <summary>
-        /// The maximum number of characters to store from xml fields
-        /// </summary>
-        public int MaxXmlCharsToStore { get; set; }
+        public QueryExecutionSettings ExecutionSettings { get; set; }
 
         #endregion
 
@@ -43,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A <see cref="ServiceBufferFileStreamReader"/></returns>
         public IFileStreamReader GetReader(string fileName)
         {
-            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read));
+            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read), ExecutionSettings);
         }
 
         /// <summary>
@@ -54,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A <see cref="ServiceBufferFileStreamWriter"/></returns>
         public IFileStreamWriter GetWriter(string fileName)
         {
-            return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), MaxCharsToStore, MaxXmlCharsToStore);
+            return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), ExecutionSettings);
         }
 
         /// <summary>
