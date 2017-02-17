@@ -1,4 +1,7 @@
-
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Data.Common;
@@ -11,8 +14,19 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
+    /// <summary>
+    /// Factory that generates metadata using a combination of SMO and SqlClient metadata
+    /// </summary>
     public class SmoEditMetadataFactory : IEditMetadataFactory
     {
+        /// <summary>
+        /// Generates a edit-ready metadata object using SMO
+        /// </summary>
+        /// <param name="connection">Connection to use for getting metadata</param>
+        /// <param name="columns">List of columns from a query against the object</param>
+        /// <param name="objectName">Name of the object to return metadata for</param>
+        /// <param name="objectType">Type of the object to return metadata for</param>
+        /// <returns>Metadata about the object requested</returns>
         public IEditTableMetadata GetObjectMetadata(DbConnection connection, DbColumnWrapper[] columns, string objectName, string objectType)
         {
             // Get a connection to the database for SMO purposes

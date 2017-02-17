@@ -1,4 +1,8 @@
-﻿
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
@@ -8,11 +12,19 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
+    /// <summary>
+    /// Class that provides metadata about the table or view being edited
+    /// </summary>
     public class EditTableMetadata : IEditTableMetadata
     {
         private readonly List<EditColumnWrapper> columns;
         private readonly List<EditColumnWrapper> keyColumns;
 
+        /// <summary>
+        /// Constructor that extracts useful metadata from the provided metadata objects
+        /// </summary>
+        /// <param name="dbColumns">DB columns from the ResultSet</param>
+        /// <param name="smoObject">SMO metadata object for the table/view being edited</param>
         public EditTableMetadata(IList<DbColumnWrapper> dbColumns, TableViewTableTypeBase smoObject)
         {
             // Make sure that we have equal columns on both metadata providers
@@ -61,9 +73,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             EscapedMultipartName = SqlScriptFormatter.FormatMultipartIdentifier(objectNameParts);
         }
 
+        /// <summary>
+        /// Read-only list of columns in the object being edited
+        /// </summary>
         public IEnumerable<EditColumnWrapper> Columns => columns;
+
+        /// <summary>
+        /// Full escaped multipart identifier for the object being edited
+        /// </summary>
         public string EscapedMultipartName { get; }
+
+        /// <summary>
+        /// Whether or not the object being edited is hekaton/memory optimized
+        /// </summary>
         public bool IsHekaton { get; }
+
+        /// <summary>
+        /// Read-only list of columns that are used to uniquely identify a row
+        /// </summary>
         public IEnumerable<EditColumnWrapper> KeyColumns => keyColumns;
     }
 }
