@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
         
             // setup binding queue mock
             bindingQueue = new Mock<ConnectedBindingQueue>();
-            bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>()))
+            bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>(), It.IsAny<bool>()))
                 .Returns(this.testConnectionKey);
 
             // inject mock instances into the Language Service

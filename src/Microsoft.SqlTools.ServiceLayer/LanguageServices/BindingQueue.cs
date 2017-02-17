@@ -123,6 +123,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Remove the binding queue entry
+        /// </summary>
+        protected void RemoveBindingContext(string key)
+        {
+            lock (this.bindingContextLock)
+            {
+                if (this.BindingContextMap.ContainsKey(key))
+                {
+                    // disconnect existing connection
+                    var bindingContext = this.BindingContextMap[key];
+                    if (bindingContext.ServerConnection != null && bindingContext.ServerConnection.IsOpen)
+                    {
+                        bindingContext.ServerConnection.Disconnect();
+                    }
+
+                    // remove key from the map
+                    this.BindingContextMap.Remove(key);
+                }
+            }
+        }
+
         private bool HasPendingQueueItems
         {
             get
