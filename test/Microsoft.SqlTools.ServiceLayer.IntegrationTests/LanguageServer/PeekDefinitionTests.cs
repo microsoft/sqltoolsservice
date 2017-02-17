@@ -163,9 +163,8 @@ GO";
                 }
             };
             connectionResult.TextDocumentPosition = textDocument;
-            var languageService = new LanguageService();//LanguageService.Instance;
+            var languageService = new LanguageService();
             await languageService.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
-            //Thread.Sleep(2000);
             ScriptParseInfo parseInfo = languageService.GetScriptParseInfo(connectionResult.ScriptFile.ClientFilePath);
             Assert.NotNull(parseInfo);
 
