@@ -328,7 +328,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         }
                         catch (ObjectDisposedException)
                         {
-                            // Ignore
+                            // If ObjectDisposedException was thrown, then execution has already exited the 
+                            // "using" statment and source was disposed, meaning that the openTask completed 
+                            // successfully. This results in a ObjectDisposedException when trying to access
+                            // source.Token and should be ignored. 
                         }
                     });
 
@@ -720,7 +723,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     }
 
                     // open connection based on request details
-                    result = await Instance.Connect(connectParams);
+                    result = await Connect(connectParams);
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
                 catch (Exception ex)
@@ -745,7 +748,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                bool result = Instance.CancelConnect(cancelParams);
+                bool result = CancelConnect(cancelParams);
                 await requestContext.SendResult(result);
             }
             catch(Exception ex)

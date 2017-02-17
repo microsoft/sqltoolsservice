@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
     /// </summary>
     public class ProtocolEndpoint : IProtocolEndpoint
     {
+        private bool isInitialized;
         private bool isStarted;
         private int currentMessageId;
         private ChannelBase protocolChannel;
@@ -64,12 +65,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
         }
 
         /// <summary>
-        /// Starts the language server client and sends the Initialize method.
+        /// Initializes
         /// </summary>
-        /// <returns>A Task that can be awaited for initialization to complete.</returns>
-        public async Task Start()
+        public void Initialize()
         {
-            if (!this.isStarted)
+            if (!this.isInitialized)
             {
                 // Start the provided protocol channel
                 this.protocolChannel.Start(this.messageProtocolType);
@@ -82,6 +82,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
 
                 // Listen for unhandled exceptions from the dispatcher
                 this.MessageDispatcher.UnhandledException += MessageDispatcher_UnhandledException;
+
+                this.isInitialized = true;
+            }
+        }
+
+        /// <summary>
+        /// Starts the language server client and sends the Initialize method.
+        /// </summary>
+        /// <returns>A Task that can be awaited for initialization to complete.</returns>
+        public async Task Start()
+        {
+            if (!this.isStarted)
+            {
 
                 // Notify implementation about endpoint start
                 await this.OnStart();

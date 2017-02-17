@@ -11,7 +11,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -145,19 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
 
                 // Grab the instance of the service host
-                ServiceHost serviceHost = ServiceHost.Instance;
-
-                // Start the service
-                serviceHost.Start().Wait();
-
-                // Initialize the services that will be hosted here
-                WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
-                LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
-                ConnectionService.Instance.InitializeService(serviceHost);
-                CredentialService.Instance.InitializeService(serviceHost);
-                QueryExecutionService.Instance.InitializeService(serviceHost);
-
-                serviceHost.Initialize();
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
             }
         }
 

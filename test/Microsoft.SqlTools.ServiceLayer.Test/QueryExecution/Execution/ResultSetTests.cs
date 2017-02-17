@@ -6,11 +6,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
@@ -63,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I create a new resultset with a valid db data reader that has data
             // ... and I read it to the end
-            DbDataReader mockReader = GetReader(new [] {Common.StandardTestData}, false, Common.StandardQuery);
+            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             resultSet.ResultCompletion += callback;
@@ -92,13 +94,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         {
             // Setup:
             // ... Build a FOR XML or FOR JSON data set
-            string columnName = string.Format("{0}_F52E2B61-18A1-11d1-B105-00805F49916B", forType);
-            List<Dictionary<string, string>> data = new List<Dictionary<string, string>>();
-            for(int i = 0; i < Common.StandardRows; i++)
-            {
-                data.Add(new Dictionary<string, string> { { columnName, "test data"} });
-            }
-            Dictionary<string, string>[][] dataSets = {data.ToArray()};
+            DbColumn[] columns = {new TestDbColumn(string.Format("{0}_F52E2B61-18A1-11d1-B105-00805F49916B", forType))};
+            object[][] rows = Enumerable.Repeat(new object[] {"test data"}, Common.StandardRows).ToArray();
+            TestResultSet[] dataSets = {new TestResultSet(columns, rows) };
 
             // ... Create a callback for resultset completion
             ResultSetSummary resultSummary = null;
@@ -158,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I create a new result set with a valid db data reader
             // ... And execute the result
-            DbDataReader mockReader = GetReader(new[] {Common.StandardTestData}, false, Common.StandardQuery);
+            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(CancellationToken.None);
@@ -179,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I create a new result set with a valid db data reader
             // ... And execute the result set
-            DbDataReader mockReader = GetReader(new[] { Common.StandardTestData }, false, Common.StandardQuery);
+            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
             var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
             ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(CancellationToken.None);
@@ -197,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             Assert.Equal(resultSet.Columns.Length, subset.Rows[0].Length);
         }
 
-        private static DbDataReader GetReader(Dictionary<string, string>[][] dataSet, bool throwOnRead, string query)
+        private static DbDataReader GetReader(TestResultSet[] dataSet, bool throwOnRead, string query)
         {
             var info = Common.CreateTestConnectionInfo(dataSet, throwOnRead);
             var connection = info.Factory.CreateSqlConnection(ConnectionService.BuildConnectionString(info.ConnectionDetails));
