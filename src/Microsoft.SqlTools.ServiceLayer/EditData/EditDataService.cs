@@ -6,14 +6,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
-using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -35,12 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         {
             queryExecutionService = QueryExecutionService.Instance;
             connectionService = ConnectionService.Instance;
+            metadataFactory = new SmoEditMetadataFactory();
         }
 
-        internal EditDataService(QueryExecutionService qes, ConnectionService cs)
+        internal EditDataService(QueryExecutionService qes, ConnectionService cs, IEditMetadataFactory factory)
         {
             queryExecutionService = qes;
             connectionService = cs;
+            metadataFactory = factory;
         }
 
         #endregion
@@ -48,6 +45,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         #region Member Variables 
 
         private readonly ConnectionService connectionService;
+
+        private readonly IEditMetadataFactory metadataFactory;
 
         private readonly QueryExecutionService queryExecutionService;
 
@@ -140,7 +139,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 Session session;
                 if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out session))
                 {
-                    // @TODO: Move to constants file
                     await requestContext.SendError(SR.EditDataSessionNotFound);
                     return;
                 }
@@ -183,13 +181,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                     try
                     {
+                        // Validate the query for a session
+                        ResultSet resultSet = Session.ValidateQueryForSession(query);
+
                         // Get a connection we'll use for SMO metadata lookup (and committing, later on)
-                        // @TODO: Replace with factory pattern!
-                        var smoMetadata = await GetSmoMetadata(initParams.OwnerUri, initParams.ObjectName, initParams.ObjectType);
-                        var metadata = new EditTableMetadata(query.Batches[0].ResultSets[0].Columns, smoMetadata);
+                        DbConnection conn = await connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
+                        var metadata = metadataFactory.GetObjectMetadata(conn, resultSet.Columns, 
+                            initParams.ObjectName, initParams.ObjectType);
 
                         // Create the session and add it to the sessions list
-                        Session session = new Session(query, metadata);
+                        Session session = new Session(resultSet, metadata);
                         if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
                         {
                             throw new InvalidOperationException("Failed to create edit session, session already exists.");
@@ -267,39 +268,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         #endregion
 
         #region Private Helpers
-
-        private async Task<TableViewTableTypeBase> GetSmoMetadata(string ownerUri, string objectName, string objectType)
-        {
-            // Get a connection to the database for edit purposes
-            DbConnection conn = await connectionService.GetOrOpenConnection(ownerUri, ConnectionType.Edit);
-            ReliableSqlConnection reliableConn = conn as ReliableSqlConnection;
-            if (reliableConn == null)
-            {
-                // If we don't have connection we can use with SMO, just give up on using SMO
-                return null;
-            }
-
-            SqlConnection sqlConn = reliableConn.GetUnderlyingConnection();
-            Server server = new Server(new ServerConnection(sqlConn));
-            TableViewTableTypeBase result;
-            switch (objectType.ToLowerInvariant())
-            {
-                case "table":
-                    result = server.Databases[sqlConn.Database].Tables["identitytest"];
-                    break;
-                case "view":
-                    result = server.Databases[sqlConn.Database].Views[objectName];
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
-            }
-            if (result == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(objectName), SR.EditDataObjectMetadataNotFound);
-            }
-
-            return result;
-        }
 
         /// <summary>
         /// Returns the session with the given owner URI or throws if it can't be found

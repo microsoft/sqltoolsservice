@@ -34,22 +34,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // If: I create a session object without a null metadata provider
             // Then: It should throw an exception
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
-            Assert.Throws<ArgumentNullException>(() => new Session(q, null));
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            Assert.Throws<ArgumentNullException>(() => new Session(rs, null));
         }
 
         [Fact]
-        public void SessionConstructionUnfinishedQuery()
+        public void SessionConstructionValid()
+        {
+            // If: I create a session object with a proper query and metadata
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            Session s = new Session(rs, etm);
+
+            // Then:
+            // ... The edit cache should exist and be empty
+            Assert.NotNull(s.EditCache);
+            Assert.Empty(s.EditCache);
+
+            // ... The next row ID should be equivalent to the number of rows in the result set
+            Assert.Equal(q.Batches[0].ResultSets[0].RowCount, s.NextRowId);
+        }
+
+        #endregion
+
+        #region Validate Tests
+
+        [Fact]
+        public void SessionValidateUnfinishedQuery()
         {
             // If: I create a session object with a query that hasn't finished execution
             // Then: It should throw an exception
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             q.HasExecuted = false;
-            IEditTableMetadata etm = Common.GetMetadata(q.Batches[0].ResultSets[0].Columns);
-            Assert.Throws<InvalidOperationException>(() => new Session(q, etm));
+            Assert.Throws<InvalidOperationException>(() => Session.ValidateQueryForSession(q));
         }
 
         [Fact]
-        public void SessionConstructionIncorrectResultSet()
+        public void SessionValidateIncorrectResultSet()
         {
             // Setup: Create a query that yields >1 result sets
             TestResultSet[] results =
@@ -66,28 +88,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query query = new Query(QueryExecution.Common.StandardQuery, ci, new QueryExecutionSettings(), fsf);
             query.Execute();
             query.ExecutionTask.Wait();
-            IEditTableMetadata etm = Common.GetMetadata(query.Batches[0].ResultSets[0].Columns);
 
             // If: I create a session object with a query that has !=1 result sets
             // Then: It should throw an exception
-            Assert.Throws<InvalidOperationException>(() => new Session(query, etm));
+            Assert.Throws<InvalidOperationException>(() => Session.ValidateQueryForSession(query));
         }
 
         [Fact]
-        public void SessionConstructionValid()
+        public void SessionValidateValidResultSet()
         {
-            // If: I create a session object with a proper query and metadata
+            // If: I validate a query for a session with a valid query
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
-            IEditTableMetadata etm = Common.GetMetadata(q.Batches[0].ResultSets[0].Columns);
-            Session s = new Session(q, etm);
+            ResultSet rs = Session.ValidateQueryForSession(q);
 
-            // Then:
-            // ... The edit cache should exist and be empty
-            Assert.NotNull(s.EditCache);
-            Assert.Empty(s.EditCache);
-
-            // ... The next row ID should be equivalent to the number of rows in the result set
-            Assert.Equal(q.Batches[0].ResultSets[0].RowCount, s.NextRowId);
+            // Then: I should get the only result set back
+            Assert.NotNull(rs);
         }
 
         #endregion
@@ -103,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
             var mockEdit = new Mock<RowEditBase>().Object;
@@ -128,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // If: I add a row to the session
             long newId = s.CreateRow();
@@ -155,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // If: I delete a row that is out of range for the result set
             // Then: I should get an exception
@@ -188,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
             var mockEdit = new Mock<RowEditBase>().Object;
@@ -210,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // If: I add a row to the session
             s.DeleteRow(0);
@@ -231,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // If: I revert a row that doesn't have any pending changes
             // Then: I should get an exception
@@ -246,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
             var mockEdit = new Mock<RowEditBase>().Object;
@@ -272,7 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
             var mockEdit = new Mock<RowEditBase>();
@@ -296,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // If: I update a cell on a row that does not have a pending edit
             s.UpdateCell(0, 0, "");
@@ -321,7 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // If: I try to script the edit cache with a null or whitespace output path
             // Then: It should throw an exception
@@ -336,7 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
 
             // ... Add two mock edits that will generate a script
             Mock<RowEditBase> edit = new Mock<RowEditBase>();

@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task DisposeNullOrMissingSessionId(string sessionId)
         {
             // Setup: Create a edit data service
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
 
             // If: I ask to dispose of a null session ID
             // Then: I should get an error from it
@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task DisposeSuccess()
         {
             // Setup: Create an edit data service with a session
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
             
             // If: I ask to dispose of an existing session
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task DeleteNullOrMissingSession(string sessionId)
         {
             // Setup: Create an edit data service without a session
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             
             // If: I ask to delete a row from a non existant session
             var efv = new EventFlowValidator<EditDeleteRowResult>()
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task DeleteThrows()
         {
             // Setup: Create an edit data service with a session that will throw on delete
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             var session = GetDefaultSession();
             session.EditCache[0] = new Mock<RowEditBase>().Object;
             eds.ActiveSessions[Common.OwnerUri] = session;
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task DeleteSuccess()
         {
             // Setup: Create an edit data service with a session
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
 
             // If: I validly ask to delete a row
@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task CreateNullOrMissingSession(string sessionId)
         {
             // Setup: Create an edit data service without a session
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
 
             // If: I ask to create a row in a non existant session
             var efv = new EventFlowValidator<EditCreateRowResult>()
@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // NOTE: This scenario is theoretically impossible, but we'll test it for completeness
             // Setup: Create an edit data service with a session that will throw on create
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             var session = GetDefaultSession();
             session.EditCache[QueryExecution.Common.StandardRows] = new Mock<RowEditBase>().Object;
             eds.ActiveSessions[Common.OwnerUri] = session;
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task CreateSucceeds()
         {
             // Setup: Create an edit data service with a session
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
 
             // If: I ask to create a row from a non existant session
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task RevertNullOrMissingSession(string sessionId)
         {
             // Setup: Create an edit data service without a session
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
 
             // If: I ask to revert a row from a non existant session
             var efv = new EventFlowValidator<EditRevertRowResult>()
@@ -203,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task RevertThrows()
         {
             // Setup: Create an edit data service with a session that will throw on revert
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
 
             // If: I ask to revert a row that does not have a pending edit (ie, session will throw)
@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task RevertSucceeds()
         {
             // Setup: Create an edit data service with a session that has an pending edit
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             var session = GetDefaultSession();
             session.EditCache[0] = new Mock<RowEditBase>().Object;
             eds.ActiveSessions[Common.OwnerUri] = session;
@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task UpdateNullOrMissingSession(string sessionId)
         {
             // Setup: Create an edit data service without a session
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
 
             // If: I ask to update a cell from a non existant session
             var efv = new EventFlowValidator<EditUpdateCellResult>()
@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task UpdateThrows()
         {
             // Setup: Create an edit data service with a session that will throw on update
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             var session = GetDefaultSession();
             var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>())).Throws<Exception>();
@@ -284,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public async Task UpdateSuccess()
         {
             // Setup: Create an edit data service with a session
-            var eds = new EditDataService(null, null);
+            var eds = new EditDataService(null, null, null);
             var session = GetDefaultSession();
             eds.ActiveSessions[Common.OwnerUri] = session;
             var edit = new Mock<RowEditBase>();
@@ -321,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(q, etm);
+            Session s = new Session(rs, etm);
             return s;
         }
     }

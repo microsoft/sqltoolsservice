@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿
+using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -21,7 +22,25 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             columns = new List<EditColumnWrapper>();
             for (int i = 0; i < dbColumns.Count; i++)
             {
-                columns.Add(new EditColumnWrapper(i, dbColumns[i], smoObject.Columns[i]));
+                Column smoColumn = smoObject.Columns[i];
+                DbColumnWrapper dbColumn = dbColumns[i];
+
+                // A column is trustworthy for uniqueness if it can be updated or it has an identity
+                // property. If both of these are false (eg, timestamp) we can't trust it to uniquely
+                // identify a row in the table
+                bool isTrustworthyForUniqueness = dbColumn.IsUpdatable || smoColumn.Identity;
+
+                EditColumnWrapper column = new EditColumnWrapper
+                {
+                    DbColumn = dbColumn,
+                    Ordinal = i,
+                    EscapedName = SqlScriptFormatter.FormatIdentifier(dbColumn.ColumnName),
+                    IsTrustworthyForUniqueness = isTrustworthyForUniqueness,
+
+                    // A key column is determined by whether it is in the primary key and trustworthy
+                    IsKey = smoColumn.InPrimaryKey && isTrustworthyForUniqueness
+                };
+                columns.Add(column);
             }
 
             // Determine what the key columns are
@@ -42,9 +61,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             EscapedMultipartName = SqlScriptFormatter.FormatMultipartIdentifier(objectNameParts);
         }
 
-        public IEnumerable<IEditColumnWrapper> Columns => columns;
+        public IEnumerable<EditColumnWrapper> Columns => columns;
         public string EscapedMultipartName { get; }
         public bool IsHekaton { get; }
-        public IEnumerable<IEditColumnWrapper> KeyColumns => keyColumns;
+        public IEnumerable<EditColumnWrapper> KeyColumns => keyColumns;
     }
 }

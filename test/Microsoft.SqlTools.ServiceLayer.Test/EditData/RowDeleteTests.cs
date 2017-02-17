@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Data.Common;
+using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Xunit;

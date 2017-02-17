@@ -26,10 +26,28 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #endregion
 
-        public Session(Query query, IEditTableMetadata objMetadata)
+        public Session(ResultSet resultSet, IEditTableMetadata objMetadata)
+        {
+            Validate.IsNotNull(nameof(resultSet), resultSet);
+            Validate.IsNotNull(nameof(objMetadata), objMetadata);
+
+            // Setup the internal state
+            associatedResultSet = resultSet;
+            objectMetadata = objMetadata;
+            NextRowId = associatedResultSet.RowCount;
+            EditCache = new ConcurrentDictionary<long, RowEditBase>();
+        }
+
+        #region Public Methods
+
+        /// <summary>
+        /// Validates that a query can be used for an edit session. The target result set is returned
+        /// </summary>
+        /// <param name="query">The query to validate</param>
+        /// <returns>The result set to use</returns>
+        public static ResultSet ValidateQueryForSession(Query query)
         {
             Validate.IsNotNull(nameof(query), query);
-            Validate.IsNotNull(nameof(objMetadata), objMetadata);
 
             // Determine if the query is valid for editing
             // Criterion 1) Query has finished executing
@@ -45,14 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataQueryImproperResultSets);
             }
 
-            // Setup the internal state
-            associatedResultSet = queryResultSets[0];
-            objectMetadata = objMetadata;
-            NextRowId = associatedResultSet.RowCount;
-            EditCache = new ConcurrentDictionary<long, RowEditBase>();
+            return query.Batches[0].ResultSets[0];
         }
-
-        #region Public Methods
 
         /// <summary>
         /// Creates a new row update and adds it to the update cache

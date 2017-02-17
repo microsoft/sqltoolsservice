@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
 
             IList<DbCellValue> row = AssociatedResultSet.GetRow(RowId);
-            foreach (IEditColumnWrapper col in AssociatedObjectMetadata.KeyColumns)
+            foreach (EditColumnWrapper col in AssociatedObjectMetadata.KeyColumns)
             {
                 // Put together a clause for the value of the cell
                 DbCellValue cellData = row[col.Ordinal];
