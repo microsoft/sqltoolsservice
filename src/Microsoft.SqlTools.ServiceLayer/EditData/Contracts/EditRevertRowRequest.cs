@@ -10,17 +10,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     /// <summary>
     /// Parameters for the revert row request
     /// </summary>
-    public class EditRevertRowParams
+    public class EditRevertRowParams : RowOperationParams
     {
-        /// <summary>
-        /// Owner URI for the session to revert the row in
-        /// </summary>
-        public string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Internal ID of the row to revert
-        /// </summary>
-        public long RowId { get; set; }
     }
 
     /// <summary>

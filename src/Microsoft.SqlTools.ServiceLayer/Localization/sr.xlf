@@ -555,7 +555,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataInvalidFormatBoolean">
-        <source>Boolean columns must be numeric 1 or 0, or string true or false</source>
+        <source>Allowed values for boolean columns are 0, 1, "true", or "false"</source>
         <target state="new">Boolean columns must be numeric 1 or 0, or string true or false</target>
         <note></note>
       </trans-unit>

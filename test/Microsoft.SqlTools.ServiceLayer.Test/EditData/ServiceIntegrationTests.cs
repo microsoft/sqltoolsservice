@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
@@ -17,6 +18,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
 {
     public class ServiceIntegrationTests
     {
+        #region Session Operation Helper Tests
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" \t\n\r")]
+        [InlineData("Does not exist")]
+        public async Task NullOrMissingSessionId(string sessionId)
+        {
+            // Setup: 
+            // ... Create a edit data service
+            var eds = new EditDataService(null, null, null);
+
+            // ... Create a session params that returns the provided session ID
+            var mockParams = new EditCreateRowParams {OwnerUri = sessionId};
+
+            // If: I ask to perform an action that requires a session
+            // Then: I should get an error from it
+            var efv = new EventFlowValidator<EditDisposeResult>()
+                .AddStandardErrorValidation()
+                .Complete();
+            await eds.HandleSessionRequest(mockParams, efv.Object, session => null);
+            efv.Validate();
+        }
+
+        [Fact]
+        public async Task OperationThrows()
+        {
+            // Setup: 
+            // ... Create an edit data service with a session
+            var eds = new EditDataService(null, null, null);
+            eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
+
+            // ... Create a session param that returns the common owner uri
+            var mockParams = new EditCreateRowParams { OwnerUri = Common.OwnerUri };
+
+            // If: I ask to perform an action that requires a session
+            // Then: I should get an error from it
+            var efv = new EventFlowValidator<EditDisposeResult>()
+                .AddStandardErrorValidation()
+                .Complete();
+            await eds.HandleSessionRequest(mockParams, efv.Object, s => { throw new Exception(); });
+            efv.Validate();
+        }
+
+        #endregion
+
         #region Dispose Tests
 
         [Theory]
@@ -29,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // Setup: Create a edit data service
             var eds = new EditDataService(null, null, null);
 
-            // If: I ask to dispose of a null session ID
+            // If: I ask to perform an action that requires a session
             // Then: I should get an error from it
             var efv = new EventFlowValidator<EditDisposeResult>()
                 .AddStandardErrorValidation()
@@ -61,47 +109,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
 
         #endregion
 
-        #region Delete Row Tests
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" \t\n\r")]
-        [InlineData("Does not exist")]
-        public async Task DeleteNullOrMissingSession(string sessionId)
-        {
-            // Setup: Create an edit data service without a session
-            var eds = new EditDataService(null, null, null);
-            
-            // If: I ask to delete a row from a non existant session
-            var efv = new EventFlowValidator<EditDeleteRowResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleDeleteRowRequest(new EditDeleteRowParams {OwnerUri = sessionId, RowId = 0}, efv.Object);
-
-            // Then: It should have resulted in an error
-            efv.Validate();
-        }
-
-        [Fact]
-        public async Task DeleteThrows()
-        {
-            // Setup: Create an edit data service with a session that will throw on delete
-            var eds = new EditDataService(null, null, null);
-            var session = GetDefaultSession();
-            session.EditCache[0] = new Mock<RowEditBase>().Object;
-            eds.ActiveSessions[Common.OwnerUri] = session;
-
-            // If: I ask to delete a row that already has an edit pending (ie, the session will throw)
-            var efv = new EventFlowValidator<EditDeleteRowResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleDeleteRowRequest(new EditDeleteRowParams {OwnerUri = Common.OwnerUri, RowId = 0}, efv.Object);
-
-            // Then: It should result in an error
-            efv.Validate();
-        }
-
         [Fact]
         public async Task DeleteSuccess()
         {
@@ -115,52 +122,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 .Complete();
             await eds.HandleDeleteRowRequest(new EditDeleteRowParams {OwnerUri = Common.OwnerUri, RowId = 0}, efv.Object);
 
-            // Then: It should be successful
+            // Then: 
+            // ... It should be successful
             efv.Validate();
-        }
 
-        #endregion
-
-        #region Create Row Tests
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" \t\n\r")]
-        [InlineData("Does not exist")]
-        public async Task CreateNullOrMissingSession(string sessionId)
-        {
-            // Setup: Create an edit data service without a session
-            var eds = new EditDataService(null, null, null);
-
-            // If: I ask to create a row in a non existant session
-            var efv = new EventFlowValidator<EditCreateRowResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleCreateRowRequest(new EditCreateRowParams { OwnerUri = sessionId }, efv.Object);
-
-            // Then: It should have resulted in an error
-            efv.Validate();
-        }
-
-        [Fact]
-        public async Task CreateThrows()
-        {
-            // NOTE: This scenario is theoretically impossible, but we'll test it for completeness
-            // Setup: Create an edit data service with a session that will throw on create
-            var eds = new EditDataService(null, null, null);
-            var session = GetDefaultSession();
-            session.EditCache[QueryExecution.Common.StandardRows] = new Mock<RowEditBase>().Object;
-            eds.ActiveSessions[Common.OwnerUri] = session;
-
-            // If: I ask to create a row that already has an edit pending (ie, the session will throw)
-            var efv = new EventFlowValidator<EditCreateRowResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleCreateRowRequest(new EditCreateRowParams {OwnerUri = Common.OwnerUri}, efv.Object);
-
-            // Then: It should result in an error
-            efv.Validate();
+            // ... There should be a delete in the session
+            Session s = eds.ActiveSessions[Common.OwnerUri];
+            Assert.True(s.EditCache.Any(e => e.Value is RowDelete));
         }
 
         [Fact]
@@ -176,49 +144,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 .Complete();
             await eds.HandleCreateRowRequest(new EditCreateRowParams { OwnerUri = Common.OwnerUri }, efv.Object);
 
-            // Then: It should have resulted in an error
+            // Then:
+            // ... It should have been successful
             efv.Validate();
-        }
 
-        #endregion
-
-        #region Revert Row Tests
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" \t\n\r")]
-        [InlineData("Does not exist")]
-        public async Task RevertNullOrMissingSession(string sessionId)
-        {
-            // Setup: Create an edit data service without a session
-            var eds = new EditDataService(null, null, null);
-
-            // If: I ask to revert a row from a non existant session
-            var efv = new EventFlowValidator<EditRevertRowResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleRevertRowRequest(new EditRevertRowParams { OwnerUri = sessionId, RowId = 0}, efv.Object);
-
-            // Then: It should have resulted in an error
-            efv.Validate();
-        }
-
-        [Fact]
-        public async Task RevertThrows()
-        {
-            // Setup: Create an edit data service with a session that will throw on revert
-            var eds = new EditDataService(null, null, null);
-            eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
-
-            // If: I ask to revert a row that does not have a pending edit (ie, session will throw)
-            var efv = new EventFlowValidator<EditRevertRowResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleRevertRowRequest(new EditRevertRowParams { OwnerUri = Common.OwnerUri, RowId = 0}, efv.Object);
-
-            // Then: It should result in an error
-            efv.Validate();
+            // ... There should be a create in the session
+            Session s = eds.ActiveSessions[Common.OwnerUri];
+            Assert.True(s.EditCache.Any(e => e.Value is RowCreate));
         }
 
         [Fact]
@@ -236,53 +168,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 .Complete();
             await eds.HandleRevertRowRequest(new EditRevertRowParams { OwnerUri = Common.OwnerUri, RowId = 0}, efv.Object);
 
-            // Then: It should have resulted in an error
+            // Then: 
+            // ... It should have succeeded
             efv.Validate();
-        }
 
-        #endregion
-
-        #region Update Cell Tests
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" \t\n\r")]
-        [InlineData("Does not exist")]
-        public async Task UpdateNullOrMissingSession(string sessionId)
-        {
-            // Setup: Create an edit data service without a session
-            var eds = new EditDataService(null, null, null);
-
-            // If: I ask to update a cell from a non existant session
-            var efv = new EventFlowValidator<EditUpdateCellResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = sessionId }, efv.Object);
-
-            // Then: It should have resulted in an error
-            efv.Validate();
-        }
-
-        [Fact]
-        public async Task UpdateThrows()
-        {
-            // Setup: Create an edit data service with a session that will throw on update
-            var eds = new EditDataService(null, null, null);
-            var session = GetDefaultSession();
-            var edit = new Mock<RowEditBase>();
-            edit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>())).Throws<Exception>();
-            session.EditCache[0] = edit.Object;
-            eds.ActiveSessions[Common.OwnerUri] = session;
-
-            // If: I ask to update a cell, that will throw
-            var efv = new EventFlowValidator<EditUpdateCellResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = Common.OwnerUri, RowId = 0 }, efv.Object);
-
-            // Then: It should result in an error
-            efv.Validate();
+            // ... The edit cache should be empty again
+            Session s = eds.ActiveSessions[Common.OwnerUri];
+            Assert.Empty(s.EditCache);
         }
 
         [Fact]
@@ -314,11 +206,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 .Complete();
             await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = Common.OwnerUri, RowId = 0}, efv.Object);
 
-            // Then: It should be successful
+            // Then: 
+            // ... It should be successful
             efv.Validate();
-        }
 
-        #endregion
+            // ... Set cell should have been called once
+            edit.Verify(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+        }
 
         private static Session GetDefaultSession()
         {

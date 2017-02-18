@@ -88,20 +88,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #region Request Handlers
 
-        internal async Task HandleCreateRowRequest(EditCreateRowParams createParams,
-            RequestContext<EditCreateRowResult> requestContext)
+        internal async Task HandleSessionRequest<TResult>(SessionOperationParams sessionParams,
+            RequestContext<TResult> requestContext, Func<Session, TResult> sessionOperation)
         {
             try
             {
-                Session session = GetActiveSessionOrThrow(createParams.OwnerUri);
+                Session session = GetActiveSessionOrThrow(sessionParams.OwnerUri);
 
-                // Create the row and get send the ID of the row back
-                long newRowId = session.CreateRow();
-                EditCreateRowResult createResult = new EditCreateRowResult
-                {
-                    NewRowId = newRowId
-                };
-                await requestContext.SendResult(createResult);
+                // Get the result from execution of the session operation
+                TResult result = sessionOperation(session);
+                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {
@@ -109,22 +105,29 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        internal async Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
+        internal Task HandleCreateRowRequest(EditCreateRowParams createParams,
+            RequestContext<EditCreateRowResult> requestContext)
+        {
+            return HandleSessionRequest(createParams, requestContext, session =>
+            {
+                // Create the row and get the ID of the new row
+                long newRowId = session.CreateRow();
+                return new EditCreateRowResult
+                {
+                    NewRowId = newRowId
+                };
+            });
+        }
+
+        internal Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,
             RequestContext<EditDeleteRowResult> requestContext)
         {
-            try
+            return HandleSessionRequest(deleteParams, requestContext, session =>
             {
-                Session session = GetActiveSessionOrThrow(deleteParams.OwnerUri);
-
                 // Add the delete row to the edit cache
                 session.DeleteRow(deleteParams.RowId);
-                await requestContext.SendResult(new EditDeleteRowResult());
-            }
-            catch (Exception e)
-            {
-                // Send back the error
-                await requestContext.SendError(e.Message);
-            }
+                return new EditDeleteRowResult();
+            });
         }
 
         internal async Task HandleDisposeRequest(EditDisposeParams disposeParams,
@@ -235,34 +238,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        internal async Task HandleRevertRowRequest(EditRevertRowParams revertParams,
+        internal Task HandleRevertRowRequest(EditRevertRowParams revertParams,
             RequestContext<EditRevertRowResult> requestContext)
         {
-            try
+            return HandleSessionRequest(revertParams, requestContext, session =>
             {
-                Session session = GetActiveSessionOrThrow(revertParams.OwnerUri);
                 session.RevertRow(revertParams.RowId);
-                await requestContext.SendResult(new EditRevertRowResult());
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.Message);
-            }
+                return new EditRevertRowResult();
+            });
         }
 
-        internal async Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
+        internal Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
             RequestContext<EditUpdateCellResult> requestContext)
         {
-            try
-            {
-                Session session = GetActiveSessionOrThrow(updateParams.OwnerUri);
-                var result = session.UpdateCell(updateParams.RowId, updateParams.ColumnId, updateParams.NewValue);
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.Message);
-            }
+            return HandleSessionRequest(updateParams, requestContext,
+                session => session.UpdateCell(updateParams.RowId, updateParams.ColumnId, updateParams.NewValue));
         }
 
         #endregion

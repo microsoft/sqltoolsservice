@@ -10,18 +10,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     /// <summary>
     /// Parameters for the update cell request
     /// </summary>
-    public class EditUpdateCellParams
+    public class EditUpdateCellParams : RowOperationParams
     {
-        /// <summary>
-        /// Owner URI for the session to apply update to
-        /// </summary>
-        public string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Internal ID of the row to update
-        /// </summary>
-        public long RowId { get; set; }
-
         /// <summary>
         /// Internal ID of the column to update
         /// </summary>

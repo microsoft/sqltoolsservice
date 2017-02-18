@@ -222,7 +222,7 @@ EditDataObjectMetadataNotFound = Table or view metadata could not be found
 
 EditDataInvalidFormatBinary = Invalid format for binary column
 
-EditDataInvalidFormatBoolean = Boolean columns must be numeric 1 or 0, or string true or false
+EditDataInvalidFormatBoolean = Allowed values for boolean columns are 0, 1, "true", or "false"
 
 EditDataCreateScriptMissingValue = A required cell value is missing
 

@@ -447,7 +447,7 @@
     <comment></comment>
   </data>
   <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>Boolean columns must be numeric 1 or 0, or string true or false</value>
+    <value>Allowed values for boolean columns are 0, 1, "true", or "false"</value>
     <comment></comment>
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">

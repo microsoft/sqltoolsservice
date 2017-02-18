@@ -7,17 +7,11 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
 {
-    public class EditDeleteRowParams
+    /// <summary>
+    /// Parameters for identifying a row to mark for deletion
+    /// </summary>
+    public class EditDeleteRowParams : RowOperationParams
     {
-        /// <summary>
-        /// Owner URI for the session to to add the delete row
-        /// </summary>
-        public string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Internal ID of the row to delete
-        /// </summary>
-        public long RowId { get; set; }
     }
 
     /// <summary>

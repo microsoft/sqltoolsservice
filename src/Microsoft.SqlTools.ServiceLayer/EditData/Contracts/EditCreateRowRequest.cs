@@ -10,12 +10,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     /// <summary>
     /// Parameters for the update cell request
     /// </summary>
-    public class EditCreateRowParams
+    public class EditCreateRowParams : SessionOperationParams
     {
-        /// <summary>
-        /// Owner URI for the session to add new row to
-        /// </summary>
-        public string OwnerUri { get; set; }
     }
 
     /// <summary>

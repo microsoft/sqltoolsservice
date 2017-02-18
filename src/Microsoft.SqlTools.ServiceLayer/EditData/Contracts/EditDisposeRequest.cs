@@ -10,12 +10,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     /// <summary>
     /// Parameters of the edit session dispose request
     /// </summary>
-    public class EditDisposeParams
+    public class EditDisposeParams : SessionOperationParams
     {
-        /// <summary>
-        /// The owner URI for the session to dispose
-        /// </summary>
-        public string OwnerUri { get; set; }
     }
 
     /// <summary>
