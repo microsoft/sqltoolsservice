@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// <summary>
         /// Creates a mock db command that returns a predefined result set
         /// </summary>
-        public static DbCommand CreateTestCommand(Dictionary<string, string>[][] data)
+        public static DbCommand CreateTestCommand(TestResultSet[] data)
         {
             var commandMock = new Mock<DbCommand> { CallBase = true };
             var commandMockSetup = commandMock.Protected()
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// <summary>
         /// Creates a mock db connection that returns predefined data when queried for a result set
         /// </summary>
-        public DbConnection CreateMockDbConnection(Dictionary<string, string>[][] data)
+        public DbConnection CreateMockDbConnection(TestResultSet[] data)
         {
             var connectionMock = new Mock<DbConnection> { CallBase = true };
             connectionMock.Protected()
@@ -57,29 +57,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Fact]
         public void CanCancelConnectRequest()
         {
-            var testFile = "file:///my/test/file.sql";
+            const string testFile = "file:///my/test/file.sql";
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
             CancellationToken token;
             bool ready = false;
-            mockConnection.Setup(x => x.OpenAsync(Moq.It.IsAny<CancellationToken>()))
+            mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t => 
                 {
                     // Pass the token to the return handler and signal the main thread to cancel
                     token = t;
                     ready = true;
                 })
-                .Returns(() => 
+                .Returns(() =>
                 {
                     if (TestUtils.WaitFor(() => token.IsCancellationRequested))
                     {
                         throw new OperationCanceledException();
                     }
-                    else
-                    {
-                        return Task.FromResult(true);
-                    }
+                    return Task.FromResult(true);
                 });
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
@@ -91,15 +88,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // Connect the connection asynchronously in a background thread
             var connectionDetails = TestObjects.GetTestConnectionDetails();
-            var connectTask = Task.Run(async () => 
-            {
-                return await connectionService
-                    .Connect(new ConnectParams()
-                    {
-                        OwnerUri = testFile,
-                        Connection = connectionDetails
-                    });
-            });
+            var connectTask = Task.Run(async () => await connectionService
+                .Connect(new ConnectParams
+                {
+                    OwnerUri = testFile,
+                    Connection = connectionDetails
+                }));
 
             // Wait for the connection to call OpenAsync()
             Assert.True(TestUtils.WaitFor(() => ready));
@@ -124,34 +118,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Fact]
         public async Task CanCancelConnectRequestByConnecting()
         {
-            var testFile = "file:///my/test/file.sql";
+            const string testFile = "file:///my/test/file.sql";
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
             CancellationToken token;
             bool ready = false;
-            mockConnection.Setup(x => x.OpenAsync(Moq.It.IsAny<CancellationToken>()))
+            mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t => 
                 {
                     // Pass the token to the return handler and signal the main thread to cancel
                     token = t;
                     ready = true;
                 })
-                .Returns(() => 
+                .Returns(() =>
                 {
                     if (TestUtils.WaitFor(() => token.IsCancellationRequested))
                     {
                         throw new OperationCanceledException();
                     }
-                    else
-                    {
-                        return Task.FromResult(true);
-                    }
+                    return Task.FromResult(true);
                 });
             
             // Given a second connection that succeeds
             var mockConnection2 = new Mock<DbConnection> { CallBase = true };
-            mockConnection2.Setup(x => x.OpenAsync(Moq.It.IsAny<CancellationToken>()))
+            mockConnection2.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Returns(() => Task.Run(() => {}));
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
@@ -164,15 +155,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // Connect the first connection asynchronously in a background thread
             var connectionDetails = TestObjects.GetTestConnectionDetails();
-            var connectTask = Task.Run(async () => 
-            {
-                return await connectionService
-                    .Connect(new ConnectParams()
-                    {
-                        OwnerUri = testFile,
-                        Connection = connectionDetails
-                    });
-            });
+            var connectTask = Task.Run(async () => await connectionService
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = testFile,
+                    Connection = connectionDetails
+                }));
 
             // Wait for the connection to call OpenAsync()
             Assert.True(TestUtils.WaitFor(() => ready));
@@ -198,13 +186,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         [Fact]
         public void CanCancelConnectRequestByDisconnecting()
         {
-            var testFile = "file:///my/test/file.sql";
+            const string testFile = "file:///my/test/file.sql";
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
             CancellationToken token;
             bool ready = false;
-            mockConnection.Setup(x => x.OpenAsync(Moq.It.IsAny<CancellationToken>()))
+            mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t => 
                 {
                     // Pass the token to the return handler and signal the main thread to cancel
@@ -217,10 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
                     {
                         throw new OperationCanceledException();
                     }
-                    else
-                    {
-                        return Task.FromResult(true);
-                    }
+                    return Task.FromResult(true);
                 });
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
@@ -232,22 +217,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // Connect the first connection asynchronously in a background thread
             var connectionDetails = TestObjects.GetTestConnectionDetails();
-            var connectTask = Task.Run(async () => 
-            {
-                return await connectionService
-                    .Connect(new ConnectParams()
-                    {
-                        OwnerUri = testFile,
-                        Connection = connectionDetails
-                    });
-            });
+            var connectTask = Task.Run(async () => await connectionService
+                .Connect(new ConnectParams
+                {
+                    OwnerUri = testFile,
+                    Connection = connectionDetails
+                }));
 
             // Wait for the connection to call OpenAsync()
             Assert.True(TestUtils.WaitFor(() => ready));
 
             // Send a cancellation by trying to disconnect
             var disconnectResult = connectionService
-                .Disconnect(new DisconnectParams()
+                .Disconnect(new DisconnectParams
                 {
                     OwnerUri = testFile
                 });
@@ -378,16 +360,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         public async Task ConnectingWithInvalidCredentialsYieldsErrorMessage()
         {
             var testConnectionDetails = TestObjects.GetTestConnectionDetails();
-            var invalidConnectionDetails = new ConnectionDetails();
-            invalidConnectionDetails.ServerName = testConnectionDetails.ServerName;
-            invalidConnectionDetails.DatabaseName = testConnectionDetails.DatabaseName;
-            invalidConnectionDetails.UserName = "invalidUsername"; // triggers exception when opening mock connection
-            invalidConnectionDetails.Password = "invalidPassword";
+            var invalidConnectionDetails = new ConnectionDetails
+            {
+                ServerName = testConnectionDetails.ServerName,
+                DatabaseName = testConnectionDetails.DatabaseName,
+                UserName = "invalidUsername",
+                Password = "invalidPassword"
+            };
+            // triggers exception when opening mock connection
 
             // Connect to test db with invalid credentials
             var connectionResult = await
                 TestObjects.GetTestConnectionService()
-                .Connect(new ConnectParams()
+                .Connect(new ConnectParams
                 {
                     OwnerUri = "file://my/sample/file.sql",
                     Connection = invalidConnectionDetails
@@ -559,7 +544,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             connectionService.ServiceHost = serviceHostMock.Object;
 
             // Set up an initial connection
-            string ownerUri = "file://my/sample/file.sql";
+            const string ownerUri = "file://my/sample/file.sql";
             var connectionResult = await
                 connectionService
                 .Connect(new ConnectParams()
@@ -574,11 +559,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             ConnectionInfo info;
             Assert.True(connectionService.TryFindConnection(ownerUri, out info));
 
-            // Tell the connection manager that the database change ocurred
+            // Tell the connection manager that the database change occurred
             connectionService.ChangeConnectionDatabaseContext(ownerUri, "myOtherDb");
 
             // Verify that the connection changed event was fired
-            serviceHostMock.Verify(x => x.SendEvent<ConnectionChangedParams>(ConnectionChangedNotification.Type, It.IsAny<ConnectionChangedParams>()), Times.Once());
+            serviceHostMock.Verify(x => x.SendEvent(ConnectionChangedNotification.Type, It.IsAny<ConnectionChangedParams>()), Times.Once());
         }
 
         /// <summary>
@@ -602,7 +587,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         }
 
         /// <summary>
-        /// Verify that we can disconnect from an active connection succesfully
+        /// Verify that we can disconnect from an active connection successfully
         /// </summary>
         [Fact]
         public async Task DisconnectFromDatabaseTest()
@@ -754,14 +739,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         public async Task ListDatabasesOnServerForCurrentConnectionReturnsDatabaseNames()
         {
             // Result set for the query of database names
-            Dictionary<string, string>[] data =
+            TestDbColumn[] cols = {new TestDbColumn("name")};
+            object[][] rows =
             {
-                new Dictionary<string, string> { {"name", "master" } },
-                new Dictionary<string, string> { {"name", "model" } },
-                new Dictionary<string, string> { {"name", "msdb" } },
-                new Dictionary<string, string> { {"name", "tempdb" } },
-                new Dictionary<string, string> { {"name", "mydatabase" } },
+                new object[] {"master"},
+                new object[] {"model"},
+                new object[] {"msdb"},
+                new object[] {"tempdb"},
+                new object[] {"mydatabase"}
             };
+            TestResultSet data = new TestResultSet(cols, rows);
 
             // Setup mock connection factory to inject query results
             var mockFactory = new Mock<ISqlConnectionFactory>();
@@ -783,8 +770,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Assert.NotEmpty(connectionResult.ConnectionId);
 
             // list databases for the connection
-            ListDatabasesParams parameters = new ListDatabasesParams();
-            parameters.OwnerUri = ownerUri;
+            ListDatabasesParams parameters = new ListDatabasesParams {OwnerUri = ownerUri};
             var listDatabasesResult = connectionService.ListDatabases(parameters);
             string[] databaseNames = listDatabasesResult.DatabaseNames;
 
@@ -814,7 +800,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             );
             
             // connect to a database instance 
-            var connectionResult = await connectionService.Connect(TestObjects.GetTestConnectionParams());
+            await connectionService.Connect(TestObjects.GetTestConnectionParams());
 
             // verify that a valid connection id was returned
             Assert.True(callbackInvoked);
@@ -865,7 +851,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // verify that a valid connection id was returned
             Assert.NotNull(connectionResult.ConnectionId);
-            Assert.NotEqual(String.Empty, connectionResult.ConnectionId);
+            Assert.NotEqual(string.Empty, connectionResult.ConnectionId);
             Assert.NotNull(new Guid(connectionResult.ConnectionId));
             
             // verify that the (URI -> connection) mapping was created
@@ -881,16 +867,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// and remove the code block specific to Linux/OSX.
         /// </summary>
         [Fact]
-        public void TestThatLinuxAndOSXSqlExceptionHasNoErrorCode()
+        public void TestThatLinuxAndOsxSqlExceptionHasNoErrorCode()
         {
             TestUtils.RunIfLinuxOrOSX(() => 
             {    
                 try
                 {
-                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                    builder.DataSource = "bad-server-name";
-                    builder.UserID = "sa";
-                    builder.Password = "bad password";
+                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
+                    {
+                        DataSource = "bad-server-name",
+                        UserID = "sa",
+                        Password = "bad password"
+                    };
 
                     SqlConnection connection = new SqlConnection(builder.ConnectionString);
                     connection.Open(); // This should fail
@@ -903,7 +891,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             });
         }
 
-        // <summary>
+        /// <summary>
         /// Test that cancel connection with a null connection parameter
         /// </summary>
         [Fact]
@@ -913,7 +901,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             Assert.False(service.CancelConnect(null));
         }
 
-        // <summary>
+        /// <summary>
         /// Test that cancel connection with a null connection parameter
         /// </summary>
         [Fact]
@@ -937,7 +925,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
         /// <summary>
         /// Test that the connection summary comparer creates a hash code correctly
-        /// <summary>
+        /// </summary>
         [Theory]
         [InlineData(true, null, null ,null)]
         [InlineData(false, null, null, null)]
@@ -981,9 +969,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         public void ConnectParamsAreInvalidIfConnectionIsNull()
         {
             // Given connection parameters where the connection property is null
-            ConnectParams parameters = new ConnectParams();
-            parameters.OwnerUri = "my/sql/file.sql";
-            parameters.Connection = null;
+            ConnectParams parameters = new ConnectParams
+            {
+                OwnerUri = "my/sql/file.sql",
+                Connection = null
+            };
 
             string errorMessage;
 
@@ -1040,11 +1030,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             await service.Connect(connectParamsDifferent);
             Assert.Equal(2, ownerToConnectionMap.Count);
 
-            // If we disconenct with the unique URI, there should be 1 connection
+            // If we disconnect with the unique URI, there should be 1 connection
             service.Disconnect(disconnectParamsDifferent);
             Assert.Equal(1, ownerToConnectionMap.Count);
 
-            // If we disconenct with the duplicate URI, there should be 0 connections
+            // If we disconnect with the duplicate URI, there should be 0 connections
             service.Disconnect(disconnectParamsSame);
             Assert.Equal(0, ownerToConnectionMap.Count);
         }
@@ -1134,7 +1124,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
 
             // If I connect a Default and a Query connection
             var service = TestObjects.GetTestConnectionService();
-            Dictionary<string, ConnectionInfo> ownerToConnectionMap = service.OwnerToConnectionMap;
             await service.Connect(connectParamsDefault);
             await service.Connect(connectParamsQuery);
             ConnectionInfo connectionInfo = service.OwnerToConnectionMap[connectParamsDefault.OwnerUri];

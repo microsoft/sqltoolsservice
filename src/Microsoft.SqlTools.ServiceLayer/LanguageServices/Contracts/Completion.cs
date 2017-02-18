@@ -45,14 +45,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
             Reference = 18
     }
 
-    [DebuggerDisplay("NewText = {NewText}, Range = {Range.Start.Line}:{Range.Start.Character} - {Range.End.Line}:{Range.End.Character}")]
-    public class TextEdit 
-    {
-        public Range Range { get; set; }
-
-        public string NewText { get; set; }
-    }
-
     [DebuggerDisplay("Kind = {Kind.ToString()}, Label = {Label}, Detail = {Detail}")]
     public class CompletionItem
     {

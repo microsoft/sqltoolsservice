@@ -36,8 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // Then:
             // ... I should get the requested number of rows back
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.RowCount);
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.Rows.Length);
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.Rows.Length);
         }
 
         [Theory]
@@ -85,8 +85,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
             // Then:
             // I should get the requested number of rows
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.RowCount);
-            Assert.Equal(Math.Min(rowCount, Common.StandardTestData.Length), subset.Rows.Length);
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.RowCount);
+            Assert.Equal(Math.Min(rowCount, Common.StandardTestResultSet.Count()), subset.Rows.Length);
         }
 
         [Theory]
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I have a query that has results (doesn't matter what)
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
@@ -175,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
             var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, workspaceService);
+            var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);

@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <returns>A new FilePosition instance for the calculated position.</returns>
         public FilePosition AddOffset(int lineOffset, int columnOffset)
         {
-            return this.scriptFile.CalculatePosition(
+            return scriptFile.CalculatePosition(
                 this,
                 lineOffset,
                 columnOffset);
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <returns>A new FilePosition instance for the calculated position.</returns>
         public FilePosition GetLineStart()
         {
-            string scriptLine = scriptFile.FileLines[this.Line - 1];
+            string scriptLine = scriptFile.FileLines[Line - 1];
 
             int lineStartColumn = 1;
             for (int i = 0; i < scriptLine.Length; i++)
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
                 }
             }
 
-            return new FilePosition(this.scriptFile, this.Line, lineStartColumn);
+            return new FilePosition(scriptFile, Line, lineStartColumn);
         }
 
         /// <summary>
@@ -99,8 +99,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <returns>A new FilePosition instance for the calculated position.</returns>
         public FilePosition GetLineEnd()
         {
-            string scriptLine = scriptFile.FileLines[this.Line - 1];
-            return new FilePosition(this.scriptFile, this.Line, scriptLine.Length + 1);
+            string scriptLine = scriptFile.FileLines[Line - 1];
+            return new FilePosition(scriptFile, Line, scriptLine.Length + 1);
         }
 
         #endregion

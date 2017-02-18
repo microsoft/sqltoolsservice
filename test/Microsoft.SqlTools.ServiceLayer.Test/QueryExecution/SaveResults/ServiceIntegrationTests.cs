@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             Dictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             Dictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(new[] {Common.StandardTestData}, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             Dictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Common.StandardQuery);
             Dictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(new[] { Common.StandardTestData }, true, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, ws, out storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
