@@ -730,6 +730,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
         }
 
+        public static string ConnectionServiceDbErrorDefaultNotConnected(string uri)
+        {
+            return Keys.GetString(Keys.ConnectionServiceDbErrorDefaultNotConnected, uri);
+        }
+
         public static string ConnectionServiceConnStringInvalidAuthType(string authType)
         {
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAuthType, authType);
@@ -800,6 +805,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceListDbErrorNotConnected = "ConnectionServiceListDbErrorNotConnected";
+
+
+            public const string ConnectionServiceDbErrorDefaultNotConnected = "ConnectionServiceDbErrorDefaultNotConnected";
 
 
             public const string ConnectionServiceConnStringInvalidAuthType = "ConnectionServiceConnStringInvalidAuthType";

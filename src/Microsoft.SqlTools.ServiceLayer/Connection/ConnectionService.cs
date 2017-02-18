@@ -388,25 +388,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// creates a new connection. This cannot be used to create a default connection or to create a 
         /// connection if a default connection does not exist.
         /// </summary>
+        /// <returns>A DB connection for the connection type requested</returns>
         public async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType)
         {
-            if (string.IsNullOrEmpty(ownerUri) || string.IsNullOrEmpty(connectionType))
-            {
-                return null;
-            }
+            Validate.IsNotNullOrEmptyString(nameof(ownerUri), ownerUri);
+            Validate.IsNotNullOrEmptyString(nameof(connectionType), connectionType);
 
             // Try to get the ConnectionInfo, if it exists
-            ConnectionInfo connectionInfo = ownerToConnectionMap[ownerUri];
-            if (connectionInfo == null)
+            ConnectionInfo connectionInfo;
+            if (!ownerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
             {
-                return null;
+                throw new ArgumentOutOfRangeException(SR.ConnectionServiceListDbErrorNotConnected(ownerUri));
             }
 
             // Make sure a default connection exists
             DbConnection defaultConnection;
             if (!connectionInfo.TryGetConnection(ConnectionType.Default, out defaultConnection))
             {
-                return null;
+                throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
             }
 
             // Try to get the DbConnection
@@ -416,7 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // If the DbConnection does not exist and is not the default connection, create one.
                 // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
                 // if Connect() has not yet been called.
-                ConnectParams connectParams = new ConnectParams()
+                ConnectParams connectParams = new ConnectParams
                 {
                     OwnerUri = ownerUri,
                     Connection = connectionInfo.ConnectionDetails,
