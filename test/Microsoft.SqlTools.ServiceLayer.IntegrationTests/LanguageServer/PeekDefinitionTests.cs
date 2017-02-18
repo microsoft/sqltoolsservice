@@ -155,7 +155,7 @@ GO";
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = "sys";
-            // WHen I try to get definition for 'Collation'
+            // When I try to get definition for 'Collation'
             DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Collation, "master.sys.objects", objectName, schemaName);
             // Then I expect non null result with error flag set
             Assert.NotNull(result);
