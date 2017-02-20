@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
     {
         public const string OwnerUri = "testFile";
 
-        public static IEditTableMetadata GetMetadata(DbColumn[] columns, bool allKeys = true, bool isHekaton = false)
+        public static IEditTableMetadata GetMetadata(DbColumn[] columns, bool allKeys = true, bool isMemoryOptimized = false)
         {
             // Create a Column Metadata Provider
             var columnMetas = columns.Select((c, i) =>
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 tableMetaMock.Setup(m => m.KeyColumns).Returns(columnMetas.Where(c => c.DbColumn.IsIdentity.HasTrue()));
             }
             tableMetaMock.Setup(m => m.Columns).Returns(columnMetas);
-            tableMetaMock.Setup(m => m.IsHekaton).Returns(isHekaton);
+            tableMetaMock.Setup(m => m.IsMemoryOptimized).Returns(isMemoryOptimized);
             tableMetaMock.Setup(m => m.EscapedMultipartName).Returns("tbl");
 
             return tableMetaMock.Object;

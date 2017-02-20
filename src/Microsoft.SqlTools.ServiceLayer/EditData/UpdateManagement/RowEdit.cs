@@ -53,6 +53,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         public ResultSet AssociatedResultSet { get; }
 
+        /// <summary>
+        /// The metadata for the table this edit is associated to
+        /// </summary>
         public IEditTableMetadata AssociatedObjectMetadata { get; }
 
         #endregion

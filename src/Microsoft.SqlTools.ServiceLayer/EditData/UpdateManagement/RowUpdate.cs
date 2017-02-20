@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     public sealed class RowUpdate : RowEditBase
     {
         private const string UpdateStatement = "UPDATE {0} SET {1} {2}";
-        private const string UpdateStatementHekaton = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
+        private const string UpdateStatementMemoryOptimized = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
 
         private readonly Dictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
@@ -45,10 +45,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override string GetScript()
         {
             // Build the "SET" portion of the statement
-            IEnumerable<string> setComponents = cellUpdates.Select(kvp =>
+            IEnumerable<string> setComponents = cellUpdates.Values.Select(cellUpdate =>
             {
-                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(kvp.Value.Column.ColumnName);
-                string formattedValue = SqlScriptFormatter.FormatValue(kvp.Value.Value, kvp.Value.Column);
+                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(cellUpdate.Column.ColumnName);
+                string formattedValue = SqlScriptFormatter.FormatValue(cellUpdate.Value, cellUpdate.Column);
                 return $"{formattedColumnName} = {formattedValue}";
             });
             string setClause = string.Join(", ", setComponents);
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string whereClause = GetWhereClause(false).CommandText;
 
             // Put it all together
-            string formatString = AssociatedObjectMetadata.IsHekaton ? UpdateStatementHekaton : UpdateStatement;
+            string formatString = AssociatedObjectMetadata.IsMemoryOptimized ? UpdateStatementMemoryOptimized : UpdateStatement;
             return string.Format(CultureInfo.InvariantCulture, formatString,
                 AssociatedObjectMetadata.EscapedMultipartName, setClause, whereClause);
         }

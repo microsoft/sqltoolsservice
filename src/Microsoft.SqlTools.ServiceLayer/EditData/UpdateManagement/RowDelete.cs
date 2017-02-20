@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     public sealed class RowDelete : RowEditBase
     {
         private const string DeleteStatement = "DELETE FROM {0} {1}";
-        private const string DeleteHekatonStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
+        private const string DeleteMemoryOptimizedStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
 
         /// <summary>
         /// Constructs a new RowDelete object
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>String of the DELETE statement</returns>
         public override string GetScript()
         {
-            string formatString = AssociatedObjectMetadata.IsHekaton ? DeleteHekatonStatement : DeleteStatement;
+            string formatString = AssociatedObjectMetadata.IsMemoryOptimized ? DeleteMemoryOptimizedStatement : DeleteStatement;
             return string.Format(CultureInfo.InvariantCulture, formatString,
                 AssociatedObjectMetadata.EscapedMultipartName, GetWhereClause(false).CommandText);
         }

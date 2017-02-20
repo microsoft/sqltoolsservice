@@ -91,66 +91,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
         #region Inter-Service API Tests
 
-        //[Fact]
-        //public async Task InterServiceExecuteNullExecuteParams()
-        //{
-        //    // Setup: Create a query service
-        //    var qes = new QueryExecutionService(null, null);
-        //    var eventSender = new EventFlowValidator<ExecuteRequestResult>().Complete().Object;
-        //    Func<Query, Task<bool>> successFunc = (query) => Task.FromResult(false);
-        //    Func<string, Task> errorFunc = Task.FromResult;
+        [Fact]
+        public async Task InterServiceExecuteNullExecuteParams()
+        {
+            // Setup: Create a query service
+            var qes = new QueryExecutionService(null, null);
+            var eventSender = new EventFlowValidator<ExecuteRequestResult>().Complete().Object;
 
 
-        //    // If: I call the inter-service API to execute with a null execute params
-        //    // Then: It should throw
-        //    await Assert.ThrowsAsync<ArgumentNullException>(
-        //        () => qes.InterServiceExecuteQuery(null, eventSender, successFunc, errorFunc));
-        //}
+            // If: I call the inter-service API to execute with a null execute params
+            // Then: It should throw
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => qes.InterServiceExecuteQuery(null, eventSender, null, null, null, null));
+        }
 
-        //[Fact]
-        //public async Task InterServiceExecuteNullEventSender()
-        //{
-        //    // Setup: Create a query service, and execute params
-        //    var qes = new QueryExecutionService(null, null);
-        //    var executeParams = new ExecuteStringParams();
-        //    Func<Query, Task<bool>> successFunc = (query) => Task.FromResult(false);
-        //    Func<string, Task> errorFunc = Task.FromResult;
+        [Fact]
+        public async Task InterServiceExecuteNullEventSender()
+        {
+            // Setup: Create a query service, and execute params
+            var qes = new QueryExecutionService(null, null);
+            var executeParams = new ExecuteStringParams();
 
-        //    // If: I call the inter-service API to execute a query with a a null event sender
-        //    // Then: It should throw
-        //    await Assert.ThrowsAsync<ArgumentNullException>(
-        //        () => qes.InterServiceExecuteQuery(executeParams, null, successFunc, errorFunc));
-        //}
-
-        //[Fact]
-        //public async Task InterServiceExecuteNullSuccessFunc()
-        //{
-        //    // Setup: Create a query service, and execute params
-        //    var qes = new QueryExecutionService(null, null);
-        //    var executeParams = new ExecuteStringParams();
-        //    var eventSender = new EventFlowValidator<ExecuteRequestResult>().Complete().Object;
-        //    Func<string, Task> errorFunc = Task.FromResult;
-
-        //    // If: I call the inter-service API to execute a query with a a null success function
-        //    // Then: It should throw
-        //    await Assert.ThrowsAsync<ArgumentNullException>(
-        //        () => qes.InterServiceExecuteQuery(executeParams, eventSender, null, errorFunc));
-        //}
-
-        //[Fact]
-        //public async Task InterServiceExecuteNullFailureFunc()
-        //{
-        //    // Setup: Create a query service, and execute params
-        //    var qes = new QueryExecutionService(null, null);
-        //    var executeParams = new ExecuteStringParams();
-        //    var eventSender = new EventFlowValidator<ExecuteRequestResult>().Complete().Object;
-        //    Func<Query, Task<bool>> successFunc = (query) => Task.FromResult(false);
-
-        //    // If: I call the inter-service API to execute a query with a a null failure function
-        //    // Then: It should throw
-        //    await Assert.ThrowsAsync<ArgumentNullException>(
-        //        () => qes.InterServiceExecuteQuery(executeParams, eventSender, successFunc, null));
-        //}
+            // If: I call the inter-service API to execute a query with a a null event sender
+            // Then: It should throw
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => qes.InterServiceExecuteQuery(executeParams, null, null, null, null, null));
+        }
 
         [Fact]
         public async Task InterServiceDisposeNullSuccessFunc()

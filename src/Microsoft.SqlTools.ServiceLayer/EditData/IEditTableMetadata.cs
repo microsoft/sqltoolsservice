@@ -8,7 +8,8 @@ using System.Collections.Generic;
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
     /// <summary>
-    /// Interface for a metadata provider to be used for edit scenarios
+    /// An interface used in edit scenarios that defines properties for what columns are primary
+    /// keys, and other metadata of the table.
     /// </summary>
     public interface IEditTableMetadata
     {
@@ -23,9 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         string EscapedMultipartName { get; }
 
         /// <summary>
-        /// Whether or not this table is a hekaton table
+        /// Whether or not this table is a memory optimized table
         /// </summary>
-        bool IsHekaton { get; }
+        bool IsMemoryOptimized { get; }
 
         /// <summary>
         /// Columns that can be used to uniquely identify the a row

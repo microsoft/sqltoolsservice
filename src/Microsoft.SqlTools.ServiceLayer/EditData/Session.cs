@@ -14,18 +14,25 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
+    /// <summary>
+    /// Represents an edit "session" bound to the results of a query, containing a cache of edits
+    /// that are pending. Provides logic for performing edit operations.
+    /// </summary>
     public class Session
     {
 
         #region Member Variables
 
-        internal long NextRowId;
-        internal readonly ConcurrentDictionary<long, RowEditBase> EditCache;
         private readonly ResultSet associatedResultSet;
         private readonly IEditTableMetadata objectMetadata;
 
         #endregion
 
+        /// <summary>
+        /// Constructs a new edit session bound to the result set and metadat object provided
+        /// </summary>
+        /// <param name="resultSet">The result set of the table to be edited</param>
+        /// <param name="objMetadata">Metadata provider for the table to be edited</param>
         public Session(ResultSet resultSet, IEditTableMetadata objMetadata)
         {
             Validate.IsNotNull(nameof(resultSet), resultSet);
@@ -37,6 +44,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             NextRowId = associatedResultSet.RowCount;
             EditCache = new ConcurrentDictionary<long, RowEditBase>();
         }
+
+        #region Properties
+
+        /// <summary>
+        /// The internal ID for the next row in the table. Internal for unit testing purposes only.
+        /// </summary>
+        internal long NextRowId { get; private set; }
+
+        /// <summary>
+        /// The cache of pending updates. Internal for unit test purposes only
+        /// </summary>
+        internal ConcurrentDictionary<long, RowEditBase> EditCache { get;}
+
+        #endregion
 
         #region Public Methods
 

@@ -10,10 +10,10 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
+namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
     /// <summary>
-    /// Class that provides metadata about the table or view being edited
+    /// Provides metadata about the table or view being edited
     /// </summary>
     public class EditTableMetadata : IEditTableMetadata
     {
@@ -27,6 +27,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="smoObject">SMO metadata object for the table/view being edited</param>
         public EditTableMetadata(IList<DbColumnWrapper> dbColumns, TableViewTableTypeBase smoObject)
         {
+            Validate.IsNotNull(nameof(dbColumns), dbColumns);
+            Validate.IsNotNull(nameof(smoObject), smoObject);
+
             // Make sure that we have equal columns on both metadata providers
             Debug.Assert(dbColumns.Count == smoObject.Columns.Count);
 
@@ -66,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             // If a table is memory optimized it is Hekaton. If it's a view, then it can't be Hekaton
             Table smoTable = smoObject as Table;
-            IsHekaton = smoTable != null && smoTable.IsMemoryOptimized;
+            IsMemoryOptimized = smoTable != null && smoTable.IsMemoryOptimized;
 
             // Escape the parts of the name
             string[] objectNameParts = {smoObject.Schema, smoObject.Name};
@@ -76,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <summary>
         /// Read-only list of columns in the object being edited
         /// </summary>
-        public IEnumerable<EditColumnWrapper> Columns => columns;
+        public IEnumerable<EditColumnWrapper> Columns => columns.AsReadOnly();
 
         /// <summary>
         /// Full escaped multipart identifier for the object being edited
@@ -84,13 +87,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public string EscapedMultipartName { get; }
 
         /// <summary>
-        /// Whether or not the object being edited is hekaton/memory optimized
+        /// Whether or not the object being edited is memory optimized
         /// </summary>
-        public bool IsHekaton { get; }
+        public bool IsMemoryOptimized { get; }
 
         /// <summary>
         /// Read-only list of columns that are used to uniquely identify a row
         /// </summary>
-        public IEnumerable<EditColumnWrapper> KeyColumns => keyColumns;
+        public IEnumerable<EditColumnWrapper> KeyColumns => keyColumns.AsReadOnly();
     }
 }

@@ -18,7 +18,10 @@ using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
-    public class EditDataService : IDisposable
+    /// <summary>
+    /// Service that handles edit data scenarios
+    /// </summary>
+    public class EditDataService
     {
         #region Singleton Instance Implementation
 
@@ -77,13 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest);
             serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest);
             serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest);
-
-            // Register handler for shutdown event
-            serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
-            {
-                Dispose();
-                return Task.FromResult(0);
-            });
         }
 
         #region Request Handlers
@@ -175,41 +171,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 Func<string, Task> queryCreateFailureCallback = requestContext.SendError;
 
                 // Setup a callback for when the query completes execution successfully
-                Query.QueryAsyncEventHandler queryCompleteSuccessCallback = async query =>
-                {
-                    EditSessionReadyParams readyParams = new EditSessionReadyParams
-                    {
-                        OwnerUri = initParams.OwnerUri
-                    };
-
-                    try
-                    {
-                        // Validate the query for a session
-                        ResultSet resultSet = Session.ValidateQueryForSession(query);
-
-                        // Get a connection we'll use for SMO metadata lookup (and committing, later on)
-                        DbConnection conn = await connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
-                        var metadata = metadataFactory.GetObjectMetadata(conn, resultSet.Columns, 
-                            initParams.ObjectName, initParams.ObjectType);
-
-                        // Create the session and add it to the sessions list
-                        Session session = new Session(resultSet, metadata);
-                        if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
-                        {
-                            throw new InvalidOperationException("Failed to create edit session, session already exists.");
-                        }
-                        readyParams.Success = true;
-                    }
-                    catch (Exception)
-                    {
-                        // Request that the query be disposed
-                        await queryExecutionService.InterServiceDisposeQuery(initParams.OwnerUri, null, null);
-                        readyParams.Success = false;
-                    }
-
-                    // Send the edit session ready notification
-                    await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
-                };
+                Query.QueryAsyncEventHandler queryCompleteSuccessCallback =
+                    q => QueryCompleteCallback(q, initParams, requestContext);
 
                 // Setup a callback for when the query completes execution with failure
                 Query.QueryAsyncEventHandler queryCompleteFailureCallback = query =>
@@ -280,36 +243,41 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             return session;
         }
 
-        #endregion
-
-        #region IDisposable Implementation
-
-        private bool disposed;
-
-        public void Dispose()
+        private async Task QueryCompleteCallback(Query query, EditInitializeParams initParams,
+            IEventSender requestContext)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposed)
+            EditSessionReadyParams readyParams = new EditSessionReadyParams
             {
-                return;
+                OwnerUri = initParams.OwnerUri
+            };
+
+            try
+            {
+                // Validate the query for a session
+                ResultSet resultSet = Session.ValidateQueryForSession(query);
+
+                // Get a connection we'll use for SMO metadata lookup (and committing, later on)
+                DbConnection conn = await connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
+                var metadata = metadataFactory.GetObjectMetadata(conn, resultSet.Columns,
+                    initParams.ObjectName, initParams.ObjectType);
+
+                // Create the session and add it to the sessions list
+                Session session = new Session(resultSet, metadata);
+                if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
+                {
+                    throw new InvalidOperationException("Failed to create edit session, session already exists.");
+                }
+                readyParams.Success = true;
+            }
+            catch (Exception)
+            {
+                // Request that the query be disposed
+                await queryExecutionService.InterServiceDisposeQuery(initParams.OwnerUri, null, null);
+                readyParams.Success = false;
             }
 
-            if (disposing)
-            {
-                // TODO: Dispose objects that need disposing
-            }
-
-            disposed = true;
-        }
-
-        ~EditDataService()
-        {
-            Dispose(false);
+            // Send the edit session ready notification
+            await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
         }
 
         #endregion
