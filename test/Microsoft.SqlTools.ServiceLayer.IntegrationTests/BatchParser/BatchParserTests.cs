@@ -125,9 +125,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             }
         }
 
+        static void CopyToOutput(string sourceDirectory, string filename)
+        {
+            File.Copy(Path.Combine(sourceDirectory, filename), filename, true);
+            FileUtilities.SetFileReadWrite(filename);
+        }
+
         [Fact]
         public void BatchParserTest()
         {
+            CopyToOutput(FilesLocation, "TS-err-cycle1.txt");
+            CopyToOutput(FilesLocation, "cycle2.txt");
+
             Start("err-blockComment");
             Start("err-blockComment2");
             Start("err-varDefinition");
@@ -241,6 +250,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
+                Console.WriteLine("baseline:" + "\n" + baseline);
+                Console.WriteLine("-------------------");
+                Console.Write("outputString:" + "\n" + outputString);
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
                 Console.WriteLine(":: Output does not match the baseline!");

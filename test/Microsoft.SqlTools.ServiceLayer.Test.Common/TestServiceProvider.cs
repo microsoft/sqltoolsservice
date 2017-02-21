@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 }
                 TestServiceProvider.hasInitServices = true;
 
-                const string hostName = "SQ Tools Test Service Host";
+                const string hostName = "SQL Tools Test Service Host";
                 const string hostProfileId = "SQLToolsTestService";
                 Version hostVersion = new Version(1, 0);
 
