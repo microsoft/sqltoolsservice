@@ -360,7 +360,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             Trace.WriteLine(string.Format("GetFileContent for [{0}]", Path.GetFullPath(path)));
 
-            using (StreamReader sr = new StreamReader(File.Open(path, FileMode.Open), Encoding.Unicode))
+            // encoding.getencoding(65001)
+            using (StreamReader sr = new StreamReader(File.Open(path, FileMode.Open), Encoding.UTF8))
             {
                 return sr.ReadToEnd();
             }

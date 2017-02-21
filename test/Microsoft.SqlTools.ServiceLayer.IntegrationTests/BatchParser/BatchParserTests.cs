@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 string tokenText = token.Text;
                 if (tokenText != null)
                 {
-                    tokenText = tokenText.Replace("\r\n", "\n").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
+                    tokenText = tokenText.Replace("\r\n", "\\n").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
                 }
                 string tokenFilename = token.Filename;
                 tokenFilename = GetFilenameOnly(tokenFilename);
@@ -251,9 +251,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
-                Console.WriteLine("baseline:" + "\n" + baseline);
-                Console.WriteLine("-------------------");
-                Console.Write("outputString:" + "\n" + outputString);
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
                 Console.WriteLine(":: Output does not match the baseline!");
