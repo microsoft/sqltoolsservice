@@ -1,36 +1,50 @@
 -- Case: common type keywords
 
-create table [SimpleTable]
+CREATE TABLE [SimpleTable]
 (
 
     -- this is a comment before document
-    [DocumentID] INT identity (1, 1) not null,
+    [DocumentID] INT IDENTITY (1, 1) NOT NULL,
 
     -- this is a comment before Title
-    [Title] NVARCHAR (50) not null,
+    [Title] NVARCHAR (50) NOT NULL,
 
 
     -- this is a comment before FileName
-    [FileName] NVARCHAR (400) not null,
+    [FileName] NVARCHAR (400) NOT NULL,
 
     -- this is a comment before FileExtension
     [FileExtension] nvarchar(8)
 );
 GO
-create view v1
-as
-    select *
-    from [SimpleTable]
+CREATE VIEW v1
+AS
+    SELECT *
+    FROM [SimpleTable]
 GO
-create procedure p1
-as
-bEgIn
-    select *
-    from [SimpleTable]
-eNd
+CREATE PROCEDURE p1
+AS
+BEGIN
+    SELECT *
+    FROM [SimpleTable]
+END
 GO
-insert into t
-default values
+INSERT INTO t
+DEFAULT VALUES
 GO
 
-
+GO
+INSERT OPENQUERY (OracleSvr, 'SELECT name FROM joe.titles')
+VALUES
+    ('NewTitle');  
+GO
+INSERT INTO myTable
+    (FileName, FileType, Document)
+SELECT 'Text1.txt' AS FileName,
+    '.txt' AS FileType,
+    *
+FROM OPENROWSET(BULK N'C:\Text1.txt', siNGLE_BLOB) AS Document;  
+GO
+SELECT *
+FROM OPENXML (@idoc, '/ROOT/Customers')
+EXEC sp_xml_removedocument @idoc;  

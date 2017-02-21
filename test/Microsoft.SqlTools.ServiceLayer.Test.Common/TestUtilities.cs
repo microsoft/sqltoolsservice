@@ -54,9 +54,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
             int startRange = Math.Max(firstDiffIndex - 50, 0);
             int endRange = Math.Min(firstDiffIndex + 50, minEnd);
+            int length = endRange - startRange;
 
-            string baselineDiff = ShowWhitespace(baseline.Substring(startRange, endRange));
-            string actualDiff = ShowWhitespace(actual.Substring(startRange, endRange));
+            string baselineDiff = ShowWhitespace(baseline.Substring(startRange, length));
+            string actualDiff = ShowWhitespace(actual.Substring(startRange, length));
             return "\r\nFirst Diff:\r\n===== Baseline =====\r\n" 
                 + baselineDiff
                 + "\r\n===== Actual =====\r\n"

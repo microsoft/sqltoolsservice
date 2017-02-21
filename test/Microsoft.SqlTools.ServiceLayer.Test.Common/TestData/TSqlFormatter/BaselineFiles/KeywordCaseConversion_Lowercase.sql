@@ -16,21 +16,35 @@ create table [SimpleTable]
     -- this is a comment before FileExtension
     [FileExtension] nvarchar(8)
 );
-GO
+go
 create view v1
 as
     select *
     from [SimpleTable]
-GO
+go
 create procedure p1
 as
-bEgIn
+begin
     select *
     from [SimpleTable]
-eNd
-GO
+end
+go
 insert into t
 default values
-GO
+go
 
-
+go
+insert openquery (OracleSvr, 'SELECT name FROM joe.titles')
+values
+    ('NewTitle');  
+go
+insert into myTable
+    (FileName, FileType, Document)
+select 'Text1.txt' as FileName,
+    '.txt' as FileType,
+    *
+from openrowset(bulk N'C:\Text1.txt', siNGLE_BLOB) as Document;  
+go
+select *
+from openxml (@idoc, '/ROOT/Customers')
+exec sp_xml_removedocument @idoc;  

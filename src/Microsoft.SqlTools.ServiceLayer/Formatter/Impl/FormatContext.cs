@@ -43,7 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 new [] { Tokens.TOKEN_OPENQUERY.ToInt(), Tokens.TOKEN_FREETEXT.ToInt() },
                 new [] { Tokens.TOKEN_c_MOVE.ToInt(), Tokens.TOKEN_c_ROLLUP.ToInt() },
                 new [] { Tokens.TOKEN_REVERT.ToInt(), Tokens.TOKEN_c_OPENJSON.ToInt() },
-                new [] { Tokens.TOKEN_s_CDA_TYPE.ToInt(), Tokens.TOKEN_s_CDA_POLICY.ToInt() }
+                new [] { Tokens.TOKEN_s_CDA_TYPE.ToInt(), Tokens.TOKEN_s_CDA_POLICY.ToInt() },
+                new [] { Tokens.TOKEN_BEGIN_CS.ToInt(), Tokens.TOKEN_END_CS.ToInt() }
                 // Note: after this it becomes hard to interpret actual keywords in the Tokens enum.
                 // Should review and re-assess later
             };
@@ -166,13 +167,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     {
                         TokenData tok = Script.TokenManager.TokenList[i];
                         Replacements.Add(new Replacement(tok.StartIndex, sql, sql.ToUpperInvariant()));
-                        sql = sql.ToUpperInvariant();
                     }
                     else if (FormatOptions.LowercaseKeywords)
                     {
                         TokenData tok = Script.TokenManager.TokenList[i];
                         Replacements.Add(new Replacement(tok.StartIndex, sql, sql.ToLowerInvariant()));
-                        sql = sql.ToLowerInvariant();
                     }
                 }
             }
