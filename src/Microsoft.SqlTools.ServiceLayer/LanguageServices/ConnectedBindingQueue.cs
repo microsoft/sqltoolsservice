@@ -51,8 +51,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Use a ConnectionInfo item to create a connected binding context
         /// </summary>
-        /// <param name="connInfo"></param>
-        public virtual string AddConnectionContext(ConnectionInfo connInfo)
+        /// <param name="connInfo">Connection info used to create binding context</param>   
+        /// <param name="overwrite">Overwrite existing context</param>      
+        public virtual string AddConnectionContext(ConnectionInfo connInfo, bool overwrite = false)
         {
             if (connInfo == null)
             {
@@ -63,8 +64,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string connectionKey = GetConnectionContextKey(connInfo);
             if (BindingContextExists(connectionKey))
             {
-                // no need to populate the context again since the context already exists
-                return connectionKey;
+                if (overwrite)
+                {
+                    RemoveBindingContext(connectionKey);
+                }
+                else
+                {
+                    // no need to populate the context again since the context already exists
+                    return connectionKey;
+                }
             }
             IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
 

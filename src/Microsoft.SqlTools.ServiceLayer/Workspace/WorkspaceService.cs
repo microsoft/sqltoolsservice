@@ -112,6 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// List of callbacks to call when a text document is closed
         /// </summary>
         private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
+ 
 
         #endregion
 
@@ -189,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public void RegisterTextDocOpenCallback(TextDocOpenCallback task)
         {
             TextDocOpenCallbacks.Add(task);
-        }        
+        }
 
         #endregion
 
@@ -287,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             var configUpdateTasks = ConfigChangeCallbacks.Select(
                 t => t(configChangeParams.Settings, CurrentSettings, eventContext));
             await Task.WhenAll(configUpdateTasks);
-        }
+        }  
 
         #endregion
 
