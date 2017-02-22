@@ -64,11 +64,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                return BufferFileStreamFactory ?? (BufferFileStreamFactory = new ServiceBufferFileStreamFactory
+                if (BufferFileStreamFactory == null)
                 {
-                    MaxCharsToStore = Settings.SqlTools.QueryExecutionSettings.MaxCharsToStore,
-                    MaxXmlCharsToStore = Settings.SqlTools.QueryExecutionSettings.MaxXmlCharsToStore
-                });
+                    BufferFileStreamFactory = new ServiceBufferFileStreamFactory
+                    {
+                        ExecutionSettings = Settings.QueryExecutionSettings
+                    };
+                }
+                return BufferFileStreamFactory;
             }
         }
 
@@ -295,7 +298,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Use the default CSV file factory if we haven't overridden it
             IFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
             {
-                SaveRequestParams = saveParams
+                SaveRequestParams = saveParams,
+                QueryExecutionSettings = Settings.QueryExecutionSettings
             };
             await SaveResultsHelper(saveParams, requestContext, csvFactory);
         }
@@ -309,7 +313,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Use the default JSON file factory if we haven't overridden it
             IFileStreamFactory jsonFactory = JsonFileFactory ?? new SaveAsJsonFileStreamFactory
             {
-                SaveRequestParams = saveParams
+                SaveRequestParams = saveParams,
+                QueryExecutionSettings = Settings.QueryExecutionSettings
             };
             await SaveResultsHelper(saveParams, requestContext, jsonFactory);
         }
@@ -452,20 +457,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
-            Query.QueryAsyncErrorEventHandler errorCallback = async errorMessage =>
-            {
-                // Send back the error message
-                QueryCompleteParams eventParams = new QueryCompleteParams
-                {
-                    OwnerUri = ownerUri,
-                    //Message = errorMessage              
-                };
-                await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
-            };
-
             query.QueryCompleted += callback;
             query.QueryFailed += callback;
-            query.QueryConnectionException += errorCallback;
 
             // Setup the batch callbacks
             Batch.BatchAsyncEventHandler batchStartCallback = async b =>

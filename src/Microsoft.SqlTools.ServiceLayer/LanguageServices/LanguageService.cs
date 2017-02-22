@@ -312,7 +312,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     EventName = TelemetryEventNames.PeekDefinitionRequested
                 }
             });
-            DocumentStatusHelper.SendTelemetryEvent(requestContext, TelemetryEventNames.PeekDefinitionRequested);
             DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
 
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)
@@ -320,7 +319,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // Retrieve document and connection
                 ConnectionInfo connInfo;
                 var scriptFile = LanguageService.WorkspaceServiceInstance.Workspace.GetFile(textDocumentPosition.TextDocument.Uri);
-                LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+                bool isConnected = LanguageService.ConnectionServiceInstance.TryFindConnection(scriptFile.ClientFilePath, out connInfo);
+                bool succeeded = false;
                 DefinitionResult definitionResult = LanguageService.Instance.GetDefinition(textDocumentPosition, scriptFile, connInfo);
                 if (definitionResult != null)
                 {
@@ -331,10 +331,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     else
                     {
                         await requestContext.SendResult(definitionResult.Locations);
+                        succeeded = true;
                     }
                 }
+
+                DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
             }
+
             DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
+        }
+
+        private static TelemetryProperties CreatePeekTelemetryProps(bool succeeded, bool connected)
+        {
+            return new TelemetryProperties
+            {
+                Properties = new Dictionary<string, string>
+                {
+                    { TelemetryPropertyNames.Succeeded, succeeded.ToOneOrZeroString() },
+                    { TelemetryPropertyNames.Connected, connected.ToOneOrZeroString() }
+                },
+                EventName = TelemetryEventNames.PeekDefinitionRequested
+            };
         }
 
 // turn off this code until needed (10/28/2016)

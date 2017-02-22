@@ -149,28 +149,14 @@ GO";
         [Fact]
         public async Task GetUnsupportedDefinitionErrorTest()
         {
-            TestConnectionResult connectionResult = TestObjects.InitLiveConnectionInfo();
-            connectionResult.ScriptFile.Contents = "select * from dbo.func ()";
-            string ownerUri = connectionResult.ScriptFile.ClientFilePath;
-            TextDocumentPosition textDocument = new TextDocumentPosition
-            {
-                TextDocument = new TextDocumentIdentifier { Uri = ownerUri },
-                Position = new Position
-                {
-                    Line = 0,
-                    // test for 'dbo'
-                    Character = 15
-                }
-            };
-            connectionResult.TextDocumentPosition = textDocument;
-            var languageService = LanguageService.Instance;
-            await languageService.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
-            ScriptParseInfo parseInfo = languageService.GetScriptParseInfo(connectionResult.ScriptFile.ClientFilePath);
-            Assert.NotNull(parseInfo);
+            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
 
-            // When I call the language service
-            var result = languageService.GetDefinition(textDocument, connectionResult.ScriptFile, connectionResult.ConnectionInfo);
-
+            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            string objectName = "objects";
+            string schemaName = "sys";
+            // When I try to get definition for 'Collation'
+            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Collation, "master.sys.objects", objectName, schemaName);
             // Then I expect non null result with error flag set
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);

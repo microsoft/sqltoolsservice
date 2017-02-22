@@ -148,9 +148,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     return fileName;
                 });
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output])));
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), 1024, 1024));
+                .Returns<string>(output => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), new QueryExecutionSettings()));
 
             return mock.Object;
         }
@@ -206,7 +206,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static ConnectionInfo CreateTestConnectionInfo(TestResultSet[] data, bool throwOnRead)
         {
-            return new ConnectionInfo(CreateMockFactory(data, throwOnRead), OwnerUri, StandardConnectionDetails);
+            // Create a connection info and add the default connection to it
+            ISqlConnectionFactory factory = CreateMockFactory(data, throwOnRead);
+            ConnectionInfo ci = new ConnectionInfo(factory, OwnerUri, StandardConnectionDetails);
+            ci.ConnectionTypeToConnectionMap[ConnectionType.Default] = factory.CreateSqlConnection(null);
+            return ci;
         }
 
         public static ConnectionInfo CreateConnectedConnectionInfo(TestResultSet[] data, bool throwOnRead, string type = ConnectionType.Default)
