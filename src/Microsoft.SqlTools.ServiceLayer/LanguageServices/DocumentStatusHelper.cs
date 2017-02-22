@@ -4,9 +4,9 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
@@ -43,6 +43,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public static void SendTelemetryEvent<T>(RequestContext<T> requestContext, string telemetryEvent)
         {
+            Validate.IsNotNull(nameof(requestContext), requestContext);
+            Validate.IsNotNullOrWhitespaceString(nameof(telemetryEvent), telemetryEvent);
             Task.Factory.StartNew(async () =>
             {
                 await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
@@ -51,6 +53,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         EventName = telemetryEvent
                     }
+                });
+            });
+        }
+
+        /// <summary>
+        /// Sends a telemetry event for specific document using the existing request context
+        /// </summary>
+        public static void SendTelemetryEvent<T>(RequestContext<T> requestContext, TelemetryProperties telemetryProps)
+        {
+            Validate.IsNotNull(nameof(requestContext), requestContext);
+            Validate.IsNotNull(nameof(telemetryProps), telemetryProps);
+            Validate.IsNotNullOrWhitespaceString("telemetryProps.EventName", telemetryProps.EventName);
+            Task.Factory.StartNew(async () =>
+            {
+                await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                {
+                    Params = telemetryProps
                 });
             });
         }
