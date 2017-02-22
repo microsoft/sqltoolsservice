@@ -67,6 +67,59 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
         }
 
         [Fact]
+        public void CreateProcedure_CommaBeforeNextColumn()
+        {
+            // Verifies that commas are placed before the next column instead of after the current one,
+            // when PlaceCommasBeforeNextStatement = true
+            LoadAndFormatAndCompare("CreateProcedure_CommaBeforeNextColumn", 
+                GetInputFile("CreateProcedure_CommaHandling1.sql"),
+                GetBaselineFile("CreateProcedure_CommaBeforeNext.sql"),
+                new FormatOptions()
+                {
+                    DatatypeCasing = CasingOptions.Lowercase,
+                    KeywordCasing = CasingOptions.Uppercase,
+                    PlaceCommasBeforeNextStatement = true,
+                    PlaceEachReferenceOnNewLineInQueryStatements = true
+                }, true);
+        }
+
+        [Fact]
+        public void CreateProcedure_CommaBeforeNextColumnRepeated()
+        {
+            // Verifies that formatting isn't changed for text that's already been formatted
+            // as having the comma placed before the next column instead of after the prevous one
+            LoadAndFormatAndCompare("CreateProcedure_CommaBeforeNextColumnRepeated", 
+                GetInputFile("CreateProcedure_CommaHandling2.sql"),
+                GetBaselineFile("CreateProcedure_CommaBeforeNext.sql"),
+                new FormatOptions()
+                {
+                    DatatypeCasing = CasingOptions.Lowercase,
+                    KeywordCasing = CasingOptions.Uppercase,
+                    PlaceCommasBeforeNextStatement = true,
+                    PlaceEachReferenceOnNewLineInQueryStatements = true
+                },
+                true);
+        }
+        
+        [Fact]
+        public void CreateProcedure_CommaBeforeNextColumnNoNewline()
+        {
+            // Verifies that commas are placed before the next column instead of after the current one,
+            // when PlaceCommasBeforeNextStatement = true
+            // And that whitespace is used instead of newline if PlaceEachReferenceOnNewLineInQueryStatements = false
+            LoadAndFormatAndCompare("CreateProcedure_CommaBeforeNextColumnNoNewline",
+                GetInputFile("CreateProcedure_CommaHandling1.sql"),
+                GetBaselineFile("CreateProcedure_CommaSpaced.sql"),
+                new FormatOptions()
+                {
+                    DatatypeCasing = CasingOptions.Lowercase,
+                    KeywordCasing = CasingOptions.Uppercase,
+                    PlaceCommasBeforeNextStatement = true,
+                    PlaceEachReferenceOnNewLineInQueryStatements = false
+                }, true);
+        }
+
+        [Fact]
         public void CreateProcedure_TwoPartName()
         {
             LoadAndFormatAndCompare("CreateProcedure_TwoPartName", GetInputFile("CreateProcedure_TwoPartName.sql"), 
