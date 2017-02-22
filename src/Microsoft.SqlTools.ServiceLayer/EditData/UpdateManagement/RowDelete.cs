@@ -4,6 +4,8 @@
 //
 
 using System;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -29,15 +31,30 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
         }
 
+        public override void ApplyChanges()
+        {
+            // Take the result set and remove the row from it
+            AssociatedResultSet.RemoveRow();
+        }
+
+        public override DbCommand GetCommand()
+        {
+            // Return a SqlCommand with formatted with the parameters from the where clause
+            WhereClause where = GetWhereClause(true);
+            string commandText = GetCommandText(where.CommandText);
+            SqlCommand command = new SqlCommand(commandText);
+            command.Parameters.AddRange(where.Parameters.ToArray());
+
+            return command;
+        }
+
         /// <summary>
         /// Generates a DELETE statement to delete this row
         /// </summary>
         /// <returns>String of the DELETE statement</returns>
         public override string GetScript()
         {
-            string formatString = AssociatedObjectMetadata.IsMemoryOptimized ? DeleteMemoryOptimizedStatement : DeleteStatement;
-            return string.Format(CultureInfo.InvariantCulture, formatString,
-                AssociatedObjectMetadata.EscapedMultipartName, GetWhereClause(false).CommandText);
+            return GetCommandText(GetWhereClause(false).CommandText);
         }
 
         /// <summary>
@@ -50,6 +67,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
             throw new InvalidOperationException(SR.EditDataDeleteSetCell);
+        }
+
+        private string GetCommandText(string whereText)
+        {
+            string formatString = AssociatedObjectMetadata.IsMemoryOptimized
+                ? DeleteMemoryOptimizedStatement
+                : DeleteStatement;
+
+            return string.Format(CultureInfo.InvariantCulture, formatString,
+                AssociatedObjectMetadata.EscapedMultipartName, whereText);
         }
     }
 }

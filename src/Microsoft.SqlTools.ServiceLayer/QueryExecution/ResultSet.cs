@@ -353,6 +353,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        public void RemoveRow()
+        {
+            
+        }
+
+        public void AddRow()
+        {
+            
+        }
+
+        public void UpdateRow()
+        {
+            
+        }
+
         /// <summary>
         /// Saves the contents of this result set to a file using the IFileStreamFactory provided
         /// </summary>

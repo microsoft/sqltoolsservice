@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // If: I attempt to create a CellUpdate with a null string value
             // Then: I should get an exception thrown
-            Assert.Throws<ArgumentNullException>(() => new CellUpdate(new CellUpdateTestDbColumn(null), null));
+            Assert.Throws<ArgumentNullException>(() => new CellUpdate(CellUpdateTestDbColumn.GetWrapper(null), null));
         }
 
         [Fact]
@@ -34,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // If: I attempt to create a CellUpdate to set it to NULL (with mixed cases)
             const string nullString = "NULL";
-            DbColumn col = new CellUpdateTestDbColumn(typeof(string));
+            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(string));
             CellUpdate cu = new CellUpdate(col, nullString);
 
             // Then: The value should be a DBNull and the string value should be the same as what
@@ -49,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public void NullTextStringTest()
         {
             // If: I attempt to create a CellUpdate with the text 'NULL' (with mixed case)
-            DbColumn col = new CellUpdateTestDbColumn(typeof(string));
+            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(string));
             CellUpdate cu = new CellUpdate(col, "'NULL'");
 
             // Then: The value should be NULL
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public void ByteArrayTest(string strValue, byte[] expectedValue, string expectedString)
         {
             // If: I attempt to create a CellUpdate for a binary column
-            DbColumn col = new CellUpdateTestDbColumn(typeof(byte[]));
+            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(byte[]));
             CellUpdate cu = new CellUpdate(col, strValue);
 
             // Then: The value should be a binary and should match the expected data
@@ -118,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // If: I attempt to create a CellUpdate for a binary column
             // Then: It should throw an exception
-            DbColumn col = new CellUpdateTestDbColumn(typeof(byte[]));
+            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(byte[]));
             Assert.Throws<FormatException>(() => new CellUpdate(col, "this is totally invalid"));
         }
 
@@ -127,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public void BoolTest(string input, bool output, string outputString)
         {
             // If: I attempt to create a CellUpdate for a boolean column
-            DbColumn col = new CellUpdateTestDbColumn(typeof(bool));
+            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(bool));
             CellUpdate cu = new CellUpdate(col, input);
 
             // Then: The value should match what was expected
@@ -153,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // If: I create a CellUpdate for a bool column and provide an invalid numeric value
             // Then: It should throw an exception
-            DbColumn col = new CellUpdateTestDbColumn(typeof(bool));
+            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(bool));
             Assert.Throws<ArgumentOutOfRangeException>(() => new CellUpdate(col, "12345"));
         }
 
@@ -165,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             string testString = obj.ToString();
 
             // If: I attempt to create a CellUpdate for a GUID column
-            DbColumn col = new CellUpdateTestDbColumn(dbColType);
+            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(dbColType);
             CellUpdate cu = new CellUpdate(col, testString);
 
             // Then: The value and type should match what we put in
@@ -199,7 +200,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
 
         private class CellUpdateTestDbColumn : DbColumn
         {
-            public CellUpdateTestDbColumn(Type dataType)
+            public static DbColumnWrapper GetWrapper(Type dataType)
+            {
+                return new DbColumnWrapper(new CellUpdateTestDbColumn(dataType));
+            }
+
+            private CellUpdateTestDbColumn(Type dataType)
             {
                 DataType = dataType;
             }

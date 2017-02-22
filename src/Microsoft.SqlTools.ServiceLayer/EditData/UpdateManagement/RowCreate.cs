@@ -5,6 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -33,43 +35,25 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
         }
 
+        public override void ApplyChanges()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override DbCommand GetCommand()
+        {
+            SqlCommand command = new SqlCommand();
+            command.CommandText = GetCommandText(command);
+            return command;
+        }
+
         /// <summary>
         /// Generates the INSERT INTO statement that will apply the row creation
         /// </summary>
         /// <returns>INSERT INTO statement</returns>
         public override string GetScript()
         {
-            List<string> columnNames = new List<string>();
-            List<string> columnValues = new List<string>();
-
-            // Build the column list and value list
-            for (int i = 0; i < AssociatedResultSet.Columns.Length; i++)
-            {
-                DbColumnWrapper column = AssociatedResultSet.Columns[i];
-                CellUpdate cell = newCells[i];
-
-                // If the column is not updatable, then skip it
-                if (!column.IsUpdatable)
-                {
-                    continue;
-                }
-
-                // If the cell doesn't have a value, but is updatable, don't try to create the script
-                if (cell == null)
-                {
-                    throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
-                }
-
-                // Add the column and the data to their respective lists
-                columnNames.Add(SqlScriptFormatter.FormatIdentifier(column.ColumnName));
-                columnValues.Add(SqlScriptFormatter.FormatValue(cell.Value, column));
-            }
-
-            // Put together the components of the statement
-            string joinedColumnNames = string.Join(", ", columnNames);
-            string joinedColumnValues = string.Join(", ", columnValues);
-            return string.Format(InsertStatement, AssociatedObjectMetadata.EscapedMultipartName, joinedColumnNames,
-                joinedColumnValues);
+            return GetCommandText(null);
         }
 
         /// <summary>
@@ -98,6 +82,56 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 IsRevert = false            // Editing cells of new rows cannot be reverts
             }; 
             return eucr;
+        }
+
+        private string GetCommandText(SqlCommand command)
+        {
+            List<string> columnNames = new List<string>();
+            List<string> columnValues = new List<string>();
+
+            // Build the column list and value list
+            for (int i = 0; i < AssociatedResultSet.Columns.Length; i++)
+            {
+                DbColumnWrapper column = AssociatedResultSet.Columns[i];
+                CellUpdate cell = newCells[i];
+
+                // If the column is not updatable, then skip it
+                if (!column.IsUpdatable)
+                {
+                    continue;
+                }
+
+                // If the cell doesn't have a value, but is updatable, don't try to create the script
+                if (cell == null)
+                {
+                    throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
+                }
+
+                // Add the column and the data to their respective lists
+                columnNames.Add(SqlScriptFormatter.FormatIdentifier(column.ColumnName));
+                if (command != null)
+                {
+                    // Add the parameterization to the list and add it to the command
+                    string paramName = $"@Value{RowId}{i}";
+                    columnValues.Add(paramName);
+                    SqlParameter param = new SqlParameter(paramName, cell.Column.SqlDbType)
+                    {
+                        Value = cell.Value
+                    };
+                    command.Parameters.Add(param);
+                }
+                else
+                {
+                    // Format the value and add it to the list
+                    columnValues.Add(SqlScriptFormatter.FormatValue(cell.Value, column));
+                }
+            }
+
+            // Put together the components of the statement
+            string joinedColumnNames = string.Join(", ", columnNames);
+            string joinedColumnValues = string.Join(", ", columnValues);
+            return string.Format(InsertStatement, AssociatedObjectMetadata.EscapedMultipartName, joinedColumnNames,
+                joinedColumnValues);
         }
     }
 }

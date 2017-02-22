@@ -178,6 +178,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             {
                 throw new NotImplementedException();
             }
+
+            public override void ApplyChanges()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override DbCommand GetCommand()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

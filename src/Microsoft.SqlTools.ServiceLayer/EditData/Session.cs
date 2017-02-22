@@ -5,8 +5,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -47,6 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #region Properties
 
+        internal Task CommitTask { get; private set; }
+
         /// <summary>
         /// The internal ID for the next row in the table. Internal for unit testing purposes only.
         /// </summary>
@@ -55,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// The cache of pending updates. Internal for unit test purposes only
         /// </summary>
-        internal ConcurrentDictionary<long, RowEditBase> EditCache { get;}
+        internal ConcurrentDictionary<long, RowEditBase> EditCache { get; }
 
         #endregion
 
@@ -107,6 +111,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             return newRowId;
+        }
+
+        public void CommitEdits(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+            Validate.IsNotNull(nameof(successHandler), successHandler);
+            Validate.IsNotNull(nameof(errorHandler), errorHandler);
+
+            // Make sure that there a commit task isn't in progress
+            if (CommitTask != null && !CommitTask.IsCompleted)
+            {
+                // @TODO: Move to constants file
+                errorHandler(new InvalidOperationException("A commit task is in progress. Please wait for completion."));
+            }
+
+            // Start up the commit process
+            CommitTask = CommitEditsInternal(connection, successHandler, errorHandler);
         }
 
         /// <summary>
@@ -211,5 +232,41 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #endregion
 
+        #region Private Helpers
+
+        private async Task CommitEditsInternal(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
+        {
+            try
+            {
+                // Convert each pending edit into a command, then combine them into a single commit
+                DbCommand command = connection.CreateCommand();
+                foreach (RowEditBase rowEdit in EditCache.Values)
+                {
+                    DbCommand editCommand = rowEdit.GetCommand();
+                    command.CommandText += Environment.NewLine + editCommand.CommandText;
+                    foreach (DbParameter param in editCommand.Parameters)
+                    {
+                        editCommand.Parameters.Add(param);
+                    }
+                }
+
+                // Attempt to execute the command
+                await command.ExecuteNonQueryAsync();
+
+                // Apply the changes to the result set
+                foreach (RowEditBase rowEdit in EditCache.Values)
+                {
+                    rowEdit.ApplyChanges();
+                }
+
+                await successHandler();
+            }
+            catch (Exception e)
+            {
+                await errorHandler(e);
+            }
+        }
+
+        #endregion
     }
 }

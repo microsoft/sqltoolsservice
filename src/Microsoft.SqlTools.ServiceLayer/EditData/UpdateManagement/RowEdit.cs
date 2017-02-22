@@ -60,6 +60,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         #endregion
 
+        public abstract void ApplyChanges();
+
+        public abstract DbCommand GetCommand();
+
         /// <summary>
         /// Converts the row edit into a SQL statement
         /// </summary>
@@ -146,7 +150,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                             //       we execute multiple row edits at once.
                             string paramName = $"@Param{RowId}{col.Ordinal}";
                             cellDataClause = $"= {paramName}";
-                            output.Parameters.Add(new SqlParameter(paramName, col.DbColumn.SqlDbType));
+                            SqlParameter parameter = new SqlParameter(paramName, col.DbColumn.SqlDbType)
+                            {
+                                Value = cellData.RawObject
+                            };
+                            output.Parameters.Add(parameter);
                         }
                         else
                         {

@@ -5,6 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
@@ -38,6 +40,40 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             associatedRow = associatedResultSet.GetRow(rowId);
         }
 
+        public override void ApplyChanges()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override DbCommand GetCommand()
+        {
+            SqlCommand command = new SqlCommand();
+
+            // Build the "SET" portion of the statement
+            List<string> setComponents = new List<string>();
+            for (var i = 0; i < cellUpdates.Count; i++)
+            {
+                CellUpdate update = cellUpdates[i];
+                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(update.Column.ColumnName);
+                string paramName = $"@Value{RowId}{i}";
+                setComponents.Add($"{formattedColumnName} = {paramName}");
+                SqlParameter parameter = new SqlParameter(paramName, update.Column.SqlDbType)
+                {
+                    Value = update.Value
+                };
+                command.Parameters.Add(parameter);
+            }
+            string setClause = string.Join(", ", setComponents);
+
+            // Get the where clause
+            WhereClause where = GetWhereClause(true);
+
+            // Put it all together
+            command.CommandText = GetCommandText(setClause, where.CommandText);
+            command.Parameters.AddRange(where.Parameters.ToArray());
+            return command;
+        }
+
         /// <summary>
         /// Constructs an update statement to change the associated row.
         /// </summary>
@@ -57,9 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string whereClause = GetWhereClause(false).CommandText;
 
             // Put it all together
-            string formatString = AssociatedObjectMetadata.IsMemoryOptimized ? UpdateStatementMemoryOptimized : UpdateStatement;
-            return string.Format(CultureInfo.InvariantCulture, formatString,
-                AssociatedObjectMetadata.EscapedMultipartName, setClause, whereClause);
+            return GetCommandText(setClause, whereClause);
         }
 
         /// <summary>
@@ -105,6 +139,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 IsNull = update.Value == DBNull.Value,
                 IsRevert = false            // If we're in this branch, it is not a revert
             };
+        }
+
+        private string GetCommandText(string setClause, string whereClause)
+        {
+            string formatString = AssociatedObjectMetadata.IsMemoryOptimized
+                ? UpdateStatementMemoryOptimized
+                : UpdateStatement;
+
+            return string.Format(CultureInfo.InvariantCulture, formatString,
+                AssociatedObjectMetadata.EscapedMultipartName, setClause, whereClause);
         }
     }
 }

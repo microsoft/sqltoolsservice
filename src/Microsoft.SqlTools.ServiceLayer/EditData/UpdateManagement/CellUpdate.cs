@@ -4,9 +4,9 @@
 //
 
 using System;
-using System.Data.Common;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         /// <param name="column">Column the cell will be under</param>
         /// <param name="valueAsString">The string from the client to convert to an object</param>
-        public CellUpdate(DbColumn column, string valueAsString)
+        public CellUpdate(DbColumnWrapper column, string valueAsString)
         {
             Validate.IsNotNull(nameof(column), column);
             Validate.IsNotNull(nameof(valueAsString), valueAsString);
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <summary>
         /// The column that the cell will be placed in
         /// </summary>
-        public DbColumn Column { get; }
+        public DbColumnWrapper Column { get; }
 
         /// <summary>
         /// The object representation of the cell provided by the client
