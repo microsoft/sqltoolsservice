@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
                 new FormatOptions() { KeywordCasing = CasingOptions.Uppercase }, 
                 verifyFormat: true);
         }
+
         [Fact]
         public void KeywordCaseConversionLowercase()
         {
@@ -26,6 +27,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
                 GetInputFile("KeywordCaseConversion.sql"),
                 GetBaselineFile("KeywordCaseConversion_Lowercase.sql"),
                 new FormatOptions() { KeywordCasing = CasingOptions.Lowercase },
+                verifyFormat: true);
+        }
+
+        [Fact]
+        public void SelectWithOrderByShouldCorrectlyIndent()
+        {
+            LoadAndFormatAndCompare("SelectWithOrderByShouldCorrectlyIndent",
+                GetInputFile("SelectWithOrderBy.sql"),
+                GetBaselineFile("SelectWithOrderBy_CorrectIndents.sql"),
+                new FormatOptions(),
+                verifyFormat: true);
+        }
+
+        [Fact]
+        public void SelectStatementShouldCorrectlyIndent()
+        {
+            LoadAndFormatAndCompare("SelectStatementShouldCorrectlyIndent",
+                GetInputFile("CreateProcedure.sql"),
+                GetBaselineFile("CreateProcedure_CorrectIndents.sql"),
+                new FormatOptions(),
                 verifyFormat: true);
         }
     }

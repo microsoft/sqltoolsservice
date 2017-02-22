@@ -38,12 +38,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
         {
-            SpaceSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
+            // Binary boolean expressions 
+            bool allowIncrement = !(CodeObject.Parent is SqlBinaryBooleanExpression);
+            SpaceSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber, allowIncrement);
         }
 
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            SpaceSeparatedListFormatter.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber);
+            bool allowDecrement = !(CodeObject.Parent is SqlBinaryBooleanExpression);
+            SpaceSeparatedListFormatter.ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber, allowDecrement);
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
