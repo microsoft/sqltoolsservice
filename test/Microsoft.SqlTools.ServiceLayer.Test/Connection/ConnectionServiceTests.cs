@@ -1139,5 +1139,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
             await service.Connect(connectParamsQuery);
             Assert.Equal(2, connectionInfo.CountConnections);
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public async Task GetOrOpenNullOwnerUri(string ownerUri)
+        {
+            // If: I have a connection service and I ask for a connection with an invalid ownerUri
+            // Then: An exception should be thrown
+            var service = TestObjects.GetTestConnectionService();
+            await Assert.ThrowsAsync<ArgumentException>(
+                () => service.GetOrOpenConnection(ownerUri, ConnectionType.Default));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public async Task GetOrOpenNullConnectionType(string connType)
+        {
+            // If: I have a connection service and I ask for a connection with an invalid connectionType
+            // Then: An exception should be thrown
+            var service = TestObjects.GetTestConnectionService();
+            await Assert.ThrowsAsync<ArgumentException>(
+                () => service.GetOrOpenConnection(TestObjects.ScriptUri, connType));
+        }
+
+        [Fact]
+        public async Task GetOrOpenNoConnection()
+        {
+            // If: I have a connection service and I ask for a connection for an unconnected uri
+            // Then: An exception should be thrown
+            var service = TestObjects.GetTestConnectionService();
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+                () => service.GetOrOpenConnection(TestObjects.ScriptUri, ConnectionType.Query));
+        }
+
+        [Fact]
+        public async Task GetOrOpenNoDefaultConnection()
+        {
+            // Setup: Create a connection service with an empty connection info obj
+            var service = TestObjects.GetTestConnectionService();
+            var connInfo = new ConnectionInfo(null, null, null);
+            service.OwnerToConnectionMap[TestObjects.ScriptUri] = connInfo;
+
+            // If: I ask for a connection on a connection that doesn't have a default connection
+            // Then: An exception should be thrown
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => service.GetOrOpenConnection(TestObjects.ScriptUri, ConnectionType.Query));
+        }
     }
 }

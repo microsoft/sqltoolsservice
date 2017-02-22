@@ -130,6 +130,11 @@
     <comment>.
  Parameters: 0 - uri (string) </comment>
   </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>Specified URI '{0}' does not have a default connection</value>
+    <comment>.
+ Parameters: 0 - uri (string) </comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
     <value>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</value>
     <comment>.

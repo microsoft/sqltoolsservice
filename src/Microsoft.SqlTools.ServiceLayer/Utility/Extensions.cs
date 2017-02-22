@@ -30,6 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
             return str;
         }
+
+        /// <summary>
+        /// Converts a boolean to a "1" or "0" string. Particularly helpful when sending telemetry
+        /// </summary>
+        public static string ToOneOrZeroString(this bool isTrue)
+        {
+            return isTrue ? "1" : "0";
+        }
     }
 
     internal static class NullableExtensions

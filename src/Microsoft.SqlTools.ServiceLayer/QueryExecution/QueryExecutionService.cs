@@ -64,11 +64,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                return BufferFileStreamFactory ?? (BufferFileStreamFactory = new ServiceBufferFileStreamFactory
+                if (BufferFileStreamFactory == null)
                 {
-                    MaxCharsToStore = Settings.SqlTools.QueryExecutionSettings.MaxCharsToStore,
-                    MaxXmlCharsToStore = Settings.SqlTools.QueryExecutionSettings.MaxXmlCharsToStore
-                });
+                    BufferFileStreamFactory = new ServiceBufferFileStreamFactory
+                    {
+                        ExecutionSettings = Settings.QueryExecutionSettings
+                    };
+                }
+                return BufferFileStreamFactory;
             }
         }
 
@@ -298,7 +301,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Use the default CSV file factory if we haven't overridden it
             IFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
             {
-                SaveRequestParams = saveParams
+                SaveRequestParams = saveParams,
+                QueryExecutionSettings = Settings.QueryExecutionSettings
             };
             await SaveResultsHelper(saveParams, requestContext, csvFactory);
         }
@@ -312,7 +316,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Use the default JSON file factory if we haven't overridden it
             IFileStreamFactory jsonFactory = JsonFileFactory ?? new SaveAsJsonFileStreamFactory
             {
-                SaveRequestParams = saveParams
+                SaveRequestParams = saveParams,
+                QueryExecutionSettings = Settings.QueryExecutionSettings
             };
             await SaveResultsHelper(saveParams, requestContext, jsonFactory);
         }
@@ -473,19 +478,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             };
             query.QueryCompleted += completeCallback;
             query.QueryFailed += completeCallback;
-
-            // @TODO Remove when we refactor the connection service code
-            Query.QueryAsyncErrorEventHandler errorCallback = async errorMessage =>
-            {
-                // Send back the error message
-                QueryCompleteParams eventParams = new QueryCompleteParams
-                {
-                    OwnerUri = ownerUri,
-                    //Message = errorMessage              
-                };
-                await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
-            };
-            query.QueryConnectionException += errorCallback;
 
             // Add the callbacks that were provided by the caller
             // If they're null, that's no problem

@@ -25,8 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Constants
 
         // Column names of 'for xml' and 'for json' queries
-        private const string NameOfForXMLColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
-        private const string NameOfForJSONColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
+        private const string NameOfForXmlColumn = "XML_F52E2B61-18A1-11d1-B105-00805F49916B";
+        private const string NameOfForJsonColumn = "JSON_F52E2B61-18A1-11d1-B105-00805F49916B";
         private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
 
         #endregion
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The special action which applied to this result set
         /// </summary>
-        private SpecialAction specialAction;
+        private readonly SpecialAction specialAction;
 
         #endregion
 
@@ -271,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
-            // Proccess the action just incase is hasn't been yet 
+            // Process the action just incase is hasn't been yet 
             ProcessSpecialAction();
 
             // Sanity check to make sure that the results have been read beforehand
@@ -280,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
             // Check that we this result set contains a showplan 
-            else if (!specialAction.ExpectYukonXMLShowPlan)
+            if (!specialAction.ExpectYukonXMLShowPlan)
             {
                 throw new Exception(SR.QueryServiceExecutionPlanNotFound);
             }
@@ -288,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             return Task.Factory.StartNew(() =>
             { 
-                string content = null;
+                string content;
                 string format = null;
 
                 using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
@@ -353,6 +353,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
+        /// <summary>
+        /// Saves the contents of this result set to a file using the IFileStreamFactory provided
+        /// </summary>
+        /// <param name="saveParams">Parameters for saving the results to a file</param>
+        /// <param name="fileFactory">
+        /// Factory for creating a stream reader/writer combo for writing results to disk
+        /// </param>
+        /// <param name="successHandler">Handler for a successful write of all rows</param>
+        /// <param name="failureHandler">Handler for unsuccessful write of all rows</param>
         public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
             SaveAsAsyncEventHandler successHandler, SaveAsFailureAsyncEventHandler failureHandler)
         {
@@ -495,13 +504,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (Columns?.Length == 1 && RowCount != 0)
             {
-                if (Columns[0].ColumnName.Equals(NameOfForXMLColumn, StringComparison.Ordinal))
+                if (Columns[0].ColumnName.Equals(NameOfForXmlColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsXml = true;
                     isSingleColumnXmlJsonResultSet = true;
                     RowCount = 1;
                 }
-                else if (Columns[0].ColumnName.Equals(NameOfForJSONColumn, StringComparison.Ordinal))
+                else if (Columns[0].ColumnName.Equals(NameOfForJsonColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsJson = true;
                     isSingleColumnXmlJsonResultSet = true;

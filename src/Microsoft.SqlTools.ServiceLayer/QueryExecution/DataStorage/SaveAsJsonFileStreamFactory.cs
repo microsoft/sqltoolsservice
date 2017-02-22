@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -13,6 +14,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     {
 
         #region Properties
+
+        /// <summary>
+        /// Settings for query execution
+        /// </summary>
+        public QueryExecutionSettings QueryExecutionSettings { get; set; }
 
         /// <summary>
         /// Parameters for the save as JSON request
@@ -28,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         [Obsolete]
         public string CreateFile()
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -38,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Stream reader</returns>
         public IFileStreamReader GetReader(string fileName)
         {
-            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read));
+            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read), QueryExecutionSettings);
         }
 
         /// <summary>

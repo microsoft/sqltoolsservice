@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
     /// </summary>
     internal abstract class WhiteSpaceSeparatedListFormatter : ASTNodeFormatterT<SqlCodeObject>
     {
-        private bool IncremenetIndentLevelOnPrefixRegion { get; set; }
+        private bool IncrementIndentLevelOnPrefixRegion { get; set; }
 
         /// <summary>
         /// This constructor initalizes the <see cref="Visitor"/> and <see cref="CodeObject"/> properties since the formatter's entry point
@@ -25,21 +25,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         internal WhiteSpaceSeparatedListFormatter(FormatterVisitor visitor, SqlCodeObject codeObject, bool incrementIndentLevelOnPrefixRegion)
             : base(visitor, codeObject)
         {
-            IncremenetIndentLevelOnPrefixRegion = incrementIndentLevelOnPrefixRegion;
+            IncrementIndentLevelOnPrefixRegion = incrementIndentLevelOnPrefixRegion;
         }
 
-        internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
+        internal void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber, bool allowIncrement)
         {
-            if (IncremenetIndentLevelOnPrefixRegion)
+            if (allowIncrement && IncrementIndentLevelOnPrefixRegion)
             {
                 IncrementIndentLevel();
             }
             base.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
         }
 
+        internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
+        {
+            ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber, true);
+        }
+
         internal override void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber)
         {
-            if (IncremenetIndentLevelOnPrefixRegion)
+            ProcessSuffixRegion(lastChildEndTokenNumber, endTokenNumber, true);
+        }
+        internal void ProcessSuffixRegion(int lastChildEndTokenNumber, int endTokenNumber, bool allowDecrement)
+        {
+            if (allowDecrement && IncrementIndentLevelOnPrefixRegion)
             {
                 DecrementIndentLevel();
             }
