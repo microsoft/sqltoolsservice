@@ -20,8 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// </summary>
         internal static void Main(string[] args)
         {
-            Console.WriteLine("Credentials Service");
-
             // read command-line arguments
             CommandOptions commandOptions = new CommandOptions(args);
             if (commandOptions.ShouldExit)
