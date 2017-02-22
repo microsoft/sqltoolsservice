@@ -57,4 +57,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public static readonly int LAST_TOKEN = ResolveTokenId("LAST_TOKEN");
 
     }
+
+    static class TokenConverter
+    {
+        public static int ToInt(this Tokens token)
+        {
+            return (int)token;
+        }
+    }
 }
