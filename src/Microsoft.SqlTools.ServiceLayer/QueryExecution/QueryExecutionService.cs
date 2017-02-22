@@ -37,12 +37,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             ConnectionService = ConnectionService.Instance;
             WorkspaceService = WorkspaceService<SqlToolsSettings>.Instance;
+            Settings = new SqlToolsSettings();
         }
 
         internal QueryExecutionService(ConnectionService connService, WorkspaceService<SqlToolsSettings> workspaceService)
         {
             ConnectionService = connService;
             WorkspaceService = workspaceService;
+            Settings = new SqlToolsSettings();
         }
 
         #endregion
@@ -105,7 +107,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly Lazy<ConcurrentDictionary<string, Query>> queries =
             new Lazy<ConcurrentDictionary<string, Query>>(() => new ConcurrentDictionary<string, Query>());
 
-        private SqlToolsSettings Settings => WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings;
+        /// <summary>
+        /// Settings that will be used to execute queries. Internal for unit testing
+        /// </summary>
+        internal SqlToolsSettings Settings { get; set; }
 
         #endregion
 
@@ -134,11 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             });
 
             // Register a handler for when the configuration changes
-            WorkspaceService.RegisterConfigChangeCallback((oldSettings, newSettings, eventContext) =>
-            {
-                Settings.QueryExecutionSettings.Update(newSettings.QueryExecutionSettings);
-                return Task.FromResult(0);
-            });
+            WorkspaceService.RegisterConfigChangeCallback(UpdateSettings);
         }
 
         #region Request Handlers
@@ -410,13 +411,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Retrieve the current settings for executing the query with
-                QueryExecutionSettings settings = WorkspaceService.CurrentSettings.QueryExecutionSettings;
+                QueryExecutionSettings querySettings = Settings.QueryExecutionSettings;
 
                 // Apply execution parameter settings 
-                settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
+                querySettings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
 
                 // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory);
+                Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, querySettings, BufferFileFactory);
                 if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
                 {
                     await failureAction(SR.QueryServiceQueryInProgress);
@@ -589,6 +590,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Note, this shouldn't be possible due to inheritance rules
             throw new InvalidCastException("Invalid request type");
+        }
+
+        /// Internal for testing purposes
+        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+        {
+            Settings.QueryExecutionSettings.Update(newSettings.QueryExecutionSettings);
+            return Task.FromResult(0);
         }
 
         #endregion
