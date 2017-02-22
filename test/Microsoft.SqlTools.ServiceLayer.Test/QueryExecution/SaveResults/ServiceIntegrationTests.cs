@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output])));
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
                 .Returns<string>(output =>
                 {
@@ -284,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.SaveResults
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output])));
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
                 .Returns<string>(output =>
                 {

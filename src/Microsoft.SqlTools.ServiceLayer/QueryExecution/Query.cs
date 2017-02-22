@@ -54,16 +54,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool hasExecuteBeenCalled;
 
         /// <summary>
-        /// Settings for query runtime 
-        /// </summary>
-        private QueryExecutionSettings querySettings;
-
-        /// <summary>
-        /// Streaming output factory for the query 
-        /// </summary>
-        private IFileStreamFactory streamOutputFactory;
-
-        /// <summary>
         /// Name of the new database if the database name was changed in the query
         /// </summary>
         private string newDatabaseName;
@@ -109,8 +99,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             QueryText = queryText;
             editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
-            querySettings = settings;
-            streamOutputFactory = outputFactory;
 
             // Process the query into batches 
             BatchParserWrapper parser = new BatchParserWrapper();
@@ -135,16 +123,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (DoesSupportExecutionPlan(connection))
             {
                 // Checking settings for execution plan options 
-                if (querySettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
+                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
                 {
                     // Enable set showplan xml
-                    addBatch(string.Format(SetShowPlanXml, On), BeforeBatches, streamOutputFactory);
-                    addBatch(string.Format(SetShowPlanXml, Off), AfterBatches, streamOutputFactory);
+                    AddBatch(string.Format(SetShowPlanXml, On), BeforeBatches, outputFactory);
+                    AddBatch(string.Format(SetShowPlanXml, Off), AfterBatches, outputFactory);
                 }
-                else if (querySettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
+                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
                 {
-                    addBatch(string.Format(SetStatisticsXml, On), BeforeBatches, streamOutputFactory);
-                    addBatch(string.Format(SetStatisticsXml, Off), AfterBatches, streamOutputFactory);
+                    AddBatch(string.Format(SetStatisticsXml, On), BeforeBatches, outputFactory);
+                    AddBatch(string.Format(SetStatisticsXml, Off), AfterBatches, outputFactory);
                 }
             }
         }
@@ -181,11 +169,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Callback for when the query has failed
         /// </summary>
         public event QueryAsyncEventHandler QueryFailed;
-
-        /// <summary>
-        /// Callback for when the query connection has failed
-        /// </summary>
-        public event QueryAsyncErrorEventHandler QueryConnectionException;
 
         /// <summary>
         /// Event to be called when a resultset has completed.
@@ -459,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Function to add a new batch to a Batch set
         /// </summary>
-        private void addBatch(string query, List<Batch> batchSet, IFileStreamFactory outputFactory)
+        private static void AddBatch(string query, ICollection<Batch> batchSet, IFileStreamFactory outputFactory)
         {
             batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory));
         }
