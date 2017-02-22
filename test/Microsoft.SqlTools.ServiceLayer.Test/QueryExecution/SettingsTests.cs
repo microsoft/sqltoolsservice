@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                 }
                     
             };
-            qes.UpdateSettings(null, settings, new EventContext());
+            qes.UpdateSettings(settings, null, new EventContext());
 
             // Then: The settings object should match what it was updated to
             Assert.False(qes.Settings.QueryExecutionSettings.DisplayBitAsNumber);
