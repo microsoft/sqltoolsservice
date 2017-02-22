@@ -251,6 +251,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
+                Console.WriteLine("baseline:" + "\n" + baseline);
+                Console.WriteLine("-------------------");
+                Console.Write("outputString:" + "\n" + outputString);
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
                 Console.WriteLine(":: Output does not match the baseline!");
