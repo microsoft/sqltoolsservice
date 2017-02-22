@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Default number of chars to store for long text fields (de facto standard as per SSMS)
         /// </summary>
-        private const int DefaultMaxCharsToStore = 65535; // 64 KB - QE default
+        private const int DefaultMaxCharsToStore = 65536; // 64 KB - QE default
 
         /// <summary>
         /// Default number of chars to store of XML values (de facto standard as per SSMS)
