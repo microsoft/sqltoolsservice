@@ -5,10 +5,10 @@
 
 using System;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Win32;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
 {
     public class Win32CredentialTests
     {

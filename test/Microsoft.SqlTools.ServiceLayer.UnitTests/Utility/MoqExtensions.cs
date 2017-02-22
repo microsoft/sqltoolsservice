@@ -7,7 +7,7 @@ using System.Reflection;
 using Moq.Language;
 using Moq.Language.Flow;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     public static class MoqExtensions
     {

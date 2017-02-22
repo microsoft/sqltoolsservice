@@ -3,13 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.IO;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
     /// <summary>
     /// ScriptFile test case

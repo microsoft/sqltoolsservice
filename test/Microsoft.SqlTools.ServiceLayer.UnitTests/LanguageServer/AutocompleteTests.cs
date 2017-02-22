@@ -13,14 +13,13 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
     /// <summary>
     /// Tests for the language service autocomplete component

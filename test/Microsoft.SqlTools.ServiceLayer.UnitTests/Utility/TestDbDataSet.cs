@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     public class TestResultSet : IEnumerable<object[]>
     {

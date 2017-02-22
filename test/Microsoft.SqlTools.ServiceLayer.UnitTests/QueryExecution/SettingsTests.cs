@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
     public class SettingsTests
     {

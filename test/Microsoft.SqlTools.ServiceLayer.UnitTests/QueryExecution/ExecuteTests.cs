@@ -5,20 +5,7 @@
 
 //#define USE_LIVE_CONNECTION
 
-using System.Data.Common;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
-using Xunit;
-
-namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
     public class ExecuteTests
     {

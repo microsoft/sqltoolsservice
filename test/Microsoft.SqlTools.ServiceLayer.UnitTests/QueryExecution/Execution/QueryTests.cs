@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
     public class QueryTests
     {

@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
     public class ServiceHostTests
     {

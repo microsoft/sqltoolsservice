@@ -8,7 +8,7 @@ using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
     /// <summary>
     /// Logger test cases

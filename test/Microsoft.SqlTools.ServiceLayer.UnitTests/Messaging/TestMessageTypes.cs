@@ -6,7 +6,7 @@
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Messaging
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
     #region Request Types
 

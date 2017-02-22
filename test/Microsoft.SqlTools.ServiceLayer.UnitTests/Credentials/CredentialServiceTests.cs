@@ -10,12 +10,10 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Linux;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Moq;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
 {
     /// <summary>
     /// Credential Service tests that should pass on all platforms, regardless of backing store.

@@ -1,5 +1,5 @@
 {
-  "name": "Microsoft.SqlTools.ServiceLayer.Test",
+  "name": "Microsoft.SqlTools.ServiceLayer.UnitTests",
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",

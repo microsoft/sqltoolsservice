@@ -4,11 +4,11 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
-using HostingMessage = Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message;
 using Newtonsoft.Json.Linq;
 using Xunit;
+using HostingMessage = Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.ServiceHost
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
     public class TestMessageContents
     {

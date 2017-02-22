@@ -6,7 +6,7 @@
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServices
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
 {
     /// <summary>
     /// Tests for the SqlContext settins

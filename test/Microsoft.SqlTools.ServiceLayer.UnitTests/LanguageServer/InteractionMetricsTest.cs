@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
     public class InteractionMetricsTest
     {

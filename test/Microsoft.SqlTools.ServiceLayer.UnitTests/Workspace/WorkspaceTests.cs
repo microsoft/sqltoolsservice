@@ -8,14 +8,13 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Workspace
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 {
     public class WorkspaceTests
     {

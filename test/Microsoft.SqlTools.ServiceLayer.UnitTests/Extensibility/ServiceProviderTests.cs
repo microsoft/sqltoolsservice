@@ -8,7 +8,7 @@ using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Extensibility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Extensibility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
 {
     public class ServiceProviderTests
     {

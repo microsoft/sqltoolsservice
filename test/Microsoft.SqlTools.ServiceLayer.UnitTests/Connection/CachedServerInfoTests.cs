@@ -3,11 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using Xunit;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
     /// <summary>
     /// Tests for Sever Information Caching Class

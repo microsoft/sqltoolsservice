@@ -3,10 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer;
 using Xunit;
 
-namespace Microsoft.SqlTools.Test.Utility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     public class SrTests
     {
@@ -16,10 +15,10 @@ namespace Microsoft.SqlTools.Test.Utility
         [Fact]
         public void SrPropertiesTest()
         {
-            Assert.NotNull(SR.QueryServiceSubsetBatchNotCompleted);
-            Assert.NotNull(SR.QueryServiceFileWrapperWriteOnly);
-            Assert.NotNull(SR.QueryServiceFileWrapperNotInitialized);
-            Assert.NotNull(SR.QueryServiceColumnNull);
+            Assert.NotNull(ServiceLayer.SR.QueryServiceSubsetBatchNotCompleted);
+            Assert.NotNull(ServiceLayer.SR.QueryServiceFileWrapperWriteOnly);
+            Assert.NotNull(ServiceLayer.SR.QueryServiceFileWrapperNotInitialized);
+            Assert.NotNull(ServiceLayer.SR.QueryServiceColumnNull);
         }
     }
 }

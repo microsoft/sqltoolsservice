@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Messaging
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
     public class MessageWriterTests
     {

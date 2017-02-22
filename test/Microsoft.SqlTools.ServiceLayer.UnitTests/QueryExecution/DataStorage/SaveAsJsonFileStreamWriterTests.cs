@@ -8,11 +8,11 @@ using System.IO;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.DataStorage
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
     public class SaveAsJsonFileStreamWriterTests
     {

@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Completion
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Completion
 {
     public class ScriptDocumentInfoTest
     {

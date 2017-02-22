@@ -5,7 +5,7 @@
 
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Messaging
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
     public class Common
     {

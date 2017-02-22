@@ -4,10 +4,9 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
     public class SpecialActionTests
     {

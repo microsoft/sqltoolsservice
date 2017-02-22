@@ -14,13 +14,12 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Microsoft.SqlTools.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Moq.Protected;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
     /// <summary>
     /// Tests for the ServiceHost Connection Service tests
@@ -249,8 +248,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// provided as a parameter.
         /// </summary>
         [Theory]
-        [InlineDataAttribute(null)]
-        [InlineDataAttribute("")]
+        [InlineData(null)]
+        [InlineData("")]
         public async Task CanConnectWithEmptyDatabaseName(string databaseName)
         {
             // Connect
@@ -273,8 +272,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// provided as a parameter.
         /// </summary>
         [Theory]
-        [InlineDataAttribute("master")]
-        [InlineDataAttribute("nonMasterDb")]
+        [InlineData("master")]
+        [InlineData("nonMasterDb")]
         public async Task ConnectToDefaultDatabaseRespondsWithActualDbName(string expectedDbName)
         {
             // Given connecting with empty database name will return the expected DB name
@@ -701,8 +700,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Connection
         /// Test that disconnecting validates parameters and doesn't succeed when they are invalid
         /// </summary>
         [Theory]
-        [InlineDataAttribute(null)]
-        [InlineDataAttribute("")]
+        [InlineData(null)]
+        [InlineData("")]
 
         public async Task DisconnectValidatesParameters(string disconnectUri)
         {

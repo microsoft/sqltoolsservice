@@ -16,7 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
     public class CompletionServiceTest
     {

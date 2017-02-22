@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Extensibility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
 {
     public class ExtensionTests
     {

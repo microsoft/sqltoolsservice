@@ -7,7 +7,7 @@ using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
     /// <summary>
     /// DbColumnWrapper tests

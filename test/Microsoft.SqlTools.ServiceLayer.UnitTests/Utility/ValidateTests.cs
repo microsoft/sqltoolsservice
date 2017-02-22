@@ -7,7 +7,7 @@ using System;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.Test.Utility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     public class ValidateTests
     {

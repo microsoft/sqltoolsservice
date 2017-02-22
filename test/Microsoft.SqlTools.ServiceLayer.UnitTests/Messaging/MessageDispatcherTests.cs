@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Messaging
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
     public class MessageDispatcherTests
     {

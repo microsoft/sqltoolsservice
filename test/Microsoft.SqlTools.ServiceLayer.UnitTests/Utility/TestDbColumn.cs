@@ -5,7 +5,7 @@
 using System;
 using System.Data.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     public class TestDbColumn : DbColumn
     {

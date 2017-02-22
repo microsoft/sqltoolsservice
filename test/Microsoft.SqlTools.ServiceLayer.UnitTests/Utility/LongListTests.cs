@@ -6,7 +6,7 @@
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.Test.Utility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     /// <summary>
     /// Tests for the LongList class

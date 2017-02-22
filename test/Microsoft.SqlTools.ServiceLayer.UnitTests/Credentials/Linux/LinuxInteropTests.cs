@@ -5,10 +5,10 @@
 
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Linux;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Credentials
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Linux
 {
     public class LinuxInteropTests
     {

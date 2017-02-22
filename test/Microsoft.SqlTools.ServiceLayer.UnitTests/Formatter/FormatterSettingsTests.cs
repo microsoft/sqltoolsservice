@@ -9,7 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class FormatterSettingsTests
     {

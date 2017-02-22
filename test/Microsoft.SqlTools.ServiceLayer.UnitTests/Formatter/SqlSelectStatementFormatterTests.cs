@@ -6,7 +6,7 @@
 using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Formatter
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     
     public class SqlSelectStatementFormatterTests : FormatterUnitTestsBase
