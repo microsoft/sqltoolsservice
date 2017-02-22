@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -40,9 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         {
             serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest);
             serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest);
-
-
-
             WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
         }
 
@@ -75,6 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 return FormatAndReturnEdits(docFormatParams);
             };
             await HandleRequest(requestHandler, requestContext, "HandleDocFormatRequest");
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true));
         }
 
         public async Task HandleDocRangeFormatRequest(DocumentRangeFormattingParams docRangeFormatParams, RequestContext<TextEdit[]> requestContext)
@@ -84,6 +83,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 return FormatRangeAndReturnEdits(docRangeFormatParams);
             };
             await HandleRequest(requestHandler, requestContext, "HandleDocRangeFormatRequest");
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false));
+        }
+        private static TelemetryProperties CreateTelemetryProps(bool isDocFormat)
+        {
+            return new TelemetryProperties
+            {
+                Properties = new Dictionary<string, string>
+                {
+                    { TelemetryPropertyNames.FormatType,
+                        isDocFormat ? TelemetryPropertyNames.DocumentFormatType : TelemetryPropertyNames.RangeFormatType }
+                },
+                EventName = TelemetryEventNames.FormatCode
+            };
         }
 
         private async Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
@@ -141,7 +153,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             }
             UpdateFormatOptionsFromSettings(options, settings);
             return options;
-
         }
 
         internal static void UpdateFormatOptionsFromSettings(FormatOptions options, FormatterSettings settings)
