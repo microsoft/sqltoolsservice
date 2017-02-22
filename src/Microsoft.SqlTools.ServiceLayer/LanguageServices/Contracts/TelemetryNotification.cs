@@ -52,12 +52,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public const string IntellisenseQuantile = "IntellisenseQuantile";
 
         /// <summary>
-        /// telemetry even name for when definition is requested
+        /// telemetry event name for when definition is requested
         /// </summary>
         public const string PeekDefinitionRequested = "PeekDefinitionRequested";
 
         /// <summary>
-        /// telemetry even name for when definition is requested
+        /// telemetry event name for when definition is requested
         /// </summary>
         public const string FormatCode = "FormatCode";
     }

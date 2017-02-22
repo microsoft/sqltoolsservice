@@ -73,6 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 return FormatAndReturnEdits(docFormatParams);
             };
             await HandleRequest(requestHandler, requestContext, "HandleDocFormatRequest");
+
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true));
         }
 
@@ -83,6 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 return FormatRangeAndReturnEdits(docRangeFormatParams);
             };
             await HandleRequest(requestHandler, requestContext, "HandleDocRangeFormatRequest");
+
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false));
         }
         private static TelemetryProperties CreateTelemetryProps(bool isDocFormat)
