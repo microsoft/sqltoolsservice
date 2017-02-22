@@ -126,6 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Gets or sets the query execution settings
         /// </summary>
+        [JsonProperty("query")]
         public QueryExecutionSettings QueryExecutionSettings { get; set; }
 
         /// <summary>

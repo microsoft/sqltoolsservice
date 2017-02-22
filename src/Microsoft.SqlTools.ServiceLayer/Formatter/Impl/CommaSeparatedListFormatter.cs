@@ -52,43 +52,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             int start = previousChild.Position.endTokenNumber;
             int end = nextChild.Position.startTokenNumber;
 
-            bool foundNonWhitespaceTokenBeforeComma = false;
-            int commaToken = -1;
+            bool foundWhitespaceTokenBeforeComma;
+            int commaToken = FindCommaToken(start, end, out foundWhitespaceTokenBeforeComma);
 
-            for (int i = start; i < end && HasToken(i); i++)
-            {
-                TokenData td = GetTokenData(i);
-                if (td.TokenId == 44)
-                {
-                    commaToken = i;
-                    break;
-                }
-                else if (IsTokenWhitespace(td))
-                {
-                    foundNonWhitespaceTokenBeforeComma = true;
-                }
-            }
-
-            Debug.Assert(commaToken > -1, "No comma separating the children.");
-
-            if (foundNonWhitespaceTokenBeforeComma)
+            if (foundWhitespaceTokenBeforeComma)
             {
                 ProcessTokenRange(start, commaToken);
             }
             else
             {
-
-#if DEBUG
-                for (int i = start; i < commaToken && HasToken(i); i++)
-                {
-                    TokenData td = GetTokenData(i);
-                    if (!IsTokenWhitespace(td))
-                    {
-                        Debug.Fail("unexpected token type of " + td.TokenId);
-                    }
-                }
-#endif
-                
                 // strip whitespace before comma
                 for (int i = start; i < commaToken; i++)
                 {
@@ -96,50 +68,105 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 }
             }
 
-            // include comma after each element?
-            if (!FormatOptions.PlaceCommasBeforeNextStatement)
+            if (FormatOptions.PlaceCommasBeforeNextStatement)
             {
-                ProcessTokenRange(commaToken, commaToken + 1);
+                ProcessCommaListWithCommaMove(commaToken, end, foundWhitespaceTokenBeforeComma);
             }
             else
             {
-                TokenData token = GetTokenData(commaToken);
-                AddReplacement(new Replacement(token.StartIndex, ",", ""));
+                ProcessCommaList(commaToken, end);
             }
+        }
+
+        private void ProcessCommaListWithCommaMove(int commaToken, int end, bool foundWhitespaceTokenBeforeComma)
+        {
+            // Strip comma from current position
+            TokenData token = GetTokenData(commaToken);
+            AddReplacement(token.StartIndex, ",", string.Empty);
+
+            // Process text between comma and next token
 
             // special case if there is no white space between comma token and end of region
             if (commaToken + 1 == end)
             {
-                string newValue = PlaceEachElementOnNewLine ? Environment.NewLine + GetIndentString() : " ";
-                AddReplacement(new Replacement(
-                    GetTokenData(end).StartIndex,
-                    string.Empty,
-                    newValue
-                    ));
+                // Only handle this case if there is no whitespace before the comma. Otherwise can
+                // ignore as we'll process & squash whitespace
+                if (!foundWhitespaceTokenBeforeComma)
+                {
+                    AddNewlineOrSpace(end);
+                }
             }
             else
             {
-                NormalizeWhitespace f = FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace;
-                if (PlaceEachElementOnNewLine)
-                {
-                    f = FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
-                }
-
-                for (int i = commaToken + 1; i < end; i++)
-                {
-                    SimpleProcessToken(i, f);
-                }
+                ProcessWhitespaceInRange(commaToken, end);
 
             }
 
-            // do we need to place the comma before the next statement in the list?
-            if (FormatOptions.PlaceCommasBeforeNextStatement)
+            // Add the comma just before the next token
+            SimpleProcessToken(commaToken, FormatterUtilities.NormalizeNewLinesInWhitespace);
+            TokenData tok = GetTokenData(end);
+            AddReplacement(tok.StartIndex, string.Empty, ",");
+        }
+
+        private void ProcessCommaList(int commaToken, int end)
+        {
+            ProcessTokenRange(commaToken, commaToken + 1);
+
+            // special case if there is no white space between comma token and end of region
+            if (commaToken + 1 == end)
             {
-                SimpleProcessToken(commaToken, FormatterUtilities.NormalizeNewLinesInWhitespace);
-                TokenData tok = GetTokenData(end);
-                AddReplacement(new Replacement(tok.StartIndex, "", ","));
+                AddNewlineOrSpace(end);
+            }
+            else
+            {
+                ProcessWhitespaceInRange(commaToken, end);
             }
         }
-    }
 
+        private void ProcessWhitespaceInRange(int commaToken, int end)
+        {
+            NormalizeWhitespace f = FormatterUtilities.NormalizeNewLinesOrCondenseToOneSpace;
+            if (PlaceEachElementOnNewLine)
+            {
+                f = FormatterUtilities.NormalizeNewLinesEnsureOneNewLineMinimum;
+            }
+
+            for (int i = commaToken + 1; i <= end; i++)
+            {
+                SimpleProcessToken(i, f);
+            }
+        }
+
+        private void AddNewlineOrSpace(int end)
+        {
+            string newValue = PlaceEachElementOnNewLine ? Environment.NewLine + GetIndentString() : " ";
+            AddReplacement(
+                GetTokenData(end).StartIndex,
+                string.Empty,
+                newValue);
+        }
+
+        private int FindCommaToken(int start, int end, out bool foundWhitespaceTokenBeforeComma)
+        {
+            foundWhitespaceTokenBeforeComma = false;
+            int commaToken = -1;
+
+            for (int i = start; i < end && HasToken(i); i++)
+            {
+                TokenData td = GetTokenData(i);
+                if (td.TokenId == FormatterTokens.TOKEN_COMMA)
+                {
+                    commaToken = i;
+                    break;
+                }
+                else if (IsTokenWhitespace(td))
+                {
+                    foundWhitespaceTokenBeforeComma = true;
+                }
+            }
+
+            Debug.Assert(commaToken > -1, "No comma separating the children.");
+            return commaToken;
+        }
+    }
 }
