@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             return (int)converter.ConvertFromString(tokenName);
         }
 
+        public static readonly int TOKEN_COMMA = 44;    // not included in Tokens enum for some reason
         public static readonly int TOKEN_FOR = ResolveTokenId("TOKEN_FOR");
         public static readonly int TOKEN_REPLICATION = ResolveTokenId("TOKEN_REPLICATION");
         public static readonly int TOKEN_ID = ResolveTokenId("TOKEN_ID");

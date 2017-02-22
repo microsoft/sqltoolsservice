@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         internal static bool IsTokenWhitespaceOrComma(SqlScript script, int tokenIndex)
         {
             int tokenId = script.TokenManager.TokenList[tokenIndex].TokenId;
-            return script.TokenManager.IsTokenWhitespace(tokenId) || (tokenId == 44);
+            return script.TokenManager.IsTokenWhitespace(tokenId) || (tokenId == FormatterTokens.TOKEN_COMMA);
         }
 
         internal static bool IsTokenWhitespaceOrComment(SqlScript script, int tokenIndex)
