@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             string outputString = output.ToString().Replace("\r\n", "\n");
 
-            Console.WriteLine(baselineFilename);
+            //Console.WriteLine(baselineFilename);
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
