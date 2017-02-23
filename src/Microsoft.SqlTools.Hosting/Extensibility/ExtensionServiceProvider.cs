@@ -32,14 +32,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Extensibility
             string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
             string directory = Path.GetDirectoryName(assemblyPath);
             
-             AssemblyLoadContext context = new AssemblyLoader(directory);
-            var assemblyNames = Directory
-                .GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly)
-                .Select(AssemblyLoadContext.GetAssemblyName);
+            AssemblyLoadContext context = new AssemblyLoader(directory);
+            var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
 
-            var assemblies = assemblyNames
-                .Select(context.LoadFromAssemblyName)
-                .ToList();
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach (var path in assemblyPaths)
+            {
+                try
+                {
+                    assemblies.Add(
+                        context.LoadFromAssemblyName(
+                            AssemblyLoadContext.GetAssemblyName(path)));
+                }
+                catch (System.BadImageFormatException)
+                {
+                    // we expect exceptions trying to scan all DLLs since directory contains native libraries
+                }
+            }
 
             return Create(assemblies);
         }

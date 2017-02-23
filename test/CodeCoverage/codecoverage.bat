@@ -47,10 +47,8 @@ SET SERVICECODECOVERAGE=FALSE
 REM restore original project.json
 COPY /Y %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json.BAK %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json
 DEL %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json.BAK 
-
 COPY /Y %WORKINGDIR%..\..\src\Microsoft.SqlTools.Credentials\project.json.BAK %WORKINGDIR%..\..\src\Microsoft.SqlTools.Credentials\project.json
 DEL %WORKINGDIR%..\..\src\Microsoft.SqlTools.Credentials\project.json.BAK 
-
 COPY /Y %WORKINGDIR%..\..\src\Microsoft.SqlTools.Hosting\project.json.BAK %WORKINGDIR%..\..\src\Microsoft.SqlTools.Hosting\project.json
 DEL %WORKINGDIR%..\..\src\Microsoft.SqlTools.Hosting\project.json.BAK 
 
