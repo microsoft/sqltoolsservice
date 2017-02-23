@@ -5,11 +5,9 @@
 
 using System;
 using System.Data.Common;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataStorage
@@ -18,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
     {
         private StorageDataReader GetTestStorageDataReader(string query)
         {
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             DbConnection connection;
             result.ConnectionInfo.TryGetConnection(ConnectionType.Default, out connection);
 

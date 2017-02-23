@@ -27,7 +27,7 @@
       "target": "project"
     },
     "Moq": "4.6.36-alpha",
-    "Microsoft.SqlTools.ServiceLayer.Test": "1.0.0-*"
+    "Microsoft.SqlTools.ServiceLayer.Test.Common": "1.0.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {

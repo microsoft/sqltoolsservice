@@ -6,14 +6,13 @@ using System;
 using System.Data.Common;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
@@ -86,8 +85,8 @@ GO";
         public void GetValidTableDefinitionTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "spt_monitor";
@@ -108,8 +107,8 @@ GO";
         public void GetTableDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "test_invalid";
@@ -128,8 +127,8 @@ GO";
         public void GetTableDefinitionWithSchemaTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "spt_monitor";
@@ -147,10 +146,10 @@ GO";
         /// Test GetDefinition with an unsupported type(schema - dbo). Expect a error result.
         /// </summary>
         [Fact]
-        public async Task GetUnsupportedDefinitionErrorTest()
+        public void GetUnsupportedDefinitionErrorTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "objects";
@@ -168,8 +167,8 @@ GO";
         [Fact]
         public void GetDefinitionWithNoResultsFoundError()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "from";
@@ -226,7 +225,7 @@ GO";
                     Character = 20
                 }
             };
-            TestConnectionResult connectionResult = TestObjects.InitLiveConnectionInfo();
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
             scriptFile.Contents = "select * from dbo.func ()";
@@ -250,8 +249,8 @@ GO";
         [Fact]
         public void GetValidViewDefinitionTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "objects";
@@ -270,8 +269,8 @@ GO";
         public void GetViewDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "objects";
@@ -289,8 +288,8 @@ GO";
         public void GetStoredProcedureDefinitionTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "sp_MSrepl_startup";
@@ -310,8 +309,8 @@ GO";
         public void GetStoredProcedureDefinitionFailureTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "SP2";
@@ -329,8 +328,8 @@ GO";
         public void GetStoredProcedureDefinitionWithoutSchemaTest()
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "sp_MSrepl_startup";
@@ -369,8 +368,8 @@ GO";
         private void ValidatePeekTest(string databaseName, string objectName, string objectType, string schemaName, bool shouldReturnValidResult)
         {
             // Get live connectionInfo and serverConnection
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition(databaseName);
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition(databaseName);
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
 
@@ -571,8 +570,8 @@ GO";
         [Fact]
         public void GetDefinitionUsingDeclarationTypeWithValidObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "objects";
@@ -593,8 +592,8 @@ GO";
         [Fact]
         public void GetDefinitionUsingDeclarationTypeWithNonexistentObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "doesNotExist";
@@ -612,8 +611,8 @@ GO";
         [Fact]
         public void GetDefinitionUsingQuickInfoTextWithValidObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "objects";
@@ -635,8 +634,8 @@ GO";
         [Fact]
         public void GetDefinitionUsingQuickInfoTextWithNonexistentObjectTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
             PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
             string objectName = "doesNotExist";
@@ -656,8 +655,8 @@ GO";
         [Fact]
         public void GetDatabaseWithNoQueryConnectionTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
             DbConnection connection;
             //Check if query connection is present
             Assert.False(connInfo.TryGetConnection(ConnectionType.Query, out connection));
@@ -675,8 +674,8 @@ GO";
         [Fact]
         public void GetDatabaseWithQueryConnectionTest()
         {
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition();
-            ServerConnection serverConnection = TestObjects.InitLiveServerConnectionForDefinition(connInfo);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
+            ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
             //Mock a query connection object
             var mockQueryConnection = new Mock<DbConnection> { CallBase = true };
             mockQueryConnection.SetupGet(x => x.Database).Returns("testdb");

@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class TestObjects
     {
-        public const string ScriptUriTemplate = "file://some/{0}.sql";
+        
         public const string ScriptUri = "file://some/file.sql";
 
         /// <summary>
