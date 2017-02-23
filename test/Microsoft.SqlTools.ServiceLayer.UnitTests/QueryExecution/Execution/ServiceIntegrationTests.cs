@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I request to execute a valid query with all batches as no op
             var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.NoOpQuery));
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddEventValidation(QueryCompleteEvent.Type, p =>
                 {
                     // Validate OwnerURI matches
-                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                    Assert.Equal(Constants.OwnerUri, p.OwnerUri);
                     Assert.NotNull(p.BatchSummaries);
                     Assert.Equal(2, p.BatchSummaries.Length);
                     Assert.All(p.BatchSummaries, bs => Assert.Equal(0, bs.ResultSetSummaries.Length));
