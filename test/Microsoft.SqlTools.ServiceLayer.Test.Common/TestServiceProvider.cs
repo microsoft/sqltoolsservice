@@ -4,18 +4,13 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
@@ -74,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 ConnectionInfo connInfo = InitLiveConnectionInfo(serverType, databaseName, queryTempFile.FilePath);
-                Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), GetFileStreamFactory(new Dictionary<string, byte[]>()));
+                Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory());
                 query.Execute();
                 query.ExecutionTask.Wait();
             }
@@ -98,24 +93,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             connectionService.TryFindConnection(ownerUri, out connInfo);
             Assert.NotNull(connInfo);
             return connInfo;
-        }
-
-        private static IFileStreamFactory GetFileStreamFactory(Dictionary<string, byte[]> storage)
-        {
-            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
-            mock.Setup(fsf => fsf.CreateFile())
-                .Returns(() =>
-                {
-                    string fileName = Guid.NewGuid().ToString();
-                    storage.Add(fileName, new byte[8192]);
-                    return fileName;
-                });
-            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-
-            return mock.Object;
         }
 
         private static bool hasInitServices = false;

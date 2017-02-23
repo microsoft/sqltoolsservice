@@ -6,17 +6,10 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -27,7 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     {
         public const string ScriptUriTemplate = "file://some/{0}.sql";
         public const string ScriptUri = "file://some/file.sql";
-        private static TestServiceProvider _serviceProvider = TestServiceProvider.Instance;
 
         /// <summary>
         /// Creates a test connection service
@@ -38,19 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             return new ConnectionService(new TestSqlConnectionFactory());
         }
 
-        public static ConnectionService GetLiveTestConnectionService()
-        {
-            // connect to a real server instance
-            return ConnectionService.Instance;
-        }
-
         /// <summary>
         /// Creates a test connection info instance.
         /// </summary>
         public static ConnectionInfo GetTestConnectionInfo()
         {
             return new ConnectionInfo(
-                GetTestSqlConnectionFactory(),
+                new TestSqlConnectionFactory(),
                 ScriptUri,
                 GetTestConnectionDetails());
         }
@@ -88,88 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         /// <summary>
-        /// Creates a test sql connection factory instance
-        /// </summary>
-        public static ISqlConnectionFactory GetTestSqlConnectionFactory()
-        {
-            // use mock database connection
-            return new TestSqlConnectionFactory();
-        }
-
-         /// <summary>
-        /// Creates a test sql connection factory instance
-        /// </summary>
-        public static ISqlConnectionFactory GetLiveTestSqlConnectionFactory()
-        {
-            // connect to a real server instance
-            return ConnectionService.Instance.ConnectionFactory; 
-        }
-
-       
-
-        public static string GetTestSqlFile()
-        {
-            string filePath = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                "sqltest.sql");
-            
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-
-            File.WriteAllText(filePath, "SELECT * FROM sys.objects\n");
-
-            return filePath;
-        }
-
-        public static TestConnectionResult InitLiveConnectionInfo()
-        {
-            string sqlFilePath = GetTestSqlFile();
-            ScriptFile scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(sqlFilePath);
-            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem);
-
-            string ownerUri = scriptFile.ClientFilePath;
-            var connectionService = TestObjects.GetLiveTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams()
-                {
-                    OwnerUri = ownerUri,
-                    Connection = connectParams.Connection
-                });
-            
-            connectionResult.Wait();
-
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
-            return new TestConnectionResult () { ConnectionInfo = connInfo, ScriptFile = scriptFile };
-        }
-
-        public static ConnectionInfo InitLiveConnectionInfoForDefinition(string databaseName = null)
-        {
-            ConnectParams connectParams = _serviceProvider.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
-
-            string ownerUri = string.Format(CultureInfo.InvariantCulture, ScriptUriTemplate, string.IsNullOrEmpty(databaseName) ? "file" :  databaseName);
-            var connectionService = TestObjects.GetLiveTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams()
-                {
-                    OwnerUri = ownerUri,
-                    Connection = connectParams.Connection
-                });
-            
-            connectionResult.Wait();
-
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
-            
-            Assert.NotNull(connInfo);
-            return connInfo;
-        }
-
-        /// <summary>
         /// Creates and returns a dummy TextDocumentPosition
         /// </summary>
         public static TextDocumentPosition GetTestDocPosition()
@@ -183,12 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                     Character = 0
                 }
             };
-        }
-
-        public static ServerConnection InitLiveServerConnectionForDefinition(ConnectionInfo connInfo)
-        {
-            SqlConnection sqlConn = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));                                
-            return new ServerConnection(sqlConn);
         }
     }
 
@@ -304,14 +202,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 ConnectionString = connectionString
             };
         }
-    }
-
-    public class TestConnectionResult
-    {
-        public ConnectionInfo ConnectionInfo { get; set; }
-
-        public ScriptFile ScriptFile { get; set; }
-
-        public TextDocumentPosition TextDocumentPosition { get; set; }
     }
 }

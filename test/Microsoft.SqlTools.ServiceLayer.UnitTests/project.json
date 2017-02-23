@@ -24,7 +24,7 @@
     "System.Collections.Specialized": "4.0.1",
     "System.ComponentModel.TypeConverter": "4.1.0",
     "xunit": "2.1.0",
-    "dotnet-test-xunit": "1.0.0-rc2-192208-24",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
     },
