@@ -17,4 +17,4 @@ Tokens:
 
 *** PARSER: Include file "cycle2.txt"
 
-[PARSER ERROR: code CircularReference at 2:14 [25] - 2:14 [25] in TS-err-cycle1.txt, token text: , message: File 'cycle2.txt' recursively included.]
+[PARSER ERROR: code CircularReference at 2:14 [24] - 2:14 [24] in TS-err-cycle1.txt, token text: , message: File 'cycle2.txt' recursively included.]

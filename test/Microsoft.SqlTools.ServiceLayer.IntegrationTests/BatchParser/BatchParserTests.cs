@@ -178,15 +178,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
                 var inputStream = GenerateStreamFromString(input);
                 StreamReader streamReader = new StreamReader(inputStream);
 
-                Parser parser = new Parser(
+                using (Parser parser = new Parser(
                     commandHandler,
                     new TestVariableResolver(output),
                     streamReader,
-                    filename);
+                    filename)) { 
 
-                commandHandler.SetParser(parser);
+                    commandHandler.SetParser(parser);
 
-                parser.Parse();
+                    parser.Parse();
+                }
             }
             catch (BatchParserException ex)
             {
@@ -254,7 +255,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 
             if (string.Compare(baseline, outputString, StringComparison.Ordinal) != 0)
             {
-                Console.Write("outputString:" + "\n" + outputString);
                 DumpToTrace(CurrentTestName, outputString);
                 string outputFilename = Path.Combine(TraceFilePath, GetBaselineFileName(CurrentTestName));
                 Console.WriteLine(":: Output does not match the baseline!");
