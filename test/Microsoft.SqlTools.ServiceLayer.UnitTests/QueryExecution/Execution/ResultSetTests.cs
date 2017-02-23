@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -12,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a new result set with a valid db data reader
             DbDataReader mockReader = GetReader(null, false, string.Empty);
-            ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
 
             // Then:
             // ... There should not be any data read yet
@@ -65,8 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a new resultset with a valid db data reader that has data
             // ... and I read it to the end
-            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             resultSet.ResultCompletion += callback;
             await resultSet.ReadResultToEnd(CancellationToken.None);
@@ -109,8 +109,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a new resultset with a valid db data reader that is FOR XML/JSON
             // ... and I read it to the end
-            DbDataReader mockReader = GetReader(dataSets, false, Common.StandardQuery);
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            DbDataReader mockReader = GetReader(dataSets, false, Constants.StandardQuery);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             resultSet.ResultCompletion += callback;
             await resultSet.ReadResultToEnd(CancellationToken.None);
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a new result set with a valid db data reader without executing it
             DbDataReader mockReader = GetReader(null, false, string.Empty);
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
 
             // Then:
@@ -156,8 +156,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a new result set with a valid db data reader
             // ... And execute the result
-            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(CancellationToken.None);
 
@@ -177,8 +177,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a new result set with a valid db data reader
             // ... And execute the result set
-            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            DbDataReader mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(mockReader, Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(CancellationToken.None);
 

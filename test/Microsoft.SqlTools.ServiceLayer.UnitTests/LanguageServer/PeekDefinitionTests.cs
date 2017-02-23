@@ -23,6 +23,7 @@ using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
+using GlobalCommon = Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
@@ -49,8 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         private TextDocumentPosition textDocument;
 
-        private const string OwnerUri = "testFile1";
-
         private void InitializeTestObjects()
         {
             // initial cursor position in the script file
@@ -69,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             // set up file for returning the query
             var fileMock = new Mock<ScriptFile>();
-            fileMock.SetupGet(file => file.Contents).Returns(QueryExecution.Common.StandardQuery);
+            fileMock.SetupGet(file => file.Contents).Returns(GlobalCommon.Constants.StandardQuery);
             fileMock.SetupGet(file => file.ClientFilePath).Returns(this.testScriptUri);
 
             // set up workspace mock

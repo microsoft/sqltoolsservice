@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
@@ -136,12 +137,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I have a query that has results in the form of an execution plan 
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams
             {
                 QuerySelection = null,
-                OwnerUri = Common.OwnerUri,
+                OwnerUri = Constants.OwnerUri,
                 ExecutionPlanOptions = new ExecutionPlanOptions
                 {
                     IncludeActualExecutionPlanXml = false,
@@ -150,10 +151,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a valid execution plan 
-            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, BatchIndex = 0, ResultSetIndex = 0 };
+            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, BatchIndex = 0, ResultSetIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddResultValidation(r =>
                 {
@@ -170,9 +171,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I ask for an execution plan for a file that hasn't executed a query
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
+            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddErrorValidation<string>(Assert.NotNull).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
@@ -184,12 +185,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams
             {
                 QuerySelection = null,
-                OwnerUri = Common.OwnerUri,
+                OwnerUri = Constants.OwnerUri,
                 ExecutionPlanOptions = new ExecutionPlanOptions
                 {
                     IncludeActualExecutionPlanXml = false,
@@ -198,11 +199,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
-            queryService.ActiveQueries[Common.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+            queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
 
             // ... And I then ask for a valid execution plan from it 
-            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
+            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddErrorValidation<string>(Assert.NotNull).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
@@ -214,12 +215,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I have a query that doesn't have any result sets
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var executeParams = new ExecuteDocumentSelectionParams
             {
                 QuerySelection = null,
-                OwnerUri = Common.OwnerUri,
+                OwnerUri = Constants.OwnerUri,
                 ExecutionPlanOptions = new ExecutionPlanOptions
                 {
                     IncludeActualExecutionPlanXml = false,
@@ -228,10 +229,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for an execution plan from a result set 
-            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Common.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
+            var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
                 .AddErrorValidation<string>(Assert.NotNull).Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);

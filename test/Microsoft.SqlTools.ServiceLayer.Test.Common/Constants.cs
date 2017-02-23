@@ -30,5 +30,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public const string BVTLocalRoot = "BVT_LOCALROOT";
 
         public const string DBIMode = "DBI_MODE";
+
+        public const string OwnerUri = "testFile";
+
+        public const string StandardQuery = "SELECT * FROM sys.objects";
     }
 }

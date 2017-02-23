@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
@@ -21,17 +22,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I request a query (doesn't matter what kind) and execute it
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
-            queryService.ActiveQueries[Common.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+            queryService.ActiveQueries[Constants.OwnerUri].HasExecuted = false;    // Fake that it hasn't completed execution
 
             // ... And then I request to cancel the query
-            var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
+            var cancelParams = new QueryCancelParams {OwnerUri = Constants.OwnerUri};
             var cancelRequest = new EventFlowValidator<QueryCancelResult>()
                 .AddResultValidation(r =>
                 {
@@ -50,16 +51,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I request a query (doesn't matter what kind) and wait for execution
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
+            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
 
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And then I request to cancel the query
-            var cancelParams = new QueryCancelParams {OwnerUri = Common.OwnerUri};
+            var cancelParams = new QueryCancelParams {OwnerUri = Constants.OwnerUri};
             var cancelRequest = new EventFlowValidator<QueryCancelResult>()
                 .AddResultValidation(r =>
                 {

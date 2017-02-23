@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -123,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         [Fact]
         public void GetBaseFilePath()
         {
-            TestUtils.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() => 
             {  
                 using (var workspace = new ServiceLayer.Workspace.Workspace())
                 {
@@ -137,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         [Fact]
         public void ResolveRelativeScriptPath()
         {
-            TestUtils.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() => 
             { 
                 var workspace = new ServiceLayer.Workspace.Workspace();
                 Assert.NotNull(workspace.ResolveRelativeScriptPath(null, @"c:\path\file.sql"));

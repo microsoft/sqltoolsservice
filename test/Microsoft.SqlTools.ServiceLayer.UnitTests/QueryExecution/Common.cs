@@ -2,25 +2,23 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using HostingProtocol = Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using Moq.Protected;
 
@@ -36,11 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public const int Ordinal = 100;     // We'll pick something other than default(int)
 
-        public const string OwnerUri = "testFile";
-
         public const int StandardColumns = 5;
-
-        public const string StandardQuery = "SELECT * FROM sys.objects";
 
         public const int StandardRows = 5;
 
@@ -78,14 +72,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         public static Batch GetBasicExecutedBatch()
         {
-            Batch batch = new Batch(StandardQuery, SubsectionDocument, 1, GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            Batch batch = new Batch(Constants.StandardQuery, SubsectionDocument, 1,
+                MemoryFileSystem.GetFileStreamFactory());
             batch.Execute(CreateTestConnection(StandardTestDataSet, false), CancellationToken.None).Wait();
             return batch;
         }
 
         public static Batch GetExecutedBatchWithExecutionPlan()
         {
-            Batch batch = new Batch(StandardQuery, SubsectionDocument, 1, GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            Batch batch = new Batch(Constants.StandardQuery, SubsectionDocument, 1,
+                MemoryFileSystem.GetFileStreamFactory());
             batch.Execute(CreateTestConnection(ExecutionPlanTestDataSet, false), CancellationToken.None).Wait();
             return batch;
         }
@@ -98,7 +94,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ConnectionInfo with the same URI as the query, so we will manually set it
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
-            Query query = new Query(StandardQuery, ci, new QueryExecutionSettings(), GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            Query query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), 
+                MemoryFileSystem.GetFileStreamFactory());
             query.Execute();
             query.ExecutionTask.Wait();
             return query;
@@ -112,7 +109,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ConnectionInfo with the same URI as the query, so we will manually set it
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
-            Query query = new Query(StandardQuery, ci, querySettings, GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            Query query = new Query(Constants.StandardQuery, ci, querySettings, 
+                MemoryFileSystem.GetFileStreamFactory());
             query.Execute();
             query.ExecutionTask.Wait();
             return query;
@@ -124,35 +122,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         public static async Task AwaitExecution(QueryExecutionService service, ExecuteDocumentSelectionParams qeParams,
-            RequestContext<ExecuteRequestResult> requestContext)
+            HostingProtocol.RequestContext<ExecuteRequestResult> requestContext)
         {
             await service.HandleExecuteRequest(qeParams, requestContext);
             if (service.ActiveQueries.ContainsKey(qeParams.OwnerUri) && service.ActiveQueries[qeParams.OwnerUri].ExecutionTask != null)
             {
                 await service.ActiveQueries[qeParams.OwnerUri].ExecutionTask;
             }
-        }
-
-        #endregion
-
-        #region FileStreamWriteMocking 
-
-        public static IFileStreamFactory GetFileStreamFactory(Dictionary<string, byte[]> storage)
-        {
-            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
-            mock.Setup(fsf => fsf.CreateFile())
-                .Returns(() =>
-                {
-                    string fileName = Guid.NewGuid().ToString();
-                    storage.Add(fileName, new byte[8192]);
-                    return fileName;
-                });
-            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-
-            return mock.Object;
         }
 
         #endregion
@@ -208,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // Create a connection info and add the default connection to it
             ISqlConnectionFactory factory = CreateMockFactory(data, throwOnRead);
-            ConnectionInfo ci = new ConnectionInfo(factory, OwnerUri, StandardConnectionDetails);
+            ConnectionInfo ci = new ConnectionInfo(factory, Constants.OwnerUri, StandardConnectionDetails);
             ci.ConnectionTypeToConnectionMap[ConnectionType.Default] = factory.CreateSqlConnection(null);
             return ci;
         }
@@ -222,12 +198,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             ConnectParams connectParams = new ConnectParams
             {
                 Connection = StandardConnectionDetails,
-                OwnerUri = OwnerUri,
+                OwnerUri = Constants.OwnerUri,
                 Type = type
             };
 
             connectionService.Connect(connectParams).Wait();
-            return connectionService.OwnerToConnectionMap[OwnerUri];
+            return connectionService.OwnerToConnectionMap[connectParams.OwnerUri];
         }
 
         #endregion
@@ -250,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null)
                 .Returns(isConnected);
 
-            return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = GetFileStreamFactory(storage) };
+            return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = MemoryFileSystem.GetFileStreamFactory(storage) };
         }
 
         public static QueryExecutionService GetPrimedExecutionService(TestResultSet[] data, bool isConnected, bool throwOnRead, WorkspaceService<SqlToolsSettings> workspaceService)

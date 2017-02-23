@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Moq.Protected;
@@ -868,7 +869,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Fact]
         public void TestThatLinuxAndOsxSqlExceptionHasNoErrorCode()
         {
-            TestUtils.RunIfLinuxOrOSX(() => 
+            RunIfWrapper.RunIfLinuxOrOSX(() => 
             {    
                 try
                 {

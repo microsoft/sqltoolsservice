@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using Xunit;
@@ -38,15 +39,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I request a query (doesn't matter what kind)
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
+            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And then I dispose of the query
-            var disposeParams = new QueryDisposeParams {OwnerUri = Common.OwnerUri};
+            var disposeParams = new QueryDisposeParams {OwnerUri = Constants.OwnerUri};
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
                 .AddStandardQueryDisposeValidator()
                 .Complete();
@@ -65,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... I attempt to dispose a query that doesn't exist
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             var queryService = Common.GetPrimedExecutionService(null, false, false, workspaceService.Object);
-            var disposeParams = new QueryDisposeParams {OwnerUri = Common.OwnerUri};
+            var disposeParams = new QueryDisposeParams {OwnerUri = Constants.OwnerUri};
 
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
                 .AddErrorValidation<string>(Assert.NotEmpty)
@@ -81,15 +82,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // Setup:
             // ... We need a query service
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
 
             // If:
             // ... I execute some bogus query
-            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
             var requestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And it sticks around as an active query
             Assert.Equal(1, queryService.ActiveQueries.Count);

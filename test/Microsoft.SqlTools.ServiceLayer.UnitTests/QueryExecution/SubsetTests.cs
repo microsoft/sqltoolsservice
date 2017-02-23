@@ -4,12 +4,12 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... I have a resultset that hasn't been executed and I request a valid result set from it
             // Then:
             // ... It should throw an exception for having not been read
-            ResultSet rs = new ResultSet(new TestDbDataReader(null), Common.Ordinal, Common.Ordinal, Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            ResultSet rs = new ResultSet(new TestDbDataReader(null), Common.Ordinal, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
             await Assert.ThrowsAsync<InvalidOperationException>(() => rs.GetSubset(0, 1));
         }
 
@@ -130,15 +130,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I have a query that has results (doesn't matter what)
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, workspaceService);
-            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Common.OwnerUri};
+            var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a valid set of results from it
-            var subsetParams = new SubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
+            var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
                 .AddResultValidation(r =>
                 {
@@ -155,9 +155,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I ask for a set of results for a file that hasn't executed a query
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var subsetParams = new SubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
+            var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
                 .AddResultValidation(r =>
                 {
@@ -174,16 +174,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I have a query that hasn't finished executing (doesn't matter what)
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, workspaceService);
-            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
+            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
-            queryService.ActiveQueries[Common.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+            queryService.ActiveQueries[Constants.OwnerUri].Batches[0].ResultSets[0].hasBeenRead = false;
 
             // ... And I then ask for a valid set of results from it
-            var subsetParams = new SubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
+            var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
                 .AddResultValidation(r =>
                 {
@@ -200,15 +200,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             // If:
             // ... I have a query that doesn't have any result sets
-            var workspaceService = Common.GetPrimedWorkspaceService(Common.StandardQuery);
+            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Common.OwnerUri };
+            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
             var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
             await queryService.HandleExecuteRequest(executeParams, executeRequest.Object);
-            await queryService.ActiveQueries[Common.OwnerUri].ExecutionTask;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And I then ask for a set of results from it
-            var subsetParams = new SubsetParams { OwnerUri = Common.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
+            var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
                 .AddResultValidation(r =>
                 {

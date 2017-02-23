@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -10,30 +9,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     public static class TestUtils
     {
-
-        public static void RunIfLinux(Action test)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                test();
-            }
-        }
-
-        public static void RunIfLinuxOrOSX(Action test)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                test();
-            }
-        }
-        
-        public static void RunIfWindows(Action test)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                test();
-            }
-        }
 
         /// <summary>
         /// Wait for a condition to be true for a limited amount of time.

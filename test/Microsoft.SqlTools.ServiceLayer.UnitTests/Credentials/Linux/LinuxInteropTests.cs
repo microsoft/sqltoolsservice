@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Linux;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Linux
@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Linux
         public void GetEUidReturnsInt()
         {
 #if !WINDOWS_ONLY_BUILD           
-            TestUtils.RunIfLinux(() =>
+            RunIfWrapper.RunIfLinux(() =>
             {
                 Assert.NotNull(Interop.Sys.GetEUid());
             });
@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Linux
         public void GetHomeDirectoryFromPwFindsHomeDir()
         {
 #if !WINDOWS_ONLY_BUILD
-            TestUtils.RunIfLinux(() =>
+            RunIfWrapper.RunIfLinux(() =>
             {
                 string userDir = LinuxCredentialStore.GetHomeDirectoryFromPw();
                 Assert.StartsWith("/", userDir);

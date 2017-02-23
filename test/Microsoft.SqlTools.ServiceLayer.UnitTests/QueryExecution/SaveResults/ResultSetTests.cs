@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
@@ -27,10 +28,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Then: I should get a null argument exception
             ResultSet rs = new ResultSet(
                 GetReader(null, false, Common.NoOpQuery), Common.Ordinal, Common.Ordinal, 
-                Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+                MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<ArgumentNullException>(() => rs.SaveAs(
                 null,
-                Common.GetFileStreamFactory(new Dictionary<string, byte[]>()),
+                MemoryFileSystem.GetFileStreamFactory(),
                 null, null));
         }
 
@@ -41,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Then: I should get a null argument exception
             ResultSet rs = new ResultSet(
                 GetReader(null, false, Common.NoOpQuery), Common.Ordinal, Common.Ordinal, 
-                Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+                MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<ArgumentNullException>(() => rs.SaveAs(
                 new SaveResultsRequestParams(),
                 null, null, null));
@@ -54,10 +55,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Then: I should get an invalid operation exception
             ResultSet rs = new ResultSet(
                 GetReader(null, false, Common.NoOpQuery), Common.Ordinal, Common.Ordinal, 
-                Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+                MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<InvalidOperationException>(() => rs.SaveAs(
                 new SaveResultsRequestParams(), 
-                Common.GetFileStreamFactory(new Dictionary<string, byte[]>()), 
+                MemoryFileSystem.GetFileStreamFactory(), 
                 null, null));
         }
 
@@ -67,16 +68,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Setup:
             // ... Create a result set that has been executed
             ResultSet rs = new ResultSet(
-                GetReader(Common.StandardTestDataSet, false, Common.StandardQuery),
+                GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
-                Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+                MemoryFileSystem.GetFileStreamFactory());
 
             // ... Insert a non-started task into the save as tasks
-            rs.SaveTasks.AddOrUpdate(Common.OwnerUri, new Task(() => { }), (s, t) => null);
+            rs.SaveTasks.AddOrUpdate(Constants.OwnerUri, new Task(() => { }), (s, t) => null);
 
             // If: I attempt to save results with the same name as the non-completed task
             // Then: I should get an invalid operation exception
-            var requestParams = new SaveResultsRequestParams {FilePath = Common.OwnerUri};
+            var requestParams = new SaveResultsRequestParams {FilePath = Constants.OwnerUri};
             Assert.Throws<InvalidOperationException>(() => rs.SaveAs(
                 requestParams, GetMockFactory(GetMockWriter().Object, null), 
                 null, null));
@@ -86,15 +87,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         public async Task SaveAsWithoutRowSelection()
         {
             // Setup:
-            // ... Create a fake place to store data
-            Dictionary<string, byte[]> mockFs = new Dictionary<string, byte[]>();
-
             // ... Create a mock reader/writer for reading the result
-            IFileStreamFactory resultFactory = Common.GetFileStreamFactory(mockFs);
+            IFileStreamFactory resultFactory = MemoryFileSystem.GetFileStreamFactory();
 
             // ... Create a result set with dummy data and read to the end
             ResultSet rs = new ResultSet(
-                GetReader(Common.StandardTestDataSet, false, Common.StandardQuery),
+                GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
                 resultFactory);
             await rs.ReadResultToEnd(CancellationToken.None);
@@ -104,13 +102,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             IFileStreamFactory saveFactory = GetMockFactory(saveWriter.Object, resultFactory.GetReader);
 
             // If: I attempt to save results and await completion
-            rs.SaveAs(new SaveResultsRequestParams {FilePath = Common.OwnerUri}, saveFactory, null, null);
-            Assert.True(rs.SaveTasks.ContainsKey(Common.OwnerUri));
-            await rs.SaveTasks[Common.OwnerUri];
+            rs.SaveAs(new SaveResultsRequestParams {FilePath = Constants.OwnerUri}, saveFactory, null, null);
+            Assert.True(rs.SaveTasks.ContainsKey(Constants.OwnerUri));
+            await rs.SaveTasks[Constants.OwnerUri];
 
             // Then:
             // ... The task should have completed successfully
-            Assert.Equal(TaskStatus.RanToCompletion, rs.SaveTasks[Common.OwnerUri].Status);
+            Assert.Equal(TaskStatus.RanToCompletion, rs.SaveTasks[Constants.OwnerUri].Status);
 
             // ... All the rows should have been written successfully
             saveWriter.Verify(
@@ -122,15 +120,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         public async Task SaveAsWithRowSelection()
         {
             // Setup:
-            // ... Create a fake place to store data
-            Dictionary<string, byte[]> mockFs = new Dictionary<string, byte[]>();
-
             // ... Create a mock reader/writer for reading the result
-            IFileStreamFactory resultFactory = Common.GetFileStreamFactory(mockFs);
+            IFileStreamFactory resultFactory = MemoryFileSystem.GetFileStreamFactory();
 
             // ... Create a result set with dummy data and read to the end
             ResultSet rs = new ResultSet(
-                GetReader(Common.StandardTestDataSet, false, Common.StandardQuery),
+                GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
                 resultFactory);
             await rs.ReadResultToEnd(CancellationToken.None);
@@ -142,19 +137,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // If: I attempt to save results that has a selection made
             var saveParams = new SaveResultsRequestParams
             {
-                FilePath = Common.OwnerUri,
+                FilePath = Constants.OwnerUri,
                 RowStartIndex = 1,
                 RowEndIndex = Common.StandardRows - 2,
                 ColumnStartIndex = 0,                       // Column start/end doesn't matter, but are required to be
                 ColumnEndIndex = 10                         // considered a "save selection"
             };
             rs.SaveAs(saveParams, saveFactory, null, null);
-            Assert.True(rs.SaveTasks.ContainsKey(Common.OwnerUri));
-            await rs.SaveTasks[Common.OwnerUri];
+            Assert.True(rs.SaveTasks.ContainsKey(Constants.OwnerUri));
+            await rs.SaveTasks[Constants.OwnerUri];
 
             // Then:
             // ... The task should have completed successfully
-            Assert.Equal(TaskStatus.RanToCompletion, rs.SaveTasks[Common.OwnerUri].Status);
+            Assert.Equal(TaskStatus.RanToCompletion, rs.SaveTasks[Constants.OwnerUri].Status);
 
             // ... All the rows should have been written successfully
             saveWriter.Verify(
