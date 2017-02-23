@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
-namespace  Microsoft.SqlTools.ServiceLayer
+namespace  Microsoft.SqlTools.Credentials
 {
     /// <summary>
     /// Provides support for starting up a service host. This is a common responsibility

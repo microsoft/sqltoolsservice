@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer
+namespace Microsoft.SqlTools.Credentials
 {
     /// <summary>
     /// Main application class for Credentials Service Host executable
