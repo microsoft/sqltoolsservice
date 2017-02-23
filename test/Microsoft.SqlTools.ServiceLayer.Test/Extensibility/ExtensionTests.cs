@@ -24,33 +24,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Extensibility
             // Then should get any export for this type and subtypes
             Assert.Equal(2, store.GetExports<MyExportType>().Count());
 
-            // But for a different type, expect throw as the store only contains MyExportType
+            // And for a different type, expect throw as the store only contains MyExportType
             Assert.Throws<InvalidCastException>(() => store.GetExports<MyOtherType>().Count());
         }
         
         [Fact]
-        public void CreateDefaultLoaderShouldOnlyFindTypesInMainAssembly()
+        public void CreateDefaultLoaderShouldFindTypesOnlyInMainAssembly()
         {
             // Given a store created using CreateDefaultLoader
-            // Then should not find exports from a different assembly
+            // Then not should find exports from a different assembly
             ExtensionStore store = ExtensionStore.CreateDefaultLoader<MyExportType>();
             Assert.Equal(0, store.GetExports<MyExportType>().Count());
 
-            // But should find exports that are defined in the main assembly
+            // And should not find exports that are defined in the ServiceLayer assembly
             store = ExtensionStore.CreateDefaultLoader<ASTNodeFormatterFactory>();
-            Assert.NotEmpty(store.GetExports<ASTNodeFormatterFactory>());
+            Assert.Empty(store.GetExports<ASTNodeFormatterFactory>());            
         }
 
-
         [Fact]
-        public void CreateDefaultServiceProviderShouldOnlyFindTypesInMainAssembly()
+        public void CreateDefaultServiceProviderShouldFindTypesInAllAssemblies()
         {
             // Given a default ExtensionServiceProvider
             // Then should not find exports from a different assembly
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
-            Assert.Empty(serviceProvider.GetServices<MyExportType>());
+            Assert.NotEmpty(serviceProvider.GetServices<MyExportType>());
 
-            // But should find exports that are defined in the main assembly
+            // But should find exports that are defined in the main assembly            
             Assert.NotEmpty(serviceProvider.GetServices<ASTNodeFormatterFactory>());
         }
 

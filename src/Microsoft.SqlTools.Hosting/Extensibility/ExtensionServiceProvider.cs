@@ -29,7 +29,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Extensibility
 
         public static ExtensionServiceProvider CreateDefaultServiceProvider()
         {
-            return Create(typeof(ExtensionStore).GetTypeInfo().Assembly.SingleItemAsEnumerable());
+            string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
+            string directory = Path.GetDirectoryName(assemblyPath);
+            
+             AssemblyLoadContext context = new AssemblyLoader(directory);
+            var assemblyNames = Directory
+                .GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly)
+                .Select(AssemblyLoadContext.GetAssemblyName);
+
+            var assemblies = assemblyNames
+                .Select(context.LoadFromAssemblyName)
+                .ToList();
+
+            return Create(assemblies);
         }
 
         public static ExtensionServiceProvider Create(IEnumerable<Assembly> assemblies)
