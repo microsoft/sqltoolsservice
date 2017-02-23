@@ -126,4 +126,4 @@ Setting variable j to [k--notcomment--notcomment]
 Setting variable a-- to [b--]
 *** PARSER: Include file "input-2.txt"
 
-[PARSER ERROR: code TokenExpected at 14:4 [295] - 14:17 [308] in TS-pass-command-and-comment.txt, token text: --comment.txt, message: Incorrect syntax was encountered while parsing '--comment.txt'.]
+[PARSER ERROR: code TokenExpected at 14:4 [282] - 14:17 [295] in TS-pass-command-and-comment.txt, token text: --comment.txt, message: Incorrect syntax was encountered while parsing '--comment.txt'.]

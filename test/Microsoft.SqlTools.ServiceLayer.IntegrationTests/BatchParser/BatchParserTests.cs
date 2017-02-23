@@ -174,11 +174,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             try
             {
                 TestCommandHandler commandHandler = new TestCommandHandler(output);
+                string input = File.ReadAllText(filename).Replace("\r\n", "\n");
+                var inputStream = GenerateStreamFromString(input);
+                StreamReader streamReader = new StreamReader(inputStream);
 
                 Parser parser = new Parser(
                     commandHandler,
                     new TestVariableResolver(output),
-                    new StreamReader(File.Open(filename, FileMode.Open)),
+                    streamReader,
                     filename);
 
                 commandHandler.SetParser(parser);

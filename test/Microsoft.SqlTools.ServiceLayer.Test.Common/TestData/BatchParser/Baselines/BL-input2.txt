@@ -274,6 +274,6 @@ Tokens:
 
 Setting variable a to [df df"
 ]
-[PARSER ERROR: code TokenExpected at 5:3 [49] - 6:1 [51] in TS-input2.txt, token text: 
+[PARSER ERROR: code TokenExpected at 5:3 [45] - 6:1 [46] in TS-input2.txt, token text: 
 , message: Incorrect syntax was encountered while parsing '
 '.]

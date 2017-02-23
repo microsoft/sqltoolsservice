@@ -11,6 +11,6 @@ Tokens:
 [Token NewLine at TS-err-varDefinition4.txt(2:23 [30] - 3:1 [31]): '\n']
 [Token Eof at TS-err-varDefinition4.txt(3:1 [31] - 3:1 [31]): '']
 
-[PARSER ERROR: code TokenExpected at 1:8 [7] - 2:1 [9] in TS-err-varDefinition4.txt, token text: 
+[PARSER ERROR: code TokenExpected at 1:8 [7] - 2:1 [8] in TS-err-varDefinition4.txt, token text: 
 , message: Incorrect syntax was encountered while parsing '
 '.]

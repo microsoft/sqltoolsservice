@@ -9,4 +9,4 @@ Tokens:
 [Token Setvar at TS-err-varDefinition3.txt(2:1 [32] - 2:8 [39]): ':setvar']
 [Token Eof at TS-err-varDefinition3.txt(2:8 [39] - 2:8 [39]): '']
 
-[PARSER ERROR: code TokenExpected at 2:8 [40] - 2:8 [40] in TS-err-varDefinition3.txt, token text: , message: Incorrect syntax was encountered while parsing ''.]
+[PARSER ERROR: code TokenExpected at 2:8 [39] - 2:8 [39] in TS-err-varDefinition3.txt, token text: , message: Incorrect syntax was encountered while parsing ''.]
