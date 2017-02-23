@@ -5,6 +5,16 @@
     "debugType": "portable",
     "emitEntryPoint": false
   },
+  "configurations": {
+    "Integration": {
+      "buildOptions": {
+        "define": [
+          "WINDOWS_ONLY_BUILD"
+        ],
+        "emitEntryPoint": false
+      }
+    }
+  },  
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
     "System.Collections.Specialized": "4.0.1",

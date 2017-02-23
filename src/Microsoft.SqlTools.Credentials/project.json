@@ -8,6 +8,16 @@
       "../Microsoft.SqlTools.ServiceLayer/Localization/sr.es.resx",
       "../Microsoft.SqlTools.ServiceLayer/Localization/sr.resx"
     ]
+  }, 
+  "configurations": {
+    "Integration": {
+      "buildOptions": {
+        "define": [
+          "WINDOWS_ONLY_BUILD"
+        ],
+        "emitEntryPoint": true
+      }
+    }
   },  
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
