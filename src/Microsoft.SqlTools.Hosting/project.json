@@ -7,10 +7,6 @@
   },
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
-    "System.Data.Common": "4.1.0",
-    "System.Data.SqlClient": "4.4.0-sqltools-24613-04",
-    "Microsoft.SqlServer.Smo": "140.1.12",
-    "System.Security.SecureString": "4.0.0",
     "System.Collections.Specialized": "4.0.1",
     "System.ComponentModel.TypeConverter": "4.1.0",
     "System.Diagnostics.Contracts": "4.0.1",
@@ -26,8 +22,7 @@
     "System.Composition.Convention": "1.0.31",
     "System.Composition.TypedParts": "1.0.31",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
-    "System.Runtime": "4.3.0",
-    "Microsoft.DiaSymReader.Native": "1.4.1"
+    "System.Runtime": "4.3.0"
   },
   "frameworks": {
     "netcoreapp1.0": {
