@@ -7,7 +7,7 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
-    internal static class ObjectExtensions
+    public static class ObjectExtensions
     {
         /// <summary>
         /// Extension to evaluate an object's ToString() method in an exception safe way. This will
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         }
     }
 
-    internal static class NullableExtensions
+    public static class NullableExtensions
     {
         /// <summary>
         /// Extension method to evaluate a bool? and determine if it has the value and is true.
