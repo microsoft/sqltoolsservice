@@ -231,6 +231,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Localization {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to Specified URI &apos;{0}&apos; does not have a default connection.
+        /// </summary>
+        public static string ConnectionServiceDbErrorDefaultNotConnected {
+            get {
+                return ResourceManager.GetString("ConnectionServiceDbErrorDefaultNotConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to SpecifiedUri &apos;{0}&apos; does not have existing connection.
         /// </summary>
         public static string ConnectionServiceListDbErrorNotConnected {

@@ -485,6 +485,134 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataSessionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionNotFound);
+            }
+        }
+
+        public static string EditDataQueryNotCompleted
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataQueryNotCompleted);
+            }
+        }
+
+        public static string EditDataQueryImproperResultSets
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataQueryImproperResultSets);
+            }
+        }
+
+        public static string EditDataFailedAddRow
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataFailedAddRow);
+            }
+        }
+
+        public static string EditDataRowOutOfRange
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataRowOutOfRange);
+            }
+        }
+
+        public static string EditDataUpdatePending
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataUpdatePending);
+            }
+        }
+
+        public static string EditDataUpdateNotPending
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataUpdateNotPending);
+            }
+        }
+
+        public static string EditDataObjectMetadataNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataObjectMetadataNotFound);
+            }
+        }
+
+        public static string EditDataInvalidFormatBinary
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataInvalidFormatBinary);
+            }
+        }
+
+        public static string EditDataInvalidFormatBoolean
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataInvalidFormatBoolean);
+            }
+        }
+
+        public static string EditDataCreateScriptMissingValue
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataCreateScriptMissingValue);
+            }
+        }
+
+        public static string EditDataDeleteSetCell
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataDeleteSetCell);
+            }
+        }
+
+        public static string EditDataColumnIdOutOfRange
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataColumnIdOutOfRange);
+            }
+        }
+
+        public static string EditDataColumnCannotBeEdited
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataColumnCannotBeEdited);
+            }
+        }
+
+        public static string EditDataColumnNoKeyColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataColumnNoKeyColumns);
+            }
+        }
+
+        public static string EditDataScriptFilePathNull
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataScriptFilePathNull);
+            }
+        }
+
         public static string EE_BatchSqlMessageNoProcedureInfo
         {
             get
@@ -790,6 +918,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.WorkspaceServiceBufferPositionOutOfOrder, sLine, sCol, eLine, eCol);
         }
 
+        public static string EditDataUnsupportedObjectType(string typeName)
+        {
+            return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -1006,6 +1139,57 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
+
+
+            public const string EditDataSessionNotFound = "EditDataSessionNotFound";
+
+
+            public const string EditDataUnsupportedObjectType = "EditDataUnsupportedObjectType";
+
+
+            public const string EditDataQueryNotCompleted = "EditDataQueryNotCompleted";
+
+
+            public const string EditDataQueryImproperResultSets = "EditDataQueryImproperResultSets";
+
+
+            public const string EditDataFailedAddRow = "EditDataFailedAddRow";
+
+
+            public const string EditDataRowOutOfRange = "EditDataRowOutOfRange";
+
+
+            public const string EditDataUpdatePending = "EditDataUpdatePending";
+
+
+            public const string EditDataUpdateNotPending = "EditDataUpdateNotPending";
+
+
+            public const string EditDataObjectMetadataNotFound = "EditDataObjectMetadataNotFound";
+
+
+            public const string EditDataInvalidFormatBinary = "EditDataInvalidFormatBinary";
+
+
+            public const string EditDataInvalidFormatBoolean = "EditDataInvalidFormatBoolean";
+
+
+            public const string EditDataCreateScriptMissingValue = "EditDataCreateScriptMissingValue";
+
+
+            public const string EditDataDeleteSetCell = "EditDataDeleteSetCell";
+
+
+            public const string EditDataColumnIdOutOfRange = "EditDataColumnIdOutOfRange";
+
+
+            public const string EditDataColumnCannotBeEdited = "EditDataColumnCannotBeEdited";
+
+
+            public const string EditDataColumnNoKeyColumns = "EditDataColumnNoKeyColumns";
+
+
+            public const string EditDataScriptFilePathNull = "EditDataScriptFilePathNull";
 
 
             public const string EE_BatchSqlMessageNoProcedureInfo = "EE_BatchSqlMessageNoProcedureInfo";

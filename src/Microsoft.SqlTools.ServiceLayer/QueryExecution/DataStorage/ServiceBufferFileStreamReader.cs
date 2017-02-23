@@ -199,6 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 result.RawObject = null;
                 result.DisplayValue = null;
+                result.IsNull = true;
             }
             else
             {
@@ -207,6 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 T resultObject = convertFunc(length.ValueLength);
                 result.RawObject = resultObject;
                 result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);
+                result.IsNull = false;
             }
 
             return new FileStreamReadResult(result, length.TotalLength);

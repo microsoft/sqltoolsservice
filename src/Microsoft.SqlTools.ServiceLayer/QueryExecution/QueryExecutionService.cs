@@ -151,11 +151,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<ExecuteRequestResult> requestContext)
         {
             // Setup actions to perform upon successful start and on failure to start
-            Func<Task> queryCreationAction = () => requestContext.SendResult(new ExecuteRequestResult());
-            Func<string, Task> queryFailAction = requestContext.SendError;
+            Func<Query, Task<bool>> queryCreateSuccessAction = async q => {
+                await requestContext.SendResult(new ExecuteRequestResult());
+                return true;
+            };
+            Func<string, Task> queryCreateFailureAction = requestContext.SendError;
 
             // Use the internal handler to launch the query
-            return InterServiceExecuteQuery(executeParams, requestContext, queryCreationAction, queryFailAction);
+            return InterServiceExecuteQuery(executeParams, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
         }
 
         /// <summary>
@@ -328,26 +331,59 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Query execution meant to be called from another service. Utilizes callbacks to allow
         /// custom actions to be taken upon creation of query and failure to create query.
         /// </summary>
-        /// <param name="executeParams">Params for creating the new query</param>
-        /// <param name="eventSender">Object that can send events for query execution progress</param>
-        /// <param name="queryCreatedAction">
-        /// Action to perform when query has been successfully created, right before execution of 
-        /// the query
+        /// <param name="executeParams">Parameters for execution</param>
+        /// <param name="queryEventSender">Event sender that will send progressive events during execution of the query</param>
+        /// <param name="queryCreateSuccessFunc">
+        /// Callback for when query has been created successfully. If result is <c>true</c>, query
+        /// will be executed asynchronously. If result is <c>false</c>, query will be disposed. May
+        /// be <c>null</c>
         /// </param>
-        /// <param name="failureAction">Action to perform if query was not successfully created</param>
-        public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams, IEventSender eventSender,
-            Func<Task> queryCreatedAction, Func<string, Task> failureAction)
+        /// <param name="queryCreateFailFunc">
+        /// Callback for when query failed to be created successfully. Error message is provided.
+        /// May be <c>null</c>.
+        /// </param>
+        /// <param name="querySuccessFunc">
+        /// Callback to call when query has completed execution successfully. May be <c>null</c>.
+        /// </param>
+        /// <param name="queryFailureFunc">
+        /// Callback to call when query has completed execution with errors. May be <c>null</c>.
+        /// </param>
+        public async Task InterServiceExecuteQuery(ExecuteRequestParamsBase executeParams, 
+            IEventSender queryEventSender,
+            Func<Query, Task<bool>> queryCreateSuccessFunc,
+            Func<string, Task> queryCreateFailFunc,
+            Query.QueryAsyncEventHandler querySuccessFunc, 
+            Query.QueryAsyncEventHandler queryFailureFunc)
         {
             Validate.IsNotNull(nameof(executeParams), executeParams);
-            Validate.IsNotNull(nameof(eventSender), eventSender);
-            Validate.IsNotNull(nameof(queryCreatedAction), queryCreatedAction);
-            Validate.IsNotNull(nameof(failureAction), failureAction);
-
-            // Get a new active query
-            Query newQuery = await CreateAndActivateNewQuery(executeParams, queryCreatedAction, failureAction);
+            Validate.IsNotNull(nameof(queryEventSender), queryEventSender);
+            
+            Query newQuery;
+            try
+            {
+                // Get a new active query
+                newQuery = CreateQuery(executeParams);
+                if (queryCreateSuccessFunc != null && !await queryCreateSuccessFunc(newQuery))
+                {
+                    // The callback doesn't want us to continue, for some reason
+                    // It's ok if we leave the query behind in the active query list, the next call
+                    // to execute will replace it.
+                    newQuery.Dispose();
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                // Call the failure callback if it was provided
+                if (queryCreateFailFunc != null)
+                {
+                    await queryCreateFailFunc(e.Message);
+                }
+                return;
+            }
 
             // Execute the query asynchronously
-            ExecuteAndCompleteQuery(executeParams.OwnerUri, eventSender, newQuery);
+            ExecuteAndCompleteQuery(executeParams.OwnerUri, newQuery, queryEventSender, querySuccessFunc, queryFailureFunc);
         }
 
         /// <summary>
@@ -390,63 +426,47 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
-        private async Task<Query> CreateAndActivateNewQuery(ExecuteRequestParamsBase executeParams, Func<Task> successAction, Func<string, Task> failureAction)
+        private Query CreateQuery(ExecuteRequestParamsBase executeParams)
         {
-            try
+            // Attempt to get the connection for the editor
+            ConnectionInfo connectionInfo;
+            if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
             {
-                // Attempt to get the connection for the editor
-                ConnectionInfo connectionInfo;
-                if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
-                {
-                    await failureAction(SR.QueryServiceQueryInvalidOwnerUri);
-                    return null;
-                }
-
-                // Attempt to clean out any old query on the owner URI
-                Query oldQuery;
-                if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.HasExecuted)
-                {
-                    oldQuery.Dispose();
-                    ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
-                }
-
-                // Retrieve the current settings for executing the query with
-                QueryExecutionSettings querySettings = Settings.QueryExecutionSettings;
-
-                // Apply execution parameter settings 
-                querySettings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
-
-                // If we can't add the query now, it's assumed the query is in progress
-                Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, querySettings, BufferFileFactory);
-                if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
-                {
-                    await failureAction(SR.QueryServiceQueryInProgress);
-                    newQuery.Dispose();
-                    return null;
-                }
-
-                // Successfully created query
-                await successAction();
-
-                return newQuery;
+                throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
             }
-            catch (Exception e)
+
+            // Attempt to clean out any old query on the owner URI
+            Query oldQuery;
+            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && oldQuery.HasExecuted)
             {
-                await failureAction(e.Message);
-                return null;
+                oldQuery.Dispose();
+                ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
             }
+
+            // Retrieve the current settings for executing the query with
+            QueryExecutionSettings settings = Settings.QueryExecutionSettings;
+
+            // Apply execution parameter settings 
+            settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
+
+            // If we can't add the query now, it's assumed the query is in progress
+            Query newQuery = new Query(GetSqlText(executeParams), connectionInfo, settings, BufferFileFactory);
+            if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
+            {
+                newQuery.Dispose();
+                throw new InvalidOperationException(SR.QueryServiceQueryInProgress);
+            }
+
+            return newQuery;
         }
 
-        private static void ExecuteAndCompleteQuery(string ownerUri, IEventSender eventSender, Query query)
+        private static void ExecuteAndCompleteQuery(string ownerUri, Query query,
+            IEventSender eventSender,
+            Query.QueryAsyncEventHandler querySuccessCallback,
+            Query.QueryAsyncEventHandler queryFailureCallback)
         {
-            // Skip processing if the query is null
-            if (query == null)
-            {
-                return;
-            }
-
-            // Setup the query completion/failure callbacks
-            Query.QueryAsyncEventHandler callback = async q =>
+            // Setup the callback to send the complete event
+            Query.QueryAsyncEventHandler completeCallback = async q =>
             {
                 // Send back the results
                 QueryCompleteParams eventParams = new QueryCompleteParams
@@ -457,9 +477,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
+            query.QueryCompleted += completeCallback;
+            query.QueryFailed += completeCallback;
 
-            query.QueryCompleted += callback;
-            query.QueryFailed += callback;
+            // Add the callbacks that were provided by the caller
+            // If they're null, that's no problem
+            query.QueryCompleted += querySuccessCallback;
+            query.QueryFailed += queryFailureCallback;
 
             // Setup the batch callbacks
             Batch.BatchAsyncEventHandler batchStartCallback = async b =>

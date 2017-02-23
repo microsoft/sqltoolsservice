@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var queryService = new QueryExecutionService(null, workspaceService);
 
             // If: I attempt to get query text from execute document params (entire document)
-            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
             var queryText = queryService.GetSqlText(queryParams);
 
             // Then: The text should match the constructed query
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var queryService = new QueryExecutionService(null, workspaceService);
 
             // If: I attempt to get query text from execute document params (partial document)
-            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.SubsectionDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.SubsectionDocument };
             var queryText = queryService.GetSqlText(queryParams);
 
             // Then: The text should be a subset of the constructed query
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var queryService = new QueryExecutionService(null, null);
 
             // If: I attempt to get query text from execute string params
-            var queryParams = new ExecuteStringParams {OwnerUri = Common.OwnerUri, Query = Common.StandardQuery};
+            var queryParams = new ExecuteStringParams { OwnerUri = Common.OwnerUri, Query = Common.StandardQuery };
             var queryText = queryService.GetSqlText(queryParams);
 
             // Then: The text should match the standard query
@@ -97,14 +97,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // Setup: Create a query service
             var qes = new QueryExecutionService(null, null);
             var eventSender = new EventFlowValidator<ExecuteRequestResult>().Complete().Object;
-            Func<Task> successFunc = () => Task.FromResult(0);
-            Func<string, Task> errorFunc = Task.FromResult;
-            
 
-                // If: I call the inter-service API to execute with a null execute params
+
+            // If: I call the inter-service API to execute with a null execute params
             // Then: It should throw
             await Assert.ThrowsAsync<ArgumentNullException>(
-                () => qes.InterServiceExecuteQuery(null, eventSender, successFunc, errorFunc));
+                () => qes.InterServiceExecuteQuery(null, eventSender, null, null, null, null));
         }
 
         [Fact]
@@ -113,43 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // Setup: Create a query service, and execute params
             var qes = new QueryExecutionService(null, null);
             var executeParams = new ExecuteStringParams();
-            Func<Task> successFunc = () => Task.FromResult(0);
-            Func<string, Task> errorFunc = Task.FromResult;
 
             // If: I call the inter-service API to execute a query with a a null event sender
             // Then: It should throw
             await Assert.ThrowsAsync<ArgumentNullException>(
-                () => qes.InterServiceExecuteQuery(executeParams, null, successFunc, errorFunc));
-        }
-
-        [Fact]
-        public async Task InterServiceExecuteNullSuccessFunc()
-        {
-            // Setup: Create a query service, and execute params
-            var qes = new QueryExecutionService(null, null);
-            var executeParams = new ExecuteStringParams();
-            var eventSender = new EventFlowValidator<ExecuteRequestResult>().Complete().Object;
-            Func<string, Task> errorFunc = Task.FromResult;
-
-            // If: I call the inter-service API to execute a query with a a null success function
-            // Then: It should throw
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                () => qes.InterServiceExecuteQuery(executeParams, eventSender, null, errorFunc));
-        }
-
-        [Fact]
-        public async Task InterServiceExecuteNullFailureFunc()
-        {
-            // Setup: Create a query service, and execute params
-            var qes = new QueryExecutionService(null, null);
-            var executeParams = new ExecuteStringParams();
-            var eventSender = new EventFlowValidator<ExecuteRequestResult>().Complete().Object;
-            Func<Task> successFunc = () => Task.FromResult(0);
-
-            // If: I call the inter-service API to execute a query with a a null failure function
-            // Then: It should throw
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                () => qes.InterServiceExecuteQuery(executeParams, eventSender, successFunc, null));
+                () => qes.InterServiceExecuteQuery(executeParams, null, null, null, null, null));
         }
 
         [Fact]
@@ -185,13 +151,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
         // version of execute query. The code paths are almost identical.
 
         [Fact]
+        private async Task QueryExecuteAllBatchesNoOp()
+        {
+            // If:
+            // ... I request to execute a valid query with all batches as no op
+            var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.NoOpQuery));
+            var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
+            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
+
+            var efv = new EventFlowValidator<ExecuteRequestResult>()
+                .AddStandardQueryResultValidator()
+                .AddStandardBatchStartValidator()
+                .AddStandardMessageValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddStandardMessageValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddEventValidation(QueryCompleteEvent.Type, p =>
+                {
+                    // Validate OwnerURI matches
+                    Assert.Equal(Common.OwnerUri, p.OwnerUri);
+                    Assert.NotNull(p.BatchSummaries);
+                    Assert.Equal(2, p.BatchSummaries.Length);
+                    Assert.All(p.BatchSummaries, bs => Assert.Equal(0, bs.ResultSetSummaries.Length));
+                }).Complete();
+            await Common.AwaitExecution(queryService, queryParams, efv.Object);
+
+            // Then:
+            // ... All events should have been called as per their flow validator
+            efv.Validate();
+
+            // ... There should be one active query
+            Assert.Equal(1, queryService.ActiveQueries.Count);
+        }
+
+        [Fact]
         public async Task QueryExecuteSingleBatchNoResultsTest()
         {
             // If:
             // ... I request to execute a valid query with no results
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri};
+            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Common.OwnerUri };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
@@ -219,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false,
                 workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
@@ -247,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var dataset = new[] {Common.StandardTestResultSet, Common.StandardTestResultSet};
             var queryService = Common.GetPrimedExecutionService(dataset, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
@@ -274,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I request a to execute a valid query with multiple batches
             var workspaceService = GetDefaultWorkspaceService(string.Format("{0}\r\nGO\r\n{0}", Common.StandardQuery));
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
@@ -306,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I request to execute a query using a file URI that isn't connected
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, false, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddErrorValidation<string>(Assert.NotEmpty)
@@ -328,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I request to execute a query
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
@@ -356,7 +357,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I request to execute a query
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             // Note, we don't care about the results of the first request
             var firstRequestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
@@ -390,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // If:
             // ... I request to execute a query with a missing query string
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = null};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = null };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddErrorValidation<string>(Assert.NotEmpty)
@@ -412,7 +413,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I request to execute a query that is invalid
             var workspaceService = GetDefaultWorkspaceService(Common.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, true, workspaceService);
-            var queryParams = new ExecuteDocumentSelectionParams {OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument};
+            var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Common.OwnerUri, QuerySelection = Common.WholeDocument };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
                 .AddStandardQueryResultValidator()
