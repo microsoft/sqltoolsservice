@@ -202,6 +202,43 @@ WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of colu
 WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
 
 ############################################################################
+# Edit Data Service
+
+EditDataSessionNotFound = Edit session does not exist.
+
+EditDataUnsupportedObjectType(string typeName) = Database object {0} cannot be used for editing.
+
+EditDataQueryNotCompleted = Query has not completed execution
+
+EditDataQueryImproperResultSets = Query did not generate exactly one result set
+
+EditDataFailedAddRow = Failed to add new row to update cache
+
+EditDataRowOutOfRange = Given row ID is outside the range of rows in the edit cache
+
+EditDataUpdatePending = An update is already pending for this row and must be reverted first
+
+EditDataUpdateNotPending = Given row ID does not have pending updated
+
+EditDataObjectMetadataNotFound = Table or view metadata could not be found
+
+EditDataInvalidFormatBinary = Invalid format for binary column
+
+EditDataInvalidFormatBoolean = Allowed values for boolean columns are 0, 1, "true", or "false"
+
+EditDataCreateScriptMissingValue = A required cell value is missing
+
+EditDataDeleteSetCell = A delete is pending for this row, a cell update cannot be applied.
+
+EditDataColumnIdOutOfRange = Column ID must be in the range of columns for the query
+
+EditDataColumnCannotBeEdited = Column cannot be edited
+
+EditDataColumnNoKeyColumns = No key columns were found
+
+EditDataScriptFilePathNull = An output filename must be provided
+
+############################################################################
 # DacFx Resources
 
 EE_BatchSqlMessageNoProcedureInfo = Msg {0}, Level {1}, State {2}, Line {3}

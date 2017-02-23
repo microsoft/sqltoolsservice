@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
@@ -24,8 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         #region Member Variables
 
         private readonly Stream fileStream;
-        private readonly int maxCharsToStore;
-        private readonly int maxXmlCharsToStore;
+        private readonly QueryExecutionSettings executionSettings;
 
         private byte[] byteBuffer;
         private readonly short[] shortBuffer;
@@ -46,16 +46,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Constructs a new writer
         /// </summary>
         /// <param name="stream">The file wrapper to use as the underlying file stream</param>
-        /// <param name="maxCharsToStore">Maximum number of characters to store for long text fields</param>
-        /// <param name="maxXmlCharsToStore">Maximum number of characters to store for XML fields</param>
-        public ServiceBufferFileStreamWriter(Stream stream, int maxCharsToStore, int maxXmlCharsToStore)
+        /// <param name="settings">The query execution settings</param>
+        public ServiceBufferFileStreamWriter(Stream stream, QueryExecutionSettings settings)
         {
+            Validate.IsNotNull(nameof(stream), stream);
+            Validate.IsNotNull(nameof(settings), settings);
+
             // open file for reading/writing
             if (!stream.CanWrite || !stream.CanSeek)
             {
                 throw new InvalidOperationException("Stream must be writable and seekable.");
             }
             fileStream = stream;
+            executionSettings = settings;
 
             // create internal buffer
             byteBuffer = new byte[DefaultBufferLength];
@@ -68,10 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             charBuffer = new char[1];
             doubleBuffer = new double[1];
             floatBuffer = new float[1];
-
-            // Store max chars to store
-            this.maxCharsToStore = maxCharsToStore;
-            this.maxXmlCharsToStore = maxXmlCharsToStore;
 
             // Define what methods to use to write a type to the file
             writeMethods = new Dictionary<Type, Func<object, int>>
@@ -145,18 +144,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                             // this is a long field
                             if (ci.IsBytes)
                             {
-                                values[i] = reader.GetBytesWithMaxCapacity(i, maxCharsToStore);
+                                values[i] = reader.GetBytesWithMaxCapacity(i, executionSettings.MaxCharsToStore);
                             }
                             else if (ci.IsChars)
                             {
-                                Debug.Assert(maxCharsToStore > 0);
-                                values[i] = reader.GetCharsWithMaxCapacity(i,
-                                    ci.IsXml ? maxXmlCharsToStore : maxCharsToStore);
+                                int maxChars = ci.IsXml
+                                    ? executionSettings.MaxXmlCharsToStore
+                                    : executionSettings.MaxCharsToStore;
+                                values[i] = reader.GetCharsWithMaxCapacity(i, maxChars);
                             }
                             else if (ci.IsXml)
                             {
-                                Debug.Assert(maxXmlCharsToStore > 0);
-                                values[i] = reader.GetXmlWithMaxCapacity(i, maxXmlCharsToStore);
+                                values[i] = reader.GetXmlWithMaxCapacity(i, executionSettings.MaxXmlCharsToStore);
                             }
                             else
                             {

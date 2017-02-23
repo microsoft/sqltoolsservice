@@ -9,6 +9,8 @@ using System.Data.SqlTypes;
 using System.IO;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -30,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private byte[] buffer;
 
+        private readonly QueryExecutionSettings executionSettings;
+
         private readonly Stream fileStream;
 
         private readonly Dictionary<Type, Func<long, DbColumnWrapper, FileStreamReadResult>> readMethods;
@@ -40,14 +44,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Constructs a new ServiceBufferFileStreamReader and initializes its state
         /// </summary>
         /// <param name="stream">The filestream to read from</param>
-        public ServiceBufferFileStreamReader(Stream stream)
-        {            
+        /// <param name="settings">The query execution settings</param>
+        public ServiceBufferFileStreamReader(Stream stream, QueryExecutionSettings settings)
+        {
+            Validate.IsNotNull(nameof(stream), stream);
+            Validate.IsNotNull(nameof(settings), settings);
+
             // Open file for reading/writing
             if (!stream.CanRead || !stream.CanSeek)
             {
                 throw new InvalidOperationException("Stream must be readable and seekable");
             }
             fileStream = stream;
+
+            executionSettings = settings;
 
             // Create internal buffer
             buffer = new byte[DefaultBufferSize];
@@ -189,6 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 result.RawObject = null;
                 result.DisplayValue = null;
+                result.IsNull = true;
             }
             else
             {
@@ -197,6 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 T resultObject = convertFunc(length.ValueLength);
                 result.RawObject = resultObject;
                 result.DisplayValue = toStringFunc == null ? result.RawObject.ToString() : toStringFunc(resultObject);
+                result.IsNull = false;
             }
 
             return new FileStreamReadResult(result, length.TotalLength);
@@ -259,7 +271,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A bool</returns>
         internal FileStreamReadResult ReadBoolean(long fileOffset)
         {
-            return ReadCellHelper(fileOffset, length => buffer[0] == 0x1);
+            // Override the stringifier with numeric values if the user prefers that
+            return ReadCellHelper(fileOffset, length => buffer[0] == 0x1,
+                toStringFunc: val => executionSettings.DisplayBitAsNumber
+                    ? val ? "1" : "0"
+                    : val.ToString());
         }
 
         /// <summary>
@@ -505,10 +521,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// <see cref="LengthLength"/> + <see cref="ValueLength"/>
             /// </summary>
-            public int TotalLength
-            {
-                get { return LengthLength + ValueLength; }
-            }
+            public int TotalLength => LengthLength + ValueLength;
         }
 
         #region IDisposable Implementation

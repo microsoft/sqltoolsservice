@@ -509,11 +509,87 @@
         <target state="new">Replacement of an empty string by an empty string.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ConnectionServiceDbErrorDefaultNotConnected">
-        <source>Specified URI '{0}' does not have a default connection</source>
-        <target state="new">Specified URI '{0}' does not have a default connection</target>
+        <source>Edit session does not exist.</source>
+        <target state="new">Edit session does not exist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataQueryNotCompleted">
+        <source>Query has not completed execution</source>
+        <target state="new">Query has not completed execution</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataQueryImproperResultSets">
+        <source>Query did not generate exactly one result set</source>
+        <target state="new">Query did not generate exactly one result set</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataFailedAddRow">
+        <source>Failed to add new row to update cache</source>
+        <target state="new">Failed to add new row to update cache</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataRowOutOfRange">
+        <source>Given row ID is outside the range of rows in the edit cache</source>
+        <target state="new">Given row ID is outside the range of rows in the edit cache</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataUpdatePending">
+        <source>An update is already pending for this row and must be reverted first</source>
+        <target state="new">An update is already pending for this row and must be reverted first</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataUpdateNotPending">
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataObjectMetadataNotFound">
+        <source>Table or view metadata could not be found</source>
+        <target state="new">Table or view metadata could not be found</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataInvalidFormatBinary">
+        <source>Invalid format for binary column</source>
+        <target state="new">Invalid format for binary column</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataInvalidFormatBoolean">
+        <source>Allowed values for boolean columns are 0, 1, "true", or "false"</source>
+        <target state="new">Boolean columns must be numeric 1 or 0, or string true or false</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataCreateScriptMissingValue">
+        <source>A required cell value is missing</source>
+        <target state="new">A required cell value is missing</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataDeleteSetCell">
+        <source>A delete is pending for this row, a cell update cannot be applied.</source>
+        <target state="new">A delete is pending for this row, a cell update cannot be applied.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataColumnIdOutOfRange">
+        <source>Column ID must be in the range of columns for the query</source>
+        <target state="new">Column ID must be in the range of columns for the query</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataColumnCannotBeEdited">
+        <source>Column cannot be edited</source>
+        <target state="new">Column cannot be edited</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataColumnNoKeyColumns">
+        <source>No key columns were found</source>
+        <target state="new">No key columns were found</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataScriptFilePathNull">
+        <source>An output filename must be provided</source>
+        <target state="new">An output filename must be provided</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataUnsupportedObjectType">
+        <source>Database object {0} cannot be used for editing.</source>
+        <target state="new">Database object {0} cannot be used for editing.</target>
         <note>.
- Parameters: 0 - uri (string) </note>
       </trans-unit>
     </body>
   </file>

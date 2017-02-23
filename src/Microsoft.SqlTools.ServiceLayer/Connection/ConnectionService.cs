@@ -1026,7 +1026,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         {
                             Properties = new Dictionary<string, string>
                             {
-                                {"IsAzure", connectionInfo.IsAzure ? "1" : "0"}
+                                { TelemetryPropertyNames.IsAzure, connectionInfo.IsAzure.ToOneOrZeroString() }
                             },
                             EventName = TelemetryEventNames.IntellisenseQuantile,
                             Measures = connectionInfo.IntellisenseMetrics.Quantile

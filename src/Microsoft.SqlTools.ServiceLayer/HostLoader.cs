@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
+using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
@@ -74,6 +75,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             QueryExecutionService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
+
+            EditDataService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(EditDataService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
 

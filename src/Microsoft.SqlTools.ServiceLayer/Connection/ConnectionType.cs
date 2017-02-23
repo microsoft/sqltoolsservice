@@ -15,5 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     {
         public const string Default = "Default";
         public const string Query = "Query";
+        public const string Edit = "Edit";
     }
 }

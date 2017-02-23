@@ -150,7 +150,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
-            throw new NotImplementedException();
+            char[] allChars = ((string) RowEnumerator.Current[ordinal]).ToCharArray();
+            int outLength = allChars.Length;
+            if (buffer != null)
+            {
+                Array.Copy(allChars, (int) dataOffset, buffer, bufferOffset, outLength);
+            }
+            return outLength;
         }
 
         public override string GetDataTypeName(int ordinal)

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Babel.ParserGenerator;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter
@@ -32,32 +33,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         private void LoadKeywordIdentifiers()
         {
             KeywordIdentifiers = new HashSet<int>();
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_FROM);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_SELECT);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_TABLE);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_CREATE);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_USEDB);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_NOT);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_NULL);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_IDENTITY);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_ORDER);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_BY);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_DESC);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_ASC);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_GROUP);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_WHERE);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_JOIN);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_ON);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_UNION);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_ALL);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_EXCEPT);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_INTERSECT);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_INTO);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_DEFAULT);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_WITH);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_AS);
+
+            List<int[]> keywordRanges = new List<int[]>()
+            {
+                new [] { Tokens.TOKEN_OR.ToInt(), Tokens.TOKEN_NOT.ToInt() },
+                new [] { Tokens.TOKEN_ELSE.ToInt(), Tokens.TOKEN_UNPIVOT.ToInt() },
+                new [] { Tokens.TOKEN_ALL.ToInt(), Tokens.TOKEN_PERCENT.ToInt() },
+                // TODO is TOKEN_PROC_SEMI a keyword?
+                new [] { Tokens.TOKEN_OPENQUERY.ToInt(), Tokens.TOKEN_FREETEXT.ToInt() },
+                new [] { Tokens.TOKEN_c_MOVE.ToInt(), Tokens.TOKEN_c_ROLLUP.ToInt() },
+                new [] { Tokens.TOKEN_REVERT.ToInt(), Tokens.TOKEN_c_OPENJSON.ToInt() },
+                new [] { Tokens.TOKEN_s_CDA_TYPE.ToInt(), Tokens.TOKEN_s_CDA_POLICY.ToInt() },
+                new [] { Tokens.TOKEN_BEGIN_CS.ToInt(), Tokens.TOKEN_END_CS.ToInt() }
+                // Note: after this it becomes hard to interpret actual keywords in the Tokens enum.
+                // Should review and re-assess later
+            };
+            
+            foreach(int[] range in keywordRanges)
+            {
+                for(int i = range[0]; i <= range[1]; i++)
+                {
+                    KeywordIdentifiers.Add(i);
+                }
+            }
             KeywordIdentifiers.Add(FormatterTokens.LEX_BATCH_SEPERATOR);
-            KeywordIdentifiers.Add(FormatterTokens.TOKEN_IS);
         }
 
         public string FormattedSql
@@ -168,13 +167,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                     {
                         TokenData tok = Script.TokenManager.TokenList[i];
                         Replacements.Add(new Replacement(tok.StartIndex, sql, sql.ToUpperInvariant()));
-                        sql = sql.ToUpperInvariant();
                     }
                     else if (FormatOptions.LowercaseKeywords)
                     {
                         TokenData tok = Script.TokenManager.TokenList[i];
                         Replacements.Add(new Replacement(tok.StartIndex, sql, sql.ToLowerInvariant()));
-                        sql = sql.ToLowerInvariant();
                     }
                 }
             }

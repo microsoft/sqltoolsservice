@@ -52,8 +52,49 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public const string IntellisenseQuantile = "IntellisenseQuantile";
 
         /// <summary>
-        /// telemetry even name for when definition is requested
+        /// telemetry event name for when definition is requested
         /// </summary>
         public const string PeekDefinitionRequested = "PeekDefinitionRequested";
-    } 
+
+        /// <summary>
+        /// telemetry event name for when definition is requested
+        /// </summary>
+        public const string FormatCode = "FormatCode";
+    }
+
+    /// <summary>
+    ///  List of properties used in telemetry events
+    /// </summary>
+    public static class TelemetryPropertyNames
+    {
+        /// <summary>
+        /// Is a connection to an Azure database or not
+        /// </summary>
+        public const string IsAzure = "IsAzure";
+
+        /// <summary>
+        /// Did an event succeed or not
+        /// </summary>
+        public const string Succeeded = "Succeeded";
+
+        /// <summary>
+        /// Was the action against a connected file or similar resource, or not
+        /// </summary>
+        public const string Connected = "Connected";
+
+        /// <summary>
+        /// Format type property - should be one of <see cref="DocumentFormatType"/> or <see cref="RangeFormatType"/>
+        /// </summary>
+        public const string FormatType = "FormatType";
+
+        /// <summary>
+        /// A full document format
+        /// </summary>
+        public const string DocumentFormatType = "Document";
+
+        /// <summary>
+        /// A document range format
+        /// </summary>
+        public const string RangeFormatType = "Range";
+    }
 }

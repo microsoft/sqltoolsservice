@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Query GetBasicExecutedQuery()
         {
-            ConnectionInfo ci = CreateTestConnectionInfo(StandardTestDataSet, false);
+            ConnectionInfo ci = CreateConnectedConnectionInfo(StandardTestDataSet, false);
 
             // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
             // ConnectionInfo with the same URI as the query, so we will manually set it
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
 
         public static Query GetBasicExecutedQuery(QueryExecutionSettings querySettings)
         {
-            ConnectionInfo ci = CreateTestConnectionInfo(StandardTestDataSet, false);
+            ConnectionInfo ci = CreateConnectedConnectionInfo(StandardTestDataSet, false);
 
             // Query won't be able to request a new query DbConnection unless the ConnectionService has a 
             // ConnectionInfo with the same URI as the query, so we will manually set it
@@ -148,9 +148,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
                     return fileName;
                 });
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output])));
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
             mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), 1024, 1024));
+                .Returns<string>(output => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), new QueryExecutionSettings()));
 
             return mock.Object;
         }

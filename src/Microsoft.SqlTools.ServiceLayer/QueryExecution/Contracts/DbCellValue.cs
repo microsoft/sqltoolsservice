@@ -16,6 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string DisplayValue { get; set; }
 
         /// <summary>
+        /// Whether or not the cell is NULL
+        /// </summary>
+        public bool IsNull { get; set; }
+
+        /// <summary>
         /// The raw object for the cell, for use internally
         /// </summary>
         internal object RawObject { get; set; }
