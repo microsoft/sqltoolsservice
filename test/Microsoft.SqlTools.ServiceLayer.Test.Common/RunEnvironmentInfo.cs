@@ -66,6 +66,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return testFolderPath;
         }
 
+        /// <summary>
+        /// Location of all trace data (expected output)
+        /// </summary>
+        /// <returns>The full path to the trace data directory</returns>
         public static string GetTraceOutputLocation()
         {
             string traceFolderPath;
@@ -84,8 +88,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 }
                 else
                 {
-                    string defaultPath = Path.Combine(typeof(Scripts).GetTypeInfo().Assembly.Location, @"..\..\..\..\..");
-                    traceFolderPath = Path.Combine(defaultPath, @"Microsoft.SqlTools.ServiceLayer.Test.Common\Trace");
+                    // We are running tests locally, which means we expect to be running inside the bin\debug\netcoreapp directory
+                    // Test Files should be found at the root of the project so go back the necessary number of directories for this 
+                    // to be found. We are manually specifying the testFolderPath here for clarity on where to expect this
+
+                    string assemblyDir = Path.GetDirectoryName(typeof(Scripts).GetTypeInfo().Assembly.Location);
+                    string defaultPath = Path.Combine(assemblyDir, GoUpNDirectories(4));
+                    traceFolderPath = Path.Combine(defaultPath, "Microsoft.SqlTools.ServiceLayer.Test.Common", "TestData");
+
                     cachedTraceFolderPath = traceFolderPath;
                 }
             }
