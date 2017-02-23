@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.SqlTools.ServiceLayer.Localization {
+namespace Microsoft.SqlTools.Credentials.Localization {
     using System;
     using System.Reflection;
     

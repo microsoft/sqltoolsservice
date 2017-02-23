@@ -10,11 +10,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SqlTools Credentials Library")]
-[assembly: AssemblyDescription("Provides SqlTools credential management functionality.")]
+[assembly: AssemblyTitle("SqlTools Editor Services Host Protocol Library")]
+[assembly: AssemblyDescription("Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("SqlTools Credentials Services")]
+[assembly: AssemblyProduct("SqlTools Editor Services")]
 [assembly: AssemblyCopyright("� Microsoft Corporation. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("131E0A47-C9C9-48E4-8C4F-D3A64B51A2B2")]
+[assembly: Guid("78caf6c3-5955-4b15-a302-2bd6b7871d5b")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -41,8 +41,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: AssemblyInformationalVersion("1.0.0.0")]
 
-
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test")]
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test.Common")]
-

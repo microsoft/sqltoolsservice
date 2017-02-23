@@ -3,7 +3,7 @@
 // from information in sr.strings
 // DO NOT MODIFY THIS FILE'S CONTENTS, THEY WILL BE OVERWRITTEN
 //
-namespace Microsoft.SqlTools.ServiceLayer
+namespace Microsoft.SqlTools.Hosting
 {
     using System;
     using System.Reflection;
@@ -793,7 +793,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
+            static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.Hosting.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
 

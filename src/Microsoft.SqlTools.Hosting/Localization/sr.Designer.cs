@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.SqlTools.ServiceLayer.Localization {
+namespace Microsoft.SqlTools.Hosting.Localization {
     using System;
     using System.Reflection;
     
