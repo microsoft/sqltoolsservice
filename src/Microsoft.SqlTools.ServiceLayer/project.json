@@ -37,7 +37,12 @@
     "System.Composition.TypedParts": "1.0.31",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
     "System.Runtime": "4.3.0",
-    "Microsoft.DiaSymReader.Native": "1.4.1"
+    "Microsoft.SqlTools.Hosting": {
+      "target": "project"
+    },
+    "Microsoft.SqlTools.Credentials": {
+      "target": "project"
+    }
   },
   "frameworks": {
     "netcoreapp1.0": {
