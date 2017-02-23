@@ -109,7 +109,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
         }
 
-        private void SetLocale(string locale){
+        private void SetLocale(string locale)
+        {
             try
             {
                 // Creating cultureInfo from our given locale

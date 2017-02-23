@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Extensibility
             // Then should get any export for this type and subtypes
             Assert.Equal(2, store.GetExports<MyExportType>().Count());
 
-            // And for a different type, expect throw as the store only contains MyExportType
+            // But for a different type, expect throw as the store only contains MyExportType
             Assert.Throws<InvalidCastException>(() => store.GetExports<MyOtherType>().Count());
         }
         

@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// The default host ID for SqlTools Editor Services.  Used
         /// for the host-specific profile path if no host ID is specified.
         /// </summary>
-        public const string DefaultHostProfileId = "Microsoft.SqlTools.ServiceLayer";
+        public const string DefaultHostProfileId = "Microsoft.SqlTools.Hosting";
 
         /// <summary>
         /// The default host version for SqlTools Editor Services.  If

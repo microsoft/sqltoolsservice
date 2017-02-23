@@ -10,11 +10,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SqlTools Editor Services Host Protocol Library")]
-[assembly: AssemblyDescription("Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.")]
+[assembly: AssemblyTitle("SqlTools Hosting Library")]
+[assembly: AssemblyDescription("Provides hosting services for SqlTools applications.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("SqlTools Editor Services")]
+[assembly: AssemblyProduct("SqlTools Hosting Library")]
 [assembly: AssemblyCopyright("� Microsoft Corporation. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("78caf6c3-5955-4b15-a302-2bd6b7871d5b")]
+[assembly: Guid("6ECAFE73-131A-4221-AA13-C9BDE07FD92B")]
 
 // Version information for an assembly consists of the following four values:
 //
