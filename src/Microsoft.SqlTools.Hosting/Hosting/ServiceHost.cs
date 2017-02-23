@@ -8,13 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.Credentials.Hosting
+namespace Microsoft.SqlTools.ServiceLayer.Hosting
 {
     /// <summary>
     /// SQL Tools VS Code Language Server request handler. Provides the entire JSON RPC

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Credentials.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;

@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using Microsoft.SqlTools.Credentials.Hosting;
 using Microsoft.SqlTools.Credentials.Utility;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             // turn on Verbose logging during early development
             // we need to switch to Normal when preparing for public preview
             Logger.Initialize(minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-            Logger.Write(LogLevel.Normal, "Starting SQL Tools Service Host");
+            Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
 
             // set up the host details and profile paths 
             var hostDetails = new HostDetails(
