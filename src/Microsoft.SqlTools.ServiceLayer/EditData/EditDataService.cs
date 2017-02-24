@@ -218,6 +218,31 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 session => session.UpdateCell(updateParams.RowId, updateParams.ColumnId, updateParams.NewValue));
         }
 
+        internal async Task HandleCommitRequest(EditCommitParams commitParams,
+            RequestContext<EditCommitResult> requestContext)
+        {
+            // Setup a callback for if the edits have been successfully written to the db
+            Func<Task> successHandler = () => requestContext.SendResult(new EditCommitResult());
+
+            // Setup a callback for if the edits failed to be written to db
+            Func<Exception, Task> failureHandler = e => requestContext.SendError(e.Message);
+
+            try
+            {
+                // Get the session
+                Session session = GetActiveSessionOrThrow(commitParams.OwnerUri);
+
+                // Get a connection for doing the committing
+                DbConnection conn = await connectionService.GetOrOpenConnection(commitParams.OwnerUri,
+                    ConnectionType.Edit);
+                session.CommitEdits(conn, successHandler, failureHandler);
+            }
+            catch (Exception e)
+            {
+                await failureHandler(e);
+            }
+        }
+
         #endregion
 
         #region Private Helpers

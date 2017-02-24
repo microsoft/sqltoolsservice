@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -238,25 +239,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         {
             try
             {
-                // Convert each pending edit into a command, then combine them into a single commit
-                DbCommand command = connection.CreateCommand();
-                foreach (RowEditBase rowEdit in EditCache.Values)
+                // @TODO: Add support for transactional commits
+             
+                // Trust the RowEdit to sort itself appropriately
+                var editOperations = EditCache.Values.ToList();
+                editOperations.Sort();
+                foreach (var editOperation in editOperations)
                 {
-                    DbCommand editCommand = rowEdit.GetCommand();
-                    command.CommandText += Environment.NewLine + editCommand.CommandText;
-                    foreach (DbParameter param in editCommand.Parameters)
+                    // Get the command from the edit operation
+                    using (DbCommand editCommand = editOperation.GetCommand(connection))
                     {
-                        editCommand.Parameters.Add(param);
+                        // Execute said command
+                        // @TODO: Add support for retrieving non-editable columns
+                        await editCommand.ExecuteNonQueryAsync();
                     }
-                }
 
-                // Attempt to execute the command
-                await command.ExecuteNonQueryAsync();
-
-                // Apply the changes to the result set
-                foreach (RowEditBase rowEdit in EditCache.Values)
-                {
-                    rowEdit.ApplyChanges();
+                    // Apply the changes of the command to the result set
+                    editOperation.ApplyChanges();
                 }
 
                 await successHandler();

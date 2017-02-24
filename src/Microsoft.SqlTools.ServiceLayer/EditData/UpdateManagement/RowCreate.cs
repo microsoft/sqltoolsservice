@@ -35,14 +35,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
         }
 
+        protected override int SortId => 1;
+
         public override void ApplyChanges()
         {
             throw new NotImplementedException();
         }
 
-        public override DbCommand GetCommand()
+        public override DbCommand GetCommand(DbConnection connection)
         {
-            SqlCommand command = new SqlCommand();
+            DbCommand command = connection.CreateCommand();
             command.CommandText = GetCommandText(command);
             return command;
         }
@@ -84,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             return eucr;
         }
 
-        private string GetCommandText(SqlCommand command)
+        private string GetCommandText(DbCommand command)
         {
             List<string> columnNames = new List<string>();
             List<string> columnValues = new List<string>();

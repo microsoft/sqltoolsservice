@@ -184,10 +184,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 throw new NotImplementedException();
             }
 
-            public override DbCommand GetCommand()
+            public override DbCommand GetCommand(DbConnection conn)
             {
                 throw new NotImplementedException();
             }
+
+            protected override int SortId => 0;
         }
     }
 }

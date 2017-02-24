@@ -353,19 +353,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        public void RemoveRow()
+        /// <summary>
+        /// Removes a row from the result set cache
+        /// </summary>
+        /// <param name="internalId">Internal ID of the row</param>
+        public void RemoveRow(long internalId)
         {
-            
+            // Simply remove the row from the list of row offsets
+            fileOffsets.RemoveAt(internalId);
         }
 
         public void AddRow()
         {
+            // Write a new row at the end of the file and store the offset in the row offsets
             
         }
 
         public void UpdateRow()
         {
-            
+            // Write the updated row at the end of the file and replace the row offset with the new offset
+
         }
 
         /// <summary>

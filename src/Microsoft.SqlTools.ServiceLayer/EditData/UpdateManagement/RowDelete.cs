@@ -31,18 +31,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
         }
 
+        protected override int SortId => 2;
+
         public override void ApplyChanges()
         {
             // Take the result set and remove the row from it
-            AssociatedResultSet.RemoveRow();
+            AssociatedResultSet.RemoveRow(RowId);
         }
 
-        public override DbCommand GetCommand()
+        /// <summary>
+        /// Generates a command for deleting the selected row
+        /// </summary>
+        /// <returns></returns>
+        public override DbCommand GetCommand(DbConnection connection)
         {
             // Return a SqlCommand with formatted with the parameters from the where clause
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
-            SqlCommand command = new SqlCommand(commandText);
+
+            DbCommand command = connection.CreateCommand();
+            command.CommandText = commandText;
             command.Parameters.AddRange(where.Parameters.ToArray());
 
             return command;
@@ -67,6 +75,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
             throw new InvalidOperationException(SR.EditDataDeleteSetCell);
+        }
+
+        protected override int CompareToSameType(RowEditBase rowEdit)
+        {
+            // We want to sort by row ID *IN REVERSE* to make sure we delete from the bottom first.
+            // If we delete from the top first, it will change IDs, making all subsequent deletes
+            // off by one or more!
+            return RowId.CompareTo(rowEdit.RowId) * -1;
         }
 
         private string GetCommandText(string whereText)

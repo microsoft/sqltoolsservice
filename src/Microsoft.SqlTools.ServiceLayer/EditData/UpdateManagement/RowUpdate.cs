@@ -40,14 +40,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             associatedRow = associatedResultSet.GetRow(rowId);
         }
 
+        protected override int SortId => 1;
+
         public override void ApplyChanges()
         {
             throw new NotImplementedException();
         }
 
-        public override DbCommand GetCommand()
+        public override DbCommand GetCommand(DbConnection connection)
         {
-            SqlCommand command = new SqlCommand();
+            DbCommand command = connection.CreateCommand();
 
             // Build the "SET" portion of the statement
             List<string> setComponents = new List<string>();
