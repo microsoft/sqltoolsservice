@@ -10,6 +10,8 @@ COPY /Y %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json %WORK
 
 REM switch PDB type to Full since that is required by OpenCover for now
 REM we should remove this step on OpenCover supports portable PDB
+cscript /nologo ReplaceText.vbs %WORKINGDIR%..\..\src\Microsoft.SqlTools.Credentials\project.json portable full
+cscript /nologo ReplaceText.vbs %WORKINGDIR%..\..\src\Microsoft.SqlTools.Hosting\project.json portable full
 cscript /nologo ReplaceText.vbs %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json portable full
 
 REM rebuild the SqlToolsService project
@@ -45,4 +47,9 @@ SET SERVICECODECOVERAGE=FALSE
 REM restore original project.json
 COPY /Y %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json.BAK %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json
 DEL %WORKINGDIR%..\..\src\Microsoft.SqlTools.ServiceLayer\project.json.BAK 
+COPY /Y %WORKINGDIR%..\..\src\Microsoft.SqlTools.Credentials\project.json.BAK %WORKINGDIR%..\..\src\Microsoft.SqlTools.Credentials\project.json
+DEL %WORKINGDIR%..\..\src\Microsoft.SqlTools.Credentials\project.json.BAK 
+COPY /Y %WORKINGDIR%..\..\src\Microsoft.SqlTools.Hosting\project.json.BAK %WORKINGDIR%..\..\src\Microsoft.SqlTools.Hosting\project.json
+DEL %WORKINGDIR%..\..\src\Microsoft.SqlTools.Hosting\project.json.BAK 
+
 EXIT

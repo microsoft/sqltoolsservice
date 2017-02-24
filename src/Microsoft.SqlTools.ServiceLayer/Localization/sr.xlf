@@ -56,51 +56,6 @@
         <note>.
  Parameters: 0 - component (string) </note>
       </trans-unit>
-      <trans-unit id="CredentialsServiceInvalidCriticalHandle">
-        <source>Invalid CriticalHandle!</source>
-        <target state="new">Invalid CriticalHandle!</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CredentialsServicePasswordLengthExceeded">
-        <source>The password has exceeded 512 bytes</source>
-        <target state="new">The password has exceeded 512 bytes</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CredentialsServiceTargetForDelete">
-        <source>Target must be specified to delete a credential</source>
-        <target state="new">Target must be specified to delete a credential</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CredentialsServiceTargetForLookup">
-        <source>Target must be specified to check existance of a credential</source>
-        <target state="new">Target must be specified to check existance of a credential</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="CredentialServiceWin32CredentialDisposed">
-        <source>Win32Credential object is already disposed</source>
-        <target state="new">Win32Credential object is already disposed</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="HostingUnexpectedEndOfStream">
-        <source>MessageReader's input stream ended unexpectedly, terminating</source>
-        <target state="new">MessageReader's input stream ended unexpectedly, terminating</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="HostingHeaderMissingColon">
-        <source>Message header must separate key and value using ':'</source>
-        <target state="new">Message header must separate key and value using ':'</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="HostingHeaderMissingContentLengthHeader">
-        <source>Fatal error: Content-Length header must be provided</source>
-        <target state="new">Fatal error: Content-Length header must be provided</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="HostingHeaderMissingContentLengthValue">
-        <source>Fatal error: Content-Length value is not an integer</source>
-        <target state="new">Fatal error: Content-Length value is not an integer</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="QueryServiceCancelAlreadyCompleted">
         <source>The query has already completed, it cannot be cancelled</source>
         <target state="new">The query has already completed, it cannot be cancelled</target>
@@ -469,36 +424,6 @@
         <target state="new">EN_LOCALIZATION</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ServiceAlreadyRegistered">
-        <source>Cannot register service for type {0}, one or more services already registered</source>
-        <target state="new">Cannot register service for type {0}, one or more services already registered</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="MultipleServicesFound">
-        <source>Multiple services found for type {0}, expected only 1</source>
-        <target state="new">Multiple services found for type {0}, expected only 1</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IncompatibleServiceForExtensionLoader">
-        <source>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</source>
-        <target state="new">Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceProviderNotSet">
-        <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="new">SetServiceProvider() was not called to establish the required service provider</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceNotFound">
-        <source>Service {0} was not found in the service provider</source>
-        <target state="new">Service {0} was not found in the service provider</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceNotOfExpectedType">
-        <source>Service of Type {0} is not compatible with registered Type {1}</source>
-        <target state="new">Service of Type {0} is not compatible with registered Type {1}</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ErrorUnexpectedCodeObjectType">
         <source>Cannot convert SqlCodeObject Type {0} to Type {1}</source>
         <target state="new">Cannot convert SqlCodeObject Type {0} to Type {1}</target>
@@ -594,6 +519,12 @@
         <target state="new">Database object {0} cannot be used for editing.</target>
         <note>.
  Parameters: 0 - typeName (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceDbErrorDefaultNotConnected">
+        <source>Specified URI '{0}' does not have a default connection</source>
+        <target state="new">Specified URI '{0}' does not have a default connection</target>
+        <note>.
+ Parameters: 0 - uri (string) </note>
       </trans-unit>
     </body>
   </file>

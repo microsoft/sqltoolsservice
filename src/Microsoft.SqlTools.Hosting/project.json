@@ -1,9 +1,9 @@
 {
-  "name": "Microsoft.SqlTools.ServiceLayer",
+  "name": "Microsoft.SqlTools.Hosting",
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true
+    "emitEntryPoint": false
   },
   "configurations": {
     "Integration": {
@@ -11,16 +11,12 @@
         "define": [
           "WINDOWS_ONLY_BUILD"
         ],
-        "emitEntryPoint": true
+        "emitEntryPoint": false
       }
     }
-  },
+  },  
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
-    "System.Data.Common": "4.1.0",
-    "System.Data.SqlClient": "4.4.0-sqltools-24613-04",
-    "Microsoft.SqlServer.Smo": "140.1.12",
-    "System.Security.SecureString": "4.0.0",
     "System.Collections.Specialized": "4.0.1",
     "System.ComponentModel.TypeConverter": "4.1.0",
     "System.Diagnostics.Contracts": "4.0.1",
@@ -32,14 +28,11 @@
     "System.Diagnostics.Process": "4.1.0",
     "System.Threading.Thread": "4.0.0",
     "System.Runtime.Loader": "4.0.0",
-    "System.Composition": "1.0.31-beta-24326-02",
-    "Microsoft.Extensions.DependencyModel":  "1.0.0",
-    "Microsoft.SqlTools.Hosting": {
-      "target": "project"
-    },
-    "Microsoft.SqlTools.Credentials": {
-      "target": "project"
-    }
+    "System.Composition.Runtime": "1.0.31",
+    "System.Composition.Convention": "1.0.31",
+    "System.Composition.TypedParts": "1.0.31",
+    "Microsoft.Extensions.DependencyModel": "1.0.0",
+    "System.Runtime": "4.3.0"
   },
   "frameworks": {
     "netcoreapp1.0": {
