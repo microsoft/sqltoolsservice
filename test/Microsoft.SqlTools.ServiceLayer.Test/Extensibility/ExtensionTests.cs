@@ -42,12 +42,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Extensibility
         }
 
         [Fact]
-        public void CreateDefaultServiceProviderShouldFindTypesInAllAssemblies()
+        public void CreateDefaultServiceProviderShouldFindTypesInAllKnownAssemblies()
         {
             // Given a default ExtensionServiceProvider
-            // Then should not find exports from a different assembly
+            // Then we should not find exports from a test assembly
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
-            Assert.NotEmpty(serviceProvider.GetServices<MyExportType>());
+            Assert.Empty(serviceProvider.GetServices<MyExportType>());
 
             // But should find exports that are defined in the main assembly            
             Assert.NotEmpty(serviceProvider.GetServices<ASTNodeFormatterFactory>());
