@@ -31,7 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Extensibility
         {
             // only allow loading MEF dependencies from our assemblies until we can 
             // better seperate out framework assemblies and extension assemblies
-            string[] inclusionList = {
+            string[] inclusionList = 
+            {
                 "microsoft.sqltools.credentials.dll",
                 "microsoft.sqltools.hosting.dll",
                 "microsoft.sqltools.servicelayer.dll"
@@ -48,14 +49,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Extensibility
             {
                 // skip DLL files not in inclusion list
                 bool isInList = false;
-                foreach (var item in inclusionList) {
-                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase)) {
+                foreach (var item in inclusionList) 
+                {
+                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase)) 
+                    {
                         isInList = true;
                         break;
                     }
                 }
 
-                if (!isInList) {
+                if (!isInList) 
+                {
                     continue;
                 }                
                 
