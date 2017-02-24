@@ -29,6 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Extensibility
 
         public static ExtensionServiceProvider CreateDefaultServiceProvider()
         {
+            // only allow loading MEF dependencies from our assemblies until we can 
+            // better seperate out framework assemblies and extension assemblies
+            string[] inclusionList = {
+                "microsoft.sqltools.credentials.dll",
+                "microsoft.sqltools.hosting.dll",
+                "microsoft.sqltools.servicelayer.dll"
+            };
+
             string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
             string directory = Path.GetDirectoryName(assemblyPath);
             
@@ -38,13 +46,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Extensibility
             List<Assembly> assemblies = new List<Assembly>();
             foreach (var path in assemblyPaths)
             {
+                // skip DLL files not in inclusion list
+                bool isInList = false;
+                foreach (var item in inclusionList) {
+                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase)) {
+                        isInList = true;
+                        break;
+                    }
+                }
+
+                if (!isInList) {
+                    continue;
+                }                
+                
                 try
                 {
                     assemblies.Add(
                         context.LoadFromAssemblyName(
                             AssemblyLoadContext.GetAssemblyName(path)));
                 }
-                catch (System.BadImageFormatException)
+                catch (Exception)
                 {
                     // we expect exceptions trying to scan all DLLs since directory contains native libraries
                 }
