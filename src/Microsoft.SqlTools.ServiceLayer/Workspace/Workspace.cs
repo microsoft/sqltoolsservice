@@ -49,6 +49,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         #region Public Methods
 
         /// <summary>
+        /// Checks if a given URI is contained in a workspace 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns>Flag indicating if the file is tracked in workspace</returns>
+        public bool ContainsFile(string filePath)
+        {
+            Validate.IsNotNullOrWhitespaceString("filePath", filePath);
+
+            // Resolve the full file path 
+            string resolvedFilePath = this.ResolveFilePath(filePath);
+            string keyName = resolvedFilePath.ToLower();
+
+            ScriptFile scriptFile = null;
+            return this.workspaceFiles.TryGetValue(keyName, out scriptFile);
+        }
+
+        /// <summary>
         /// Gets an open file in the workspace.  If the file isn't open but
         /// exists on the filesystem, load and return it. Virtual method to
         /// allow for mocking
@@ -124,9 +141,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             // with 'inmemory'.  Untitled files which have been marked of
             // type SqlTools have a path starting with 'untitled'.
             return
-                filePath.StartsWith("inmemory") ||
-                filePath.StartsWith("tsqloutput") ||
-                filePath.StartsWith("untitled");
+                filePath.StartsWith("inmemory:") ||
+                filePath.StartsWith("tsqloutput:") ||
+                filePath.StartsWith("git:") ||            
+                filePath.StartsWith("untitled:");
         }
 
         /// <summary>
