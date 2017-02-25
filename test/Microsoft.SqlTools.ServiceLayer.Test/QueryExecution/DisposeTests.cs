@@ -23,10 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
         {
             // Setup: Mock file stream factory, mock db reader
             var mockFileStreamFactory = new Mock<IFileStreamFactory>();
-            var mockDataReader = Common.CreateTestConnection(null, false).CreateCommand().ExecuteReaderAsync().Result;
             
             // If: I setup a single resultset and then dispose it
-            ResultSet rs = new ResultSet(mockDataReader, Common.Ordinal, Common.Ordinal, mockFileStreamFactory.Object);
+            ResultSet rs = new ResultSet(Common.Ordinal, Common.Ordinal, mockFileStreamFactory.Object);
             rs.Dispose();
 
             // Then: The file that was created should have been deleted

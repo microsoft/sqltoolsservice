@@ -34,11 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Member Variables
 
         /// <summary>
-        /// The reader to use for this resultset
-        /// </summary>
-        private readonly StorageDataReader dataReader;
-
-        /// <summary>
         /// For IDisposable pattern, whether or not object has been disposed
         /// </summary>
         private bool disposed;
@@ -79,16 +74,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Creates a new result set and initializes its state
         /// </summary>
-        /// <param name="reader">The reader from executing a query</param>
         /// <param name="ordinal">The ID of the resultset, the ordinal of the result within the batch</param>
         /// <param name="batchOrdinal">The ID of the batch, the ordinal of the batch within the query</param>
         /// <param name="factory">Factory for creating a reader/writer</param>
-        public ResultSet(DbDataReader reader, int ordinal, int batchOrdinal, IFileStreamFactory factory)
+        public ResultSet(int ordinal, int batchOrdinal, IFileStreamFactory factory)
         {
-            // Sanity check to make sure we got a reader
-            Validate.IsNotNull(nameof(reader), SR.QueryServiceResultSetReaderNull);
-
-            dataReader = new StorageDataReader(reader);
             Id = ordinal;
             BatchId = batchOrdinal;
 
@@ -313,13 +303,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Reads from the reader until there are no more results to read
         /// </summary>
+        /// <param name="dbDataReader">The data reader for getting results from the db</param>
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
-        public async Task ReadResultToEnd(CancellationToken cancellationToken)
+        public async Task ReadResultToEnd(DbDataReader dbDataReader, CancellationToken cancellationToken)
         {
+            // Sanity check to make sure we got a reader
+            Validate.IsNotNull(nameof(dbDataReader), SR.QueryServiceResultSetReaderNull);
+
             try
             {
                 // Mark that result has been read
                 hasBeenRead = true;
+
+                StorageDataReader dataReader = new StorageDataReader(dbDataReader);
 
                 // Open a writer for the file
                 var fileWriter = fileStreamFactory.GetWriter(outputFileName);
@@ -363,10 +359,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             fileOffsets.RemoveAt(internalId);
         }
 
-        public void AddRow()
+
+        public async Task AddRow(DbDataReader dbDataReader)
         {
+            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+
             // Write a new row at the end of the file and store the offset in the row offsets
-            
+            using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
+            {
+                long currentFileOffset = writer.SeekToBottom();
+                
+                // Read in the result and write it to the buffer file
+                await dataReader.ReadAsync(CancellationToken.None);
+                fileOffsets.Add(currentFileOffset);
+                writer.WriteRow(dataReader);
+                RowCount++; // @TODO Should this number just be the number of elements in the list?
+            }
         }
 
         public void UpdateRow()
@@ -548,7 +556,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {           
 
             // Check if this result set is a showplan 
-            if (dataReader.Columns.Length == 1 && string.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
+            if (Columns.Length == 1 && string.Compare(Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 specialAction.ExpectYukonXMLShowPlan = true;
             }

@@ -5,8 +5,8 @@
 
 using System;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Globalization;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 
@@ -33,10 +33,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         protected override int SortId => 2;
 
-        public override void ApplyChanges()
+        public override Task ApplyChanges(DbDataReader dataReader)
         {
             // Take the result set and remove the row from it
             AssociatedResultSet.RemoveRow(RowId);
+            return Task.FromResult(0);
         }
 
         /// <summary>

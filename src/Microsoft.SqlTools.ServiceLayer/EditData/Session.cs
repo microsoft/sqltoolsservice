@@ -8,7 +8,6 @@ using System.Collections.Concurrent;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -225,7 +224,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Attempt to get the row that is being edited, create a new update object if one
             // doesn't exist
-            RowEditBase editRow = EditCache.GetOrAdd(rowId, new RowUpdate(rowId, associatedResultSet, objectMetadata));
+            // NOTE: This *must* be done as a lambda. RowUpdate creation requires that the row
+            // exist in the result set. We only want a new RowUpdate to be created if the edit
+            // doesn't already exist in the cache
+            RowEditBase editRow = EditCache.GetOrAdd(rowId, key => new RowUpdate(rowId, associatedResultSet, objectMetadata));
 
             // Pass the call to the row update
             return editRow.SetCell(columnId, newValue);
@@ -246,16 +248,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 editOperations.Sort();
                 foreach (var editOperation in editOperations)
                 {
-                    // Get the command from the edit operation
+                    // Get the command from the edit operation and execute it
                     using (DbCommand editCommand = editOperation.GetCommand(connection))
+                    using (DbDataReader reader = await editCommand.ExecuteReaderAsync())
                     {
-                        // Execute said command
-                        // @TODO: Add support for retrieving non-editable columns
-                        await editCommand.ExecuteNonQueryAsync();
+                        // Apply the changes of the command to the result set
+                        await editOperation.ApplyChanges(reader);
                     }
 
-                    // Apply the changes of the command to the result set
-                    editOperation.ApplyChanges();
+                    // If we succeeded in applying the changes, then remove this from the cache
+                    // @TODO: Prevent edit sessions from being modified while a commit is in progress
+                    RowEditBase re;
+                    EditCache.TryRemove(editOperation.RowId, out re);
                 }
 
                 await successHandler();

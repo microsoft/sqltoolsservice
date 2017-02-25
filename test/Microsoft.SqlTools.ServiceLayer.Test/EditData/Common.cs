@@ -75,8 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 : new[] { new object[] { "1", "2", "3" } };
             var testResultSet = new TestResultSet(columns, rows);
             var reader = new TestDbDataReader(new[] { testResultSet });
-            var resultSet = new ResultSet(reader, 0, 0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
-            resultSet.ReadResultToEnd(CancellationToken.None).Wait();
+            var resultSet = new ResultSet(0, 0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            resultSet.ReadResultToEnd(reader, CancellationToken.None).Wait();
             return resultSet;
         }
 

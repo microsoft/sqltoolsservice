@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -20,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// that all RowEdit implementations can use. Defines functionality that must be implemented
     /// in all child classes.
     /// </summary>
-    public abstract class RowEditBase
+    public abstract class RowEditBase : IComparable<RowEditBase>
     {
         /// <summary>
         /// Internal parameterless constructor, required for mocking
@@ -58,11 +59,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         public IEditTableMetadata AssociatedObjectMetadata { get; }
 
+        protected abstract int SortId { get; }
+
         #endregion
 
-        public abstract void ApplyChanges();
+        public abstract Task ApplyChanges(DbDataReader dataReader);
 
-        public abstract DbCommand GetCommand();
+        public abstract DbCommand GetCommand(DbConnection connection);
 
         /// <summary>
         /// Converts the row edit into a SQL statement
@@ -170,6 +173,42 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             return output;
         }
+
+        #region IComparable Implementation
+
+        public int CompareTo(RowEditBase other)
+        {
+            // If the other is null, this one will come out on top
+            if (other == null)
+            {
+                return 1;
+            }
+
+            // If types are the same, use the type's tiebreaking sorter
+            if (GetType() == other.GetType())
+            {
+                return CompareToSameType(other);
+            }
+
+            // If the type's sort index is the same, use our tiebreaking sorter
+            // If they are different, use that as the comparison
+            int sortIdComparison = SortId.CompareTo(other.SortId);
+            return sortIdComparison == 0
+                ? CompareByRowId(other)
+                : sortIdComparison;
+        }
+
+        protected virtual int CompareToSameType(RowEditBase rowEdit)
+        {
+            return CompareByRowId(rowEdit);
+        }
+
+        private int CompareByRowId(RowEditBase rowEdit)
+        {
+            return RowId.CompareTo(rowEdit.RowId);
+        }
+
+        #endregion
 
         /// <summary>
         /// Represents a WHERE clause that can be used for identifying a row in a table.

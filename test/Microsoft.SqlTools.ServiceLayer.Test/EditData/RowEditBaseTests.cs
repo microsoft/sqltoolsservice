@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -103,8 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             object[][] rows = {row};
             var testResultSet = new TestResultSet(columns, rows);
             var testReader = new TestDbDataReader(new [] {testResultSet});
-            var resultSet = new ResultSet(testReader, 0,0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
-            resultSet.ReadResultToEnd(CancellationToken.None).Wait();
+            var resultSet = new ResultSet(0,0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            resultSet.ReadResultToEnd(testReader, CancellationToken.None).Wait();
             return resultSet;
         }
 
@@ -179,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 throw new NotImplementedException();
             }
 
-            public override void ApplyChanges()
+            public override Task ApplyChanges(DbDataReader reader)
             {
                 throw new NotImplementedException();
             }

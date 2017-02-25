@@ -286,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // This resultset has results (ie, SELECT/etc queries)
-                            ResultSet resultSet = new ResultSet(reader, resultSetOrdinal, Id, outputFileFactory);
+                            ResultSet resultSet = new ResultSet(resultSetOrdinal, Id, outputFileFactory);
                             resultSet.ResultCompletion += ResultSetCompletion;
 
                             // Add the result set to the results of the query
@@ -297,7 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
 
                             // Read until we hit the end of the result set
-                            await resultSet.ReadResultToEnd(cancellationToken).ConfigureAwait(false);
+                            await resultSet.ReadResultToEnd(reader, cancellationToken).ConfigureAwait(false);
 
                         } while (await reader.NextResultAsync(cancellationToken));
 

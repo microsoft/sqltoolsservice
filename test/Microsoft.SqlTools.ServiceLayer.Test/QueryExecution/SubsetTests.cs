@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution
             // ... I have a resultset that hasn't been executed and I request a valid result set from it
             // Then:
             // ... It should throw an exception for having not been read
-            ResultSet rs = new ResultSet(new TestDbDataReader(null), Common.Ordinal, Common.Ordinal, Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            ResultSet rs = new ResultSet(Common.Ordinal, Common.Ordinal, Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
             await Assert.ThrowsAsync<InvalidOperationException>(() => rs.GetSubset(0, 1));
         }
 

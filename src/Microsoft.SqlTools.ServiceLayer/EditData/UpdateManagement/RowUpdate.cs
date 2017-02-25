@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -42,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         protected override int SortId => 1;
 
-        public override void ApplyChanges()
+        public override Task ApplyChanges(DbDataReader dataReader)
         {
             throw new NotImplementedException();
         }
