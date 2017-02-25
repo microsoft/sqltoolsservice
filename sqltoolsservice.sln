@@ -20,6 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		RefreshDllsForTestRun.cmd = RefreshDllsForTestRun.cmd
 	EndProjectSection
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.Credentials", "src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.xproj", "{1D61DC2B-DA66-441D-B9D0-887798F780F9}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.Hosting", "src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.xproj", "{2D61DC2B-DA66-441D-B9D0-919198F780F9}"
+EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer", "src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.xproj", "{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.UnitTests", "test\Microsoft.SqlTools.ServiceLayer.UnitTests\Microsoft.SqlTools.ServiceLayer.UnitTests.xproj", "{2D771D16-9D85-4053-9F79-E2034737DEEF}"
@@ -79,6 +83,18 @@ Global
 		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}.Integration|Any CPU.Build.0 = Integration|Any CPU
 		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D61DC2B-DA66-441D-B9D0-887798F780F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D61DC2B-DA66-441D-B9D0-887798F780F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D61DC2B-DA66-441D-B9D0-887798F780F9}.Integration|Any CPU.ActiveCfg = Integration|Any CPU
+		{1D61DC2B-DA66-441D-B9D0-887798F780F9}.Integration|Any CPU.Build.0 = Integration|Any CPU
+		{1D61DC2B-DA66-441D-B9D0-887798F780F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D61DC2B-DA66-441D-B9D0-887798F780F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D61DC2B-DA66-441D-B9D0-919198F780F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D61DC2B-DA66-441D-B9D0-919198F780F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D61DC2B-DA66-441D-B9D0-919198F780F9}.Integration|Any CPU.ActiveCfg = Integration|Any CPU
+		{2D61DC2B-DA66-441D-B9D0-919198F780F9}.Integration|Any CPU.Build.0 = Integration|Any CPU
+		{2D61DC2B-DA66-441D-B9D0-919198F780F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D61DC2B-DA66-441D-B9D0-919198F780F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D771D16-9D85-4053-9F79-E2034737DEEF}.Integration|Any CPU.ActiveCfg = Integration|Any CPU
@@ -127,6 +143,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0D61DC2B-DA66-441D-B9D0-F76C98F780F9} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
+		{1D61DC2B-DA66-441D-B9D0-887798F780F9} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
+		{2D61DC2B-DA66-441D-B9D0-919198F780F9} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{2D771D16-9D85-4053-9F79-E2034737DEEF} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{CC785604-6277-4878-8DA9-360C47158E96} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{B7D21727-2926-452B-9610-3ADB0BB6D789} = {F9978D78-78FE-4E92-A7D6-D436B7683EF6}

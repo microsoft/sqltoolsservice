@@ -7,6 +7,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using Microsoft.SqlTools.Credentials;
 
 namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
 {

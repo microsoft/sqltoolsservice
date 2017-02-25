@@ -18,6 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     public class RunEnvironmentInfo
     {
         private static string cachedTestFolderPath;
+        private static string cachedTraceFolderPath;
 
         public static bool IsLabMode()
         {
@@ -64,10 +65,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
             return testFolderPath;
         }
+
+        /// <summary>
+        /// Location of all trace data (expected output)
+        /// </summary>
+        /// <returns>The full path to the trace data directory</returns>
+        public static string GetTraceOutputLocation()
+        {
+            string traceFolderPath;
+            string testPath = @"test\Microsoft.SqlTools.ServiceLayer.Test.Common\Trace";
+            string projectPath = Environment.GetEnvironmentVariable(Constants.ProjectPath);
+
+            if (projectPath != null)
+            {
+                traceFolderPath = Path.Combine(projectPath, testPath);
+            }
+            else
+            {
+                if (cachedTraceFolderPath != null)
+                {
+                    traceFolderPath = cachedTraceFolderPath;
+                }
+                else
+                {
+                    // We are running tests locally, which means we expect to be running inside the bin\debug\netcoreapp directory
+                    // Test Files should be found at the root of the project so go back the necessary number of directories for this 
+                    // to be found. We are manually specifying the testFolderPath here for clarity on where to expect this
+
+                    string assemblyDir = Path.GetDirectoryName(typeof(Scripts).GetTypeInfo().Assembly.Location);
+                    string defaultPath = Path.Combine(assemblyDir, GoUpNDirectories(4));
+                    traceFolderPath = Path.Combine(defaultPath, "Microsoft.SqlTools.ServiceLayer.Test.Common", "TestData");
+
+                    cachedTraceFolderPath = traceFolderPath;
+                }
+            }
+            return traceFolderPath;
+        }
+
         private static string GoUpNDirectories(int n)
         {
             string up = ".." + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "\\" : "/");
             return string.Concat(Enumerable.Repeat(up, n));
+
         }
     }
 }

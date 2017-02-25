@@ -304,14 +304,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            // Send a notification to signal that definition is sent
-            await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
-            {
-                Params = new TelemetryProperties
-                {
-                    EventName = TelemetryEventNames.PeekDefinitionRequested
-                }
-            });
             DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
 
             if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsIntelliSenseEnabled)

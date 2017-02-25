@@ -26,6 +26,12 @@
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
     },
+    "Microsoft.SqlTools.Hosting": {
+      "target": "project"
+    },
+    "Microsoft.SqlTools.Credentials": {
+      "target": "project"
+    },
     "Moq": "4.6.36-alpha",
     "Microsoft.SqlTools.ServiceLayer.Test.Common": "1.0.0-*"
   },

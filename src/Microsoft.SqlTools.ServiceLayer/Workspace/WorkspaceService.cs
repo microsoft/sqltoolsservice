@@ -244,6 +244,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             Logger.Write(LogLevel.Verbose, "HandleDidOpenTextDocumentNotification");
 
+            if (IsScmEvent(openParams.TextDocument.Uri)) 
+            {
+                return;
+            }
+
             // read the SQL file contents into the ScriptFile 
             ScriptFile openedFile = Workspace.GetFileBuffer(openParams.TextDocument.Uri, openParams.TextDocument.Text);
 
@@ -259,6 +264,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
            EventContext eventContext)
         {
             Logger.Write(LogLevel.Verbose, "HandleDidCloseTextDocumentNotification");
+
+            if (IsScmEvent(closeParams.TextDocument.Uri)) 
+            {
+                return;
+            }
 
             // Skip closing this file if the file doesn't exist
             var closedFile = Workspace.GetFile(closeParams.TextDocument.Uri);
@@ -310,6 +320,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 EndLine = changeRange.End.Line + 1,
                 EndOffset = changeRange.End.Character + 1
             };
+        }
+        
+        internal static bool IsScmEvent(string filePath)
+        {
+            // if the URI is prefixed with git: then we want to skip processing that file
+            return filePath.StartsWith("git:");
         }
 
         #endregion

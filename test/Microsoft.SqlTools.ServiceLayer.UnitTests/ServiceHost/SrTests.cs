@@ -25,11 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.True(SR.Culture == culture);
 
             var connectionServiceListDbErrorNullOwnerUri = SR.ConnectionServiceListDbErrorNullOwnerUri;
-            var connectionParamsValidateNullConnection = SR.ConnectionParamsValidateNullConnection;
-            var credentialsServiceInvalidCriticalHandle = SR.CredentialsServiceInvalidCriticalHandle;
-            var credentialsServicePasswordLengthExceeded = SR.CredentialsServicePasswordLengthExceeded;
-            var credentialsServiceTargetForDelete = SR.CredentialsServiceTargetForDelete;
-            var credentialsServiceTargetForLookup = SR.CredentialsServiceTargetForLookup;
+            var connectionParamsValidateNullConnection = SR.ConnectionParamsValidateNullConnection;            
             var queryServiceCancelDisposeFailed = SR.QueryServiceCancelDisposeFailed;
             var queryServiceQueryCancelled = SR.QueryServiceQueryCancelled;
             var queryServiceDataReaderByteCountInvalid = SR.QueryServiceDataReaderByteCountInvalid;
