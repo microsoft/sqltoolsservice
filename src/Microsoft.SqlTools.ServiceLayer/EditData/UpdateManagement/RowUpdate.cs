@@ -23,7 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     public sealed class RowUpdate : RowEditBase
     {
         private const string UpdateStatement = "UPDATE {0} SET {1} {2}";
-        private const string UpdateStatementMemoryOptimized = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
+        private const string MemoryOptimizedStatement = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
+        private const string UpdateStatementOutput = "UPDATE {0} SET {1} OUTPUT inserted.* {2}";
+        private const string MemoryOptimizedStatementOutput = "UPDATE {0} WITH (SNAPSHOT) SET {1} OUTPUT inputed.* {2}";
 
         private readonly Dictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
@@ -45,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         public override Task ApplyChanges(DbDataReader dataReader)
         {
-            throw new NotImplementedException();
+            return AssociatedResultSet.UpdateRow(RowId, dataReader);
         }
 
         public override DbCommand GetCommand(DbConnection connection)
@@ -54,15 +56,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             // Build the "SET" portion of the statement
             List<string> setComponents = new List<string>();
-            for (var i = 0; i < cellUpdates.Count; i++)
+            foreach (var updateElement in cellUpdates)
             {
-                CellUpdate update = cellUpdates[i];
-                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(update.Column.ColumnName);
-                string paramName = $"@Value{RowId}{i}";
+                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(updateElement.Value.Column.ColumnName);
+                string paramName = $"@Value{RowId}{updateElement.Key}";
                 setComponents.Add($"{formattedColumnName} = {paramName}");
-                SqlParameter parameter = new SqlParameter(paramName, update.Column.SqlDbType)
+                SqlParameter parameter = new SqlParameter(paramName, updateElement.Value.Column.SqlDbType)
                 {
-                    Value = update.Value
+                    Value = updateElement.Value.Value
                 };
                 command.Parameters.Add(parameter);
             }
@@ -72,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             WhereClause where = GetWhereClause(true);
 
             // Put it all together
-            command.CommandText = GetCommandText(setClause, where.CommandText);
+            command.CommandText = GetCommandText(setClause, where.CommandText, true);
             command.Parameters.AddRange(where.Parameters.ToArray());
             return command;
         }
@@ -96,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string whereClause = GetWhereClause(false).CommandText;
 
             // Put it all together
-            return GetCommandText(setClause, whereClause);
+            return GetCommandText(setClause, whereClause, false);
         }
 
         /// <summary>
@@ -144,11 +145,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             };
         }
 
-        private string GetCommandText(string setClause, string whereClause)
+        private string GetCommandText(string setClause, string whereClause, bool output)
         {
-            string formatString = AssociatedObjectMetadata.IsMemoryOptimized
-                ? UpdateStatementMemoryOptimized
-                : UpdateStatement;
+            string formatString;
+            if (output)
+            {
+                // Use statements with OUTPUT 
+                formatString = AssociatedObjectMetadata.IsMemoryOptimized
+                    ? MemoryOptimizedStatementOutput
+                    : UpdateStatementOutput;
+            }
+            else
+            {
+                // Use statements without OUTPUT
+                formatString = AssociatedObjectMetadata.IsMemoryOptimized
+                    ? MemoryOptimizedStatement
+                    : UpdateStatement;
+            }
 
             return string.Format(CultureInfo.InvariantCulture, formatString,
                 AssociatedObjectMetadata.EscapedMultipartName, setClause, whereClause);
