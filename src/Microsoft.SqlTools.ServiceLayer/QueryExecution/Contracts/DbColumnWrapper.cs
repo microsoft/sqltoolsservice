@@ -59,7 +59,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         private const string SqlXmlDataTypeName = "xml";
         private const string DbTypeXmlDataTypeName = "DBTYPE_XML";
         private const string UnknownTypeName = "unknown";
-        private const string TimestampDataTypeName = "timestamp";
 
         #endregion
 
@@ -272,11 +271,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                                     DataType == typeof(System.Xml.XmlReader);
 
         /// <summary>
-        /// Whether or not the column is a timestamp column
-        /// </summary>
-        public bool IsTimestampType => DataTypeName.Equals(TimestampDataTypeName, StringComparison.OrdinalIgnoreCase);
-
-        /// <summary>
         /// Whether or not the column is an unknown type
         /// </summary>
         /// <remarks>
@@ -288,11 +282,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 
         /// <summary>
         /// Whether or not the column can be updated, based on whether it's an auto increment
-        /// column, is an XML reader or timestamp column, and if it's read only.
+        /// column, is an XML reader column, and if it's read only.
         /// </summary>
+        /// <remarks>
+        /// Logic taken from SSDT determination of updatable columns
+        /// </remarks>
         public bool IsUpdatable => !IsAutoIncrement.HasTrue() && 
-                                   !IsReadOnly.HasTrue() &&
-                                   !IsTimestampType &&
+                                   !IsReadOnly.HasTrue() && 
                                    !IsSqlXmlType;
 
         #endregion
