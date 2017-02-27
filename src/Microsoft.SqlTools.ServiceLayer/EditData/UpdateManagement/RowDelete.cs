@@ -31,8 +31,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
         }
 
+        /// <summary>
+        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes 
+        /// to be committed
+        /// </summary>
         protected override int SortId => 2;
 
+        /// <summary>
+        /// Applies the changes to the associated result set after successfully executing the
+        /// change on the database
+        /// </summary>
+        /// <param name="dataReader">
+        /// Reader returned from the execution of the command to insert a new row. Should NOT
+        /// contain any rows.
+        /// </param>
         public override Task ApplyChanges(DbDataReader dataReader)
         {
             // Take the result set and remove the row from it

@@ -43,13 +43,32 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             associatedRow = associatedResultSet.GetRow(rowId);
         }
 
+        /// <summary>
+        /// Sort order property. Sorts to same position as RowCreate
+        /// </summary>
         protected override int SortId => 1;
 
+        #region Public Methods
+
+        /// <summary>
+        /// Applies the changes to the associated result set after successfully executing the
+        /// change on the database
+        /// </summary>
+        /// <param name="dataReader">
+        /// Reader returned from the execution of the command to update a row. Should contain
+        /// a single row that represents all the values of the row.
+        /// </param>
         public override Task ApplyChanges(DbDataReader dataReader)
         {
             return AssociatedResultSet.UpdateRow(RowId, dataReader);
         }
 
+        /// <summary>
+        /// Generates a command that can be executed to update a row -- and return the contents of
+        /// the updated row.
+        /// </summary>
+        /// <param name="connection">The connection the command should be associated with</param>
+        /// <returns>Command to update the row</returns>
         public override DbCommand GetCommand(DbConnection connection)
         {
             DbCommand command = connection.CreateCommand();
@@ -144,6 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 IsRevert = false            // If we're in this branch, it is not a revert
             };
         }
+
+        #endregion
 
         private string GetCommandText(string setClause, string whereClause, bool output)
         {

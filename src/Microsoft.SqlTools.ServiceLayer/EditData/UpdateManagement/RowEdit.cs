@@ -19,7 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// <summary>
     /// Base class for row edit operations. Provides basic information and helper functionality
     /// that all RowEdit implementations can use. Defines functionality that must be implemented
-    /// in all child classes.
+    /// in all child classes. Implements a custom IComparable to enable sorting by type of the edit
+    /// and then by an overrideable 
     /// </summary>
     public abstract class RowEditBase : IComparable<RowEditBase>
     {
@@ -59,12 +60,29 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         public IEditTableMetadata AssociatedObjectMetadata { get; }
 
+        /// <summary>
+        /// Sort ID for a row edit. Ensures that when a collection of RowEditBase objects are
+        /// sorted, the appropriate types are sorted to the top.
+        /// </summary>
         protected abstract int SortId { get; }
 
         #endregion
 
+        #region Abstract Methods
+
+        /// <summary>
+        /// Applies the changes to the associated result set
+        /// </summary>
+        /// <param name="dataReader">
+        /// Data reader from execution of the command to commit the change to the db
+        /// </param>
         public abstract Task ApplyChanges(DbDataReader dataReader);
 
+        /// <summary>
+        /// Gets a command that will commit the change to the db
+        /// </summary>
+        /// <param name="connection">The connection to associate the command to</param>
+        /// <returns>Command to commit the change to the db</returns>
         public abstract DbCommand GetCommand(DbConnection connection);
 
         /// <summary>
@@ -80,6 +98,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="newValue">The new value for the cell</param>
         /// <returns>The value of the cell after applying validation logic</returns>
         public abstract EditUpdateCellResult SetCell(int columnId, string newValue);
+
+        #endregion
+
+        #region Protected Helper Methods
 
         /// <summary>
         /// Performs validation of column ID and if column can be updated.
@@ -174,8 +196,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             return output;
         }
 
+        #endregion
+
         #region IComparable Implementation
 
+        /// <summary>
+        /// Compares a row edit against another row edit. If they are the same type, then we
+        /// compare using an overrideable "same type" comparer. If they are different types, they
+        /// are sorted by their sort indexes.
+        /// 
+        /// In general, RowCreate and RowUpdates are sorted to the top. RowDeletes are sorted last.
+        /// If there are ties, default behavior is to sort by row ID ascending.
+        /// </summary>
+        /// <param name="other">The other row edit to compare against</param>
+        /// <returns>
+        /// A positive value if this edit should go first, a negative value if the other edit
+        /// should go first. 0 is returned if there is a tie.
+        /// </returns>
         public int CompareTo(RowEditBase other)
         {
             // If the other is null, this one will come out on top
@@ -198,11 +235,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 : sortIdComparison;
         }
 
+        /// <summary>
+        /// Default behavior for sorting if the two compared row edits are the same type. Sorts
+        /// by row ID ascending.
+        /// </summary>
+        /// <param name="rowEdit">The other row edit to compare against</param>
         protected virtual int CompareToSameType(RowEditBase rowEdit)
         {
             return CompareByRowId(rowEdit);
         }
 
+        /// <summary>
+        /// Compares two row edits by their row ID ascending.
+        /// </summary>
+        /// <param name="rowEdit">The other row edit to compare against</param>
         private int CompareByRowId(RowEditBase rowEdit)
         {
             return RowId.CompareTo(rowEdit.RowId);

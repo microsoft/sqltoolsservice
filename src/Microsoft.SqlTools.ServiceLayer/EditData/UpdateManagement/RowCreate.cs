@@ -36,13 +36,33 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
         }
 
+        /// <summary>
+        /// Sort ID for a RowCreate object. Setting to 1 ensures that these are the first changes 
+        /// to be committed
+        /// </summary>
         protected override int SortId => 1;
 
+        #region Public Methods
+
+        /// <summary>
+        /// Applies the changes to the associated result set after successfully executing the
+        /// change on the database
+        /// </summary>
+        /// <param name="dataReader">
+        /// Reader returned from the execution of the command to insert a new row. Should contain
+        /// a single row that represents the newly added row.
+        /// </param>
         public override Task ApplyChanges(DbDataReader dataReader)
         {
             return AssociatedResultSet.AddRow(dataReader);
         }
 
+        /// <summary>
+        /// Generates a command that can be executed to insert a new row -- and return the newly
+        /// inserted row.
+        /// </summary>
+        /// <param name="connection">The connection the command should be associated with</param>
+        /// <returns>Command to insert the new row</returns>
         public override DbCommand GetCommand(DbConnection connection)
         {
             DbCommand command = connection.CreateCommand();
@@ -86,6 +106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }; 
             return eucr;
         }
+
+        #endregion
 
         private string GetCommandText(DbCommand command)
         {

@@ -173,6 +173,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Public Methods
 
+        /// <summary>
+        /// Returns a specific row from the result set.
+        /// </summary>
+        /// <remarks>
+        /// Creates a new file reader for a single reader. This method should only be used for one
+        /// off requests, not for requesting a large subset of the results.
+        /// </remarks>
+        /// <param name="rowId">The internal ID of the row to read</param>
+        /// <returns>The requested row</returns>
         public IList<DbCellValue> GetRow(long rowId)
         {
             // Sanity check to make sure that results have been read beforehand
@@ -359,28 +368,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             fileOffsets.RemoveAt(internalId);
         }
 
-
+        /// <summary>
+        /// Adds a new row to the result set by reading the row from the provided db data reader
+        /// </summary>
+        /// <param name="dbDataReader">The result of a command to insert a new row should be UNREAD</param>
         public async Task AddRow(DbDataReader dbDataReader)
         {
-            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+            // Write the new row to the end of the file
+            long newOffset = await AppendRowToBuffer(dbDataReader);
 
-            // Write a new row at the end of the file and store the offset in the row offsets
-            using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
-            {
-                long currentFileOffset = writer.SeekToBottom();
-                
-                // Read in the result and write it to the buffer file
-                await dataReader.ReadAsync(CancellationToken.None);
-                fileOffsets.Add(currentFileOffset);
-                writer.WriteRow(dataReader);
-                RowCount++; // @TODO Should this number just be the number of elements in the list?
-            }
+            // Add the row to file offset list
+            fileOffsets.Add(newOffset);
+            RowCount++; // @TODO Should this number just be the number of elements in the list?
         }
 
-        public void UpdateRow()
+        /// <summary>
+        /// Updates the values in a row with the 
+        /// </summary>
+        /// <param name="rowId"></param>
+        /// <param name="dbDataReader"></param>
+        /// <returns></returns>
+        public async Task UpdateRow(long rowId, DbDataReader dbDataReader)
         {
-            // Write the updated row at the end of the file and replace the row offset with the new offset
+            // Write the updated row to the end of the file
+            long newOffset = await AppendRowToBuffer(dbDataReader);
 
+            // Update the file offset of the row in question
+            fileOffsets[rowId] = newOffset;
         }
 
         /// <summary>
@@ -562,6 +576,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             return specialAction;
+        }
+
+        /// <summary>
+        /// Adds a single row to the end of the buffer file. INTENDED FOR SINGLE ROW INSERTION ONLY.
+        /// </summary>
+        /// <param name="dbDataReader">An UNREAD db data reader</param>
+        /// <returns>The offset into the file where the row was inserted</returns>
+        private async Task<long> AppendRowToBuffer(DbDataReader dbDataReader)
+        {
+            Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
+            if (!dbDataReader.HasRows)
+            {
+                // @TODO Move to constants file
+                throw new InvalidOperationException("Cannot add row to result buffer, data reader does not contain rows");
+            }
+
+            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+
+            using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
+            {
+                // Write the row to the end of the file
+                long currentFileOffset = writer.SeekToBottom();
+                await dataReader.ReadAsync(CancellationToken.None);
+                writer.WriteRow(dataReader);
+                return currentFileOffset;
+            }
         }
 
         #endregion

@@ -23,12 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     public class Session
     {
 
-        #region Member Variables
-
         private readonly ResultSet associatedResultSet;
         private readonly IEditTableMetadata objectMetadata;
-
-        #endregion
 
         /// <summary>
         /// Constructs a new edit session bound to the result set and metadat object provided
@@ -113,6 +109,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             return newRowId;
         }
 
+        /// <summary>
+        /// Commits the edits in the cache to the database and then to the associated result set of
+        /// this edit session. This is launched asynchronously.
+        /// </summary>
+        /// <param name="connection">The connection to use for executing the query</param>
+        /// <param name="successHandler">Callback to perform when the commit process has finished</param>
+        /// <param name="errorHandler">Callback to perform if the commit process has failed at some point</param>
         public void CommitEdits(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
         {
             Validate.IsNotNull(nameof(connection), connection);
@@ -170,6 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
+        /// <summary>
+        /// Generates a single script file with all the pending edits scripted.
+        /// </summary>
+        /// <param name="outputPath">The path to output the script to</param>
+        /// <returns></returns>
         public string ScriptEdits(string outputPath)
         {
             // Validate the output path
