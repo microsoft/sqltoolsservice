@@ -100,17 +100,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Disposes the instance by flushing and closing the file stream
         /// </summary>
         /// <param name="disposing"></param>
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (disposed || !disposing)
-            {
-                disposed = true;
+            if (disposed)
                 return;
-            }
 
-            FileStream.Dispose();
+            if (disposing)
+            {
+                FileStream.Dispose();
+            }
+            disposed = true;
         }
-        public virtual void Dispose()
+
+        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
