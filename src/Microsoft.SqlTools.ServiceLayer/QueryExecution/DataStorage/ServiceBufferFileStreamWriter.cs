@@ -212,9 +212,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             throw new InvalidOperationException("This type of writer is meant to write values from a DbDataReader only.");
         }
 
-        public long SeekToBottom()
+        /// <summary>
+        /// Seeks to a given offset in the file, relative to the beginning of the file
+        /// </summary>
+        public void Seek(long offset)
         {
-            return fileStream.Seek(0, SeekOrigin.End);
+            fileStream.Seek(offset, SeekOrigin.Begin);
         }
 
         /// <summary>

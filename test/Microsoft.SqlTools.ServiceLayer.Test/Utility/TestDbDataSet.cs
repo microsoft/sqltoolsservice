@@ -15,9 +15,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
         public List<DbColumn> Columns;
         public List<object[]> Rows;
 
+        public static List<DbColumn> GetStandardColumns(int columnCount)
+        {
+            return Enumerable.Range(0, columnCount).Select(i => new TestDbColumn($"Col{i}")).Cast<DbColumn>().ToList();
+        }
+
         public TestResultSet(int columns, int rows)
         {
-            Columns = Enumerable.Range(0, columns).Select(i => new TestDbColumn($"Col{i}")).Cast<DbColumn>().ToList();
+            Columns = GetStandardColumns(columns);
             Rows = new List<object[]>(rows);
             for (int i = 0; i < rows; i++)
             {

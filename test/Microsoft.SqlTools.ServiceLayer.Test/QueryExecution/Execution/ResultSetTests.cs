@@ -74,7 +74,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... The callback for result set completion should have been fired
             Assert.NotNull(resultSummaryFromCallback);
         }
-        
+
+        [Theory]
+        [MemberData(nameof(CallMethodWithoutReadingData))]
+        public void CallMethodWithoutReading(Action<ResultSet> testMethod)
+        {
+            // Setup: Create a new result set with valid db data reader
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
+
+            // If: 
+            // ... I have a result set that has not been read
+            // ... and I attempt to call a method on it
+            // Then: It should throw an exception
+            Assert.ThrowsAny<Exception>(() => testMethod(resultSet));
+        }
+
+        public static IEnumerable<object> CallMethodWithoutReadingData
+        {
+            get
+            {
+                yield return new object[] {new Action<ResultSet>(rs => rs.GetSubset(0, 0).Wait())};
+                yield return new object[] {new Action<ResultSet>(rs => rs.UpdateRow(0, null).Wait())};
+                yield return new object[] {new Action<ResultSet>(rs => rs.AddRow(null).Wait())};
+                yield return new object[] {new Action<ResultSet>(rs => rs.RemoveRow(0))};
+                yield return new object[] {new Action<ResultSet>(rs => rs.GetRow(0))};
+                yield return new object[] {new Action<ResultSet>(rs => rs.GetExecutionPlan().Wait())};
+            }
+        }
+           
         [Theory]
         [InlineData("JSON")]
         [InlineData("XML")]
@@ -119,19 +147,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
             // ... I should only get one row
             var subset = await resultSet.GetSubset(0, 10);
             Assert.Equal(1, subset.RowCount);
-        }
-
-        [Fact]
-        public async Task GetSubsetWithoutExecution()
-        {
-            // If:
-            // ... I create a new result set with a valid db data reader without executing it
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
-
-            // Then:
-            // ... Attempting to read a subset should fail miserably
-            await Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.GetSubset(0, 0));
         }
 
         [Theory]
@@ -180,6 +195,159 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.QueryExecution.Execution
 
             // ... The rows should have the same number of columns as the resultset
             Assert.Equal(resultSet.Columns.Length, subset.Rows[0].Length);
+        }
+
+        [Theory]
+        [MemberData(nameof(RowInvalidParameterData))]
+        public async Task RowInvalidParameter(Action<ResultSet> actionToPerform)
+        {
+            // If: I create a new result set and execute it
+            var mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
+            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            // Then: Attempting to read an invalid row should fail
+            Assert.ThrowsAny<Exception>(() => actionToPerform(resultSet));
+        }
+
+        public static IEnumerable<object> RowInvalidParameterData
+        {
+            get
+            {
+                foreach (var method in RowInvalidParameterMethods)
+                {
+                    yield return new object[] {new Action<ResultSet>(rs => method(rs, -1))};
+                    yield return new object[] {new Action<ResultSet>(rs => method(rs, 100))};
+                }
+            }
+        }
+
+        public static IEnumerable<Action<ResultSet, long>> RowInvalidParameterMethods
+        {
+            get
+            {
+                yield return (rs, id) => rs.RemoveRow(id);
+                yield return (rs, id) => rs.GetRow(id);
+                yield return (rs, id) => rs.UpdateRow(id, null).Wait();
+            }
+        }
+
+        [Fact]
+        public async Task RemoveRowSuccess()
+        {
+            // Setup: Create a result set that has the standard data set on it
+            var fileFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileFactory);
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            // If: I delete a row from the result set
+            resultSet.RemoveRow(0);
+
+            // Then:
+            // ... The row count should decrease
+            // ... The last row should have moved up by 1
+            Assert.Equal(Common.StandardRows - 1, resultSet.RowCount);
+            Assert.Throws<ArgumentOutOfRangeException>(() => resultSet.GetRow(Common.StandardRows - 1));
+        }
+
+        [Fact]
+        public async Task AddRowNoRows()
+        {
+            // Setup: 
+            // ... Create a standard result set with standard data
+            var fileFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileFactory);
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            // ... Create a mock reader that has no rows
+            var emptyReader = GetReader(new[] {new TestResultSet(5, 0)}, false, Common.StandardQuery);
+
+            // If: I add a row with a reader that has no rows
+            // Then: 
+            // ... I should get an exception
+            await Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.AddRow(emptyReader));
+
+            // ... The row count should not have changed
+            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+        }
+
+        [Fact]
+        public async Task AddRowSuccess()
+        {
+            // Setup: 
+            // ... Create a standard result set with standard data
+            var fileFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileFactory);
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            // ... Create a mock reader that has one row
+            object[] row = Enumerable.Range(0, Common.StandardColumns).Select(i => "QQQ").ToArray();
+            IEnumerable<object[]> rows = new List<object[]>{ row };
+            TestResultSet[] results = {new TestResultSet(TestResultSet.GetStandardColumns(Common.StandardColumns), rows)};
+            var newRowReader = GetReader(results, false, Common.StandardQuery);
+
+            // If: I add a new row to the result set
+            await resultSet.AddRow(newRowReader);
+
+            // Then:
+            // ... There should be a new row in the list of rows
+            Assert.Equal(Common.StandardRows + 1, resultSet.RowCount);
+
+            // ... The new row should be readable and all cells contain the test value
+            Assert.All(resultSet.GetRow(Common.StandardRows), cell => Assert.Equal("QQQ", cell.RawObject));
+        }
+
+        [Fact]
+        public async Task UpdateRowNoRows()
+        {
+            // Setup: 
+            // ... Create a standard result set with standard data
+            var fileFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileFactory);
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            // ... Create a mock reader that has no rows
+            var emptyReader = GetReader(new[] { new TestResultSet(5, 0) }, false, Common.StandardQuery);
+
+            // If: I add a row with a reader that has no rows
+            // Then: 
+            // ... I should get an exception
+            await Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.UpdateRow(0, emptyReader));
+
+            // ... The row count should not have changed
+            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+        }
+
+        [Fact]
+        public async Task UpdateRowSuccess()
+        {
+            // Setup: 
+            // ... Create a standard result set with standard data
+            var fileFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var mockReader = GetReader(Common.StandardTestDataSet, false, Common.StandardQuery);
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileFactory);
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            // ... Create a mock reader that has one row
+            object[] row = Enumerable.Range(0, Common.StandardColumns).Select(i => "QQQ").ToArray();
+            IEnumerable<object[]> rows = new List<object[]> { row };
+            TestResultSet[] results = { new TestResultSet(TestResultSet.GetStandardColumns(Common.StandardColumns), rows) };
+            var newRowReader = GetReader(results, false, Common.StandardQuery);
+
+            // If: I add a new row to the result set
+            await resultSet.UpdateRow(0, newRowReader);
+
+            // Then:
+            // ... There should be the same number of rows
+            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+
+            // ... The new row should be readable and all cells contain the test value
+            Assert.All(resultSet.GetRow(0), cell => Assert.Equal("QQQ", cell.RawObject));
         }
 
         private static DbDataReader GetReader(TestResultSet[] dataSet, bool throwOnRead, string query)

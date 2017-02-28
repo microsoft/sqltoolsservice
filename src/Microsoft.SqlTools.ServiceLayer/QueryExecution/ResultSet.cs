@@ -65,9 +65,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly string outputFileName;
 
         /// <summary>
+        /// Row count to use in special scenarios where we want to override the number of rows.
+        /// </summary>
+        private long? rowCountOverride;
+
+        /// <summary>
         /// The special action which applied to this result set
         /// </summary>
         private readonly SpecialAction specialAction;
+
+        /// <summary>
+        /// Total number of bytes written to the file. Used to jump to end of the file for append
+        /// scenarios. Internal for unit test validation.
+        /// </summary>
+        internal long totalBytesWritten;
 
         #endregion
 
@@ -93,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             SaveTasks = new ConcurrentDictionary<string, Task>();
         }
 
-        #region Properties
+        #region Eventing
 
         /// <summary>
         /// Asynchronous handler for when saving query results succeeds
@@ -119,6 +130,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public event ResultSetAsyncEventHandler ResultCompletion;
 
+        #endregion
+
+        #region Properties
+
         /// <summary>
         /// Whether the resultSet is in the process of being disposed
         /// </summary>
@@ -143,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The number of rows for this result set
         /// </summary>
-        public long RowCount { get; private set; }
+        public long RowCount => rowCountOverride ?? fileOffsets.Count;
 
         /// <summary>
         /// All save tasks currently saving this ResultSet
@@ -163,8 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    SpecialAction = ProcessSpecialAction()
-                    
+                    SpecialAction = hasBeenRead ? ProcessSpecialAction() : null
                 };
             }
         }
@@ -336,13 +350,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
                     }
                     Columns = dataReader.Columns;
-                    long currentFileOffset = 0;
-
                     while (await dataReader.ReadAsync(cancellationToken))
                     {
-                        RowCount++;
-                        fileOffsets.Add(currentFileOffset);
-                        currentFileOffset += fileWriter.WriteRow(dataReader);
+                        fileOffsets.Add(totalBytesWritten);
+                        totalBytesWritten += fileWriter.WriteRow(dataReader);
                     }
                 }
                 // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
@@ -364,6 +375,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="internalId">Internal ID of the row</param>
         public void RemoveRow(long internalId)
         {
+            // Make sure that the results have been read
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException();
+            }
+
             // Simply remove the row from the list of row offsets
             fileOffsets.RemoveAt(internalId);
         }
@@ -379,7 +396,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Add the row to file offset list
             fileOffsets.Add(newOffset);
-            RowCount++; // @TODO Should this number just be the number of elements in the list?
         }
 
         /// <summary>
@@ -552,13 +568,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Columns[0].IsXml = true;
                     isSingleColumnXmlJsonResultSet = true;
-                    RowCount = 1;
+                    rowCountOverride = 1;
                 }
                 else if (Columns[0].ColumnName.Equals(NameOfForJsonColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsJson = true;
                     isSingleColumnXmlJsonResultSet = true;
-                    RowCount = 1;
+                    rowCountOverride = 1;
                 }
             }
         }
@@ -586,6 +602,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private async Task<long> AppendRowToBuffer(DbDataReader dbDataReader)
         {
             Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
+            }
             if (!dbDataReader.HasRows)
             {
                 // @TODO Move to constants file
@@ -597,9 +617,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
             {
                 // Write the row to the end of the file
-                long currentFileOffset = writer.SeekToBottom();
+                long currentFileOffset = totalBytesWritten;
+                writer.Seek(currentFileOffset);
                 await dataReader.ReadAsync(CancellationToken.None);
-                writer.WriteRow(dataReader);
+                totalBytesWritten += writer.WriteRow(dataReader);
                 return currentFileOffset;
             }
         }
