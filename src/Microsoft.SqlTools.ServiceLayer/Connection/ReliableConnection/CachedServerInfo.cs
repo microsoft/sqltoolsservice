@@ -12,15 +12,88 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
+
     /// <summary>
     /// This class caches server information for subsequent use
     /// </summary>
-    internal static class CachedServerInfo
+    internal class CachedServerInfo
     {
+        /// <summary>
+        /// Singleton service instance
+        /// </summary>
+        private static readonly Lazy<CachedServerInfo> instance
+            = new Lazy<CachedServerInfo>(() => new CachedServerInfo());
+
+        /// <summary>
+        /// Gets the singleton instance
+        /// </summary>
+        public static CachedServerInfo Instance
+        {
+            get
+            {
+                return instance.Value;
+            }
+        }
+
         public enum CacheVariable {
             IsSqlDw,
             IsAzure
         }
+
+        #region CacheKey implementation
+        internal class CacheKey : IEquatable<CacheKey>
+        {
+            private string dataSource;
+            private string dbName;
+
+            public CacheKey(SqlConnectionStringBuilder builder)
+            {
+                Validate.IsNotNull(nameof(builder), builder);
+                dataSource = builder.DataSource;
+                dbName = GetDatabaseName(builder);
+            }
+
+            internal static string GetDatabaseName(SqlConnectionStringBuilder builder)
+            {
+                string dbName = string.Empty;
+                if (!string.IsNullOrEmpty((builder.InitialCatalog)))
+                {
+                    dbName = builder.InitialCatalog;
+                }
+                else if (!string.IsNullOrEmpty((builder.AttachDBFilename)))
+                {
+                    dbName = builder.AttachDBFilename;
+                }
+                return dbName;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null) { return false; }
+
+                CacheKey keyObj = obj as CacheKey;
+                if (keyObj == null) { return false; }
+                else { return Equals(keyObj); }
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked // Overflow is fine, just wrap
+                {
+                    int hash = 17;
+                    hash = (hash * 23) + (dataSource != null ? dataSource.GetHashCode() : 0);
+                    hash = (hash * 23) + (dbName != null ? dbName.GetHashCode() : 0);
+                    return hash;
+                }
+            }
+
+            public bool Equals(CacheKey other)
+            {
+                return string.Equals(dataSource, other.dataSource, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(dbName, other.dbName, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        #endregion
 
         private struct CachedInfo
         {
@@ -29,38 +102,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public bool IsSqlDw;
         }
 
-        private static ConcurrentDictionary<string, CachedInfo> _cache;
-        private static object _cacheLock;
         private const int _maxCacheSize = 1024;
         private const int _deleteBatchSize = 512;
         private const int MinimalQueryTimeoutSecondsForAzure = 300;
 
-        static CachedServerInfo()
+        private ConcurrentDictionary<CacheKey, CachedInfo> _cache;
+        private object _cacheLock;
+
+        /// <summary>
+        /// Internal constructor for testing purposes. For all code use, please use the <see cref="CachedServerInfo.Instance"/>
+        /// default instance.
+        /// </summary>
+        internal CachedServerInfo()
         {
-            _cache = new ConcurrentDictionary<string, CachedInfo>(StringComparer.OrdinalIgnoreCase);
+            _cache = new ConcurrentDictionary<CacheKey, CachedInfo>();
             _cacheLock = new object();
         }
 
-        public static int GetQueryTimeoutSeconds(IDbConnection connection)
+        public int GetQueryTimeoutSeconds(IDbConnection connection)
         {
-            string dataSource = SafeGetDataSourceFromConnection(connection);
-            return GetQueryTimeoutSeconds(dataSource);
+            SqlConnectionStringBuilder connStringBuilder = SafeGetConnectionStringFromConnection(connection);
+            return GetQueryTimeoutSeconds(connStringBuilder);
         }
 
-        public static int GetQueryTimeoutSeconds(string dataSource)
+        public int GetQueryTimeoutSeconds(SqlConnectionStringBuilder builder)
         {
             //keep existing behavior and return the default ambient settings
             //if the provided data source is null or whitespace, or the original
             //setting is already 0 which means no limit.
             int originalValue = AmbientSettings.QueryTimeoutSeconds;
-            if (string.IsNullOrWhiteSpace(dataSource)
+            if (builder == null || string.IsNullOrWhiteSpace(builder.DataSource)
                 || (originalValue == 0))
             {
                 return originalValue;
             }
 
             CachedInfo info;
-            bool hasFound = _cache.TryGetValue(dataSource, out info);
+            bool hasFound = TryGetCacheValue(builder, out info);
 
             if (hasFound && info.IsAzure
                 && originalValue < MinimalQueryTimeoutSecondsForAzure)
@@ -73,55 +151,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
-        public static void AddOrUpdateIsAzure(IDbConnection connection, bool isAzure)
+        public void AddOrUpdateIsAzure(IDbConnection connection, bool isAzure)
         {
             AddOrUpdateCache(connection, isAzure, CacheVariable.IsAzure);
         }
 
-        public static void AddOrUpdateIsSqlDw(IDbConnection connection, bool isSqlDw)
+        public void AddOrUpdateIsSqlDw(IDbConnection connection, bool isSqlDw)
         {
             AddOrUpdateCache(connection, isSqlDw, CacheVariable.IsSqlDw);
         }
 
-        private static void AddOrUpdateCache(IDbConnection connection, bool newState, CacheVariable cacheVar)
+        private void AddOrUpdateCache(IDbConnection connection, bool newState, CacheVariable cacheVar)
         {
             Validate.IsNotNull(nameof(connection), connection);
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
-            AddOrUpdateCache(builder.DataSource, newState, cacheVar);
+            AddOrUpdateCache(builder, newState, cacheVar);
         }
 
-        internal static void AddOrUpdateCache(string dataSource, bool newState, CacheVariable cacheVar)
+        internal void AddOrUpdateCache(SqlConnectionStringBuilder builder, bool newState, CacheVariable cacheVar)
         {
-            Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
+            Validate.IsNotNull(nameof(builder), builder);
+            Validate.IsNotNullOrWhitespaceString(nameof(builder) + ".DataSource", builder.DataSource);
             CachedInfo info;
-            bool hasFound = _cache.TryGetValue(dataSource, out info);
+            bool hasFound = TryGetCacheValue(builder, out info);
 
             if ((cacheVar == CacheVariable.IsSqlDw && hasFound && info.IsSqlDw == newState) || 
                 (cacheVar == CacheVariable.IsAzure && hasFound && info.IsAzure == newState)) 
             {
+                // No change needed
                 return;
             }
             else
             {
                 lock (_cacheLock)
                 {
-                    if (! _cache.ContainsKey(dataSource))
-                    {
-                        //delete a batch of old elements when we try to add a new one and
-                        //the capacity limitation is hit
-                        if (_cache.Keys.Count > _maxCacheSize - 1)
-                        {
-                            var keysToDelete = _cache
-                                .OrderBy(x => x.Value.LastUpdate)
-                                .Take(_deleteBatchSize)
-                                .Select(pair => pair.Key);
-
-                            foreach (string key in keysToDelete)
-                            {
-                                _cache.TryRemove(key, out info);
-                            }
-                        }
-                    }
+                    // Clean older keys, update info, and add this back into the cache
+                    CacheKey key = new CacheKey(builder);
+                    CleanupCache(key);
 
                     if (cacheVar == CacheVariable.IsSqlDw)
                     {
@@ -132,24 +198,47 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         info.IsAzure = newState;
                     }
                     info.LastUpdate = DateTime.UtcNow;
-                    _cache.AddOrUpdate(dataSource, info, (key, oldValue) => info);
+                    _cache.AddOrUpdate(key, info, (k, oldValue) => info);
                 }
             }
         }
 
-        public static bool TryGetIsSqlDw(IDbConnection connection, out bool isSqlDw)
+        private void CleanupCache(CacheKey newKey)
+        {
+            if (!_cache.ContainsKey(newKey))
+            {
+                //delete a batch of old elements when we try to add a new one and
+                //the capacity limitation is hit
+                if (_cache.Keys.Count > _maxCacheSize - 1)
+                {
+                    var keysToDelete = _cache
+                        .OrderBy(x => x.Value.LastUpdate)
+                        .Take(_deleteBatchSize)
+                        .Select(pair => pair.Key);
+
+                    foreach (CacheKey key in keysToDelete)
+                    {
+                        CachedInfo info;
+                        _cache.TryRemove(key, out info);
+                    }
+                }
+            }
+        }
+
+        public bool TryGetIsSqlDw(IDbConnection connection, out bool isSqlDw)
         {
             Validate.IsNotNull(nameof(connection), connection);
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
-            return TryGetIsSqlDw(builder.DataSource, out isSqlDw);
+            return TryGetIsSqlDw(builder, out isSqlDw);
         }
 
-        public static bool TryGetIsSqlDw(string dataSource, out bool isSqlDw)
+        public bool TryGetIsSqlDw(SqlConnectionStringBuilder builder, out bool isSqlDw)
         {
-            Validate.IsNotNullOrWhitespaceString(nameof(dataSource), dataSource);
+            Validate.IsNotNull(nameof(builder), builder);
+            Validate.IsNotNullOrWhitespaceString(nameof(builder) + ".DataSource", builder.DataSource);
             CachedInfo info;
-            bool hasFound = _cache.TryGetValue(dataSource, out info);
+            bool hasFound = TryGetCacheValue(builder, out info);
 
             if(hasFound)
             {
@@ -161,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             return false;
         }
 
-        private static string SafeGetDataSourceFromConnection(IDbConnection connection)
+        private static SqlConnectionStringBuilder SafeGetConnectionStringFromConnection(IDbConnection connection)
         {
             if (connection == null)
             {
@@ -171,13 +260,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             try
             {
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connection.ConnectionString);
-                return builder.DataSource;
+                return builder;
             }
             catch
             {
                 Logger.Write(LogLevel.Error,  String.Format(Resources.FailedToParseConnectionString, connection.ConnectionString));
                 return null;
             }
+        }
+
+        private bool TryGetCacheValue(SqlConnectionStringBuilder builder, out CachedInfo value)
+        {
+            CacheKey key = new CacheKey(builder);
+            return _cache.TryGetValue(key, out value);
         }
     }
 }
