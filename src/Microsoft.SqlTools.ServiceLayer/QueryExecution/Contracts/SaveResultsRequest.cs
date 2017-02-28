@@ -81,6 +81,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     }
 
     /// <summary>
+    /// Parameters to save results as Excel
+    /// </summary>
+    public class SaveResultsAsExcelRequestParams : SaveResultsRequestParams
+    {
+        /// <summary>
+        /// Include headers of columns in CSV
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+    }
+
+    /// <summary>
     /// Parameters to save results as JSON
     /// </summary>
     public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams
@@ -118,6 +129,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public static readonly
             RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult> Type =
             RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult>.Create("query/saveCsv");
+    }
+
+    /// <summary>
+    /// Request type to save results as Excel
+    /// </summary>
+    public class SaveResultsAsExcelRequest
+    {
+        public static readonly
+            RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult> Type =
+            RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult>.Create("query/saveExcel");
     }
 
     /// <summary>
