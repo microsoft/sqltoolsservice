@@ -473,45 +473,48 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 scriptFile.ClientFilePath,
                 out connInfo);
 
-            // don't try to clear the cache if the active file isn't connected
-            if (connInfo == null)
+            // check that there is an active connection for the current editor
+            if (connInfo != null)
             {
-                return;
+                await Task.Run(() =>
+                {
+                    ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
+                    if (scriptInfo != null && scriptInfo.IsConnected && 
+                        Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                    {
+                        try
+                        {
+                            this.BindingQueue.AddConnectionContext(connInfo, overwrite: true);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                        }
+                        finally
+                        {
+                            // Set Metadata Build event to Signal state.
+                            Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                        }
+                    }
+
+                    // if not in the preview window and diagnostics are enabled then run diagnostics
+                    if (!IsPreviewWindow(scriptFile)
+                        && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
+                    {
+                        RunScriptDiagnostics(
+                            new ScriptFile[] { scriptFile },
+                            eventContext);
+                    }
+
+                    // Send a notification to signal that autocomplete is ready
+                    ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
+                });
             }
-
-            await Task.Run(() =>
+            else
             {
-                ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
-                if (scriptInfo != null && scriptInfo.IsConnected && 
-                    Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
-                {
-                    try
-                    {
-                        this.BindingQueue.AddConnectionContext(connInfo, overwrite: true);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
-                    }
-                    finally
-                    {
-                        // Set Metadata Build event to Signal state.
-                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
-                    }
-                }
-
-                // if not in the preview window and diagnostics are enabled then run diagnostics
-                if (!IsPreviewWindow(scriptFile)
-                    && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
-                {
-                    RunScriptDiagnostics(
-                        new ScriptFile[] { scriptFile },
-                        eventContext);
-                }
-
                 // Send a notification to signal that autocomplete is ready
-                ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
-            });            
+                await ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = scriptFile.ClientFilePath});
+            }    
         }
 
         /// <summary>
