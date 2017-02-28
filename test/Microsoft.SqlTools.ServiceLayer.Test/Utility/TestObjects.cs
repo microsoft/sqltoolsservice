@@ -10,6 +10,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -207,6 +208,8 @@ namespace Microsoft.SqlTools.Test.Utility
             var mockParameterCollection = new Mock<DbParameterCollection>();
             mockParameterCollection.Setup(c => c.Add(It.IsAny<object>()))
                 .Callback<object>(d => listParams.Add((DbParameter)d));
+            mockParameterCollection.Setup(c => c.AddRange(It.IsAny<Array>()))
+                .Callback<Array>(d => listParams.AddRange(d.Cast<DbParameter>()));
             mockParameterCollection.Setup(c => c.Count)
                 .Returns(() => listParams.Count);
             DbParameterCollection = mockParameterCollection.Object;

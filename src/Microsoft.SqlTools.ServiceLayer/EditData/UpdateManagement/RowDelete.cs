@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -58,6 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns></returns>
         public override DbCommand GetCommand(DbConnection connection)
         {
+            Validate.IsNotNull(nameof(connection), connection);
+
             // Return a SqlCommand with formatted with the parameters from the where clause
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
