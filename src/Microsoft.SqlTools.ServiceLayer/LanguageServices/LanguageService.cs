@@ -456,65 +456,73 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Handle the rebuild IntelliSense cache notification
         /// </summary>
         public async Task HandleRebuildIntelliSenseNotification(
-            RebuildIntelliSenseParams configChangeParams,
+            RebuildIntelliSenseParams rebuildParams,
             EventContext eventContext)
         {
-            Logger.Write(LogLevel.Verbose, "HandleRebuildIntelliSenseNotification");
-
-            // Skip closing this file if the file doesn't exist
-            var scriptFile = this.CurrentWorkspace.GetFile(configChangeParams.OwnerUri);
-            if (scriptFile == null)
+            try
             {
-                return;
-            }
+                Logger.Write(LogLevel.Verbose, "HandleRebuildIntelliSenseNotification");
 
-            ConnectionInfo connInfo;
-            LanguageService.ConnectionServiceInstance.TryFindConnection(
-                scriptFile.ClientFilePath,
-                out connInfo);
-
-            // check that there is an active connection for the current editor
-            if (connInfo != null)
-            {
-                await Task.Run(() =>
+                // Skip closing this file if the file doesn't exist
+                var scriptFile = this.CurrentWorkspace.GetFile(rebuildParams.OwnerUri);
+                if (scriptFile == null)
                 {
-                    ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
-                    if (scriptInfo != null && scriptInfo.IsConnected && 
-                        Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
-                    {
-                        try
-                        {
-                            this.BindingQueue.AddConnectionContext(connInfo, overwrite: true);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
-                        }
-                        finally
-                        {
-                            // Set Metadata Build event to Signal state.
-                            Monitor.Exit(scriptInfo.BuildingMetadataLock);
-                        }
-                    }
+                    return;
+                }
 
-                    // if not in the preview window and diagnostics are enabled then run diagnostics
-                    if (!IsPreviewWindow(scriptFile)
-                        && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
-                    {
-                        RunScriptDiagnostics(
-                            new ScriptFile[] { scriptFile },
-                            eventContext);
-                    }
+                ConnectionInfo connInfo;
+                LanguageService.ConnectionServiceInstance.TryFindConnection(
+                    scriptFile.ClientFilePath,
+                    out connInfo);
 
+                // check that there is an active connection for the current editor
+                if (connInfo != null)
+                {
+                    await Task.Run(() =>
+                    {
+                        ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
+                        if (scriptInfo != null && scriptInfo.IsConnected && 
+                            Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                        {
+                            try
+                            {
+                                this.BindingQueue.AddConnectionContext(connInfo, overwrite: true);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                            }
+                            finally
+                            {
+                                // Set Metadata Build event to Signal state.
+                                Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                            }
+                        }
+
+                        // if not in the preview window and diagnostics are enabled then run diagnostics
+                        if (!IsPreviewWindow(scriptFile)
+                            && WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.IsDiagnositicsEnabled)
+                        {
+                            RunScriptDiagnostics(
+                                new ScriptFile[] { scriptFile },
+                                eventContext);
+                        }
+
+                        // Send a notification to signal that autocomplete is ready
+                        ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
+                    });
+                }
+                else
+                {
                     // Send a notification to signal that autocomplete is ready
-                    ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
-                });
+                    await ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // Send a notification to signal that autocomplete is ready
-                await ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = scriptFile.ClientFilePath});
-            }    
+                Logger.Write(LogLevel.Error, "Unknown error " + ex.ToString());
+                await ServiceHost.Instance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
+            }
         }
 
         /// <summary>
