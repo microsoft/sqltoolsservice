@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -17,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.Test.Utility
@@ -201,6 +203,13 @@ namespace Microsoft.SqlTools.Test.Utility
         internal TestSqlCommand(TestResultSet[] data)
         {
             Data = data;
+
+            var mockParameterCollection = new Mock<DbParameterCollection>();
+            mockParameterCollection.Setup(c => c.Add(It.IsAny<object>()))
+                .Callback<object>(d => listParams.Add((DbParameter)d));
+            mockParameterCollection.Setup(c => c.Count)
+                .Returns(() => listParams.Count);
+            DbParameterCollection = mockParameterCollection.Object;
         }
 
         internal TestResultSet[] Data { get; set; }
@@ -243,6 +252,8 @@ namespace Microsoft.SqlTools.Test.Utility
         {
             return new TestDbDataReader(Data);
         }
+
+        private List<DbParameter> listParams = new List<DbParameter>();
     }
 
     /// <summary>

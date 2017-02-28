@@ -5,8 +5,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -20,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowCreate : RowEditBase
     {
-        private const string InsertStatement = "INSERT INTO {0}({1}) OUTPUT inserted.* VALUES ({2})";
+        private const string InsertStart = "INSERT INTO {0}({1})";
 
         private readonly CellUpdate[] newCells;
 
@@ -54,6 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </param>
         public override Task ApplyChanges(DbDataReader dataReader)
         {
+            Validate.IsNotNull(nameof(dataReader), dataReader);
+
             return AssociatedResultSet.AddRow(dataReader);
         }
 
@@ -65,8 +69,53 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>Command to insert the new row</returns>
         public override DbCommand GetCommand(DbConnection connection)
         {
+            Validate.IsNotNull(nameof(connection), connection);
+
+            // Process all the columns. Add the column to the output columns, add updateable
+            // columns to the input parameters
+            List<string> outColumns = new List<string>();
+            List<string> inColumns = new List<string>();
             DbCommand command = connection.CreateCommand();
-            command.CommandText = GetCommandText(command);
+            for (int i = 0; i < AssociatedResultSet.Columns.Length; i++)
+            {
+                DbColumnWrapper column = AssociatedResultSet.Columns[i];
+                CellUpdate cell = newCells[i];
+
+                // Add the column to the output
+                outColumns.Add($"inserted.{SqlScriptFormatter.FormatIdentifier(column.ColumnName)}");
+
+                // Skip columns that cannot be updated
+                if (!column.IsUpdatable)
+                {
+                    continue;
+                }
+
+                // If we're missing a cell, then we cannot continue
+                if (cell == null)
+                {
+                    throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
+                }
+
+                // Create a parameter for the value and add it to the command
+                // Add the parameterization to the list and add it to the command
+                string paramName = $"@Value{RowId}{i}";
+                inColumns.Add(paramName);
+                SqlParameter param = new SqlParameter(paramName, cell.Column.SqlDbType)
+                {
+                    Value = cell.Value
+                };
+                command.Parameters.Add(param);
+            }
+            string joinedInColumns = string.Join(", ", inColumns);
+            string joinedOutColumns = string.Join(", ", outColumns);
+            
+            // Get the start clause
+            string start = GetTableClause();
+
+            // Put the whole #! together
+            command.CommandText = $"{start} OUTPUT {joinedOutColumns} VALUES ({joinedInColumns})";
+            command.CommandType = CommandType.Text;
+                
             return command;
         }
 
@@ -76,7 +125,35 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>INSERT INTO statement</returns>
         public override string GetScript()
         {
-            return GetCommandText(null);
+            // Process all the cells, and generate the values
+            List<string> values = new List<string>();
+            for (int i = 0; i < AssociatedResultSet.Columns.Length; i++)
+            {
+                DbColumnWrapper column = AssociatedResultSet.Columns[i];
+                CellUpdate cell = newCells[i];
+
+                // Skip columns that cannot be updated
+                if (!column.IsUpdatable)
+                {
+                    continue;
+                }
+
+                // If we're missing a cell, then we cannot continue
+                if (cell == null)
+                {
+                    throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
+                }
+
+                // Format the value and add it to the list
+                values.Add(SqlScriptFormatter.FormatValue(cell.Value, column));
+            }
+            string joinedValues = string.Join(", ", values);
+
+            // Get the start clause
+            string start = GetTableClause();
+
+            // Put the whole #! together
+            return $"{start} VALUES ({joinedValues})";
         }
 
         /// <summary>
@@ -109,54 +186,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         #endregion
 
-        private string GetCommandText(DbCommand command)
+        private string GetTableClause()
         {
-            List<string> columnNames = new List<string>();
-            List<string> columnValues = new List<string>();
+            // Get all the columns that will be provided
+            var inColumns = from c in AssociatedResultSet.Columns
+                            where c.IsUpdatable
+                            select SqlScriptFormatter.FormatIdentifier(c.ColumnName);
 
-            // Build the column list and value list
-            for (int i = 0; i < AssociatedResultSet.Columns.Length; i++)
-            {
-                DbColumnWrapper column = AssociatedResultSet.Columns[i];
-                CellUpdate cell = newCells[i];
-
-                // If the column is not updatable, then skip it
-                if (!column.IsUpdatable)
-                {
-                    continue;
-                }
-
-                // If the cell doesn't have a value, but is updatable, don't try to create the script
-                if (cell == null)
-                {
-                    throw new InvalidOperationException(SR.EditDataCreateScriptMissingValue);
-                }
-
-                // Add the column and the data to their respective lists
-                columnNames.Add(SqlScriptFormatter.FormatIdentifier(column.ColumnName));
-                if (command != null)
-                {
-                    // Add the parameterization to the list and add it to the command
-                    string paramName = $"@Value{RowId}{i}";
-                    columnValues.Add(paramName);
-                    SqlParameter param = new SqlParameter(paramName, cell.Column.SqlDbType)
-                    {
-                        Value = cell.Value
-                    };
-                    command.Parameters.Add(param);
-                }
-                else
-                {
-                    // Format the value and add it to the list
-                    columnValues.Add(SqlScriptFormatter.FormatValue(cell.Value, column));
-                }
-            }
-
-            // Put together the components of the statement
-            string joinedColumnNames = string.Join(", ", columnNames);
-            string joinedColumnValues = string.Join(", ", columnValues);
-            return string.Format(InsertStatement, AssociatedObjectMetadata.EscapedMultipartName, joinedColumnNames,
-                joinedColumnValues);
+            // Package it into a single INSERT statement starter
+            string inColumnsJoined = string.Join(", ", inColumns);
+            return string.Format(InsertStart, AssociatedObjectMetadata.EscapedMultipartName, inColumnsJoined);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     {
         int WriteRow(StorageDataReader dataReader);
         void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns);
-        long SeekToBottom();
+        void Seek(long offset);
         void FlushBuffer();
     }
 }

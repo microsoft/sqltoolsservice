@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Not implemented, do not use.
         /// </summary>
         [Obsolete]
-        public long SeekToBottom()
+        public void Seek(long offset)
         {
             throw new InvalidOperationException("SaveAs writers are meant to be written once contiguously.");
         }

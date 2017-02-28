@@ -80,6 +80,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             return resultSet;
         }
 
+        public static DbDataReader GetNewRowDataReader(DbColumn[] columns, bool includeIdentity)
+        {
+            object[][] rows = includeIdentity
+                ? new[] {new object[] {"id", "q", "q", "q"}}
+                : new[] {new object[] {"q", "q", "q"}};
+            var testResultSet = new TestResultSet(columns, rows);
+            return new TestDbDataReader(new [] {testResultSet});
+        }
+
         public static void AddCells(RowEditBase rc, bool includeIdentity)
         {
             // Skip the first column since if identity, since identity columns can't be updated
