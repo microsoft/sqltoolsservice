@@ -473,6 +473,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 scriptFile.ClientFilePath,
                 out connInfo);
 
+            // don't try to clear the cache if the active file isn't connected
+            if (connInfo == null)
+            {
+                return;
+            }
+
             await Task.Run(() =>
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
