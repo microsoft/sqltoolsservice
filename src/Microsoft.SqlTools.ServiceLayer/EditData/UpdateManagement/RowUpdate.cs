@@ -5,9 +5,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
@@ -22,11 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowUpdate : RowEditBase
     {
-        private const string UpdateStatement = "UPDATE {0} SET {1} {2}";
-        private const string MemoryOptimizedStatement = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
-        private const string UpdateStatementOutput = "UPDATE {0} SET {1} OUTPUT inserted.* {2}";
-        private const string MemoryOptimizedStatementOutput = "UPDATE {0} WITH (SNAPSHOT) SET {1} OUTPUT inputed.* {2}";
-
         private readonly Dictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
 
@@ -60,6 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </param>
         public override Task ApplyChanges(DbDataReader dataReader)
         {
+            Validate.IsNotNull(nameof(dataReader), dataReader);
             return AssociatedResultSet.UpdateRow(RowId, dataReader);
         }
 
@@ -71,6 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>Command to update the row</returns>
         public override DbCommand GetCommand(DbConnection connection)
         {
+            Validate.IsNotNull(nameof(connection), connection);
             DbCommand command = connection.CreateCommand();
 
             // Build the "SET" portion of the statement
@@ -86,14 +83,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 };
                 command.Parameters.Add(parameter);
             }
-            string setClause = string.Join(", ", setComponents);
+            string setComponentsJoined = string.Join(", ", setComponents);
+
+            // Build the "OUTPUT" portion of the statement
+            var outColumns = from c in AssociatedResultSet.Columns
+                             let formatted = SqlScriptFormatter.FormatIdentifier(c.ColumnName)
+                             select $"inserted.{formatted}";
+            string outColumnsJoined = string.Join(", ", outColumns);
 
             // Get the where clause
             WhereClause where = GetWhereClause(true);
-
-            // Put it all together
-            command.CommandText = GetCommandText(setClause, where.CommandText, true);
             command.Parameters.AddRange(where.Parameters.ToArray());
+
+            // Get the start of the statement
+            string statementStart = GetStatementStart();
+
+            // Put the whole #! together
+            command.CommandText = $"{statementStart} SET {setComponentsJoined} OUTPUT {outColumnsJoined} {where.CommandText}";
+            command.CommandType = CommandType.Text;
             return command;
         }
 
@@ -104,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override string GetScript()
         {
             // Build the "SET" portion of the statement
-            IEnumerable<string> setComponents = cellUpdates.Values.Select(cellUpdate =>
+            var setComponents = cellUpdates.Values.Select(cellUpdate =>
             {
                 string formattedColumnName = SqlScriptFormatter.FormatIdentifier(cellUpdate.Column.ColumnName);
                 string formattedValue = SqlScriptFormatter.FormatValue(cellUpdate.Value, cellUpdate.Column);
@@ -115,8 +122,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Get the where clause
             string whereClause = GetWhereClause(false).CommandText;
 
-            // Put it all together
-            return GetCommandText(setClause, whereClause, false);
+            // Get the start of the statement
+            string statementStart = GetStatementStart();
+
+            // Put the whole #! together
+            return $"{statementStart} SET {setClause}{whereClause}";
         }
 
         /// <summary>
@@ -166,26 +176,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         #endregion
 
-        private string GetCommandText(string setClause, string whereClause, bool output)
+        private string GetStatementStart()
         {
-            string formatString;
-            if (output)
-            {
-                // Use statements with OUTPUT 
-                formatString = AssociatedObjectMetadata.IsMemoryOptimized
-                    ? MemoryOptimizedStatementOutput
-                    : UpdateStatementOutput;
-            }
-            else
-            {
-                // Use statements without OUTPUT
-                formatString = AssociatedObjectMetadata.IsMemoryOptimized
-                    ? MemoryOptimizedStatement
-                    : UpdateStatement;
-            }
-
-            return string.Format(CultureInfo.InvariantCulture, formatString,
-                AssociatedObjectMetadata.EscapedMultipartName, setClause, whereClause);
+            return AssociatedObjectMetadata.IsMemoryOptimized
+                ? $"UPDATE {AssociatedObjectMetadata.EscapedMultipartName} WITH (SNAPSHOT)"
+                : $"UPDATE {AssociatedObjectMetadata.EscapedMultipartName}";
         }
     }
 }

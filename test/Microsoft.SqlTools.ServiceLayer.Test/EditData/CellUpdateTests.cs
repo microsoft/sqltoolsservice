@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // If: I attempt to create a CellUpdate with a null string value
             // Then: I should get an exception thrown
-            Assert.Throws<ArgumentNullException>(() => new CellUpdate(CellUpdateTestDbColumn.GetWrapper(null), null));
+            Assert.Throws<ArgumentNullException>(() => new CellUpdate(GetWrapper<string>("ntext"), null));
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // If: I attempt to create a CellUpdate to set it to NULL (with mixed cases)
             const string nullString = "NULL";
-            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(string));
+            DbColumnWrapper col = GetWrapper<string>("ntext");
             CellUpdate cu = new CellUpdate(col, nullString);
 
             // Then: The value should be a DBNull and the string value should be the same as what
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public void NullTextStringTest()
         {
             // If: I attempt to create a CellUpdate with the text 'NULL' (with mixed case)
-            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(string));
+            DbColumnWrapper col = GetWrapper<string>("ntext");
             CellUpdate cu = new CellUpdate(col, "'NULL'");
 
             // Then: The value should be NULL
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public void ByteArrayTest(string strValue, byte[] expectedValue, string expectedString)
         {
             // If: I attempt to create a CellUpdate for a binary column
-            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(byte[]));
+            DbColumnWrapper col = GetWrapper<byte[]>("binary");
             CellUpdate cu = new CellUpdate(col, strValue);
 
             // Then: The value should be a binary and should match the expected data
@@ -119,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // If: I attempt to create a CellUpdate for a binary column
             // Then: It should throw an exception
-            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(byte[]));
+            DbColumnWrapper col = GetWrapper<byte[]>("binary");
             Assert.Throws<FormatException>(() => new CellUpdate(col, "this is totally invalid"));
         }
 
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         public void BoolTest(string input, bool output, string outputString)
         {
             // If: I attempt to create a CellUpdate for a boolean column
-            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(bool));
+            DbColumnWrapper col = GetWrapper<bool>("bit");
             CellUpdate cu = new CellUpdate(col, input);
 
             // Then: The value should match what was expected
@@ -154,23 +154,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // If: I create a CellUpdate for a bool column and provide an invalid numeric value
             // Then: It should throw an exception
-            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(typeof(bool));
+            DbColumnWrapper col = GetWrapper<bool>("bit");
             Assert.Throws<ArgumentOutOfRangeException>(() => new CellUpdate(col, "12345"));
         }
 
         [Theory]
         [MemberData(nameof(RoundTripTestParams))]
-        public void RoundTripTest(Type dbColType, object obj)
+        public void RoundTripTest(DbColumnWrapper col, object obj)
         {
             // Setup: Figure out the test string
             string testString = obj.ToString();
 
-            // If: I attempt to create a CellUpdate for a GUID column
-            DbColumnWrapper col = CellUpdateTestDbColumn.GetWrapper(dbColType);
+            // If: I attempt to create a CellUpdate
             CellUpdate cu = new CellUpdate(col, testString);
 
             // Then: The value and type should match what we put in
-            Assert.IsType(dbColType, cu.Value);
+            Assert.IsType(col.DataType, cu.Value);
             Assert.Equal(obj, cu.Value);
             Assert.Equal(testString, cu.ValueAsString);
             Assert.Equal(col, cu.Column);
@@ -180,34 +179,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             get
             {
-                yield return new object[] {typeof(Guid), Guid.NewGuid()};
-                yield return new object[] {typeof(TimeSpan), new TimeSpan(0, 1, 20, 0, 123)};
-                yield return new object[] {typeof(DateTime), new DateTime(2016, 04, 25, 9, 45, 0)};
+                yield return new object[] {GetWrapper<Guid>("uniqueidentifier"), Guid.NewGuid()};
+                yield return new object[] {GetWrapper<TimeSpan>("time"), new TimeSpan(0, 1, 20, 0, 123)};
+                yield return new object[] {GetWrapper<DateTime>("datetime"), new DateTime(2016, 04, 25, 9, 45, 0)};
                 yield return new object[]
                 {
-                    typeof(DateTimeOffset),
+                    GetWrapper<DateTimeOffset>("datetimeoffset"),
                     new DateTimeOffset(2016, 04, 25, 9, 45, 0, TimeSpan.FromHours(8))
                 };
-                yield return new object[] {typeof(long), 1000L};
-                yield return new object[] {typeof(decimal), new decimal(3.14)};
-                yield return new object[] {typeof(int), 1000};
-                yield return new object[] {typeof(short), (short) 1000};
-                yield return new object[] {typeof(byte), (byte) 5};
-                yield return new object[] {typeof(double), 3.14d};
-                yield return new object[] {typeof(float), 3.14f};
+                yield return new object[] {GetWrapper<long>("bigint"), 1000L};
+                yield return new object[] {GetWrapper<decimal>("decimal"), new decimal(3.14)};
+                yield return new object[] {GetWrapper<int>("int"), 1000};
+                yield return new object[] {GetWrapper<short>("smallint"), (short) 1000};
+                yield return new object[] {GetWrapper<byte>("tinyint"), (byte) 5};
+                yield return new object[] {GetWrapper<double>("float"), 3.14d};
+                yield return new object[] {GetWrapper<float>("real"), 3.14f};
             }
+        }
+
+        private static DbColumnWrapper GetWrapper<T>(string dataTypeName)
+        {
+            return new DbColumnWrapper(new CellUpdateTestDbColumn(typeof(T), dataTypeName));
         }
 
         private class CellUpdateTestDbColumn : DbColumn
         {
-            public static DbColumnWrapper GetWrapper(Type dataType)
-            {
-                return new DbColumnWrapper(new CellUpdateTestDbColumn(dataType));
-            }
-
-            private CellUpdateTestDbColumn(Type dataType)
+            public CellUpdateTestDbColumn(Type dataType, string dataTypeName)
             {
                 DataType = dataType;
+                DataTypeName = dataTypeName;
             }
         }
     }

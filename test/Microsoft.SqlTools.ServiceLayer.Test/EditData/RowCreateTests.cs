@@ -6,6 +6,7 @@
 using System;
 using System.Data.Common;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -86,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ApplyChanges(bool includeIdentity)
+        public async Task ApplyChanges(bool includeIdentity)
         {
             // Setup: 
             // ... Generate the parameters for the row create
@@ -95,13 +96,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             ResultSet rs = Common.GetResultSet(columns, includeIdentity);
             IEditTableMetadata etm = Common.GetMetadata(columns);
 
-            // ... Setup a db reader for the result of a 
+            // ... Setup a db reader for the result of an insert
             var newRowReader = Common.GetNewRowDataReader(columns, includeIdentity);
 
             // If: I ask for the change to be applied
             RowCreate rc = new RowCreate(rowId, rs, etm);
-            Common.AddCells(rc, includeIdentity);
-            rc.ApplyChanges(newRowReader);
+            await rc.ApplyChanges(newRowReader);
 
             // Then: The result set should have an additional row in it
             Assert.Equal(2, rs.RowCount);

@@ -6,6 +6,7 @@
 using System;
 using System.Data.Common;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -60,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         }
 
         [Fact]
-        public void ApplyChanges()
+        public async Task ApplyChanges()
         {
             // Setup: Generate the parameters for the row delete object
             //        We don't care about the values besides the row ID
@@ -71,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
 
             // If: I ask for the change to be applied
             RowDelete rd = new RowDelete(rowId, rs, etm);
-            rd.ApplyChanges(null);      // Reader not used, can be null
+            await rd.ApplyChanges(null);      // Reader not used, can be null
 
             // Then : The result set should have one less row in it
             Assert.Equal(0, rs.RowCount);
