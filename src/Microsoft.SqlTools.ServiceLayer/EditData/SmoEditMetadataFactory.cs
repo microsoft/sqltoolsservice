@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new ArgumentOutOfRangeException(nameof(objectName), SR.EditDataObjectMetadataNotFound);
             }
 
-            return new EditTableMetadata(columns, result);
+            return new SmoEditTableMetadata(columns, result);
         }
     }
 }
