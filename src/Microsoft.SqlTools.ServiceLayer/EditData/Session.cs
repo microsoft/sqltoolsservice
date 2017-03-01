@@ -129,8 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // Make sure that there a commit task isn't in progress
             if (CommitTask != null && !CommitTask.IsCompleted)
             {
-                // @TODO: Move to constants file
-                throw new InvalidOperationException("A commit task is in progress. Please wait for completion.");
+                throw new InvalidOperationException(SR.EditDataCommitInProgress);
             }
 
             // Start up the commit process

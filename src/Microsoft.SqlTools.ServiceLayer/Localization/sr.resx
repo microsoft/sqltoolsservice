@@ -419,6 +419,10 @@
     <value>An output filename must be provided</value>
     <comment></comment>
   </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>A commit task is in progress. Please wait for completion.</value>
+    <comment></comment>
+  </data>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
     <comment></comment>
@@ -537,6 +541,10 @@
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>EN_LOCALIZATION</value>
+    <comment></comment>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>Decimal column is missing numeric precision or numeric scale</value>
     <comment></comment>
   </data>
 </root>
