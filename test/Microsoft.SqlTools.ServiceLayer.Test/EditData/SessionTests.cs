@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -14,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.Test.Utility;
 using Moq;
 using Xunit;
 
@@ -54,6 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // ... The edit cache should exist and be empty
             Assert.NotNull(s.EditCache);
             Assert.Empty(s.EditCache);
+            Assert.Null(s.CommitTask);
 
             // ... The next row ID should be equivalent to the number of rows in the result set
             Assert.Equal(q.Batches[0].ResultSets[0].RowCount, s.NextRowId);
@@ -377,5 +380,163 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         }
 
         #endregion
+
+        #region Commit Tests
+
+        [Fact]
+        public void CommitNullConnection()
+        {
+            // Setup: Create a basic session
+            Session s = GetBasicSession();
+
+            // If: I attempt to commit with a null connection
+            // Then: I should get an exception
+            Assert.Throws<ArgumentNullException>(
+                () => s.CommitEdits(null, () => Task.CompletedTask, e => Task.CompletedTask));
+        }
+
+        [Fact]
+        public void CommitNullSuccessHandler()
+        {
+            // Setup: 
+            // ... Create a basic session
+            Session s = GetBasicSession();
+
+            // ... Mock db connection
+            DbConnection conn = new TestSqlConnection(null);
+
+            // If: I attempt to commit with a null success handler
+            // Then: I should get an exception
+            Assert.Throws<ArgumentNullException>(() => s.CommitEdits(conn, null, e => Task.CompletedTask));
+        }
+
+        [Fact]
+        public void CommitNullFailureHandler()
+        {
+            // Setup: 
+            // ... Create a basic session
+            Session s = GetBasicSession();
+
+            // ... Mock db connection
+            DbConnection conn = new TestSqlConnection(null);
+
+            // If: I attempt to commit with a null success handler
+            // Then: I should get an exception
+            Assert.Throws<ArgumentNullException>(() => s.CommitEdits(conn, () => Task.CompletedTask, null));
+        }
+
+        [Fact]
+        public void CommitInProgress()
+        {
+            // Setup: 
+            // ... Basic session and db connection
+            Session s = GetBasicSession();
+            DbConnection conn = new TestSqlConnection(null);
+
+            // ... Mock a task that has not completed
+            Task notCompleted = new Task(() => {});
+            s.CommitTask = notCompleted;
+
+            // If: I attempt to commit while a task is in progress
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(
+                () => s.CommitEdits(conn, () => Task.CompletedTask, e => Task.CompletedTask));
+        }
+
+        [Fact]
+        public async Task CommitSuccess()
+        {
+            // Setup:
+            // ... Basic session and db connection
+            Session s = GetBasicSession();
+            DbConnection conn = new TestSqlConnection(null);
+
+            // ... Add a mock commands for fun
+            Mock<RowEditBase> edit = new Mock<RowEditBase>();
+            edit.Setup(e => e.GetCommand(It.IsAny<DbConnection>())).Returns<DbConnection>(dbc => dbc.CreateCommand());
+            edit.Setup(e => e.ApplyChanges(It.IsAny<DbDataReader>())).Returns(Task.FromResult(0));
+            s.EditCache[0] = edit.Object;
+
+            // If: I commit these changes (and await completion)
+            bool successCalled = false;
+            bool failureCalled = false;
+            s.CommitEdits(conn, 
+                () => {
+                    successCalled = true;
+                    return Task.FromResult(0);
+                },
+                e => {
+                    failureCalled = true;
+                    return Task.FromResult(0);
+                });
+            await s.CommitTask;
+
+            // Then:
+            // ... The task should still exist
+            Assert.NotNull(s.CommitTask);
+
+            // ... The success handler should have been called (not failure)
+            Assert.True(successCalled);
+            Assert.False(failureCalled);
+
+            // ... The mock edit should have generated a command and applied changes
+            edit.Verify(e => e.GetCommand(conn), Times.Once);
+            edit.Verify(e => e.ApplyChanges(It.IsAny<DbDataReader>()), Times.Once);
+
+            // ... The edit cache should be empty
+            Assert.Empty(s.EditCache);
+        }
+
+        [Fact]
+        public async Task CommitFailure()
+        {
+            // Setup:
+            // ... Basic session and db connection
+            Session s = GetBasicSession();
+            DbConnection conn = new TestSqlConnection(null);
+
+            // ... Add a mock edit that will explode on generating a command
+            Mock<RowEditBase> edit = new Mock<RowEditBase>();
+            edit.Setup(e => e.GetCommand(It.IsAny<DbConnection>())).Throws<Exception>();
+            s.EditCache[0] = edit.Object;
+
+            // If: I commit these changes (and await completion)
+            bool successCalled = false;
+            bool failureCalled = false;
+            s.CommitEdits(conn,
+                () => {
+                    successCalled = true;
+                    return Task.FromResult(0);
+                },
+                e => {
+                    failureCalled = true;
+                    return Task.FromResult(0);
+                });
+            await s.CommitTask;
+
+            // Then:
+            // ... The task should still exist
+            Assert.NotNull(s.CommitTask);
+
+            // ... The error handler should have been called (not success)
+            Assert.False(successCalled);
+            Assert.True(failureCalled);
+
+            // ... The mock edit should have been asked to generate a command
+            edit.Verify(e => e.GetCommand(conn), Times.Once);
+
+            // ... The edit cache should not be empty
+            Assert.NotEmpty(s.EditCache);
+        }
+
+        #endregion
+
+        private static Session GetBasicSession()
+        {
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            return new Session(rs, etm);
+        }
     }
 }

@@ -45,7 +45,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #region Properties
 
-        internal Task CommitTask { get; private set; }
+        /// <summary>
+        /// The task that is running to commit the changes to the db
+        /// Internal for unit test purposes.
+        /// </summary>
+        internal Task CommitTask { get; set; }
 
         /// <summary>
         /// The internal ID for the next row in the table. Internal for unit testing purposes only.
@@ -126,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             if (CommitTask != null && !CommitTask.IsCompleted)
             {
                 // @TODO: Move to constants file
-                errorHandler(new InvalidOperationException("A commit task is in progress. Please wait for completion."));
+                throw new InvalidOperationException("A commit task is in progress. Please wait for completion.");
             }
 
             // Start up the commit process
@@ -269,7 +273,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     RowEditBase re;
                     EditCache.TryRemove(editOperation.RowId, out re);
                 }
-
                 await successHandler();
             }
             catch (Exception e)

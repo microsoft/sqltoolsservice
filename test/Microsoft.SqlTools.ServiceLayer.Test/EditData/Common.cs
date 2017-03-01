@@ -68,11 +68,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             return columns.ToArray();
         }
 
-        public static ResultSet GetResultSet(DbColumn[] columns, bool includeIdentity)
+        public static ResultSet GetResultSet(DbColumn[] columns, bool includeIdentity, int rowCount = 1)
         {
-            object[][] rows = includeIdentity
-                ? new[] { new object[] { "id", "1", "2", "3" } }
-                : new[] { new object[] { "1", "2", "3" } };
+            IEnumerable<object[]> rows = includeIdentity
+                ? Enumerable.Repeat(new object[] { "id", "1", "2", "3" }, rowCount)
+                : Enumerable.Repeat(new object[] { "1", "2", "3" }, rowCount);
             var testResultSet = new TestResultSet(columns, rows);
             var reader = new TestDbDataReader(new[] { testResultSet });
             var resultSet = new ResultSet(0, 0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
