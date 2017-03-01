@@ -138,7 +138,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
         {
             CopyToOutput(FilesLocation, "TS-err-cycle1.txt");
             CopyToOutput(FilesLocation, "cycle2.txt");
-
             Start("err-blockComment");
             Start("err-blockComment2");
             Start("err-varDefinition");

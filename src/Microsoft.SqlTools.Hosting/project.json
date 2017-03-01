@@ -14,7 +14,7 @@
         "emitEntryPoint": false
       }
     }
-  },  
+  },
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
     "System.Collections.Specialized": "4.0.1",
@@ -28,11 +28,8 @@
     "System.Diagnostics.Process": "4.1.0",
     "System.Threading.Thread": "4.0.0",
     "System.Runtime.Loader": "4.0.0",
-    "System.Composition.Runtime": "1.0.31",
-    "System.Composition.Convention": "1.0.31",
-    "System.Composition.TypedParts": "1.0.31",
+    "System.Composition": "1.0.31-beta-24326-02",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
-    "System.Runtime": "4.3.0"
   },
   "frameworks": {
     "netcoreapp1.0": {

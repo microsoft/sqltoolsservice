@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
                     string assemblyDir = Path.GetDirectoryName(typeof(Scripts).GetTypeInfo().Assembly.Location);
                     string defaultPath = Path.Combine(assemblyDir, GoUpNDirectories(4));
-                    traceFolderPath = Path.Combine(defaultPath, "Microsoft.SqlTools.ServiceLayer.Test.Common", "TestData");
+                    traceFolderPath = Path.Combine(defaultPath, "Microsoft.SqlTools.ServiceLayer.Test.Common", "Trace");
 
                     cachedTraceFolderPath = traceFolderPath;
                 }
