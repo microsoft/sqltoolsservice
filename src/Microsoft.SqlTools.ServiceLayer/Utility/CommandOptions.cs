@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                                 EnableLogging = true;
                                 break;
                             case "-locale":
-                                setLocale(argProperty);
+                                SetLocale(argProperty);
                                 break;
                             case "h":
                             case "-help":
@@ -109,7 +109,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
         }
 
-        private void setLocale(string locale){
+        private void SetLocale(string locale)
+        {
             try
             {
                 // Creating cultureInfo from our given locale

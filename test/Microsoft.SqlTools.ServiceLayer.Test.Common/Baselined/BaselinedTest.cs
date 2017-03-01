@@ -360,7 +360,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             Trace.WriteLine(string.Format("GetFileContent for [{0}]", Path.GetFullPath(path)));
 
-            using (StreamReader sr = new StreamReader(File.Open(path, FileMode.Open), Encoding.Unicode))
+            using (StreamReader sr = new StreamReader(File.Open(path, FileMode.Open), Encoding.UTF8))
             {
                 return sr.ReadToEnd();
             }
@@ -406,13 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         /// <param name="text">The content for the trace file</param>
         public void WriteTraceFile(string traceFile, string text)
         {
-            Stream traceStream = GetStreamFromString(traceFile);
-            using (StreamWriter sw = new StreamWriter(traceStream, Encoding.Unicode))
-            {
-                sw.Write(text);
-                sw.Flush();
-                sw.Dispose();
-            }
+            File.WriteAllText(traceFile, text);
         }
 
         /// <summary>

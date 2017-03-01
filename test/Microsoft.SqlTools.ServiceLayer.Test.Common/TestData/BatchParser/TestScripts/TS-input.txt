@@ -1,4 +1,4 @@
-﻿GO 2
+GO 2
 BEGIN
 :r input-2.txt
 :r "input-2.txt"

@@ -46,7 +46,7 @@ public class BuildPlan
     public string DotNetVersion { get; set; }
     public string[] Frameworks { get; set; }
     public string[] Rids { get; set; }
-    public string MainProject { get; set; }
+    public string[] MainProjects { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -314,37 +314,39 @@ Task("OnlyPublish")
 	.IsDependentOn("SRGen")
     .IsDependentOn("CodeGen")
     .Does(() =>
-{
-    var project = buildPlan.MainProject;
-    var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-    foreach (var framework in buildPlan.Frameworks)
+{    
+    foreach (var project in buildPlan.MainProjects)
     {
-        foreach (var runtime in buildPlan.Rids)
+        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+        foreach (var framework in buildPlan.Frameworks)
         {
-            var outputFolder = System.IO.Path.Combine(publishFolder, project, runtime, framework);
-            var publishArguments = "publish";
-            if (!runtime.Equals("default"))
+            foreach (var runtime in buildPlan.Rids)
             {
-                publishArguments = $"{publishArguments} --runtime {runtime}";
-            }
-            publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
-            publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
-            Run(dotnetcli, publishArguments)
-                .ExceptionOnError($"Failed to publish {project} / {framework}");
-            //Setting the rpath for System.Security.Cryptography.Native.dylib library
-            //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
-            //If that's not the case user has to run the command manually
-            if (!IsRunningOnWindows() && runtime.Contains("osx"))
-            {    
-                Run("install_name_tool",  "-add_rpath /usr/local/opt/openssl/lib " + outputFolder + "/System.Security.Cryptography.Native.dylib");
-            }
-            if (requireArchive)
-            {
-                Package(runtime, framework, outputFolder, packageFolder, buildPlan.MainProject.ToLower(), workingDirectory);
+                var outputFolder = System.IO.Path.Combine(publishFolder, project, runtime, framework);
+                var publishArguments = "publish";
+                if (!runtime.Equals("default"))
+                {
+                    publishArguments = $"{publishArguments} --runtime {runtime}";
+                }
+                publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
+                publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
+                Run(dotnetcli, publishArguments)
+                    .ExceptionOnError($"Failed to publish {project} / {framework}");
+                //Setting the rpath for System.Security.Cryptography.Native.dylib library
+                //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
+                //If that's not the case user has to run the command manually
+                if (!IsRunningOnWindows() && runtime.Contains("osx"))
+                {    
+                    Run("install_name_tool",  "-add_rpath /usr/local/opt/openssl/lib " + outputFolder + "/System.Security.Cryptography.Native.dylib");
+                }
+                if (requireArchive)
+                {
+                    Package(runtime, framework, outputFolder, packageFolder, project.ToLower(), workingDirectory);
+                }
             }
         }
-    }
-    CreateRunScript(System.IO.Path.Combine(publishFolder, project, "default"), scriptFolder);
+        CreateRunScript(System.IO.Path.Combine(publishFolder, project, "default"), scriptFolder);
+    }    
 });
 
 /// <summary>
@@ -388,21 +390,23 @@ Task("TestPublished")
     .IsDependentOn("Setup")
     .Does(() =>
 {
-    var project = buildPlan.MainProject;
-    var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-    var scriptsToTest = new string[] {"SQLTOOLSSERVICE.Core"};//TODO
-    foreach (var script in scriptsToTest)
+    foreach (var project in buildPlan.MainProjects)
     {
-        var scriptPath = System.IO.Path.Combine(scriptFolder, script);
-        var didNotExitWithError = Run($"{shell}", $"{shellArgument}  \"{scriptPath}\" -s \"{projectFolder}\" --stdio",
-                                    new RunOptions
-                                    {
-                                        TimeOut = 10000
-                                    })
-                                .DidTimeOut;
-        if (!didNotExitWithError)
+        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+        var scriptsToTest = new string[] {"SQLTOOLSSERVICE.Core"};//TODO
+        foreach (var script in scriptsToTest)
         {
-            throw new Exception($"Failed to run {script}");
+            var scriptPath = System.IO.Path.Combine(scriptFolder, script);
+            var didNotExitWithError = Run($"{shell}", $"{shellArgument}  \"{scriptPath}\" -s \"{projectFolder}\" --stdio",
+                                        new RunOptions
+                                        {
+                                            TimeOut = 10000
+                                        })
+                                    .DidTimeOut;
+            if (!didNotExitWithError)
+            {
+                throw new Exception($"Failed to run {script}");
+            }
         }
     }
 });
@@ -439,19 +443,21 @@ Task("Install")
     .IsDependentOn("CleanupInstall")
     .Does(() =>
 {
-    var project = buildPlan.MainProject;
-    foreach (var framework in buildPlan.Frameworks)
+    foreach (var project in buildPlan.MainProjects)
     {
-        var outputFolder = System.IO.Path.GetFullPath(System.IO.Path.Combine(publishFolder, project, "default", framework));
-        var targetFolder = System.IO.Path.GetFullPath(System.IO.Path.Combine(installFolder, framework));
-        // Copy all the folders
-        foreach (var directory in System.IO.Directory.GetDirectories(outputFolder, "*", SearchOption.AllDirectories))
-            System.IO.Directory.CreateDirectory(System.IO.Path.Combine(targetFolder, directory.Substring(outputFolder.Length + 1)));
-        //Copy all the files
-        foreach (string file in System.IO.Directory.GetFiles(outputFolder, "*", SearchOption.AllDirectories))
-            System.IO.File.Copy(file, System.IO.Path.Combine(targetFolder, file.Substring(outputFolder.Length + 1)), true);
+        foreach (var framework in buildPlan.Frameworks)
+        {
+            var outputFolder = System.IO.Path.GetFullPath(System.IO.Path.Combine(publishFolder, project, "default", framework));
+            var targetFolder = System.IO.Path.GetFullPath(System.IO.Path.Combine(installFolder, framework));
+            // Copy all the folders
+            foreach (var directory in System.IO.Directory.GetDirectories(outputFolder, "*", SearchOption.AllDirectories))
+                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(targetFolder, directory.Substring(outputFolder.Length + 1)));
+            //Copy all the files
+            foreach (string file in System.IO.Directory.GetFiles(outputFolder, "*", SearchOption.AllDirectories))
+                System.IO.File.Copy(file, System.IO.Path.Combine(targetFolder, file.Substring(outputFolder.Length + 1)), true);
+        }
+        CreateRunScript(installFolder, scriptFolder);
     }
-    CreateRunScript(installFolder, scriptFolder);
 });
 
 /// <summary>
