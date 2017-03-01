@@ -14,5 +14,9 @@
   "Frameworks": [  
     "netcoreapp1.0"
   ],
-  "MainProject": "Microsoft.SqlTools.ServiceLayer"
+  "MainProjects": [     
+    "Microsoft.SqlTools.ServiceLayer",
+    "Microsoft.SqlTools.Credentials",
+    "Microsoft.SqlTools.Hosting"
+  ]
 }

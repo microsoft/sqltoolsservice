@@ -9,6 +9,12 @@
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",
     "Microsoft.SqlTools.ServiceLayer": {
       "target": "project"
+    },
+    "Microsoft.SqlTools.Hosting": {
+      "target": "project"
+    },
+    "Microsoft.SqlTools.Credentials": {
+      "target": "project"
     }
   },
   "testRunner": "xunit",

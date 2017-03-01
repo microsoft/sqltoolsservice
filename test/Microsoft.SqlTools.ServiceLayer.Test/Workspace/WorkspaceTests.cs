@@ -145,5 +145,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Workspace
                 Assert.NotNull(workspace.ResolveRelativeScriptPath(@"c:\path\", "file.sql"));
             });
         }
+
+        [Fact]
+        public async Task DontProcessGitFileEvents()
+        {
+            // setup test workspace
+            var workspace = new ServiceLayer.Workspace.Workspace();
+            var workspaceService = new WorkspaceService<SqlToolsSettings> {Workspace = workspace};
+
+            // send a document open event with git:/ prefix URI
+            string filePath = "git:/myfile.sql";
+            var openParams = new DidOpenTextDocumentNotification
+            {
+                TextDocument = new TextDocumentItem { Uri = filePath }
+            };
+
+            await workspaceService.HandleDidOpenTextDocumentNotification(openParams, eventContext: null);
+
+            // verify the file is not being tracked by workspace
+            Assert.False(workspaceService.Workspace.ContainsFile(filePath));
+
+            // send a close event with git:/ prefix URI
+            var closeParams = new DidCloseTextDocumentParams
+            {
+                TextDocument = new TextDocumentItem { Uri = filePath }
+            };
+
+            await workspaceService.HandleDidCloseTextDocumentNotification(closeParams, eventContext: null);
+
+            // this is not that interesting validation since the open is ignored
+            // the main validation is that close doesn't raise an exception
+            Assert.False(workspaceService.Workspace.ContainsFile(filePath));
+        }
+
+        [Fact]
+        public async Task WorkspaceContainsFile()
+        {
+            var workspace = new ServiceLayer.Workspace.Workspace();
+            var workspaceService = new WorkspaceService<SqlToolsSettings> {Workspace = workspace};
+            var openedFile = workspace.GetFileBuffer(TestObjects.ScriptUri, string.Empty);
+
+            // send a document open event            
+            var openParams = new DidOpenTextDocumentNotification
+            {
+                TextDocument = new TextDocumentItem { Uri = TestObjects.ScriptUri }
+            };
+
+            await workspaceService.HandleDidOpenTextDocumentNotification(openParams, eventContext: null);
+
+            // verify the file is being tracked by workspace
+            Assert.True(workspaceService.Workspace.ContainsFile(TestObjects.ScriptUri));
+        }
     }
 }

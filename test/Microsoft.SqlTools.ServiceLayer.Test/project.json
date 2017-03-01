@@ -29,7 +29,13 @@
       "target": "project"
     },
     "Moq": "4.6.36-alpha",
-    "Microsoft.SqlTools.ServiceLayer.Test.Common": "1.0.0-*"
+    "Microsoft.SqlTools.ServiceLayer.Test.Common": "1.0.0-*",
+    "Microsoft.SqlTools.Hosting": {
+      "target": "project"
+    },
+    "Microsoft.SqlTools.Credentials": {
+      "target": "project"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {

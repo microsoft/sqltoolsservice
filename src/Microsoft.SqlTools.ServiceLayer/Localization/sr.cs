@@ -77,131 +77,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string CredentialsServiceInvalidCriticalHandle
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialsServiceInvalidCriticalHandle);
-            }
-        }
-
-        public static string CredentialsServicePasswordLengthExceeded
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialsServicePasswordLengthExceeded);
-            }
-        }
-
-        public static string CredentialsServiceTargetForDelete
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialsServiceTargetForDelete);
-            }
-        }
-
-        public static string CredentialsServiceTargetForLookup
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialsServiceTargetForLookup);
-            }
-        }
-
-        public static string CredentialServiceWin32CredentialDisposed
-        {
-            get
-            {
-                return Keys.GetString(Keys.CredentialServiceWin32CredentialDisposed);
-            }
-        }
-
-        public static string ServiceAlreadyRegistered
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceAlreadyRegistered);
-            }
-        }
-
-        public static string MultipleServicesFound
-        {
-            get
-            {
-                return Keys.GetString(Keys.MultipleServicesFound);
-            }
-        }
-
-        public static string IncompatibleServiceForExtensionLoader
-        {
-            get
-            {
-                return Keys.GetString(Keys.IncompatibleServiceForExtensionLoader);
-            }
-        }
-
-        public static string ServiceProviderNotSet
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceProviderNotSet);
-            }
-        }
-
-        public static string ServiceNotFound
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceNotFound);
-            }
-        }
-
-        public static string ServiceNotOfExpectedType
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceNotOfExpectedType);
-            }
-        }
-
         public static string ErrorUnexpectedCodeObjectType
         {
             get
             {
                 return Keys.GetString(Keys.ErrorUnexpectedCodeObjectType);
-            }
-        }
-
-        public static string HostingUnexpectedEndOfStream
-        {
-            get
-            {
-                return Keys.GetString(Keys.HostingUnexpectedEndOfStream);
-            }
-        }
-
-        public static string HostingHeaderMissingColon
-        {
-            get
-            {
-                return Keys.GetString(Keys.HostingHeaderMissingColon);
-            }
-        }
-
-        public static string HostingHeaderMissingContentLengthHeader
-        {
-            get
-            {
-                return Keys.GetString(Keys.HostingHeaderMissingContentLengthHeader);
-            }
-        }
-
-        public static string HostingHeaderMissingContentLengthValue
-        {
-            get
-            {
-                return Keys.GetString(Keys.HostingHeaderMissingContentLengthValue);
             }
         }
 
@@ -964,52 +844,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionParamsValidateNullSqlAuth = "ConnectionParamsValidateNullSqlAuth";
 
 
-            public const string CredentialsServiceInvalidCriticalHandle = "CredentialsServiceInvalidCriticalHandle";
-
-
-            public const string CredentialsServicePasswordLengthExceeded = "CredentialsServicePasswordLengthExceeded";
-
-
-            public const string CredentialsServiceTargetForDelete = "CredentialsServiceTargetForDelete";
-
-
-            public const string CredentialsServiceTargetForLookup = "CredentialsServiceTargetForLookup";
-
-
-            public const string CredentialServiceWin32CredentialDisposed = "CredentialServiceWin32CredentialDisposed";
-
-
-            public const string ServiceAlreadyRegistered = "ServiceAlreadyRegistered";
-
-
-            public const string MultipleServicesFound = "MultipleServicesFound";
-
-
-            public const string IncompatibleServiceForExtensionLoader = "IncompatibleServiceForExtensionLoader";
-
-
-            public const string ServiceProviderNotSet = "ServiceProviderNotSet";
-
-
-            public const string ServiceNotFound = "ServiceNotFound";
-
-
-            public const string ServiceNotOfExpectedType = "ServiceNotOfExpectedType";
-
-
             public const string ErrorUnexpectedCodeObjectType = "ErrorUnexpectedCodeObjectType";
-
-
-            public const string HostingUnexpectedEndOfStream = "HostingUnexpectedEndOfStream";
-
-
-            public const string HostingHeaderMissingColon = "HostingHeaderMissingColon";
-
-
-            public const string HostingHeaderMissingContentLengthHeader = "HostingHeaderMissingContentLengthHeader";
-
-
-            public const string HostingHeaderMissingContentLengthValue = "HostingHeaderMissingContentLengthValue";
 
 
             public const string QueryServiceCancelAlreadyCompleted = "QueryServiceCancelAlreadyCompleted";
