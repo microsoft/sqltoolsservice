@@ -11,11 +11,12 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class Common
     {
@@ -75,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                 : new[] { new object[] { "1", "2", "3" } };
             var testResultSet = new TestResultSet(columns, rows);
             var reader = new TestDbDataReader(new[] { testResultSet });
-            var resultSet = new ResultSet(reader, 0, 0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            var resultSet = new ResultSet(reader, 0, 0, MemoryFileSystem.GetFileStreamFactory());
             resultSet.ReadResultToEnd(CancellationToken.None).Wait();
             return resultSet;
         }

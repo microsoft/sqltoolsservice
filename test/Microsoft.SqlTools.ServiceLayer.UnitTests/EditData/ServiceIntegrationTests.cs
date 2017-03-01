@@ -10,11 +10,12 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class ServiceIntegrationTests
     {
@@ -114,20 +115,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // Setup: Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
-            eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
+            eds.ActiveSessions[Constants.OwnerUri] = GetDefaultSession();
 
             // If: I validly ask to delete a row
             var efv = new EventFlowValidator<EditDeleteRowResult>()
                 .AddResultValidation(Assert.NotNull)
                 .Complete();
-            await eds.HandleDeleteRowRequest(new EditDeleteRowParams {OwnerUri = Common.OwnerUri, RowId = 0}, efv.Object);
+            await eds.HandleDeleteRowRequest(new EditDeleteRowParams {OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);
 
             // Then: 
             // ... It should be successful
             efv.Validate();
 
             // ... There should be a delete in the session
-            Session s = eds.ActiveSessions[Common.OwnerUri];
+            Session s = eds.ActiveSessions[Constants.OwnerUri];
             Assert.True(s.EditCache.Any(e => e.Value is RowDelete));
         }
 
@@ -136,20 +137,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
         {
             // Setup: Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
-            eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
+            eds.ActiveSessions[Constants.OwnerUri] = GetDefaultSession();
 
             // If: I ask to create a row from a non existant session
             var efv = new EventFlowValidator<EditCreateRowResult>()
                 .AddResultValidation(ecrr => { Assert.True(ecrr.NewRowId > 0); })
                 .Complete();
-            await eds.HandleCreateRowRequest(new EditCreateRowParams { OwnerUri = Common.OwnerUri }, efv.Object);
+            await eds.HandleCreateRowRequest(new EditCreateRowParams { OwnerUri = Constants.OwnerUri }, efv.Object);
 
             // Then:
             // ... It should have been successful
             efv.Validate();
 
             // ... There should be a create in the session
-            Session s = eds.ActiveSessions[Common.OwnerUri];
+            Session s = eds.ActiveSessions[Constants.OwnerUri];
             Assert.True(s.EditCache.Any(e => e.Value is RowCreate));
         }
 
@@ -160,20 +161,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             var eds = new EditDataService(null, null, null);
             var session = GetDefaultSession();
             session.EditCache[0] = new Mock<RowEditBase>().Object;
-            eds.ActiveSessions[Common.OwnerUri] = session;
+            eds.ActiveSessions[Constants.OwnerUri] = session;
 
             // If: I ask to revert a row that has a pending edit
             var efv = new EventFlowValidator<EditRevertRowResult>()
                 .AddResultValidation(Assert.NotNull)
                 .Complete();
-            await eds.HandleRevertRowRequest(new EditRevertRowParams { OwnerUri = Common.OwnerUri, RowId = 0}, efv.Object);
+            await eds.HandleRevertRowRequest(new EditRevertRowParams { OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);
 
             // Then: 
             // ... It should have succeeded
             efv.Validate();
 
             // ... The edit cache should be empty again
-            Session s = eds.ActiveSessions[Common.OwnerUri];
+            Session s = eds.ActiveSessions[Constants.OwnerUri];
             Assert.Empty(s.EditCache);
         }
 
@@ -183,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             // Setup: Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
             var session = GetDefaultSession();
-            eds.ActiveSessions[Common.OwnerUri] = session;
+            eds.ActiveSessions[Constants.OwnerUri] = session;
             var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>())).Returns(new EditUpdateCellResult
             {
@@ -204,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
                     Assert.False(eucr.IsNull);
                 })
                 .Complete();
-            await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = Common.OwnerUri, RowId = 0}, efv.Object);
+            await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);
 
             // Then: 
             // ... It should be successful

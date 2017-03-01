@@ -9,7 +9,7 @@ using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class CellUpdateTests
     {

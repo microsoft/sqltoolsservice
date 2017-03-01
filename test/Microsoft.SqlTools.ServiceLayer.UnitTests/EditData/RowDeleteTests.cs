@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class RowDeleteTests
     {

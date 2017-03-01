@@ -13,11 +13,11 @@ using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class SessionTests
     {
@@ -87,8 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             ConnectionInfo ci = QueryExecution.Common.CreateConnectedConnectionInfo(results, false);
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
-            var fsf = QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            Query query = new Query(QueryExecution.Common.StandardQuery, ci, new QueryExecutionSettings(), fsf);
+            var fsf = MemoryFileSystem.GetFileStreamFactory();
+            Query query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), fsf);
             query.Execute();
             query.ExecutionTask.Wait();
 

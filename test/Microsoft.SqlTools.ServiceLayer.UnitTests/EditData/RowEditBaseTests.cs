@@ -13,10 +13,11 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class RowEditBaseTests
     {
@@ -103,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.EditData
             object[][] rows = {row};
             var testResultSet = new TestResultSet(columns, rows);
             var testReader = new TestDbDataReader(new [] {testResultSet});
-            var resultSet = new ResultSet(testReader, 0,0, QueryExecution.Common.GetFileStreamFactory(new Dictionary<string, byte[]>()));
+            var resultSet = new ResultSet(testReader, 0,0, MemoryFileSystem.GetFileStreamFactory());
             resultSet.ReadResultToEnd(CancellationToken.None).Wait();
             return resultSet;
         }
