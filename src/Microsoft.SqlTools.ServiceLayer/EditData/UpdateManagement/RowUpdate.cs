@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string statementStart = GetStatementStart();
 
             // Put the whole #! together
-            return $"{statementStart} SET {setClause}{whereClause}";
+            return $"{statementStart} SET {setClause} {whereClause}";
         }
 
         /// <summary>
