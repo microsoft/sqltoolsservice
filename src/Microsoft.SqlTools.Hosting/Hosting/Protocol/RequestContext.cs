@@ -4,10 +4,10 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+namespace Microsoft.SqlTools.Hosting.Protocol
 {
     public class RequestContext<TResult> : IEventSender
     {

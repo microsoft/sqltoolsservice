@@ -4,7 +4,7 @@
 //
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+namespace Microsoft.SqlTools.Hosting.Contracts
 {
     /// <summary>
     /// Defines a class that describes the capabilities of a language

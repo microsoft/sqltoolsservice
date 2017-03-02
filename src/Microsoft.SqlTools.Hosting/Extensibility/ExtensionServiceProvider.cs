@@ -13,9 +13,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyModel;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Extensibility
+namespace Microsoft.SqlTools.Extensibility
 {
     public class ExtensionServiceProvider : RegisteredServiceProvider
     {

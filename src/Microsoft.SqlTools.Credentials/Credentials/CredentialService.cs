@@ -6,12 +6,12 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Linux;
 using Microsoft.SqlTools.ServiceLayer.Credentials.OSX;
 using Microsoft.SqlTools.ServiceLayer.Credentials.Win32;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Credentials
 {

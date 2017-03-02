@@ -7,7 +7,7 @@ using System;
 using System.Composition;
 using System.Linq;
 using System.Reflection;
-using Microsoft.SqlTools.ServiceLayer.Extensibility;
+using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Xunit;
 

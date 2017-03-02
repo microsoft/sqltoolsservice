@@ -6,7 +6,7 @@
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
 {
     /// <summary>
     /// Defines all possible message types.

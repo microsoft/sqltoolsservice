@@ -6,9 +6,9 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Messaging
 
             // Write the message and then roll back the stream to be read
             // TODO: This will need to be redone!
-            await messageWriter.WriteMessage(Hosting.Protocol.Contracts.Message.Event("testEvent", null));
+            await messageWriter.WriteMessage(SqlTools.Hosting.Protocol.Contracts.Message.Event("testEvent", null));
             outputStream.Seek(0, SeekOrigin.Begin);
 
             string expectedHeaderString = string.Format(Constants.ContentLengthFormatString,

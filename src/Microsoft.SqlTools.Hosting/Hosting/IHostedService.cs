@@ -4,10 +4,10 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.Extensibility;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Hosting.Protocol;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting
+namespace Microsoft.SqlTools.Hosting
 {
     /// <summary>
     /// Defines a hosted service that communicates with external processes via

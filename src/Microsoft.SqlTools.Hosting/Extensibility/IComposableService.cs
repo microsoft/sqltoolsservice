@@ -4,7 +4,7 @@
 //
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Extensibility
+namespace Microsoft.SqlTools.Extensibility
 {
     /// <summary>
     /// A Service that expects to lookup other services. Using this interface on an exported service

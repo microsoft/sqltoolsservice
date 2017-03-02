@@ -6,9 +6,9 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Microsoft.SqlTools.ServiceLayer.Extensibility;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace;

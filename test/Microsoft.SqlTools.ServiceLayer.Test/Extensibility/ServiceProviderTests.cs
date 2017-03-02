@@ -5,7 +5,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.Extensibility;
+using Microsoft.SqlTools.Extensibility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Extensibility

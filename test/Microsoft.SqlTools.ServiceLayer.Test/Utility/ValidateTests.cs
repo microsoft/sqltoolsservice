@@ -4,7 +4,7 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.Test.Utility

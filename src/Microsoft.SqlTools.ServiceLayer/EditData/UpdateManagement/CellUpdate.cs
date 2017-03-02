@@ -7,7 +7,7 @@ using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
