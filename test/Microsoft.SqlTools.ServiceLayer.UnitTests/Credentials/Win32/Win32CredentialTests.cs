@@ -4,7 +4,7 @@
 //
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Win32;
+using Microsoft.SqlTools.Credentials.Win32;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 

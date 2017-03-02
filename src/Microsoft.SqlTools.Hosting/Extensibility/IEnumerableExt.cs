@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.Extensibility
+namespace Microsoft.SqlTools.Extensibility
 {
 
     internal static class IEnumerableExt

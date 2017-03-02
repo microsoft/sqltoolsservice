@@ -5,7 +5,7 @@
 
 using System.Diagnostics;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts
+namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
 {
     [DebuggerDisplay("RequestType MethodName = {MethodName}")]
     public class RequestType<TParams, TResult>

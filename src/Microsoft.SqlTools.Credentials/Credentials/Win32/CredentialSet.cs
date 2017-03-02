@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
+namespace Microsoft.SqlTools.Credentials.Win32
 {
     public class CredentialSet: List<Win32Credential>, IDisposable
     {

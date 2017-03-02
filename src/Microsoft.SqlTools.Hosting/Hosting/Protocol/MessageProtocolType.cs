@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+namespace Microsoft.SqlTools.Hosting.Protocol
 {
     /// <summary>
     /// Defines the possible message protocol types.

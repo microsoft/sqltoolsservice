@@ -4,9 +4,9 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
+using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel
+namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 {
     /// <summary>
     /// Defines a base implementation for servers and their clients over a

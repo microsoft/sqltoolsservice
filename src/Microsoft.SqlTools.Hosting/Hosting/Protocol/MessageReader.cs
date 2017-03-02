@@ -9,12 +9,12 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol.Serializers;
+using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+namespace Microsoft.SqlTools.Hosting.Protocol
 {
     public class MessageReader
     {

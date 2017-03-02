@@ -6,7 +6,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials
+namespace Microsoft.SqlTools.Credentials
 {
     internal partial class Interop
     {

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]

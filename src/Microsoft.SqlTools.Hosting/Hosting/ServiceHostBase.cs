@@ -4,11 +4,11 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
+using Microsoft.SqlTools.Hosting.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol.Channel;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting
+namespace Microsoft.SqlTools.Hosting
 {
     public abstract class ServiceHostBase : ProtocolEndpoint
     {

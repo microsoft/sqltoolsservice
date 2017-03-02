@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Credentials.Contracts;
+using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
+namespace Microsoft.SqlTools.Credentials.Win32
 {
     /// <summary>
     /// Win32 implementation of the credential store

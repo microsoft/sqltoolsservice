@@ -6,12 +6,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Credentials.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
+namespace Microsoft.SqlTools.Credentials.Linux
 {
 
 #if !WINDOWS_ONLY_BUILD
