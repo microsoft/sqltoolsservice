@@ -16,7 +16,6 @@
   ],
   "MainProjects": [     
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.SqlTools.Credentials",
-    "Microsoft.SqlTools.Hosting"
+    "Microsoft.SqlTools.Credentials"
   ]
 }
