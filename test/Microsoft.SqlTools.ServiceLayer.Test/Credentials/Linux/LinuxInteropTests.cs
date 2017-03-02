@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Credentials;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Linux;
+using Microsoft.SqlTools.Credentials;
+using Microsoft.SqlTools.Credentials.Linux;
 using Microsoft.SqlTools.ServiceLayer.Test.Utility;
 using Xunit;
 

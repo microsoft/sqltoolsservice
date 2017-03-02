@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
+using Microsoft.SqlTools.Credentials.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials
+namespace Microsoft.SqlTools.Credentials
 {
     /// <summary>
     /// An <see cref="ICredentialStore"/> support securely saving and retrieving passwords

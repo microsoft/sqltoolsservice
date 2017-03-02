@@ -9,10 +9,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
+using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
+namespace Microsoft.SqlTools.Credentials.Linux
 {
     /// <summary>
     /// Store configuration struct

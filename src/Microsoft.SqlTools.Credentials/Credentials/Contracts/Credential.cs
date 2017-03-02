@@ -6,7 +6,7 @@
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.Contracts
+namespace Microsoft.SqlTools.Credentials.Contracts
 {
     /// <summary>
     /// A Credential containing information needed to log into a resource. This is primarily 

@@ -5,10 +5,10 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
+using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.OSX
+namespace Microsoft.SqlTools.Credentials.OSX
 {
 
 #if !WINDOWS_ONLY_BUILD

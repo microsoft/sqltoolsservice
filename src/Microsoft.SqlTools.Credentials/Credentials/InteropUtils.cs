@@ -7,7 +7,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials
+namespace Microsoft.SqlTools.Credentials
 {
     internal static class InteropUtils
     {
