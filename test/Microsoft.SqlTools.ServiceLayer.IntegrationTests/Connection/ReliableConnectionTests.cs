@@ -9,16 +9,11 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Test.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.ReliableConnectionHelper;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy;
@@ -451,7 +446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Fact]
         public void RetryPolicyFactoryConstructsPoliciesSuccessfully()
         {
-            TestUtils.RunIfWindows(() => 
+            RunIfWrapper.RunIfWindows(() => 
             {
                 Assert.NotNull(RetryPolicyFactory.CreateColumnEncryptionTransferRetryPolicy());
                 Assert.NotNull(RetryPolicyFactory.CreateDatabaseCommandRetryPolicy());
@@ -539,7 +534,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Fact]
         public void TestTryGetServerVersionInvalidConnectionString()
         {
-            TestUtils.RunIfWindows(() =>
+            RunIfWrapper.RunIfWindows(() =>
             {
                 ReliableConnectionHelper.ServerInfo info = null;
                 Assert.False(ReliableConnectionHelper.TryGetServerVersion("this is not a valid connstr", out info));
@@ -681,7 +676,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Fact]
         public void ReliableConnectionHelperTest()
         {
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             DbConnection connection = connInfo.ConnectionTypeToConnectionMap[ConnectionType.Default];
 
@@ -726,7 +721,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Fact]
         public void InitReliableSqlConnectionTest()
         {
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             DbConnection dbConnection;
             connInfo.TryGetConnection(ConnectionType.Default, out dbConnection);

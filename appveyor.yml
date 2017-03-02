@@ -19,7 +19,7 @@ build_script:
   - dotnet build src/Microsoft.SqlTools.ServiceLayer
 
 test_script:
-  - dotnet test test/Microsoft.SqlTools.ServiceLayer.Test
+  - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
 after_test:
   - cd test/CodeCoverage
