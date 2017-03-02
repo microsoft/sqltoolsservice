@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Fact]
-        public void QueryExecuteSingleNoOpBatch()
+        public async Task QueryExecuteSingleNoOpBatch()
         {
             // Setup: Keep track of all the messages received
             List<ResultMessage> messages = new List<ResultMessage>();
@@ -136,6 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I Then execute the query
             query.Execute();
+            await query.ExecutionTask;
 
             // Then:
             // ... There should be no batches
@@ -190,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Fact]
-        public void QueryExecuteMultipleBatchesWithNoOp()
+        public async Task QueryExecuteMultipleBatchesWithNoOp()
         {
             // Setup:
             // ... Keep track of how many times callbacks are called
@@ -200,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If:
             // ... I create a query from a two batches (with separator)
-            ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false);
+            ConnectionInfo ci = Common.CreateConnectedConnectionInfo(null, false);
             string queryText = string.Format("{0}\r\nGO\r\n{1}", Constants.StandardQuery, Common.NoOpQuery);
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
@@ -211,23 +212,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // .. I then execute the query
             query.Execute();
+            await query.ExecutionTask;
 
             // Then:
             // ... I should get back a query with two batches
             Assert.NotEmpty(query.Batches);
             Assert.Equal(2, query.Batches.Length);
 
-            //// ... The query shouldn't have completed successfully unless all batches were executed
-            Assert.False(query.HasExecuted);
+            // ... The query should have completed successfully
+            Assert.True(query.HasExecuted);
 
-            //// ... The batch callbacks should have been called 0 times
-            Assert.Equal(0, batchStartCallbacksReceived);
-            Assert.Equal(0, batchCompletionCallbacksReceived);
-            Assert.Equal(0, batchMessageCallbacksReceived);
+            // ... The batch callbacks should have been called 2 times (for each no op batch)
+            Assert.Equal(2, batchStartCallbacksReceived);
+            Assert.Equal(2, batchCompletionCallbacksReceived);
+            Assert.Equal(2, batchMessageCallbacksReceived);
         }
 
         [Fact]
-        public void QueryExecuteMultipleNoOpBatches()
+        public async Task QueryExecuteMultipleNoOpBatches()
         {
             // Setup:
             // ... Keep track of how many messages were sent
@@ -246,6 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // .. I then execute the query
             query.Execute();
+            await query.ExecutionTask;
 
             // Then:
             // ... I should get back a query with no batches
