@@ -170,6 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // Make sure we have info to process this request
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.OwnerUri), initParams.OwnerUri);
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
+                Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectType), initParams.ObjectType);
 
                 // Try to add a new wait handler to the 
                 if (!InitializeWaitHandles.TryAdd(initParams.OwnerUri, new TaskCompletionSource<bool>()))
