@@ -5,14 +5,11 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
@@ -22,11 +19,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
-        private TestConnectionResult GetLiveAutoCompleteTestObjects()
+        private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
             var textDocument = new TextDocumentPosition
             {
-                TextDocument = new TextDocumentIdentifier { Uri = TestObjects.ScriptUri },
+                TextDocument = new TextDocumentIdentifier { Uri = Constants.OwnerUri },
                 Position = new Position
                 {
                     Line = 0,
@@ -34,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 }
             };
 
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             result.TextDocumentPosition = textDocument;
             return result;
         }
@@ -66,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         [Fact]
         public void PrepopulateCommonMetadata()
         {
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             var connInfo = result.ConnectionInfo;
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
@@ -104,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         {
             // When we make a connection to a live database
             Hosting.ServiceHost.SendEventIgnoreExceptions = true;
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
 
             // And we place the cursor after a function that should prompt for signature help
             string queryWithFunction = "EXEC sys.fn_isrolemember ";
@@ -142,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         [Fact]
         public void OverwriteBindingContext()
         {
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
 
             // add a new connection context
             var connectionKey = LanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);

@@ -1,15 +1,12 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
@@ -22,9 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             const string refactorText = "ROLLBACK TRANSACTION";
 
             // Given a connection to a live database
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
 
             // If I run a "ROLLBACK TRANSACTION" query
             Query query = new Query(refactorText, connInfo, new QueryExecutionSettings(), fileStreamFactory);
@@ -42,9 +39,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             const string rollbackText = "ROLLBACK TRANSACTION";
 
             // Given a connection to a live database
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
 
             // If I run a "BEGIN TRANSACTION" query
             CreateAndExecuteQuery(beginText, connInfo, fileStreamFactory);
@@ -61,9 +58,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             const string insertTempText = "INSERT INTO #someTempTable VALUES(1)";
 
             // Given a connection to a live database
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
             // If I run a query creating a temp table
             CreateAndExecuteQuery(createTempText, connInfo, fileStreamFactory);
@@ -81,12 +78,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             const string useQuery = "USE {0}";
 
             // Given a connection to a live database
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
             DbConnection connection;
             connInfo.TryGetConnection(ConnectionType.Default, out connection);
 
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new Dictionary<string, byte[]>());
 
             // If I use master, the current database should be master
             CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);

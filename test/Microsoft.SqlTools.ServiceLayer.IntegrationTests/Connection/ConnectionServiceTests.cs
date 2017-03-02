@@ -3,17 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Test.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 {
@@ -30,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             service.OwnerToConnectionMap.Clear();
             for (int i = 0; i < 2; i++)
             {
-                var result = TestObjects.InitLiveConnectionInfo();
+                var result = LiveConnectionHelper.InitLiveConnectionInfo();
                 ConnectionInfo connectionInfo = result.ConnectionInfo;
                 string uri = connectionInfo.OwnerUri;
 
@@ -39,8 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 Assert.Equal(1, service.OwnerToConnectionMap.Count);
 
                 // If we run a query
-                var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-                Query query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
+                var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+                Query query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
                 query.Execute();
                 query.ExecutionTask.Wait();
 
@@ -48,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 Assert.Equal(2, connectionInfo.CountConnections);
 
                 // If we run another query
-                query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
+                query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
                 query.Execute();
                 query.ExecutionTask.Wait();
 
@@ -69,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         {
             // If we make a connection to a live database 
             ConnectionService service = ConnectionService.Instance;
-            var result = TestObjects.InitLiveConnectionInfo();
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connectionInfo = result.ConnectionInfo;
             ConnectionDetails details = connectionInfo.ConnectionDetails;
             string uri = connectionInfo.OwnerUri;
@@ -78,8 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             string changeDatabaseQuery = "use " + newDatabaseName;
 
             // Then run any query to create a query DbConnection
-            var fileStreamFactory = Common.GetFileStreamFactory(new Dictionary<string, byte[]>());
-            Query query = new Query(Common.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            Query query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
             query.Execute();
             query.ExecutionTask.Wait();
 

@@ -10,8 +10,8 @@ using System.Data.SqlClient;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.Test.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
         private SqlConnection SetUpConnection(string name)
         {
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, name);
-            ConnectionInfo connInfo = TestObjects.InitLiveConnectionInfoForDefinition(testDb.DatabaseName);
+            ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition(testDb.DatabaseName);
             string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
             SqlConnection resultConnection = new SqlConnection(connectionString);
             resultConnection.Open();

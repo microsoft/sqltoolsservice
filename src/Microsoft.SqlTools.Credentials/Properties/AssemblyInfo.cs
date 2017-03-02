@@ -42,7 +42,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyInformationalVersion("1.0.0.0")]
 
 
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test")]
+[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.UnitTests")]
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test.Common")]
 
