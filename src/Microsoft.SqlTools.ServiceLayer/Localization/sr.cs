@@ -237,11 +237,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string QueryServiceResultSetReaderNull
+        public static string QueryServiceResultSetAddNoRows
         {
             get
             {
-                return Keys.GetString(Keys.QueryServiceResultSetReaderNull);
+                return Keys.GetString(Keys.QueryServiceResultSetAddNoRows);
             }
         }
 
@@ -929,7 +929,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceMessageSenderNotSql = "QueryServiceMessageSenderNotSql";
 
 
-            public const string QueryServiceResultSetReaderNull = "QueryServiceResultSetReaderNull";
+            public const string QueryServiceResultSetAddNoRows = "QueryServiceResultSetAddNoRows";
 
 
             public const string QueryServiceSaveAsResultSetNotComplete = "QueryServiceSaveAsResultSetNotComplete";

@@ -109,7 +109,7 @@ QueryServiceQueryInProgress = A query is already in progress for this editor ses
 
 QueryServiceMessageSenderNotSql = Sender for OnInfoMessage event must be a SqlConnection
 
-QueryServiceResultSetReaderNull = Reader cannot be null
+QueryServiceResultSetAddNoRows = Cannot add row to result buffer, data reader does not contain rows
 
 ### Save As Requests
 

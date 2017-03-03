@@ -332,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public async Task ReadResultToEnd(DbDataReader dbDataReader, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we got a reader
-            Validate.IsNotNull(nameof(dbDataReader), SR.QueryServiceResultSetReaderNull);
+            Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
 
             try
             {
@@ -609,8 +609,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             if (!dbDataReader.HasRows)
             {
-                // @TODO Move to constants file
-                throw new InvalidOperationException("Cannot add row to result buffer, data reader does not contain rows");
+                throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
 
             StorageDataReader dataReader = new StorageDataReader(dbDataReader);

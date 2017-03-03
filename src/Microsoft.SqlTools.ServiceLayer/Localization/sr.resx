@@ -261,8 +261,8 @@
     <value>Sender for OnInfoMessage event must be a SqlConnection</value>
     <comment></comment>
   </data>
-  <data name="QueryServiceResultSetReaderNull" xml:space="preserve">
-    <value>Reader cannot be null</value>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>Cannot add row to result buffer, data reader does not contain rows</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">

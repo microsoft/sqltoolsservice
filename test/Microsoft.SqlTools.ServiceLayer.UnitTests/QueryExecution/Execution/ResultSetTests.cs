@@ -41,6 +41,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Fact]
+        public async Task ReadToEndNullReader()
+        {
+            // If: I create a new result set with a null db data reader
+            // Then: I should get an exception
+            var fsf = MemoryFileSystem.GetFileStreamFactory();
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fsf);
+            await Assert.ThrowsAsync<ArgumentNullException>(() => resultSet.ReadResultToEnd(null, CancellationToken.None));
+        }
+
+        [Fact]
         public async Task ReadToEndSuccess()
         {
             // Setup: Create a callback for resultset completion
