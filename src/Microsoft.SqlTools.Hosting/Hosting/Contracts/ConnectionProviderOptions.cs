@@ -12,11 +12,24 @@ namespace Microsoft.SqlTools.Hosting.Contracts
     /// </summary>
     public class ConnectionProviderOptions
     {
-        public ConnectionOptions[] Options { get; set; }
+        public ConnectionOption[] Options { get; set; }
     }
 
-    public class ConnectionOptions
+    public class ConnectionOption
     {
+        public static readonly string ValueTypeString = "string";
+        public static readonly string ValueTypeMultiString = "multistring";
+        public static readonly string ValueTypePassword = "password";
+        public static readonly string ValueTypeNumber = "number";
+        public static readonly string ValueTypeCategory = "category";
+        public static readonly string ValueTypeBoolean = "boolean";
+
+        public static readonly string SpecialValueServerName = "serverName";
+        public static readonly string SpecialValueDatabaseName = "databaseName";
+        public static readonly string SpecialValueAuthType = "authType";
+        public static readonly string SpecialValueUserName = "userName";
+        public static readonly string SpecialValuePasswordName = "password";
+
         public string Name { get; set; }
 
         public string DisplayName { get; set; }
@@ -48,7 +61,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// <summary>
         /// Flag to indicate that this option is required
         /// </summary>
-        public bool IsRequired { get; set; }        
+        public bool IsRequired { get; set; }   
     }
 }
 

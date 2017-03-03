@@ -174,10 +174,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
         internal async Task HandleCapabilitiesRequest(
             CapabilitiesRequest initializeParams, 
-            RequestContext<CapabilitiesResponse> requestContext)            
+            RequestContext<CapabilitiesResult> requestContext)            
         {
             await requestContext.SendResult(
-                new CapabilitiesResponse
+                new CapabilitiesResult
                 {
                     Capabilities = new DmpServerCapabilities
                     {
@@ -192,9 +192,119 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
 
         private static ConnectionProviderOptions BuildConnectionProviderOptions()
         {
-            return new ConnectionProviderOptions();
+            return new ConnectionProviderOptions
+            {
+                Options = new ConnectionOption[]
+                {
+                    new ConnectionOption
+                    {
+                        Name = "Server Name",
+                        ValueType = ConnectionOption.ValueTypeString,
+                        SpecialValueType = ConnectionOption.SpecialValueServerName,
+                        IsIdentity = true,
+                        IsRequired = true
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Initial Catalog",
+                        DisplayName = "Database Name",
+                        ValueType = ConnectionOption.ValueTypeString,
+                        SpecialValueType = ConnectionOption.SpecialValueDatabaseName,
+                        IsIdentity = true,
+                        IsRequired = true
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Auth Type",
+                        ValueType = ConnectionOption.ValueTypeCategory,
+                        SpecialValueType = ConnectionOption.SpecialValueAuthType,
+                        CategoryValues = new string[] { "SQL Login", "Integrated Auth" },
+                        IsIdentity = true,
+                        IsRequired = true
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Username",
+                        ValueType = ConnectionOption.ValueTypeString,
+                        SpecialValueType = ConnectionOption.SpecialValueUserName,
+                        IsIdentity = true,
+                        IsRequired = true
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Password",
+                        DisplayName = "Database Name",
+                        ValueType = ConnectionOption.ValueTypePassword,
+                        SpecialValueType = ConnectionOption.SpecialValuePasswordName,
+                        IsIdentity = true,
+                        IsRequired = true
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Application Intent",
+                        ValueType = ConnectionOption.ValueTypeCategory,
+                        CategoryValues = new string[] { "ReadWrite", "ReadOnly" }
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Asynchronous Processing",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Connect Timeout",
+                        ValueType = ConnectionOption.ValueTypeNumber,
+                        DefaultValue = "15"
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Current Language",
+                        ValueType = ConnectionOption.ValueTypeString
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Column Encrytion Setting",
+                        ValueType = ConnectionOption.ValueTypeCategory,
+                        CategoryValues = new string[] { "Disabled", "Enabled" }
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Encrypt",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Persist Security Info",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Trust Server Certificate",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Persist Security Info",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Trust Server Certificate",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Attached DB File Name",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "Context Connection",
+                        ValueType = ConnectionOption.ValueTypeString
+                    }
+                }
+            };
         }
-
 
         /// <summary>
         /// Handles the version request. Sends back the server version as result.

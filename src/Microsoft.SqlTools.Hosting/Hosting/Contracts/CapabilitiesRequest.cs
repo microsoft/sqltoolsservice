@@ -14,15 +14,15 @@ namespace Microsoft.SqlTools.Hosting.Contracts
     public class CapabilitiesRequest
     {
         public static readonly
-           RequestType<CapabilitiesRequest, CapabilitiesResponse> Type =
-            RequestType<CapabilitiesRequest, CapabilitiesResponse>.Create("capabilities/list");
+           RequestType<CapabilitiesRequest, CapabilitiesResult> Type =
+            RequestType<CapabilitiesRequest, CapabilitiesResult>.Create("capabilities/list");
 
         public string HostName { get; set; }
 
         public string HostVersion { get; set; }
     }
 
-    public class CapabilitiesResponse
+    public class CapabilitiesResult
     {
         public DmpServerCapabilities Capabilities { get; set; }
     }    
