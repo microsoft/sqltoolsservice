@@ -9,7 +9,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.SqlTools.Utility
 {
     /// <summary>
     /// Defines the level indicators for log messages.

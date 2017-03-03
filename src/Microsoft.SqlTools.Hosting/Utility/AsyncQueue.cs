@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.SqlTools.Utility
 {
     /// <summary>
     /// Provides a synchronized queue which can be used from within async

@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
 

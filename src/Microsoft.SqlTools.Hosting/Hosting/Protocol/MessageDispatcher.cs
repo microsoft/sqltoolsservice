@@ -8,12 +8,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Channel;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol.Channel;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+namespace Microsoft.SqlTools.Hosting.Protocol
 {
     public class MessageDispatcher
     {

@@ -4,9 +4,9 @@
 //
 
 using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
+using Microsoft.SqlTools.Credentials.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.Linux
+namespace Microsoft.SqlTools.Credentials.Linux
 {
     /// <summary>
     /// Simplified class to enable writing a set of credentials to/from disk

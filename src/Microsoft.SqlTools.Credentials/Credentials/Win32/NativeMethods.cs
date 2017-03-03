@@ -6,9 +6,8 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.SqlTools.Credentials;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
+namespace Microsoft.SqlTools.Credentials.Win32
 {
     internal class NativeMethods
     {

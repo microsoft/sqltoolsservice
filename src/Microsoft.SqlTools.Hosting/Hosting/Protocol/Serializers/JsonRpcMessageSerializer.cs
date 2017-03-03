@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers
+namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
 {
     /// <summary>
     /// Serializes messages in the JSON RPC format.  Used primarily

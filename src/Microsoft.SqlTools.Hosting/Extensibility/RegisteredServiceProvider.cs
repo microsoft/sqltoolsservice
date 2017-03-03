@@ -10,9 +10,9 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.SqlTools.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Extensibility
+namespace Microsoft.SqlTools.Extensibility
 {
 
     /// <summary>

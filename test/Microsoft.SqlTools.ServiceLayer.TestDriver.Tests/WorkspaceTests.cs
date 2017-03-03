@@ -5,7 +5,7 @@
 
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
 

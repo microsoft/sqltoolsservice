@@ -4,7 +4,7 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {

@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 #if false
-using Microsoft.SqlTools.EditorServices.Extensions;
-using Microsoft.SqlTools.EditorServices.Protocol.LanguageServer;
-using Microsoft.SqlTools.EditorServices.Protocol.MessageProtocol;
+using Microsoft.SqlTools.Extensions;
+using Microsoft.SqlTools.Protocol.LanguageServer;
+using Microsoft.SqlTools.Protocol.MessageProtocol;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.EditorServices.Protocol.Server
+namespace Microsoft.SqlTools.Protocol.Server
 {
     internal class LanguageServerEditorOperations : IEditorOperations
     {

@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Serializers;
+using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Newtonsoft.Json.Linq;
 using Xunit;
-using HostingMessage = Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts.Message;
+using HostingMessage = Microsoft.SqlTools.Hosting.Protocol.Contracts.Message;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {

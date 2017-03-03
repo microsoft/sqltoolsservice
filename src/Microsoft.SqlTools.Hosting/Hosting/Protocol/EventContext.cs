@@ -4,9 +4,9 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+namespace Microsoft.SqlTools.Hosting.Protocol
 {
     /// <summary>
     /// Provides context for a received event so that handlers

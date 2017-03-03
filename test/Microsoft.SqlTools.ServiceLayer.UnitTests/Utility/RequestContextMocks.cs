@@ -5,8 +5,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility

@@ -5,8 +5,8 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.SqlTools.ServiceLayer.Credentials;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
+using Microsoft.SqlTools.Credentials;
+using Microsoft.SqlTools.Credentials.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {

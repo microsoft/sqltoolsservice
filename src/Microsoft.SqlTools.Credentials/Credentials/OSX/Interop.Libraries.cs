@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials
+namespace Microsoft.SqlTools.Credentials
 {
     internal static partial class Interop
     {

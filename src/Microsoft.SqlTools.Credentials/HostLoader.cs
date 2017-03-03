@@ -2,14 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Credentials;
-using Microsoft.SqlTools.ServiceLayer.Extensibility;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol;
+using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Hosting;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace  Microsoft.SqlTools.Credentials
@@ -23,9 +18,9 @@ namespace  Microsoft.SqlTools.Credentials
         private static object lockObject = new object();
         private static bool isLoaded;
 
-        internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
+        internal static CredentialsServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
         {
-            ServiceHost serviceHost = ServiceHost.Instance;
+            CredentialsServiceHost serviceHost = CredentialsServiceHost.Instance;
             lock (lockObject)
             {
                 if (!isLoaded)
@@ -45,7 +40,7 @@ namespace  Microsoft.SqlTools.Credentials
             return serviceHost;
         }
 
-        private static void InitializeRequestHandlersAndServices(ServiceHost serviceHost, SqlToolsContext sqlToolsContext)
+        private static void InitializeRequestHandlersAndServices(CredentialsServiceHost serviceHost, SqlToolsContext sqlToolsContext)
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future

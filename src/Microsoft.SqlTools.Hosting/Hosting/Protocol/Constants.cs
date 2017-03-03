@@ -6,7 +6,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Protocol
+namespace Microsoft.SqlTools.Hosting.Protocol
 {
     public static class Constants
     {

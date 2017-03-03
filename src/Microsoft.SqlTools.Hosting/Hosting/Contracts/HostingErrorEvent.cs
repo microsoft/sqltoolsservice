@@ -3,9 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Hosting.Contracts
+namespace Microsoft.SqlTools.Hosting.Contracts
 {
     /// <summary>
     /// Parameters to be used for reporting hosting-level errors, such as protocol violations

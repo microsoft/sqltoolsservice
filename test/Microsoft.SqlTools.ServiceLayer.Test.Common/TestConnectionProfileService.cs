@@ -6,8 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Credentials.Contracts;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common

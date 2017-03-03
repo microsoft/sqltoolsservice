@@ -4,9 +4,8 @@
 
 using System;
 using Microsoft.SqlTools.Credentials.Utility;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.Credentials
 {
@@ -39,7 +38,7 @@ namespace Microsoft.SqlTools.Credentials
                 version: new Version(1, 0));
             
             SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-            ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+            CredentialsServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
             serviceHost.WaitForExit();
         }

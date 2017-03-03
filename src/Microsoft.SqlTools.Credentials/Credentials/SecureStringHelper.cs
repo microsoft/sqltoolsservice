@@ -7,7 +7,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace Microsoft.SqlTools.ServiceLayer.Credentials.Win32
+namespace Microsoft.SqlTools.Credentials
 {
     internal static class SecureStringHelper
     {
