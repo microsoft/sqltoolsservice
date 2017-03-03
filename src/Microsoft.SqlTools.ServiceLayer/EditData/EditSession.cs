@@ -246,8 +246,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #endregion
 
-        #region Private Helpers
-
         private async Task CommitEditsInternal(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
         {
             try
@@ -279,7 +277,5 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 await errorHandler(e);
             }
         }
-
-        #endregion
     }
 }
