@@ -295,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     new ConnectionOption
                     {
                         Name = "Attached DB File Name",
-                        ValueType = ConnectionOption.ValueTypeBoolean
+                        ValueType = ConnectionOption.ValueTypeString
                     },
                     new ConnectionOption
                     {
