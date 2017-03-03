@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class ServiceIntegrationTests
     {
-        #region Session Operation Helper Tests
+        #region EditSession Operation Helper Tests
 
         [Theory]
         [InlineData(null)]
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
 
             // ... There should be a delete in the session
-            Session s = eds.ActiveSessions[Constants.OwnerUri];
+            EditSession s = eds.ActiveSessions[Constants.OwnerUri];
             Assert.True(s.EditCache.Any(e => e.Value is RowDelete));
         }
 
@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
 
             // ... There should be a create in the session
-            Session s = eds.ActiveSessions[Constants.OwnerUri];
+            EditSession s = eds.ActiveSessions[Constants.OwnerUri];
             Assert.True(s.EditCache.Any(e => e.Value is RowCreate));
         }
 
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
 
             // ... The edit cache should be empty again
-            Session s = eds.ActiveSessions[Constants.OwnerUri];
+            EditSession s = eds.ActiveSessions[Constants.OwnerUri];
             Assert.Empty(s.EditCache);
         }
 
@@ -215,13 +215,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             edit.Verify(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
         }
 
-        private static Session GetDefaultSession()
+        private static EditSession GetDefaultSession()
         {
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
             IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
-            Session s = new Session(rs, etm);
+            EditSession s = new EditSession(rs, etm);
             return s;
         }
     }

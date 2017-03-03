@@ -53,8 +53,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         private readonly QueryExecutionService queryExecutionService;
 
-        private readonly Lazy<ConcurrentDictionary<string, Session>> editSessions = new Lazy<ConcurrentDictionary<string, Session>>(
-            () => new ConcurrentDictionary<string, Session>());
+        private readonly Lazy<ConcurrentDictionary<string, EditSession>> editSessions = new Lazy<ConcurrentDictionary<string, EditSession>>(
+            () => new ConcurrentDictionary<string, EditSession>());
 
         #endregion
 
@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// Dictionary mapping OwnerURIs to active sessions
         /// </summary>
-        internal ConcurrentDictionary<string, Session> ActiveSessions => editSessions.Value;
+        internal ConcurrentDictionary<string, EditSession> ActiveSessions => editSessions.Value;
 
         #endregion
 
@@ -85,14 +85,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         #region Request Handlers
 
         internal async Task HandleSessionRequest<TResult>(SessionOperationParams sessionParams,
-            RequestContext<TResult> requestContext, Func<Session, TResult> sessionOperation)
+            RequestContext<TResult> requestContext, Func<EditSession, TResult> sessionOperation)
         {
             try
             {
-                Session session = GetActiveSessionOrThrow(sessionParams.OwnerUri);
+                EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
 
-                // Get the result from execution of the session operation
-                TResult result = sessionOperation(session);
+                // Get the result from execution of the editSession operation
+                TResult result = sessionOperation(editSession);
                 await requestContext.SendResult(result);
             }
             catch (Exception e)
@@ -134,9 +134,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // Sanity check the owner URI
                 Validate.IsNotNullOrWhitespaceString(nameof(disposeParams.OwnerUri), disposeParams.OwnerUri);
 
-                // Attempt to remove the session
-                Session session;
-                if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out session))
+                // Attempt to remove the editSession
+                EditSession editSession;
+                if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out editSession))
                 {
                     await requestContext.SendError(SR.EditDataSessionNotFound);
                     return;
@@ -229,13 +229,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             try
             {
-                // Get the session
-                Session session = GetActiveSessionOrThrow(commitParams.OwnerUri);
+                // Get the editSession
+                EditSession editSession = GetActiveSessionOrThrow(commitParams.OwnerUri);
 
                 // Get a connection for doing the committing
                 DbConnection conn = await connectionService.GetOrOpenConnection(commitParams.OwnerUri,
                     ConnectionType.Edit);
-                session.CommitEdits(conn, successHandler, failureHandler);
+                editSession.CommitEdits(conn, successHandler, failureHandler);
             }
             catch (Exception e)
             {
@@ -253,19 +253,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <exception cref="Exception">If the edit session doesn't exist</exception>
         /// <param name="ownerUri">Owner URI for the edit session</param>
         /// <returns>The edit session that corresponds to the owner URI</returns>
-        private Session GetActiveSessionOrThrow(string ownerUri)
+        private EditSession GetActiveSessionOrThrow(string ownerUri)
         {
             // Sanity check the owner URI is provided
             Validate.IsNotNullOrWhitespaceString(nameof(ownerUri), ownerUri);
 
-            // Attempt to get the session, throw if unable
-            Session session;
-            if (!ActiveSessions.TryGetValue(ownerUri, out session))
+            // Attempt to get the editSession, throw if unable
+            EditSession editSession;
+            if (!ActiveSessions.TryGetValue(ownerUri, out editSession))
             {
                 throw new Exception(SR.EditDataSessionNotFound);
             }
 
-            return session;
+            return editSession;
         }
 
         private async Task QueryCompleteCallback(Query query, EditInitializeParams initParams,
@@ -278,19 +278,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             try
             {
-                // Validate the query for a session
-                ResultSet resultSet = Session.ValidateQueryForSession(query);
+                // Validate the query for a editSession
+                ResultSet resultSet = EditSession.ValidateQueryForSession(query);
 
                 // Get a connection we'll use for SMO metadata lookup (and committing, later on)
                 DbConnection conn = await connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
                 var metadata = metadataFactory.GetObjectMetadata(conn, resultSet.Columns,
                     initParams.ObjectName, initParams.ObjectType);
 
-                // Create the session and add it to the sessions list
-                Session session = new Session(resultSet, metadata);
-                if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
+                // Create the editSession and add it to the sessions list
+                EditSession editSession = new EditSession(resultSet, metadata);
+                if (!ActiveSessions.TryAdd(initParams.OwnerUri, editSession))
                 {
-                    throw new InvalidOperationException("Failed to create edit session, session already exists.");
+                    throw new InvalidOperationException("Failed to create edit editSession, editSession already exists.");
                 }
                 readyParams.Success = true;
             }

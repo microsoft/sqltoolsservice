@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     /// Represents an edit "session" bound to the results of a query, containing a cache of edits
     /// that are pending. Provides logic for performing edit operations.
     /// </summary>
-    public class Session
+    public class EditSession
     {
 
         private readonly ResultSet associatedResultSet;
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// </summary>
         /// <param name="resultSet">The result set of the table to be edited</param>
         /// <param name="objMetadata">Metadata provider for the table to be edited</param>
-        public Session(ResultSet resultSet, IEditTableMetadata objMetadata)
+        public EditSession(ResultSet resultSet, IEditTableMetadata objMetadata)
         {
             Validate.IsNotNull(nameof(resultSet), resultSet);
             Validate.IsNotNull(nameof(objMetadata), objMetadata);
@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             Validate.IsNotNull(nameof(successHandler), successHandler);
             Validate.IsNotNull(nameof(errorHandler), errorHandler);
 
-            // Make sure that there a commit task isn't in progress
+            // Make sure that there isn't a commit task in progress
             if (CommitTask != null && !CommitTask.IsCompleted)
             {
                 throw new InvalidOperationException(SR.EditDataCommitInProgress);

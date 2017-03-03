@@ -94,6 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             BatchId = batchOrdinal;
 
             // Initialize the storage
+            totalBytesWritten = 0;
             outputFileName = factory.CreateFile();
             fileOffsets = new LongList<long>();
             specialAction = new SpecialAction();
@@ -378,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Make sure that the results have been read
             if (!hasBeenRead)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
 
             // Simply remove the row from the list of row offsets

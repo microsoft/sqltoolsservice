@@ -149,6 +149,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="value">The item to store at the index specified</param>
         public void SetItem(long index, T value)
         {
+            Validate.IsLessThan(nameof(index), index, Count);
+
             if (Count <= this.ExpandListSize)
             {
                 int i32Index = Convert.ToInt32(index);
@@ -157,16 +159,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             else
             {
                 int iArray32Index = (int) (Count / this.ExpandListSize);
-                if (expandedList.Count > iArray32Index)
-                {
-                    List<T> arr = expandedList[iArray32Index];
+                List<T> arr = expandedList[iArray32Index];
 
-                    int i32Index = (int) (Count % this.ExpandListSize);
-                    if (arr.Count > i32Index)
-                    {
-                        arr[i32Index] = value;
-                    }
-                }
+                int i32Index = (int)(Count % this.ExpandListSize);
+                arr[i32Index] = value;
             }
         }
 

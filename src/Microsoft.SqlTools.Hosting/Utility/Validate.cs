@@ -64,8 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="upperLimit">The upper limit which the value should be less than.</param>
         public static void IsLessThan(
             string parameterName,
-            int valueToCheck,
-            int upperLimit)
+            long valueToCheck,
+            long upperLimit)
         {
             if (valueToCheck >= upperLimit)
             {
@@ -87,8 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="lowerLimit">The lower limit which the value should be greater than.</param>
         public static void IsGreaterThan(
             string parameterName,
-            int valueToCheck,
-            int lowerLimit)
+            long valueToCheck,
+            long lowerLimit)
         {
             if (valueToCheck < lowerLimit)
             {
