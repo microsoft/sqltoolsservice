@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create the values to store
             const long rowId = 100;
             ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I create a RowCreate instance
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             DbColumn[] columns = Common.GetColumns(true);
             ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetMetadata(columns, false, isMemoryOptimized);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns, false, isMemoryOptimized);
 
             // If: I ask for a script to be generated for delete
             RowDelete rd = new RowDelete(0, rs, etm);
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 0;
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
 
             // If: I ask for the change to be applied
             RowDelete rd = new RowDelete(rowId, rs, etm);
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 0;
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetMetadata(columns, !includeIdentity, isMemoryOptimized);
+            var etm = Common.GetStandardMetadata(columns, !includeIdentity, isMemoryOptimized);
             RowDelete rd = new RowDelete(rowId, rs, etm);
 
             // ... Mock db connection for building the command
@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a row delete
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowDelete rd = new RowDelete(0, rs, etm);
 
             // If: I attempt to create a command with a null connection
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             DbColumn[] columns = Common.GetColumns(true);
             ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetMetadata(columns, false);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns, false);
 
             // If: I set a cell on a delete row edit
             // Then: It should throw as invalid operation

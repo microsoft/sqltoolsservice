@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
             return s;
         }
