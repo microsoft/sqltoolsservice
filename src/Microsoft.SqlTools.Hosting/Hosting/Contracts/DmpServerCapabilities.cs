@@ -5,11 +5,17 @@
 
 namespace Microsoft.SqlTools.Hosting.Contracts
 {
+    /// <summary>
+    /// Defines the DMP server capabilities
+    /// </summary>
     public class DmpServerCapabilities
     {
-        public string ProviderName { get; set; 
-        }
-        public bool? HoverProvider { get; set; }
+        public string ProtocolVersion { get; set; }
+
+        public string ProviderName { get; set; }
+
+        public string ProviderDisplayName { get; set; }
+
+        public ConnectionProviderOptions ConnectionProvider { get; set; }
     }
 }
-

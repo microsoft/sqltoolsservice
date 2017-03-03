@@ -62,8 +62,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         public void InitializeRequestHandlers()
         {
             // Register the requests that this service host will handle
-            this.SetRequestHandler(InitializeRequest.Type, this.HandleInitializeRequest);
-            this.SetRequestHandler(ShutdownRequest.Type, this.HandleShutdownRequest);
+            this.SetRequestHandler(InitializeRequest.Type, HandleInitializeRequest);
+            this.SetRequestHandler(CapabilitiesRequest.Type, HandleCapabilitiesRequest);
+            this.SetRequestHandler(ShutdownRequest.Type, HandleShutdownRequest);
             this.SetRequestHandler(VersionRequest.Type, HandleVersionRequest);
         }
 
@@ -170,6 +171,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     }
                 });
         }
+
+        internal async Task HandleCapabilitiesRequest(
+            CapabilitiesRequest initializeParams, 
+            RequestContext<CapabilitiesResponse> requestContext)            
+        {
+            await requestContext.SendResult(
+                new CapabilitiesResponse
+                {
+                    Capabilities = new DmpServerCapabilities
+                    {
+                        ProtocolVersion = "1.0",
+                        ProviderName = "MSSQL",
+                        ProviderDisplayName = "Microsoft SQL Server",
+                        ConnectionProvider = ServiceHost.BuildConnectionProviderOptions()                      
+                    }
+                }
+            );            
+        }
+
+        private static ConnectionProviderOptions BuildConnectionProviderOptions()
+        {
+            return new ConnectionProviderOptions();
+        }
+
 
         /// <summary>
         /// Handles the version request. Sends back the server version as result.
