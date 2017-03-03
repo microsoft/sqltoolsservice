@@ -50,11 +50,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 {
                     DbColumn = dbColumn,
                     Ordinal = i,
+                    DefaultValue = smoColumn.Default,
                     EscapedName = SqlScriptFormatter.FormatIdentifier(dbColumn.ColumnName),
                     IsTrustworthyForUniqueness = isTrustworthyForUniqueness,
 
                     // A key column is determined by whether it is in the primary key and trustworthy
-                    IsKey = smoColumn.InPrimaryKey && isTrustworthyForUniqueness
+                    IsKey = smoColumn.InPrimaryKey && isTrustworthyForUniqueness,
+
+                    // A column is calculated if it is identity, computed, or otherwise not updatable
+                    IsCalculated = smoColumn.Identity || smoColumn.Computed || !dbColumn.IsUpdatable
                 };
                 columns.Add(column);
             }

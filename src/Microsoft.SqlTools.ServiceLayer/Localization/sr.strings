@@ -200,6 +200,8 @@ EditDataScriptFilePathNull = An output filename must be provided
 
 EditDataCommitInProgress = A commit task is in progress. Please wait for completion.
 
+EditDataComputedColumnPlaceholder = <TBD>
+
 ############################################################################
 # DacFx Resources
 

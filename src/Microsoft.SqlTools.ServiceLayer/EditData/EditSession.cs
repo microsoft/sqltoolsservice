@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// </summary>
         /// <exception cref="InvalidOperationException">If inserting into cache fails</exception>
         /// <returns>The internal ID of the newly created row</returns>
-        public long CreateRow()
+        public EditCreateRowResult CreateRow()
         {
             // Create a new row ID (atomically, since this could be accesses concurrently)
             long newRowId = NextRowId++;
@@ -110,7 +110,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataFailedAddRow);
             }
 
-            return newRowId;
+            var defaultValues = objectMetadata.Columns.Select(
+                c => c.IsCalculated ? SR.EditDataComputedColumnPlaceholder : c.DefaultValue);
+
+            EditCreateRowResult output = new EditCreateRowResult
+            {
+                NewRowId = newRowId,
+                DefaultValues = defaultValues.ToArray()
+            };
+            return output;
         }
 
         /// <summary>

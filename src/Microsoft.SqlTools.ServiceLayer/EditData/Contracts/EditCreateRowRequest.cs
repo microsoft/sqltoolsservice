@@ -20,6 +20,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     public class EditCreateRowResult
     {
         /// <summary>
+        /// Each element corresponds to the default value for the column. If null, no default is
+        /// defined. Calculated columns will have placeholders provided here.
+        /// </summary>
+        public string[] DefaultValues { get; set; }
+
+        /// <summary>
         /// The internal ID of the newly created row
         /// </summary>
         public long NewRowId { get; set; }

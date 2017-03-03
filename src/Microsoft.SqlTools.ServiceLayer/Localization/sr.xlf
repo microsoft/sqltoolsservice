@@ -531,9 +531,9 @@
         <target state="new">Decimal column is missing numeric precision or numeric scale</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceResultSetAddNoRows">
-        <source>Cannot add row to result buffer, data reader does not contain rows</source>
-        <target state="new">Cannot add row to result buffer, data reader does not contain rows</target>
+      <trans-unit id="EditDataComputedColumnPlaceholder">
+        <source>&lt;TBD&gt;</source>
+        <target state="new">&lt;TBD&gt;</target>
         <note></note>
       </trans-unit>
     </body>
