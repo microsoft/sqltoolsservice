@@ -312,6 +312,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Empty(eds.InitializeWaitHandles);
         }
 
+        [Fact]
+        public async Task InitializeQueryExecutionFails()
+        {
+            // Setup:
+            // ... Create a query execution service that will throw on execution of the query
+            var qes = QueryExecution.Common.GetPrimedExecutionService(null, true, true, null);
+
+            // ... Create an edit data service that uses the mocked up query service
+            var eds = new EditDataService(qes, null, null);
+
+            // If:
+            // ... I initialize a session
+            var initParams = new EditInitializeParams
+            {
+                ObjectName = "table",
+                OwnerUri = Common.OwnerUri,
+                ObjectType = "table"
+            };
+            var efv = new EventFlowValidator<EditInitializeResult>()
+                .AddResultValidation(Assert.NotNull)
+                .AddEventValidation(EditSessionReadyEvent.Type, esrp =>
+                {
+                    Assert.NotNull(esrp);
+                    Assert.False(esrp.Success);
+                }).Complete();
+            await eds.HandleInitializeRequest(initParams, efv.Object);
+            await eds.InitializeWaitHandles[Common.OwnerUri].Task;
+
+            // Then:
+            // ... We should have started execution, but failed
+            efv.Validate();
+
+            // ... There should not be any sessions created
+            Assert.Empty(eds.ActiveSessions);
+
+            // ... There should not be a wait handle. It should have been cleaned up by now
+            Assert.Empty(eds.InitializeWaitHandles);
+        }
+
         private static EditSession GetDefaultSession()
         {
             // ... Create a session with a proper query and metadata
