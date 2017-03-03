@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         public ExcelSheet AddSheet(string sheetName = null)
         {
-            string sheetFileName = "Sheet" + (sheetNames.Count + 1);
+            string sheetFileName = "sheet" + (sheetNames.Count + 1);
             if (sheetName == null)
             {
                 sheetName = sheetFileName;
