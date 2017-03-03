@@ -4,9 +4,12 @@
 //
 
 using System;
+using System.Data.Common;
 using System.Globalization;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -30,14 +33,52 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes 
+        /// to be committed
+        /// </summary>
+        protected override int SortId => 2;
+
+        /// <summary>
+        /// Applies the changes to the associated result set after successfully executing the
+        /// change on the database
+        /// </summary>
+        /// <param name="dataReader">
+        /// Reader returned from the execution of the command to insert a new row. Should NOT
+        /// contain any rows.
+        /// </param>
+        public override Task ApplyChanges(DbDataReader dataReader)
+        {
+            // Take the result set and remove the row from it
+            AssociatedResultSet.RemoveRow(RowId);
+            return Task.FromResult(0);
+        }
+
+        /// <summary>
+        /// Generates a command for deleting the selected row
+        /// </summary>
+        /// <returns></returns>
+        public override DbCommand GetCommand(DbConnection connection)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+
+            // Return a SqlCommand with formatted with the parameters from the where clause
+            WhereClause where = GetWhereClause(true);
+            string commandText = GetCommandText(where.CommandText);
+
+            DbCommand command = connection.CreateCommand();
+            command.CommandText = commandText;
+            command.Parameters.AddRange(where.Parameters.ToArray());
+
+            return command;
+        }
+
+        /// <summary>
         /// Generates a DELETE statement to delete this row
         /// </summary>
         /// <returns>String of the DELETE statement</returns>
         public override string GetScript()
         {
-            string formatString = AssociatedObjectMetadata.IsMemoryOptimized ? DeleteMemoryOptimizedStatement : DeleteStatement;
-            return string.Format(CultureInfo.InvariantCulture, formatString,
-                AssociatedObjectMetadata.EscapedMultipartName, GetWhereClause(false).CommandText);
+            return GetCommandText(GetWhereClause(false).CommandText);
         }
 
         /// <summary>
@@ -50,6 +91,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override EditUpdateCellResult SetCell(int columnId, string newValue)
         {
             throw new InvalidOperationException(SR.EditDataDeleteSetCell);
+        }
+
+        protected override int CompareToSameType(RowEditBase rowEdit)
+        {
+            // We want to sort by row ID *IN REVERSE* to make sure we delete from the bottom first.
+            // If we delete from the top first, it will change IDs, making all subsequent deletes
+            // off by one or more!
+            return RowId.CompareTo(rowEdit.RowId) * -1;
+        }
+
+        private string GetCommandText(string whereText)
+        {
+            string formatString = AssociatedObjectMetadata.IsMemoryOptimized
+                ? DeleteMemoryOptimizedStatement
+                : DeleteStatement;
+
+            return string.Format(CultureInfo.InvariantCulture, formatString,
+                AssociatedObjectMetadata.EscapedMultipartName, whereText);
         }
     }
 }

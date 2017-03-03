@@ -5,8 +5,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -18,22 +20,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     /// Represents an edit "session" bound to the results of a query, containing a cache of edits
     /// that are pending. Provides logic for performing edit operations.
     /// </summary>
-    public class Session
+    public class EditSession
     {
-
-        #region Member Variables
 
         private readonly ResultSet associatedResultSet;
         private readonly IEditTableMetadata objectMetadata;
-
-        #endregion
 
         /// <summary>
         /// Constructs a new edit session bound to the result set and metadat object provided
         /// </summary>
         /// <param name="resultSet">The result set of the table to be edited</param>
         /// <param name="objMetadata">Metadata provider for the table to be edited</param>
-        public Session(ResultSet resultSet, IEditTableMetadata objMetadata)
+        public EditSession(ResultSet resultSet, IEditTableMetadata objMetadata)
         {
             Validate.IsNotNull(nameof(resultSet), resultSet);
             Validate.IsNotNull(nameof(objMetadata), objMetadata);
@@ -48,6 +46,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         #region Properties
 
         /// <summary>
+        /// The task that is running to commit the changes to the db
+        /// Internal for unit test purposes.
+        /// </summary>
+        internal Task CommitTask { get; set; }
+
+        /// <summary>
         /// The internal ID for the next row in the table. Internal for unit testing purposes only.
         /// </summary>
         internal long NextRowId { get; private set; }
@@ -55,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// The cache of pending updates. Internal for unit test purposes only
         /// </summary>
-        internal ConcurrentDictionary<long, RowEditBase> EditCache { get;}
+        internal ConcurrentDictionary<long, RowEditBase> EditCache { get; }
 
         #endregion
 
@@ -110,6 +114,29 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
+        /// Commits the edits in the cache to the database and then to the associated result set of
+        /// this edit session. This is launched asynchronously.
+        /// </summary>
+        /// <param name="connection">The connection to use for executing the query</param>
+        /// <param name="successHandler">Callback to perform when the commit process has finished</param>
+        /// <param name="errorHandler">Callback to perform if the commit process has failed at some point</param>
+        public void CommitEdits(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+            Validate.IsNotNull(nameof(successHandler), successHandler);
+            Validate.IsNotNull(nameof(errorHandler), errorHandler);
+
+            // Make sure that there isn't a commit task in progress
+            if (CommitTask != null && !CommitTask.IsCompleted)
+            {
+                throw new InvalidOperationException(SR.EditDataCommitInProgress);
+            }
+
+            // Start up the commit process
+            CommitTask = CommitEditsInternal(connection, successHandler, errorHandler);
+        }
+
+        /// <summary>
         /// Creates a delete row update and adds it to the update cache
         /// </summary>
         /// <exception cref="InvalidOperationException">
@@ -149,6 +176,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
+        /// <summary>
+        /// Generates a single script file with all the pending edits scripted.
+        /// </summary>
+        /// <param name="outputPath">The path to output the script to</param>
+        /// <returns></returns>
         public string ScriptEdits(string outputPath)
         {
             // Validate the output path
@@ -203,7 +235,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Attempt to get the row that is being edited, create a new update object if one
             // doesn't exist
-            RowEditBase editRow = EditCache.GetOrAdd(rowId, new RowUpdate(rowId, associatedResultSet, objectMetadata));
+            // NOTE: This *must* be done as a lambda. RowUpdate creation requires that the row
+            // exist in the result set. We only want a new RowUpdate to be created if the edit
+            // doesn't already exist in the cache
+            RowEditBase editRow = EditCache.GetOrAdd(rowId, key => new RowUpdate(rowId, associatedResultSet, objectMetadata));
 
             // Pass the call to the row update
             return editRow.SetCell(columnId, newValue);
@@ -211,5 +246,36 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #endregion
 
+        private async Task CommitEditsInternal(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
+        {
+            try
+            {
+                // @TODO: Add support for transactional commits
+             
+                // Trust the RowEdit to sort itself appropriately
+                var editOperations = EditCache.Values.ToList();
+                editOperations.Sort();
+                foreach (var editOperation in editOperations)
+                {
+                    // Get the command from the edit operation and execute it
+                    using (DbCommand editCommand = editOperation.GetCommand(connection))
+                    using (DbDataReader reader = await editCommand.ExecuteReaderAsync())
+                    {
+                        // Apply the changes of the command to the result set
+                        await editOperation.ApplyChanges(reader);
+                    }
+
+                    // If we succeeded in applying the changes, then remove this from the cache
+                    // @TODO: Prevent edit sessions from being modified while a commit is in progress
+                    RowEditBase re;
+                    EditCache.TryRemove(editOperation.RowId, out re);
+                }
+                await successHandler();
+            }
+            catch (Exception e)
+            {
+                await errorHandler(e);
+            }
+        }
     }
 }

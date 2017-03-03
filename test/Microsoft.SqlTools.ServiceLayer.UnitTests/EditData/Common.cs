@@ -69,16 +69,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             return columns.ToArray();
         }
 
-        public static ResultSet GetResultSet(DbColumn[] columns, bool includeIdentity)
+        public static ResultSet GetResultSet(DbColumn[] columns, bool includeIdentity, int rowCount = 1)
         {
-            object[][] rows = includeIdentity
-                ? new[] { new object[] { "id", "1", "2", "3" } }
-                : new[] { new object[] { "1", "2", "3" } };
+            IEnumerable<object[]> rows = includeIdentity
+                ? Enumerable.Repeat(new object[] { "id", "1", "2", "3" }, rowCount)
+                : Enumerable.Repeat(new object[] { "1", "2", "3" }, rowCount);
             var testResultSet = new TestResultSet(columns, rows);
             var reader = new TestDbDataReader(new[] { testResultSet });
-            var resultSet = new ResultSet(reader, 0, 0, MemoryFileSystem.GetFileStreamFactory());
-            resultSet.ReadResultToEnd(CancellationToken.None).Wait();
+            var resultSet = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
+            resultSet.ReadResultToEnd(reader, CancellationToken.None).Wait();
             return resultSet;
+        }
+
+        public static DbDataReader GetNewRowDataReader(DbColumn[] columns, bool includeIdentity)
+        {
+            object[][] rows = includeIdentity
+                ? new[] {new object[] {"id", "q", "q", "q"}}
+                : new[] {new object[] {"q", "q", "q"}};
+            var testResultSet = new TestResultSet(columns, rows);
+            return new TestDbDataReader(new [] {testResultSet});
         }
 
         public static void AddCells(RowEditBase rc, bool includeIdentity)

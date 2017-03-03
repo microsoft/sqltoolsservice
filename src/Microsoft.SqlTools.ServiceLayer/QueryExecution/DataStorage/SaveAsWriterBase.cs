@@ -76,6 +76,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public abstract void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns);
 
         /// <summary>
+        /// Not implemented, do not use.
+        /// </summary>
+        [Obsolete]
+        public void Seek(long offset)
+        {
+            throw new InvalidOperationException("SaveAs writers are meant to be written once contiguously.");
+        }
+
+        /// <summary>
         /// Flushes the file stream buffer
         /// </summary>
         public void FlushBuffer()

@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // If: I attempt to save with a null set of params
             // Then: I should get a null argument exception
             ResultSet rs = new ResultSet(
-                GetReader(null, false, Common.NoOpQuery), Common.Ordinal, Common.Ordinal, 
+                Common.Ordinal, Common.Ordinal, 
                 MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<ArgumentNullException>(() => rs.SaveAs(
                 null,
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // If: I attempt to save with a null set of params
             // Then: I should get a null argument exception
             ResultSet rs = new ResultSet(
-                GetReader(null, false, Common.NoOpQuery), Common.Ordinal, Common.Ordinal, 
+                Common.Ordinal, Common.Ordinal, 
                 MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<ArgumentNullException>(() => rs.SaveAs(
                 new SaveResultsRequestParams(),
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // If: I attempt to save a result set that hasn't completed execution
             // Then: I should get an invalid operation exception
             ResultSet rs = new ResultSet(
-                GetReader(null, false, Common.NoOpQuery), Common.Ordinal, Common.Ordinal, 
+                Common.Ordinal, Common.Ordinal, 
                 MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<InvalidOperationException>(() => rs.SaveAs(
                 new SaveResultsRequestParams(), 
@@ -68,7 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Setup:
             // ... Create a result set that has been executed
             ResultSet rs = new ResultSet(
-                GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
                 MemoryFileSystem.GetFileStreamFactory());
 
@@ -92,10 +91,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
             // ... Create a result set with dummy data and read to the end
             ResultSet rs = new ResultSet(
-                GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
                 resultFactory);
-            await rs.ReadResultToEnd(CancellationToken.None);
+            await rs.ReadResultToEnd(GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery), CancellationToken.None);
 
             // ... Create a mock writer for writing the save as file
             Mock<IFileStreamWriter> saveWriter = GetMockWriter();
@@ -125,10 +123,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
             // ... Create a result set with dummy data and read to the end
             ResultSet rs = new ResultSet(
-                GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery),
                 Common.Ordinal, Common.Ordinal,
                 resultFactory);
-            await rs.ReadResultToEnd(CancellationToken.None);
+            await rs.ReadResultToEnd(GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery), CancellationToken.None);
 
             // ... Create a mock writer for writing the save as file
             Mock<IFileStreamWriter> saveWriter = GetMockWriter();
