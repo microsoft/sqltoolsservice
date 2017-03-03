@@ -7,11 +7,10 @@ using System;
 using System.Data.Common;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.Test.Utility;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData

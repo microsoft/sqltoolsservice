@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -22,6 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowUpdate : RowEditBase
     {
+        private const string UpdateScriptStart = @"UPDATE {0}";
+        private const string UpdateScriptStartMemOptimized = @"UPDATE {0} WITH (SNAPSHOT)";
+
+        private const string UpdateScript = @"{0} SET {1} {2}";
+        private const string UpdateScriptOutput = @"{0} SET {1} OUTPUT {2} {3}";
+
         private readonly Dictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
 
@@ -99,7 +106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string statementStart = GetStatementStart();
 
             // Put the whole #! together
-            command.CommandText = $"{statementStart} SET {setComponentsJoined} OUTPUT {outColumnsJoined} {where.CommandText}";
+            command.CommandText = string.Format(UpdateScriptOutput, statementStart, setComponentsJoined,
+                outColumnsJoined, where.CommandText);
             command.CommandType = CommandType.Text;
             return command;
         }
@@ -126,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string statementStart = GetStatementStart();
 
             // Put the whole #! together
-            return $"{statementStart} SET {setClause} {whereClause}";
+            return string.Format(UpdateScript, statementStart, setClause, whereClause);
         }
 
         /// <summary>
@@ -178,9 +186,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         private string GetStatementStart()
         {
-            return AssociatedObjectMetadata.IsMemoryOptimized
-                ? $"UPDATE {AssociatedObjectMetadata.EscapedMultipartName} WITH (SNAPSHOT)"
-                : $"UPDATE {AssociatedObjectMetadata.EscapedMultipartName}";
+            string formatString = AssociatedObjectMetadata.IsMemoryOptimized
+                ? UpdateScriptStartMemOptimized
+                : UpdateScriptStart;
+
+            return string.Format(formatString, AssociatedObjectMetadata.EscapedMultipartName);
         }
     }
 }

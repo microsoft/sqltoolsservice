@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -23,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     public sealed class RowCreate : RowEditBase
     {
         private const string InsertStart = "INSERT INTO {0}({1})";
+        private const string InsertCompleteScript = "{0} VALUES ({1})";
+        private const string InsertCompleteOutput = "{0} OUTPUT {1} VALUES ({2})";
 
         private readonly CellUpdate[] newCells;
 
@@ -113,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string start = GetTableClause();
 
             // Put the whole #! together
-            command.CommandText = $"{start} OUTPUT {joinedOutColumns} VALUES ({joinedInColumns})";
+            command.CommandText = string.Format(InsertCompleteOutput, start, joinedOutColumns, joinedInColumns);
             command.CommandType = CommandType.Text;
                 
             return command;
@@ -153,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string start = GetTableClause();
 
             // Put the whole #! together
-            return $"{start} VALUES ({joinedValues})";
+            return string.Format(InsertCompleteScript, start, joinedValues);
         }
 
         /// <summary>
