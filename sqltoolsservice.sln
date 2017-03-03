@@ -9,10 +9,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{32DC973E-9EEA-4694-B1C2-B031167AB945}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		.mention-bot = .mention-bot
+		.travis.yml = .travis.yml
+		appveyor.yml = appveyor.yml
 		BUILD.md = BUILD.md
 		global.json = global.json
+		license.txt = license.txt
 		nuget.config = nuget.config
 		README.md = README.md
+		RefreshDllsForTestRun.cmd = RefreshDllsForTestRun.cmd
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.Credentials", "src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.xproj", "{1D61DC2B-DA66-441D-B9D0-887798F780F9}"
@@ -21,7 +26,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.Hosting"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer", "src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.xproj", "{0D61DC2B-DA66-441D-B9D0-F76C98F780F9}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.Test", "test\Microsoft.SqlTools.ServiceLayer.Test\Microsoft.SqlTools.ServiceLayer.Test.xproj", "{2D771D16-9D85-4053-9F79-E2034737DEEF}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.UnitTests", "test\Microsoft.SqlTools.ServiceLayer.UnitTests\Microsoft.SqlTools.ServiceLayer.UnitTests.xproj", "{2D771D16-9D85-4053-9F79-E2034737DEEF}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.SqlTools.ServiceLayer.TestDriver", "test\Microsoft.SqlTools.ServiceLayer.TestDriver\Microsoft.SqlTools.ServiceLayer.TestDriver.xproj", "{CC785604-6277-4878-8DA9-360C47158E96}"
 EndProject
