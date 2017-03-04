@@ -185,8 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             // Make sure we have numeric precision and numeric scale
             if (!column.NumericPrecision.HasValue || !column.NumericScale.HasValue)
             {
-                // @TODO Move to constants
-                throw new InvalidOperationException("Decimal column is missing numeric precision or numeric scale");
+                throw new InvalidOperationException(SR.SqlScriptFormatterDecimalMissingPrecision);
             }
 
             // Convert the value to a decimal, then convert that to a string

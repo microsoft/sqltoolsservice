@@ -5,12 +5,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -19,8 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowUpdate : RowEditBase
     {
-        private const string UpdateStatement = "UPDATE {0} SET {1} {2}";
-        private const string UpdateStatementMemoryOptimized = "UPDATE {0} WITH (SNAPSHOT) SET {1} {2}";
+        private const string UpdateScriptStart = @"UPDATE {0}";
+        private const string UpdateScriptStartMemOptimized = @"UPDATE {0} WITH (SNAPSHOT)";
+
+        private const string UpdateScript = @"{0} SET {1} {2}";
+        private const string UpdateScriptOutput = @"{0} SET {1} OUTPUT {2} {3}";
 
         private readonly Dictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
@@ -39,13 +46,80 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// Sort order property. Sorts to same position as RowCreate
+        /// </summary>
+        protected override int SortId => 1;
+
+        #region Public Methods
+
+        /// <summary>
+        /// Applies the changes to the associated result set after successfully executing the
+        /// change on the database
+        /// </summary>
+        /// <param name="dataReader">
+        /// Reader returned from the execution of the command to update a row. Should contain
+        /// a single row that represents all the values of the row.
+        /// </param>
+        public override Task ApplyChanges(DbDataReader dataReader)
+        {
+            Validate.IsNotNull(nameof(dataReader), dataReader);
+            return AssociatedResultSet.UpdateRow(RowId, dataReader);
+        }
+
+        /// <summary>
+        /// Generates a command that can be executed to update a row -- and return the contents of
+        /// the updated row.
+        /// </summary>
+        /// <param name="connection">The connection the command should be associated with</param>
+        /// <returns>Command to update the row</returns>
+        public override DbCommand GetCommand(DbConnection connection)
+        {
+            Validate.IsNotNull(nameof(connection), connection);
+            DbCommand command = connection.CreateCommand();
+
+            // Build the "SET" portion of the statement
+            List<string> setComponents = new List<string>();
+            foreach (var updateElement in cellUpdates)
+            {
+                string formattedColumnName = SqlScriptFormatter.FormatIdentifier(updateElement.Value.Column.ColumnName);
+                string paramName = $"@Value{RowId}{updateElement.Key}";
+                setComponents.Add($"{formattedColumnName} = {paramName}");
+                SqlParameter parameter = new SqlParameter(paramName, updateElement.Value.Column.SqlDbType)
+                {
+                    Value = updateElement.Value.Value
+                };
+                command.Parameters.Add(parameter);
+            }
+            string setComponentsJoined = string.Join(", ", setComponents);
+
+            // Build the "OUTPUT" portion of the statement
+            var outColumns = from c in AssociatedResultSet.Columns
+                             let formatted = SqlScriptFormatter.FormatIdentifier(c.ColumnName)
+                             select $"inserted.{formatted}";
+            string outColumnsJoined = string.Join(", ", outColumns);
+
+            // Get the where clause
+            WhereClause where = GetWhereClause(true);
+            command.Parameters.AddRange(where.Parameters.ToArray());
+
+            // Get the start of the statement
+            string statementStart = GetStatementStart();
+
+            // Put the whole #! together
+            command.CommandText = string.Format(UpdateScriptOutput, statementStart, setComponentsJoined,
+                outColumnsJoined, where.CommandText);
+            command.CommandType = CommandType.Text;
+            return command;
+        }
+
+        /// <summary>
         /// Constructs an update statement to change the associated row.
         /// </summary>
         /// <returns>An UPDATE statement</returns>
         public override string GetScript()
         {
             // Build the "SET" portion of the statement
-            IEnumerable<string> setComponents = cellUpdates.Values.Select(cellUpdate =>
+            var setComponents = cellUpdates.Values.Select(cellUpdate =>
             {
                 string formattedColumnName = SqlScriptFormatter.FormatIdentifier(cellUpdate.Column.ColumnName);
                 string formattedValue = SqlScriptFormatter.FormatValue(cellUpdate.Value, cellUpdate.Column);
@@ -56,10 +130,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Get the where clause
             string whereClause = GetWhereClause(false).CommandText;
 
-            // Put it all together
-            string formatString = AssociatedObjectMetadata.IsMemoryOptimized ? UpdateStatementMemoryOptimized : UpdateStatement;
-            return string.Format(CultureInfo.InvariantCulture, formatString,
-                AssociatedObjectMetadata.EscapedMultipartName, setClause, whereClause);
+            // Get the start of the statement
+            string statementStart = GetStatementStart();
+
+            // Put the whole #! together
+            return string.Format(UpdateScript, statementStart, setClause, whereClause);
         }
 
         /// <summary>
@@ -105,6 +180,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 IsNull = update.Value == DBNull.Value,
                 IsRevert = false            // If we're in this branch, it is not a revert
             };
+        }
+
+        #endregion
+
+        private string GetStatementStart()
+        {
+            string formatString = AssociatedObjectMetadata.IsMemoryOptimized
+                ? UpdateScriptStartMemOptimized
+                : UpdateScriptStart;
+
+            return string.Format(formatString, AssociatedObjectMetadata.EscapedMultipartName);
         }
     }
 }

@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             IsIdentity = column.IsIdentity;
             IsKey = column.IsKey;
             IsLong = column.IsLong;
-            IsReadOnly = column.IsLong;
+            IsReadOnly = column.IsReadOnly;
             IsUnique = column.IsUnique;
             NumericPrecision = column.NumericPrecision;
             NumericScale = column.NumericScale;

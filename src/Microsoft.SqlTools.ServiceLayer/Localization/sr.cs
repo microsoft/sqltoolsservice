@@ -237,11 +237,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string QueryServiceResultSetReaderNull
+        public static string QueryServiceResultSetAddNoRows
         {
             get
             {
-                return Keys.GetString(Keys.QueryServiceResultSetReaderNull);
+                return Keys.GetString(Keys.QueryServiceResultSetAddNoRows);
             }
         }
 
@@ -493,6 +493,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataCommitInProgress
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataCommitInProgress);
+            }
+        }
+
         public static string EE_BatchSqlMessageNoProcedureInfo
         {
             get
@@ -733,6 +741,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlScriptFormatterDecimalMissingPrecision
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlScriptFormatterDecimalMissingPrecision);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -913,7 +929,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceMessageSenderNotSql = "QueryServiceMessageSenderNotSql";
 
 
-            public const string QueryServiceResultSetReaderNull = "QueryServiceResultSetReaderNull";
+            public const string QueryServiceResultSetAddNoRows = "QueryServiceResultSetAddNoRows";
 
 
             public const string QueryServiceSaveAsResultSetNotComplete = "QueryServiceSaveAsResultSetNotComplete";
@@ -1027,6 +1043,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EditDataScriptFilePathNull = "EditDataScriptFilePathNull";
 
 
+            public const string EditDataCommitInProgress = "EditDataCommitInProgress";
+
+
             public const string EE_BatchSqlMessageNoProcedureInfo = "EE_BatchSqlMessageNoProcedureInfo";
 
 
@@ -1115,6 +1134,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TestLocalizationConstant = "TestLocalizationConstant";
+
+
+            public const string SqlScriptFormatterDecimalMissingPrecision = "SqlScriptFormatterDecimalMissingPrecision";
 
 
             private Keys()

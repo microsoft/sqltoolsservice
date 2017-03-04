@@ -51,6 +51,11 @@ namespace Microsoft.SqlTools.Utility
             { 
                 return GetItem(index); 
             }
+
+            set
+            {
+                SetItem(index, value);
+            }
         }
 
         public int ExpandListSize
@@ -135,6 +140,30 @@ namespace Microsoft.SqlTools.Utility
                 }
             }
             return val;
+        }
+
+        /// <summary>
+        /// Sets the item at the specified index
+        /// </summary>
+        /// <param name="index">Index of the item to set</param>
+        /// <param name="value">The item to store at the index specified</param>
+        public void SetItem(long index, T value)
+        {
+            Validate.IsLessThan(nameof(index), index, Count);
+
+            if (Count <= this.ExpandListSize)
+            {
+                int i32Index = Convert.ToInt32(index);
+                shortList[i32Index] = value;
+            }
+            else
+            {
+                int iArray32Index = (int) (Count / this.ExpandListSize);
+                List<T> arr = expandedList[iArray32Index];
+
+                int i32Index = (int)(Count % this.ExpandListSize);
+                arr[i32Index] = value;
+            }
         }
 
         /// <summary>

@@ -34,11 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Member Variables
 
         /// <summary>
-        /// The reader to use for this resultset
-        /// </summary>
-        private readonly StorageDataReader dataReader;
-
-        /// <summary>
         /// For IDisposable pattern, whether or not object has been disposed
         /// </summary>
         private bool disposed;
@@ -70,29 +65,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly string outputFileName;
 
         /// <summary>
+        /// Row count to use in special scenarios where we want to override the number of rows.
+        /// </summary>
+        private long? rowCountOverride;
+
+        /// <summary>
         /// The special action which applied to this result set
         /// </summary>
         private readonly SpecialAction specialAction;
+
+        /// <summary>
+        /// Total number of bytes written to the file. Used to jump to end of the file for append
+        /// scenarios. Internal for unit test validation.
+        /// </summary>
+        internal long totalBytesWritten;
 
         #endregion
 
         /// <summary>
         /// Creates a new result set and initializes its state
         /// </summary>
-        /// <param name="reader">The reader from executing a query</param>
         /// <param name="ordinal">The ID of the resultset, the ordinal of the result within the batch</param>
         /// <param name="batchOrdinal">The ID of the batch, the ordinal of the batch within the query</param>
         /// <param name="factory">Factory for creating a reader/writer</param>
-        public ResultSet(DbDataReader reader, int ordinal, int batchOrdinal, IFileStreamFactory factory)
+        public ResultSet(int ordinal, int batchOrdinal, IFileStreamFactory factory)
         {
-            // Sanity check to make sure we got a reader
-            Validate.IsNotNull(nameof(reader), SR.QueryServiceResultSetReaderNull);
-
-            dataReader = new StorageDataReader(reader);
             Id = ordinal;
             BatchId = batchOrdinal;
 
             // Initialize the storage
+            totalBytesWritten = 0;
             outputFileName = factory.CreateFile();
             fileOffsets = new LongList<long>();
             specialAction = new SpecialAction();
@@ -103,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             SaveTasks = new ConcurrentDictionary<string, Task>();
         }
 
-        #region Properties
+        #region Eventing
 
         /// <summary>
         /// Asynchronous handler for when saving query results succeeds
@@ -129,6 +131,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public event ResultSetAsyncEventHandler ResultCompletion;
 
+        #endregion
+
+        #region Properties
+
         /// <summary>
         /// Whether the resultSet is in the process of being disposed
         /// </summary>
@@ -153,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// The number of rows for this result set
         /// </summary>
-        public long RowCount { get; private set; }
+        public long RowCount => rowCountOverride ?? fileOffsets.Count;
 
         /// <summary>
         /// All save tasks currently saving this ResultSet
@@ -173,8 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Id = Id,
                     BatchId = BatchId,
                     RowCount = RowCount,
-                    SpecialAction = ProcessSpecialAction()
-                    
+                    SpecialAction = hasBeenRead ? ProcessSpecialAction() : null
                 };
             }
         }
@@ -183,6 +188,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Public Methods
 
+        /// <summary>
+        /// Returns a specific row from the result set.
+        /// </summary>
+        /// <remarks>
+        /// Creates a new file reader for a single reader. This method should only be used for one
+        /// off requests, not for requesting a large subset of the results.
+        /// </remarks>
+        /// <param name="rowId">The internal ID of the row to read</param>
+        /// <returns>The requested row</returns>
         public IList<DbCellValue> GetRow(long rowId)
         {
             // Sanity check to make sure that results have been read beforehand
@@ -313,13 +327,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Reads from the reader until there are no more results to read
         /// </summary>
+        /// <param name="dbDataReader">The data reader for getting results from the db</param>
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
-        public async Task ReadResultToEnd(CancellationToken cancellationToken)
+        public async Task ReadResultToEnd(DbDataReader dbDataReader, CancellationToken cancellationToken)
         {
+            // Sanity check to make sure we got a reader
+            Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
+
             try
             {
                 // Mark that result has been read
                 hasBeenRead = true;
+
+                StorageDataReader dataReader = new StorageDataReader(dbDataReader);
 
                 // Open a writer for the file
                 var fileWriter = fileStreamFactory.GetWriter(outputFileName);
@@ -331,13 +351,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
                     }
                     Columns = dataReader.Columns;
-                    long currentFileOffset = 0;
-
                     while (await dataReader.ReadAsync(cancellationToken))
                     {
-                        RowCount++;
-                        fileOffsets.Add(currentFileOffset);
-                        currentFileOffset += fileWriter.WriteRow(dataReader);
+                        fileOffsets.Add(totalBytesWritten);
+                        totalBytesWritten += fileWriter.WriteRow(dataReader);
                     }
                 }
                 // Check if resultset is 'for xml/json'. If it is, set isJson/isXml value in column metadata
@@ -351,6 +368,50 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     await ResultCompletion(this);
                 }
             }
+        }
+
+        /// <summary>
+        /// Removes a row from the result set cache
+        /// </summary>
+        /// <param name="internalId">Internal ID of the row</param>
+        public void RemoveRow(long internalId)
+        {
+            // Make sure that the results have been read
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
+            }
+
+            // Simply remove the row from the list of row offsets
+            fileOffsets.RemoveAt(internalId);
+        }
+
+        /// <summary>
+        /// Adds a new row to the result set by reading the row from the provided db data reader
+        /// </summary>
+        /// <param name="dbDataReader">The result of a command to insert a new row should be UNREAD</param>
+        public async Task AddRow(DbDataReader dbDataReader)
+        {
+            // Write the new row to the end of the file
+            long newOffset = await AppendRowToBuffer(dbDataReader);
+
+            // Add the row to file offset list
+            fileOffsets.Add(newOffset);
+        }
+
+        /// <summary>
+        /// Updates the values in a row with the 
+        /// </summary>
+        /// <param name="rowId"></param>
+        /// <param name="dbDataReader"></param>
+        /// <returns></returns>
+        public async Task UpdateRow(long rowId, DbDataReader dbDataReader)
+        {
+            // Write the updated row to the end of the file
+            long newOffset = await AppendRowToBuffer(dbDataReader);
+
+            // Update the file offset of the row in question
+            fileOffsets[rowId] = newOffset;
         }
 
         /// <summary>
@@ -508,13 +569,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Columns[0].IsXml = true;
                     isSingleColumnXmlJsonResultSet = true;
-                    RowCount = 1;
+                    rowCountOverride = 1;
                 }
                 else if (Columns[0].ColumnName.Equals(NameOfForJsonColumn, StringComparison.Ordinal))
                 {
                     Columns[0].IsJson = true;
                     isSingleColumnXmlJsonResultSet = true;
-                    RowCount = 1;
+                    rowCountOverride = 1;
                 }
             }
         }
@@ -526,12 +587,42 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {           
 
             // Check if this result set is a showplan 
-            if (dataReader.Columns.Length == 1 && string.Compare(dataReader.Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
+            if (Columns.Length == 1 && string.Compare(Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 specialAction.ExpectYukonXMLShowPlan = true;
             }
 
             return specialAction;
+        }
+
+        /// <summary>
+        /// Adds a single row to the end of the buffer file. INTENDED FOR SINGLE ROW INSERTION ONLY.
+        /// </summary>
+        /// <param name="dbDataReader">An UNREAD db data reader</param>
+        /// <returns>The offset into the file where the row was inserted</returns>
+        private async Task<long> AppendRowToBuffer(DbDataReader dbDataReader)
+        {
+            Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
+            if (!hasBeenRead)
+            {
+                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
+            }
+            if (!dbDataReader.HasRows)
+            {
+                throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
+            }
+
+            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+
+            using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
+            {
+                // Write the row to the end of the file
+                long currentFileOffset = totalBytesWritten;
+                writer.Seek(currentFileOffset);
+                await dataReader.ReadAsync(CancellationToken.None);
+                totalBytesWritten += writer.WriteRow(dataReader);
+                return currentFileOffset;
+            }
         }
 
         #endregion

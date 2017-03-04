@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -99,13 +100,104 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rt.ValidateWhereClauseNoKeys();
         }
 
+        [Fact]
+        public void SortingByTypeTest()
+        {
+            // Setup: Create a result set and metadata we can reuse
+            var cols = Common.GetColumns(false);
+            var rs = Common.GetResultSet(cols, false);
+            var etm = Common.GetMetadata(cols);
+
+            // If: I request to sort a list of the three different edit operations
+            List<RowEditBase> rowEdits = new List<RowEditBase>
+            {
+                new RowDelete(0, rs, etm),
+                new RowUpdate(0, rs, etm),
+                new RowCreate(0, rs, etm)
+            };
+            rowEdits.Sort();
+
+            // Then: Delete should be the last operation to execute
+            //       (we don't care about the order of the other two)
+            Assert.IsType<RowDelete>(rowEdits.Last());
+        }
+
+        [Fact]
+        public void SortingUpdatesByRowIdTest()
+        {
+            // Setup: Create a result set and metadata we can reuse
+            var cols = Common.GetColumns(false);
+            var rs = Common.GetResultSet(cols, false, 4);
+            var etm = Common.GetMetadata(cols);
+
+            // If: I sort 3 edit operations of the same type
+            List<RowEditBase> rowEdits = new List<RowEditBase>
+            {
+                new RowUpdate(3, rs, etm),
+                new RowUpdate(1, rs, etm),
+                new RowUpdate(2, rs, etm)
+            };
+            rowEdits.Sort();
+
+            // Then: They should be in order by row ID ASCENDING
+            Assert.Equal(1, rowEdits[0].RowId);
+            Assert.Equal(2, rowEdits[1].RowId);
+            Assert.Equal(3, rowEdits[2].RowId);
+        }
+
+        [Fact]
+        public void SortingCreatesByRowIdTest()
+        {
+            // Setup: Create a result set and metadata we can reuse
+            var cols = Common.GetColumns(false);
+            var rs = Common.GetResultSet(cols, false);
+            var etm = Common.GetMetadata(cols);
+
+            // If: I sort 3 edit operations of the same type
+            List<RowEditBase> rowEdits = new List<RowEditBase>
+            {
+                new RowCreate(3, rs, etm),
+                new RowCreate(1, rs, etm),
+                new RowCreate(2, rs, etm)
+            };
+            rowEdits.Sort();
+
+            // Then: They should be in order by row ID ASCENDING
+            Assert.Equal(1, rowEdits[0].RowId);
+            Assert.Equal(2, rowEdits[1].RowId);
+            Assert.Equal(3, rowEdits[2].RowId);
+        }
+
+        [Fact]
+        public void SortingDeletesByRowIdTest()
+        {
+            // Setup: Create a result set and metadata we can reuse
+            var cols = Common.GetColumns(false);
+            var rs = Common.GetResultSet(cols, false);
+            var etm = Common.GetMetadata(cols);
+
+            // If: I sort 3 delete operations of the same type
+            List<RowEditBase> rowEdits = new List<RowEditBase>
+            {
+                new RowDelete(1, rs, etm),
+                new RowDelete(3, rs, etm),
+                new RowDelete(2, rs, etm)
+            };
+            rowEdits.Sort();
+
+            // Then: They should be in order by row ID DESCENDING
+            Assert.Equal(3, rowEdits[0].RowId);
+            Assert.Equal(2, rowEdits[1].RowId);
+            Assert.Equal(1, rowEdits[2].RowId);
+        }
+
         private static ResultSet GetResultSet(DbColumn[] columns, object[] row)
         {
             object[][] rows = {row};
             var testResultSet = new TestResultSet(columns, rows);
             var testReader = new TestDbDataReader(new [] {testResultSet});
-            var resultSet = new ResultSet(testReader, 0,0, MemoryFileSystem.GetFileStreamFactory());
-            resultSet.ReadResultToEnd(CancellationToken.None).Wait();
+            var resultSet = new ResultSet(0,0, MemoryFileSystem.GetFileStreamFactory());
+            resultSet.ReadResultToEnd(testReader, CancellationToken.None).Wait();
             return resultSet;
         }
 
@@ -179,6 +271,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             {
                 throw new NotImplementedException();
             }
+
+            public override Task ApplyChanges(DbDataReader reader)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override DbCommand GetCommand(DbConnection conn)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override int SortId => 0;
         }
     }
 }

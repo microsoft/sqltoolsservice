@@ -37,7 +37,6 @@ ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' fo
 
 ConnectionServiceConnectionCanceled = Connection canceled
 
-######
 ### Connection Params Validation Errors
 
 ConnectionParamsValidateNullOwnerUri = OwnerUri cannot be null or empty
@@ -110,7 +109,7 @@ QueryServiceQueryInProgress = A query is already in progress for this editor ses
 
 QueryServiceMessageSenderNotSql = Sender for OnInfoMessage event must be a SqlConnection
 
-QueryServiceResultSetReaderNull = Reader cannot be null
+QueryServiceResultSetAddNoRows = Cannot add row to result buffer, data reader does not contain rows
 
 ### Save As Requests
 
@@ -199,6 +198,8 @@ EditDataColumnNoKeyColumns = No key columns were found
 
 EditDataScriptFilePathNull = An output filename must be provided
 
+EditDataCommitInProgress = A commit task is in progress. Please wait for completion.
+
 ############################################################################
 # DacFx Resources
 
@@ -264,3 +265,8 @@ BatchParser_VariableNotDefined = Variable {0} is not defined.
 # Workspace Service
 
 TestLocalizationConstant = EN_LOCALIZATION
+
+############################################################################
+# Utilities
+
+SqlScriptFormatterDecimalMissingPrecision = Decimal column is missing numeric precision or numeric scale
