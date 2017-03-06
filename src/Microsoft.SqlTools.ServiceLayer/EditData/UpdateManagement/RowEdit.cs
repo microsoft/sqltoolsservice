@@ -92,6 +92,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public abstract string GetScript();
 
         /// <summary>
+        /// Reverts a specific cell in row with pending edits
+        /// </summary>
+        /// <param name="columnId">Ordinal ID of the column to revert</param>
+        /// <returns>String value of the original value of the cell</returns>
+        public abstract string RevertCell(long columnId);
+
+        /// <summary>
         /// Changes the value a cell in the row.
         /// </summary>
         /// <param name="columnId">Ordinal of the column in the row to update</param>
