@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string InsertCompleteScript = "{0} VALUES ({1})";
         private const string InsertCompleteOutput = "{0} OUTPUT {1} VALUES ({2})";
 
-        private readonly CellUpdate[] newCells;
+        internal readonly CellUpdate[] newCells;
 
         /// <summary>
         /// Creates a new Row Creation edit to the result set
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override string RevertCell(int columnId)
         {
             // Validate that the column can be reverted
-            Validate.IsWithinRange(nameof(columnId), columnId, 0, newCells.Length);
+            Validate.IsWithinRange(nameof(columnId), columnId, 0, newCells.Length - 1);
 
             // Remove the cell update from list of set cells
             newCells[columnId] = null;

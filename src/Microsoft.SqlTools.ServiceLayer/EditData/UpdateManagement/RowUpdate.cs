@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string UpdateScript = @"{0} SET {1} {2}";
         private const string UpdateScriptOutput = @"{0} SET {1} OUTPUT {2} {3}";
 
-        private readonly ConcurrentDictionary<int, CellUpdate> cellUpdates;
+        internal readonly ConcurrentDictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
 
         /// <summary>
@@ -139,18 +139,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
-        /// 
+        /// Reverts the value of a cell to its original value
         /// </summary>
-        /// <param name="columnId"></param>
-        /// <returns></returns>
+        /// <param name="columnId">Ordinal of the column to revert</param>
+        /// <returns>The value that was </returns>
         public override string RevertCell(int columnId)
         {
-            // Attempt to remove the cell update that was requested to be reverted
+            Validate.IsWithinRange(nameof(columnId), columnId, 0, associatedRow.Count - 1);
+
+            // Remove the cell update
             CellUpdate cellUpdate;
-            if (!cellUpdates.TryRemove(columnId, out cellUpdate))
-            {
-                throw new InvalidOperationException(SR.EditDataColumnUpdateNotPending);
-            }
+            cellUpdates.TryRemove(columnId, out cellUpdate);
 
             return associatedRow[columnId].DisplayValue;
         }

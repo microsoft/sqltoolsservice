@@ -117,12 +117,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// <returns>Collection of test columns in the current result set</returns>
         public ReadOnlyCollection<DbColumn> GetColumnSchema()
         {
-            if (ResultSetEnumerator?.Current == null || ResultSetEnumerator.Current.Rows.Count <= 0)
+            if (ResultSetEnumerator?.Current == null)
             {
                 return new ReadOnlyCollection<DbColumn>(new List<DbColumn>());
             }
 
             return new ReadOnlyCollection<DbColumn>(ResultSetEnumerator.Current.Columns);
+        }
+
+        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+        {
+            if (ResultSetEnumerator.Current.Columns[ordinal].DataType == typeof(byte[]))
+            {
+                byte[] data = (byte[]) this[ordinal];
+                if (buffer == null)
+                {
+                    return data.Length;
+                }
+
+                Array.Copy(data, (int)dataOffset, buffer, bufferOffset, length);
+                return Math.Min(length, data.Length);
+            }
+            throw new InvalidOperationException();
         }
 
         #endregion
@@ -135,11 +151,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         public override byte GetByte(int ordinal)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
             throw new NotImplementedException();
         }

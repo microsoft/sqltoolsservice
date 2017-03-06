@@ -6,10 +6,13 @@
 using System;
 using System.Data.Common;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
@@ -35,7 +38,72 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void ImplicitRevertTest()
+        public void SetCell()
+        {
+            // Setup: Create a row update
+            var columns = Common.GetColumns(false);
+            var rs = Common.GetResultSet(columns, false);
+            var etm = Common.GetMetadata(columns);
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+
+            // If: I set a cell that can be updated
+            EditUpdateCellResult eucr = ru.SetCell(0, "col1");
+
+            // Then:
+            // ... The returned value should not have corrections
+            Assert.False(eucr.HasCorrections);
+            Assert.Null(eucr.NewValue);
+
+            // ... The set value is not null
+            Assert.False(eucr.IsNull);
+
+            // ... The result is not an implicit revert
+            Assert.False(eucr.IsRevert);
+
+            // ... There should be a cell update in the cell list
+            Assert.Contains(0, ru.cellUpdates.Keys);
+            Assert.NotNull(ru.cellUpdates[0]);
+        }
+
+        [Fact]
+        public void SetCellHasCorrections()
+        {
+            // Setup: 
+            // ... Generate a result set with a single binary column
+            DbColumn[] cols = { new TestDbColumn("bin", "binary", typeof(byte[])) };
+            object[][] rows = { new object[]{new byte[] {0x00}}};
+            var testResultSet = new TestResultSet(cols, rows);
+            var testReader = new TestDbDataReader(new[] { testResultSet });
+            var rs = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
+            rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
+
+            // ... Generate the metadata
+            var etm = Common.GetMetadata(cols);
+
+            // ... Create the row update
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+
+            // If: I set a cell in the newly created row to something that will be corrected
+            EditUpdateCellResult eucr = ru.SetCell(0, "1000");
+
+            // Then:
+            // ... The returned value should have corrections
+            Assert.True(eucr.HasCorrections);
+            Assert.NotEmpty(eucr.NewValue);
+
+            // ... The set value is not null
+            Assert.False(eucr.IsNull);
+
+            // ... The result is not an implicit revert
+            Assert.False(eucr.IsRevert);
+
+            // ... There should be a cell update in the cell list
+            Assert.Contains(0, ru.cellUpdates.Keys);
+            Assert.NotNull(ru.cellUpdates[0]);
+        }
+
+        [Fact]
+        public void SetCellImplicitRevertTest()
         {
             // Setup: Create a fake table to update
             DbColumn[] columns = Common.GetColumns(true);
@@ -215,6 +283,66 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I  ask for the changes to be applied with a null db reader
             // Then: I should get an exception
             await Assert.ThrowsAsync<ArgumentNullException>(() => ru.ApplyChanges(null));
+        }
+
+        [Theory]
+        [InlineData(-1)]        // Negative
+        [InlineData(3)]         // At edge of acceptable values
+        [InlineData(100)]       // Way too large value
+        public void RevertCellOutOfRange(int columnId)
+        {
+            // Setup: 
+            // ... Create a row update (no cell updates needed)
+            var columns = Common.GetColumns(false);
+            var rs = Common.GetResultSet(columns, false);
+            var etm = Common.GetMetadata(columns);
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+
+            // If: I attempt to revert a cell that is out of range
+            // Then: I should get an exception
+            Assert.Throws<ArgumentOutOfRangeException>(() => ru.RevertCell(columnId));
+        }
+
+        [Fact]
+        public void RevertCellNotSet()
+        {
+            // Setup: 
+            // ... Create a row update (no cell updates needed)
+            var columns = Common.GetColumns(true);
+            var rs = Common.GetResultSet(columns, true);
+            var etm = Common.GetMetadata(columns);
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+
+            // If: I attempt to revert a cell that has not been set
+            string result = ru.RevertCell(0);
+
+            // Then: We should get the original value back
+            Assert.NotEmpty(result);
+
+            // ... The cell should no longer be set
+            Assert.DoesNotContain(0, ru.cellUpdates.Keys);
+        }
+
+        [Fact]
+        public void RevertCellThatWasSet()
+        {
+            // Setup: 
+            // ... Create a row update
+            var columns = Common.GetColumns(false);
+            var rs = Common.GetResultSet(columns, false);
+            var etm = Common.GetMetadata(columns);
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+            ru.SetCell(0, "1");
+
+            // If: I attempt to revert a cell that was set
+            string result = ru.RevertCell(0);
+
+            // Then:
+            // ... We should get the original value back
+            Assert.NotEmpty(result);
+
+            // ... The cell should no longer be set
+            Assert.DoesNotContain(0, ru.cellUpdates.Keys);
         }
     }
 }
