@@ -380,7 +380,11 @@
     <comment></comment>
   </data>
   <data name="EditDataUpdateNotPending" xml:space="preserve">
-    <value>Given row ID does not have pending updated</value>
+    <value>Given row ID does not have pending update</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataColumnUpdateNotPending" xml:space="preserve">
+    <value>Give column ID does not have pending update</value>
     <comment></comment>
   </data>
   <data name="EditDataObjectMetadataNotFound" xml:space="preserve">

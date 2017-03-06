@@ -460,7 +460,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataUpdateNotPending">
-        <source>Given row ID does not have pending updated</source>
+        <source>Given row ID does not have pending update</source>
         <target state="new">Given row ID does not have pending updated</target>
         <note></note>
       </trans-unit>
@@ -534,6 +534,11 @@
       <trans-unit id="QueryServiceResultSetAddNoRows">
         <source>Cannot add row to result buffer, data reader does not contain rows</source>
         <target state="new">Cannot add row to result buffer, data reader does not contain rows</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataColumnUpdateNotPending">
+        <source>Give column ID does not have pending update</source>
+        <target state="new">Give column ID does not have pending update</target>
         <note></note>
       </trans-unit>
     </body>

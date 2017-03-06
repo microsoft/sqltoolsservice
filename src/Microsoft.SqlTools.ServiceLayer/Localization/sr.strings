@@ -178,7 +178,9 @@ EditDataRowOutOfRange = Given row ID is outside the range of rows in the edit ca
 
 EditDataUpdatePending = An update is already pending for this row and must be reverted first
 
-EditDataUpdateNotPending = Given row ID does not have pending updated
+EditDataUpdateNotPending = Given row ID does not have pending update
+
+EditDataColumnUpdateNotPending = Give column ID does not have pending update
 
 EditDataObjectMetadataNotFound = Table or view metadata could not be found
 

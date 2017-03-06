@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string UpdateScript = @"{0} SET {1} {2}";
         private const string UpdateScriptOutput = @"{0} SET {1} OUTPUT {2} {3}";
 
-        private readonly Dictionary<int, CellUpdate> cellUpdates;
+        private readonly ConcurrentDictionary<int, CellUpdate> cellUpdates;
         private readonly IList<DbCellValue> associatedRow;
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public RowUpdate(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
-            cellUpdates = new Dictionary<int, CellUpdate>();
+            cellUpdates = new ConcurrentDictionary<int, CellUpdate>();
             associatedRow = associatedResultSet.GetRow(rowId);
         }
 
@@ -138,6 +139,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="columnId"></param>
+        /// <returns></returns>
+        public override string RevertCell(int columnId)
+        {
+            // Attempt to remove the cell update that was requested to be reverted
+            CellUpdate cellUpdate;
+            if (!cellUpdates.TryRemove(columnId, out cellUpdate))
+            {
+                throw new InvalidOperationException(SR.EditDataColumnUpdateNotPending);
+            }
+
+            return associatedRow[columnId].DisplayValue;
+        }
+
+        /// <summary>
         /// Sets the value of the cell in the associated row. If <paramref name="newValue"/> is
         /// identical to the original value, this will remove the cell update from the row update.
         /// </summary>
@@ -157,11 +175,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // NOTE: We must use .Equals in order to ignore object to object comparisons
             if (update.Value.Equals(associatedRow[columnId].RawObject))
             {
-                // Remove any pending change and stop processing this
-                if (cellUpdates.ContainsKey(columnId))
-                {
-                    cellUpdates.Remove(columnId);
-                }
+                // Remove any pending change and stop processing this (we don't care if we fail to remove something)
+                CellUpdate cu;
+                cellUpdates.TryRemove(columnId, out cu);
                 return new EditUpdateCellResult
                 {
                     HasCorrections = false,
@@ -172,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
 
             // The change is real, so set it
-            cellUpdates[columnId] = update;
+            cellUpdates.AddOrUpdate(columnId, update, (i, cu) => update);
             return new EditUpdateCellResult
             {
                 HasCorrections = update.ValueAsString != newValue,

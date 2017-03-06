@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         /// <param name="columnId">Ordinal ID of the column to revert</param>
         /// <returns>String value of the original value of the cell</returns>
-        public abstract string RevertCell(long columnId);
+        public abstract string RevertCell(int columnId);
 
         /// <summary>
         /// Changes the value a cell in the row.

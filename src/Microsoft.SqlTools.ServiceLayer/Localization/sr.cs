@@ -421,6 +421,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataColumnUpdateNotPending
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataColumnUpdateNotPending);
+            }
+        }
+
         public static string EditDataObjectMetadataNotFound
         {
             get
@@ -1014,6 +1022,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataUpdateNotPending = "EditDataUpdateNotPending";
+
+
+            public const string EditDataColumnUpdateNotPending = "EditDataColumnUpdateNotPending";
 
 
             public const string EditDataObjectMetadataNotFound = "EditDataObjectMetadataNotFound";

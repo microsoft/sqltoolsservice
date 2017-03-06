@@ -160,6 +160,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// Reverts a cell to an unset value.
+        /// </summary>
+        /// <param name="columnId">The ordinal ID of the cell to reset</param>
+        /// <returns>The default value for the column, or null if no default is defined</returns>
+        public override string RevertCell(int columnId)
+        {
+            // Validate that the column can be reverted
+            Validate.IsWithinRange(nameof(columnId), columnId, 0, newCells.Length);
+
+            // Remove the cell update from list of set cells
+            newCells[columnId] = null;
+            return null;                // @TODO: Return default value when we have support checked in
+        }
+
+        /// <summary>
         /// Sets the value of a cell in the row to be added
         /// </summary>
         /// <param name="columnId">Ordinal of the column to set in the row</param>
