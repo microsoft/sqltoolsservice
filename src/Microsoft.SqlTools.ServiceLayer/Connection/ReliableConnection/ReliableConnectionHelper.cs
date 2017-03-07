@@ -407,7 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public static void SetCommandTimeout(IDbCommand cmd)
         {
             Validate.IsNotNull(nameof(cmd), cmd);
-            cmd.CommandTimeout = CachedServerInfo.GetQueryTimeoutSeconds(cmd.Connection);
+            cmd.CommandTimeout = CachedServerInfo.Instance.GetQueryTimeoutSeconds(cmd.Connection);
         }
 
 
@@ -773,7 +773,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
                     try
                     {
-                        CachedServerInfo.AddOrUpdateIsAzure(connection, serverInfo.IsCloud);
+                        CachedServerInfo.Instance.AddOrUpdateIsAzure(connection, serverInfo.IsCloud);
                     }
                     catch (Exception ex)
                     {

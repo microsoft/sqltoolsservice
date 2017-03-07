@@ -109,10 +109,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             //This is assuming that it is highly unlikely for a connection to change between instances.
             //Hence any subsequent calls to this method will just return the cached value and not 
             //verify again if this is a SQL DW database connection or not.
-            if (!CachedServerInfo.TryGetIsSqlDw(conn, out _isSqlDwDatabase))
+            if (!CachedServerInfo.Instance.TryGetIsSqlDw(conn, out _isSqlDwDatabase))
             {
                 _isSqlDwDatabase = ReliableConnectionHelper.IsSqlDwDatabase(conn);
-                CachedServerInfo.AddOrUpdateIsSqlDw(conn, _isSqlDwDatabase);;
+                CachedServerInfo.Instance.AddOrUpdateIsSqlDw(conn, _isSqlDwDatabase);;
             }
 
             return _isSqlDwDatabase;
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             {
                 cmd.CommandText = string.Format(CultureInfo.InvariantCulture, setLockTimeout, AmbientSettings.LockTimeoutMilliSeconds);
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandTimeout = CachedServerInfo.GetQueryTimeoutSeconds(conn);
+                cmd.CommandTimeout = CachedServerInfo.Instance.GetQueryTimeoutSeconds(conn);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             // Configure the connection with proper ANSI settings and lock timeout
             using (IDbCommand cmd = conn.CreateCommand())
             {
-                cmd.CommandTimeout = CachedServerInfo.GetQueryTimeoutSeconds(conn);
+                cmd.CommandTimeout = CachedServerInfo.Instance.GetQueryTimeoutSeconds(conn);
                 if (!isSqlDw)
                 {
                     cmd.CommandText = @"SET ANSI_NULLS, ANSI_PADDING, ANSI_WARNINGS, ARITHABORT, CONCAT_NULL_YIELDS_NULL, QUOTED_IDENTIFIER ON;
