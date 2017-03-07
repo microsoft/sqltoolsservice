@@ -117,7 +117,310 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>Los parámetros de conexión no pueden ser nulos</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri no puede ser nulo ni estar vacío</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>SpecifiedUri '{0}' no tiene una conexión existente</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>El valor '{0}' no es válido para AuthenticationType. Los valores válidos son 'Integrated' y 'SqlLogin'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>El valor '{0}' no es válido para ApplicationIntent. Los valores válidos son 'ReadWrite' y 'ReadOnly'.</value>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>Conexión cancelada</value>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri no puede ser nulo ni estar vacío</value>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>El objeto de detalles de conexión no puede ser nulo</value>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>ServerName no puede ser nulo ni estar vacío</value>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>{0} no puede ser nulo ni estar vacío cuando se utiliza autenticación SqlLogin</value>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>Ya se ha completado la consulta, no se puede cancelar</value>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>La consulta fue cancelada con éxito, pero no se ha podido desechar.  No se encontró el URI del propietario.</value>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>Consulta cancelada por el usuario</value>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>El lote aún no ha finalizado,</value>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>Índice de lote no puede ser menor que 0 o mayor que el número de lotes</value>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>Índice del conjunto de resultados no puede ser menor que 0 o mayor que el número de conjuntos de resultados</value>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>El número máximo de bytes a devolver debe ser mayor que cero</value>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>El número máximo de caracteres a devolver debe ser mayor que cero</value>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>El número máximo de bytes XML a devolver debe ser mayor que cero</value>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>El método de acceso no puede ser de sólo escritura</value>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>FileStreamWrapper debe inicializarse antes de realizar operaciones</value>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>Este FileStreamWrapper no se puede utilizar para escritura.</value>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 fila afectada)</value>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>({0} filas afectadas)</value>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>Comandos finalizados correctamente.</value>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>Msg {0}, nivel {1} estado {2}, línea {3} {4} {5}</value>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>Error en la consulta: {0}</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(Ningún nombre de columna)</value>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>La consulta solicitada no existe</value>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Este editor no está conectado a una base de datos</value>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>Una consulta ya está en curso para esta sesión de editor. Por favor, cancelar esta consulta o esperar su finalización.</value>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>Remitente de eventos de OnInfoMessage debe ser un objeto SqlConnection</value>
+  </data>
+  <data name="QueryServiceResultSetReaderNull" xml:space="preserve">
+    <value>Lector no puede ser nulo</value>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>No se puede guardar el resultado hasta que haya finalizado la ejecución de la consulta</value>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>Error interno al iniciar el guardado de la tarea</value>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>Una operacion de guardado en la misma ruta se encuentra en curso</value>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>Error al guardar {0}: {1}</value>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>No se puede leer el subconjunto, a menos que los resultados se han leído desde el servidor</value>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>Fila de inicio no puede ser menor que 0 o mayor que el número de filas en el conjunto de resultados</value>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>La cantidad de filas debe ser un entero positivo</value>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>No se pudo recuperar el esquema de columna para el conjunto de resultados</value>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>No se pudo recuperar un plan de ejecución del conjunto de resultados</value>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>Esta característica actualmente no se admite en la base de datos de SQL Azure y almacén de datos: {0}</value>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>Se ha producido un error inesperado durante la ejecución de la definición de Peek: {0}</value>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>No se encontraron resultados.</value>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>No se pudo obtener ningún objeto asociado a la base de datos.</value>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Conéctese a un servidor.</value>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>Tiempo de espera agotado para esta operación.</value>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>Esta característica no admite actualmente este tipo de objeto.</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>Posición está fuera del intervalo de la línea de archivo</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>Posición está fuera del intervalo de la columna de la línea {0}</value>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>Posición de inicio ({0}, {1}) debe preceder o ser igual a la posición final ({2}, {3})</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, {1}, nivel de estado {2}, línea {3}</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Msj {0}, {1}, nivel de estado {2}, procedimiento {3}, línea {4}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Msg {0}, nivel {1}, {2} de estado</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>Se produjo un error al procesar el lote. Mensaje de error: {0}</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} filas afectadas)</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>La ejecución anterior aún no está completa.</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>Se ha producido un error de secuencias de comandos.</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>Se encontró sintaxis incorrecta mientras se estaba analizando {0}.</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>Se ha producido un error grave.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>La ejecución completó {0} veces...</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>Se canceló la consulta.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>Se produjo un error mientras se ejecutaba el lote.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Se produjo un error mientras se ejecutaba el lote, pero se ha omitido el error.</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
+    <value>Iniciando bucle de ejecución de {0} veces...</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>No se admite el comando {0}.</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>La variable {0} no se encontró.</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
+    <value>Error de ejecución de SQL: {0}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Ejecución de contenedor del analizador por lotes: {0} se encuentra... en la línea {1}: {2} Descripción: {3}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>Lote analizador contenedor ejecución motor lote mensaje recibido: mensaje: {0} mensaje detallado: {1}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>Motor de ejecución de analizador contenedor lote ResultSet procesamiento por lotes: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>Finalizó el elemento ResultSet analizador contenedor ejecución motor los lotes.</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>Cancelando la ejecución por lotes del contenedor del analizador por lotes.</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>Advertencia de scripting.</value>
+  </data>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>Para obtener más información acerca de este error, vea los temas de solución de problemas en la documentación del producto.</value>
+  </data>
+  <data name="BatchParser_CircularReference" xml:space="preserve">
+    <value>El archivo '{0}' se incluyó recursivamente.</value>
+  </data>
+  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
+    <value>Falta la marca de final de comentario ' * /'.</value>
+  </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>Sin comilla de cierre después de la cadena de caracteres.</value>
+  </data>
+  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
+    <value>Se encontró sintaxis incorrecta al analizar '{0}'.</value>
+  </data>
+  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
+    <value>La variable {0} no está definida.</value>
+  </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>ES_LOCALIZATION</value>
+    <value>prueba</value>
+  </data>
+  <data name="ErrorUnexpectedCodeObjectType" xml:space="preserve">
+    <value>No se puede convertir el SqlCodeObject del Tipo {0} al Tipo {1}</value>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>Sustitución de una cadena vacía por una cadena vacía.</value>
+  </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>Sesión de edición no existe,</value>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>La consulta no ha finalizado.</value>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>La consulta no generó un único set de resultados</value>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>Falló al agregar una nueva fila a la caché de actualización</value>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>El ID de la fila ingresado, se encuentra fuera del rango de filas de la caché de edición</value>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>Una actualización está pendiente para esta fila y debe de revertirse primero</value>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>El ID de la fila ingresado no tiene actualizaciones pendientes</value>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>La metadata de la tabla o vista no pudo ser encontrada</value>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>Formato inválido para columna binaria</value>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>Columnas del tipo boolean deben de ser numéricos 1 o 0, o tipo string true o false</value>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>Falta un valor requerido de la celda</value>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>Existe una eliminación pendiente para esta fila, una actualización de celda no puede ser realizada.</value>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>El ID de la columna debe de estar en el rango de columnas de la consulta.</value>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>La columna no puede ser editada</value>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>No se encontró ninguna columna clave</value>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>Proporcione un nombre de archivo de salida</value>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>Objeto de base de datos {0} no puede ser usado para modificación.</value>
+  </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>SpecifiedUri '{0}' no tiene alguna conexión por defecto</value>
   </data>
 </root>
