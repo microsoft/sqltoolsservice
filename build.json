@@ -7,7 +7,7 @@
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
   "TestProjects": {
-    "Microsoft.SqlTools.ServiceLayer.Test": [
+    "Microsoft.SqlTools.ServiceLayer.UnitTests": [
       "netcoreapp1.0"
    ]
   },
