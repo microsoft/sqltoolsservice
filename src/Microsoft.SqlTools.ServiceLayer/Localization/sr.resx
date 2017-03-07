@@ -423,6 +423,10 @@
     <value>A commit task is in progress. Please wait for completion.</value>
     <comment></comment>
   </data>
+  <data name="EditDataInitializeInProgress" xml:space="preserve">
+    <value>Another edit data initialize is in progress for this owner URI. Please wait for completion.</value>
+    <comment></comment>
+  </data>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
     <comment></comment>
