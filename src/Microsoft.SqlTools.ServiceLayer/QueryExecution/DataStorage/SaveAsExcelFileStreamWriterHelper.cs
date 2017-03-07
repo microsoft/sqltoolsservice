@@ -28,39 +28,61 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 _dataWriter.Write(num.ToString());
                 AddCellNumberEnd();
             }
+
+            // The excel epoch is 1/1/1900, but it has 1/0/1900 and 2/29/1900
+            // which is equal to set the epoch back two days to 12/30/1899
+            // new DateTime(1899,12,30).Ticks
+            private const long ExcelEpochTick = 599264352000000000L;
+
+            // Excel can not use date before 1/0/1900 and
+            // date before 3/1/1900 is wrong, off by 1 because of 2/29/1900
+            // thus, for any date before 3/1/1900, use string for date
+            // new DateTime(1900,3,1).Ticks
+            private const long ExcelDateCutoffTick = 599317056000000000L;
+
+            // new TimeSpan(24,0,0).Ticks
+            private const long TicksPerDay = 864000000000L;
+
             public void AddCell(DateTime dateTime)
             {
                 AddCellContract();
-                if (dateTime == DateTime.MinValue)
+                long ticks = dateTime.Ticks;
+                Style style = Style.DateTime;
+                double excelDate;
+                if (ticks < TicksPerDay) //date empty, time only
                 {
-                    AddCellEmpty();
+                    style = Style.Time;
+                    excelDate = ((double)ticks) / (double)TicksPerDay;
                 }
-                else if (dateTime.Date == DateTime.MinValue)  //date empty, time only
+                else if (ticks < ExcelDateCutoffTick) //before excel cut-off, use string
                 {
-                    AddCellDateTimeInternal(dateTime.ToString("hh:mm:ss", System.Globalization.CultureInfo.InvariantCulture), Style.Time);
-                }
-                else if (dateTime.Date == dateTime) //time empty
-                {
-                    AddCellDateTimeInternal(dateTime.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture), Style.Date);
+                    AddCell(dateTime.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
+                    return;
                 }
                 else
                 {
-                    AddCellDateTimeInternal(dateTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture), Style.DateTime);
+                    if (ticks % TicksPerDay == 0) //time empty, date only
+                    {
+                        style = Style.Date;
+                    }
+                    excelDate = ((double)(ticks - ExcelEpochTick)) / (double)TicksPerDay;
                 }
-
+                AddCellDateTimeInternal(excelDate, style);
             }
-            // datetime need <c r="A1" t="d" s="2"><v>2012-14-14T12:30:00</v></c>
-            private void AddCellDateTimeInternal(string dateTimeString, Style style)
+
+            // datetime need <c r="A1" s="2"><v>26012.451</v></c>
+            private void AddCellDateTimeInternal(double excelDate, Style style)
             {
                 _dataWriter.Write("<c r=\"");
                 WriteColumnRef(_dataWriter, _currRow, _currColumn);
-                _dataWriter.Write("\" t=\"d\" s=\"");
+                _dataWriter.Write("\" s=\"");
                 _dataWriter.Write((int)style);
                 _dataWriter.Write("\"><v>");
-                _dataWriter.Write(dateTimeString);
+                _dataWriter.Write(excelDate);
                 _dataWriter.Write("</v></c>");
                 _currColumn++;
             }
+
             public void AddCell(string value)
             {
                 if (value == null)
@@ -73,6 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 WriteColumnRef(_dataWriter, _currRow, _currColumn);
                 _currColumn++;
                 // page 1598
+                // style default to 0, page 3928
                 _dataWriter.Write("\" t=\"inlineStr\"><is><t>");
 
                 //write data
