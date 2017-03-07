@@ -509,6 +509,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataInitializeInProgress
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataInitializeInProgress);
+            }
+        }
+
         public static string EE_BatchSqlMessageNoProcedureInfo
         {
             get
@@ -1055,6 +1063,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataComputedColumnPlaceholder = "EditDataComputedColumnPlaceholder";
+
+
+            public const string EditDataInitializeInProgress = "EditDataInitializeInProgress";
 
 
             public const string EE_BatchSqlMessageNoProcedureInfo = "EE_BatchSqlMessageNoProcedureInfo";

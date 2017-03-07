@@ -202,6 +202,8 @@ EditDataCommitInProgress = A commit task is in progress. Please wait for complet
 
 EditDataComputedColumnPlaceholder = <TBD>
 
+EditDataInitializeInProgress = Another edit data initialize is in progress for this owner URI. Please wait for completion.
+
 ############################################################################
 # DacFx Resources
 
