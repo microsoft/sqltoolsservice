@@ -308,6 +308,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
 
         #endregion
 
+        [Theory]
+        [InlineData("(0)", "0")]
+        [InlineData("((0))", "0")]
+        [InlineData("('')", "")]
+        [InlineData("('stuff')", "stuff")]
+        [InlineData("(N'')", "")]
+        [InlineData("(N'stuff')", "stuff")]
+        [InlineData("('''stuff')", "stuff")]
+        [InlineData("(N'stu''''ff')", "stu''ff")]
+        public void UnescapeTest(string input, string output)
+        {
+            Assert.Equal(output, SqlScriptFormatter.UnwrapLiteral(input));
+        }
+
         private class FormatterTestDbColumn : DbColumn
         {
             public FormatterTestDbColumn(string dataType, int? precision = null, int? scale = null)
