@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -110,13 +111,31 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataFailedAddRow);
             }
 
-            var defaultValues = objectMetadata.Columns.Select(
-                c => c.IsCalculated ? SR.EditDataComputedColumnPlaceholder : c.DefaultValue);
+            // Set the default values of the row if we know them
+            string[] defaultValues = new string[objectMetadata.Columns.Count];
+            for(int i = 0; i < objectMetadata.Columns.Count; i++)
+            {
+                EditColumnWrapper col = objectMetadata.Columns[i];
+
+                // If the column is calculated, return the calculated placeholder as the display value
+                if (col.IsCalculated)
+                {
+                    defaultValues[i] = SR.EditDataComputedColumnPlaceholder;
+                }
+                else
+                {
+                    if (col.DefaultValue != null)
+                    {
+                        newRow.SetCell(i, col.DefaultValue);
+                    }
+                    defaultValues[i] = col.DefaultValue;
+                }
+            }
 
             EditCreateRowResult output = new EditCreateRowResult
             {
                 NewRowId = newRowId,
-                DefaultValues = defaultValues.ToArray()
+                DefaultValues = defaultValues
             };
             return output;
         }

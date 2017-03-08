@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -63,6 +64,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 // sql_variant       - casting logic isn't good enough
                 // sysname           - it doesn't appear possible to insert a sysname column
            };
+
+        private static readonly Type[] NumericTypes = 
+        {
+            typeof(byte),
+            typeof(short),
+            typeof(int),
+            typeof(long),
+            typeof(decimal),
+            typeof(float),
+            typeof(double)
+        };
+
+        private static Regex StringRegex = new Regex("^N?'(.*)'$", RegexOptions.Compiled);
 
         #endregion
 
@@ -139,6 +153,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         {
             IEnumerable<string> escapedParts = identifiers.Select(FormatIdentifier);
             return string.Join(".", escapedParts);
+        }
+
+        /// <summary>
+        /// Converts a value from a script into a plain version by unwrapping literal wrappers
+        /// and unescaping characters.
+        /// </summary>
+        /// <param name="literal">The value to unwrap</param>
+        /// <returns>The unwrapped/unescaped literal</returns>
+        public static string UnwrapLiteral(string literal)
+        {
+            // Always remove parens
+            literal = literal.Trim('(', ')');
+
+            // Attempt to unwrap inverted commas around a string
+            Match match = StringRegex.Match(literal);
+            if (match.Success)
+            {
+                // Like: N'stuff' or 'stuff'
+                return UnEscapeString(match.Groups[1].Value, '\'');
+            }
+            return literal;
         }
 
         #region Private Helpers
@@ -256,6 +291,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 }
             }
             return sb.ToString();
+        }
+
+        private static string UnEscapeString(string value, char escapeCharacter)
+        {
+            Validate.IsNotNull(nameof(value), value);
+
+            // Replace 2x of the escape character with 1x of the escape character
+            return value.Replace(new string(escapeCharacter, 2), escapeCharacter.ToString());
         }
 
         #endregion

@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             else
             {
                 // All identity columns should be returned as keys
-                tableMetaMock.Setup(m => m.KeyColumns).Returns(columnMetas.Where(c => c.DbColumn.IsIdentity.HasTrue()));
+                tableMetaMock.Setup(m => m.KeyColumns).Returns(columnMetas.Where(c => c.DbColumn.IsIdentity.HasTrue()).ToList());
             }
             tableMetaMock.Setup(m => m.Columns).Returns(columnMetas);
             tableMetaMock.Setup(m => m.IsMemoryOptimized).Returns(isMemoryOptimized);

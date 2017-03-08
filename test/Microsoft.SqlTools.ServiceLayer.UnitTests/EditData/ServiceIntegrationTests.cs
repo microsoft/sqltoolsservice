@@ -6,11 +6,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
@@ -349,6 +352,42 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... There should not be a wait handle. It should have been cleaned up by now
             Assert.Empty(eds.InitializeWaitHandles);
+        }
+
+        [Fact]
+        public async Task TestHarness()
+        {
+            var cs = ConnectionService.Instance;
+            await cs.Connect(new ConnectParams
+            {
+                Connection = new ConnectionDetails
+                {
+                    ServerName = "localhost",
+                    AuthenticationType = "Integrated",
+                    DatabaseName = "testytest"
+                },
+                OwnerUri = Constants.OwnerUri
+            });
+
+            var eds = EditDataService.Instance;
+            var evf = new EventFlowValidator<EditInitializeResult>()
+                .AddResultValidation(Assert.NotNull)
+                .AddStandardBatchStartValidator()
+                .AddStandardMessageValidator()
+                .AddStandardResultSetValidator()
+                .AddStandardBatchCompleteValidator()
+                .AddStandardQueryCompleteValidator(1)
+                .AddEventValidation(EditSessionReadyEvent.Type, Assert.NotNull)
+                .Complete();
+            var initParams = new EditInitializeParams
+            {
+                ObjectName = "defaulttest",
+                ObjectType = "table",
+                OwnerUri = Common.OwnerUri
+            };
+            await eds.HandleInitializeRequest(initParams, evf.Object);
+            await eds.InitializeWaitHandles[Constants.OwnerUri].Task;
+            evf.Validate();
         }
 
         private static EditSession GetDefaultSession()

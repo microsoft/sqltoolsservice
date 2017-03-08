@@ -46,11 +46,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // identify a row in the table
                 bool isTrustworthyForUniqueness = dbColumn.IsUpdatable || smoColumn.Identity;
 
+                // The default value may be escaped
+                string defaultValue = smoColumn.DefaultConstraint == null
+                    ? null
+                    : SqlScriptFormatter.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
+
                 EditColumnWrapper column = new EditColumnWrapper
                 {
                     DbColumn = dbColumn,
                     Ordinal = i,
-                    DefaultValue = smoColumn.Default,
+                    DefaultValue = defaultValue,
                     EscapedName = SqlScriptFormatter.FormatIdentifier(dbColumn.ColumnName),
                     IsTrustworthyForUniqueness = isTrustworthyForUniqueness,
 
@@ -84,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// Read-only list of columns in the object being edited
         /// </summary>
-        public IEnumerable<EditColumnWrapper> Columns => columns.AsReadOnly();
+        public IReadOnlyList<EditColumnWrapper> Columns => columns.AsReadOnly();
 
         /// <summary>
         /// Full escaped multipart identifier for the object being edited
@@ -99,6 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// Read-only list of columns that are used to uniquely identify a row
         /// </summary>
-        public IEnumerable<EditColumnWrapper> KeyColumns => keyColumns.AsReadOnly();
+        public IReadOnlyList<EditColumnWrapper> KeyColumns => keyColumns.AsReadOnly();
     }
 }
