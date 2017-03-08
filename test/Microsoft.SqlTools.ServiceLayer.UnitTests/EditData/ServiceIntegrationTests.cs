@@ -6,11 +6,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
@@ -356,7 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
             return s;
         }

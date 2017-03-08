@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with a single column
             var cols = new[] {col};
             ResultSet rs = GetResultSet(cols, new[] {val});
-            IEditTableMetadata etm = Common.GetMetadata(cols);
+            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseSingleKey(nullClause);
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with multiple key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
             ResultSet rs = GetResultSet(cols, new object[] {"abc", "def"});
-            IEditTableMetadata etm = Common.GetMetadata(cols);
+            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseMultipleKeys();
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with no key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
             ResultSet rs = GetResultSet(cols, new object[] {"abc", "def"});
-            IEditTableMetadata etm = Common.GetMetadata(new DbColumn[] {});
+            IEditTableMetadata etm = Common.GetStandardMetadata(new DbColumn[] {});
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseNoKeys();
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata we can reuse
             var cols = Common.GetColumns(false);
             var rs = Common.GetResultSet(cols, false);
-            var etm = Common.GetMetadata(cols);
+            var etm = Common.GetStandardMetadata(cols);
 
             // If: I request to sort a list of the three different edit operations
             List<RowEditBase> rowEdits = new List<RowEditBase>
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata we can reuse
             var cols = Common.GetColumns(false);
             var rs = Common.GetResultSet(cols, false, 4);
-            var etm = Common.GetMetadata(cols);
+            var etm = Common.GetStandardMetadata(cols);
 
             // If: I sort 3 edit operations of the same type
             List<RowEditBase> rowEdits = new List<RowEditBase>
@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata we can reuse
             var cols = Common.GetColumns(false);
             var rs = Common.GetResultSet(cols, false);
-            var etm = Common.GetMetadata(cols);
+            var etm = Common.GetStandardMetadata(cols);
 
             // If: I sort 3 edit operations of the same type
             List<RowEditBase> rowEdits = new List<RowEditBase>
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata we can reuse
             var cols = Common.GetColumns(false);
             var rs = Common.GetResultSet(cols, false);
-            var etm = Common.GetMetadata(cols);
+            var etm = Common.GetStandardMetadata(cols);
 
             // If: I sort 3 delete operations of the same type
             List<RowEditBase> rowEdits = new List<RowEditBase>

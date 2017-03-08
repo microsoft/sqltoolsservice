@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -96,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// </summary>
         /// <exception cref="InvalidOperationException">If inserting into cache fails</exception>
         /// <returns>The internal ID of the newly created row</returns>
-        public long CreateRow()
+        public EditCreateRowResult CreateRow()
         {
             // Create a new row ID (atomically, since this could be accesses concurrently)
             long newRowId = NextRowId++;
@@ -110,7 +111,33 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataFailedAddRow);
             }
 
-            return newRowId;
+            // Set the default values of the row if we know them
+            string[] defaultValues = new string[objectMetadata.Columns.Count];
+            for(int i = 0; i < objectMetadata.Columns.Count; i++)
+            {
+                EditColumnWrapper col = objectMetadata.Columns[i];
+
+                // If the column is calculated, return the calculated placeholder as the display value
+                if (col.IsCalculated)
+                {
+                    defaultValues[i] = SR.EditDataComputedColumnPlaceholder;
+                }
+                else
+                {
+                    if (col.DefaultValue != null)
+                    {
+                        newRow.SetCell(i, col.DefaultValue);
+                    }
+                    defaultValues[i] = col.DefaultValue;
+                }
+            }
+
+            EditCreateRowResult output = new EditCreateRowResult
+            {
+                NewRowId = newRowId,
+                DefaultValues = defaultValues
+            };
+            return output;
         }
 
         /// <summary>

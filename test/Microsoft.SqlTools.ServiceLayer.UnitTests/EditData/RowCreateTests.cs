@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create the values to store
             const long rowId = 100;
             ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I create a RowCreate instance
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(includeIdentity);
             ResultSet rs = Common.GetResultSet(columns, includeIdentity);
-            IEditTableMetadata etm = Common.GetMetadata(columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I ask for a script to be generated without an identity column
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(false);
             ResultSet rs = Common.GetResultSet(columns, false);
-            IEditTableMetadata etm = Common.GetMetadata(columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I ask for a script to be generated without setting any values
             // Then: An exception should be thrown for missing cells
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(includeIdentity);
             ResultSet rs = Common.GetResultSet(columns, includeIdentity);
-            IEditTableMetadata etm = Common.GetMetadata(columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // ... Setup a db reader for the result of an insert
             var newRowReader = Common.GetNewRowDataReader(columns, includeIdentity);
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowCreate rc = new RowCreate(rowId, rs, etm);
             Common.AddCells(rc, includeIdentity);
 
@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowCreate rc = new RowCreate(rowId, rs, etm);
 
             // If: I attempt to create a command with a null connection
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             var mockConn = new TestSqlConnection(null);
 
             // If: I ask for a script to be generated without setting any values

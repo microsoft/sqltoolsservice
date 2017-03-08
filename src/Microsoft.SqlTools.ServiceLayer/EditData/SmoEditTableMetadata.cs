@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     /// <summary>
     /// Provides metadata about the table or view being edited
     /// </summary>
-    public class EditTableMetadata : IEditTableMetadata
+    public class SmoEditTableMetadata : IEditTableMetadata
     {
         private readonly List<EditColumnWrapper> columns;
         private readonly List<EditColumnWrapper> keyColumns;
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// </summary>
         /// <param name="dbColumns">DB columns from the ResultSet</param>
         /// <param name="smoObject">SMO metadata object for the table/view being edited</param>
-        public EditTableMetadata(IList<DbColumnWrapper> dbColumns, TableViewTableTypeBase smoObject)
+        public SmoEditTableMetadata(IList<DbColumnWrapper> dbColumns, TableViewTableTypeBase smoObject)
         {
             Validate.IsNotNull(nameof(dbColumns), dbColumns);
             Validate.IsNotNull(nameof(smoObject), smoObject);
@@ -46,15 +46,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // identify a row in the table
                 bool isTrustworthyForUniqueness = dbColumn.IsUpdatable || smoColumn.Identity;
 
+                // The default value may be escaped
+                string defaultValue = smoColumn.DefaultConstraint == null
+                    ? null
+                    : SqlScriptFormatter.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
+
                 EditColumnWrapper column = new EditColumnWrapper
                 {
                     DbColumn = dbColumn,
                     Ordinal = i,
+                    DefaultValue = defaultValue,
                     EscapedName = SqlScriptFormatter.FormatIdentifier(dbColumn.ColumnName),
                     IsTrustworthyForUniqueness = isTrustworthyForUniqueness,
 
                     // A key column is determined by whether it is in the primary key and trustworthy
-                    IsKey = smoColumn.InPrimaryKey && isTrustworthyForUniqueness
+                    IsKey = smoColumn.InPrimaryKey && isTrustworthyForUniqueness,
+
+                    // A column is calculated if it is identity, computed, or otherwise not updatable
+                    IsCalculated = smoColumn.Identity || smoColumn.Computed || !dbColumn.IsUpdatable
                 };
                 columns.Add(column);
             }
@@ -80,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// Read-only list of columns in the object being edited
         /// </summary>
-        public IEnumerable<EditColumnWrapper> Columns => columns.AsReadOnly();
+        public IReadOnlyList<EditColumnWrapper> Columns => columns.AsReadOnly();
 
         /// <summary>
         /// Full escaped multipart identifier for the object being edited
@@ -95,6 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// Read-only list of columns that are used to uniquely identify a row
         /// </summary>
-        public IEnumerable<EditColumnWrapper> KeyColumns => keyColumns.AsReadOnly();
+        public IReadOnlyList<EditColumnWrapper> KeyColumns => keyColumns.AsReadOnly();
     }
 }

@@ -501,6 +501,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataComputedColumnPlaceholder
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataComputedColumnPlaceholder);
+            }
+        }
+
         public static string EditDataInitializeInProgress
         {
             get
@@ -1052,6 +1060,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataCommitInProgress = "EditDataCommitInProgress";
+
+
+            public const string EditDataComputedColumnPlaceholder = "EditDataComputedColumnPlaceholder";
 
 
             public const string EditDataInitializeInProgress = "EditDataInitializeInProgress";

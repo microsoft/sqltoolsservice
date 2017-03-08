@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// All columns in the table that's being edited
         /// </summary>
-        IEnumerable<EditColumnWrapper> Columns { get; }
+        IReadOnlyList<EditColumnWrapper> Columns { get; }
 
         /// <summary>
         /// The escaped name of the table that's being edited
@@ -31,6 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// Columns that can be used to uniquely identify the a row
         /// </summary>
-        IEnumerable<EditColumnWrapper> KeyColumns { get; }
+        IReadOnlyList<EditColumnWrapper> KeyColumns { get; }
     }
 }
