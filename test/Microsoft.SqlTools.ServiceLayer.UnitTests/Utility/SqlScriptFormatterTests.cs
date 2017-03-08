@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
-namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     public class SqlScriptFormatterTests
     {
@@ -315,7 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Utility
         [InlineData("('stuff')", "stuff")]
         [InlineData("(N'')", "")]
         [InlineData("(N'stuff')", "stuff")]
-        [InlineData("('''stuff')", "stuff")]
+        [InlineData("('''stuff')", "'stuff")]
         [InlineData("(N'stu''''ff')", "stu''ff")]
         public void UnescapeTest(string input, string output)
         {
