@@ -34,6 +34,8 @@ namespace Microsoft.SqlTools.Hosting.Contracts
 
         public string DisplayName { get; set; }
 
+        public string Description {get; set; }
+
         /// <summary>
         /// Type of the parameter.  Can be either string, number, or category.
         /// </summary>
@@ -61,7 +63,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// <summary>
         /// Flag to indicate that this option is required
         /// </summary>
-        public bool IsRequired { get; set; }   
+        public bool IsRequired { get; set; }
     }
 }
 

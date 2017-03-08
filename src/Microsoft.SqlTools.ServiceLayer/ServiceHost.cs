@@ -199,6 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     new ConnectionOption
                     {
                         Name = "Server Name",
+                        Description = "Name of the SQL Server instance",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueServerName,
                         IsIdentity = true,
@@ -208,6 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     {
                         Name = "Initial Catalog",
                         DisplayName = "Database Name",
+                        Description = "Name of the SQL Server database",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueDatabaseName,
                         IsIdentity = true,
@@ -216,6 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     new ConnectionOption
                     {
                         Name = "Auth Type",
+                        Description = "Authentication type",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         SpecialValueType = ConnectionOption.SpecialValueAuthType,
                         CategoryValues = new string[] { "SQL Login", "Integrated Auth" },
@@ -225,6 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     new ConnectionOption
                     {
                         Name = "Username",
+                        Description = "SQL Login user name",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueUserName,
                         IsIdentity = true,
@@ -233,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     new ConnectionOption
                     {
                         Name = "Password",
-                        DisplayName = "Database Name",
+                        Description = "SQL Loging password",
                         ValueType = ConnectionOption.ValueTypePassword,
                         SpecialValueType = ConnectionOption.SpecialValuePasswordName,
                         IsIdentity = true,
@@ -242,17 +246,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     new ConnectionOption
                     {
                         Name = "Application Intent",
+                        Description = "Application intent",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         CategoryValues = new string[] { "ReadWrite", "ReadOnly" }
                     },
                     new ConnectionOption
                     {
                         Name = "Asynchronous Processing",
+                        Description = "Application processing enabled",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
                         Name = "Connect Timeout",
+                        Description = "Timeout in seconds when establishing a connection",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "15"
                     },
