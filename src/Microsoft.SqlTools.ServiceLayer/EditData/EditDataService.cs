@@ -57,6 +57,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         private readonly Lazy<ConcurrentDictionary<string, EditSession>> editSessions = new Lazy<ConcurrentDictionary<string, EditSession>>(
             () => new ConcurrentDictionary<string, EditSession>());
 
+        private readonly Lazy<ConcurrentDictionary<string, TaskCompletionSource<bool>>> initializeWaitHandles =
+            new Lazy<ConcurrentDictionary<string, TaskCompletionSource<bool>>>(
+                () => new ConcurrentDictionary<string, TaskCompletionSource<bool>>());
+
         #endregion
 
         #region Properties
@@ -65,6 +69,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// Dictionary mapping OwnerURIs to active sessions
         /// </summary>
         internal ConcurrentDictionary<string, EditSession> ActiveSessions => editSessions.Value;
+
+        /// <summary>
+        /// Dictionary mapping OwnerURIs to wait handlers for initialize tasks. Pretty much only
+        /// provided for unit test scenarios.
+        /// </summary>
+        internal ConcurrentDictionary<string, TaskCompletionSource<bool>> InitializeWaitHandles => initializeWaitHandles.Value;
 
         #endregion
 
@@ -161,7 +171,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // Make sure we have info to process this request
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.OwnerUri), initParams.OwnerUri);
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
+                Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectType), initParams.ObjectType);
 
+                // Try to add a new wait handler to the 
+                if (!InitializeWaitHandles.TryAdd(initParams.OwnerUri, new TaskCompletionSource<bool>()))
+                {
+                    throw new InvalidOperationException(SR.EditDataInitializeInProgress);
+                }
+    
                 // Setup a callback for when the query has successfully created
                 Func<Query, Task<bool>> queryCreateSuccessCallback = async query =>
                 {
@@ -170,21 +187,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 };
 
                 // Setup a callback for when the query failed to be created
-                Func<string, Task> queryCreateFailureCallback = requestContext.SendError;
+                Func<string, Task> queryCreateFailureCallback = async message =>
+                {
+                    await requestContext.SendError(message);
+                    CompleteInitializeWaitHandler(initParams.OwnerUri, false);
+                };
 
                 // Setup a callback for when the query completes execution successfully
                 Query.QueryAsyncEventHandler queryCompleteSuccessCallback =
                     q => QueryCompleteCallback(q, initParams, requestContext);
 
                 // Setup a callback for when the query completes execution with failure
-                Query.QueryAsyncEventHandler queryCompleteFailureCallback = query =>
+                Query.QueryAsyncEventHandler queryCompleteFailureCallback = async query =>
                 {
                     EditSessionReadyParams readyParams = new EditSessionReadyParams
                     {
                         OwnerUri = initParams.OwnerUri,
                         Success = false
                     };
-                    return requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
+                    await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
+                    CompleteInitializeWaitHandler(initParams.OwnerUri, false);
                 };
 
                 // Put together a query for the results and execute it
@@ -200,6 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             catch (Exception e)
             {
                 await requestContext.SendError(e.Message);
+                CompleteInitializeWaitHandler(initParams.OwnerUri, false);
             }
         }
 
@@ -318,6 +341,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Send the edit session ready notification
             await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
+            CompleteInitializeWaitHandler(initParams.OwnerUri, true);
+        }
+
+        private void CompleteInitializeWaitHandler(string ownerUri, bool result)
+        {
+            // If there isn't a wait handler, just ignore it
+            TaskCompletionSource<bool> initializeWaiter;
+            if (ownerUri != null && InitializeWaitHandles.TryRemove(ownerUri, out initializeWaiter))
+            {
+                initializeWaiter.SetResult(result);
+            }
         }
 
         #endregion

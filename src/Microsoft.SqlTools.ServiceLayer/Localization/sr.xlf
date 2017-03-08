@@ -541,6 +541,11 @@
         <target state="new">Give column ID does not have pending update</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataInitializeInProgress">
+        <source>Another edit data initialize is in progress for this owner URI. Please wait for completion.</source>
+        <target state="new">Another edit data initialize is in progress for this owner URI. Please wait for completion.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
