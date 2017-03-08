@@ -116,15 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal Task HandleCreateRowRequest(EditCreateRowParams createParams,
             RequestContext<EditCreateRowResult> requestContext)
         {
-            return HandleSessionRequest(createParams, requestContext, session =>
-            {
-                // Create the row and get the ID of the new row
-                long newRowId = session.CreateRow();
-                return new EditCreateRowResult
-                {
-                    NewRowId = newRowId
-                };
-            });
+            return HandleSessionRequest(createParams, requestContext, s => s.CreateRow());
         }
 
         internal Task HandleDeleteRowRequest(EditDeleteRowParams deleteParams,

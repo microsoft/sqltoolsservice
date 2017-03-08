@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create the values to store
             const long rowId = 0;
             ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            IEditTableMetadata etm = Common.GetMetadata(rs.Columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I create a RowUpdate instance
             RowUpdate rc = new RowUpdate(rowId, rs, etm);
@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a row update
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
             // If: I set a cell that can be updated
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
 
             // ... Generate the metadata
-            var etm = Common.GetMetadata(cols);
+            var etm = Common.GetStandardMetadata(cols);
 
             // ... Create the row update
             RowUpdate ru = new RowUpdate(0, rs, etm);
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a fake table to update
             DbColumn[] columns = Common.GetColumns(true);
             ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetMetadata(columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: 
             // ... I add updates to all the cells in the row
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a fake table to update
             DbColumn[] columns = Common.GetColumns(true);
             ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetMetadata(columns, false, isMemoryOptimized);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns, false, isMemoryOptimized);
 
             // If: I ask for a script to be generated for update
             RowUpdate ru = new RowUpdate(0, rs, etm);
@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update with cell updates
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetMetadata(columns, !includeIdentity, isMemoryOptimized);
+            var etm = Common.GetStandardMetadata(columns, !includeIdentity, isMemoryOptimized);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             Common.AddCells(ru, includeIdentity);
 
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a row create
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowUpdate rc = new RowUpdate(0, rs, etm);
 
             // If: I attempt to create a command with a null connection
@@ -254,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetMetadata(columns, !includeIdentity);
+            var etm = Common.GetStandardMetadata(columns, !includeIdentity);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             long oldBytesWritten = rs.totalBytesWritten;
 
@@ -277,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(true);
             var rs = Common.GetResultSet(columns, true);
-            var etm = Common.GetMetadata(columns, false);
+            var etm = Common.GetStandardMetadata(columns, false);
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
             // If: I  ask for the changes to be applied with a null db reader
@@ -295,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
             // If: I attempt to revert a cell that is out of range
@@ -310,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(true);
             var rs = Common.GetResultSet(columns, true);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
             // If: I attempt to revert a cell that has not been set
@@ -330,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             ru.SetCell(0, "1");
 

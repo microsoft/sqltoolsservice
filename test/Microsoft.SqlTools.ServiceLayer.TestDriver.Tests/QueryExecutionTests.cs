@@ -319,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 await TestService.Disconnect(queryTempFile.FilePath);
             }
         }
-        */
+        
 
         [Theory]
         [InlineData("-- no-op")]
@@ -332,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             {
 
                 Assert.True(await testService.Connect(TestServerType.OnPrem, queryTempFile.FilePath));
-                // If: the query is executed...
+                // If: the no-op query is executed...
                 var queryResult = await testService.RunQueryAsync(queryTempFile.FilePath, query);
                 var message = await testService.WaitForMessage();
 
@@ -350,5 +350,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 await testService.Disconnect(queryTempFile.FilePath);
             }
         }
+        */
     }
 }

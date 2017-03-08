@@ -19,9 +19,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public DbColumnWrapper DbColumn { get; set; }
 
         /// <summary>
+        /// If set, this is a string representation of the default value. If set to null, then the
+        /// column does not have a default value.
+        /// </summary>
+        public string DefaultValue { get; set; }
+
+        /// <summary>
         /// Escaped identifier for the name of the column
         /// </summary>
         public string EscapedName { get; set; }
+
+        /// <summary>
+        /// Whether or not the column is calculated on the server side. This could be a computed
+        /// column or a identity column.
+        /// </summary>
+        public bool IsCalculated { get; set; }
 
         /// <summary>
         /// Whether or not the column is used in a key to uniquely identify a row

@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(false);
             ResultSet rs = Common.GetResultSet(columns, false);
-            IEditTableMetadata etm = Common.GetMetadata(columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I create a RowCreate instance
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(includeIdentity);
             ResultSet rs = Common.GetResultSet(columns, includeIdentity);
-            IEditTableMetadata etm = Common.GetMetadata(columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I ask for a script to be generated without an identity column
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(includeIdentity);
             ResultSet rs = Common.GetResultSet(columns, includeIdentity);
-            IEditTableMetadata etm = Common.GetMetadata(columns);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // ... Setup a db reader for the result of an insert
             var newRowReader = Common.GetNewRowDataReader(columns, includeIdentity);
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetMetadata(columns);
+            var etm = Common.GetStandardMetadata(columns);
             RowCreate rc = new RowCreate(rowId, rs, etm);
             Common.AddCells(rc, includeIdentity);
 
@@ -162,6 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create a row create
             RowCreate rc = GetStandardRowCreate();
+
 
             // If: I attempt to create a command with a null connection
             // Then: It should throw an exception
@@ -230,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
 
             // ... Generate the metadata
-            var etm = Common.GetMetadata(cols);
+            var etm = Common.GetStandardMetadata(cols);
 
             // ... Create the row create
             RowCreate rc = new RowCreate(100, rs, etm);
@@ -330,7 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             var cols = Common.GetColumns(false);
             var rs = Common.GetResultSet(cols, false);
-            var etm = Common.GetMetadata(cols);
+            var etm = Common.GetStandardMetadata(cols);
             return new RowCreate(100, rs, etm);
         }
     }

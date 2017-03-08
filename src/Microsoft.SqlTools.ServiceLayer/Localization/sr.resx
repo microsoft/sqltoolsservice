@@ -427,6 +427,10 @@
     <value>A commit task is in progress. Please wait for completion.</value>
     <comment></comment>
   </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;TBD&gt;</value>
+    <comment></comment>
+  </data>
   <data name="EditDataInitializeInProgress" xml:space="preserve">
     <value>Another edit data initialize is in progress for this owner URI. Please wait for completion.</value>
     <comment></comment>
