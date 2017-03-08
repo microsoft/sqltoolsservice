@@ -203,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 },
                 new EditColumnWrapper()
             };
-            var etm = Common.GetMetadataProvider(metas);
+            var etm = Common.GetMetadataProvider(metas, true);
 
             // ... Create a result set
             var rs = Common.GetResultSet(cols, false, 1);

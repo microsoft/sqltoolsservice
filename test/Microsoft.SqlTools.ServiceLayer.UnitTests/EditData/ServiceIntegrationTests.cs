@@ -354,42 +354,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Empty(eds.InitializeWaitHandles);
         }
 
-        [Fact]
-        public async Task TestHarness()
-        {
-            var cs = ConnectionService.Instance;
-            await cs.Connect(new ConnectParams
-            {
-                Connection = new ConnectionDetails
-                {
-                    ServerName = "localhost",
-                    AuthenticationType = "Integrated",
-                    DatabaseName = "testytest"
-                },
-                OwnerUri = Constants.OwnerUri
-            });
-
-            var eds = EditDataService.Instance;
-            var evf = new EventFlowValidator<EditInitializeResult>()
-                .AddResultValidation(Assert.NotNull)
-                .AddStandardBatchStartValidator()
-                .AddStandardMessageValidator()
-                .AddStandardResultSetValidator()
-                .AddStandardBatchCompleteValidator()
-                .AddStandardQueryCompleteValidator(1)
-                .AddEventValidation(EditSessionReadyEvent.Type, Assert.NotNull)
-                .Complete();
-            var initParams = new EditInitializeParams
-            {
-                ObjectName = "defaulttest",
-                ObjectType = "table",
-                OwnerUri = Common.OwnerUri
-            };
-            await eds.HandleInitializeRequest(initParams, evf.Object);
-            await eds.InitializeWaitHandles[Constants.OwnerUri].Task;
-            evf.Validate();
-        }
-
         private static EditSession GetDefaultSession()
         {
             // ... Create a session with a proper query and metadata
