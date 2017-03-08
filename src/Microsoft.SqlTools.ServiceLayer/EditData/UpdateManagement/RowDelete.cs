@@ -82,6 +82,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// This method should not be called. A cell cannot be reverted on a row that is pending
+        /// deletion.
+        /// </summary>
+        /// <param name="columnId">Ordinal of the column to update</param>
+        public override string RevertCell(int columnId)
+        {
+            throw new InvalidOperationException(SR.EditDataDeleteSetCell);
+        }
+
+        /// <summary>
         /// This method should not be called. A cell cannot be updated on a row that is pending
         /// deletion.
         /// </summary>

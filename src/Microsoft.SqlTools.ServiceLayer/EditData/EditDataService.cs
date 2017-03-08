@@ -89,6 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest);
             serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest);
+            serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest);
             serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest);
             serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest);
         }
@@ -215,6 +216,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 await requestContext.SendError(e.Message);
                 CompleteInitializeWaitHandler(initParams.OwnerUri, false);
             }
+        }
+
+        internal Task HandleRevertCellRequest(EditRevertCellParams revertParams,
+            RequestContext<EditRevertCellResult> requestContext)
+        {
+            return HandleSessionRequest(revertParams, requestContext, session =>
+            {
+                string newValue = session.RevertCell(revertParams.RowId, revertParams.ColumnId);
+                return new EditRevertCellResult
+                {
+                    NewValue = newValue
+                };
+            });
         }
 
         internal Task HandleRevertRowRequest(EditRevertRowParams revertParams,

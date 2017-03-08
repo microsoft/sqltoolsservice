@@ -153,5 +153,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             RowDelete rd = new RowDelete(0, rs, etm);
             Assert.Throws<InvalidOperationException>(() => rd.SetCell(0, null));
         }
+
+        [Fact]
+        public void RevertCell()
+        {
+            // Setup: Create a row delete
+            DbColumn[] cols = Common.GetColumns(false);
+            ResultSet rs = Common.GetResultSet(cols, false);
+            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
+            RowDelete rd = new RowDelete(0, rs, etm);
+
+            // If: I revert a cell on a delete row edit
+            // Then: It should throw
+            Assert.Throws<InvalidOperationException>(() => rd.RevertCell(0));
+        }
     }
 }

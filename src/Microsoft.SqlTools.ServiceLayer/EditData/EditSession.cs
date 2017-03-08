@@ -187,6 +187,25 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
+        /// Reverts a cell in a pending edit
+        /// </summary>
+        /// <param name="rowId">Internal ID of the row to have its edits reverted</param>
+        /// <param name="columnId">Ordinal ID of the column to revert</param>
+        /// <returns>String version of the old value for the cell</returns>
+        public string RevertCell(long rowId, int columnId)
+        {
+            // Attempt to get the row edit with the given ID
+            RowEditBase pendingEdit;
+            if (!EditCache.TryGetValue(rowId, out pendingEdit))
+            {
+                throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataUpdateNotPending);
+            }
+
+            // Have the edit base revert the cell
+            return pendingEdit.RevertCell(columnId);
+        }
+
+        /// <summary>
         /// Removes a pending row update from the update cache.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">

@@ -6,10 +6,13 @@
 using System;
 using System.Data.Common;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
@@ -22,8 +25,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create the values to store
             const long rowId = 100;
-            ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            DbColumn[] columns = Common.GetColumns(false);
+            ResultSet rs = Common.GetResultSet(columns, false);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I create a RowCreate instance
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -72,14 +76,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void GetScriptMissingCell()
         {
             // Setup: Generate the parameters for the row create
-            const long rowId = 100;
-            DbColumn[] columns = Common.GetColumns(false);
-            ResultSet rs = Common.GetResultSet(columns, false);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
+            RowCreate rc = GetStandardRowCreate();
 
             // If: I ask for a script to be generated without setting any values
             // Then: An exception should be thrown for missing cells
-            RowCreate rc = new RowCreate(rowId, rs, etm);
             Assert.Throws<InvalidOperationException>(() => rc.GetScript());
         }
 
@@ -161,11 +161,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void GetCommandNullConnection()
         {
             // Setup: Create a row create
-            const long rowId = 100;
-            var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowCreate rc = new RowCreate(rowId, rs, etm);
+            RowCreate rc = GetStandardRowCreate();
+
 
             // If: I attempt to create a command with a null connection
             // Then: It should throw an exception
@@ -176,16 +173,166 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void GetCommandMissingCell()
         {
             // Setup: Generate the parameters for the row create
-            const long rowId = 100;
-            var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
+            RowCreate rc = GetStandardRowCreate();
             var mockConn = new TestSqlConnection(null);
 
             // If: I ask for a script to be generated without setting any values
             // Then: An exception should be thrown for missing cells
-            RowCreate rc = new RowCreate(rowId, rs, etm);
             Assert.Throws<InvalidOperationException>(() => rc.GetCommand(mockConn));
+        }
+
+        [Theory]
+        [InlineData(-1)]        // Negative
+        [InlineData(3)]         // At edge of acceptable values
+        [InlineData(100)]       // Way too large value
+        public void SetCellOutOfRange(int columnId)
+        {
+            // Setup: Generate a row create
+            RowCreate rc = GetStandardRowCreate();
+
+            // If: I attempt to set a cell on a column that is out of range, I should get an exception
+            Assert.Throws<ArgumentOutOfRangeException>(() => rc.SetCell(columnId, string.Empty));
+        }
+
+        [Fact]
+        public void SetCellNoChange()
+        {
+            // Setup: Generate a row create
+            RowCreate rc = GetStandardRowCreate();
+
+            // If: I set a cell in the newly created row to something that doesn't need changing
+            EditUpdateCellResult eucr = rc.SetCell(0, "1");
+
+            // Then:
+            // ... The returned value should not have corrections
+            Assert.False(eucr.HasCorrections);
+            Assert.Null(eucr.NewValue);
+            
+            // ... The set value is not null
+            Assert.False(eucr.IsNull);
+
+            // ... The result is not an implicit revert
+            Assert.False(eucr.IsRevert);
+
+            // ... There should be a cell update in the cell list
+            Assert.NotNull(rc.newCells[0]);
+        }
+
+        [Fact]
+        public void SetCellHasCorrections()
+        {
+            // Setup: 
+            // ... Generate a result set with a single binary column
+            DbColumn[] cols = {new TestDbColumn("bin", "binary", typeof(byte[]))};
+            object[][] rows = {};
+            var testResultSet = new TestResultSet(cols, rows);
+            var testReader = new TestDbDataReader(new[] {testResultSet});
+            var rs = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
+            rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
+
+            // ... Generate the metadata
+            var etm = Common.GetStandardMetadata(cols);
+
+            // ... Create the row create
+            RowCreate rc = new RowCreate(100, rs, etm);
+
+            // If: I set a cell in the newly created row to something that will be corrected
+            EditUpdateCellResult eucr = rc.SetCell(0, "1000");
+
+            // Then:
+            // ... The returned value should have corrections
+            Assert.True(eucr.HasCorrections);
+            Assert.NotEmpty(eucr.NewValue);
+
+            // ... The set value is not null
+            Assert.False(eucr.IsNull);
+
+            // ... The result is not an implicit revert
+            Assert.False(eucr.IsRevert);
+
+            // ... There should be a cell update in the cell list
+            Assert.NotNull(rc.newCells[0]);
+        }
+
+        [Fact]
+        public void SetCellNull()
+        {
+            // Setup: Generate a row create
+            RowCreate rc = GetStandardRowCreate();
+
+            // If: I set a cell in the newly created row to null
+            EditUpdateCellResult eucr = rc.SetCell(0, "NULL");
+
+            // Then:
+            // ... The returned value should not have corrections
+            Assert.False(eucr.HasCorrections);
+            Assert.Null(eucr.NewValue);
+
+            // ... The set value is null
+            Assert.True(eucr.IsNull);
+
+            // ... The result is not an implicit revert
+            Assert.False(eucr.IsRevert);
+
+            // ... There should be a cell update in the cell list
+            Assert.NotNull(rc.newCells[0]);
+        }
+
+        [Theory]
+        [InlineData(-1)]        // Negative
+        [InlineData(3)]         // At edge of acceptable values
+        [InlineData(100)]       // Way too large value
+        public void RevertCellOutOfRange(int columnId)
+        {
+            // Setup: Generate the row create
+            RowCreate rc = GetStandardRowCreate();
+
+            // If: I attempt to revert a cell that is out of range
+            // Then: I should get an exception
+            Assert.Throws<ArgumentOutOfRangeException>(() => rc.RevertCell(columnId));
+        }
+
+        [Fact]
+        public void RevertCellNotSet()
+        {
+            // Setup: Generate the row create
+            RowCreate rc = GetStandardRowCreate();
+
+            // If: I attempt to revert a cell that has not been set
+            string result = rc.RevertCell(0);
+
+            // Then: We should get null back
+            // @TODO: Check for a default value when we support it
+            Assert.Null(result);
+
+            // ... The cell should no longer be set
+            Assert.Null(rc.newCells[0]);
+        }
+
+        [Fact]
+        public void RevertCellThatWasSet()
+        {
+            // Setup: Generate the row create
+            RowCreate rc = GetStandardRowCreate();
+            rc.SetCell(0, "1");
+
+            // If: I attempt to revert a cell that was set
+            string result = rc.RevertCell(0);
+
+            // Then:
+            // ... We should get null back
+            Assert.Null(result);
+
+            // ... The cell should no longer be set
+            Assert.Null(rc.newCells[0]);
+        }
+
+        private static RowCreate GetStandardRowCreate()
+        {
+            var cols = Common.GetColumns(false);
+            var rs = Common.GetResultSet(cols, false);
+            var etm = Common.GetStandardMetadata(cols);
+            return new RowCreate(100, rs, etm);
         }
     }
 }

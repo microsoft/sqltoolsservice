@@ -267,6 +267,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 throw new NotImplementedException();
             }
 
+            public override string RevertCell(int columnId)
+            {
+                throw new NotImplementedException();
+            }
+
             public override EditUpdateCellResult SetCell(int columnId, string newValue)
             {
                 throw new NotImplementedException();
