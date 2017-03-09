@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private void ProcessNullValue()
         {
             // Make sure that nulls are allowed if we set it to null
-            if (Column.AllowDBNull.HasTrue())
+            if (!Column.AllowDBNull.HasTrue())
             {
                 throw new InvalidOperationException(SR.EditDataNullNotAllowed);
             }
