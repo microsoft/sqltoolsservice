@@ -551,6 +551,11 @@
         <target state="new">Cannot add row to result buffer, data reader does not contain rows</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataTimeOver24Hrs">
+        <source>TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999</source>
+        <target state="new">TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

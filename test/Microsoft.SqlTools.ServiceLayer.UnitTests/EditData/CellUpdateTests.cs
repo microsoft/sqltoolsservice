@@ -159,6 +159,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Theory]
+        [InlineData("24:00:00")]
+        [InlineData("105:00:00")]
+        public void TimeSpanTooLargeTest(string value)
+        {
+            // If: I create a cell update for a timespan column and provide a value that is over 24hrs
+            // Then: It should throw an exception
+            DbColumnWrapper col = GetWrapper<TimeSpan>("time");
+            Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, value));
+        }
+
+        [Theory]
         [MemberData(nameof(RoundTripTestParams))]
         public void RoundTripTest(DbColumnWrapper col, object obj)
         {
