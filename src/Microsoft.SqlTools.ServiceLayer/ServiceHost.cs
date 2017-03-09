@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     new ConnectionOption
                     {
                         Name = "Password",
-                        Description = "SQL Loging password",
+                        Description = "SQL Login password",
                         ValueType = ConnectionOption.ValueTypePassword,
                         SpecialValueType = ConnectionOption.SpecialValuePasswordName,
                         IsIdentity = true,
@@ -272,31 +272,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     {
                         Name = "Column Encrytion Setting",
                         ValueType = ConnectionOption.ValueTypeCategory,
+                        GroupName = "Security",
                         CategoryValues = new string[] { "Disabled", "Enabled" }
                     },
                     new ConnectionOption
                     {
                         Name = "Encrypt",
+                        GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
                         Name = "Persist Security Info",
+                        GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
                         Name = "Trust Server Certificate",
-                        ValueType = ConnectionOption.ValueTypeBoolean
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "Persist Security Info",
-                        ValueType = ConnectionOption.ValueTypeBoolean
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "Trust Server Certificate",
+                        GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
