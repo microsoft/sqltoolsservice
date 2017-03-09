@@ -36,6 +36,8 @@ namespace Microsoft.SqlTools.Hosting.Contracts
 
         public string Description {get; set; }
 
+         public string GroupName {get; set; }
+
         /// <summary>
         /// Type of the parameter.  Can be either string, number, or category.
         /// </summary>
