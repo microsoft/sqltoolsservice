@@ -525,6 +525,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataNullNotAllowed
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataNullNotAllowed);
+            }
+        }
+
         public static string EE_BatchSqlMessageNoProcedureInfo
         {
             get
@@ -1077,6 +1085,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataInitializeInProgress = "EditDataInitializeInProgress";
+
+
+            public const string EditDataNullNotAllowed = "EditDataNullNotAllowed";
 
 
             public const string EE_BatchSqlMessageNoProcedureInfo = "EE_BatchSqlMessageNoProcedureInfo";

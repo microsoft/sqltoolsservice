@@ -551,6 +551,11 @@
         <target state="new">Cannot add row to result buffer, data reader does not contain rows</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataNullNotAllowed">
+        <source>NULL is not allowed for this column</source>
+        <target state="new">NULL is not allowed for this column</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
