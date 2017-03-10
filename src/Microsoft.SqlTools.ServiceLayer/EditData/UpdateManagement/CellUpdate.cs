@@ -196,7 +196,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             ValueAsString = Value.ToString();
         }
 
-<<<<<<< HEAD
         private void ProcessTimespanColumn(string valueAsString)
         {
             TimeSpan ts = TimeSpan.Parse(valueAsString, CultureInfo.CurrentCulture);
@@ -207,7 +206,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             Value = ts;
             ValueAsString = Value.ToString();
-=======
+        }
+
         private void ProcessNullValue()
         {
             // Make sure that nulls are allowed if we set it to null
@@ -218,7 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             Value = DBNull.Value;
             ValueAsString = NullString;
->>>>>>> dev
         }
 
         #endregion
