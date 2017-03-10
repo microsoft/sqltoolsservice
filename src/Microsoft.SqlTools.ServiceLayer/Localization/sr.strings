@@ -208,6 +208,8 @@ EditDataInitializeInProgress = Another edit data initialize is in progress for t
 
 EditDataTimeOver24Hrs = TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999
 
+EditDataNullNotAllowed = NULL is not allowed for this column
+
 ############################################################################
 # DacFx Resources
 

@@ -439,6 +439,10 @@
     <value>TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999</value>
     <comment></comment>
   </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>NULL is not allowed for this column</value>
+    <comment></comment>
+  </data>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
     <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
     <comment></comment>

@@ -180,6 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "now",
             "null",
             "numeric",
+            "nvarchar",
             "object",
             "of",
             "off",
