@@ -38,8 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Check for null
             if (valueAsString == NullString)
             {
-                Value = DBNull.Value;
-                ValueAsString = valueAsString;
+                ProcessNullValue();
             }
             else if (columnType == typeof(byte[]))
             {
@@ -195,6 +194,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
 
             ValueAsString = Value.ToString();
+        }
+
+        private void ProcessNullValue()
+        {
+            // Make sure that nulls are allowed if we set it to null
+            if (!Column.AllowDBNull.HasTrue())
+            {
+                throw new InvalidOperationException(SR.EditDataNullNotAllowed);
+            }
+
+            Value = DBNull.Value;
+            ValueAsString = NullString;
         }
 
         #endregion
