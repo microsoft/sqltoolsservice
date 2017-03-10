@@ -525,6 +525,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataTimeOver24Hrs
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataTimeOver24Hrs);
+            }
+        }
+
         public static string EditDataNullNotAllowed
         {
             get
@@ -1085,6 +1093,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataInitializeInProgress = "EditDataInitializeInProgress";
+
+
+            public const string EditDataTimeOver24Hrs = "EditDataTimeOver24Hrs";
 
 
             public const string EditDataNullNotAllowed = "EditDataNullNotAllowed";
