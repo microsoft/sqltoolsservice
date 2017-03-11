@@ -58,6 +58,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
         }
 
+        private static SqlConnection OpenMetadataConnection(ConnectionInfo connInfo)
+        {
+            try
+            {                 
+                // increase the connection timeout to at least 30 seconds and and build connection string
+                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
+                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
+                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
+                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
+                connInfo.ConnectionDetails.PersistSecurityInfo = true;
+                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
+
+                // open a dedicated binding server connection
+                SqlConnection sqlConn = new SqlConnection(connectionString); 
+                sqlConn.Open();
+                return sqlConn;
+            }
+            catch (Exception)
+            {
+            }
+            
+            return null;
+        }
+
         internal static async Task HandleMetadataListRequest(
             MetadataQueryParams metadataParams,
             RequestContext<MetadataQueryResult> requestContext)
@@ -67,25 +93,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 metadataParams.OwnerUri,
                 out connInfo);
 
-            var tables = new List<string>();
+            var metadata = new List<ObjectMetadata>();
 
             if (connInfo != null) 
             {
                 try
-                {                 
-                    // increase the connection timeout to at least 30 seconds and and build connection string
-                    // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                    int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                    bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                    connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                    connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                    connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-
-                    // open a dedicated binding server connection
-                    SqlConnection sqlConn = new SqlConnection(connectionString); 
-                    sqlConn.Open();
+                {
+                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);
 
                     // populate the binding context to work with the SMO metadata provider
                     ServerConnection serverConn = new ServerConnection(sqlConn);
@@ -112,7 +126,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                     foreach (Table table in database.Tables)
                     {
-                        tables.Add(table.Schema + "." + table.Name);
+                        metadata.Add(new ObjectMetadata
+                        {
+                            MetadataType = MetadataType.Table,
+                            Schema = table.Schema,
+                            ObjectName = table.Name
+                        });
                     }                      
                 }
                 catch (Exception)
@@ -121,12 +140,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 finally
                 {
                 }
-            } 
-                            
+            }
+
             await requestContext.SendResult(new MetadataQueryResult()
             {
-                OwnerUri = metadataParams.OwnerUri,
-                Tables = tables.ToArray()
+                Metadata = metadata.ToArray()
             });
         }
     }

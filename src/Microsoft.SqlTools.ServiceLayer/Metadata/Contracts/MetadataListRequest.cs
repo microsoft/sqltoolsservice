@@ -14,9 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 
     public class MetadataQueryResult
     {
-        public string OwnerUri { get; set; }
-
-        public string[] Tables { get; set; }
+        public ObjectMetadata[] Metadata { get; set; }
     }
 
     public class MetadataListRequest
