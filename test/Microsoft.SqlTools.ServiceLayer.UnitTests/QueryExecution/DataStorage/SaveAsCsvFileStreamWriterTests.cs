@@ -98,8 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
 
             // Then: It should write one line with 2 items, comma delimited
-            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            string[] lines = outputString.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
+	    // NOTE: We are trimming 0x00 b/c the byte array has extra 0 byte chars in it
+            string outputString = Encoding.Unicode.GetString(output).Trim('\0');
+            string[] lines = outputString.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
             Assert.Equal(1, lines.Length);
             string[] values = lines[0].Split(',');
             Assert.Equal(2, values.Length);
@@ -137,8 +138,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // Then:
             // ... It should have written two lines
-            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+	    // NOTE: We are trimming 0x00 b/c the byte array has extra 0 byte chars in it
+            string outputString = Encoding.Unicode.GetString(output).Trim('\0');
+            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             Assert.Equal(2, lines.Length);
 
             // ... It should have written a header line with two, comma separated names
@@ -192,8 +194,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // Then:
             // ... It should have written two lines
-            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+	    // NOTE: We are trimming 0x00 b/c the byte array has extra 0 byte chars in it
+            string outputString = Encoding.Unicode.GetString(output).TrimEnd('\0');
+            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             Assert.Equal(2, lines.Length);
 
             // ... It should have written a header line with two, comma separated names
