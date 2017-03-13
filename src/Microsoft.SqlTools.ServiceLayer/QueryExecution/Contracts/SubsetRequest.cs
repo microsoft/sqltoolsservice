@@ -47,11 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class SubsetResult
     {
         /// <summary>
-        /// Subset request error messages. Optional, can be set to null to indicate no errors
-        /// </summary>
-        public string Message { get; set; }
-
-        /// <summary>
         /// The requested subset of results. Optional, can be set to null to indicate an error
         /// </summary>
         public ResultSetSubset ResultSubset { get; set; }

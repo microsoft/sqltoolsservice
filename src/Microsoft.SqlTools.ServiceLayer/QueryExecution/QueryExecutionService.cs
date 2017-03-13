@@ -173,37 +173,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Query query;
                 if (!ActiveQueries.TryGetValue(subsetParams.OwnerUri, out query))
                 {
-                    await requestContext.SendResult(new SubsetResult
-                    {
-                        Message = SR.QueryServiceRequestsNoQuery
-                    });
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
                     return;
                 }
 
                 // Retrieve the requested subset and return it
                 var result = new SubsetResult
                 {
-                    Message = null,
                     ResultSubset = await query.GetSubset(subsetParams.BatchIndex,
                         subsetParams.ResultSetIndex, subsetParams.RowsStartIndex, subsetParams.RowsCount)
                 };
                 await requestContext.SendResult(result);
-            }
-            catch (InvalidOperationException ioe)
-            {
-                // Return the error as a result
-                await requestContext.SendResult(new SubsetResult
-                {
-                    Message = ioe.Message
-                });
-            }
-            catch (ArgumentOutOfRangeException aoore)
-            {
-                // Return the error as a result
-                await requestContext.SendResult(new SubsetResult
-                {
-                    Message = aoore.Message
-                });
             }
             catch (Exception e)
             {
