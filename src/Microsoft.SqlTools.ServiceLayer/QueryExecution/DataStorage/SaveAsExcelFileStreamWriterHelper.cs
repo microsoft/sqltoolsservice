@@ -1,51 +1,100 @@
-﻿using System;
+﻿/**
+ * A simple library to write xlsx file directly. It tries to be minimal, 
+ * both in implementation and runtime allocation.
+ * 
+ * A xlsx file is a zip with specific file structure.
+ * http://www.ecma-international.org/publications/standards/Ecma-376.htm
+ * 
+ * The page number is in the 
+ * ECMA-376, Fifth Edition, Part 1 - Fundamentals And Markup Language Reference 
+ * 
+ * Page 75
+ * /
+ * |- [Content_Types].xml
+ * |- _rels
+ *    |- .rels
+ * |- xl
+ *    |- workbook.xml
+ *    |- styles.xml
+ *    |- _rels
+ *       |- workbook.xml.rels
+ *    |- worksheets
+ *       |- sheet1.xml
+ * 
+ */
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     public sealed class SaveAsExcelFileStreamWriterHelper : IDisposable
     {
-        private enum Style
-        {
-            Normal,
-            Date,
-            Time,
-            DateTime
-        }
         public sealed class ExcelSheet : IDisposable
         {
-            void AddCellEmpty()
+            /// <summary>
+            /// Start a new row
+            /// </summary>
+            public void AddRow()
             {
-                _currColumn++;
+                EndRowIfNeeded();
+
+                _referenceManager.AssureRowReference();
+
+                _writer.WriteStartElement("row");
+                _referenceManager.WriteAndIncreaseRowReference();
             }
-            public void AddCellNumber(object num)
+
+            /// <summary>
+            /// Write a string cell
+            /// </summary>
+            /// This only increases the internal bookmark and doesn't arcturally write out anything.
+            public void AddCellEmpty()
             {
-                AddCellNumberStart();
-                _dataWriter.Write(num.ToString());
-                AddCellNumberEnd();
+                _referenceManager.IncreaseColumnReference();
             }
+            /// <summary>
+            /// Write a string cell
+            /// </summary>
+            /// <param name="value"></param>
+            public void AddCell(string value)
+            {
+                _referenceManager.AssureColumnReference();
+                if (value == null)
+                {
+                    AddCellEmpty();
+                    return;
+                }
 
-            // The excel epoch is 1/1/1900, but it has 1/0/1900 and 2/29/1900
-            // which is equal to set the epoch back two days to 12/30/1899
-            // new DateTime(1899,12,30).Ticks
-            private const long ExcelEpochTick = 599264352000000000L;
+                _writer.WriteStartElement("c");
 
-            // Excel can not use date before 1/0/1900 and
-            // date before 3/1/1900 is wrong, off by 1 because of 2/29/1900
-            // thus, for any date before 3/1/1900, use string for date
-            // new DateTime(1900,3,1).Ticks
-            private const long ExcelDateCutoffTick = 599317056000000000L;
+                _referenceManager.WriteAndIncreaseColumnReference();
 
-            // new TimeSpan(24,0,0).Ticks
-            private const long TicksPerDay = 864000000000L;
+                _writer.WriteAttributeString("t", "inlineStr");
 
+                _writer.WriteStartElement("is");
+                _writer.WriteStartElement("t");
+                _writer.WriteValue(value);
+                _writer.WriteEndElement();
+                _writer.WriteEndElement();
+
+                _writer.WriteEndElement();
+            }
+            /// <summary>
+            /// Write a DateTime cell.
+            /// </summary>
+            /// <param name="dateTime">Datetime</param>
+            /// <remark>
+            /// If the DateTime do not have date part, it will be written as datetime and show as time only
+            /// If the DateTime is before 1900-03-01, save as string because excel doesn't support them.
+            /// Otherwise, save as datetime, and if the time is 00:00:00, show as yyyy-MM-dd.
+            /// Show the datetime as yyyy-MM-dd HH:mm:ss if none of the previous situations
+            /// </remark>
             public void AddCell(DateTime dateTime)
             {
-                AddCellContract();
+                _referenceManager.AssureColumnReference();
                 long ticks = dateTime.Ticks;
                 Style style = Style.DateTime;
                 double excelDate;
@@ -70,172 +119,117 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 AddCellDateTimeInternal(excelDate, style);
             }
 
-            // datetime need <c r="A1" s="2"><v>26012.451</v></c>
-            private void AddCellDateTimeInternal(double excelDate, Style style)
+            /// <summary>
+            /// Write a object cell
+            /// </summary>
+            /// The program will try to output number/datetime, otherwise, call the ToString 
+            /// <param name="o"></param>
+            public void AddCell(object o)
             {
-                _dataWriter.Write("<c r=\"");
-                WriteColumnRef(_dataWriter, _currRow, _currColumn);
-                _dataWriter.Write("\" s=\"");
-                _dataWriter.Write((int)style);
-                _dataWriter.Write("\"><v>");
-                _dataWriter.Write(excelDate);
-                _dataWriter.Write("</v></c>");
-                _currColumn++;
-            }
-
-            public void AddCell(string value)
-            {
-                if (value == null)
+                if (o == null)
                 {
                     AddCellEmpty();
                     return;
                 }
-                AddCellContract();
-                _dataWriter.Write("<c r=\"");
-                WriteColumnRef(_dataWriter, _currRow, _currColumn);
-                _currColumn++;
-                // page 1598
-                // style default to 0, page 3928
-                _dataWriter.Write("\" t=\"inlineStr\"><is><t>");
-
-                //write data
-                XmlEscapeHelper.WriteEscapeColumnValue(_dataWriter, value);
-
-                _dataWriter.Write("</t></is></c>");
-            }
-            public void AddRow()
-            {
-                if (_currRow != 0) //there are previous rows
+                switch (Type.GetTypeCode(o.GetType()))
                 {
-                    _dataWriter.Write("</row>");
+                    case TypeCode.Byte:
+                    case TypeCode.SByte:
+                    case TypeCode.UInt16:
+                    case TypeCode.UInt32:
+                    case TypeCode.UInt64:
+                    case TypeCode.Int16:
+                    case TypeCode.Int32:
+                    case TypeCode.Int64:
+                    case TypeCode.Decimal:
+                    case TypeCode.Double:
+                    case TypeCode.Single:
+                        AddCellBoxedNumber(o);
+                        return;
+                    case TypeCode.DateTime:
+                        AddCell((DateTime)o);
+                        return;
+                    default:
+                        AddCell(o.ToString());
+                        return;
                 }
-                _currColumn = 1;
-                _currRow++;
-                _dataWriter.Write("<row r=\"");
-                _dataWriter.Write(_currRow);
-                _dataWriter.Write("\">");
             }
 
-            public ExcelSheet(ZipArchive zipArchive, string sheetFileName)
+            private void AddCellBoxedNumber(object number)
             {
-                ZipArchiveEntry entry = zipArchive.CreateEntry($"xl/worksheets/{sheetFileName}.xml", CompressionLevel.Fastest);
-                _dataWriter = new StreamWriter(entry.Open());
-                _dataWriter.Write(@"<worksheet xmlns=""http://schemas.openxmlformats.org/spreadsheetml/2006/main"" xmlns:r=""http://schemas.openxmlformats.org/officeDocument/2006/relationships""><sheetData>");
+                _referenceManager.AssureColumnReference();
+
+                _writer.WriteStartElement("c");
+
+                _referenceManager.WriteAndIncreaseColumnReference();
+
+                _writer.WriteStartElement("v");
+                _writer.WriteValue(number);
+                _writer.WriteEndElement();
+
+                _writer.WriteEndElement();
+            }
+
+            // The excel epoch is 1/1/1900, but it has 1/0/1900 and 2/29/1900
+            // which is equal to set the epoch back two days to 12/30/1899
+            // new DateTime(1899,12,30).Ticks
+            private const long ExcelEpochTick = 599264352000000000L;
+
+            // Excel can not use date before 1/0/1900 and
+            // date before 3/1/1900 is wrong, off by 1 because of 2/29/1900
+            // thus, for any date before 3/1/1900, use string for date
+            // new DateTime(1900,3,1).Ticks
+            private const long ExcelDateCutoffTick = 599317056000000000L;
+
+            // new TimeSpan(24,0,0).Ticks
+            private const long TicksPerDay = 864000000000L;
+
+            // datetime need <c r="A1" s="2"><v>26012.451</v></c>
+            private void AddCellDateTimeInternal(double excelDate, Style style)
+            {
+                _writer.WriteStartElement("c");
+
+                _referenceManager.WriteAndIncreaseColumnReference();
+
+                _writer.WriteStartAttribute("s");
+                _writer.WriteValue((int)style);
+                _writer.WriteEndAttribute();
+
+                _writer.WriteStartElement("v");
+                _writer.WriteValue(excelDate);
+                _writer.WriteEndElement();
+
+                _writer.WriteEndElement();
+            }
+
+            private void EndRowIfNeeded()
+            {
+                if (_referenceManager.PenddingRowEndTag()) //there are previous rows
+                {
+                    _writer.WriteEndElement();
+                }
+            }
+
+            internal ExcelSheet(XmlWriter writer)
+            {
+                _writer = writer;
+                writer.WriteStartDocument();
+                writer.WriteStartElement("worksheet", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+                writer.WriteAttributeString("xmlns", "r", null, "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+                writer.WriteStartElement("sheetData");
+                _referenceManager = new ReferenceManager(writer);
             }
 
             public void Dispose()
             {
-                if (_currRow != 0) //first row
-                {
-                    _dataWriter.Write("</row>");
-                }
-                _dataWriter.Write(@"</sheetData>");
-                _dataWriter.Write(@"</worksheet>");
-                _dataWriter.Dispose();
+                EndRowIfNeeded();
+                _writer.WriteEndElement(); // sheetData 
+                _writer.WriteEndElement(); // worksheet 
+                _writer.Dispose();
             }
 
-            private StreamWriter _dataWriter;
-            private int _currColumn;
-            private int _currRow = 0;
-
-            internal static void WriteColumnRef(StreamWriter _dataWriter, int row, int column)
-            {
-                if (column <= 26)
-                {
-                    _dataWriter.Write((char)((int)'A' - 1 + column));
-                }
-                else
-                {
-                    WriteColumnRefSlow(_dataWriter, column);
-                }
-                _dataWriter.Write(row);
-            }
-            private static void WriteColumnRefSlow(StreamWriter _dataWriter, int column)
-            {
-                column = column - 1; //change to 0 based index
-                if (column < 27 * 26)
-                {
-                    _dataWriter.Write((char)((int)'A' - 1 + (column / 26)));
-                    _dataWriter.Write((char)((int)'A' + (column % 26)));
-                }
-                else
-                {
-                    column = column - 27 * 26;
-                    _dataWriter.Write((char)((int)'A' + (column / (26 * 26))));
-                    _dataWriter.Write((char)((int)'A' + (column / 26 % 26)));
-                    _dataWriter.Write((char)((int)'A' + (column % 26)));
-                }
-            }
-            private void AddCellContract()
-            {
-                if (_currColumn == 0)
-                {
-                    throw new ExporterException("AddRow Must be called before AddCell");
-
-                }
-                if (_currColumn > 16384)
-                {
-                    throw new ExporterException("max Column number is 16384, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
-                }
-            }
-
-            private void AddCellNumberStart()
-            {
-                AddCellContract();
-                _dataWriter.Write("<c r=\"");
-                WriteColumnRef(_dataWriter, _currRow, _currColumn);
-                _dataWriter.Write("\" t=\"n\"><v>");
-            }
-
-            private void AddCellNumberEnd()
-            {
-                _dataWriter.Write("</v></c>");
-                _currColumn++;
-            }
-
-
-        }
-
-        public static class XmlEscapeHelper
-        {
-            private static char[] xmlEscapes = new char[] { '"', '\'', '&', '<', '>' };
-            public static void WriteEscapeColumnValue(StreamWriter dataWriter, string data)
-            {
-                //fast path, no need to escape
-                if (data.IndexOfAny(xmlEscapes) == -1)
-                {
-                    dataWriter.Write(data);
-                    return;
-                }
-                WriteEscapeColumnValueSlow(dataWriter, data);
-            }
-            private static void WriteEscapeColumnValueSlow(StreamWriter dataWriter, string data)
-            {
-                foreach (char c in data)
-                {
-                    switch (c)
-                    {
-                        case '"':
-                            dataWriter.Write("&quot;");
-                            break;
-                        case '\'':
-                            dataWriter.Write("&apos;");
-                            break;
-                        case '&':
-                            dataWriter.Write("&amp;");
-                            break;
-                        case '<':
-                            dataWriter.Write("&lt;");
-                            break;
-                        case '>':
-                            dataWriter.Write("&gt;");
-                            break;
-                        default:
-                            dataWriter.Write(c);
-                            break;
-                    }
-                }
-            }
+            private XmlWriter _writer;
+            private ReferenceManager _referenceManager;
         }
 
         public class ExporterException : Exception
@@ -245,15 +239,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
             }
         }
-
         public SaveAsExcelFileStreamWriterHelper(Stream stream)
         {
             zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true);
         }
-
-        private void WriteXmlDeclaration(StreamWriter writer)
+        public SaveAsExcelFileStreamWriterHelper(Stream stream, bool leaveOpen)
         {
-            writer.Write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+            zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen);
         }
 
         public ExcelSheet AddSheet(string sheetName = null)
@@ -266,73 +258,198 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             EnsureValidSheetName(sheetName);
 
             sheetNames.Add(sheetName);
-            return new ExcelSheet(zipArchive, sheetFileName);
+            XmlWriter sheetWriter = AddEntry($"xl/worksheets/{sheetFileName}.xml");
+            return new ExcelSheet(sheetWriter);
         }
 
         public void Dispose()
         {
             WriteMinimalTemplate();
+            zipArchive.Dispose();
+        }
+
+
+        internal class ReferenceManager
+        {
+            public ReferenceManager(XmlWriter writer)
+            {
+                _writer = writer;
+            }
+            private int _currColumn; // 0 is invalid, the first AddRow will set to 1
+            private int _currRow = 1;
+            private char[] _currReference = new char[3 + 7]; //maximal XFD1048576
+            private int _currReferenceRowLength;
+            private int _currReferenceColumnLength;
+            private XmlWriter _writer;
+
+            public void AssureColumnReference()
+            {
+                if (_currColumn == 0)
+                {
+                    throw new ExporterException("AddRow must be called before AddCell");
+
+                }
+                if (_currColumn > 16384)
+                {
+                    throw new ExporterException("max column number is 16384, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
+                }
+            }
+
+            public void WriteAndIncreaseColumnReference()
+            {
+                _writer.WriteStartAttribute("r");
+                _writer.WriteChars(_currReference, 3 - _currReferenceColumnLength, _currReferenceRowLength + _currReferenceColumnLength);
+                _writer.WriteEndAttribute();
+                IncreaseColumnReference();
+            }
+
+            public void IncreaseColumnReference()
+            {
+                AssureColumnReference();
+                char[] reference = _currReference;
+                _currColumn++;
+                if ('Z' == reference[2]++)
+                {
+                    reference[2] = 'A';
+                    if (_currReferenceColumnLength < 2)
+                    {
+                        _currReferenceColumnLength = 2;
+                    }
+                    if ('Z' == reference[1]++)
+                    {
+                        reference[0]++;
+                        reference[1] = 'A';
+                        _currReferenceColumnLength = 3;
+                    }
+                }
+            }
+            private void ResetColumnReference()
+            {
+                _currColumn = 1;
+                _currReference[0] = _currReference[1] = (char)('A' - 1);
+                _currReference[2] = 'A';
+                _currReferenceColumnLength = 1;
+
+                string rowReference = _currRow.ToString();
+                _currReferenceRowLength = rowReference.Length;
+                rowReference.CopyTo(0, _currReference, 3, rowReference.Length);
+            }
+
+            public void AssureRowReference()
+            {
+                if (_currRow > 1048576)
+                {
+                    throw new ExporterException("max row number is 1048576, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
+                }
+            }
+            public void WriteAndIncreaseRowReference()
+            {
+                _writer.WriteStartAttribute("r");
+                _writer.WriteValue(_currRow);
+                _writer.WriteEndAttribute();
+
+                ResetColumnReference(); //This need to be called before the increase
+
+                _currRow++;
+            }
+
+            public bool PenddingRowEndTag()
+            {
+                return _currRow != 1;
+            }
         }
 
         private ZipArchive zipArchive;
         private List<string> sheetNames = new List<string>();
 
-        private StreamWriter AddEntry(string entryName)
+        XmlWriterSettings _writeSetting = new XmlWriterSettings()
+        {
+            CloseOutput = true,
+
+        };
+        private XmlWriter AddEntry(string entryName)
         {
             ZipArchiveEntry entry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
-            return new StreamWriter(entry.Open());
+            return XmlWriter.Create(entry.Open(), _writeSetting);
         }
 
-        private void AddEntryWithContent(string entryName, string content)
-        {
-            using (StreamWriter writer = AddEntry(entryName))
-            {
-                WriteXmlDeclaration(writer);
-                writer.Write(content);
-            }
-        }
         //ECMA-376 page 75
         private void WriteMinimalTemplate()
         {
-            AddTopRel();
-            AddWorkbook();
-            AddStyle();
-            AddContentType();
-            AddWorkbookRel();
-            zipArchive.Dispose();
-        }
-        private void AddContentType()
-        {
-            using (StreamWriter sw = AddEntry("[Content_Types].xml"))
-            {
-                sw.Write(
-"<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">" +
-"<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>" +
-"<Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>" +
-"<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>"
-);
-                int numSheets = sheetNames.Count;
-                for (int i = 1; i <= numSheets; ++i)
-                {
-                    sw.Write($"<Override PartName=\"/xl/worksheets/sheet{i}.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>");
-                }
-                sw.Write("</Types>");
-            }
+            WriteTopRel();
+            WriteWorkbook();
+            WriteStyle();
+            WriteContentType();
+            WriteWorkbookRel();
         }
 
-        private void AddTopRel()
+        /// <summary>
+        /// write [Content_Types].xml
+        /// </summary>
+        /// <remarks>
+        /// This file need to describe all the files in the zip.
+        /// </remarks>
+        private void WriteContentType()
         {
-            string content = @"<Relationships xmlns=""http://schemas.openxmlformats.org/package/2006/relationships"">
-<Relationship Id=""rId1"" Type=""http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"" Target=""xl/workbook.xml""/>
-</Relationships>";
-            AddEntryWithContent("_rels/.rels", content);
+            using (XmlWriter xw = AddEntry("[Content_Types].xml"))
+            {
+                xw.WriteStartDocument();
+                xw.WriteStartElement("Types", "http://schemas.openxmlformats.org/package/2006/content-types");
+
+                xw.WriteStartElement("Default");
+                xw.WriteAttributeString("Extension", "rels");
+                xw.WriteAttributeString("ContentType", "application/vnd.openxmlformats-package.relationships+xml");
+                xw.WriteEndElement();
+
+                xw.WriteStartElement("Override");
+                xw.WriteAttributeString("PartName", "/xl/workbook.xml");
+                xw.WriteAttributeString("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
+                xw.WriteEndElement();
+
+                xw.WriteStartElement("Override");
+                xw.WriteAttributeString("PartName", "/xl/styles.xml");
+                xw.WriteAttributeString("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml");
+                xw.WriteEndElement();
+
+                for (int i = 1; i <= sheetNames.Count; ++i)
+                {
+                    xw.WriteStartElement("Override");
+                    xw.WriteAttributeString("PartName", "/xl/worksheets/sheet" + i + ".xml");
+                    xw.WriteAttributeString("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
+                    xw.WriteEndElement();
+                }
+                xw.WriteEndElement();
+                xw.WriteEndDocument();
+            }
+        }
+        /// <summary>
+        /// Write _rels/.rels. This file only need to reference main workbook
+        /// </summary>
+        private void WriteTopRel()
+        {
+            using (XmlWriter xw = AddEntry("_rels/.rels"))
+            {
+                xw.WriteStartDocument();
+
+                xw.WriteStartElement("Relationships", "http://schemas.openxmlformats.org/package/2006/relationships");
+
+                xw.WriteStartElement("Relationship");
+                xw.WriteAttributeString("Id", "rId1");
+                xw.WriteAttributeString("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument");
+                xw.WriteAttributeString("Target", "xl/workbook.xml");
+                xw.WriteEndElement();
+
+                xw.WriteEndElement();
+
+                xw.WriteEndDocument();
+            }
         }
 
         private static char[] _invalidSheetNameCharacters = new char[]
         {
             '\\', '/','*','[',']',':','?'
         };
-        internal void EnsureValidSheetName(string sheetName)
+        private void EnsureValidSheetName(string sheetName)
         {
             if (sheetName.IndexOfAny(_invalidSheetNameCharacters) != -1)
             {
@@ -344,46 +461,67 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
         }
 
-
-
-        private void AddWorkbook()
+        /// <summary>
+        /// Write xl/workbook.xml. This file will references the sheets through ids in xl/_rels/workbook.xml.rels
+        /// </summary>
+        private void WriteWorkbook()
         {
-            using (StreamWriter sw = AddEntry("xl/workbook.xml"))
+            using (XmlWriter xw = AddEntry("xl/workbook.xml"))
             {
-                sw.Write("<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><sheets>");
-                int numSheets = sheetNames.Count;
-                for (int i = 1; i <= numSheets; ++i)
+                xw.WriteStartDocument();
+                xw.WriteStartElement("workbook", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+                xw.WriteAttributeString("xmlns", "r", null, "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+                xw.WriteStartElement("sheets");
+                for (int i = 1; i <= sheetNames.Count; i++)
                 {
-                    sw.Write($"<sheet name=\"");
-                    XmlEscapeHelper.WriteEscapeColumnValue(sw, sheetNames[i - 1]);
-                    sw.Write($"\" sheetId=\"{i}\" r:id=\"rId{i}\"/>");
+                    xw.WriteStartElement("sheet");
+                    xw.WriteAttributeString("name", sheetNames[i - 1]);
+                    xw.WriteAttributeString("sheetId", i.ToString());
+                    xw.WriteAttributeString("r", "id", null, "rId" + i);
+                    xw.WriteEndElement();
                 }
-                sw.Write("</sheets></workbook>");
+                xw.WriteEndDocument();
             }
         }
 
-        private void AddWorkbookRel()
+        /// <summary>
+        /// Write xl/_rels/workbook.xml.rels. This file will have the paths of the style and sheets.
+        /// </summary>
+        private void WriteWorkbookRel()
         {
-            using (StreamWriter sw = AddEntry("xl/_rels/workbook.xml.rels"))
+            using (XmlWriter xw = AddEntry("xl/_rels/workbook.xml.rels"))
             {
-                sw.Write(
-"<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">" +
-"<Relationship Id=\"rId0\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>"
-);
-                int numSheets = sheetNames.Count;
-                for (int i = 1; i <= numSheets; ++i)
+                xw.WriteStartDocument();
+                xw.WriteStartElement("Relationships", "http://schemas.openxmlformats.org/package/2006/relationships");
+
+                xw.WriteStartElement("Relationship");
+                xw.WriteAttributeString("Id", "rId0");
+                xw.WriteAttributeString("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles");
+                xw.WriteAttributeString("Target", "styles.xml");
+                xw.WriteEndElement();
+
+                for (int i = 1; i <= sheetNames.Count; i++)
                 {
-                    sw.Write("<Relationship Id=\"rId");
-                    sw.Write(i);
-                    sw.Write("\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet");
-                    sw.Write(i);
-                    sw.Write(".xml\"/>");
+                    xw.WriteStartElement("Relationship");
+                    xw.WriteAttributeString("Id", "rId" + i);
+                    xw.WriteAttributeString("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet");
+                    xw.WriteAttributeString("Target", "worksheets/sheet" + i + ".xml");
+                    xw.WriteEndElement();
                 }
-                sw.Write("</Relationships>");
+                xw.WriteEndElement();
+                xw.WriteEndDocument();
             }
         }
 
-        private void AddStyle()
+        private enum Style
+        {
+            Normal = 0,
+            Date = 1,
+            Time = 2,
+            DateTime = 3,
+        }
+
+        private void WriteStyle()
         {
             // the style 0 is used for general case, style 1 for date, style 2 for time and style 3 for datetime see Enum Style
             // reference chain: (index start with 0)
@@ -435,7 +573,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     <cellStyle name=""Normal"" builtinId=""0"" xfId=""0"" />
   </cellStyles>
 </styleSheet>";
-            AddEntryWithContent("xl/styles.xml", content);
+
+            using (XmlWriter xw = AddEntry("xl/styles.xml"))
+            {
+                xw.WriteRaw(content);
+            }
         }
     }
 }

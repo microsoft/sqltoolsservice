@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         case TypeCode.UInt32:
                         case TypeCode.Int64:
                         case TypeCode.UInt64:
-                            sheet.AddCellNumber(o);
+                            sheet.AddCell(o);
                             continue;
                         case TypeCode.DateTime:
                             sheet.AddCell((DateTime)o);
