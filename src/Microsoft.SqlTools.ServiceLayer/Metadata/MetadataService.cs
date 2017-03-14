@@ -5,11 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.SqlClient;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -58,7 +56,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
         }
 
-        private static SqlConnection OpenMetadataConnection(ConnectionInfo connInfo)
+        /// <summary>
+        /// Handle a metadata query request
+        /// </summary>        
+        internal static async Task HandleMetadataListRequest(
+            MetadataQueryParams metadataParams,
+            RequestContext<MetadataQueryResult> requestContext)
+        {
+            try
+            {
+                Thread.Sleep(4000);
+
+                ConnectionInfo connInfo;
+                MetadataService.ConnectionServiceInstance.TryFindConnection(
+                    metadataParams.OwnerUri,
+                    out connInfo);
+
+                var metadata = new List<ObjectMetadata>();
+                if (connInfo != null) 
+                {                    
+                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);
+                    ReadMetadata(sqlConn, metadata);
+                }
+
+                await requestContext.SendResult(new MetadataQueryResult()
+                {
+                    Metadata = metadata.ToArray()
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Create a SqlConnection to use for querying metadata
+        /// </summary>
+        internal static SqlConnection OpenMetadataConnection(ConnectionInfo connInfo)
         {
             try
             {                 
@@ -84,68 +119,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return null;
         }
 
-        internal static async Task HandleMetadataListRequest(
-            MetadataQueryParams metadataParams,
-            RequestContext<MetadataQueryResult> requestContext)
+        /// <summary>
+        /// Read metadata for the current connection
+        /// </summary>
+        internal static void ReadMetadata(SqlConnection sqlConn, List<ObjectMetadata> metadata)
         {
-            ConnectionInfo connInfo;
-            MetadataService.ConnectionServiceInstance.TryFindConnection(
-                metadataParams.OwnerUri,
-                out connInfo);
+            string sql = 
+                @"SELECT s.name AS schema_name, o.[name] AS object_name, o.[type] AS object_type
+                  FROM sys.all_objects o
+                    INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
+                  WHERE o.is_ms_shipped != 1
+                    AND (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U')
+                  ORDER BY object_type, schema_name, object_name";
 
-            var metadata = new List<ObjectMetadata>();
-
-            if (connInfo != null) 
+            SqlCommand sqlCommand = new SqlCommand(sql, sqlConn);
+            var reader = sqlCommand.ExecuteReader();
+            while (reader.Read())
             {
-                try
-                {
-                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);
+                var schemaName = reader[0] as string;
+                var objectName = reader[1] as string;
+                var objectType = reader[2] as string;
 
-                    // populate the binding context to work with the SMO metadata provider
-                    ServerConnection serverConn = new ServerConnection(sqlConn);
-                     // Reuse existing connection
-                    Server server = new Server(serverConn);
-                    // The default database name is the database name of the server connection
-                    string dbName = serverConn.DatabaseName;
-                    if (connInfo != null)
-                    {
-                        // If there is a query DbConnection, use that connection to get the database name
-                        // This is preferred since it has the most current database name (in case of database switching)
-                        DbConnection connection;
-                        if (connInfo.TryGetConnection(Connection.ConnectionType.Query, out connection))
-                        {
-                            if (!string.IsNullOrEmpty(connection.Database))
-                            {
-                                dbName  = connection.Database;
-                            }
-                        }
-                    }
-                    
-                    var database = new Database(server, dbName);
-                    database.Refresh();
+                MetadataType metadataType;
+                if (objectType.StartsWith("V"))
+                {
+                    metadataType = MetadataType.View;
+                }
+                else if (objectType.StartsWith("P"))
+                {
+                    metadataType = MetadataType.SProc;
+                }
+                else
+                {
+                    metadataType = MetadataType.Table;
+                }
 
-                    foreach (Table table in database.Tables)
-                    {
-                        metadata.Add(new ObjectMetadata
-                        {
-                            MetadataType = MetadataType.Table,
-                            Schema = table.Schema,
-                            ObjectName = table.Name
-                        });
-                    }                      
-                }
-                catch (Exception)
+                metadata.Add(new ObjectMetadata
                 {
-                }
-                finally
-                {
-                }
+                    MetadataType = metadataType,
+                    Schema = schemaName,
+                    ObjectName = objectName
+                });
             }
-
-            await requestContext.SendResult(new MetadataQueryResult()
-            {
-                Metadata = metadata.ToArray()
-            });
-        }
+        }        
     }
 }
