@@ -1,4 +1,5 @@
-﻿using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+﻿using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Moq;
 using System;
 using System.IO;
@@ -18,16 +19,41 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             using (var helper = new SaveAsExcelFileStreamWriterHelper(_stream, true))
             using (var sheet = helper.AddSheet())
             {
+                DbCellValue value = new DbCellValue();
                 sheet.AddRow();
-                sheet.AddCell("");
-                sheet.AddCell(null);
-                sheet.AddCell("test string");
-                sheet.AddCell(3);
-                sheet.AddCell(3.5);
+
+                value.IsNull = true;
+                sheet.AddCell(value);
+
+                value.IsNull = false;
+                value.RawObject = "";
+                sheet.AddCell(value);
+
+                value.RawObject = "test string";
+                sheet.AddCell(value);
+
+                value.RawObject = 3;
+                sheet.AddCell(value);
+
+                value.RawObject = 3.5;
+                sheet.AddCell(value);
+
                 sheet.AddRow();
-                sheet.AddCell(new DateTime(1900, 2, 28));
-                sheet.AddCell(new DateTime(1900, 3, 1));
-                sheet.AddCell(new DateTime(1, 1, 1, 15, 00, 00));
+
+                value.RawObject = new DateTime(1900, 2, 28);
+                sheet.AddCell(value);
+
+                value.RawObject = new DateTime(1900, 3, 1);
+                sheet.AddCell(value);
+
+                value.RawObject = new DateTime(1900, 3, 1, 15, 00, 00);
+                sheet.AddCell(value);
+
+                value.RawObject = new DateTime(1, 1, 1, 15, 00, 00);
+                sheet.AddCell(value);
+
+                value.RawObject = new TimeSpan(15, 00, 00);
+                sheet.AddCell(value);
             }
         }
         Regex contentRemoveLinebreakLeadingSpace = new Regex(@"\r?\n\s*");

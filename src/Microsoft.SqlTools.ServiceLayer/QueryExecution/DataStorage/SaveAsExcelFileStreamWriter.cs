@@ -73,27 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             sheet.AddRow();
             for (int i = startIndex; i < endIndex; ++i)
             {
-                object o = row[i].RawObject;
-                if (o != null) {
-                    TypeCode type = Type.GetTypeCode(o.GetType());
-                    switch (type)
-                    {
-                        case TypeCode.Byte:
-                        case TypeCode.SByte:
-                        case TypeCode.Int16:
-                        case TypeCode.UInt16:
-                        case TypeCode.Int32:
-                        case TypeCode.UInt32:
-                        case TypeCode.Int64:
-                        case TypeCode.UInt64:
-                            sheet.AddCell(o);
-                            continue;
-                        case TypeCode.DateTime:
-                            sheet.AddCell((DateTime)o);
-                            continue;
-                    }
-                }
-                sheet.AddCell(row[i].DisplayValue);
+                sheet.AddCell(row[i]);
             }
         }
 

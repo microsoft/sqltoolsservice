@@ -1,27 +1,28 @@
 ﻿/**
- * A simple library to write xlsx file directly. It tries to be minimal, 
- * both in implementation and runtime allocation.
- * 
- * A xlsx file is a zip with specific file structure.
- * http://www.ecma-international.org/publications/standards/Ecma-376.htm
- * 
- * The page number is in the 
- * ECMA-376, Fifth Edition, Part 1 - Fundamentals And Markup Language Reference 
- * 
- * Page 75
- * /
- * |- [Content_Types].xml
- * |- _rels
- *    |- .rels
- * |- xl
- *    |- workbook.xml
- *    |- styles.xml
- *    |- _rels
- *       |- workbook.xml.rels
- *    |- worksheets
- *       |- sheet1.xml
- * 
- */
+* A simple library to write xlsx file directly. It tries to be minimal, 
+* both in implementation and runtime allocation.
+* 
+* A xlsx file is a zip with specific file structure.
+* http://www.ecma-international.org/publications/standards/Ecma-376.htm
+* 
+* The page number is in the 
+* ECMA-376, Fifth Edition, Part 1 - Fundamentals And Markup Language Reference 
+* 
+* Page 75
+* /
+* |- [Content_Types].xml
+* |- _rels
+*    |- .rels
+* |- xl
+*    |- workbook.xml
+*    |- styles.xml
+*    |- _rels
+*       |- workbook.xml.rels
+*    |- worksheets
+*       |- sheet1.xml
+* 
+*/
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// Write a string cell
             /// </summary>
             /// This only increases the internal bookmark and doesn't arcturally write out anything.
-            public void AddCellEmpty()
+            private void AddCellEmpty()
             {
                 _referenceManager.IncreaseColumnReference();
             }
@@ -82,6 +83,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 _writer.WriteEndElement();
             }
+
+            /// <summary>
+            /// Write a TimeSpan cell. 
+            /// </summary>
+            /// <param name="time"></param>
+            private void AddCell(TimeSpan time)
+            {
+                _referenceManager.AssureColumnReference();
+                double excelDate = (double)time.Ticks / (double)TicksPerDay;
+                AddCellDateTimeInternal(excelDate, Style.Time);
+            }
+
             /// <summary>
             /// Write a DateTime cell.
             /// </summary>
@@ -92,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// Otherwise, save as datetime, and if the time is 00:00:00, show as yyyy-MM-dd.
             /// Show the datetime as yyyy-MM-dd HH:mm:ss if none of the previous situations
             /// </remark>
-            public void AddCell(DateTime dateTime)
+            private void AddCell(DateTime dateTime)
             {
                 _referenceManager.AssureColumnReference();
                 long ticks = dateTime.Ticks;
@@ -124,33 +137,38 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// </summary>
             /// The program will try to output number/datetime, otherwise, call the ToString 
             /// <param name="o"></param>
-            public void AddCell(object o)
+            public void AddCell(DbCellValue dbCellValue)
             {
-                if (o == null)
+                if (dbCellValue.IsNull)
                 {
                     AddCellEmpty();
                     return;
                 }
+                object o = dbCellValue.RawObject; //Todo: do I need to check null here?
+
                 switch (Type.GetTypeCode(o.GetType()))
                 {
                     case TypeCode.Byte:
-                    case TypeCode.SByte:
-                    case TypeCode.UInt16:
-                    case TypeCode.UInt32:
-                    case TypeCode.UInt64:
                     case TypeCode.Int16:
                     case TypeCode.Int32:
                     case TypeCode.Int64:
-                    case TypeCode.Decimal:
-                    case TypeCode.Double:
                     case TypeCode.Single:
+                    case TypeCode.Double:
+                    case TypeCode.Decimal:
                         AddCellBoxedNumber(o);
                         return;
                     case TypeCode.DateTime:
                         AddCell((DateTime)o);
                         return;
+                    case TypeCode.String:
+                        AddCell((string)o);
+                        return;
                     default:
-                        AddCell(o.ToString());
+                        if (o is TimeSpan) //TimeSpan doesn't have TypeCode
+                        {
+                            AddCell((TimeSpan)o);
+                        }
+                        AddCell(dbCellValue.DisplayValue);
                         return;
                 }
             }

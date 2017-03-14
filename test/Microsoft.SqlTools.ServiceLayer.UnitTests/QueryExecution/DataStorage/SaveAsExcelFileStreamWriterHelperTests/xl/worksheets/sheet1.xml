@@ -2,7 +2,7 @@
 <worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
   <sheetData>
     <row r="1">
-      <c r="A1" t="inlineStr"><is><t></t></is></c>
+      <c r="B1" t="inlineStr"><is><t></t></is></c>
       <c r="C1" t="inlineStr"><is><t>test string</t></is></c>
       <c r="D1"><v>3</v></c>
       <c r="E1"><v>3.5</v></c>
@@ -10,7 +10,9 @@
     <row r="2">
       <c r="A2" t="inlineStr"><is><t>1900-02-28</t></is></c>
       <c r="B2" s="1"><v>61</v></c>
-      <c r="C2" s="2"><v>0.625</v></c>
+      <c r="C2" s="3"><v>61.625</v></c>
+      <c r="D2" s="2"><v>0.625</v></c>
+      <c r="E2" s="2"><v>0.625</v></c>
     </row>
   </sheetData>
 </worksheet>
