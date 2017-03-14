@@ -31,11 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void NullStringTest()
+        public void NullStringAllowedTest()
         {
-            // If: I attempt to create a CellUpdate to set it to NULL (with mixed cases)
+            // If: I attempt to create a CellUpdate to set it to NULL
             const string nullString = "NULL";
-            DbColumnWrapper col = GetWrapper<string>("ntext");
+            DbColumnWrapper col = GetWrapper<string>("ntext", true);
             CellUpdate cu = new CellUpdate(col, nullString);
 
             // Then: The value should be a DBNull and the string value should be the same as what
@@ -44,6 +44,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(DBNull.Value, cu.Value);
             Assert.Equal(nullString, cu.ValueAsString);
             Assert.Equal(col, cu.Column);
+        }
+
+        [Fact]
+        public void NullStringNotAllowedTest()
+        {
+            // If: I attempt to create a cell update to set to null when its not allowed
+            // Then: I should get an exception thrown
+            Assert.Throws<InvalidOperationException>(() => new CellUpdate(GetWrapper<string>("ntext", false), "NULL"));
         }
 
         [Fact]
@@ -159,6 +167,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Theory]
+        [InlineData("24:00:00")]
+        [InlineData("105:00:00")]
+        public void TimeSpanTooLargeTest(string value)
+        {
+            // If: I create a cell update for a timespan column and provide a value that is over 24hrs
+            // Then: It should throw an exception
+            DbColumnWrapper col = GetWrapper<TimeSpan>("time");
+            Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, value));
+        }
+
+        [Theory]
         [MemberData(nameof(RoundTripTestParams))]
         public void RoundTripTest(DbColumnWrapper col, object obj)
         {
@@ -197,15 +216,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        private static DbColumnWrapper GetWrapper<T>(string dataTypeName)
+        private static DbColumnWrapper GetWrapper<T>(string dataTypeName, bool allowNull = true)
         {
-            return new DbColumnWrapper(new CellUpdateTestDbColumn(typeof(T), dataTypeName));
+            return new DbColumnWrapper(new CellUpdateTestDbColumn(typeof(T), dataTypeName, allowNull));
         }
 
         private class CellUpdateTestDbColumn : DbColumn
         {
-            public CellUpdateTestDbColumn(Type dataType, string dataTypeName)
+            public CellUpdateTestDbColumn(Type dataType, string dataTypeName, bool allowNull = true)
             {
+                AllowDBNull = allowNull;
                 DataType = dataType;
                 DataTypeName = dataTypeName;
             }

@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         private const string NullString = @"NULL";
         private const string TextNullString = @"'NULL'";
         private static readonly Regex HexRegex = new Regex("0x[0-9A-F]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly TimeSpan MaxTimespan = TimeSpan.FromHours(24);
 
         /// <summary>
         /// Constructs a new cell update based on the the string value provided and the column
@@ -38,8 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Check for null
             if (valueAsString == NullString)
             {
-                Value = DBNull.Value;
-                ValueAsString = valueAsString;
+                ProcessNullValue();
             }
             else if (columnType == typeof(byte[]))
             {
@@ -60,8 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
             else if (columnType == typeof(TimeSpan))
             {
-                Value = TimeSpan.Parse(valueAsString, CultureInfo.CurrentCulture);
-                ValueAsString = Value.ToString();
+                ProcessTimespanColumn(valueAsString);
             }
             else if (columnType == typeof(DateTimeOffset))
             {
@@ -195,6 +194,30 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
 
             ValueAsString = Value.ToString();
+        }
+
+        private void ProcessTimespanColumn(string valueAsString)
+        {
+            TimeSpan ts = TimeSpan.Parse(valueAsString, CultureInfo.CurrentCulture);
+            if (ts >= MaxTimespan)
+            {
+                throw new InvalidOperationException(SR.EditDataTimeOver24Hrs);
+            }
+
+            Value = ts;
+            ValueAsString = Value.ToString();
+        }
+
+        private void ProcessNullValue()
+        {
+            // Make sure that nulls are allowed if we set it to null
+            if (!Column.AllowDBNull.HasTrue())
+            {
+                throw new InvalidOperationException(SR.EditDataNullNotAllowed);
+            }
+
+            Value = DBNull.Value;
+            ValueAsString = NullString;
         }
 
         #endregion
