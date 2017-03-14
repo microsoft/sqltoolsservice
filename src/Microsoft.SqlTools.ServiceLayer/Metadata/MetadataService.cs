@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -55,7 +56,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
         }
 
-        private static SqlConnection OpenMetadataConnection(ConnectionInfo connInfo)
+        /// <summary>
+        /// Handle a metadata query request
+        /// </summary>        
+        internal static async Task HandleMetadataListRequest(
+            MetadataQueryParams metadataParams,
+            RequestContext<MetadataQueryResult> requestContext)
+        {
+            try
+            {
+                Thread.Sleep(4000);
+
+                ConnectionInfo connInfo;
+                MetadataService.ConnectionServiceInstance.TryFindConnection(
+                    metadataParams.OwnerUri,
+                    out connInfo);
+
+                var metadata = new List<ObjectMetadata>();
+                if (connInfo != null) 
+                {                    
+                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);
+                    ReadMetadata(sqlConn, metadata);
+                }
+
+                await requestContext.SendResult(new MetadataQueryResult()
+                {
+                    Metadata = metadata.ToArray()
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Create a SqlConnection to use for querying metadata
+        /// </summary>
+        internal static SqlConnection OpenMetadataConnection(ConnectionInfo connInfo)
         {
             try
             {                 
@@ -81,24 +119,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return null;
         }
 
+        /// <summary>
+        /// Read metadata for the current connection
+        /// </summary>
         internal static void ReadMetadata(SqlConnection sqlConn, List<ObjectMetadata> metadata)
         {
             string sql = 
-                @"SELECT object_id, s.name AS schema_name, o.[name] AS object_name, 
-                    o.[type] AS object_type, o.[type_desc] AS object_type_desc, is_ms_shipped
-                    FROM sys.all_objects o
+                @"SELECT s.name AS schema_name, o.[name] AS object_name, o.[type] AS object_type
+                  FROM sys.all_objects o
                     INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
-                    WHERE o.is_ms_shipped != 1
+                  WHERE o.is_ms_shipped != 1
                     AND (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U')
-                    ORDER BY object_type_desc, schema_name, object_name";
+                  ORDER BY object_type, schema_name, object_name";
 
             SqlCommand sqlCommand = new SqlCommand(sql, sqlConn);
             var reader = sqlCommand.ExecuteReader();
             while (reader.Read())
             {
-                var schemaName = reader[1] as string;
-                var objectName = reader[2] as string;
-                var objectType = reader[3] as string;
+                var schemaName = reader[0] as string;
+                var objectName = reader[1] as string;
+                var objectType = reader[2] as string;
 
                 MetadataType metadataType;
                 if (objectType.StartsWith("V"))
@@ -121,39 +161,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     ObjectName = objectName
                 });
             }
-        }
-
-        internal static async Task HandleMetadataListRequest(
-            MetadataQueryParams metadataParams,
-            RequestContext<MetadataQueryResult> requestContext)
-        {
-            ConnectionInfo connInfo;
-            MetadataService.ConnectionServiceInstance.TryFindConnection(
-                metadataParams.OwnerUri,
-                out connInfo);
-
-            var metadata = new List<ObjectMetadata>();
-
-            if (connInfo != null) 
-            {
-                try
-                {
-                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);
-
-                    ReadMetadata(sqlConn, metadata);                   
-                }
-                catch (Exception)
-                {
-                }
-                finally
-                {
-                }
-            }
-
-            await requestContext.SendResult(new MetadataQueryResult()
-            {
-                Metadata = metadata.ToArray()
-            });
-        }
+        }        
     }
 }
