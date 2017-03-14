@@ -6,8 +6,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.Utility
+namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     /// <summary>
     /// Collection class that permits storage of over <c>int.MaxValue</c> items. This is performed
@@ -22,8 +23,7 @@ namespace Microsoft.SqlTools.Utility
     public class LongList<T> : IEnumerable<T>
     {        
         #region Member Variables
-        
-        private int expandListSize = int.MaxValue;
+
         private List<List<T>> expandedList;
         private readonly List<T> shortList;
 
@@ -35,6 +35,7 @@ namespace Microsoft.SqlTools.Utility
         public LongList()
         {
             shortList = new List<T>();
+            ExpandListSize = int.MaxValue;
             Count = 0;
         }
 
@@ -45,11 +46,15 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         public long Count { get; private set; }
 
+        /// <summary>
+        /// Used to get or set the value at a given index in the list
+        /// </summary>
+        /// <param name="index">Index into the list to access</param>
         public T this[long index]
         {
-            get 
-            { 
-                return GetItem(index); 
+            get
+            {
+                return GetItem(index);
             }
 
             set
@@ -58,17 +63,10 @@ namespace Microsoft.SqlTools.Utility
             }
         }
 
-        public int ExpandListSize
-        {
-            get 
-            { 
-                return this.expandListSize; 
-            }
-            internal set 
-            { 
-                this.expandListSize = value; 
-            }
-        }
+        /// <summary>
+        /// The number of elements to store in a single list before expanding into multiple lists
+        /// </summary>
+        public int ExpandListSize { get; internal set; }
 
         #endregion
 
@@ -140,6 +138,26 @@ namespace Microsoft.SqlTools.Utility
                 }
             }
             return val;
+        }
+
+        /// <summary>
+        /// Skips ahead the number of elements requested and returns the elements after that many elements
+        /// </summary>
+        /// <param name="start">The number of elements to skip</param>
+        /// <returns>All elements after the number of elements to skip</returns>
+        public IEnumerable<T> LongSkip(long start)
+        {
+            Validate.IsGreaterThan(nameof(start), start, -1);
+            Validate.IsLessThan(nameof(start), start, Count);
+
+            // Generate an enumerator over this list and jump ahead to the position we want
+            LongListEnumerator<T> longEnumerator = new LongListEnumerator<T>(this) {Index = start};
+
+            // While there are results to get, yield return them
+            while (longEnumerator.MoveNext())
+            {
+                yield return longEnumerator.Current;
+            }
         }
 
         /// <summary>
@@ -228,19 +246,10 @@ namespace Microsoft.SqlTools.Utility
 
         public class LongListEnumerator<TEt> : IEnumerator<TEt>
         {
-            #region Member Variables
-
-            /// <summary>
-            /// The index into the list of the item that is the current item
-            /// </summary>
-            private long index;
-
             /// <summary>
             /// The current list that we're iterating over.
             /// </summary>
             private readonly LongList<TEt> localList;
-
-            #endregion
 
             /// <summary>
             /// Constructs a new enumerator for a given LongList
@@ -249,9 +258,14 @@ namespace Microsoft.SqlTools.Utility
             public LongListEnumerator(LongList<TEt> list)
             {
                 localList = list;
-                index = 0;
+                Index = 0;
                 Current = default(TEt);
             }
+
+            /// <summary>
+            /// The index into the list of the item that is the current item
+            /// </summary>
+            public long Index { get; set; }
 
             #region IEnumerator Implementation
 
@@ -260,10 +274,10 @@ namespace Microsoft.SqlTools.Utility
             /// </summary>
             public TEt Current { get; private set; }
 
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
+            /// <summary>
+            /// Returns the current item in the enumeration
+            /// </summary>
+            object IEnumerator.Current => Current;
 
             /// <summary>
             /// Moves to the next item in the list we're iterating over
@@ -271,10 +285,10 @@ namespace Microsoft.SqlTools.Utility
             /// <returns>Whether or not the move was successful</returns>
             public bool MoveNext()
             {
-                if (index < localList.Count)
+                if (Index < localList.Count)
                 {
-                    Current = localList[index];
-                    index++;
+                    Current = localList[Index];
+                    Index++;
                     return true;
                 }
                 Current = default(TEt);
@@ -286,7 +300,7 @@ namespace Microsoft.SqlTools.Utility
             /// </summary>
             public void Reset()
             {
-                index = 0;
+                Index = 0;
                 Current = default(TEt);
             }
 

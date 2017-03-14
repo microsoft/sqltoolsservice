@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Beginning index of the rows to return from the selected resultset. This index will be
         /// included in the results.
         /// </summary>
-        public int RowsStartIndex { get; set; }
+        public long RowsStartIndex { get; set; }
 
         /// <summary>
         /// Number of rows to include in the result of this request. If the number of the rows 

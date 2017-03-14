@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
