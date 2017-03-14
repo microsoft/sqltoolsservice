@@ -27,14 +27,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ScriptingSelectRequest.Type, HandleScriptingSelectRequest);
+            serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsequest);
         }
 
-        internal static async Task HandleScriptingSelectRequest(
-            ScriptingSelectParams scriptingParams,
-            RequestContext<ScriptingSelectResult> requestContext)
+        /// <summary>
+        /// Handles script as request messages
+        /// </summary>
+        /// <param name="scriptingParams"></param>
+        /// <param name="requestContext"></param>
+        internal static async Task HandleScriptingScriptAsequest(
+            ScriptingScriptAsParams scriptingParams,
+            RequestContext<ScriptingScriptAsResult> requestContext)
         {
-            await requestContext.SendResult(new ScriptingSelectResult());
+            string script = string.Empty;
+            if (scriptingParams.Operation == ScriptOperation.Select)
+            {
+                script = string.Format(
+@"SELECT *
+FROM {0}.{1}",
+                scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
+            }
+            else if (scriptingParams.Operation == ScriptOperation.Create)
+            {
+                script = string.Format(
+@"CREATE {0}.{1}",
+                scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
+            }
+            else if (scriptingParams.Operation == ScriptOperation.Update)
+            {
+                script = string.Format(
+@"UPDATE {0}.{1}",
+                scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
+            }
+            else if (scriptingParams.Operation == ScriptOperation.Insert)
+            {
+                script = string.Format(
+@"INSERT {0}.{1}",
+                scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
+            }
+            else if (scriptingParams.Operation == ScriptOperation.Delete)
+            {
+                script = string.Format(
+@"DELETE {0}.{1}",
+                scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
+            }
+
+            await requestContext.SendResult(new ScriptingScriptAsResult()
+            {
+                OwnerUri = scriptingParams.OwnerUri,
+                Script = script
+            });
         }
     }
 }

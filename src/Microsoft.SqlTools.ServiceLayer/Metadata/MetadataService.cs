@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     MetadataType = metadataType,
                     Schema = schemaName,
-                    ObjectName = objectName
+                    Name = objectName
                 });
             }
         }        

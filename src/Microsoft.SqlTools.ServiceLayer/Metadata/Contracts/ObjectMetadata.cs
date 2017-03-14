@@ -5,6 +5,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 {
+    /// <summary>
+    /// Metadata type enumeration
+    /// </summary>
     public enum MetadataType
     {
         Table = 0,
@@ -13,12 +16,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         Function = 3
     }
 
+    /// <summary>
+    /// Object metadata information
+    /// </summary>
     public class ObjectMetadata 
     {
         public MetadataType MetadataType { get; set; }
+    
+        public string MetadataTypeName { get; set; }
 
         public string Schema { get; set; }
 
-        public string ObjectName { get; set; }
+        public string Name { get; set; }
     }
 }

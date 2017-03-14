@@ -4,25 +4,51 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
-    public class ScriptingSelectParams 
+    /// <summary>
+    /// The type of scripting operation requested
+    /// </summary>
+    public enum ScriptOperation
     {
-        public string OwnerUri { get; set; }        
+        Select = 0,
+        Create = 1,
+        Insert = 2,
+        Update = 3,
+        Delete = 4
     }
 
-    public class ScriptingSelectResult
+    /// <summary>
+    /// Script as request parameter type
+    /// </summary>
+    public class ScriptingScriptAsParams 
     {
         public string OwnerUri { get; set; }
 
-        public string[] Tables { get; set; }
+        public ScriptOperation Operation { get; set; }
+
+        public ObjectMetadata Metadata { get; set; }
     }
 
-    public class ScriptingSelectRequest
+    /// <summary>
+    /// Script as request result type
+    /// </summary>
+    public class ScriptingScriptAsResult
+    {
+        public string OwnerUri { get; set; }
+
+        public string Script { get; set; }
+    }
+
+    /// <summary>
+    /// Script as request message type
+    /// </summary>
+    public class ScriptingScriptAsRequest
     {
         public static readonly
-            RequestType<ScriptingSelectParams, ScriptingSelectResult> Type =
-                RequestType<ScriptingSelectParams, ScriptingSelectResult>.Create("scripting/select");
+            RequestType<ScriptingScriptAsParams, ScriptingScriptAsResult> Type =
+                RequestType<ScriptingScriptAsParams, ScriptingScriptAsResult>.Create("scripting/scriptas");
     }
 }
