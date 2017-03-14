@@ -1,0 +1,20 @@
+Lexer tokenized input:
+======================
+[T:print 'hi'][NL:
+][Include::r][WS: ][T:cycle2.txt][Eof:]
+Tokens:
+=======
+[Token Text at TS-err-cycle1.txt(1:1 [0] - 1:11 [10]): 'print 'hi'']
+[Token NewLine at TS-err-cycle1.txt(1:11 [10] - 2:1 [11]): '\n']
+[Token Include at TS-err-cycle1.txt(2:1 [11] - 2:3 [13]): ':r']
+[Token Whitespace at TS-err-cycle1.txt(2:3 [13] - 2:4 [14]): ' ']
+[Token Text at TS-err-cycle1.txt(2:4 [14] - 2:14 [24]): 'cycle2.txt']
+[Token Eof at TS-err-cycle1.txt(2:14 [24] - 2:14 [24]): '']
+
+*** PARSER: Include file "cycle2.txt"
+
+*** PARSER: Include file "TS-err-cycle1.txt"
+
+*** PARSER: Include file "cycle2.txt"
+
+[PARSER ERROR: code CircularReference at 2:14 [25] - 2:14 [25] in TS-err-cycle1.txt, token text: , message: File 'cycle2.txt' recursively included.]

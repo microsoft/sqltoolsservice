@@ -42,10 +42,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 EndRowIfNeeded();
 
-                _referenceManager.AssureRowReference();
+                referenceManager.AssureRowReference();
 
-                _writer.WriteStartElement("row");
-                _referenceManager.WriteAndIncreaseRowReference();
+                writer.WriteStartElement("row");
+                referenceManager.WriteAndIncreaseRowReference();
             }
 
             /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// This only increases the internal bookmark and doesn't arcturally write out anything.
             private void AddCellEmpty()
             {
-                _referenceManager.IncreaseColumnReference();
+                referenceManager.IncreaseColumnReference();
             }
             /// <summary>
             /// Write a string cell
@@ -62,26 +62,26 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <param name="value"></param>
             public void AddCell(string value)
             {
-                _referenceManager.AssureColumnReference();
+                referenceManager.AssureColumnReference();
                 if (value == null)
                 {
                     AddCellEmpty();
                     return;
                 }
 
-                _writer.WriteStartElement("c");
+                writer.WriteStartElement("c");
 
-                _referenceManager.WriteAndIncreaseColumnReference();
+                referenceManager.WriteAndIncreaseColumnReference();
 
-                _writer.WriteAttributeString("t", "inlineStr");
+                writer.WriteAttributeString("t", "inlineStr");
 
-                _writer.WriteStartElement("is");
-                _writer.WriteStartElement("t");
-                _writer.WriteValue(value);
-                _writer.WriteEndElement();
-                _writer.WriteEndElement();
+                writer.WriteStartElement("is");
+                writer.WriteStartElement("t");
+                writer.WriteValue(value);
+                writer.WriteEndElement();
+                writer.WriteEndElement();
 
-                _writer.WriteEndElement();
+                writer.WriteEndElement();
             }
 
             /// <summary>
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <param name="time"></param>
             private void AddCell(TimeSpan time)
             {
-                _referenceManager.AssureColumnReference();
+                referenceManager.AssureColumnReference();
                 double excelDate = (double)time.Ticks / (double)TicksPerDay;
                 AddCellDateTimeInternal(excelDate, Style.Time);
             }
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// </remark>
             private void AddCell(DateTime dateTime)
             {
-                _referenceManager.AssureColumnReference();
+                referenceManager.AssureColumnReference();
                 long ticks = dateTime.Ticks;
                 Style style = Style.DateTime;
                 double excelDate;
@@ -175,17 +175,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             private void AddCellBoxedNumber(object number)
             {
-                _referenceManager.AssureColumnReference();
+                referenceManager.AssureColumnReference();
 
-                _writer.WriteStartElement("c");
+                writer.WriteStartElement("c");
 
-                _referenceManager.WriteAndIncreaseColumnReference();
+                referenceManager.WriteAndIncreaseColumnReference();
 
-                _writer.WriteStartElement("v");
-                _writer.WriteValue(number);
-                _writer.WriteEndElement();
+                writer.WriteStartElement("v");
+                writer.WriteValue(number);
+                writer.WriteEndElement();
 
-                _writer.WriteEndElement();
+                writer.WriteEndElement();
             }
 
             // The excel epoch is 1/1/1900, but it has 1/0/1900 and 2/29/1900
@@ -205,49 +205,49 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // datetime need <c r="A1" s="2"><v>26012.451</v></c>
             private void AddCellDateTimeInternal(double excelDate, Style style)
             {
-                _writer.WriteStartElement("c");
+                writer.WriteStartElement("c");
 
-                _referenceManager.WriteAndIncreaseColumnReference();
+                referenceManager.WriteAndIncreaseColumnReference();
 
-                _writer.WriteStartAttribute("s");
-                _writer.WriteValue((int)style);
-                _writer.WriteEndAttribute();
+                writer.WriteStartAttribute("s");
+                writer.WriteValue((int)style);
+                writer.WriteEndAttribute();
 
-                _writer.WriteStartElement("v");
-                _writer.WriteValue(excelDate);
-                _writer.WriteEndElement();
+                writer.WriteStartElement("v");
+                writer.WriteValue(excelDate);
+                writer.WriteEndElement();
 
-                _writer.WriteEndElement();
+                writer.WriteEndElement();
             }
 
             private void EndRowIfNeeded()
             {
-                if (_referenceManager.PenddingRowEndTag()) //there are previous rows
+                if (referenceManager.PenddingRowEndTag()) //there are previous rows
                 {
-                    _writer.WriteEndElement();
+                    writer.WriteEndElement();
                 }
             }
 
             internal ExcelSheet(XmlWriter writer)
             {
-                _writer = writer;
+                this.writer = writer;
                 writer.WriteStartDocument();
                 writer.WriteStartElement("worksheet", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
                 writer.WriteAttributeString("xmlns", "r", null, "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
                 writer.WriteStartElement("sheetData");
-                _referenceManager = new ReferenceManager(writer);
+                referenceManager = new ReferenceManager(writer);
             }
 
             public void Dispose()
             {
                 EndRowIfNeeded();
-                _writer.WriteEndElement(); // sheetData 
-                _writer.WriteEndElement(); // worksheet 
-                _writer.Dispose();
+                writer.WriteEndElement(); // sheetData 
+                writer.WriteEndElement(); // worksheet 
+                writer.Dispose();
             }
 
-            private XmlWriter _writer;
-            private ReferenceManager _referenceManager;
+            private XmlWriter writer;
+            private ReferenceManager referenceManager;
         }
 
         public class ExporterException : Exception
@@ -291,23 +291,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             public ReferenceManager(XmlWriter writer)
             {
-                _writer = writer;
+                this.writer = writer;
             }
-            private int _currColumn; // 0 is invalid, the first AddRow will set to 1
-            private int _currRow = 1;
-            private char[] _currReference = new char[3 + 7]; //maximal XFD1048576
-            private int _currReferenceRowLength;
-            private int _currReferenceColumnLength;
-            private XmlWriter _writer;
+            private int currColumn; // 0 is invalid, the first AddRow will set to 1
+            private int currRow = 1;
+            private char[] currReference = new char[3 + 7]; //maximal XFD1048576
+            private int currReferenceRowLength;
+            private int currReferenceColumnLength;
+            private XmlWriter writer;
 
             public void AssureColumnReference()
             {
-                if (_currColumn == 0)
+                if (currColumn == 0)
                 {
                     throw new ExporterException("AddRow must be called before AddCell");
 
                 }
-                if (_currColumn > 16384)
+                if (currColumn > 16384)
                 {
                     throw new ExporterException("max column number is 16384, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
                 }
@@ -315,80 +315,79 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             public void WriteAndIncreaseColumnReference()
             {
-                _writer.WriteStartAttribute("r");
-                _writer.WriteChars(_currReference, 3 - _currReferenceColumnLength, _currReferenceRowLength + _currReferenceColumnLength);
-                _writer.WriteEndAttribute();
+                writer.WriteStartAttribute("r");
+                writer.WriteChars(currReference, 3 - currReferenceColumnLength, currReferenceRowLength + currReferenceColumnLength);
+                writer.WriteEndAttribute();
                 IncreaseColumnReference();
             }
 
             public void IncreaseColumnReference()
             {
                 AssureColumnReference();
-                char[] reference = _currReference;
-                _currColumn++;
+                char[] reference = currReference;
+                currColumn++;
                 if ('Z' == reference[2]++)
                 {
                     reference[2] = 'A';
-                    if (_currReferenceColumnLength < 2)
+                    if (currReferenceColumnLength < 2)
                     {
-                        _currReferenceColumnLength = 2;
+                        currReferenceColumnLength = 2;
                     }
                     if ('Z' == reference[1]++)
                     {
                         reference[0]++;
                         reference[1] = 'A';
-                        _currReferenceColumnLength = 3;
+                        currReferenceColumnLength = 3;
                     }
                 }
             }
             private void ResetColumnReference()
             {
-                _currColumn = 1;
-                _currReference[0] = _currReference[1] = (char)('A' - 1);
-                _currReference[2] = 'A';
-                _currReferenceColumnLength = 1;
+                currColumn = 1;
+                currReference[0] = currReference[1] = (char)('A' - 1);
+                currReference[2] = 'A';
+                currReferenceColumnLength = 1;
 
-                string rowReference = _currRow.ToString();
-                _currReferenceRowLength = rowReference.Length;
-                rowReference.CopyTo(0, _currReference, 3, rowReference.Length);
+                string rowReference = currRow.ToString();
+                currReferenceRowLength = rowReference.Length;
+                rowReference.CopyTo(0, currReference, 3, rowReference.Length);
             }
 
             public void AssureRowReference()
             {
-                if (_currRow > 1048576)
+                if (currRow > 1048576)
                 {
                     throw new ExporterException("max row number is 1048576, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
                 }
             }
             public void WriteAndIncreaseRowReference()
             {
-                _writer.WriteStartAttribute("r");
-                _writer.WriteValue(_currRow);
-                _writer.WriteEndAttribute();
+                writer.WriteStartAttribute("r");
+                writer.WriteValue(currRow);
+                writer.WriteEndAttribute();
 
                 ResetColumnReference(); //This need to be called before the increase
 
-                _currRow++;
+                currRow++;
             }
 
             public bool PenddingRowEndTag()
             {
-                return _currRow != 1;
+                return currRow != 1;
             }
         }
 
         private ZipArchive zipArchive;
         private List<string> sheetNames = new List<string>();
 
-        XmlWriterSettings _writeSetting = new XmlWriterSettings()
+        XmlWriterSettings writeSetting = new XmlWriterSettings()
         {
             CloseOutput = true,
-
         };
         private XmlWriter AddEntry(string entryName)
         {
             ZipArchiveEntry entry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
-            return XmlWriter.Create(entry.Open(), _writeSetting);
+            return XmlWriter.Create(entry.Open(), writeSetting);
         }
 
         //ECMA-376 page 75
@@ -463,13 +462,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
         }
 
-        private static char[] _invalidSheetNameCharacters = new char[]
+        private static char[] invalidSheetNameCharacters = new char[]
         {
             '\\', '/','*','[',']',':','?'
         };
         private void EnsureValidSheetName(string sheetName)
         {
-            if (sheetName.IndexOfAny(_invalidSheetNameCharacters) != -1)
+            if (sheetName.IndexOfAny(invalidSheetNameCharacters) != -1)
             {
                 throw new ExporterException($"Invalid sheetname: sheetName");
             }
