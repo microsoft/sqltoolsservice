@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -184,6 +183,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 throw new InvalidOperationException(SR.EditDataUpdatePending);
             }
+        }
+
+        public Task<EditRow[]> GetRows(long startIndex, int rowCount)
+        {
+            // Get the cached rows from the result set
+
+
+            //return associatedResultSet.GetSubset(startIndex, rowCount);
+            return null;
         }
 
         /// <summary>

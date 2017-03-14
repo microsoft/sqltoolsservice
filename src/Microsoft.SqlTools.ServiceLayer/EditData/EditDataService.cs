@@ -91,6 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest);
             serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest);
             serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest);
+            serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest);
             serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest);
         }
 
@@ -238,6 +239,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 session.RevertRow(revertParams.RowId);
                 return new EditRevertRowResult();
+            });
+        }
+
+        internal Task HandleSubsetRequest(EditSubsetParams subsetParams,
+            RequestContext<EditSubsetResult> requestContext)
+        {
+            return HandleSessionRequest(subsetParams, requestContext, session =>
+            {
+                EditRow[] rows = session.GetRows(subsetParams.RowStartIndex, subsetParams.RowsCount).Result;
+                return new EditSubsetResult
+                {
+                    RowCount = rows.Length,
+                    Subset = rows
+                };
             });
         }
 
