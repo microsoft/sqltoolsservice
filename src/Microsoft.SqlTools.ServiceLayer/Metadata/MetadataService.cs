@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -65,8 +64,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         {
             try
             {
-                Thread.Sleep(4000);
-
                 ConnectionInfo connInfo;
                 MetadataService.ConnectionServiceInstance.TryFindConnection(
                     metadataParams.OwnerUri,
