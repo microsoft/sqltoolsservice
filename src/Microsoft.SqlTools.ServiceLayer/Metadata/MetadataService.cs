@@ -132,34 +132,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     AND (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U')
                   ORDER BY object_type, schema_name, object_name";
 
-            SqlCommand sqlCommand = new SqlCommand(sql, sqlConn);
-            var reader = sqlCommand.ExecuteReader();
-            while (reader.Read())
+            using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConn))
             {
-                var schemaName = reader[0] as string;
-                var objectName = reader[1] as string;
-                var objectType = reader[2] as string;
+                using (var reader = sqlCommand.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var schemaName = reader[0] as string;
+                        var objectName = reader[1] as string;
+                        var objectType = reader[2] as string;
 
-                MetadataType metadataType;
-                if (objectType.StartsWith("V"))
-                {
-                    metadataType = MetadataType.View;
-                }
-                else if (objectType.StartsWith("P"))
-                {
-                    metadataType = MetadataType.SProc;
-                }
-                else
-                {
-                    metadataType = MetadataType.Table;
-                }
+                        MetadataType metadataType;
+                        if (objectType.StartsWith("V"))
+                        {
+                            metadataType = MetadataType.View;
+                        }
+                        else if (objectType.StartsWith("P"))
+                        {
+                            metadataType = MetadataType.SProc;
+                        }
+                        else
+                        {
+                            metadataType = MetadataType.Table;
+                        }
 
-                metadata.Add(new ObjectMetadata
-                {
-                    MetadataType = metadataType,
-                    Schema = schemaName,
-                    Name = objectName
-                });
+                        metadata.Add(new ObjectMetadata
+                        {
+                            MetadataType = metadataType,
+                            Schema = schemaName,
+                            Name = objectName
+                        });
+                    }
+                }
             }
         }        
     }

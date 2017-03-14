@@ -284,7 +284,7 @@ Session.vim
 
 # docfx generated files
 _site
-metadata
+docs/metadata
 
 # Stuff from cake
 /artifacts/
