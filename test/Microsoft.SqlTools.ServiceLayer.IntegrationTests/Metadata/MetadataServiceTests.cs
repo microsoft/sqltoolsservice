@@ -13,15 +13,15 @@ using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using System.Data.SqlClient;
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 {
     /// <summary>
     /// Tests for the language service autocomplete component
     /// </summary>
     public class MetadataServiceTests
     {
-        private const string TestTableSchema = "dbo";
-        private const string TestTableName = "MetadataTestTable";
+        private string testTableSchema = "dbo";
+        private string testTableName = "MetadataTestTable";
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         private void CreateTestTable(SqlConnection sqlConn)
         {
             string sql = string.Format("IF OBJECT_ID('{0}.{1}', 'U') IS NULL CREATE TABLE {0}.{1}(id int)",
-                TestTableSchema, TestTableName);
+                this.testTableSchema, this.testTableName);
             using (var sqlCommand = new SqlCommand(sql, sqlConn))
             {
                 sqlCommand.ExecuteNonQuery(); 
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         private void DeleteTestTable(SqlConnection sqlConn)
         {
             string sql = string.Format("IF OBJECT_ID('{0}.{1}', 'U') IS NOT NULL DROP TABLE {0}.{1}",
-                TestTableSchema, TestTableName);
+                this.testTableSchema, this.testTableName);
             using (var sqlCommand = new SqlCommand(sql, sqlConn))
             {
                 sqlCommand.ExecuteNonQuery();
@@ -66,6 +66,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void MetadataReturnsUserTable()
         {
+            this.testTableName += new Random().Next(1000000, 9999999).ToString();
+
             var result = GetLiveAutoCompleteTestObjects();
             var sqlConn = MetadataService.OpenMetadataConnection(result.ConnectionInfo);
             Assert.NotNull(sqlConn);
@@ -79,8 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             bool foundTestTable = false;
             foreach (var item in metadata)
             {
-                if (string.Equals(item.Schema, TestTableSchema, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(item.Name, TestTableName, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(item.Schema, this.testTableSchema, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(item.Name, this.testTableName, StringComparison.OrdinalIgnoreCase))
                 {
                     foundTestTable = true;
                     break;
