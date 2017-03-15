@@ -13,10 +13,10 @@ using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using System.Data.SqlClient;
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
+namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 {
     /// <summary>
-    /// Tests for the language service autocomplete component
+    /// Tests for the Metadata service component
     /// </summary>
     public class MetadataServiceTests
     {

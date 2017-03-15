@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsequest);
+            serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         /// <param name="scriptingParams"></param>
         /// <param name="requestContext"></param>
-        internal static async Task HandleScriptingScriptAsequest(
+        internal static async Task HandleScriptingScriptAsRequest(
             ScriptingScriptAsParams scriptingParams,
             RequestContext<ScriptingScriptAsResult> requestContext)
         {

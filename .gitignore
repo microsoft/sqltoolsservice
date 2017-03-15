@@ -292,3 +292,7 @@ docs/metadata
 /.dotnet/
 /test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Properties/launchSettings.json
 /test/Microsoft.SqlTools.ServiceLayer.PerfTests/Properties/launchSettings.json
+
+# Test output files
+*cycle*txt*
+*input*txt*
