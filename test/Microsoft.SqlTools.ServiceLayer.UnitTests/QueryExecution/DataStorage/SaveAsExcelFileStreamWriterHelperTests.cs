@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             manager.AssureColumnReference();
             manager.WriteAndIncreaseColumnReference();
             Assert.Equal("XFD1", LastWrittenReference);
-            var ex = Assert.Throws<SaveAsExcelFileStreamWriterHelper.ExporterException>(
+            var ex = Assert.Throws<InvalidOperationException>(
                 () => manager.AssureColumnReference());
             Assert.Contains("max column number is 16384", ex.Message);
         }
@@ -222,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             var xmlWriter = _xmlWriterMock.Object;
             var manager = new SaveAsExcelFileStreamWriterHelper.ReferenceManager(xmlWriter);
 
-            var ex = Assert.Throws<SaveAsExcelFileStreamWriterHelper.ExporterException>(
+            var ex = Assert.Throws<InvalidOperationException>(
                 () => manager.WriteAndIncreaseColumnReference());
             Assert.Contains("AddRow must be called before AddCell", ex.Message);
         }

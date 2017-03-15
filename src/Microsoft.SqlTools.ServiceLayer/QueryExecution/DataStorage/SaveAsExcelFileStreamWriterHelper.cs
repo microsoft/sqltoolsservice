@@ -274,21 +274,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Exception for the SaveAsExcelFileStreamWriterHelper
-        /// </summary>
-        public class ExporterException : Exception
-        {
-            /// <summary>
-            /// Initializes a new instance of the ExceptionExporterException class with a specified error message.
-            /// </summary>
-            /// <param name="message"></param>
-            public ExporterException(string message)
-                    : base(message)
-            {
-            }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class.  
         /// </summary>
         /// <param name="stream">The input or output stream.</param>
@@ -377,12 +362,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 if (currColumn == 0)
                 {
-                    throw new ExporterException("AddRow must be called before AddCell");
+                    throw new InvalidOperationException("AddRow must be called before AddCell");
 
                 }
                 if (currColumn > 16384)
                 {
-                    throw new ExporterException("max column number is 16384, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
+                    throw new InvalidOperationException("max column number is 16384, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
                 }
             }
 
@@ -447,7 +432,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 if (currRow > 1048576)
                 {
-                    throw new ExporterException("max row number is 1048576, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
+                    throw new InvalidOperationException("max row number is 1048576, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
                 }
             }
             /// <summary>
@@ -558,11 +543,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             if (sheetName.IndexOfAny(invalidSheetNameCharacters) != -1)
             {
-                throw new ExporterException($"Invalid sheetname: sheetName");
+                throw new ArgumentException($"Invalid sheetname: sheetName");
             }
             if (sheetNames.IndexOf(sheetName) != -1)
             {
-                throw new ExporterException($"Duplicate sheetName: {sheetName}");
+                throw new ArgumentException($"Duplicate sheetName: {sheetName}");
             }
         }
 
