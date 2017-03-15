@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// </code>
     /// </example>
 
-    public sealed class SaveAsExcelFileStreamWriterHelper : IDisposable
+    internal sealed class SaveAsExcelFileStreamWriterHelper : IDisposable
     {
         /// <summary>
         /// Present a Excel sheet
@@ -62,6 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             public void AddRow()
             {
                 EndRowIfNeeded();
+                openRowTag = true;
 
                 referenceManager.AssureRowReference();
 
@@ -243,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             private void EndRowIfNeeded()
             {
-                if (referenceManager.PenddingRowEndTag()) //there are previous rows
+                if (openRowTag)
                 {
                     writer.WriteEndElement();
                 }
@@ -269,6 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             private XmlWriter writer;
             private ReferenceManager referenceManager;
+            private bool openRowTag;
         }
 
         /// <summary>
@@ -292,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="stream">The input or output stream.</param>
         public SaveAsExcelFileStreamWriterHelper(Stream stream)
         {
-            zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true);
+            zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, false);
         }
         /// <summary>
         /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class. 
@@ -425,7 +427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
             // Reset the Column Reference
             // This will reset the first three chars of currReference array to '@@A'
-            // and the rest to the string of the current row.
+            // and the rest to the array to the string presentation of the current row.
             private void ResetColumnReference()
             {
                 currColumn = 1;
@@ -433,7 +435,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 currReference[2] = 'A';
                 currReferenceColumnLength = 1;
 
-                string rowReference = currRow.ToString();
+                string rowReference = XmlConvert.ToString(currRow);
                 currReferenceRowLength = rowReference.Length;
                 rowReference.CopyTo(0, currReference, 3, rowReference.Length);
             }
@@ -461,28 +463,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 currRow++;
             }
-
-            /// <summary>
-            /// Check if there is a open row tag
-            /// </summary>
-            /// <returns></returns>
-            public bool PenddingRowEndTag()
-            {
-                return currRow != 1;
-            }
         }
 
         private ZipArchive zipArchive;
         private List<string> sheetNames = new List<string>();
 
-        XmlWriterSettings writeSetting = new XmlWriterSettings()
+        private XmlWriterSettings writerSetting = new XmlWriterSettings()
         {
             CloseOutput = true,
         };
         private XmlWriter AddEntry(string entryName)
         {
             ZipArchiveEntry entry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
-            return XmlWriter.Create(entry.Open(), writeSetting);
+            return XmlWriter.Create(entry.Open(), writerSetting);
         }
 
         //ECMA-376 page 75
