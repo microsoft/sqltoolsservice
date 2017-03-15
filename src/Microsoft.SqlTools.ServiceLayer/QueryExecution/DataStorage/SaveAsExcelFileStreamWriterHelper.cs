@@ -484,7 +484,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             zipArchive.Dispose();
         }
 
-       
+
         private XmlWriter AddEntry(string entryName)
         {
             ZipArchiveEntry entry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
@@ -642,53 +642,108 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // that is <c s="1"></c> will reference the second element of <cellXfs> <xf numFmtId=""162"" xfId=""0"" applyNumberFormat=""1""/>
             // then, this xf reference numFmt by name and get formatCode "hh:mm:ss"
 
-            string content = @"
-<styleSheet xmlns=""http://schemas.openxmlformats.org/spreadsheetml/2006/main"">
-  <numFmts count=""3"">
-    <numFmt numFmtId=""166"" formatCode=""yyyy-mm-dd""/>
-    <numFmt numFmtId=""167"" formatCode=""hh:mm:ss""/>
-    <numFmt numFmtId=""168"" formatCode=""yyyy-mm-dd hh:mm:ss""/>
-  </numFmts>
-  <fonts count=""1"">
-    <font>
-      <sz val=""11""/>
-      <color theme=""1""/>
-      <name val=""Calibri""/>
-      <family val=""2""/>
-      <scheme val=""minor""/>
-    </font>
-  </fonts>
-  <fills count=""1"">
-    <fill>
-      <patternFill patternType=""none""/>
-    </fill>
-  </fills>
-  <borders count=""1"">
-    <border>
-      <left/>
-      <right/>
-      <top/>
-      <bottom/>
-      <diagonal/>
-    </border>
-  </borders>
-  <cellStyleXfs count=""1"">
-    <xf numFmtId=""0"" fontId=""0"" fillId=""0"" borderId=""0""/>
-  </cellStyleXfs>
-  <cellXfs count=""4"">
-    <xf xfId=""0""/>
-    <xf numFmtId=""166"" xfId=""0"" applyNumberFormat=""1""/>
-    <xf numFmtId=""167"" xfId=""0"" applyNumberFormat=""1""/>
-    <xf numFmtId=""168"" xfId=""0"" applyNumberFormat=""1""/>
-  </cellXfs>
-  <cellStyles count=""1"">
-    <cellStyle name=""Normal"" builtinId=""0"" xfId=""0"" />
-  </cellStyles>
-</styleSheet>";
-
             using (XmlWriter xw = AddEntry("xl/styles.xml"))
             {
-                xw.WriteRaw(content);
+                xw.WriteStartElement("styleSheet", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+
+                xw.WriteStartElement("numFmts");
+                xw.WriteAttributeString("count", "3");
+                xw.WriteStartElement("numFmt");
+                xw.WriteAttributeString("numFmtId", "166");
+                xw.WriteAttributeString("formatCode", "yyyy-mm-dd");
+                xw.WriteEndElement();
+                xw.WriteStartElement("numFmt");
+                xw.WriteAttributeString("numFmtId", "167");
+                xw.WriteAttributeString("formatCode", "hh:mm:ss");
+                xw.WriteEndElement();
+                xw.WriteStartElement("numFmt");
+                xw.WriteAttributeString("numFmtId", "168");
+                xw.WriteAttributeString("formatCode", "yyyy-mm-dd hh:mm:ss");
+                xw.WriteEndElement(); //numFmt
+                xw.WriteEndElement(); //mumFmts
+
+
+                xw.WriteStartElement("fonts");
+                xw.WriteAttributeString("count", "1");
+                xw.WriteStartElement("font");
+                xw.WriteStartElement("sz");
+                xw.WriteAttributeString("val", "11");
+                xw.WriteEndElement();
+                xw.WriteStartElement("color");
+                xw.WriteAttributeString("theme", "1");
+                xw.WriteEndElement();
+                xw.WriteStartElement("name");
+                xw.WriteAttributeString("val", "Calibri");
+                xw.WriteEndElement();
+                xw.WriteStartElement("family");
+                xw.WriteAttributeString("val", "2");
+                xw.WriteEndElement();
+                xw.WriteStartElement("scheme");
+                xw.WriteAttributeString("val", "minor");
+                xw.WriteEndElement();
+                xw.WriteEndElement(); // font
+                xw.WriteEndElement(); // fonts
+
+                xw.WriteStartElement("fills");
+                xw.WriteAttributeString("count", "1");
+                xw.WriteStartElement("fill");
+                xw.WriteStartElement("patternFill");
+                xw.WriteAttributeString("patternType", "none");
+                xw.WriteEndElement(); // patternFill
+                xw.WriteEndElement(); // fill
+                xw.WriteEndElement(); // fills
+
+                xw.WriteStartElement("borders");
+                xw.WriteAttributeString("count", "1");
+                xw.WriteStartElement("border");
+                xw.WriteElementString("left", null);
+                xw.WriteElementString("right", null);
+                xw.WriteElementString("top", null);
+                xw.WriteElementString("bottom", null);
+                xw.WriteElementString("diagonal", null);
+                xw.WriteEndElement(); // board
+                xw.WriteEndElement(); // borders
+
+                xw.WriteStartElement("cellStyleXfs");
+                xw.WriteAttributeString("count", "1");
+                xw.WriteStartElement("xf");
+                xw.WriteAttributeString("numFmtId", "0");
+                xw.WriteAttributeString("fontId", "0");
+                xw.WriteAttributeString("fillId", "0");
+                xw.WriteAttributeString("borderId", "0");
+                xw.WriteEndElement(); // xf
+                xw.WriteEndElement(); // cellStyleXfs
+
+                xw.WriteStartElement("cellXfs");
+                xw.WriteAttributeString("count", "4");
+                xw.WriteStartElement("xf");
+                xw.WriteAttributeString("xfId", "0");
+                xw.WriteEndElement();
+                xw.WriteStartElement("xf");
+                xw.WriteAttributeString("numFmtId", "166");
+                xw.WriteAttributeString("xfId", "0");
+                xw.WriteAttributeString("applyNumberFormat", "1");
+                xw.WriteEndElement();
+                xw.WriteStartElement("xf");
+                xw.WriteAttributeString("numFmtId", "167");
+                xw.WriteAttributeString("xfId", "0");
+                xw.WriteAttributeString("applyNumberFormat", "1");
+                xw.WriteEndElement();
+                xw.WriteStartElement("xf");
+                xw.WriteAttributeString("numFmtId", "168");
+                xw.WriteAttributeString("xfId", "0");
+                xw.WriteAttributeString("applyNumberFormat", "1");
+                xw.WriteEndElement();
+                xw.WriteEndElement(); // cellXfs
+
+                xw.WriteStartElement("cellStyles");
+                xw.WriteAttributeString("count", "1");
+                xw.WriteStartElement("cellStyle");
+                xw.WriteAttributeString("name", "Normal");
+                xw.WriteAttributeString("builtinId", "0");
+                xw.WriteAttributeString("xfId", "0");
+                xw.WriteEndElement(); // cellStyle
+                xw.WriteEndElement(); // cellStyles
             }
         }
     }

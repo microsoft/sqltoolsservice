@@ -72,11 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 using (var reader = new StreamReader(zip.GetEntry(fileName).Open()))
                 {
                     string realContent = reader.ReadToEnd();
-                    if (realContent != referenceContent)
-                    {
-                        realContent = contentRemoveLinebreakLeadingSpace.Replace(realContent, "");
-                        Assert.Equal(referenceContent, realContent);
-                    }
+                    Assert.Equal(referenceContent, realContent);
                 }
             }
         }
