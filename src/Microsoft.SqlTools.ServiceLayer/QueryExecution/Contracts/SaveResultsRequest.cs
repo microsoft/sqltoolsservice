@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult> Type =
-            RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult>.Create("query/saveCsv2");
+            RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult>.Create("query/saveCsv");
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult> Type =
-            RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult>.Create("query/saveCsv");
+            RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult>.Create("query/saveExcel");
     }
 
     /// <summary>
