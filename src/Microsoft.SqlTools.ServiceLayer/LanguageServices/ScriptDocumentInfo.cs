@@ -129,5 +129,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             }
             return null;
         }
+
+        /// <summary>
+        /// Returns the token that is used for Peek Definition objects
+        /// </summary>
+        internal static Token GetPeakDefinitionToken(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
+        {
+            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
+            {
+                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn+1);
+                if (tokenIndex >= 0)
+                {
+                    // return the current token
+                    int currentIndex = 0;
+                    foreach (var token in scriptParseInfo.ParseResult.Script.Tokens)
+                    {
+                        if (currentIndex == tokenIndex)
+                        {
+                            return token;
+                        }
+                        ++currentIndex;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

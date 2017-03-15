@@ -795,7 +795,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Get token from selected text
-            Token selectedToken = ScriptDocumentInfo.GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
+            Token selectedToken = ScriptDocumentInfo.GetPeakDefinitionToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character + 1);
             if (selectedToken == null)
             {
                 return null;
@@ -814,12 +814,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         bindingTimeout: LanguageService.PeekDefinitionTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
-                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                            // Handle tokenizing for Peek Definition 
+                            Position tokenPosition = new Position();
+                            tokenPosition.Line = textDocumentPosition.Position.Line + 1;
+                            tokenPosition.Character = textDocumentPosition.Position.Character + 1;
+
+                            string schemaName = this.GetSchemaName(scriptParseInfo, tokenPosition, scriptFile);
                             // Script object using SMO
                             PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
                             return peekDefinition.GetScript(
                                 scriptParseInfo.ParseResult, 
-                                textDocumentPosition.Position, 
+                                tokenPosition, 
                                 bindingContext.MetadataDisplayInfoProvider, 
                                 tokenText, 
                                 schemaName);
