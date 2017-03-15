@@ -121,6 +121,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>EditRow with pending updates</returns>
         public override EditRow GetEditRow(DbCellValue[] cachedRow)
         {
+            Validate.IsNotNull(nameof(cachedRow), cachedRow);
+
             // For each cell that is pending update, replace the db cell value with a new one
             foreach (var cellUpdate in cellUpdates)
             {

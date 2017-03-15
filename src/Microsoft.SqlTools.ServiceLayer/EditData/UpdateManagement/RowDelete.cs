@@ -81,6 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <returns>EditRow that is pending deletion</returns>
         public override EditRow GetEditRow(DbCellValue[] cachedRow)
         {
+            Validate.IsNotNull(nameof(cachedRow), cachedRow);
+
             return new EditRow
             {
                 Id = RowId,

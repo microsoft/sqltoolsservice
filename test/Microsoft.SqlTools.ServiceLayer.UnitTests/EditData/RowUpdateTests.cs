@@ -5,6 +5,7 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
@@ -41,10 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void SetCell()
         {
             // Setup: Create a row update
-            var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            RowUpdate ru = GetStandardRowUpdate();
 
             // If: I set a cell that can be updated
             EditUpdateCellResult eucr = ru.SetCell(0, "col1");
@@ -234,15 +233,63 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Fact]
         public void GetCommandNullConnection()
         {
-            // Setup: Create a row create
-            var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowUpdate rc = new RowUpdate(0, rs, etm);
+            // Setup: Create a row update
+            RowUpdate ru = GetStandardRowUpdate();
 
             // If: I attempt to create a command with a null connection
             // Then: It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => rc.GetCommand(null));
+            Assert.Throws<ArgumentNullException>(() => ru.GetCommand(null));
+        }
+
+        [Fact]
+        public void GetEditRow()
+        {
+            // Setup: Create a row update with a cell set
+            var columns = Common.GetColumns(false);
+            var rs = Common.GetResultSet(columns, false);
+            var etm = Common.GetStandardMetadata(columns);
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+            ru.SetCell(0, "foo");
+
+            // If: I attempt to get an edit row
+            DbCellValue[] cells = rs.GetRow(0).ToArray();
+            EditRow er = ru.GetEditRow(cells);
+
+            // Then:
+            // ... The state should be dirty
+            Assert.True(er.IsDirty);
+            Assert.Equal(EditRow.EditRowState.DirtyUpdate, er.State);
+
+            // ... The ID should be the same as the one provided
+            Assert.Equal(0, er.Id);
+
+            // ... The row should match the cells that were given, except for the updated cell
+            Assert.Equal(cells.Length, er.Cells.Length);
+            for (int i = 1; i < cells.Length; i++)
+            {
+                DbCellValue originalCell = cells[i];
+                DbCellValue outputCell = er.Cells[i];
+
+                Assert.Equal(originalCell.DisplayValue, outputCell.DisplayValue);
+                Assert.Equal(originalCell.IsNull, outputCell.IsNull);
+                // Note: No real need to check the RawObject property
+            }
+
+            // ... The updated cell should match what it was set to
+            DbCellValue newCell = er.Cells[0];
+            Assert.Equal(newCell.DisplayValue, "foo");
+            Assert.Equal(newCell.IsNull, false);
+        }
+
+        [Fact]
+        public void GetEditNullRow()
+        {
+            // Setup: Create a row update
+            RowUpdate ru = GetStandardRowUpdate();
+
+            // If: I attempt to get an edit row with a null cached row
+            // Then: I should get an exception
+            Assert.Throws<ArgumentNullException>(() => ru.GetEditRow(null));
         }
 
         [Theory]
@@ -343,6 +390,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... The cell should no longer be set
             Assert.DoesNotContain(0, ru.cellUpdates.Keys);
+        }
+
+        private RowUpdate GetStandardRowUpdate()
+        {
+            var columns = Common.GetColumns(false);
+            var rs = Common.GetResultSet(columns, false);
+            var etm = Common.GetStandardMetadata(columns);
+            return new RowUpdate(0, rs, etm);
         }
     }
 }
