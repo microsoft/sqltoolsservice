@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class SaveResultsAsExcelRequestParams : SaveResultsRequestParams
     {
         /// <summary>
-        /// Include headers of columns in CSV
+        /// Include headers of columns in Excel 
         /// </summary>
         public bool IncludeHeaders { get; set; }
     }
