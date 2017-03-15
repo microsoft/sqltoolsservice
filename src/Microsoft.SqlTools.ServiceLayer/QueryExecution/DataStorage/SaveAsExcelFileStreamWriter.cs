@@ -52,18 +52,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </param>
         public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
         {
-            int startIndex = ColumnStartIndex ?? 0;
-            int endIndex = ColumnCount.HasValue ? startIndex + ColumnCount.Value : columns.Count;
-            //Although this should not be needed, add this line to match the Take in other writer
-            if (endIndex > columns.Count)
-            {
-                endIndex = columns.Count;
-            }
+            int columnStart = ColumnStartIndex ?? 0;
+            int columnEnd = (ColumnEndIndex != null) ? ColumnEndIndex.Value + 1 : columns.Count;
+
             // Write out the header if we haven't already and the user chose to have it
             if (saveParams.IncludeHeaders && !headerWritten)
             {
                 sheet.AddRow();
-                for (int i = startIndex; i < endIndex; ++i)
+                for (int i = columnStart; i < columnEnd; i++)
                 {
                     sheet.AddCell(columns[i].ColumnName);
                 }
@@ -71,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             sheet.AddRow();
-            for (int i = startIndex; i < endIndex; ++i)
+            for (int i = columnStart; i < columnEnd; i++)
             {
                 sheet.AddCell(row[i]);
             }
