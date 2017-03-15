@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
     /// Factory for creating a reader/writer pair that will read from the temporary buffer file
-    /// and output to a CSV file.
+    /// and output to a Excel file.
     /// </summary>
     public class SaveAsExcelFileStreamFactory : IFileStreamFactory
     {
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public QueryExecutionSettings QueryExecutionSettings { get; set; }
 
         /// <summary>
-        /// Parameters for the save as CSV request
+        /// Parameters for the save as Excel request
         /// </summary>
         public SaveResultsAsExcelRequestParams SaveRequestParams { get; set; }
 
@@ -51,9 +51,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Returns a new CSV writer for writing results to a CSV file
+        /// Returns a new Excel writer for writing results to a Excel file
         /// </summary>
-        /// <param name="fileName">Path to the CSV output file</param>
+        /// <param name="fileName">Path to the Excel output file</param>
         /// <returns>Stream writer</returns>
         public IFileStreamWriter GetWriter(string fileName)
         {
