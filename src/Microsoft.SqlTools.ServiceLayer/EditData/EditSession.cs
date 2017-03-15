@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
@@ -185,13 +187,46 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        public Task<EditRow[]> GetRows(long startIndex, int rowCount)
+
+        public async Task<EditRow[]> GetRows(long startIndex, int rowCount)
         {
             // Get the cached rows from the result set
+            ResultSetSubset cachedRows = await associatedResultSet.GetSubset(startIndex, rowCount);
 
+            // Convert the rows into EditRows and apply the changes we have
+            List<EditRow> editRows = new List<EditRow>();
+            for (int i = 0; i < cachedRows.RowCount; i++)
+            {
+                long rowId = i + startIndex;
+                RowEditBase edr;
+                if (EditCache.TryGetValue(rowId, out edr))
+                {
+                    // Ask the edit object to generate an edit row
+                    editRows.Add(edr.GetEditRow(cachedRows.Rows[i]));
+                }
+                else
+                {
+                    // Package up the existing row into a clean edit row
+                    EditRow er = new EditRow
+                    {
+                        Id = rowId,
+                        Cells = cachedRows.Rows[rowId],
+                        State = EditRow.EditRowState.Clean
+                    };
+                    editRows.Add(er);
+                }
+            }
 
-            //return associatedResultSet.GetSubset(startIndex, rowCount);
-            return null;
+            // If the requested range of rows was at the end of the original cell set and we have
+            // added new rows, we need to reflect those changes
+            if (rowCount < cachedRows.RowCount)
+            {
+                long endIndex = startIndex + cachedRows.RowCount;
+                var newRows = EditCache.Where(edit => edit.Key >= endIndex).Take(rowCount - cachedRows.RowCount);
+                editRows.AddRange(newRows.Select(newRow => newRow.Value.GetEditRow(null)));
+            }
+
+            return editRows.ToArray();
         }
 
         /// <summary>

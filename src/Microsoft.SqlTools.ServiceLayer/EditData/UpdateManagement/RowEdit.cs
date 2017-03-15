@@ -86,6 +86,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public abstract DbCommand GetCommand(DbConnection connection);
 
         /// <summary>
+        /// Generates a row that has the pending update applied. The dirty status of the row is
+        /// reflected in the returned EditRow.
+        /// </summary>
+        /// <param name="cachedRow">The original, cached row values</param>
+        /// <returns>An EditRow with the pending changes applied</returns>
+        public abstract EditRow GetEditRow(DbCellValue[] cachedRow);
+
+        /// <summary>
         /// Converts the row edit into a SQL statement
         /// </summary>
         /// <returns>A SQL statement</returns>

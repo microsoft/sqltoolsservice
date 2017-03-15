@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
@@ -70,6 +71,22 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             command.Parameters.AddRange(where.Parameters.ToArray());
 
             return command;
+        }
+
+        /// <summary>
+        /// Generates a edit row that represents a row pending deletion. All the original cells are
+        /// intact but the state is dirty.
+        /// </summary>
+        /// <param name="cachedRow">Original, cached cell contents</param>
+        /// <returns>EditRow that is pending deletion</returns>
+        public override EditRow GetEditRow(DbCellValue[] cachedRow)
+        {
+            return new EditRow
+            {
+                Id = RowId,
+                Cells = cachedRow,
+                State = EditRow.EditRowState.DirtyDelete
+            };
         }
 
         /// <summary>

@@ -28,6 +28,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         public DbCellValue[] Cells { get; set; }
 
         /// <summary>
+        /// Internal ID of the row. This should be used whenever referencing a row in row edit operations.
+        /// </summary>
+        public long Id { get; set; }
+
+        /// <summary>
         /// Whether or not the row has changes pending
         /// </summary>
         public bool IsDirty => State != EditRowState.Clean;

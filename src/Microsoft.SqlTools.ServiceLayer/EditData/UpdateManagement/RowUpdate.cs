@@ -114,6 +114,28 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// Generates a edit row that represents a row with pending update. The cells pending
+        /// updates are merged into the unchanged cells.
+        /// </summary>
+        /// <param name="cachedRow">Original, cached cell contents</param>
+        /// <returns>EditRow with pending updates</returns>
+        public override EditRow GetEditRow(DbCellValue[] cachedRow)
+        {
+            // For each cell that is pending update, replace the db cell value with a new one
+            foreach (var cellUpdate in cellUpdates)
+            {
+                cachedRow[cellUpdate.Key] = cellUpdate.Value.AsDbCellValue;
+            }
+
+            return new EditRow
+            {
+                Id = RowId,
+                Cells = cachedRow,
+                State = EditRow.EditRowState.DirtyUpdate
+            };
+        }
+
+        /// <summary>
         /// Constructs an update statement to change the associated row.
         /// </summary>
         /// <returns>An UPDATE statement</returns>
