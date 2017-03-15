@@ -227,21 +227,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.Contains("AddRow must be called before AddCell", ex.Message);
         }
 
-        //This test is too slow
-        //[Fact]
-        //public void RowMaximalException()
-        //{
-        //    var xmlWriter = _xmlWriterMock.Object;
-        //    var manager = new SaveAsExcelFileStreamWriterHelper.ReferenceManager(xmlWriter);
-
-        //    for (int i = 0; i < 1048576; i++)
-        //    {
-        //        manager.WriteAndIncreaseRowReference();
-        //    }
-        //    Assert.Equal(1048576, LastWrittenRow);
-        //    var ex = Assert.Throws<SaveAsExcelFileStreamWriterHelper.ExporterException>(
-        //        () => manager.AssureRowReference());
-        //    Assert.Contains("max row number is 1048576", ex.Message);
-        //}
     }
 }
