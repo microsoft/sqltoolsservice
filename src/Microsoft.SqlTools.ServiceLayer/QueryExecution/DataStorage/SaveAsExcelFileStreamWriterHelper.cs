@@ -361,7 +361,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 // where @='A'-1. At each increase, check if the current reference is Z
                 // and move to AA if needed, since the maximal is 16384, or XFD, the code
                 // manipulates the array element directly instead of loop
-                AssureColumnReference();
                 char[] reference = currReference;
                 currColumn++;
                 if ('Z' == reference[2]++)
