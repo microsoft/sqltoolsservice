@@ -1,27 +1,4 @@
-﻿/**
-* A simple library to write xlsx file directly. It tries to be minimal, 
-* both in implementation and runtime allocation.
-* 
-* A xlsx file is a zip with specific file structure.
-* http://www.ecma-international.org/publications/standards/Ecma-376.htm
-* 
-* The page number is in the 
-* ECMA-376, Fifth Edition, Part 1 - Fundamentals And Markup Language Reference 
-* 
-* Page 75
-* /
-* |- [Content_Types].xml
-* |- _rels
-*    |- .rels
-* |- xl
-*    |- workbook.xml
-*    |- styles.xml
-*    |- _rels
-*       |- workbook.xml.rels
-*    |- worksheets
-*       |- sheet1.xml
-* 
-*/
+﻿
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using System;
 using System.Collections.Generic;
@@ -31,8 +8,52 @@ using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    // A xlsx file is a zip with specific folder structure.
+    // http://www.ecma-international.org/publications/standards/Ecma-376.htm
+
+    // The page number in the comments are based on
+    // ECMA-376, Fifth Edition, Part 1 - Fundamentals And Markup Language Reference 
+
+    // Page 75, SpreadsheetML package structure
+    // |- [Content_Types].xml
+    // |- _rels
+    //   |- .rels
+    // |- xl
+    //   |- workbook.xml
+    //   |- styles.xml
+    //   |- _rels
+    //     |- workbook.xml.rels
+    //   |- worksheets
+    //     |- sheet1.xml
+
+    /// <summary>
+    /// A helper class for write xlsx file base on ECMA-376. It tries to be minimal,
+    /// both in implementation and runtime allocation. 
+    /// </summary>
+    /// <example> 
+    /// This sample shows how to use the class 
+    /// <code>
+    /// public class TestClass
+    /// {
+    ///     public static int Main() 
+    ///     {
+    ///         using (Stream stream = File.Create("test.xlsx"))
+    ///         using (var helper = new SaveAsExcelFileStreamWriterHelper(stream, false))
+    ///         using (var sheet = helper.AddSheet())
+    ///         {
+    ///             sheet.AddRow();
+    ///             sheet.AddCell("string");
+    ///         }
+    ///     }
+    /// }
+    /// </code>
+    /// </example>
+
     public sealed class SaveAsExcelFileStreamWriterHelper : IDisposable
     {
+        /// <summary>
+        /// Present a Excel sheet
+        /// </summary>
         public sealed class ExcelSheet : IDisposable
         {
             /// <summary>
@@ -250,22 +271,50 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             private ReferenceManager referenceManager;
         }
 
+        /// <summary>
+        /// Exception for the SaveAsExcelFileStreamWriterHelper
+        /// </summary>
         public class ExporterException : Exception
         {
+            /// <summary>
+            /// Initializes a new instance of the ExceptionExporterException class with a specified error message.
+            /// </summary>
+            /// <param name="message"></param>
             public ExporterException(string message)
                     : base(message)
             {
             }
         }
+
+        /// <summary>
+        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class.  
+        /// </summary>
+        /// <param name="stream">The input or output stream.</param>
         public SaveAsExcelFileStreamWriterHelper(Stream stream)
         {
             zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true);
         }
+        /// <summary>
+        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class. 
+        /// </summary>
+        /// <param name="stream">The input or output stream.</param>
+        /// <param name="leaveOpen">true to leave the stream open after the 
+        /// SaveAsExcelFileStreamWriterHelper object is disposed; otherwise, false.</param>
         public SaveAsExcelFileStreamWriterHelper(Stream stream, bool leaveOpen)
         {
             zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen);
         }
 
+        /// <summary>
+        /// Add sheet inside the Xlsx file.
+        /// </summary>
+        /// <param name="sheetName">Sheet name</param>
+        /// <returns>ExcelSheet for writing the sheet content</returns>
+        /// <remarks>
+        /// When the sheetName is null, sheet1,shhet2,..., will be used.
+        /// The following charactors are not allowed in the sheetName
+        /// '\', '/','*','[',']',':','?'
+        /// </remarks>
         public ExcelSheet AddSheet(string sheetName = null)
         {
             string sheetFileName = "sheet" + (sheetNames.Count + 1);
@@ -280,26 +329,48 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return new ExcelSheet(sheetWriter);
         }
 
+        /// <summary>
+        /// Write out the rest of the xlsx files and release the resources used by the current instance 
+        /// </summary>
         public void Dispose()
         {
             WriteMinimalTemplate();
             zipArchive.Dispose();
         }
 
-
+        /// <summary>
+        /// Helper class to track the current cell reference.
+        /// </summary>
+        /// <remarks>
+        /// SpreadsheetML cell needs a reference attribute. (e.g. r="A1"). This class is used
+        /// to track the current cell reference.
+        /// </remarks>
         internal class ReferenceManager
         {
+            /// <summary>
+            /// Initializes a new instance of the ReferenceManager class.   
+            /// </summary>
+            /// <param name="writer">XmlWriter to write the reference attribute to.</param>
             public ReferenceManager(XmlWriter writer)
             {
                 this.writer = writer;
             }
             private int currColumn; // 0 is invalid, the first AddRow will set to 1
             private int currRow = 1;
+            // In order to reduce allocation, current reference is saved in this array,
+            // and write to the XmlWriter through WriteChars.
+            // For example, when the reference has value AA15,
+            // The content of this array will be @AA15xxxxx, with currReferenceRowLength=2
+            // and currReferenceColumnLength=2 
             private char[] currReference = new char[3 + 7]; //maximal XFD1048576
             private int currReferenceRowLength;
             private int currReferenceColumnLength;
+
             private XmlWriter writer;
 
+            /// <summary>
+            /// Check that we have not write too many columns. (xlsx has a limit of 16384 columns)
+            /// </summary>
             public void AssureColumnReference()
             {
                 if (currColumn == 0)
@@ -313,6 +384,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
             }
 
+            /// <summary>
+            /// Write out the r="A1" attribute and increase the column number of internal bookmark
+            /// </summary>
             public void WriteAndIncreaseColumnReference()
             {
                 writer.WriteStartAttribute("r");
@@ -321,8 +395,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 IncreaseColumnReference();
             }
 
+            /// <summary>
+            /// Increase the column of internal bookmark. 
+            /// </summary>
             public void IncreaseColumnReference()
             {
+                // This function change the first three chars of currReference array
+                // The logic is simple, when a start a new row, the array is reset to @@A
+                // where @='A'-1. At each increase, check if the current reference is Z
+                // and move to AA if needed, since the maximal is 16384, or XFD, the code
+                // manipulates the array element directly instead of loop
                 AssureColumnReference();
                 char[] reference = currReference;
                 currColumn++;
@@ -341,6 +423,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
                 }
             }
+            // Reset the Column Reference
+            // This will reset the first three chars of currReference array to '@@A'
+            // and the rest to the string of the current row.
             private void ResetColumnReference()
             {
                 currColumn = 1;
@@ -353,6 +438,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 rowReference.CopyTo(0, currReference, 3, rowReference.Length);
             }
 
+            /// <summary>
+            /// Check that we have not write too many rows. (xlsx has a limit of 1048576 rows) 
+            /// </summary>
             public void AssureRowReference()
             {
                 if (currRow > 1048576)
@@ -360,6 +448,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     throw new ExporterException("max row number is 1048576, see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3");
                 }
             }
+            /// <summary>
+            /// Write out the r="1" attribute and increase the row number of internal bookmark
+            /// </summary>
             public void WriteAndIncreaseRowReference()
             {
                 writer.WriteStartAttribute("r");
@@ -371,6 +462,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 currRow++;
             }
 
+            /// <summary>
+            /// Check if there is a open row tag
+            /// </summary>
+            /// <returns></returns>
             public bool PenddingRowEndTag()
             {
                 return currRow != 1;

@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             int startIndex = ColumnStartIndex ?? 0;
             int endIndex = ColumnCount.HasValue ? startIndex + ColumnCount.Value : columns.Count;
-            //Although this shoule not be needed, add this line to match the Take in other writer
+            //Although this should not be needed, add this line to match the Take in other writer
             if (endIndex > columns.Count)
             {
                 endIndex = columns.Count;
