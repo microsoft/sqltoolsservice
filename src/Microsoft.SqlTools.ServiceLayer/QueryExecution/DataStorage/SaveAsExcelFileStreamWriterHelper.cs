@@ -56,13 +56,45 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         public sealed class ExcelSheet : IDisposable
         {
+            // The excel epoch is 1/1/1900, but it has 1/0/1900 and 2/29/1900
+            // which is equal to set the epoch back two days to 12/30/1899
+            // new DateTime(1899,12,30).Ticks
+            private const long ExcelEpochTick = 599264352000000000L;
+
+            // Excel can not use date before 1/0/1900 and
+            // date before 3/1/1900 is wrong, off by 1 because of 2/29/1900
+            // thus, for any date before 3/1/1900, use string for date
+            // new DateTime(1900,3,1).Ticks
+            private const long ExcelDateCutoffTick = 599317056000000000L;
+
+            // new TimeSpan(24,0,0).Ticks
+            private const long TicksPerDay = 864000000000L;
+
+            private XmlWriter writer;
+            private ReferenceManager referenceManager;
+            private bool hasOpenRowTag;
+
+            /// <summary>
+            /// Initializes a new instance of the ExcelSheet class.
+            /// </summary>
+            /// <param name="writer">XmlWriter to write the sheet data</param>
+            internal ExcelSheet(XmlWriter writer)
+            {
+                this.writer = writer;
+                writer.WriteStartDocument();
+                writer.WriteStartElement("worksheet", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+                writer.WriteAttributeString("xmlns", "r", null, "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+                writer.WriteStartElement("sheetData");
+                referenceManager = new ReferenceManager(writer);
+            }
+
             /// <summary>
             /// Start a new row
             /// </summary>
             public void AddRow()
             {
                 EndRowIfNeeded();
-                openRowTag = true;
+                hasOpenRowTag = true;
 
                 referenceManager.AssureRowReference();
 
@@ -73,17 +105,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// Write a string cell
             /// </summary>
-            /// This only increases the internal bookmark and doesn't arcturally write out anything.
-            private void AddCellEmpty()
-            {
-                referenceManager.IncreaseColumnReference();
-            }
-            /// <summary>
-            /// Write a string cell
-            /// </summary>
-            /// <param name="value"></param>
+            /// <param name="value">string value to write</param>
             public void AddCell(string value)
             {
+                // string needs <c t="inlineStr"><is><t>string</t></is></c>
+                // This class uses inlineStr instead of more common shared string table
+                // to improve write performance and reduce implementation complexity
                 referenceManager.AssureColumnReference();
                 if (value == null)
                 {
@@ -104,6 +131,67 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 writer.WriteEndElement();
 
                 writer.WriteEndElement();
+            }
+
+            /// <summary>
+            /// Write a object cell
+            /// </summary>
+            /// The program will try to output number/datetime, otherwise, call the ToString 
+            /// <param name="o"></param>
+            public void AddCell(DbCellValue dbCellValue)
+            {
+                if (dbCellValue.IsNull)
+                {
+                    AddCellEmpty();
+                    return;
+                }
+                object o = dbCellValue.RawObject; //Todo: do I need to check null here?
+
+                switch (Type.GetTypeCode(o.GetType()))
+                {
+                    case TypeCode.Byte:
+                    case TypeCode.Int16:
+                    case TypeCode.Int32:
+                    case TypeCode.Int64:
+                    case TypeCode.Single:
+                    case TypeCode.Double:
+                    case TypeCode.Decimal:
+                        AddCellBoxedNumber(o);
+                        return;
+                    case TypeCode.DateTime:
+                        AddCell((DateTime)o);
+                        return;
+                    case TypeCode.String:
+                        AddCell((string)o);
+                        return;
+                    default:
+                        if (o is TimeSpan) //TimeSpan doesn't have TypeCode
+                        {
+                            AddCell((TimeSpan)o);
+                        }
+                        AddCell(dbCellValue.DisplayValue);
+                        return;
+                }
+            }
+
+            /// <summary>
+            /// Close the <row><sheetData><worksheet> tags and close the stream
+            /// </summary>
+            public void Dispose()
+            {
+                EndRowIfNeeded();
+                writer.WriteEndElement(); // <sheetData> 
+                writer.WriteEndElement(); // <worksheet>
+                writer.Dispose();
+            }
+
+            /// <summary>
+            /// Write a empty cell
+            /// </summary>
+            /// This only increases the internal bookmark and doesn't arcturally write out anything.
+            private void AddCellEmpty()
+            {
+                referenceManager.IncreaseColumnReference();
             }
 
             /// <summary>
@@ -154,47 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 AddCellDateTimeInternal(excelDate, style);
             }
 
-            /// <summary>
-            /// Write a object cell
-            /// </summary>
-            /// The program will try to output number/datetime, otherwise, call the ToString 
-            /// <param name="o"></param>
-            public void AddCell(DbCellValue dbCellValue)
-            {
-                if (dbCellValue.IsNull)
-                {
-                    AddCellEmpty();
-                    return;
-                }
-                object o = dbCellValue.RawObject; //Todo: do I need to check null here?
-
-                switch (Type.GetTypeCode(o.GetType()))
-                {
-                    case TypeCode.Byte:
-                    case TypeCode.Int16:
-                    case TypeCode.Int32:
-                    case TypeCode.Int64:
-                    case TypeCode.Single:
-                    case TypeCode.Double:
-                    case TypeCode.Decimal:
-                        AddCellBoxedNumber(o);
-                        return;
-                    case TypeCode.DateTime:
-                        AddCell((DateTime)o);
-                        return;
-                    case TypeCode.String:
-                        AddCell((string)o);
-                        return;
-                    default:
-                        if (o is TimeSpan) //TimeSpan doesn't have TypeCode
-                        {
-                            AddCell((TimeSpan)o);
-                        }
-                        AddCell(dbCellValue.DisplayValue);
-                        return;
-                }
-            }
-
+            // number needs <c r="A1"><v>12.5</v></c>
             private void AddCellBoxedNumber(object number)
             {
                 referenceManager.AssureColumnReference();
@@ -210,21 +258,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 writer.WriteEndElement();
             }
 
-            // The excel epoch is 1/1/1900, but it has 1/0/1900 and 2/29/1900
-            // which is equal to set the epoch back two days to 12/30/1899
-            // new DateTime(1899,12,30).Ticks
-            private const long ExcelEpochTick = 599264352000000000L;
 
-            // Excel can not use date before 1/0/1900 and
-            // date before 3/1/1900 is wrong, off by 1 because of 2/29/1900
-            // thus, for any date before 3/1/1900, use string for date
-            // new DateTime(1900,3,1).Ticks
-            private const long ExcelDateCutoffTick = 599317056000000000L;
-
-            // new TimeSpan(24,0,0).Ticks
-            private const long TicksPerDay = 864000000000L;
-
-            // datetime need <c r="A1" s="2"><v>26012.451</v></c>
+            // datetime needs <c r="A1" s="2"><v>26012.451</v></c>
             private void AddCellDateTimeInternal(double excelDate, Style style)
             {
                 writer.WriteStartElement("c");
@@ -244,85 +279,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             private void EndRowIfNeeded()
             {
-                if (openRowTag)
+                if (hasOpenRowTag)
                 {
-                    writer.WriteEndElement();
+                    writer.WriteEndElement(); // <row>
                 }
             }
 
-            internal ExcelSheet(XmlWriter writer)
-            {
-                this.writer = writer;
-                writer.WriteStartDocument();
-                writer.WriteStartElement("worksheet", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-                writer.WriteAttributeString("xmlns", "r", null, "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-                writer.WriteStartElement("sheetData");
-                referenceManager = new ReferenceManager(writer);
-            }
 
-            public void Dispose()
-            {
-                EndRowIfNeeded();
-                writer.WriteEndElement(); // sheetData 
-                writer.WriteEndElement(); // worksheet 
-                writer.Dispose();
-            }
-
-            private XmlWriter writer;
-            private ReferenceManager referenceManager;
-            private bool openRowTag;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class.  
-        /// </summary>
-        /// <param name="stream">The input or output stream.</param>
-        public SaveAsExcelFileStreamWriterHelper(Stream stream)
-        {
-            zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, false);
-        }
-        /// <summary>
-        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class. 
-        /// </summary>
-        /// <param name="stream">The input or output stream.</param>
-        /// <param name="leaveOpen">true to leave the stream open after the 
-        /// SaveAsExcelFileStreamWriterHelper object is disposed; otherwise, false.</param>
-        public SaveAsExcelFileStreamWriterHelper(Stream stream, bool leaveOpen)
-        {
-            zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen);
-        }
-
-        /// <summary>
-        /// Add sheet inside the Xlsx file.
-        /// </summary>
-        /// <param name="sheetName">Sheet name</param>
-        /// <returns>ExcelSheet for writing the sheet content</returns>
-        /// <remarks>
-        /// When the sheetName is null, sheet1,shhet2,..., will be used.
-        /// The following charactors are not allowed in the sheetName
-        /// '\', '/','*','[',']',':','?'
-        /// </remarks>
-        public ExcelSheet AddSheet(string sheetName = null)
-        {
-            string sheetFileName = "sheet" + (sheetNames.Count + 1);
-            if (sheetName == null)
-            {
-                sheetName = sheetFileName;
-            }
-            EnsureValidSheetName(sheetName);
-
-            sheetNames.Add(sheetName);
-            XmlWriter sheetWriter = AddEntry($"xl/worksheets/{sheetFileName}.xml");
-            return new ExcelSheet(sheetWriter);
-        }
-
-        /// <summary>
-        /// Write out the rest of the xlsx files and release the resources used by the current instance 
-        /// </summary>
-        public void Dispose()
-        {
-            WriteMinimalTemplate();
-            zipArchive.Dispose();
         }
 
         /// <summary>
@@ -334,16 +297,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </remarks>
         internal class ReferenceManager
         {
-            /// <summary>
-            /// Initializes a new instance of the ReferenceManager class.   
-            /// </summary>
-            /// <param name="writer">XmlWriter to write the reference attribute to.</param>
-            public ReferenceManager(XmlWriter writer)
-            {
-                this.writer = writer;
-            }
             private int currColumn; // 0 is invalid, the first AddRow will set to 1
             private int currRow = 1;
+
             // In order to reduce allocation, current reference is saved in this array,
             // and write to the XmlWriter through WriteChars.
             // For example, when the reference has value AA15,
@@ -354,6 +310,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             private int currReferenceColumnLength;
 
             private XmlWriter writer;
+
+            /// <summary>
+            /// Initializes a new instance of the ReferenceManager class.   
+            /// </summary>
+            /// <param name="writer">XmlWriter to write the reference attribute to.</param>
+            public ReferenceManager(XmlWriter writer)
+            {
+                this.writer = writer;
+            }
 
             /// <summary>
             /// Check that we have not write too many columns. (xlsx has a limit of 16384 columns)
@@ -410,20 +375,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     }
                 }
             }
-            // Reset the Column Reference
-            // This will reset the first three chars of currReference array to '@@A'
-            // and the rest to the array to the string presentation of the current row.
-            private void ResetColumnReference()
-            {
-                currColumn = 1;
-                currReference[0] = currReference[1] = (char)('A' - 1);
-                currReference[2] = 'A';
-                currReferenceColumnLength = 1;
-
-                string rowReference = XmlConvert.ToString(currRow);
-                currReferenceRowLength = rowReference.Length;
-                rowReference.CopyTo(0, currReference, 3, rowReference.Length);
-            }
 
             /// <summary>
             /// Check that we have not write too many rows. (xlsx has a limit of 1048576 rows) 
@@ -448,15 +399,92 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 currRow++;
             }
+
+            // Reset the Column Reference
+            // This will reset the first three chars of currReference array to '@@A'
+            // and the rest to the array to the string presentation of the current row.
+            private void ResetColumnReference()
+            {
+                currColumn = 1;
+                currReference[0] = currReference[1] = (char)('A' - 1);
+                currReference[2] = 'A';
+                currReferenceColumnLength = 1;
+
+                string rowReference = XmlConvert.ToString(currRow);
+                currReferenceRowLength = rowReference.Length;
+                rowReference.CopyTo(0, currReference, 3, rowReference.Length);
+            }
+        }
+
+        private enum Style
+        {
+            Normal = 0,
+            Date = 1,
+            Time = 2,
+            DateTime = 3,
         }
 
         private ZipArchive zipArchive;
         private List<string> sheetNames = new List<string>();
-
         private XmlWriterSettings writerSetting = new XmlWriterSettings()
         {
             CloseOutput = true,
         };
+
+        /// <summary>
+        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class.  
+        /// </summary>
+        /// <param name="stream">The input or output stream.</param>
+        public SaveAsExcelFileStreamWriterHelper(Stream stream)
+        {
+            zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, false);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class. 
+        /// </summary>
+        /// <param name="stream">The input or output stream.</param>
+        /// <param name="leaveOpen">true to leave the stream open after the 
+        /// SaveAsExcelFileStreamWriterHelper object is disposed; otherwise, false.</param>
+        public SaveAsExcelFileStreamWriterHelper(Stream stream, bool leaveOpen)
+        {
+            zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen);
+        }
+
+        /// <summary>
+        /// Add sheet inside the Xlsx file.
+        /// </summary>
+        /// <param name="sheetName">Sheet name</param>
+        /// <returns>ExcelSheet for writing the sheet content</returns>
+        /// <remarks>
+        /// When the sheetName is null, sheet1,shhet2,..., will be used.
+        /// The following charactors are not allowed in the sheetName
+        /// '\', '/','*','[',']',':','?'
+        /// </remarks>
+        public ExcelSheet AddSheet(string sheetName = null)
+        {
+            string sheetFileName = "sheet" + (sheetNames.Count + 1);
+            if (sheetName == null)
+            {
+                sheetName = sheetFileName;
+            }
+            EnsureValidSheetName(sheetName);
+
+            sheetNames.Add(sheetName);
+            XmlWriter sheetWriter = AddEntry($"xl/worksheets/{sheetFileName}.xml");
+            return new ExcelSheet(sheetWriter);
+        }
+
+        /// <summary>
+        /// Write out the rest of the xlsx files and release the resources used by the current instance 
+        /// </summary>
+        public void Dispose()
+        {
+            WriteMinimalTemplate();
+            zipArchive.Dispose();
+        }
+
+       
         private XmlWriter AddEntry(string entryName)
         {
             ZipArchiveEntry entry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
@@ -512,6 +540,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteEndDocument();
             }
         }
+
         /// <summary>
         /// Write _rels/.rels. This file only need to reference main workbook
         /// </summary>
@@ -603,14 +632,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
         }
 
-        private enum Style
-        {
-            Normal = 0,
-            Date = 1,
-            Time = 2,
-            DateTime = 3,
-        }
-
+        // Write the xl/styles.xml
         private void WriteStyle()
         {
             // the style 0 is used for general case, style 1 for date, style 2 for time and style 3 for datetime see Enum Style
