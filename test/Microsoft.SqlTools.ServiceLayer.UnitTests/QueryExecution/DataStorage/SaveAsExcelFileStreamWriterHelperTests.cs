@@ -1,5 +1,6 @@
 ﻿using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using System;
 using System.IO;
@@ -59,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         Regex contentRemoveLinebreakLeadingSpace = new Regex(@"\r?\n\s*");
         private void ContentMatch(string fileName)
         {
-            string referencePath = Path.Combine("QueryExecution",
+            string referencePath = Path.Combine(RunEnvironmentInfo.GetTestDataLocation(),
                 "DataStorage",
                 "SaveAsExcelFileStreamWriterHelperTests",
                 fileName);
