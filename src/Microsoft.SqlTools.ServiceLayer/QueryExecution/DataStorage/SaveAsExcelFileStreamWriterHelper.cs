@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// </summary>
             /// <param name="dateTime">Datetime</param>
             /// <remark>
-            /// If the DateTime do not have date part, it will be written as datetime and show as time only
+            /// If the DateTime does not have date part, it will be written as datetime and show as time only
             /// If the DateTime is before 1900-03-01, save as string because excel doesn't support them.
             /// Otherwise, save as datetime, and if the time is 00:00:00, show as yyyy-MM-dd.
             /// Show the datetime as yyyy-MM-dd HH:mm:ss if none of the previous situations
