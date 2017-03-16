@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <returns>Index of the item that was just added</returns>
         public long Add(T val)
         {
-            if (Count <= this.ExpandListSize)
+            if (Count < this.ExpandListSize)
             {
                 shortList.Add(val);
             }
@@ -116,21 +116,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <returns>The item at the index specified</returns>
         public T GetItem(long index)
         {
-            T val = default(T);
+            Validate.IsWithinRange(nameof(index), index, 0, Count - 1);
 
-            if (Count <= this.ExpandListSize)
+            T val = default(T);
+            if (Count < this.ExpandListSize)
             {
                 int i32Index = Convert.ToInt32(index);
                 val = shortList[i32Index];
             }
             else
             {
-                int iArray32Index = (int) (Count / this.ExpandListSize);
+                int iArray32Index = (int) (index / this.ExpandListSize);
                 if (expandedList.Count > iArray32Index)
                 {
                     List<T> arr = expandedList[iArray32Index];
 
-                    int i32Index = (int) (Count % this.ExpandListSize);
+                    int i32Index = (int) (index % this.ExpandListSize);
                     if (arr.Count > i32Index)
                     {
                         val = arr[i32Index];
@@ -147,11 +148,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <returns>All elements after the number of elements to skip</returns>
         public IEnumerable<T> LongSkip(long start)
         {
-            Validate.IsGreaterThan(nameof(start), start, -1);
-            Validate.IsLessThan(nameof(start), start, Count);
+            Validate.IsWithinRange(nameof(start), start, 0, Count - 1);
 
             // Generate an enumerator over this list and jump ahead to the position we want
-            LongListEnumerator<T> longEnumerator = new LongListEnumerator<T>(this) {Index = start};
+            LongListEnumerator<T> longEnumerator = new LongListEnumerator<T>(this) {Index = start - 1};
 
             // While there are results to get, yield return them
             while (longEnumerator.MoveNext())
@@ -176,10 +176,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
             else
             {
-                int iArray32Index = (int) (Count / this.ExpandListSize);
+                int iArray32Index = (int) (index / this.ExpandListSize);
                 List<T> arr = expandedList[iArray32Index];
 
-                int i32Index = (int)(Count % this.ExpandListSize);
+                int i32Index = (int)(index % this.ExpandListSize);
                 arr[i32Index] = value;
             }
         }
@@ -191,6 +191,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="index">The index to remove from the list</param>
         public void RemoveAt(long index)
         {
+            Validate.IsWithinRange(nameof(index), index, 0, Count - 1);
+
             if (Count <= this.ExpandListSize)
             {
                 int iArray32MemberIndex = Convert.ToInt32(index); // 0 based
@@ -207,14 +209,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 arr.RemoveAt(iArray32MemberIndex);
 
                 // now shift members of the array back one
-                int iArray32TotalIndex = (int) (Count / this.ExpandListSize);
-                for (int i = arrayIndex + 1; i < iArray32TotalIndex; i++)
+                //int iArray32TotalIndex = (int) (Count / this.ExpandListSize);
+                for (int i = arrayIndex + 1; i < expandedList.Count; i++)
                 {
                     List<T> arr1 = expandedList[i - 1];
                     List<T> arr2 = expandedList[i];
 
-                    arr1.Add(arr2[this.ExpandListSize - 1]);
+                    arr1.Add(arr2[0]);
                     arr2.RemoveAt(0);
+
+                    if (arr2.Count == 0)
+                    {
+                        expandedList.RemoveAt(i);
+                    }
                 }
             }
             --Count;
@@ -252,20 +259,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             private readonly LongList<TEt> localList;
 
             /// <summary>
+            /// The current index into the list
+            /// </summary>
+            private long index;
+
+            /// <summary>
             /// Constructs a new enumerator for a given LongList
             /// </summary>
             /// <param name="list">The list to enumerate</param>
             public LongListEnumerator(LongList<TEt> list)
             {
                 localList = list;
-                Index = 0;
+                index = -1;
                 Current = default(TEt);
             }
 
             /// <summary>
-            /// The index into the list of the item that is the current item
+            /// The index into the list of the item that is the current item. Upon setting,
+            /// <see cref="Current"/> will be updated if the index is in range. Otherwise,
+            /// <c>default(<see cref="TEt"/>)</c> will be used.
             /// </summary>
-            public long Index { get; set; }
+            public long Index
+            {
+                get { return index; }
+                set
+                {
+                    index = value;
+                    Current = value >= localList.Count || value < 0
+                        ? default(TEt)
+                        : localList[index];
+                }
+            }
 
             #region IEnumerator Implementation
 
@@ -285,14 +309,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             /// <returns>Whether or not the move was successful</returns>
             public bool MoveNext()
             {
-                if (Index < localList.Count)
-                {
-                    Current = localList[Index];
-                    Index++;
-                    return true;
-                }
-                Current = default(TEt);
-                return false;
+                Index++;
+                return Index < localList.Count;
             }
 
             /// <summary>
