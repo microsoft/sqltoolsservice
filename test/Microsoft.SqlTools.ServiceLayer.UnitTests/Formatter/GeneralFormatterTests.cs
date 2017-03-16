@@ -11,6 +11,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
     public class GeneralFormatterTests : FormatterUnitTestsBase
     {
         [Fact]
+        public void GoNewLineShouldBePreserved()
+        {
+            LoadAndFormatAndCompare("GoNewLineShouldBePreserved", 
+                GetInputFile("Go.sql"),
+                GetBaselineFile("Go_NewlineHandling.sql"), 
+                new FormatOptions() { 
+                    KeywordCasing = CasingOptions.Lowercase,
+                    DatatypeCasing = CasingOptions.Uppercase,
+                    PlaceEachReferenceOnNewLineInQueryStatements = true
+                }, 
+                verifyFormat: true);
+        }
+
+        [Fact]
         public void KeywordCaseConversionUppercase()
         {
             LoadAndFormatAndCompare("KeywordCaseConversion", 
