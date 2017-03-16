@@ -161,21 +161,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     case TypeCode.Double:
                     case TypeCode.Decimal:
                         AddCellBoxedNumber(o);
-                        return;
+                        break;
                     case TypeCode.DateTime:
                         AddCell((DateTime)o);
-                        return;
+                        break;
                     case TypeCode.String:
                         AddCell((string)o);
-                        return;
+                        break;
                     default:
                         if (o is TimeSpan) //TimeSpan doesn't have TypeCode
                         {
                             AddCell((TimeSpan)o);
-                            return;
+                            break;
                         }
                         AddCell(dbCellValue.DisplayValue);
-                        return;
+                        break;
                 }
             }
 
