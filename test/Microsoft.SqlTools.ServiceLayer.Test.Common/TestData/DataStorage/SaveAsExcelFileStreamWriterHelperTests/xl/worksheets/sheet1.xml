@@ -6,6 +6,8 @@
       <c r="C1" t="inlineStr"><is><t>test string</t></is></c>
       <c r="D1"><v>3</v></c>
       <c r="E1"><v>3.5</v></c>
+      <c r="F1" t="b"><v>0</v></c>
+      <c r="G1" t="b"><v>1</v></c>
     </row>
     <row r="2">
       <c r="A2" t="inlineStr"><is><t>1900-02-28</t></is></c>

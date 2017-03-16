@@ -153,6 +153,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
                 switch (Type.GetTypeCode(o.GetType()))
                 {
+                    case TypeCode.Boolean:
+                        AddCell((bool)o);
+                        break;
                     case TypeCode.Byte:
                     case TypeCode.Int16:
                     case TypeCode.Int32:
@@ -197,6 +200,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             private void AddCellEmpty()
             {
                 referenceManager.IncreaseColumnReference();
+            }
+
+            /// <summary>
+            /// Write a bool cell. 
+            /// </summary>
+            /// <param name="time"></param>
+            private void AddCell(bool value)
+            {
+                // Excel FALSE: <c r="A1" t="b"><v>0</v></c>
+                // Excel TRUE:  <c r="A1" t="b"><v>1</v></c>
+                referenceManager.AssureColumnReference();
+
+                writer.WriteStartElement("c");
+
+                referenceManager.WriteAndIncreaseColumnReference();
+
+                writer.WriteAttributeString("t", "b");
+
+                writer.WriteStartElement("v");
+                if (value)
+                {
+                    writer.WriteValue("1"); //use string to avoid convert
+                }
+                else
+                {
+                    writer.WriteValue("0");
+                }
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
             }
 
             /// <summary>

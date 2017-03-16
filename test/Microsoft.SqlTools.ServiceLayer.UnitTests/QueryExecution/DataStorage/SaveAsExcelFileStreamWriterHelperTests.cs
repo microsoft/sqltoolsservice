@@ -44,6 +44,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 value.RawObject = 3.5;
                 sheet.AddCell(value);
 
+                value.RawObject = false;
+                sheet.AddCell(value);
+
+                value.RawObject = true;
+                sheet.AddCell(value);
+
                 sheet.AddRow();
 
                 value.RawObject = new DateTime(1900, 2, 28);
