@@ -60,6 +60,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
                 value.RawObject = new TimeSpan(15, 00, 00);
                 sheet.AddCell(value);
+
+                value.RawObject = new TimeSpan(24, 00, 00);
+                sheet.AddCell(value);
             }
         }
         Regex contentRemoveLinebreakLeadingSpace = new Regex(@"\r?\n\s*");

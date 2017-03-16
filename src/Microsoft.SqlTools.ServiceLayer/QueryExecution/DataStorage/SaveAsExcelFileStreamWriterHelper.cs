@@ -206,7 +206,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 referenceManager.AssureColumnReference();
                 double excelDate = (double)time.Ticks / (double)TicksPerDay;
-                AddCellDateTimeInternal(excelDate, Style.Time);
+                // The default hh:mm:ss format do not support more than 24 hours
+                // For that case, use the format string [h]:mm:ss
+                if (time.Ticks >= TicksPerDay)
+                {
+                    AddCellDateTimeInternal(excelDate, Style.TimeMoreThan24Hours);
+                }
+                else
+                {
+                    AddCellDateTimeInternal(excelDate, Style.Time);
+                }
             }
 
             /// <summary>
@@ -425,6 +434,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             Date = 1,
             Time = 2,
             DateTime = 3,
+            TimeMoreThan24Hours = 4,
         }
 
         private ZipArchive zipArchive;
@@ -650,7 +660,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteStartElement("styleSheet", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
 
                 xw.WriteStartElement("numFmts");
-                xw.WriteAttributeString("count", "3");
+                xw.WriteAttributeString("count", "4");
                 xw.WriteStartElement("numFmt");
                 xw.WriteAttributeString("numFmtId", "166");
                 xw.WriteAttributeString("formatCode", "yyyy-mm-dd");
@@ -662,7 +672,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteStartElement("numFmt");
                 xw.WriteAttributeString("numFmtId", "168");
                 xw.WriteAttributeString("formatCode", "yyyy-mm-dd hh:mm:ss");
-                xw.WriteEndElement(); //numFmt
+                xw.WriteEndElement();
+                xw.WriteStartElement("numFmt");
+                xw.WriteAttributeString("numFmtId", "169");
+                xw.WriteAttributeString("formatCode", "[h]:mm:ss");
+                xw.WriteEndElement();
                 xw.WriteEndElement(); //mumFmts
 
 
@@ -718,7 +732,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteEndElement(); // cellStyleXfs
 
                 xw.WriteStartElement("cellXfs");
-                xw.WriteAttributeString("count", "4");
+                xw.WriteAttributeString("count", "5");
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteEndElement();
@@ -734,6 +748,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 xw.WriteEndElement();
                 xw.WriteStartElement("xf");
                 xw.WriteAttributeString("numFmtId", "168");
+                xw.WriteAttributeString("xfId", "0");
+                xw.WriteAttributeString("applyNumberFormat", "1");
+                xw.WriteEndElement();
+                xw.WriteStartElement("xf");
+                xw.WriteAttributeString("numFmtId", "169");
                 xw.WriteAttributeString("xfId", "0");
                 xw.WriteAttributeString("applyNumberFormat", "1");
                 xw.WriteEndElement();
