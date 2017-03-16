@@ -144,13 +144,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <param name="o"></param>
             public void AddCell(DbCellValue dbCellValue)
             {
-                if (dbCellValue.IsNull)
+                object o = dbCellValue.RawObject;
+                if (dbCellValue.IsNull || o == null)
                 {
                     AddCellEmpty();
                     return;
                 }
-                object o = dbCellValue.RawObject; //Todo: do I need to check null here?
-
                 switch (Type.GetTypeCode(o.GetType()))
                 {
                     case TypeCode.Boolean:
