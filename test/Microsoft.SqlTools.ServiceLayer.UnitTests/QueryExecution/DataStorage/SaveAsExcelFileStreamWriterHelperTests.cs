@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             var manager = new SaveAsExcelFileStreamWriterHelper.ReferenceManager(xmlWriter);
 
             var ex = Assert.Throws<InvalidOperationException>(
-                () => manager.WriteAndIncreaseColumnReference());
+                () => manager.AssureColumnReference());
             Assert.Contains("AddRow must be called before AddCell", ex.Message);
         }
 
