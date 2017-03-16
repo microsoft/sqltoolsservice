@@ -808,17 +808,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 try
                 {
+                    // Handle tokenizing for Peek Definition 
+                    Position tokenPosition = new Position();
+                    tokenPosition.Line = textDocumentPosition.Position.Line + 1;
+                    tokenPosition.Character = textDocumentPosition.Position.Character + 1;
+                    
                     // Queue the task with the binding queue
                     QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                         key: scriptParseInfo.ConnectionKey,
                         bindingTimeout: LanguageService.PeekDefinitionTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
-                            // Handle tokenizing for Peek Definition 
-                            Position tokenPosition = new Position();
-                            tokenPosition.Line = textDocumentPosition.Position.Line + 1;
-                            tokenPosition.Character = textDocumentPosition.Position.Character + 1;
-
                             string schemaName = this.GetSchemaName(scriptParseInfo, tokenPosition, scriptFile);
                             // Script object using SMO
                             PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
