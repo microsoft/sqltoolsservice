@@ -172,6 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         if (o is TimeSpan) //TimeSpan doesn't have TypeCode
                         {
                             AddCell((TimeSpan)o);
+                            return;
                         }
                         AddCell(dbCellValue.DisplayValue);
                         return;
