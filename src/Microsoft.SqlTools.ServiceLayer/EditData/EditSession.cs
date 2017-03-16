@@ -187,11 +187,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-
+        /// <summary>
+        /// Retrieves a subset of rows with the pending updates applied. If more rows than exist
+        /// are requested, only the rows that exist will be returned.
+        /// </summary>
+        /// <param name="startIndex">Index to start returning rows from</param>
+        /// <param name="rowCount">The number of rows to return.</param>
+        /// <returns>An array of rows with pending edits applied</returns>
         public async Task<EditRow[]> GetRows(long startIndex, int rowCount)
         {
             // Get the cached rows from the result set
-            ResultSetSubset cachedRows = await associatedResultSet.GetSubset(startIndex, rowCount);
+            ResultSetSubset cachedRows = startIndex < associatedResultSet.RowCount
+                ? await associatedResultSet.GetSubset(startIndex, rowCount)
+                : new ResultSetSubset
+                {
+                    RowCount = 0,
+                    Rows = new DbCellValue[][] { }
+                };
 
             // Convert the rows into EditRows and apply the changes we have
             List<EditRow> editRows = new List<EditRow>();
@@ -210,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     EditRow er = new EditRow
                     {
                         Id = rowId,
-                        Cells = cachedRows.Rows[rowId],
+                        Cells = cachedRows.Rows[i],
                         State = EditRow.EditRowState.Clean
                     };
                     editRows.Add(er);
@@ -219,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // If the requested range of rows was at the end of the original cell set and we have
             // added new rows, we need to reflect those changes
-            if (rowCount < cachedRows.RowCount)
+            if (rowCount > cachedRows.RowCount)
             {
                 long endIndex = startIndex + cachedRows.RowCount;
                 var newRows = EditCache.Where(edit => edit.Key >= endIndex).Take(rowCount - cachedRows.RowCount);

@@ -216,6 +216,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AsDbCellValue(bool isNull)
+        {
+            // Setup: Create a cell update
+            var value = isNull ? "NULL" : "foo";
+            var col = GetWrapper<string>("NTEXT");
+            CellUpdate cu = new CellUpdate(col, value);
+
+            // If: I convert it to a DbCellvalue
+            DbCellValue dbc = cu.AsDbCellValue;
+
+            // Then:
+            // ... It should not be null
+            Assert.NotNull(dbc);
+
+            // ... The display value should be the same as the value we supplied
+            Assert.Equal(value, dbc.DisplayValue);
+
+            // ... The null-ness of the value should be the same as what we supplied
+            Assert.Equal(isNull, dbc.IsNull);
+
+            // ... We don't care *too* much about the raw value, but we'll check it anyhow
+            Assert.Equal(isNull ? (object)DBNull.Value : value, dbc.RawObject);
+        }
+
         private static DbColumnWrapper GetWrapper<T>(string dataTypeName, bool allowNull = true)
         {
             return new DbColumnWrapper(new CellUpdateTestDbColumn(typeof(T), dataTypeName, allowNull));

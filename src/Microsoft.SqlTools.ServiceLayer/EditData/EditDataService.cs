@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         {
             return HandleSessionRequest(subsetParams, requestContext, session =>
             {
-                EditRow[] rows = session.GetRows(subsetParams.RowStartIndex, subsetParams.RowsCount).Result;
+                EditRow[] rows = session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount).Result;
                 return new EditSubsetResult
                 {
                     RowCount = rows.Length,

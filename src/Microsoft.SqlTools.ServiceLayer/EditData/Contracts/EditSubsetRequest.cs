@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// exceeds the number of rows available after the start index, all available rows after
         /// the start index will be returned.
         /// </summary>
-        public int RowsCount { get; set; }
+        public int RowCount { get; set; }
     }
 
     /// <summary>
