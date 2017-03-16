@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             return NormalizeNewLinesInWhitespace(original, context, 1);
         }
 
-        private static string NormalizeNewLinesInWhitespace(string original, FormatContext context, int minimumNewLines)
+        internal static string NormalizeNewLinesInWhitespace(string original, FormatContext context, int minimumNewLines)
         {
             return NormalizeNewLinesInWhitespace(original, context, 1, () => { return original; });
         }
