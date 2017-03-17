@@ -5,8 +5,8 @@
 
 using System;
 using System.Data.SqlClient;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -27,6 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private static ConnectionService connectionService = null;        
 
+        private static LanguageService languageServices = null;   
+
          /// <summary>
         /// Internal for testing purposes only
         /// </summary>
@@ -44,6 +46,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             set
             {
                 connectionService = value;
+            }
+        }     
+
+        /// <summary>
+        /// Internal for testing purposes only
+        /// </summary>
+        internal static LanguageService LanguageServiceInstance
+        {
+            get
+            {
+                if (languageServices == null)
+                {
+                    languageServices = LanguageService.Instance;
+                }
+                return languageServices;
+            }
+            set
+            {
+                languageServices = value;
             }
         }
 
@@ -90,21 +111,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// Handle Script As Create requests
         /// </summary>
         private static string HandleScriptCreate(
-            ConnectionInfo connInfo, 
-            ServerConnection serverConn, 
+            ConnectionInfo connInfo,
             ObjectMetadata metadata)
         {
-            PeekDefinition peekDefinition = new PeekDefinition(serverConn, connInfo);
-            var results = peekDefinition.GetTableScripts(metadata.Name, metadata.Schema);
-            string script = string.Empty;
-            if (results != null) 
+            // get or create the current parse info object
+            ScriptParseInfo parseInfo = LanguageServiceInstance.GetScriptParseInfo(connInfo.OwnerUri);
+            if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
             {
-                foreach (var result in results)
+                try
                 {
-                    script += result.ToString() + Environment.NewLine + Environment.NewLine;
+                    QueueItem queueItem = LanguageServiceInstance.BindingQueue.QueueBindingOperation(
+                        key: parseInfo.ConnectionKey,
+                        bindingTimeout: 60000,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
+                            var results = peekDefinition.GetTableScripts(metadata.Name, metadata.Schema);
+                            string script = string.Empty;
+                            if (results != null) 
+                            {
+                                foreach (var result in results)
+                                {
+                                    script += result.ToString() + Environment.NewLine + Environment.NewLine;
+                                }
+                            }
+                            return script;
+                        });
+
+                    queueItem.ItemProcessed.WaitOne();
+
+                    return queueItem.GetResultAsT<string>();
+                }
+                finally
+                {
+                    Monitor.Exit(parseInfo.BuildingMetadataLock);
                 }
             }
-            return script;
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -127,11 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 string script = string.Empty;
 
                 if (connInfo != null) 
-                {                    
-                    SqlConnection sqlConn = OpenConnection(connInfo);
-                    ServerConnection serverConn = new ServerConnection(sqlConn);
-                    serverConn.Connect();
-                    
+                {
                     if (scriptingParams.Operation == ScriptOperation.Select)
                     {                    
                         script = string.Format(
@@ -141,7 +181,7 @@ FROM {0}.{1}",
                     }
                     else if (scriptingParams.Operation == ScriptOperation.Create)
                     {
-                        script = HandleScriptCreate(connInfo, serverConn, metadata);                                              
+                        script = HandleScriptCreate(connInfo, metadata);
                     }
                     else if (scriptingParams.Operation == ScriptOperation.Update)
                     {
