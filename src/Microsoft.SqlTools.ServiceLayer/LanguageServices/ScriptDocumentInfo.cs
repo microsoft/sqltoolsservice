@@ -3,9 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 {
@@ -133,26 +135,43 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         /// <summary>
         /// Returns the token that is used for Peek Definition objects
         /// </summary>
-        internal static Token GetPeakDefinitionToken(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
+        internal static Tuple<Stack<Token>, Stack<Token>> GetPeekDefinitionTokens(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
         {
+            Stack<Token> childrenTokens = new Stack<Token>();
+            Stack<Token> parentTokens = new Stack<Token>();
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
             {
-                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn+1);
+                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
                 if (tokenIndex >= 0)
                 {
-                    // return the current token
+                    // return the current token and the ones to its right
+                    // until we hit a whitespace token
                     int currentIndex = 0;
                     foreach (var token in scriptParseInfo.ParseResult.Script.Tokens)
                     {
-                        if (currentIndex == tokenIndex)
+                        if (currentIndex >= tokenIndex)
                         {
-                            return token;
+                            // push all tokens until we hit whitespace for children
+                            if (scriptParseInfo.ParseResult.Script.TokenManager.GetToken(currentIndex).Type != "LEX_WHITE")
+                            {
+                                childrenTokens.Push(token);
+                            }
+                            else 
+                            {
+                                break;
+                            }
+                        }
+                        // push parent tokens
+                        else 
+                        {
+                            parentTokens.Push(token);
                         }
                         ++currentIndex;
                     }
+                    return Tuple.Create(childrenTokens, parentTokens);
                 }
             }
-            return null;
+          return null;
         }
     }
 }

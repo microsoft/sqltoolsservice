@@ -135,8 +135,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>Location object of the script file</returns>
         internal DefinitionResult GetScript(ParseResult parseResult, Position position, IMetadataDisplayInfoProvider metadataDisplayInfoProvider, string tokenText, string schemaName)
         {
-            int parserLine = position.Line + 1;
-            int parserColumn = position.Character + 1;
+            int parserLine = position.Line;
+            int parserColumn = position.Character;
             // Get DeclarationItems from The Intellisense Resolver for the selected token. The type of the selected token is extracted from the declarationItem.
             IEnumerable<Declaration> declarationItems = GetCompletionsForToken(parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
             if (declarationItems != null && declarationItems.Count() > 0)
