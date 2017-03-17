@@ -20,8 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
     /// </summary>
     public class ScriptingServiceTests
     {
-        private const string SchemaName = "sys";
-        private const string TableName = "all_objects";
+        private const string SchemaName = "dbo";
+        private const string TableName = "spt_monitor";
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -49,12 +49,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
             var scriptingParams = new ScriptingScriptAsParams
             {
-                OwnerUri = Test.Common.Constants.OwnerUri,
+                OwnerUri = result.ConnectionInfo.OwnerUri,
                 Operation = operation,
                 Metadata = new ObjectMetadata()
                 {
                     MetadataType = MetadataType.Table,
-                    MetadataTypeName = "View",
+                    MetadataTypeName = "Table",
                     Schema = SchemaName,
                     Name = TableName
                 }

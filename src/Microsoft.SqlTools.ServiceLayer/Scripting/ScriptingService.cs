@@ -94,9 +94,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ServerConnection serverConn, 
             ObjectMetadata metadata)
         {
-            string schemaName = metadata.Schema;
             PeekDefinition peekDefinition = new PeekDefinition(serverConn, connInfo);
-            var results = peekDefinition.GetTableScripts(metadata.Schema, metadata.Name);
+            var results = peekDefinition.GetTableScripts(metadata.Name, metadata.Schema);
             string script = string.Empty;
             if (results != null) 
             {
@@ -125,14 +124,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     out connInfo);
 
                 ObjectMetadata metadata = scriptingParams.Metadata;
-               
+                string script = string.Empty;
+
                 if (connInfo != null) 
                 {                    
                     SqlConnection sqlConn = OpenConnection(connInfo);
                     ServerConnection serverConn = new ServerConnection(sqlConn);
                     serverConn.Connect();
-
-                    string script = string.Empty;
+                    
                     if (scriptingParams.Operation == ScriptOperation.Select)
                     {                    
                         script = string.Format(
@@ -163,6 +162,12 @@ FROM {0}.{1}",
                         scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
                     }
                 }
+
+                await requestContext.SendResult(new ScriptingScriptAsResult
+                {
+                    OwnerUri = scriptingParams.OwnerUri,
+                    Script = script
+                });
             }
             catch (Exception ex)
             {
