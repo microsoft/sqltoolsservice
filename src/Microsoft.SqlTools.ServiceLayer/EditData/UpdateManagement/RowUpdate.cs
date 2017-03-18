@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="rowId">Internal ID of the row that will be updated with this object</param>
         /// <param name="associatedResultSet">Result set for the rows of the object to update</param>
         /// <param name="associatedMetadata">Metadata provider for the object to update</param>
-        public RowUpdate(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+        public RowUpdate(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
             cellUpdates = new ConcurrentDictionary<int, CellUpdate>();

@@ -183,9 +183,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             };
 
             // ... Metadata provider will return 3 columns
-            EditColumnWrapper[] metas =
+            EditColumnMetadata[] metas =
             {
-                new EditColumnWrapper                   // No default
+                new EditColumnMetadata                   // No default
                 {
                     DbColumn = new DbColumnWrapper(cols[0]),
                     DefaultValue = null,
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     Ordinal = 0,
                     IsKey = false
                 },
-                new EditColumnWrapper                   // Has default
+                new EditColumnMetadata                   // Has default
                 {
                     DbColumn = new DbColumnWrapper(cols[1]),
                     DefaultValue = "default",
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                     Ordinal = 0,
                     IsKey = false
                 },
-                new EditColumnWrapper()
+                new EditColumnMetadata()
             };
             var etm = Common.GetMetadataProvider(metas, true);
 

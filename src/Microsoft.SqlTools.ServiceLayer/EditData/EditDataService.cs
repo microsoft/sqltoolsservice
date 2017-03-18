@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Data.Common;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -13,7 +14,6 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 
@@ -204,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 // Put together a query for the results and execute it
                 ExecuteStringParams executeParams = new ExecuteStringParams
                 {
-                    Query = $"SELECT * FROM {SqlScriptFormatter.FormatMultipartIdentifier(initParams.ObjectName)}",
+                    Query = await ConstructInitializeQuery(initParams),
                     OwnerUri = initParams.OwnerUri
                 };
                 await queryExecutionService.InterServiceExecuteQuery(executeParams, requestContext,
@@ -298,6 +298,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             return editSession;
         }
 
+        private async Task<string> ConstructInitializeQuery(EditInitializeParams initParams)
+        {
+            // Get a connection we'll use for SMO metadata lookup
+            DbConnection conn = await connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
+            var metadata = metadataFactory.GetObjectMetadata(conn, initParams.ObjectName, initParams.ObjectType);
+
+            // Using the columns we know, put together a query for the rows in the table
+            var columns = metadata.Columns.Select(col => col.EscapedName);
+            var columnClause = string.Join(", ", columns);
+
+            return $"SELECT ${columnClause} FROM ${metadata.EscapedMultipartName}";
+        }
+
         private async Task QueryCompleteCallback(Query query, EditInitializeParams initParams,
             IEventSender requestContext)
         {
@@ -313,13 +326,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Get a connection we'll use for SMO metadata lookup (and committing, later on)
                 DbConnection conn = await connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
-                var metadata = metadataFactory.GetObjectMetadata(conn, resultSet.Columns,
-                    initParams.ObjectName, initParams.ObjectType);
+                var metadata = metadataFactory.GetObjectMetadata(conn, initParams.ObjectName, initParams.ObjectType);
 
                 // Create the editSession and add it to the sessions list
                 EditSession editSession = new EditSession(resultSet, metadata);
                 if (!ActiveSessions.TryAdd(initParams.OwnerUri, editSession))
                 {
+                    // @TODO Move to string constants file
                     throw new InvalidOperationException("Failed to create edit editSession, editSession already exists.");
                 }
                 readyParams.Success = true;

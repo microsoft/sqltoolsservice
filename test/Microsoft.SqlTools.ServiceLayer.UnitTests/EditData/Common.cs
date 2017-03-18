@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Create a Column Metadata Provider
             var columnMetas = columns.Select((c, i) =>
-                new EditColumnWrapper
+                new EditColumnMetadata
                 {
                     DbColumn = new DbColumnWrapper(c),
                     EscapedName = c.ColumnName,
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        public static IEditTableMetadata GetMetadataProvider(EditColumnWrapper[] columnMetas, bool allKeys = false, bool isMemoryOptimized = false)
+        public static IEditTableMetadata GetMetadataProvider(EditColumnMetadata[] columnMetas, bool allKeys = false, bool isMemoryOptimized = false)
         {
             // Create a table metadata provider
             var tableMetaMock = new Mock<IEditTableMetadata>();

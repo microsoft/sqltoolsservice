@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="rowId">The internal ID of the row that is being edited</param>
         /// <param name="associatedResultSet">The result set that will be updated</param>
         /// <param name="associatedMetadata">Metadata provider for the object to edit</param>
-        protected RowEditBase(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+        protected RowEditBase(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
         {
             RowId = rowId;
             AssociatedResultSet = associatedResultSet;
@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <summary>
         /// The metadata for the table this edit is associated to
         /// </summary>
-        public IEditTableMetadata AssociatedObjectMetadata { get; }
+        public EditTableMetadata AssociatedObjectMetadata { get; }
 
         /// <summary>
         /// Sort ID for a row edit. Ensures that when a collection of RowEditBase objects are
@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
 
             IList<DbCellValue> row = AssociatedResultSet.GetRow(RowId);
-            foreach (EditColumnWrapper col in AssociatedObjectMetadata.KeyColumns)
+            foreach (EditColumnMetadata col in AssociatedObjectMetadata.KeyColumns)
             {
                 // Put together a clause for the value of the cell
                 DbCellValue cellData = row[col.Ordinal];

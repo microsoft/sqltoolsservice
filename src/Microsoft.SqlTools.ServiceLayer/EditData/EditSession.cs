@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -25,14 +24,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     {
 
         private readonly ResultSet associatedResultSet;
-        private readonly IEditTableMetadata objectMetadata;
+        private readonly EditTableMetadata objectMetadata;
 
         /// <summary>
         /// Constructs a new edit session bound to the result set and metadat object provided
         /// </summary>
         /// <param name="resultSet">The result set of the table to be edited</param>
         /// <param name="objMetadata">Metadata provider for the table to be edited</param>
-        public EditSession(ResultSet resultSet, IEditTableMetadata objMetadata)
+        public EditSession(ResultSet resultSet, EditTableMetadata objMetadata)
         {
             Validate.IsNotNull(nameof(resultSet), resultSet);
             Validate.IsNotNull(nameof(objMetadata), objMetadata);
@@ -112,13 +111,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Set the default values of the row if we know them
-            string[] defaultValues = new string[objectMetadata.Columns.Count];
-            for(int i = 0; i < objectMetadata.Columns.Count; i++)
+            string[] defaultValues = new string[objectMetadata.Columns.Length];
+            for(int i = 0; i < objectMetadata.Columns.Length; i++)
             {
-                EditColumnWrapper col = objectMetadata.Columns[i];
+                EditColumnMetadata col = objectMetadata.Columns[i];
 
                 // If the column is calculated, return the calculated placeholder as the display value
-                if (col.IsCalculated)
+                if (col.IsCalculated.HasTrue())
                 {
                     defaultValues[i] = SR.EditDataComputedColumnPlaceholder;
                 }

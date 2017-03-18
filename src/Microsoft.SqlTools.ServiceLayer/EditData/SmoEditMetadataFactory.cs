@@ -4,12 +4,13 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
@@ -22,11 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// Generates a edit-ready metadata object using SMO
         /// </summary>
         /// <param name="connection">Connection to use for getting metadata</param>
-        /// <param name="columns">List of columns from a query against the object</param>
         /// <param name="objectName">Name of the object to return metadata for</param>
         /// <param name="objectType">Type of the object to return metadata for</param>
         /// <returns>Metadata about the object requested</returns>
-        public IEditTableMetadata GetObjectMetadata(DbConnection connection, DbColumnWrapper[] columns, string objectName, string objectType)
+        public EditTableMetadata GetObjectMetadata(DbConnection connection, string objectName, string objectType)
         {
             // Get a connection to the database for SMO purposes
             SqlConnection sqlConn = connection as SqlConnection;
@@ -44,25 +44,59 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 sqlConn = reliableConn.GetUnderlyingConnection();
             }
 
+            // Connect with SMO and get the metadata for the table
             Server server = new Server(new ServerConnection(sqlConn));
-            TableViewTableTypeBase result;
+            TableViewTableTypeBase smoResult;
             switch (objectType.ToLowerInvariant())
             {
                 case "table":
-                    result = server.Databases[sqlConn.Database].Tables[objectName];
+                    smoResult = server.Databases[sqlConn.Database].Tables[objectName];
                     break;
                 case "view":
-                    result = server.Databases[sqlConn.Database].Views[objectName];
+                    smoResult = server.Databases[sqlConn.Database].Views[objectName];
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
             }
-            if (result == null)
+            if (smoResult == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(objectName), SR.EditDataObjectMetadataNotFound);
             }
 
-            return new SmoEditTableMetadata(columns, result);
+            // Generate the edit column metadata
+            List<EditColumnMetadata> editColumns = new List<EditColumnMetadata>();
+            for (int i = 0; i < smoResult.Columns.Count; i++)
+            {
+                Column smoColumn = smoResult.Columns[i];
+
+                // The default value may be escaped
+                string defaultValue = smoColumn.DefaultConstraint == null
+                    ? null
+                    : SqlScriptFormatter.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
+
+                EditColumnMetadata column = new EditColumnMetadata
+                {
+                    Ordinal = i,
+                    DefaultValue = defaultValue,
+                    EscapedName = SqlScriptFormatter.FormatIdentifier(smoColumn.Name)
+                };
+                editColumns.Add(column);
+            }
+
+            // If a table is memory optimized it is Hekaton. If it's a view, then it can't be Hekaton
+            Table smoTable = smoResult as Table;
+            bool isMemoryOptimized = smoTable != null && smoTable.IsMemoryOptimized;
+
+            // Escape the parts of the name
+            string[] objectNameParts = {smoResult.Schema, smoResult.Name};
+            string escapedMultipartName = SqlScriptFormatter.FormatMultipartIdentifier(objectNameParts);
+
+            return new EditTableMetadata
+            {
+                Columns = editColumns.ToArray(),
+                EscapedMultipartName = escapedMultipartName,
+                IsMemoryOptimized = isMemoryOptimized,
+            };
         }
     }
 }

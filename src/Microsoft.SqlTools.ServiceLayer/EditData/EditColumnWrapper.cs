@@ -11,12 +11,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     /// Small class that stores information needed by the edit data service to properly process
     /// edits into scripts.
     /// </summary>
-    public class EditColumnWrapper
+    public class EditColumnMetadata
     {
-        /// <summary>
-        /// The DB column
-        /// </summary>
-        public DbColumnWrapper DbColumn { get; set; }
+        #region Base Properties (properties provided by SMO)
 
         /// <summary>
         /// If set, this is a string representation of the default value. If set to null, then the
@@ -30,24 +27,55 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public string EscapedName { get; set; }
 
         /// <summary>
-        /// Whether or not the column is calculated on the server side. This could be a computed
-        /// column or a identity column.
+        /// Whether or not the column is computed
         /// </summary>
-        public bool IsCalculated { get; set; }
+        public bool IsComputed { get; set; }
 
         /// <summary>
-        /// Whether or not the column is used in a key to uniquely identify a row
+        /// Whether or not the column is deterministically computed
         /// </summary>
-        public bool IsKey { get; set; }
+        public bool IsDeterministic { get; set; }
 
         /// <summary>
-        /// Whether or not the column can be trusted for uniqueness
+        /// Whether or not the column is an identity column
         /// </summary>
-        public bool IsTrustworthyForUniqueness { get; set; }
+        public bool IsIdentity { get; set; }
 
         /// <summary>
         /// The ordinal ID of the column
         /// </summary>
         public int Ordinal { get; set; }
+
+        #endregion
+
+        #region Extended Properties (properties provided by SqlClient)
+
+        /// <summary>
+        /// The DB column
+        /// </summary>
+        public DbColumnWrapper DbColumn { get; set; }
+
+        /// <summary>
+        /// Whether or not the column has extended properties
+        /// </summary>
+        public bool HasExtendedProperties { get; set; }
+
+        /// <summary>
+        /// Whether or not the column is calculated on the server side. This could be a computed
+        /// column or a identity column.
+        /// </summary>
+        public bool? IsCalculated { get; set; }
+
+        /// <summary>
+        /// Whether or not the column is used in a key to uniquely identify a row
+        /// </summary>
+        public bool? IsKey { get; set; }
+
+        /// <summary>
+        /// Whether or not the column can be trusted for uniqueness
+        /// </summary>
+        public bool? IsTrustworthyForUniqueness { get; set; }
+
+        #endregion
     }
 }
