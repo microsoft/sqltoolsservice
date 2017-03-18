@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             HasExtendedProperties = false;
         }
 
+        #region Basic Properties (properties provided by SMO)
+
         /// <summary>
         /// List of columns in the object being edited
         /// </summary>
@@ -33,24 +35,30 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public string EscapedMultipartName { get; set; }
 
         /// <summary>
-        /// Whether or not the table has had extended properties added to it
-        /// </summary>
-        public bool HasExtendedProperties { get; private set; }
-
-        /// <summary>
         /// Whether or not the object being edited is memory optimized
         /// </summary>
         public bool IsMemoryOptimized { get; set; }
+
+        #endregion
+
+        #region Extended Properties (properties provided by SqlClient)
+
+        /// <summary>
+        /// Whether or not the table has had extended properties added to it
+        /// </summary>
+        public bool HasExtendedProperties { get; private set; }
 
         /// <summary>
         /// List of columns that are used to uniquely identify a row
         /// </summary>
         public EditColumnMetadata[] KeyColumns { get; private set; }
 
+        #endregion
+
         /// <summary>
         /// Extracts extended column properties from the database columns from SQL Client
         /// </summary>
-        /// <param name="dbColumnWrappers"></param>
+        /// <param name="dbColumnWrappers">The column information provided by SQL Client</param>
         public void Extend(DbColumnWrapper[] dbColumnWrappers)
         {
             Validate.IsNotNull(nameof(dbColumnWrappers), dbColumnWrappers);
@@ -58,22 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // Iterate over the column wrappers and improve the columns we have
             for (int i = 0; i < Columns.Length; i++)
             {
-                var editColumn = Columns[i];
-                var dbColumn = dbColumnWrappers[i];
-
-                // A column is trustworthy for uniqueness if it can be updated or it has an identity
-                // property. If both of these are false (eg, timestamp) we can't trust it to uniquely
-                // identify a row in the table
-                editColumn.IsTrustworthyForUniqueness = dbColumn.IsUpdatable || dbColumn.IsIdentity.HasTrue();
-
-                // A key column is determined by whether it is a key
-                editColumn.IsKey = dbColumn.IsKey;
-
-                // A column is calculated if it is identity, computed, or otherwise not updatable
-                editColumn.IsCalculated = editColumn.IsIdentity || editColumn.IsComputed || !dbColumn.IsUpdatable;
-
-                // Mark the column as extended
-                editColumn.HasExtendedProperties = true;
+                Columns[i].Extend(dbColumnWrappers[i]);
             }
 
             // Determine what the key columns are

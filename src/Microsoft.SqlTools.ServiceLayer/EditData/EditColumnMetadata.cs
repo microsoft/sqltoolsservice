@@ -3,7 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Data;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
@@ -13,7 +15,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     /// </summary>
     public class EditColumnMetadata
     {
-        #region Base Properties (properties provided by SMO)
+        /// <summary>
+        /// Constructs a simple edit column metadata provider
+        /// </summary>
+        public EditColumnMetadata()
+        {
+            HasExtendedProperties = false;
+        }
+
+        #region Basic Properties (properties provided by SMO)
 
         /// <summary>
         /// If set, this is a string representation of the default value. If set to null, then the
@@ -50,32 +60,54 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #region Extended Properties (properties provided by SqlClient)
 
-        /// <summary>
-        /// The DB column
-        /// </summary>
-        public DbColumnWrapper DbColumn { get; set; }
+        public DbColumnWrapper DbColumn { get; private set; }
 
         /// <summary>
         /// Whether or not the column has extended properties
         /// </summary>
-        public bool HasExtendedProperties { get; set; }
+        public bool HasExtendedProperties { get; private set; }
 
         /// <summary>
         /// Whether or not the column is calculated on the server side. This could be a computed
         /// column or a identity column.
         /// </summary>
-        public bool? IsCalculated { get; set; }
+        public bool? IsCalculated { get; private set; }
 
         /// <summary>
         /// Whether or not the column is used in a key to uniquely identify a row
         /// </summary>
-        public bool? IsKey { get; set; }
+        public bool? IsKey { get; private set; }
 
         /// <summary>
         /// Whether or not the column can be trusted for uniqueness
         /// </summary>
-        public bool? IsTrustworthyForUniqueness { get; set; }
+        public bool? IsTrustworthyForUniqueness { get; private set; }
 
         #endregion
+
+        /// <summary>
+        /// Extracts extended column properties from the database columns from SQL Client
+        /// </summary>
+        /// <param name="dbColumn">The column information provided by SQL Client</param>
+        public void Extend(DbColumnWrapper dbColumn)
+        {
+            Validate.IsNotNull(nameof(dbColumn), dbColumn);
+
+            DbColumn = dbColumn;
+
+            // A column is trustworthy for uniqueness if it can be updated or it has an identity
+            // property. If both of these are false (eg, timestamp) we can't trust it to uniquely
+            // identify a row in the table
+            IsTrustworthyForUniqueness = dbColumn.IsUpdatable || dbColumn.IsIdentity.HasTrue();
+
+            // A key column is determined by whether it is a key
+            IsKey = dbColumn.IsKey;
+
+            // A column is calculated if it is identity, computed, or otherwise not updatable
+            IsCalculated = IsIdentity || IsComputed || !dbColumn.IsUpdatable;
+
+            // Mark the column as extended
+            HasExtendedProperties = true;
+        }
     }
 }

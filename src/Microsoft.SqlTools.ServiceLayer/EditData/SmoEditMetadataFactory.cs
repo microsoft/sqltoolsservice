@@ -76,9 +76,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 EditColumnMetadata column = new EditColumnMetadata
                 {
-                    Ordinal = i,
                     DefaultValue = defaultValue,
-                    EscapedName = SqlScriptFormatter.FormatIdentifier(smoColumn.Name)
+                    EscapedName = SqlScriptFormatter.FormatIdentifier(smoColumn.Name),
+                    Ordinal = i,
                 };
                 editColumns.Add(column);
             }
