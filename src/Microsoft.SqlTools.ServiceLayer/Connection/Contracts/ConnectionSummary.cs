@@ -13,16 +13,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the connection server name
         /// </summary>
-        public string ServerName { get; set; }
+        public virtual string ServerName { get; set; }
 
         /// <summary>
         /// Gets or sets the connection database name
         /// </summary>
-        public string DatabaseName { get; set; }
+        public virtual string DatabaseName { get; set; }
 
         /// <summary>
         /// Gets or sets the connection user name
         /// </summary>
-        public string UserName { get; set; }
+        public virtual string UserName { get; set; }
     }
 }

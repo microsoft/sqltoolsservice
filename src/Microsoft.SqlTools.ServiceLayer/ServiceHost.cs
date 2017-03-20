@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
             );            
         }
 
-        private static ConnectionProviderOptions BuildConnectionProviderOptions()
+        internal static ConnectionProviderOptions BuildConnectionProviderOptions()
         {
             return new ConnectionProviderOptions
             {
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                 {
                     new ConnectionOption
                     {
-                        Name = "Server Name",
+                        Name = "server",
                         Description = "Name of the SQL Server instance",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueServerName,
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     },
                     new ConnectionOption
                     {
-                        Name = "Initial Catalog",
+                        Name = "database",
                         DisplayName = "Database Name",
                         Description = "Name of the SQL Server database",
                         ValueType = ConnectionOption.ValueTypeString,
@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     },
                     new ConnectionOption
                     {
-                        Name = "Auth Type",
+                        Name = "authenticationType",
                         Description = "Authentication type",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         SpecialValueType = ConnectionOption.SpecialValueAuthType,
@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     },
                     new ConnectionOption
                     {
-                        Name = "Username",
+                        Name = "user",
                         Description = "SQL Login user name",
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueUserName,
@@ -236,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     },
                     new ConnectionOption
                     {
-                        Name = "Password",
+                        Name = "password",
                         Description = "SQL Login password",
                         ValueType = ConnectionOption.ValueTypePassword,
                         SpecialValueType = ConnectionOption.SpecialValuePasswordName,
@@ -245,62 +245,142 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                     },
                     new ConnectionOption
                     {
-                        Name = "Application Intent",
+                        Name = "applicationIntent",
                         Description = "Application intent",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         CategoryValues = new string[] { "ReadWrite", "ReadOnly" }
                     },
                     new ConnectionOption
                     {
-                        Name = "Asynchronous Processing",
+                        Name = "asynchronousProcessing",
                         Description = "Application processing enabled",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
-                        Name = "Connect Timeout",
+                        Name = "connectTimeout",
                         Description = "Timeout in seconds when establishing a connection",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "15"
                     },
                     new ConnectionOption
                     {
-                        Name = "Current Language",
+                        Name = "currentLanguage",
                         ValueType = ConnectionOption.ValueTypeString
                     },
                     new ConnectionOption
                     {
-                        Name = "Column Encrytion Setting",
+                        Name = "columnEncrytionSetting",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
                         CategoryValues = new string[] { "Disabled", "Enabled" }
                     },
                     new ConnectionOption
                     {
-                        Name = "Encrypt",
+                        Name = "encrypt",
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
-                        Name = "Persist Security Info",
+                        Name = "persistSecurityInfo",
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
-                        Name = "Trust Server Certificate",
+                        Name = "trustServerCertificate",
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
                     },
                     new ConnectionOption
                     {
-                        Name = "Attached DB File Name",
+                        Name = "attachedDBFileName",
                         ValueType = ConnectionOption.ValueTypeString
                     },
                     new ConnectionOption
                     {
-                        Name = "Context Connection",
+                        Name = "contextConnection",
+                        ValueType = ConnectionOption.ValueTypeString
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "port",
+                        ValueType = ConnectionOption.ValueTypeNumber
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "connectRetryCount",
+                        ValueType = ConnectionOption.ValueTypeNumber
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "connectRetryInterval",
+                        ValueType = ConnectionOption.ValueTypeNumber
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "applicationName",
+                        ValueType = ConnectionOption.ValueTypeString
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "workstationId",
+                        ValueType = ConnectionOption.ValueTypeString
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "pooling",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "maxPoolSize",
+                        ValueType = ConnectionOption.ValueTypeNumber
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "minPoolSize",
+                        ValueType = ConnectionOption.ValueTypeNumber
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "loadBalanceTimeout",
+                        ValueType = ConnectionOption.ValueTypeNumber
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "replication",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "attachDbFilename",
+                        ValueType = ConnectionOption.ValueTypeString
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "failoverPartner",
+                        ValueType = ConnectionOption.ValueTypeString
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "multiSubnetFailover",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "multipleActiveResultSets",
+                        ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "packetSize",
+                        ValueType = ConnectionOption.ValueTypeNumber
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "typeSystemVersion",
                         ValueType = ConnectionOption.ValueTypeString
                     }
                 }
