@@ -4,7 +4,7 @@
 //
 
 using System;
-using System.Data.SqlClient;
+using System.Collections.Specialized;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     /// </summary>
     public sealed class ScriptingService
     {    
+        private const int ScriptingOperationTimeout = 60000;
+
         private static readonly Lazy<ScriptingService> LazyInstance = new Lazy<ScriptingService>(() => new ScriptingService());
 
         public static ScriptingService Instance => LazyInstance.Value;
@@ -78,35 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
         }
 
-         /// <summary>
-        /// Create a SqlConnection to use for querying metadata
-        /// </summary>
-        internal static SqlConnection OpenConnection(ConnectionInfo connInfo)
-        {
-            try
-            {                 
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-
-                // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString); 
-                sqlConn.Open();
-                return sqlConn;
-            }
-            catch (Exception)
-            {
-            }
-            
-            return null;
-        }
-
         /// <summary>
         /// Handle Script As Create requests
         /// </summary>
@@ -122,14 +95,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     QueueItem queueItem = LanguageServiceInstance.BindingQueue.QueueBindingOperation(
                         key: parseInfo.ConnectionKey,
-                        bindingTimeout: 60000,
+                        bindingTimeout: ScriptingService.ScriptingOperationTimeout,
                         bindOperation: (bindingContext, cancelToken) =>
                         {
                             PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
                             var results = peekDefinition.GetTableScripts(metadata.Name, metadata.Schema);
                             string script = string.Empty;
                             if (results != null) 
-                            {
+                            {                                
                                 foreach (var result in results)
                                 {
                                     script += result.ToString() + Environment.NewLine + Environment.NewLine;
@@ -152,6 +125,154 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         /// <summary>
+        /// Script create statements for metadata object
+        /// </summary>
+        private static string ScriptAsCreate(
+            IBindingContext bindingContext,
+            ConnectionInfo connInfo,
+            ObjectMetadata metadata)
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
+            StringCollection results = null;
+            if (metadata.MetadataType == MetadataType.Table)
+            {
+                results = peekDefinition.GetTableScripts(metadata.Name, metadata.Schema);
+            }
+            else if (metadata.MetadataType == MetadataType.SProc)
+            {
+                results = peekDefinition.GetStoredProcedureScripts(metadata.Name, metadata.Schema);
+            }
+            else if (metadata.MetadataType == MetadataType.View)
+            {
+                results = peekDefinition.GetViewScripts(metadata.Name, metadata.Schema);
+            }
+
+            string script = string.Empty;
+            if (results != null) 
+            {                                
+                foreach (var result in results)
+                {
+                    script += result.ToString() + Environment.NewLine + Environment.NewLine;
+                }
+            }
+            return script;
+        }
+
+        private static string ScriptAsUpdate(
+            IBindingContext bindingContext,
+            ConnectionInfo connInfo,
+            ObjectMetadata metadata)
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
+            var results = peekDefinition.GetTableScripts(metadata.Name, metadata.Schema);
+            string script = string.Empty;
+            if (results != null) 
+            {                                
+                foreach (var result in results)
+                {
+                    script += result.ToString() + Environment.NewLine + Environment.NewLine;
+                }
+            }
+            return script;
+        }
+
+        private static string ScriptAsInsert(
+            IBindingContext bindingContext,
+            ConnectionInfo connInfo,
+            ObjectMetadata metadata)
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
+            var results = peekDefinition.GetTableScripts(metadata.Name, metadata.Schema);
+            string script = string.Empty;
+            if (results != null) 
+            {                                
+                foreach (var result in results)
+                {
+                    script += result.ToString() + Environment.NewLine + Environment.NewLine;
+                }
+            }
+            return script;
+        }
+
+        private static string ScriptAsDelete(
+            IBindingContext bindingContext,
+            ConnectionInfo connInfo,
+            ObjectMetadata metadata)
+        {
+            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
+            var results = peekDefinition.GetTableScripts(metadata.Name, metadata.Schema);
+            string script = string.Empty;
+            if (results != null) 
+            {                                
+                foreach (var result in results)
+                {
+                    script += result.ToString() + Environment.NewLine + Environment.NewLine;
+                }
+            }
+            return script;
+        }
+
+        /// <summary>
+        /// Handle Script As Update requests
+        /// </summary>
+        private static string HandleScriptOperation(
+            ScriptOperation operation,
+            ConnectionInfo connInfo,
+            ObjectMetadata metadata)
+        {
+            // get or create the current parse info object
+            ScriptParseInfo parseInfo = LanguageServiceInstance.GetScriptParseInfo(connInfo.OwnerUri);
+            if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+            {
+                try
+                {
+                    QueueItem queueItem = LanguageServiceInstance.BindingQueue.QueueBindingOperation(
+                        key: parseInfo.ConnectionKey,
+                        bindingTimeout: ScriptingService.ScriptingOperationTimeout,
+                        bindOperation: (bindingContext, cancelToken) =>
+                        {
+                            if (operation == ScriptOperation.Select)
+                            {                    
+                                return string.Format(
+                                    @"SELECT TOP 100 * " + Environment.NewLine + @"FROM {0}.{1}",
+                                    metadata.Schema, metadata.Name);
+                            }
+                            else if (operation == ScriptOperation.Create)
+                            {
+                                return ScriptAsCreate(bindingContext, connInfo, metadata);
+                            }
+                            else if (operation == ScriptOperation.Update)
+                            {
+                                return ScriptAsUpdate(bindingContext, connInfo, metadata);
+                            }
+                            else if (operation == ScriptOperation.Insert)
+                            {
+                                return ScriptAsInsert(bindingContext, connInfo, metadata);
+                            }
+                            else if (operation == ScriptOperation.Delete)
+                            {
+                               return ScriptAsDelete(bindingContext, connInfo, metadata);
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        });
+
+                    queueItem.ItemProcessed.WaitOne();
+
+                    return queueItem.GetResultAsT<string>();
+                }
+                finally
+                {
+                    Monitor.Exit(parseInfo.BuildingMetadataLock);
+                }
+            }
+
+            return string.Empty;
+        }        
+
+        /// <summary>
         /// Handles script as request messages
         /// </summary>
         /// <param name="scriptingParams"></param>
@@ -172,35 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 if (connInfo != null) 
                 {
-                    if (scriptingParams.Operation == ScriptOperation.Select)
-                    {                    
-                        script = string.Format(
-@"SELECT *
-FROM {0}.{1}",
-                            scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
-                    }
-                    else if (scriptingParams.Operation == ScriptOperation.Create)
-                    {
-                        script = HandleScriptCreate(connInfo, metadata);
-                    }
-                    else if (scriptingParams.Operation == ScriptOperation.Update)
-                    {
-                        script = string.Format(
-                            @"UPDATE {0}.{1}",
-                        scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
-                    }
-                    else if (scriptingParams.Operation == ScriptOperation.Insert)
-                    {
-                        script = string.Format(
-                            @"INSERT {0}.{1}",
-                        scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
-                    }
-                    else if (scriptingParams.Operation == ScriptOperation.Delete)
-                    {
-                        script = string.Format(
-                            @"DELETE {0}.{1}",
-                        scriptingParams.Metadata.Schema, scriptingParams.Metadata.Name);
-                    }
+                    script = HandleScriptOperation(scriptingParams.Operation, connInfo, metadata);
                 }
 
                 await requestContext.SendResult(new ScriptingScriptAsResult
