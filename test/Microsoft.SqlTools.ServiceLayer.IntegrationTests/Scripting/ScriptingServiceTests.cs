@@ -62,15 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
             await ScriptingService.HandleScriptingScriptAsRequest(scriptingParams, requestContext.Object);
 
-            // validate the output contains operation, table, and schema
-            // ignore validation for unimplemented operations like delete, insert, and update
-            requestContext.Verify(x => x.SendResult(It.Is<ScriptingScriptAsResult>(
-              i =>
-                (operation == ScriptOperation.Delete || operation == ScriptOperation.Insert || operation == ScriptOperation.Update)
-                    || (i.Script.Contains(operation.ToString().ToUpper())
-                        && i.Script.Contains(TableName)
-                        && i.Script.Contains(SchemaName)))));
-
             return requestContext;
         }
 
