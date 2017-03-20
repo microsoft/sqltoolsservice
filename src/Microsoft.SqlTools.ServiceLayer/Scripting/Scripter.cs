@@ -461,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 string schemaName,
                 string objectType)
         {
-            StringCollection scripts = sqlScriptGetter(objectName, schemaName);
+            StringCollection scripts = sqlScriptGetter(objectName, schemaName, null);
             string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
                                                 : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
