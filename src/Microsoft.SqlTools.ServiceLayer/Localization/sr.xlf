@@ -561,6 +561,16 @@
         <target state="new">NULL is not allowed for this column</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataObjectNotFound">
+        <source>Table or view requested to edit could not be found</source>
+        <target state="new">Table or view requested to edit could not be found</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyExists">
+        <source>Edit session already exists.</source>
+        <target state="new">Edit session already exists.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

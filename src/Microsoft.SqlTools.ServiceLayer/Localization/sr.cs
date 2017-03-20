@@ -365,11 +365,27 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataObjectNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataObjectNotFound);
+            }
+        }
+
         public static string EditDataSessionNotFound
         {
             get
             {
                 return Keys.GetString(Keys.EditDataSessionNotFound);
+            }
+        }
+
+        public static string EditDataSessionAlreadyExists
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionAlreadyExists);
             }
         }
 
@@ -1032,7 +1048,13 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
 
 
+            public const string EditDataObjectNotFound = "EditDataObjectNotFound";
+
+
             public const string EditDataSessionNotFound = "EditDataSessionNotFound";
+
+
+            public const string EditDataSessionAlreadyExists = "EditDataSessionAlreadyExists";
 
 
             public const string EditDataUnsupportedObjectType = "EditDataUnsupportedObjectType";
