@@ -120,6 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public override void Visit(SqlDropUserStatement codeObject) { Format(codeObject); }
         public override void Visit(SqlDropViewStatement codeObject) { Format(codeObject); }
         public override void Visit(SqlExecuteAsClause codeObject) { Format(codeObject); }
+        public override void Visit(SqlExecuteArgument codeObject) { Format(codeObject); }
         public override void Visit(SqlExecuteModuleStatement codeObject) { Format(codeObject); }
         public override void Visit(SqlExistsBooleanExpression codeObject) { Format(codeObject); }
         public override void Visit(SqlFillFactorIndexOption codeObject) { Format(codeObject); }
@@ -171,8 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public override void Visit(SqlMaxDegreeOfParallelismIndexOption codeObject) { Format(codeObject); }
         public override void Visit(SqlMergeActionClause codeObject) { Format(codeObject); }
         public override void Visit(SqlMergeSpecification codeObject) { Format(codeObject); }
-        public override void Visit(SqlMergeStatement codeObject) { Format(codeObject); }
-        public override void Visit(SqlModuleArgument codeObject) { Format(codeObject); }
+        public override void Visit(SqlMergeStatement codeObject) { Format(codeObject); }        
         public override void Visit(SqlModuleCalledOnNullInputOption codeObject) { Format(codeObject); }
         public override void Visit(SqlModuleEncryptionOption codeObject) { Format(codeObject); }
         public override void Visit(SqlModuleExecuteAsOption codeObject) { Format(codeObject); }
