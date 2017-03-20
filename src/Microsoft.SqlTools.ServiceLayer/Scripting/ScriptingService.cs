@@ -90,15 +90,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ConnectionInfo connInfo,
             ObjectMetadata metadata)
         {
-            ScriptingOptions scriptingOptions = new ScriptingOptions();
-            scriptingOptions.IncludeIfNotExists = true;
-            scriptingOptions.ScriptDrops = true;            
-
             Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
             StringCollection results = null;
             if (metadata.MetadataType == MetadataType.Table)
             {
-                results = scripter.GetTableScripts(metadata.Name, metadata.Schema, scriptingOptions);
+                results = scripter.GetTableScripts(metadata.Name, metadata.Schema);
             }
             else if (metadata.MetadataType == MetadataType.SProc)
             {
@@ -109,16 +105,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 results = scripter.GetViewScripts(metadata.Name, metadata.Schema);
             }
 
-            string script = string.Empty;
+            StringBuilder builder = null;
             if (results != null) 
             {                                
-                StringBuilder builder = new StringBuilder();                             
+                builder = new StringBuilder();                             
                 foreach (var result in results)
                 {
                     builder.AppendLine(result);
+                    builder.AppendLine();
                 }
             }
-            return script;
+            return builder != null ? builder.ToString() : null;
         }
 
         /// <summary>

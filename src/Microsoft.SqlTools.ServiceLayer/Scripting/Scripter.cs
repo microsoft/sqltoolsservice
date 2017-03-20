@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 Table smoObject = string.IsNullOrEmpty(schemaName) ? new Table(this.Database, objectName) : new Table(this.Database, objectName, schemaName);
                 smoObject.Refresh();
-                return smoObject.Script(scriptingOptions);                        
+                return smoObject.Script();                        
             }
             catch (Exception ex)
             {
