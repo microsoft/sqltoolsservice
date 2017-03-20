@@ -13,8 +13,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Microsoft.SqlTools.Utility;
-using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
@@ -22,18 +20,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     {
         public const string OwnerUri = "testFile";
 
-        public static IEditTableMetadata GetStandardMetadata(DbColumn[] columns, bool allKeys = true, bool isMemoryOptimized = false)
+        public static EditTableMetadata GetStandardMetadata(DbColumn[] columns, bool isMemoryOptimized = false)
         {
-            // Create a Column Metadata Provider
+            // Create column metadata providers
             var columnMetas = columns.Select((c, i) =>
-                new EditColumnMetadata
+            {
+                var ecm = new EditColumnMetadata
                 {
-                    DbColumn = new DbColumnWrapper(c),
                     EscapedName = c.ColumnName,
-                    Ordinal = i,
-                    IsKey = c.IsIdentity.HasTrue()
-                }).ToArray();
-            return GetMetadataProvider(columnMetas, allKeys, isMemoryOptimized);
+                    Ordinal = i
+                };
+                return ecm;
+            }).ToArray();
+
+            // Create column wrappers
+            var columnWrappers = columns.Select(c => new DbColumnWrapper(c)).ToArray();
+
+            // Create the table metadata
+            EditTableMetadata editTableMetadata = new EditTableMetadata
+            {
+                Columns = columnMetas,
+                EscapedMultipartName = "tbl",
+                IsMemoryOptimized = isMemoryOptimized
+            };
+            editTableMetadata.Extend(columnWrappers);
+            return editTableMetadata;
         }
 
         public static DbColumn[] GetColumns(bool includeIdentity)
@@ -42,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             if (includeIdentity)
             {
-                columns.Add(new TestDbColumn("id", true));
+                columns.Add(new TestDbColumn("id") {IsKey = true, IsIdentity = true, IsAutoIncrement = true});
             }
 
             for (int i = 0; i < 3; i++)
@@ -81,27 +92,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             {
                 rc.SetCell(i, "123");
             }
-        }
-
-        public static IEditTableMetadata GetMetadataProvider(EditColumnMetadata[] columnMetas, bool allKeys = false, bool isMemoryOptimized = false)
-        {
-            // Create a table metadata provider
-            var tableMetaMock = new Mock<IEditTableMetadata>();
-            if (allKeys)
-            {
-                // All columns should be returned as "keys"
-                tableMetaMock.Setup(m => m.KeyColumns).Returns(columnMetas);
-            }
-            else
-            {
-                // All identity columns should be returned as keys
-                tableMetaMock.Setup(m => m.KeyColumns).Returns(columnMetas.Where(c => c.DbColumn.IsIdentity.HasTrue()).ToList());
-            }
-            tableMetaMock.Setup(m => m.Columns).Returns(columnMetas);
-            tableMetaMock.Setup(m => m.IsMemoryOptimized).Returns(isMemoryOptimized);
-            tableMetaMock.Setup(m => m.EscapedMultipartName).Returns("tbl");
-
-            return tableMetaMock.Object;
         }
     }
 }

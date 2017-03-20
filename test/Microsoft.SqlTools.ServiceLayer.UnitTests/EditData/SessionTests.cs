@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I create a session object with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // Then:
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // If: I add a row to the session
@@ -175,11 +175,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... We will have 3 columns
-            DbColumn[] cols =
+            DbColumnWrapper[] cols =
             {
-                new TestDbColumn("col1", false),    // No default
-                new TestDbColumn("col2", false),    // Has default (defined below)
-                new TestDbColumn("filler", false)   // Filler column so we can use the common code
+                new DbColumnWrapper(new TestDbColumn("col1")),    // No default
+                new DbColumnWrapper(new TestDbColumn("col2")),    // Has default (defined below)
+                new DbColumnWrapper(new TestDbColumn("filler"))   // Filler column so we can use the common code
             };
 
             // ... Metadata provider will return 3 columns
@@ -187,23 +187,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             {
                 new EditColumnMetadata                   // No default
                 {
-                    DbColumn = new DbColumnWrapper(cols[0]),
                     DefaultValue = null,
                     EscapedName = cols[0].ColumnName,
-                    Ordinal = 0,
-                    IsKey = false
                 },
                 new EditColumnMetadata                   // Has default
                 {
-                    DbColumn = new DbColumnWrapper(cols[1]),
                     DefaultValue = "default",
                     EscapedName = cols[0].ColumnName,
-                    Ordinal = 0,
-                    IsKey = false
                 },
                 new EditColumnMetadata()
             };
-            var etm = Common.GetMetadataProvider(metas, true);
+            var etm = new EditTableMetadata
+            {
+                Columns = metas,
+                EscapedMultipartName = "tbl",
+                IsMemoryOptimized = false
+            };
+            etm.Extend(cols);
 
             // ... Create a result set
             var rs = Common.GetResultSet(cols, false, 1);
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // If: I delete a row that is out of range for the result set
@@ -270,7 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
@@ -292,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // If: I add a row to the session
@@ -313,7 +313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // If: I revert a row that doesn't have any pending changes
@@ -328,7 +328,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
@@ -354,7 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
@@ -378,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // If: I update a cell on a row that does not have a pending edit
@@ -403,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // If: I try to script the edit cache with a null or whitespace output path
@@ -418,7 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = new EditSession(rs, etm);
 
             // ... Add two mock edits that will generate a script
@@ -597,7 +597,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             return new EditSession(rs, etm);
         }
     }

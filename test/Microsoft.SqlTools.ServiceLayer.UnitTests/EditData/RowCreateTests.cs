@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(false);
             ResultSet rs = Common.GetResultSet(columns, false);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I create a RowCreate instance
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(includeIdentity);
             ResultSet rs = Common.GetResultSet(columns, includeIdentity);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I ask for a script to be generated without an identity column
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(includeIdentity);
             ResultSet rs = Common.GetResultSet(columns, includeIdentity);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // ... Setup a db reader for the result of an insert
             var newRowReader = Common.GetNewRowDataReader(columns, includeIdentity);
@@ -223,7 +223,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Generate a result set with a single binary column
-            DbColumn[] cols = {new TestDbColumn("bin", "binary", typeof(byte[]))};
+            DbColumn[] cols = {new TestDbColumn
+            {
+                DataType = typeof(byte[]),
+                DataTypeName = "binary"
+            }};
             object[][] rows = {};
             var testResultSet = new TestResultSet(cols, rows);
             var testReader = new TestDbDataReader(new[] {testResultSet});

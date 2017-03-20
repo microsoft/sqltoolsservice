@@ -24,12 +24,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     {
         [Theory]
         [InlineData(-1)]        // Negative index
+        [InlineData(2)]         // Equal to count of columns
         [InlineData(100)]       // Index larger than number of columns
         public void ValidateUpdatableColumnOutOfRange(int columnId)
         {
             // Setup: Create a result set
             ResultSet rs = GetResultSet(
-                new DbColumn[] { new TestDbColumn("id", true), new TestDbColumn("col1")}, 
+                new DbColumn[] {
+                    new TestDbColumn("id") {IsKey = true, IsAutoIncrement = true, IsIdentity = true},
+                    new TestDbColumn("col1")
+                },
                 new object[] { "id", "1" });
 
             // If: I validate a column ID that is out of range
@@ -43,7 +47,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create a result set with an identity column
             ResultSet rs = GetResultSet(
-                new DbColumn[] { new TestDbColumn("id", true), new TestDbColumn("col1") },
+                new DbColumn[] {
+                    new TestDbColumn("id") {IsKey = true, IsAutoIncrement = true, IsIdentity = true},
+                    new TestDbColumn("col1")
+                },
                 new object[] { "id", "1" });
 
             // If: I validate a column ID that is not updatable
@@ -59,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with a single column
             var cols = new[] {col};
             ResultSet rs = GetResultSet(cols, new[] {val});
-            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
+            EditTableMetadata etm = Common.GetStandardMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseSingleKey(nullClause);
@@ -70,9 +77,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             get
             {
                 yield return new object[] {new TestDbColumn("col"), DBNull.Value, "IS NULL"};
-                yield return new object[] {new TestDbColumn("col", "VARBINARY", typeof(byte[])), new byte[5], "IS NOT NULL"};
-                yield return new object[] {new TestDbColumn("col", "TEXT", typeof(string)), "abc", "IS NOT NULL"};
-                yield return new object[] {new TestDbColumn("col", "NTEXT", typeof(string)), "abc", "IS NOT NULL"};
+                yield return new object[] {
+                    new TestDbColumn
+                    {
+                        DataTypeName = "VARBINARY",
+                        DataType = typeof(byte[])
+                    },
+                    new byte[5],
+                    "IS NOT NULL"
+                };
+                yield return new object[]
+                {
+                    new TestDbColumn
+                    {
+                        DataType = typeof(string),
+                        DataTypeName = "TEXT"
+                    },
+                    "abc",
+                    "IS NOT NULL"
+                };
+                yield return new object[]
+                {
+                    new TestDbColumn
+                    {
+                        DataType = typeof(string),
+                        DataTypeName = "NTEXT",
+
+                    },
+                    "abc",
+                    "IS NOT NULL"
+                };
             }
         }
 
@@ -82,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with multiple key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
             ResultSet rs = GetResultSet(cols, new object[] {"abc", "def"});
-            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
+            EditTableMetadata etm = Common.GetStandardMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseMultipleKeys();
@@ -94,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a result set and metadata provider with no key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
             ResultSet rs = GetResultSet(cols, new object[] {"abc", "def"});
-            IEditTableMetadata etm = Common.GetStandardMetadata(new DbColumn[] {});
+            EditTableMetadata etm = Common.GetStandardMetadata(new DbColumn[] {});
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseNoKeys();
@@ -203,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         private class RowEditTester : RowEditBase
         {
-            public RowEditTester(ResultSet rs, IEditTableMetadata meta) : base(0, rs, meta) { }
+            public RowEditTester(ResultSet rs, EditTableMetadata meta) : base(0, rs, meta) { }
 
             public void ValidateColumn(int columnId)
             {

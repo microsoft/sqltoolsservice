@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create the values to store
             const long rowId = 0;
             ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I create a RowUpdate instance
             RowUpdate rc = new RowUpdate(rowId, rs, etm);
@@ -70,7 +70,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Generate a result set with a single binary column
-            DbColumn[] cols = { new TestDbColumn("bin", "binary", typeof(byte[])) };
+            DbColumn[] cols =
+            {
+                new TestDbColumn
+                {
+                    DataType = typeof(byte[]),
+                    DataTypeName = "binary"
+                }
+            };
             object[][] rows = { new object[]{new byte[] {0x00}}};
             var testResultSet = new TestResultSet(cols, rows);
             var testReader = new TestDbDataReader(new[] { testResultSet });
@@ -108,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a fake table to update
             DbColumn[] columns = Common.GetColumns(true);
             ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: 
             // ... I add updates to all the cells in the row
@@ -145,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a fake table to update
             DbColumn[] columns = Common.GetColumns(true);
             ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns, false, isMemoryOptimized);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
 
             // If: I ask for a script to be generated for update
             RowUpdate ru = new RowUpdate(0, rs, etm);
@@ -184,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update with cell updates
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetStandardMetadata(columns, !includeIdentity, isMemoryOptimized);
+            var etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             Common.AddCells(ru, includeIdentity);
 
@@ -254,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetStandardMetadata(columns, !includeIdentity);
+            var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             long oldBytesWritten = rs.totalBytesWritten;
 
@@ -277,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(true);
             var rs = Common.GetResultSet(columns, true);
-            var etm = Common.GetStandardMetadata(columns, false);
+            var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
             // If: I  ask for the changes to be applied with a null db reader

@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create the values to store
             const long rowId = 100;
             ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I create a RowCreate instance
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             DbColumn[] columns = Common.GetColumns(true);
             ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns, false, isMemoryOptimized);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
 
             // If: I ask for a script to be generated for delete
             RowDelete rd = new RowDelete(0, rs, etm);
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             const long rowId = 0;
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
-            var etm = Common.GetStandardMetadata(columns, !includeIdentity, isMemoryOptimized);
+            var etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
             RowDelete rd = new RowDelete(rowId, rs, etm);
 
             // ... Mock db connection for building the command
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             DbColumn[] columns = Common.GetColumns(true);
             ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns, false);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I set a cell on a delete row edit
             // Then: It should throw as invalid operation
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a row delete
             DbColumn[] cols = Common.GetColumns(false);
             ResultSet rs = Common.GetResultSet(cols, false);
-            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
+            EditTableMetadata etm = Common.GetStandardMetadata(cols);
             RowDelete rd = new RowDelete(0, rs, etm);
 
             // If: I revert a cell on a delete row edit
