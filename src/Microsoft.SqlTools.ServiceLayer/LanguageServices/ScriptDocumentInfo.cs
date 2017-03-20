@@ -135,10 +135,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         /// <summary>
         /// Returns the token that is used for Peek Definition objects
         /// </summary>
-        internal static Tuple<Stack<Token>, Stack<Token>> GetPeekDefinitionTokens(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
+        internal static Tuple<Stack<Token>, Queue<Token>> GetPeekDefinitionTokens(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
         {
             Stack<Token> childrenTokens = new Stack<Token>();
-            Stack<Token> parentTokens = new Stack<Token>();
+            Queue<Token> parentTokens = new Queue<Token>();
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
             {
                 var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
@@ -149,9 +149,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     int currentIndex = 0;
                     foreach (var token in scriptParseInfo.ParseResult.Script.Tokens)
                     {
-                        if (currentIndex >= tokenIndex)
+
+                        if (currentIndex == tokenIndex)
                         {
-                            // push all tokens until we hit whitespace for children
+                            // push all parent tokens until we hit whitespace
+                            int parentIndex = currentIndex;
+                            while (true)
+                            {
+                                if (scriptParseInfo.ParseResult.Script.TokenManager.GetToken(parentIndex).Type != "LEX_WHITE")
+                                {
+                                    parentTokens.Enqueue(scriptParseInfo.ParseResult.Script.TokenManager.GetToken(parentIndex));
+                                    parentIndex--;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        else if (currentIndex > tokenIndex)
+                        {
+                            // push all children tokens until we hit whitespace
                             if (scriptParseInfo.ParseResult.Script.TokenManager.GetToken(currentIndex).Type != "LEX_WHITE")
                             {
                                 childrenTokens.Push(token);
@@ -160,11 +178,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                             {
                                 break;
                             }
-                        }
-                        // push parent tokens
-                        else 
-                        {
-                            parentTokens.Push(token);
                         }
                         ++currentIndex;
                     }

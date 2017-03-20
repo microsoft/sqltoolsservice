@@ -847,9 +847,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
+            DefinitionResult lastResult = null;
+
             //try children tokens first
-            foreach (Token token in selectedToken.Item1)
+            foreach (var i in selectedToken.Item1.ToList())
             {
+                var token = selectedToken.Item1.Pop();
                 // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
                 // The suggestion title does not contain any sql punctuation
                 string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
@@ -894,8 +897,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // then check the parents 
-            foreach (Token token in selectedToken.Item2)
+            foreach (var i in selectedToken.Item2.ToList())
             {
+                var token = selectedToken.Item2.Dequeue();
                 // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
                 // The suggestion title does not contain any sql punctuation
                 string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
@@ -906,6 +910,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     try
                     {                    
                         var result = QueueTask(textDocumentPosition, scriptParseInfo, connInfo, scriptFile, tokenText);
+                        lastResult = result;
                         if (!result.IsErrorResult)
                         {
                             return result;
@@ -938,7 +943,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     };
                 }
             }
-            return null;
+            return (lastResult != null) ? lastResult : null;
         }
    
         /// <summary>
