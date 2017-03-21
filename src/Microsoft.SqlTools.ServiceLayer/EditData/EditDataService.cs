@@ -309,6 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             var esrp = new EditSessionReadyParams
             {
                 OwnerUri = ownerUri,
+                Message = message,
                 Success = success
             };
 
