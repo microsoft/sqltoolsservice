@@ -20,8 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             return new SqlTableDefinitionFormatter(visitor, codeObject);
         }
     }
-
-    [Export(typeof(ASTNodeFormatter))]
+    
     internal class SqlTableDefinitionFormatter : ASTNodeFormatterT<SqlTableDefinition>
     {
         private CommaSeparatedListFormatter CommaSeparatedListFormatter { get; set; }

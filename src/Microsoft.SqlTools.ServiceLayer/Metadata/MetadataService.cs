@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     ReadMetadata(sqlConn, metadata);
                 }
 
-                await requestContext.SendResult(new MetadataQueryResult()
+                await requestContext.SendResult(new MetadataQueryResult
                 {
                     Metadata = metadata.ToArray()
                 });

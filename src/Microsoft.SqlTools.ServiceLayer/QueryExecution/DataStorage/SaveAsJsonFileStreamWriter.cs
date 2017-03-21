@@ -57,10 +57,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             // Write the header for the object
             jsonWriter.WriteStartObject();
-            
+
             // Write the items out as properties
             int columnStart = ColumnStartIndex ?? 0;
-            int columnEnd = (ColumnEndIndex != null) ? ColumnEndIndex.Value + 1  : columns.Count; 
+            int columnEnd = (ColumnEndIndex != null) ? ColumnEndIndex.Value + 1 : columns.Count;
             for (int i = columnStart; i < columnEnd; i++)
             {
                 jsonWriter.WritePropertyName(columns[i].ColumnName);
@@ -78,16 +78,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             jsonWriter.WriteEndObject();
         }
 
+        private bool disposed = false;
         /// <summary>
         /// Disposes the writer by closing up the array that contains the row objects
         /// </summary>
-        public new void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            // Write the footer of the file
-            jsonWriter.WriteEndArray();
-            // This closes the underlying stream, so we needn't call close on the underlying stream explicitly
-            jsonWriter.Close();
-            base.Dispose();
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                // Write the footer of the file
+                jsonWriter.WriteEndArray();
+                // This closes the underlying stream, so we needn't call close on the underlying stream explicitly
+                jsonWriter.Close();
+            }
+            disposed = true;
+            base.Dispose(disposing);
         }
     }
 }

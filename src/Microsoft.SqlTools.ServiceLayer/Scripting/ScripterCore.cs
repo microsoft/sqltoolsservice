@@ -1,33 +1,31 @@
-//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
 using System;
-using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
-using Microsoft.SqlServer.Management.Smo;
+using System.IO;
+using System.Linq;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using Microsoft.SqlTools.Utility;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
+using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
-    /// <summary>
-    /// Peek Definition/ Go to definition implementation
-    /// Script sql objects and write create scripts to file
-    /// </summary>
-    internal partial class PeekDefinition
+    internal partial class Scripter
     {
         private bool error;
         private string errorMessage;
@@ -36,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private Database database;
         private string tempPath;
 
-        internal delegate StringCollection ScriptGetter(string objectName, string schemaName);
+        internal delegate StringCollection ScriptGetter(string objectName, string schemaName, ScriptingOptions scriptingOptions);
 
         // Dictionary that holds the script getter for each type
         private Dictionary<DeclarationType, ScriptGetter> sqlScriptGetters =
@@ -54,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Initialize a Peek Definition helper object
         /// </summary>
         /// <param name="serverConnection">SMO Server connection</param>
-        internal PeekDefinition(ServerConnection serverConnection, ConnectionInfo connInfo)
+        internal Scripter(ServerConnection serverConnection, ConnectionInfo connInfo)
         {
             this.serverConnection = serverConnection;
             this.connectionInfo = connInfo;
@@ -85,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 {
                                     if (!string.IsNullOrEmpty(connection.Database))
                                     {
-                                        dbName  = connection.Database;
+                                        dbName = connection.Database;
                                     }
                                 }
                             }
@@ -153,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
                     // if declarationItem matches the selected token, script SMO using that type
-                    if (declarationItem.Title.Equals (tokenText, caseSensitivity))
+                    if (declarationItem.Title.Equals(tokenText, caseSensitivity))
                     {
                         return GetDefinitionUsingDeclarationType(declarationItem.Type, declarationItem.DatabaseQualifiedName, tokenText, schemaName);
                     }
@@ -273,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 string schemaName,
                 string objectType)
         {
-            StringCollection scripts = sqlScriptGetter(objectName, schemaName);
+            StringCollection scripts = sqlScriptGetter(objectName, schemaName, null);
             string tempFileName = (schemaName != null) ? Path.Combine(this.tempPath, string.Format("{0}.{1}.sql", schemaName, objectName))
                                                 : Path.Combine(this.tempPath, string.Format("{0}.sql", objectName));
 
@@ -312,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>Schema name</returns>
         internal string GetSchemaFromDatabaseQualifiedName(string fullObjectName, string objectName)
         {
-            if(!string.IsNullOrEmpty(fullObjectName))
+            if (!string.IsNullOrEmpty(fullObjectName))
             {
                 string[] tokens = fullObjectName.Split('.');
                 for (int i = tokens.Length - 1; i > 0; i--)
@@ -417,7 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             // extract string denoting the token type from quickInfo text
             string[] tokens = quickInfoText.Split(' ');
-            List<int> indexList = tokens.Select((s, i) => new { i, s }).Where(el => (el.s).IndexOf(tokenText, caseSensitivity) >= 0 ).Select(el => el.i).ToList();
+            List<int> indexList = tokens.Select((s, i) => new { i, s }).Where(el => (el.s).IndexOf(tokenText, caseSensitivity) >= 0).Select(el => el.i).ToList();
             return (indexList?.Count() > 0) ? String.Join(" ", tokens.Take(indexList[0])) : null;
         }
 
@@ -454,5 +452,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 parseResult, parserLine, parserColumn, metadataDisplayInfoProvider);
         }
         #endregion
+
     }
 }
