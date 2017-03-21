@@ -4,6 +4,8 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -64,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// <summary>
         /// Runs a query by calling the services directly (not using the test driver) 
         /// </summary>
-        public void RunQuery(TestServerType serverType, string databaseName, string queryText)
+        public void RunQuery(TestServerType serverType, string databaseName, string queryText, bool throwOnError = false)
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -72,6 +74,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory());
                 query.Execute();
                 query.ExecutionTask.Wait();
+
+                if (throwOnError)
+                {
+                    IEnumerable<Batch> errorBatches = query.Batches.Where(b => b.HasError);
+                    if (errorBatches.Count() > 0)
+                    {
+                        throw new InvalidOperationException(
+                            string.Format(
+                                "The query encountered and error. The batches with errors: {0}",
+                                string.Join(Environment.NewLine, errorBatches.Select(b => b.BatchText))));
+                    }
+                }
             }
         }
 

@@ -6,10 +6,12 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
+using Microsoft.SqlTools.ServiceLayer.ScriptingServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -422,6 +424,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return result;
         }
 
+        public async Task<ScriptingResult> Script(ScriptingParams scriptDatabaseParams)
+        {
+            return await Driver.SendRequest(ScriptingRequest.Type, scriptDatabaseParams);
+        }
+
+        public async Task<ScriptingCancelResult> CancelScript(string operationId)
+        {
+            return await Driver.SendRequest(ScriptingCancelRequest.Type, new ScriptingCancelParams { OperationId = operationId });
+        }
+
         /// <summary>
         /// Waits for a message to be returned by the service
         /// </summary>
@@ -436,6 +448,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             lock (fileLock)
             {
                 System.IO.File.WriteAllText(ownerUri, query);
+            }
+        }
+
+        public void AssertEventNotQueued<T>(EventType<T> type)
+        {
+            try
+            {
+                Task<T> t = this.Driver.WaitForEvent(type, TimeSpan.Zero);
+                t.Wait();
+                Assert.True(false, string.Format("Event {0} was unexpectedly raised by the SqlToolsService.", type.GetType()));
+            }
+            catch (AggregateException ae)
+            {
+                // If the event
+                if (!(ae.InnerException is TimeoutException))
+                {
+                    throw;
+                }
             }
         }
     }

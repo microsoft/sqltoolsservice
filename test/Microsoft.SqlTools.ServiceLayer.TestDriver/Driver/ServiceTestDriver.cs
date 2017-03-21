@@ -19,6 +19,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
+using Microsoft.SqlTools.ServiceLayer.ScriptingServices.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
 {
@@ -124,6 +125,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             this.QueueEventsForType(IntelliSenseReadyNotification.Type);
             this.QueueEventsForType(QueryCompleteEvent.Type);
             this.QueueEventsForType(PublishDiagnosticsNotification.Type);
+            this.QueueEventsForType(ScriptingCancelEvent.Type);
+            this.QueueEventsForType(ScriptingCompleteEvent.Type);
+            this.QueueEventsForType(ScriptingErrorEvent.Type);
+            this.QueueEventsForType(ScriptingPlanNotificationEvent.Type);
         }
 
         /// <summary>

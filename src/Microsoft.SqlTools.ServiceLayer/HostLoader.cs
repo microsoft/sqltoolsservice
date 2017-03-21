@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.ScriptingServices;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
@@ -75,6 +76,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             EditDataService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(EditDataService.Instance);
+
+            ScriptingService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
 

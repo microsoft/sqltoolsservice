@@ -8,6 +8,7 @@ using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Xunit;
+using System.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -23,6 +24,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public TestServerType ServerType { get; set; }
 
         public bool DoNotCleanupDb { get; set; }
+
+        public string ConnectionString
+        {
+            get
+            {
+                ConnectParams connectParams = TestConnectionProfileService.Instance.GetConnectionParameters(this.ServerType, this.DatabaseName);
+                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
+                {
+                    DataSource = connectParams.Connection.ServerName,
+                    InitialCatalog = connectParams.Connection.DatabaseName,
+                };
+
+                if (connectParams.Connection.AuthenticationType == "Integrated")
+                {
+                    builder.IntegratedSecurity = true;
+                }
+                else
+                {
+                    builder.UserID = connectParams.Connection.UserName;
+                    builder.Password = connectParams.Connection.Password;
+                }
+
+                return builder.ToString();
+            }
+        }
 
         /// <summary>
         /// Create the test db if not already exists
@@ -56,6 +82,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public static SqlTestDb CreateNew(TestServerType serverType, string query = null)
         {
             return CreateNew(serverType, false, null, query);
+        }
+
+        /// <summary>
+        /// Create the test db if not already exists
+        /// </summary>
+        public static SqlTestDb CreateNew(TestServerType serverType)
+        {
+            return CreateNew(serverType, false, null, null);
         }
 
         /// <summary>
@@ -108,6 +142,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             connectionService.TryFindConnection(ownerUri, out connInfo);
             Assert.NotNull(connInfo);
             return connInfo;
+        }
+
+        /// <summary>
+        /// Runs the passed query against the test db.
+        /// </summary>
+        /// <param name="query">The query to execute.</param>
+        /// <param name="throwOnError">If true, throw an exception if the query encounters an error executing a batch statement.</param>
+        public void RunQuery(string query, bool throwOnError = false)
+        {
+            TestServiceProvider.Instance.RunQuery(this.ServerType, this.DatabaseName, query, throwOnError);
         }
 
         public void Dispose()
