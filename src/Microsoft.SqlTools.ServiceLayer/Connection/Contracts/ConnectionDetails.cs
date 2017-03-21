@@ -15,6 +15,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     /// </remarks>
     public class ConnectionDetails : ConnectionSummary
     {
+        public ConnectionDetails()
+        {
+            Options = new Dictionary<string, object>();
+        }
+
         /// <summary>
         /// Gets or Sets the connection options
         /// </summary>
@@ -27,11 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Password {
             get
             {
-                return getOptionValue<string>("password");
+                return GetOptionValue<string>("password");
             }
             set
             {
-                setOptionValue("password", value);
+                SetOptionValue("password", value);
             }
         }
 
@@ -42,12 +47,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("server");
+                return GetOptionValue<string>("server");
             }
 
             set
             {
-                setOptionValue("server", value);
+                SetOptionValue("server", value);
             }
         }
 
@@ -58,12 +63,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("database");
+                return GetOptionValue<string>("database");
             }
 
             set
             {
-                setOptionValue("database", value);
+                SetOptionValue("database", value);
             }
         }
 
@@ -74,12 +79,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("user");
+                return GetOptionValue<string>("user");
             }
 
             set
             {
-                setOptionValue("user", value);
+                SetOptionValue("user", value);
             }
         }
 
@@ -90,12 +95,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("authenticationType");
+                return GetOptionValue<string>("authenticationType");
             }
 
             set
             {
-                setOptionValue("authenticationType", value);
+                SetOptionValue("authenticationType", value);
             }
         }
 
@@ -106,12 +111,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<bool?>("encrypt");
+                return GetOptionValue<bool?>("encrypt");
             }
 
             set
             {
-                setOptionValue("encrypt", value);
+                SetOptionValue("encrypt", value);
             }
         }
 
@@ -122,12 +127,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<bool?>("trustServerCertificate");
+                return GetOptionValue<bool?>("trustServerCertificate");
             }
 
             set
             {
-                setOptionValue("trustServerCertificate", value);
+                SetOptionValue("trustServerCertificate", value);
             }
         }
 
@@ -138,12 +143,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<bool?>("persistSecurityInfo");
+                return GetOptionValue<bool?>("persistSecurityInfo");
             }
 
             set
             {
-                setOptionValue("persistSecurityInfo", value);
+                SetOptionValue("persistSecurityInfo", value);
             }
         }
 
@@ -154,12 +159,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<int?>("connectTimeout");
+                return GetOptionValue<int?>("connectTimeout");
             }
 
             set
             {
-                setOptionValue("connectTimeout", value);
+                SetOptionValue("connectTimeout", value);
             }
         }
 
@@ -170,12 +175,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<int?>("connectRetryCount");
+                return GetOptionValue<int?>("connectRetryCount");
             }
 
             set
             {
-                setOptionValue("connectRetryCount", value);
+                SetOptionValue("connectRetryCount", value);
             }
         }
 
@@ -186,12 +191,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<int?>("connectRetryInterval");
+                return GetOptionValue<int?>("connectRetryInterval");
             }
 
             set
             {
-                setOptionValue("connectRetryInterval", value);
+                SetOptionValue("connectRetryInterval", value);
             }
         }
 
@@ -202,12 +207,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("applicationName");
+                return GetOptionValue<string>("applicationName");
             }
 
             set
             {
-                setOptionValue("applicationName", value);
+                SetOptionValue("applicationName", value);
             }
         }
 
@@ -218,12 +223,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("workstationId");
+                return GetOptionValue<string>("workstationId");
             }
 
             set
             {
-                setOptionValue("workstationId", value);
+                SetOptionValue("workstationId", value);
             }
         }
 
@@ -234,12 +239,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("applicationIntent");
+                return GetOptionValue<string>("applicationIntent");
             }
 
             set
             {
-                setOptionValue("applicationIntent", value);
+                SetOptionValue("applicationIntent", value);
             }
         }
 
@@ -250,12 +255,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("currentLanguage");
+                return GetOptionValue<string>("currentLanguage");
             }
 
             set
             {
-                setOptionValue("currentLanguage", value);
+                SetOptionValue("currentLanguage", value);
             }
         }
 
@@ -266,12 +271,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<bool?>("pooling");
+                return GetOptionValue<bool?>("pooling");
             }
 
             set
             {
-                setOptionValue("pooling", value);
+                SetOptionValue("pooling", value);
             }
         }
 
@@ -282,12 +287,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<int?>("maxPoolSize");
+                return GetOptionValue<int?>("maxPoolSize");
             }
 
             set
             {
-                setOptionValue("maxPoolSize", value);
+                SetOptionValue("maxPoolSize", value);
             }
         }
 
@@ -298,12 +303,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<int?>("minPoolSize");
+                return GetOptionValue<int?>("minPoolSize");
             }
 
             set
             {
-                setOptionValue("minPoolSize", value);
+                SetOptionValue("minPoolSize", value);
             }
         }
 
@@ -314,12 +319,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<int?>("loadBalanceTimeout");
+                return GetOptionValue<int?>("loadBalanceTimeout");
             }
 
             set
             {
-                setOptionValue("loadBalanceTimeout", value);
+                SetOptionValue("loadBalanceTimeout", value);
             }
         }
 
@@ -330,12 +335,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<bool?>("replication");
+                return GetOptionValue<bool?>("replication");
             }
 
             set
             {
-                setOptionValue("replication", value);
+                SetOptionValue("replication", value);
             }
         }
 
@@ -346,12 +351,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("attachDbFilename");
+                return GetOptionValue<string>("attachDbFilename");
             }
 
             set
             {
-                setOptionValue("attachDbFilename", value);
+                SetOptionValue("attachDbFilename", value);
             }
         }
 
@@ -362,12 +367,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("failoverPartner");
+                return GetOptionValue<string>("failoverPartner");
             }
 
             set
             {
-                setOptionValue("failoverPartner", value);
+                SetOptionValue("failoverPartner", value);
             }
         }
 
@@ -378,12 +383,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<bool?>("multiSubnetFailover");
+                return GetOptionValue<bool?>("multiSubnetFailover");
             }
 
             set
             {
-                setOptionValue("multiSubnetFailover", value);
+                SetOptionValue("multiSubnetFailover", value);
             }
         }
 
@@ -394,12 +399,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<bool?>("multipleActiveResultSets");
+                return GetOptionValue<bool?>("multipleActiveResultSets");
             }
 
             set
             {
-                setOptionValue("multipleActiveResultSets", value);
+                SetOptionValue("multipleActiveResultSets", value);
             }
         }
 
@@ -410,12 +415,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<int?>("packetSize");
+                return GetOptionValue<int?>("packetSize");
             }
 
             set
             {
-                setOptionValue("packetSize", value);
+                SetOptionValue("packetSize", value);
             }
         }
 
@@ -426,27 +431,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return getOptionValue<string>("typeSystemVersion");
+                return GetOptionValue<string>("typeSystemVersion");
             }
 
             set
             {
-                setOptionValue("typeSystemVersion", value);
+                SetOptionValue("typeSystemVersion", value);
             }
         }
 
-        private T getOptionValue<T>(string name)
+        private T GetOptionValue<T>(string name)
         {
             T result = default(T);
             if (Options != null && Options.ContainsKey(name))
             {
                 object value = Options[name];
+                if(typeof(T) == typeof(int) || typeof(T) == typeof(int?))
+                {
+                    value = System.Convert.ToInt32(value);
+                }
                 result = value != null ? (T)value : default(T);
             }
             return result;
         }
 
-        private void setOptionValue<T>(string name, T value)
+        private void SetOptionValue<T>(string name, T value) 
         {
             Options = Options ?? new Dictionary<string, object>();
             if (Options.ContainsKey(name))

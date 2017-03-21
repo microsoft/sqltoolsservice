@@ -177,5 +177,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 }
             }
         }
+
+
+        [Fact]
+        public void SettingConnectiomTimeoutToLongShouldStillReturnInt()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+            
+            long timeout = 30;
+            int? expectedValue = 30;
+            details.Options["connectTimeout"] = timeout;
+
+            Assert.Equal(details.ConnectTimeout, expectedValue);
+        }
+
+        [Fact]
+        public void ConnectTimeoutShouldReturnNullIfNotSet()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+            int? expectedValue = null;
+            Assert.Equal(details.ConnectTimeout, expectedValue);
+        }
     }
 }
