@@ -223,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create an edit data service with a session
             // Setup: Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
-            var session = GetDefaultSession();
+            var session = await GetDefaultSession();
             eds.ActiveSessions[Constants.OwnerUri] = session;
 
             // If: I validly ask for rows

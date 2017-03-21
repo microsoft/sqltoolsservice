@@ -677,8 +677,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
-            EditSession s = new EditSession(rs, etm);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditSession s = await Common.GetCustomSession(q, etm);
 
             // If: I ask for 3 rows from session skipping the first
             EditRow[] rows = await s.GetRows(1, 3);
@@ -715,10 +715,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session with a proper query and metadata
-            Query q = QueryExecution.Common.GetBasicExecutedQuery();
-            ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
-            EditSession s = new EditSession(rs, etm);
+            EditSession s = await GetBasicSession();
 
             // ... Add a cell update to it
             s.UpdateCell(1, 0, "foo");
@@ -748,10 +745,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session with a proper query and metadata
-            Query q = QueryExecution.Common.GetBasicExecutedQuery();
-            ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
-            EditSession s = new EditSession(rs, etm);
+            EditSession s = await GetBasicSession();
 
             // ... Add a row deletion
             s.DeleteRow(1);
@@ -781,10 +775,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session with a proper query and metadata
-            Query q = QueryExecution.Common.GetBasicExecutedQuery();
-            ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
-            EditSession s = new EditSession(rs, etm);
+            EditSession s = await GetBasicSession();
 
             // ... Add a row creation
             s.CreateRow();
@@ -812,10 +803,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session with a query and metadata
-            Query q = QueryExecution.Common.GetBasicExecutedQuery();
-            ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
-            EditSession s = new EditSession(rs, etm);
+            EditSession s = await GetBasicSession();
 
             // ... Add a few row creations
             s.CreateRow();
