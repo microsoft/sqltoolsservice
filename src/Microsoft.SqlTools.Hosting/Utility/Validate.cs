@@ -37,9 +37,9 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="upperLimit">The upper limit which the value should not be greater than.</param>
         public static void IsWithinRange(
             string parameterName,
-            int valueToCheck,
-            int lowerLimit, 
-            int upperLimit)
+            long valueToCheck,
+            long lowerLimit,
+            long upperLimit)
         {
             // TODO: Debug assert here if lowerLimit >= upperLimit
 

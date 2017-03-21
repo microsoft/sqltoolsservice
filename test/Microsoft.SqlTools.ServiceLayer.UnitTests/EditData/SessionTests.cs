@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.EditData;
@@ -664,6 +665,172 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... A new update row edit should have been added to the cache
             Assert.Contains(0, s.EditCache.Keys);
             Assert.IsType<RowUpdate>(s.EditCache[0]);
+        }
+
+        #endregion
+
+        #region SubSet Tests
+
+        [Fact]
+        public async Task GetRowsNoEdits()
+        {
+            // Setup: Create a session with a proper query and metadata
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditSession s = new EditSession(rs, etm);
+
+            // If: I ask for 3 rows from session skipping the first
+            EditRow[] rows = await s.GetRows(1, 3);
+
+            // Then:
+            // ... I should get back 3 rows
+            Assert.Equal(3, rows.Length);
+
+            // ... Each row should...
+            for (int i = 0; i < rows.Length; i++)
+            {
+                EditRow er = rows[i];
+
+                // ... Have properly set IDs
+                Assert.Equal(i + 1, er.Id);
+
+                // ... Have cells equal to the cells in the result set
+                DbCellValue[] cachedRow = rs.GetRow(i + 1).ToArray();
+                Assert.Equal(cachedRow.Length, er.Cells.Length);
+                for (int j = 0; j < cachedRow.Length; j++)
+                {
+                    Assert.Equal(cachedRow[j].DisplayValue, er.Cells[j].DisplayValue);
+                    Assert.Equal(cachedRow[j].IsNull, er.Cells[j].IsNull);
+                }
+
+                // ... Be clean, since we didn't apply any updates
+                Assert.Equal(EditRow.EditRowState.Clean, er.State);
+                Assert.False(er.IsDirty);
+            }
+        }
+
+        [Fact]
+        public async Task GetRowsPendingUpdate()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditSession s = new EditSession(rs, etm);
+
+            // ... Add a cell update to it
+            s.UpdateCell(1, 0, "foo");
+
+            // If: I ask for 3 rows from the session, skipping the first, including the updated one
+            EditRow[] rows = await s.GetRows(1, 3);
+
+            // Then:
+            // ... I should get back 3 rows
+            Assert.Equal(3, rows.Length);
+
+            // ... The first row should reflect that there is an update pending
+            //     (More in depth testing is done in the RowUpdate class tests)
+            var updatedRow = rows[0];
+            Assert.Equal(EditRow.EditRowState.DirtyUpdate, updatedRow.State);
+            Assert.Equal("foo", updatedRow.Cells[0].DisplayValue);
+
+            // ... The other rows should be clean
+            for (int i = 1; i < rows.Length; i++)
+            {
+                Assert.Equal(EditRow.EditRowState.Clean, rows[i].State);
+            }
+        }
+
+        [Fact]
+        public async Task GetRowsPendingDeletion()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditSession s = new EditSession(rs, etm);
+
+            // ... Add a row deletion
+            s.DeleteRow(1);
+
+            // If: I ask for 3 rows from the session, skipping the first, including the updated one
+            EditRow[] rows = await s.GetRows(1, 3);
+
+            // Then:
+            // ... I should get back 3 rows
+            Assert.Equal(3, rows.Length);
+
+            // ... The first row should reflect that there is an update pending
+            //     (More in depth testing is done in the RowUpdate class tests)
+            var updatedRow = rows[0];
+            Assert.Equal(EditRow.EditRowState.DirtyDelete, updatedRow.State);
+            Assert.NotEmpty(updatedRow.Cells[0].DisplayValue);
+
+            // ... The other rows should be clean
+            for (int i = 1; i < rows.Length; i++)
+            {
+                Assert.Equal(EditRow.EditRowState.Clean, rows[i].State);
+            }
+        }
+
+        [Fact]
+        public async Task GetRowsPendingInsertion()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditSession s = new EditSession(rs, etm);
+
+            // ... Add a row creation
+            s.CreateRow();
+
+            // If: I ask for the rows including the new rows
+            EditRow[] rows = await s.GetRows(0, 6);
+
+            // Then:
+            // ... I should get back 6 rows
+            Assert.Equal(6, rows.Length);
+
+            // ... The last row should reflect that there's a new row
+            var updatedRow = rows[5];
+            Assert.Equal(EditRow.EditRowState.DirtyInsert, updatedRow.State);
+
+            // ... The other rows should be clean
+            for (int i = 0; i < rows.Length - 1; i++)
+            {
+                Assert.Equal(EditRow.EditRowState.Clean, rows[i].State);
+            }
+        }
+
+        [Fact]
+        public async Task GetRowsAllNew()
+        {
+            // Setup:
+            // ... Create a session with a query and metadata
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            ResultSet rs = q.Batches[0].ResultSets[0];
+            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditSession s = new EditSession(rs, etm);
+
+            // ... Add a few row creations
+            s.CreateRow();
+            s.CreateRow();
+            s.CreateRow();
+
+            // If: I ask for the rows included the new rows
+            EditRow[] rows = await s.GetRows(5, 5);
+
+            // Then:
+            // ... I should get back 3 rows back
+            Assert.Equal(3, rows.Length);
+
+            // ... All the rows should be new
+            Assert.All(rows, r => Assert.Equal(EditRow.EditRowState.DirtyInsert, r.State));
         }
 
         #endregion

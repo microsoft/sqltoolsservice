@@ -142,8 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var subsetRequest = new EventFlowValidator<SubsetResult>()
                 .AddResultValidation(r =>
                 {
-                    // Then: Messages should be null and subset should not be null
-                    Assert.Null(r.Message);
+                    // Then: Subset should not be null
                     Assert.NotNull(r.ResultSubset);
                 }).Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
@@ -159,12 +158,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddResultValidation(r =>
-                {
-                    // Then: Messages should not be null and the subset should be null
-                    Assert.NotNull(r.Message);
-                    Assert.Null(r.ResultSubset);
-                }).Complete();
+                .AddErrorValidation<string>(Assert.NotEmpty)
+                .Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
             subsetRequest.Validate();
         }
@@ -185,12 +180,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I then ask for a valid set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddResultValidation(r =>
-                {
-                    // Then: There should not be a subset and message should not be null
-                    Assert.NotNull(r.Message);
-                    Assert.Null(r.ResultSubset);
-                }).Complete();
+                .AddErrorValidation<string>(Assert.NotEmpty)
+                .Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
             subsetRequest.Validate();
         }
@@ -210,12 +201,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I then ask for a set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddResultValidation(r =>
-                {
-                    // Then: There should be an error message and no subset
-                    Assert.NotNull(r.Message);
-                    Assert.Null(r.ResultSubset);
-                }).Complete();
+                .AddErrorValidation<string>(Assert.NotEmpty)
+                .Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
             subsetRequest.Validate();
         }

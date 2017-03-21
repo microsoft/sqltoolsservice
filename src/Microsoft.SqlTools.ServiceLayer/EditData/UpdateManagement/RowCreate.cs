@@ -123,6 +123,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// Generates a edit row that represents a row pending insertion
+        /// </summary>
+        /// <param name="cachedRow">Original, cached cell contents. (Should be null in this case)</param>
+        /// <returns>EditRow of pending update</returns>
+        public override EditRow GetEditRow(DbCellValue[] cachedRow)
+        {
+            // Iterate over the new cells. If they are null, generate a blank value
+            DbCellValue[] editCells = newCells.Select(cell => cell == null
+                    ? new DbCellValue {DisplayValue = string.Empty, IsNull = false, RawObject = null}
+                    : cell.AsDbCellValue)
+                .ToArray();
+            return new EditRow
+            {
+                Id = RowId,
+                Cells = editCells,
+                State = EditRow.EditRowState.DirtyInsert
+            };
+        }
+
+        /// <summary>
         /// Generates the INSERT INTO statement that will apply the row creation
         /// </summary>
         /// <returns>INSERT INTO statement</returns>

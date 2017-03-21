@@ -86,6 +86,22 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         #region Properties
 
         /// <summary>
+        /// Converts the cell update to a DbCellValue
+        /// </summary>
+        public DbCellValue AsDbCellValue
+        {
+            get
+            {
+                return new DbCellValue
+                {
+                    DisplayValue = ValueAsString,
+                    IsNull = Value == DBNull.Value,
+                    RawObject = Value
+                };
+            }
+        }
+
+        /// <summary>
         /// The column that the cell will be placed in
         /// </summary>
         public DbColumnWrapper Column { get; }

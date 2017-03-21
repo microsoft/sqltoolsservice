@@ -176,41 +176,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             try
             {
-                // Attempt to load the query
-                Query query;
-                if (!ActiveQueries.TryGetValue(subsetParams.OwnerUri, out query))
-                {
-                    await requestContext.SendResult(new SubsetResult
-                    {
-                        Message = SR.QueryServiceRequestsNoQuery
-                    });
-                    return;
-                }
-
-                // Retrieve the requested subset and return it
+                ResultSetSubset subset = await InterServiceResultSubset(subsetParams);
                 var result = new SubsetResult
                 {
-                    Message = null,
-                    ResultSubset = await query.GetSubset(subsetParams.BatchIndex,
-                        subsetParams.ResultSetIndex, subsetParams.RowsStartIndex, subsetParams.RowsCount)
+                    ResultSubset = subset
                 };
                 await requestContext.SendResult(result);
-            }
-            catch (InvalidOperationException ioe)
-            {
-                // Return the error as a result
-                await requestContext.SendResult(new SubsetResult
-                {
-                    Message = ioe.Message
-                });
-            }
-            catch (ArgumentOutOfRangeException aoore)
-            {
-                // Return the error as a result
-                await requestContext.SendResult(new SubsetResult
-                {
-                    Message = aoore.Message
-                });
             }
             catch (Exception e)
             {
@@ -415,7 +386,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="ownerUri">The identifier of the query to be disposed</param>
         /// <param name="successAction">Action to perform on success</param>
         /// <param name="failureAction">Action to perform on failure</param>
-        /// <returns></returns>
         public async Task InterServiceDisposeQuery(string ownerUri, Func<Task> successAction,
             Func<string, Task> failureAction)
         {
@@ -442,6 +412,29 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 await failureAction(e.Message);
             }
+        }
+
+        /// <summary>
+        /// Retrieves the requested subset of rows from the requested result set. Intended to be
+        /// called by another service.
+        /// </summary>
+        /// <param name="subsetParams">Parameters for the subset to retrieve</param>
+        /// <returns>The requested subset</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The requested query does not exist</exception>
+        public async Task<ResultSetSubset> InterServiceResultSubset(SubsetParams subsetParams)
+        {
+            Validate.IsNotNullOrEmptyString(nameof(subsetParams.OwnerUri), subsetParams.OwnerUri);
+
+            // Attempt to load the query
+            Query query;
+            if (!ActiveQueries.TryGetValue(subsetParams.OwnerUri, out query))
+            {
+                throw new ArgumentOutOfRangeException(SR.QueryServiceRequestsNoQuery);
+            }
+
+            // Retrieve the requested subset and return it
+            return await query.GetSubset(subsetParams.BatchIndex, subsetParams.ResultSetIndex,
+                subsetParams.RowsStartIndex, subsetParams.RowsCount);
         }
 
         #endregion

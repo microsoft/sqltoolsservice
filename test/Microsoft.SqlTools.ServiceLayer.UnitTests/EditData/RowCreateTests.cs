@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
@@ -179,6 +180,64 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I ask for a script to be generated without setting any values
             // Then: An exception should be thrown for missing cells
             Assert.Throws<InvalidOperationException>(() => rc.GetCommand(mockConn));
+        }
+
+        [Fact]
+        public void GetEditRowNoAdditions()
+        {
+            // Setup: Generate a standard row create
+            RowCreate rc = GetStandardRowCreate();
+
+            // If: I request an edit row from the row create
+            EditRow er = rc.GetEditRow(null);
+
+            // Then:
+            // ... The row should not be null
+            Assert.NotNull(er);
+
+            // ... The row should not be clean
+            Assert.True(er.IsDirty);
+            Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
+
+            // ... The row should have a bunch of empty cells (equal to number of columns)
+            Assert.Equal(rc.newCells.Length, er.Cells.Length);
+            Assert.All(er.Cells, dbc =>
+            {
+                Assert.Equal(string.Empty, dbc.DisplayValue);
+                Assert.False(dbc.IsNull);
+            });
+        }
+
+        [Fact]
+        public void GetEditRowWithAdditions()
+        {
+            // Setp: Generate a row create with a cell added to it
+            RowCreate rc = GetStandardRowCreate();
+            rc.SetCell(0, "foo");
+
+            // If: I request an edit row from the row create
+            EditRow er = rc.GetEditRow(null);
+
+            // Then:
+            // ... The row should not be null and contain the same number of cells as columns
+            Assert.NotNull(er);
+            Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
+
+            // ... The row should not be clean
+            Assert.True(er.IsDirty);
+            Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
+
+            // ... The row should have a single non-empty cell at the beginning
+            Assert.Equal("foo", er.Cells[0].DisplayValue);
+            Assert.False(er.Cells[0].IsNull);
+
+            // ... The rest of the cells should be blank
+            for (int i = 1; i < er.Cells.Length; i++)
+            {
+                DbCellValue dbc = er.Cells[i];
+                Assert.Equal(string.Empty, dbc.DisplayValue);
+                Assert.False(dbc.IsNull);
+            }
         }
 
         [Theory]

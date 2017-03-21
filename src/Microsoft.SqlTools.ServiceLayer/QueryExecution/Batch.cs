@@ -355,7 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public Task<ResultSetSubset> GetSubset(int resultSetIndex, int startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(int resultSetIndex, long startRow, int rowCount)
         {
             ResultSet targetResultSet;
             lock (resultSets)

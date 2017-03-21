@@ -64,6 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
         }
 
+
+
         #endregion
 
         #region Dispose Tests
@@ -213,6 +215,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... Set cell should have been called once
             edit.Verify(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRowsSuccess()
+        {
+            // Setup: Create an edit data service with a session
+            // Setup: Create an edit data service with a session
+            var eds = new EditDataService(null, null, null);
+            var session = GetDefaultSession();
+            eds.ActiveSessions[Constants.OwnerUri] = session;
+
+            // If: I validly ask for rows
+            var efv = new EventFlowValidator<EditSubsetResult>()
+                .AddResultValidation(esr =>
+                {
+                    Assert.NotNull(esr);
+                    Assert.NotEmpty(esr.Subset);
+                    Assert.NotEqual(0, esr.RowCount);
+                })
+                .Complete();
+            await eds.HandleSubsetRequest(new EditSubsetParams
+            {
+                OwnerUri = Constants.OwnerUri,
+                RowCount = 10,
+                RowStartIndex = 0
+            }, efv.Object);
+
+            // Then:
+            // ... It should be successful
+            efv.Validate();
         }
 
         [Theory]
