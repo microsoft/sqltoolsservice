@@ -446,7 +446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             if (Options != null && Options.ContainsKey(name))
             {
                 object value = Options[name];
-                if(typeof(T) == typeof(int) || typeof(T) == typeof(int?))
+                if(value != null && ( typeof(T) == typeof(int) || typeof(T) == typeof(int?)))
                 {
                     value = System.Convert.ToInt32(value);
                 }

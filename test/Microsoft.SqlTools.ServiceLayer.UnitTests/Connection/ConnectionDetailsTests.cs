@@ -198,5 +198,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             int? expectedValue = null;
             Assert.Equal(details.ConnectTimeout, expectedValue);
         }
+
+        [Fact]
+        public void ConnectTimeoutShouldReturnNullIfSetToNull()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+            details.Options["connectTimeout"] = null;
+            int? expectedValue = null;
+            Assert.Equal(details.ConnectTimeout, expectedValue);
+        }
     }
 }
