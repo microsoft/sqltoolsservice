@@ -571,6 +571,26 @@
         <target state="new">Edit session already exists.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataSessionNotInitialized">
+        <source>Edit session has not been initialized</source>
+        <target state="new">Edit session has not been initialized</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyInitialized">
+        <source>Edit session has already been initialized</source>
+        <target state="new">Edit session has already been initialized</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyInitializing">
+        <source>Edit session has already been initialized or is in the process of initializing</source>
+        <target state="new">Edit session has already been initialized or is in the process of initializing</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataQueryFailed">
+        <source>Query execution failed, see messages for details</source>
+        <target state="new">Query execution failed, see messages for details</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

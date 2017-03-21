@@ -389,6 +389,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataSessionNotInitialized
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionNotInitialized);
+            }
+        }
+
+        public static string EditDataSessionAlreadyInitialized
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionAlreadyInitialized);
+            }
+        }
+
+        public static string EditDataSessionAlreadyInitializing
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionAlreadyInitializing);
+            }
+        }
+
+        public static string EditDataQueryFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataQueryFailed);
+            }
+        }
+
         public static string EditDataQueryNotCompleted
         {
             get
@@ -1057,7 +1089,19 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EditDataSessionAlreadyExists = "EditDataSessionAlreadyExists";
 
 
+            public const string EditDataSessionNotInitialized = "EditDataSessionNotInitialized";
+
+
+            public const string EditDataSessionAlreadyInitialized = "EditDataSessionAlreadyInitialized";
+
+
+            public const string EditDataSessionAlreadyInitializing = "EditDataSessionAlreadyInitializing";
+
+
             public const string EditDataUnsupportedObjectType = "EditDataUnsupportedObjectType";
+
+
+            public const string EditDataQueryFailed = "EditDataQueryFailed";
 
 
             public const string EditDataQueryNotCompleted = "EditDataQueryNotCompleted";

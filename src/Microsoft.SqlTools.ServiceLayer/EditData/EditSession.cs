@@ -86,16 +86,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         public void Initialize(Connector connector, QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> errorHandler)
         {
+            if (IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionAlreadyInitialized);
+            }
+
+            if (InitializeTask != null)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionAlreadyInitializing);
+            }
+
             Validate.IsNotNullOrWhitespaceString(nameof(objectName), objectName);
             Validate.IsNotNullOrWhitespaceString(nameof(objectType), objectType);
             Validate.IsNotNull(nameof(successHandler), successHandler);
             Validate.IsNotNull(nameof(errorHandler), errorHandler);
-
-            if (InitializeTask != null)
-            {
-                // TODO: Move to strings file
-                throw new InvalidOperationException("Edit session has already been initialized or is in the process of initializing");
-            }
 
             // Start up the initialize process
             InitializeTask = InitializeInternal(connector, queryRunner, successHandler, errorHandler);
@@ -134,6 +138,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <returns>The internal ID of the newly created row</returns>
         public EditCreateRowResult CreateRow()
         {
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
+            }
+
             // Create a new row ID (atomically, since this could be accesses concurrently)
             long newRowId = NextRowId++;
 
@@ -184,6 +193,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="errorHandler">Callback to perform if the commit process has failed at some point</param>
         public void CommitEdits(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
         {
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
+            }
+
             Validate.IsNotNull(nameof(connection), connection);
             Validate.IsNotNull(nameof(successHandler), successHandler);
             Validate.IsNotNull(nameof(errorHandler), errorHandler);
@@ -207,6 +221,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="rowId">The internal ID of the row to delete</param>
         public void DeleteRow(long rowId)
         {
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
+            }
+
             // Sanity check the row ID
             if (rowId >= NextRowId || rowId < 0)
             {
@@ -229,6 +248,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <returns>String version of the old value for the cell</returns>
         public string RevertCell(long rowId, int columnId)
         {
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
+            }
+
             // Attempt to get the row edit with the given ID
             RowEditBase pendingEdit;
             if (!EditCache.TryGetValue(rowId, out pendingEdit))
@@ -249,6 +273,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="rowId">The internal ID of the row to reset</param>
         public void RevertRow(long rowId)
         {
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
+            }
+
             // Attempt to remove the row with the given ID
             RowEditBase removedEdit;
             if (!EditCache.TryRemove(rowId, out removedEdit))
@@ -264,6 +293,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <returns></returns>
         public string ScriptEdits(string outputPath)
         {
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
+            }
+
             // Validate the output path
             // @TODO: Reinstate this code once we have an interface around file generation
             //if (outputPath == null)
@@ -308,6 +342,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="newValue">The new string value of the cell to update</param>
         public EditUpdateCellResult UpdateCell(long rowId, int columnId, string newValue)
         {
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
+            }
+
             // Sanity check to make sure that the row ID is in the range of possible values
             if (rowId >= NextRowId || rowId < 0)
             {
@@ -340,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 if (state.Query == null)
                 {
                     // TODO: Move to SR file
-                    string message = state.Message ?? "Query execution failed, see messages for details";
+                    string message = state.Message ?? SR.EditDataQueryFailed;
                     throw new Exception(message);
                 }
 

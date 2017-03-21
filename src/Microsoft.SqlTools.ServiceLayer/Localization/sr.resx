@@ -362,10 +362,26 @@
     <value>Edit session already exists.</value>
     <comment></comment>
   </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>Edit session has not been initialized</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>Edit session has already been initialized</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>Edit session has already been initialized or is in the process of initializing</value>
+    <comment></comment>
+  </data>
   <data name="EditDataUnsupportedObjectType" xml:space="preserve">
     <value>Database object {0} cannot be used for editing.</value>
     <comment>.
  Parameters: 0 - typeName (string) </comment>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>Query execution failed, see messages for details</value>
+    <comment></comment>
   </data>
   <data name="EditDataQueryNotCompleted" xml:space="preserve">
     <value>Query has not completed execution</value>

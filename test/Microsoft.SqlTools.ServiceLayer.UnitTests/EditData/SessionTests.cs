@@ -132,6 +132,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region Create Row Tests
 
         [Fact]
+        public void CreateRowNotInitialized()
+        {
+            // Setup:
+            // ... Create a session without initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // If: I ask to create a row without initializing
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(() => s.CreateRow());
+        }
+
+        [Fact]
         public async Task CreateRowAddFailure()
         {
             // NOTE: This scenario should theoretically never occur, but is tested for completeness
@@ -264,16 +277,253 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 // Delete Row
                 Action<EditSession, long> delAction = (s, l) => s.DeleteRow(l);
                 yield return new object[] { -1L, delAction };
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, delAction};
                 yield return new object[] { 100L, delAction };
 
                 // Update Cell
                 Action<EditSession, long> upAction = (s, l) => s.UpdateCell(l, 0, null);
                 yield return new object[] { -1L, upAction };
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, upAction};
                 yield return new object[] { 100L, upAction };
+
+                // Revert Row
+                Action<EditSession, long> revertRowAction = (s, l) => s.RevertRow(l);
+                yield return new object[] {-1L, revertRowAction};
+                yield return new object[] {0L, revertRowAction};    // This is invalid b/c there isn't an edit pending for this row
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertRowAction};
+                yield return new object[] {100L, revertRowAction};
+
+                // Revert Cell
+                Action<EditSession, long> revertCellAction = (s, l) => s.RevertCell(l, 0);
+                yield return new object[] {-1L, revertRowAction};
+                yield return new object[] {0L, revertRowAction};    // This is invalid b/c there isn't an edit pending for this row
+                yield return new object[] {(long) QueryExecution.Common.StandardRows, revertRowAction};
+                yield return new object[] {100L, revertRowAction};
             }
         }
 
+        #region Initialize Tests
+
+        [Fact]
+        public void InitializeAlreadyInitialized()
+        {
+            // Setup:
+            // ... Create a session and fake that it has been initialized
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+            s.IsInitialized = true;
+
+            // If: I initialize it
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(() => s.Initialize(null, null, null, null));
+        }
+
+        [Fact]
+        public void InitializeAlreadyInitializing()
+        {
+            // Setup:
+            // ... Create a session and fake that it is in progress of initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+            s.InitializeTask = new Task(() => { });
+
+            // If: I initialize it
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(() => s.Initialize(null, null, null, null));
+        }
+
+        [Theory]
+        [MemberData(nameof(InitializeNullParamsData))]
+        public void InitializeNullParams(EditSession.Connector c, EditSession.QueryRunner qr,
+            Func<Task> sh, Func<Exception, Task> fh)
+        {
+            // Setup:
+            // ... Create a session that hasn't been initialized
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // If: I initialize it with a missing parameter
+            // Then: It should throw an exception
+            Assert.ThrowsAny<ArgumentException>(() => s.Initialize(c, qr, sh, fh));
+        }
+
+        public static IEnumerable<object> InitializeNullParamsData
+        {
+            get
+            {
+                yield return new object[] {null, DoNothingQueryRunner, DoNothingSuccessHandler, DoNothingFailureHandler};
+                yield return new object[] {DoNothingConnector, null, DoNothingSuccessHandler, DoNothingFailureHandler};
+                yield return new object[] {DoNothingConnector, DoNothingQueryRunner, null, DoNothingFailureHandler};
+                yield return new object[] {DoNothingConnector, DoNothingQueryRunner, DoNothingSuccessHandler, null};
+            }
+        }
+
+        [Fact]
+        public async Task InitializeMetadataFails()
+        {
+            // Setup:
+            // ... Create a metadata factory that throws
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Throws<Exception>();
+
+            // ... Create a session that hasn't been initialized
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // ... Create a mock for verifying the failure handler will be called
+            var successHandler = DoNothingSuccessMock;
+            var failureHandler = DoNothingFailureMock;
+
+            // If: I initalize the session with a metadata factory that will fail
+            s.Initialize(DoNothingConnector, DoNothingQueryRunner, successHandler.Object, failureHandler.Object);
+            await s.InitializeTask;
+
+            // Then:
+            // ... The session should not be initialized
+            Assert.False(s.IsInitialized);
+
+            // ... The failure handler should have been called once
+            failureHandler.Verify(f => f(It.IsAny<Exception>()), Times.Once);
+
+            // ... The success handler should not have been called at all
+            successHandler.Verify(f => f(), Times.Never);
+        }
+
+        [Fact]
+        public async Task InitializeQueryFailException()
+        {
+            // Setup:
+            // ... Create a metadata factory that will return some generic column information
+            var b = QueryExecution.Common.GetBasicExecutedBatch();
+            var etm = Common.GetStandardMetadata(b.ResultSets[0].Columns);
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(etm);
+
+            // ... Create a session that hasn't been initialized
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // ... Create a query runner that will fail via exception
+            Mock<EditSession.QueryRunner> qr = new Mock<EditSession.QueryRunner>();
+            qr.Setup(r => r(It.IsAny<string>())).Throws(new Exception("qqq"));
+
+            // ... Create a mock for verifying the failure handler will be called
+            var successHandler = DoNothingSuccessMock;
+            var failureHandler = DoNothingFailureMock;
+
+            // If: I initialize the session with a query runner that will fail
+            s.Initialize(DoNothingConnector, qr.Object, successHandler.Object, failureHandler.Object);
+            await s.InitializeTask;
+
+            // Then:
+            // ... The session should not be initialized
+            Assert.False(s.IsInitialized);
+
+            // ... The failure handler should have been called once
+            failureHandler.Verify(f => f(It.IsAny<Exception>()), Times.Once);
+
+            // ... The success handler should not have been called at all
+            successHandler.Verify(f => f(), Times.Never);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("It fail.")]
+        public async Task InitializeQueryFailReturnNull(string message)
+        {
+            // Setup:
+            // ... Create a metadata factory that will return some generic column information
+            var b = QueryExecution.Common.GetBasicExecutedBatch();
+            var etm = Common.GetStandardMetadata(b.ResultSets[0].Columns);
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(etm);
+
+            // ... Create a session that hasn't been initialized
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // ... Create a query runner that will fail via returning a null query
+            Mock<EditSession.QueryRunner> qr = new Mock<EditSession.QueryRunner>();
+            qr.Setup(r => r(It.IsAny<string>()))
+                .Returns(Task.FromResult(new EditSession.EditSessionQueryExecutionState(null, message)));
+
+            // ... Create a mock for verifying the failure handler will be called
+            var successHandler = DoNothingSuccessMock;
+            var failureHandler = DoNothingFailureMock;
+
+            // If: I initialize the session with a query runner that will fail
+            s.Initialize(DoNothingConnector, qr.Object, successHandler.Object, failureHandler.Object);
+            await s.InitializeTask;
+
+            // Then:
+            // ... The session should not be initialized
+            Assert.False(s.IsInitialized);
+
+            // ... The failure handler should have been called once
+            failureHandler.Verify(f => f(It.IsAny<Exception>()), Times.Once);
+
+            // ... The success handler should not have been called at all
+            successHandler.Verify(f => f(), Times.Never);
+        }
+
+        [Fact]
+        public async Task InitializeSuccess()
+        {
+            // Setup:
+            // ... Create a metadata factory that will return some generic column information
+            var q = QueryExecution.Common.GetBasicExecutedQuery();
+            var rs = q.Batches[0].ResultSets[0];
+            var etm = Common.GetStandardMetadata(rs.Columns);
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(etm);
+
+            // ... Create a session that hasn't been initialized
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // ... Create a query runner that will return a successful query
+            Mock<EditSession.QueryRunner> qr = new Mock<EditSession.QueryRunner>();
+            qr.Setup(r => r(It.IsAny<string>()))
+                .Returns(Task.FromResult(new EditSession.EditSessionQueryExecutionState(q, null)));
+
+            // ... Create a mock for verifying the failure handler will be called
+            var successHandler = DoNothingSuccessMock;
+            var failureHandler = DoNothingFailureMock;
+
+            // If: I initialize the session with a query runner that will fail
+            s.Initialize(DoNothingConnector, qr.Object, successHandler.Object, failureHandler.Object);
+            await s.InitializeTask;
+
+            // Then:
+            // ... The failure handler should not have been called
+            failureHandler.Verify(f => f(It.IsAny<Exception>()), Times.Never);
+
+            // ... The success handler should have been called
+            successHandler.Verify(f => f(), Times.Once);
+
+            // ... The session should have been initialized
+            Assert.True(s.IsInitialized);
+            Assert.Equal(rs.RowCount, s.NextRowId);
+            Assert.NotNull(s.EditCache);
+            Assert.Empty(s.EditCache);
+        }
+
+        #endregion
+
         #region Delete Row Tests
+
+        [Fact]
+        public void DeleteRowNotInitialized()
+        {
+            // Setup:
+            // ... Create a session without initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // If: I ask to delete a row without initializing
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(() => s.DeleteRow(0));
+        }
 
         [Fact]
         public async Task DeleteRowAddFailure()
@@ -314,14 +564,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region Revert Row Tests
 
         [Fact]
-        public async Task RevertRowOutOfRange()
+        public void RevertRowNotInitialized()
         {
-            // Setup: Create a session with a proper query and metadata
-            EditSession s = await GetBasicSession();
+            // Setup:
+            // ... Create a session without initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
 
-            // If: I revert a row that doesn't have any pending changes
+            // If: I ask to revert a row without initializing
             // Then: I should get an exception
-            Assert.Throws<ArgumentOutOfRangeException>(() => s.RevertRow(0));
+            Assert.Throws<InvalidOperationException>(() => s.RevertRow(0));
         }
 
         [Fact]
@@ -345,7 +597,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         #endregion
 
+        #region Revert Cell Tests
+
+        [Fact]
+        public void RevertCellNotInitialized()
+        {
+            // Setup:
+            // ... Create a session without initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // If: I ask to revert a cell without initializing
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(() => s.RevertCell(0, 0));
+        }
+
+        #endregion
+
         #region Update Cell Tests
+
+        [Fact]
+        public void UpdateCellNotInitialized()
+        {
+            // Setup:
+            // ... Create a session without initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // If: I ask to update a cell without initializing
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(() => s.UpdateCell(0, 0, ""));
+        }
 
         [Fact]
         public async Task UpdateCellExisting()
@@ -387,6 +669,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #endregion
 
         #region Script Edits Tests
+
+        [Fact]
+        public void ScriptEditsNotInitialized()
+        {
+            // Setup:
+            // ... Create a session without initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // If: I ask to script edits without initializing
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(() => s.ScriptEdits(string.Empty));
+        }
 
         [Theory]
         [InlineData(null)]
@@ -432,6 +727,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #endregion
 
         #region Commit Tests
+
+        [Fact]
+        public void CommitEditsNotInitialized()
+        {
+            // Setup:
+            // ... Create a session without initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // If: I ask to script edits without initializing
+            // Then: I should get an exception
+            Assert.Throws<InvalidOperationException>(() => s.CommitEdits(null, null, null));
+        }
 
         [Fact]
         public async Task CommitNullConnection()
@@ -580,6 +888,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         #endregion
+
+        private static EditSession.Connector DoNothingConnector
+        {
+            get { return () => Task.FromResult<DbConnection>(null); }
+        }
+
+        private static EditSession.QueryRunner DoNothingQueryRunner
+        {
+            get { return q => Task.FromResult<EditSession.EditSessionQueryExecutionState>(null); }
+        }
+
+        private static Func<Task> DoNothingSuccessHandler
+        {
+            get { return () => Task.FromResult(0); }
+        }
+
+        private static Func<Exception, Task> DoNothingFailureHandler
+        {
+            get { return e => Task.FromResult(0); }
+        }
+
+        private static Mock<Func<Task>> DoNothingSuccessMock
+        {
+            get {
+                Mock<Func<Task>> successHandler = new Mock<Func<Task>>();
+                successHandler.Setup(f => f()).Returns(Task.FromResult(0));
+                return successHandler;
+            }
+        }
+
+        private static Mock<Func<Exception, Task>> DoNothingFailureMock
+        {
+            get
+            {
+                Mock<Func<Exception, Task>> failureHandler = new Mock<Func<Exception, Task>>();
+                failureHandler.Setup(f => f(It.IsAny<Exception>())).Returns(Task.FromResult(0));
+                return failureHandler;
+            }
+        }
 
         private static async Task<EditSession> GetBasicSession()
         {
