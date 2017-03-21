@@ -17,15 +17,16 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Scripting;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Utility;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -816,8 +817,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
                             // Script object using SMO
-                            PeekDefinition peekDefinition = new PeekDefinition(bindingContext.ServerConnection, connInfo);
-                            return peekDefinition.GetScript(
+                            Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
+                            return scripter.GetScript(
                                 scriptParseInfo.ParseResult, 
                                 textDocumentPosition.Position, 
                                 bindingContext.MetadataDisplayInfoProvider, 

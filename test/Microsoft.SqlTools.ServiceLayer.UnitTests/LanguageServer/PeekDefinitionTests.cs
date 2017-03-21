@@ -18,13 +18,14 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
-using GlobalCommon = Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
+using GlobalCommon = Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
@@ -138,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void GetLocationFromFileForValidFilePathTest()
         {
             string filePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:\\test\\script.sql" : "/test/script.sql";
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             Location[] locations = peekDefinition.GetLocationFromFile(filePath, 0);
 
             string expectedFilePath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "file:///C:/test/script.sql" : "file:/test/script.sql";
@@ -151,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithValidNameTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string validDatabaseQualifiedName = "master.test.test_table";
             string objectName = "test_table";
             string expectedSchemaName = "test";
@@ -167,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithNoSchemaTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string validDatabaseQualifiedName = "test_table";
             string objectName = "test_table";
             string expectedSchemaName = "dbo";
@@ -182,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetSchemaFromDatabaseQualifiedNameWithInvalidNameTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string validDatabaseQualifiedName = "x.y.z";
             string objectName = "test_table";
             string expectedSchemaName = "dbo";
@@ -197,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void DeletePeekDefinitionScriptsTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             var languageService = LanguageService.Instance;
             Assert.True(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             languageService.DeletePeekDefinitionScripts();
@@ -211,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void DeletePeekDefinitionScriptsWhenFolderDoesNotExistTest()
         {
             var languageService = LanguageService.Instance;
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
             Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
             // Expected not to throw any exception
@@ -226,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetFullObjectNameFromQuickInfoWithValidStringsTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string objectName = "testTable";
             string quickInfoText = "table master.dbo.testTable";
             string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
@@ -242,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetFullObjectNameFromQuickInfoWithValidStringsandIgnoreCaseTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string objectName = "testtable";
             string quickInfoText = "table master.dbo.testTable";
             string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.OrdinalIgnoreCase);
@@ -258,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetFullObjectNameFromQuickInfoWithNullStringsTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string expected = null;
 
             string objectName = null;
@@ -285,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetFullObjectNameFromQuickInfoWithIncorrectObjectNameTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string objectName = "test";
             string quickInfoText = "table master.dbo.tableName";
             string result = peekDefinition.GetFullObjectNameFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
@@ -301,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetTokenTypeFromQuickInfoWithValidStringsTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string objectName = "tableName";
             string quickInfoText = "table master.dbo.tableName";
             string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
@@ -318,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetTokenTypeFromQuickInfoWithValidStringsandIgnoreCaseTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string objectName = "tablename";
             string quickInfoText = "table master.dbo.tableName";
             string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.OrdinalIgnoreCase);
@@ -334,7 +335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetTokenTypeFromQuickInfoWithNullStringsTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string expected = null;
 
             string objectName = null;
@@ -361,7 +362,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetTokenTypeFromQuickInfoWithIncorrectObjectNameTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string objectName = "test";
             string quickInfoText = "table master.dbo.tableName";
             string result = peekDefinition.GetTokenTypeFromQuickInfo(quickInfoText, objectName, StringComparison.Ordinal);
@@ -376,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetDefinitionUsingQuickInfoWithoutConnectionTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string objectName = "tableName";
             string quickInfoText = "table master.dbo.tableName";
             DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, null);
@@ -391,7 +392,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void GetDefinitionUsingDeclarationItemWithoutConnectionTest()
         {
-            PeekDefinition peekDefinition = new PeekDefinition(null, null);
+            Scripter peekDefinition = new Scripter(null, null);
             string objectName = "tableName";
             string fullObjectName = "master.dbo.tableName";
             DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Table, fullObjectName, objectName, null);
