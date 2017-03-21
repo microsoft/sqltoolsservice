@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: 
             // ... Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
-            eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
+            eds.ActiveSessions[Common.OwnerUri] = await GetDefaultSession();
 
             // ... Create a session param that returns the common owner uri
             var mockParams = new EditCreateRowParams { OwnerUri = Common.OwnerUri };
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
-            eds.ActiveSessions[Common.OwnerUri] = GetDefaultSession();
+            eds.ActiveSessions[Common.OwnerUri] = await GetDefaultSession();
             
             // If: I ask to dispose of an existing session
             var efv = new EventFlowValidator<EditDisposeResult>()
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
-            eds.ActiveSessions[Constants.OwnerUri] = GetDefaultSession();
+            eds.ActiveSessions[Constants.OwnerUri] = await GetDefaultSession();
 
             // If: I validly ask to delete a row
             var efv = new EventFlowValidator<EditDeleteRowResult>()
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
-            eds.ActiveSessions[Constants.OwnerUri] = GetDefaultSession();
+            eds.ActiveSessions[Constants.OwnerUri] = await GetDefaultSession();
 
             // If: I ask to create a row from a non existant session
             var efv = new EventFlowValidator<EditCreateRowResult>()
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create an edit data service with a session that has an pending edit
             var eds = new EditDataService(null, null, null);
-            var session = GetDefaultSession();
+            var session = await GetDefaultSession();
             session.EditCache[0] = new Mock<RowEditBase>().Object;
             eds.ActiveSessions[Constants.OwnerUri] = session;
 
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Create an edit data service with a session
             var eds = new EditDataService(null, null, null);
-            var session = GetDefaultSession();
+            var session = await GetDefaultSession();
             eds.ActiveSessions[Constants.OwnerUri] = session;
             var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>())).Returns(new EditUpdateCellResult
@@ -245,119 +245,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... There should not be a session
             Assert.Empty(eds.ActiveSessions);
-
-            // ... There should not be a wait handler
-            Assert.Empty(eds.InitializeWaitHandles);
         }
 
-        [Fact]
-        public async Task InitializeInProgress()
-        {
-            // Setup: Create an edit data service with an "in-progress initialize"
-            var eds = new EditDataService(null, null, null);
-            eds.InitializeWaitHandles[Common.OwnerUri] = new TaskCompletionSource<bool>();
-
-            // If:
-            // ... I ask to initialize a session when an initialize task is already in progress
-            var initParams = new EditInitializeParams
-            {
-                ObjectName = "table",
-                OwnerUri = Common.OwnerUri,
-                ObjectType = "table"
-            };
-            var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddErrorValidation<string>(Assert.NotNull)
-                .Complete();
-            await eds.HandleInitializeRequest(initParams, efv.Object);
-
-            // Then:
-            // ... An error event should have been raised
-            efv.Validate();
-
-            // ... There should not be a session
-            Assert.Empty(eds.ActiveSessions);
-        }
-
-        [Fact]
-        public async Task InitializeQueryCreateFailed()
-        {
-            // Setup:
-            // ... Create a query execution service that will throw on creation of the query
-            var qes = QueryExecution.Common.GetPrimedExecutionService(null, false, false, null);
-
-            // ... Create an edit data service that uses the mocked up query service
-            var eds = new EditDataService(qes, null, null);
-
-            // If:
-            // ... I initialize a session
-            var initParams = new EditInitializeParams
-            {
-                ObjectName = "table",
-                OwnerUri = Common.OwnerUri,
-                ObjectType = "table"
-            };
-            var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddErrorValidation<string>(Assert.NotEmpty)
-                .Complete();
-            await eds.HandleInitializeRequest(initParams, efv.Object);
-
-            // Then:
-            // ... We should have gotten an error back
-            efv.Validate();
-
-            // ... There should not be any sessions created
-            Assert.Empty(eds.ActiveSessions);
-
-            // ... There should not be a wait handle
-            Assert.Empty(eds.InitializeWaitHandles);
-        }
-
-        [Fact]
-        public async Task InitializeQueryExecutionFails()
-        {
-            // Setup:
-            // ... Create a query execution service that will throw on execution of the query
-            var qes = QueryExecution.Common.GetPrimedExecutionService(null, true, true, null);
-
-            // ... Create an edit data service that uses the mocked up query service
-            var eds = new EditDataService(qes, null, null);
-
-            // If:
-            // ... I initialize a session
-            var initParams = new EditInitializeParams
-            {
-                ObjectName = "table",
-                OwnerUri = Common.OwnerUri,
-                ObjectType = "table"
-            };
-            var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddResultValidation(Assert.NotNull)
-                .AddEventValidation(EditSessionReadyEvent.Type, esrp =>
-                {
-                    Assert.NotNull(esrp);
-                    Assert.False(esrp.Success);
-                }).Complete();
-            await eds.HandleInitializeRequest(initParams, efv.Object);
-            await eds.InitializeWaitHandles[Common.OwnerUri].Task;
-
-            // Then:
-            // ... We should have started execution, but failed
-            efv.Validate();
-
-            // ... There should not be any sessions created
-            Assert.Empty(eds.ActiveSessions);
-
-            // ... There should not be a wait handle. It should have been cleaned up by now
-            Assert.Empty(eds.InitializeWaitHandles);
-        }
-
-        private static EditSession GetDefaultSession()
+        private static async Task<EditSession> GetDefaultSession()
         {
             // ... Create a session with a proper query and metadata
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
             ResultSet rs = q.Batches[0].ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
-            EditSession s = new EditSession(rs, etm);
+            EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            EditSession s = await Common.GetCustomSession(q, etm);
             return s;
         }
     }

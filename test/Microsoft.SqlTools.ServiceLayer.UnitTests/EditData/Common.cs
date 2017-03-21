@@ -7,18 +7,38 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class Common
     {
         public const string OwnerUri = "testFile";
+
+        public static async Task<EditSession> GetCustomSession(Query q, EditTableMetadata etm)
+        {
+            // Mock metadata factory
+            Mock<IEditMetadataFactory> metaFactory = new Mock<IEditMetadataFactory>();
+            metaFactory
+                .Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(etm);
+
+            EditSession session = new EditSession(metaFactory.Object, "tbl", "tbl");
+
+            EditSession.Connector connector = () => Task.FromResult<DbConnection>(null);
+            EditSession.QueryRunner queryRunner = (s) => Task.FromResult(new EditSession.EditSessionQueryExecutionState(q));
+
+            session.Initialize(connector, queryRunner, () => Task.FromResult(0), (e) => Task.FromResult(0));
+            await session.InitializeTask;
+            return session;
+        }
 
         public static EditTableMetadata GetStandardMetadata(DbColumn[] columns, bool isMemoryOptimized = false)
         {
@@ -61,6 +81,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 columns.Add(new TestDbColumn($"col{i}"));
             }
             return columns.ToArray();
+        }
+
+        public static Query GetQuery(DbColumn[] columns, bool includIdentity, int rowCount = 1)
+        {
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            q.Batches[0].ResultSets[0] = GetResultSet(columns, includIdentity, rowCount);
+            return q;
         }
 
         public static ResultSet GetResultSet(DbColumn[] columns, bool includeIdentity, int rowCount = 1)

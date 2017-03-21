@@ -23,27 +23,36 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     public class EditSession
     {
 
-        private readonly ResultSet associatedResultSet;
-        private readonly EditTableMetadata objectMetadata;
+        private ResultSet associatedResultSet;
+
+        private readonly IEditMetadataFactory metadataFactory;
+        private EditTableMetadata objectMetadata;
+        private readonly string objectName;
+        private readonly string objectType;
 
         /// <summary>
         /// Constructs a new edit session bound to the result set and metadat object provided
         /// </summary>
-        /// <param name="resultSet">The result set of the table to be edited</param>
-        /// <param name="objMetadata">Metadata provider for the table to be edited</param>
-        public EditSession(ResultSet resultSet, EditTableMetadata objMetadata)
+        /// <param name="metaFactory">Factory for creating metadata</param>
+        /// <param name="objName">The name of the object to edit</param>
+        /// <param name="objType">The type of the object to edit</param>
+        public EditSession(IEditMetadataFactory metaFactory, string objName, string objType)
         {
-            Validate.IsNotNull(nameof(resultSet), resultSet);
-            Validate.IsNotNull(nameof(objMetadata), objMetadata);
+            Validate.IsNotNull(nameof(metaFactory), metaFactory);
+            Validate.IsNotNullOrWhitespaceString(nameof(objName), objName);
+            Validate.IsNotNullOrWhitespaceString(nameof(objType), objType);
 
             // Setup the internal state
-            associatedResultSet = resultSet;
-            objectMetadata = objMetadata;
-            NextRowId = associatedResultSet.RowCount;
-            EditCache = new ConcurrentDictionary<long, RowEditBase>();
+            metadataFactory = metaFactory;
+            objectName = objName;
+            objectType = objType;
         }
 
         #region Properties
+
+        public delegate Task<DbConnection> Connector();
+
+        public delegate Task<EditSessionQueryExecutionState> QueryRunner(string query);
 
         /// <summary>
         /// The task that is running to commit the changes to the db
@@ -59,11 +68,38 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// The cache of pending updates. Internal for unit test purposes only
         /// </summary>
-        internal ConcurrentDictionary<long, RowEditBase> EditCache { get; }
+        internal ConcurrentDictionary<long, RowEditBase> EditCache { get; private set; }
+
+        /// <summary>
+        /// The task that is running to initialize the edit session
+        /// </summary>
+        internal Task InitializeTask { get; set; }
+
+        /// <summary>
+        /// Whether or not the session has been initialized
+        /// </summary>
+        public bool IsInitialized { get; internal set; }
 
         #endregion
 
         #region Public Methods
+
+        public void Initialize(Connector connector, QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> errorHandler)
+        {
+            Validate.IsNotNullOrWhitespaceString(nameof(objectName), objectName);
+            Validate.IsNotNullOrWhitespaceString(nameof(objectType), objectType);
+            Validate.IsNotNull(nameof(successHandler), successHandler);
+            Validate.IsNotNull(nameof(errorHandler), errorHandler);
+
+            if (InitializeTask != null)
+            {
+                // TODO: Move to strings file
+                throw new InvalidOperationException("Edit session has already been initialized or is in the process of initializing");
+            }
+
+            // Start up the initialize process
+            InitializeTask = InitializeInternal(connector, queryRunner, successHandler, errorHandler);
+        }
 
         /// <summary>
         /// Validates that a query can be used for an edit session. The target result set is returned
@@ -291,6 +327,38 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #endregion
 
+        private async Task InitializeInternal(Connector connector, QueryRunner queryRunner,
+            Func<Task> successHandler, Func<Exception, Task> failureHandler)
+        {
+            try
+            {
+                // Step 1) Look up the SMO metadata
+                objectMetadata = metadataFactory.GetObjectMetadata(await connector(), objectName, objectType);
+
+                // Step 2) Get and execute a query for the rows in the object we're looking up
+                EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery());
+                if (state.Query == null)
+                {
+                    // TODO: Move to SR file
+                    string message = state.Message ?? "Query execution failed, see messages for details";
+                    throw new Exception(message);
+                }
+
+                // Step 3) Setup the internal state
+                associatedResultSet = ValidateQueryForSession(state.Query);
+                NextRowId = associatedResultSet.RowCount;
+                EditCache = new ConcurrentDictionary<long, RowEditBase>();
+                IsInitialized = true;
+
+                // Step 4) Return our success
+                await successHandler();
+            }
+            catch (Exception e)
+            {
+                await failureHandler(e);
+            }
+        }
+
         private async Task CommitEditsInternal(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
         {
             try
@@ -320,6 +388,27 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             catch (Exception e)
             {
                 await errorHandler(e);
+            }
+        }
+
+        private string ConstructInitializeQuery()
+        {
+            // Using the columns we know, put together a query for the rows in the table
+            var columns = objectMetadata.Columns.Select(col => col.EscapedName);
+            var columnClause = string.Join(", ", columns);
+
+            return $"SELECT ${columnClause} FROM ${objectMetadata.EscapedMultipartName}";
+        }
+
+        public class EditSessionQueryExecutionState
+        {
+            public Query Query { get; set; }
+            public string Message { get; set; }
+
+            public EditSessionQueryExecutionState(Query query, string message = null)
+            {
+                Query = query;
+                Message = message;
             }
         }
     }

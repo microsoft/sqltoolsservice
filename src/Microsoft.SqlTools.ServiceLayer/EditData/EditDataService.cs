@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Data.Common;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -57,9 +56,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         private readonly Lazy<ConcurrentDictionary<string, EditSession>> editSessions = new Lazy<ConcurrentDictionary<string, EditSession>>(
             () => new ConcurrentDictionary<string, EditSession>());
 
-        private readonly Lazy<ConcurrentDictionary<string, Task>> initializeTasks =
-            new Lazy<ConcurrentDictionary<string, Task>>(() => new ConcurrentDictionary<string, Task>());
-
         #endregion
 
         #region Properties
@@ -68,11 +64,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// Dictionary mapping OwnerURIs to active sessions
         /// </summary>
         internal ConcurrentDictionary<string, EditSession> ActiveSessions => editSessions.Value;
-
-        /// <summary>
-        /// Dictionary mapping owner URIs to initialization tasks
-        /// </summary>
-        internal ConcurrentDictionary<string, Task> InitializeTasks => initializeTasks.Value;
 
         #endregion
 
@@ -156,29 +147,32 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleInitializeRequest(EditInitializeParams initParams,
             RequestContext<EditInitializeResult> requestContext)
         {
+            Func<Exception, Task> executionFailureHandler = (e) => SendSessionReadyEvent(requestContext, initParams.OwnerUri, false, e.Message);
+            Func<Task> executionSuccessHandler = () => SendSessionReadyEvent(requestContext, initParams.OwnerUri, true, null);
+
+            EditSession.Connector connector = () => connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
+            EditSession.QueryRunner queryRunner = q => SessionInitializeQueryRunner(initParams.OwnerUri, requestContext, q);
+
             try
-            {          
+            {
                 // Make sure we have info to process this request
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.OwnerUri), initParams.OwnerUri);
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectType), initParams.ObjectType);
 
-                // Create a task (not yet started) for initialization
-                Task initTask = new Task(async () => await SessionInitializeInternal(initParams, requestContext));
-
-                // Try to add a new task to the edit initialize task list
-                if (!InitializeTasks.TryAdd(initParams.OwnerUri, initTask))
+                // Create a session and add it to the session list
+                EditSession session = new EditSession(metadataFactory, initParams.ObjectName, initParams.ObjectType);
+                if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
                 {
                     throw new InvalidOperationException(SR.EditDataSessionAlreadyExists);
                 }
 
-                // Start the task
-                initTask.Start();
+                // Initialize the session
+                session.Initialize(connector, queryRunner, executionSuccessHandler, executionFailureHandler);
             }
             catch (Exception e)
             {
                 await requestContext.SendError(e.Message);
-                RemoveInitializeTask(initParams.OwnerUri);
             }
         }
 
@@ -262,116 +256,63 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             return editSession;
         }
 
-        private async Task<string> ConstructInitializeQuery(EditInitializeParams initParams)
+        private async Task<EditSession.EditSessionQueryExecutionState> SessionInitializeQueryRunner(string ownerUri,
+            IEventSender eventSender, string query)
         {
-            // Get a connection we'll use for SMO metadata lookup
-            DbConnection conn = await connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
-            var metadata = metadataFactory.GetObjectMetadata(conn, initParams.ObjectName, initParams.ObjectType);
+            // Open a task completion source, effectively creating a synchronous block
+            TaskCompletionSource<EditSession.EditSessionQueryExecutionState> taskCompletion =
+                new TaskCompletionSource<EditSession.EditSessionQueryExecutionState>();
 
-            // Using the columns we know, put together a query for the rows in the table
-            var columns = metadata.Columns.Select(col => col.EscapedName);
-            var columnClause = string.Join(", ", columns);
+            // Setup callback for successful query creation
+            // NOTE: We do not want to set the task completion source, since we will continue executing the query after
+            Func<Query, Task<bool>> queryCreateSuccessCallback = q => Task.FromResult(true);
 
-            return $"SELECT ${columnClause} FROM ${metadata.EscapedMultipartName}";
-        }
-
-        private async Task SessionInitializeInternal(EditInitializeParams initParams, RequestContext<EditInitializeResult> requestContext)
-        {
-            try
+            // Setup callback for failed query creation
+            Func<string, Task> queryCreateFailureCallback = m =>
             {
-                // Get the SMO metadata for the object we're going to query
-                // Get a connection we'll use for SMO metadata lookup (and committing, later on)
-                DbConnection conn = await connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit);
-                var metadata = metadataFactory.GetObjectMetadata(conn, initParams.ObjectName, initParams.ObjectType);
-
-                // Setup a callback for when the query has successfully created
-                Func<Query, Task<bool>> queryCreateSuccessCallback = async query =>
-                {
-                    await requestContext.SendResult(new EditInitializeResult());
-                    return true;
-                };
-
-                // Setup a callback for when the query failed to be created
-                Func<string, Task> queryCreateFailureCallback = async message =>
-                {
-                    await requestContext.SendError(message);
-                    RemoveInitializeTask(initParams.OwnerUri);
-                };
-
-                // Setup a callback for when the query completes execution successfully
-                Query.QueryAsyncEventHandler queryCompleteSuccessCallback =
-                    q => QueryCompleteCallback(q, metadata, initParams.OwnerUri, requestContext);
-
-                // Setup a callback for when the query completes execution with failure
-                Query.QueryAsyncEventHandler queryCompleteFailureCallback = async query =>
-                {
-                    EditSessionReadyParams readyParams = new EditSessionReadyParams
-                    {
-                        OwnerUri = initParams.OwnerUri,
-                        Success = false
-                    };
-                    await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
-                    RemoveInitializeTask(initParams.OwnerUri);
-                };
-
-                // Put together a query for the results and execute it
-                ExecuteStringParams executeParams = new ExecuteStringParams
-                {
-                    Query = await ConstructInitializeQuery(initParams),
-                    OwnerUri = initParams.OwnerUri
-                };
-                await queryExecutionService.InterServiceExecuteQuery(executeParams, requestContext,
-                    queryCreateSuccessCallback, queryCreateFailureCallback,
-                    queryCompleteSuccessCallback, queryCompleteFailureCallback);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.Message);
-            }
-        }
-
-        private async Task QueryCompleteCallback(Query query, EditTableMetadata metadata, string ownerUri,
-            IEventSender requestContext)
-        {
-            EditSessionReadyParams readyParams = new EditSessionReadyParams
-            {
-                OwnerUri = ownerUri
+                taskCompletion.SetResult(new EditSession.EditSessionQueryExecutionState(null, m));
+                return Task.FromResult(0);
             };
 
-            try
+            // Setup callback for successful query execution
+            Query.QueryAsyncEventHandler queryCompleteSuccessCallback = q =>
             {
-                // Validate the query for a editSession
-                ResultSet resultSet = EditSession.ValidateQueryForSession(query);
+                taskCompletion.SetResult(new EditSession.EditSessionQueryExecutionState(q));
+                return Task.FromResult(0);
+            };
 
-                // Create the editSession and add it to the sessions list
-                EditSession editSession = new EditSession(resultSet, metadata);
-                if (!ActiveSessions.TryAdd(ownerUri, editSession))
-                {
-                    throw new InvalidOperationException(SR.EditDataSessionAlreadyExists);
-                }
-                readyParams.Success = true;
-            }
-            catch (Exception)
+            // Setup callback for failed query execution
+            Query.QueryAsyncEventHandler queryCompleteFailureCallback = q =>
             {
-                // Request that the query be disposed
-                await queryExecutionService.InterServiceDisposeQuery(ownerUri, null, null);
-                readyParams.Success = false;
-            }
+                taskCompletion.SetResult(new EditSession.EditSessionQueryExecutionState(null));
+                return Task.FromResult(0);
+            };
 
-            // Send the edit session ready notification
-            await requestContext.SendEvent(EditSessionReadyEvent.Type, readyParams);
-            RemoveInitializeTask(ownerUri);
+            // Execute the
+            ExecuteStringParams executeParams = new ExecuteStringParams
+            {
+                Query = query,
+                OwnerUri = ownerUri
+            };
+            await queryExecutionService.InterServiceExecuteQuery(executeParams, eventSender,
+                queryCreateSuccessCallback, queryCreateFailureCallback,
+                queryCompleteSuccessCallback, queryCompleteFailureCallback);
+
+            // Wait for the completion source to complete, this will wait until the query has
+            // completed and sent all its events.
+            return await taskCompletion.Task;
         }
 
-        private void RemoveInitializeTask(string ownerUri)
+        private static Task SendSessionReadyEvent(IEventSender eventSender, string ownerUri, bool success,
+            string message)
         {
-            // If there isn't a wait handler, just ignore it
-            if (ownerUri == null)
+            var esrp = new EditSessionReadyParams
             {
-                return;
-            }
-            Task initializeTask;
-            InitializeTasks.TryRemove(ownerUri, out initializeTask);
+                OwnerUri = ownerUri,
+                Success = success
+            };
+
+            return eventSender.SendEvent(EditSessionReadyEvent.Type, esrp);
         }
 
         #endregion
