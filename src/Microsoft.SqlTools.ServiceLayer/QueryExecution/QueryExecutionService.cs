@@ -393,7 +393,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Retrieves the requested subset of rows from the requested result set. Intended to
+        /// Retrieves the requested subset of rows from the requested result set. Intended to be
+        /// called by another service.
         /// </summary>
         /// <param name="subsetParams">Parameters for the subset to retrieve</param>
         /// <returns>The requested subset</returns>
