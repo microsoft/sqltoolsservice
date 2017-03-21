@@ -5,11 +5,14 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
 
@@ -21,15 +24,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void RowDeleteConstruction()
         {
             // Setup: Create the values to store
-            const long rowId = 100;
-            ResultSet rs = QueryExecution.Common.GetBasicExecutedBatch().ResultSets[0];
-            IEditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
+            DbColumn[] columns = Common.GetColumns(true);
+            ResultSet rs = Common.GetResultSet(columns, true);
+            IEditTableMetadata etm = Common.GetStandardMetadata(columns, false);
 
             // If: I create a RowCreate instance
-            RowCreate rc = new RowCreate(rowId, rs, etm);
+            RowDelete rc = new RowDelete(100, rs, etm);
 
             // Then: The values I provided should be available
-            Assert.Equal(rowId, rc.RowId);
+            Assert.Equal(100, rc.RowId);
             Assert.Equal(rs, rc.AssociatedResultSet);
             Assert.Equal(etm, rc.AssociatedObjectMetadata);
         }
@@ -64,14 +67,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task ApplyChanges()
         {
             // Setup: Generate the parameters for the row delete object
-            //        We don't care about the values besides the row ID
-            const long rowId = 0;
             var columns = Common.GetColumns(false);
             var rs = Common.GetResultSet(columns, false);
             var etm = Common.GetStandardMetadata(columns);
 
             // If: I ask for the change to be applied
-            RowDelete rd = new RowDelete(rowId, rs, etm);
+            RowDelete rd = new RowDelete(0, rs, etm);
             await rd.ApplyChanges(null);      // Reader not used, can be null
 
             // Then : The result set should have one less row in it
@@ -87,11 +88,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a row delete
-            const long rowId = 0;
             var columns = Common.GetColumns(includeIdentity);
             var rs = Common.GetResultSet(columns, includeIdentity);
             var etm = Common.GetStandardMetadata(columns, !includeIdentity, isMemoryOptimized);
-            RowDelete rd = new RowDelete(rowId, rs, etm);
+            RowDelete rd = new RowDelete(0, rs, etm);
 
             // ... Mock db connection for building the command
             var mockConn = new TestSqlConnection(null);
@@ -131,10 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void GetCommandNullConnection()
         {
             // Setup: Create a row delete
-            var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
-            var etm = Common.GetStandardMetadata(columns);
-            RowDelete rd = new RowDelete(0, rs, etm);
+            RowDelete rd = GetStandardRowDelete();
 
             // If: I attempt to create a command with a null connection
             // Then: It should throw an exception
@@ -142,15 +139,58 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
+        public void GetEditRow()
+        {
+            // Setup: Create a row delete
+            var columns = Common.GetColumns(false);
+            var rs = Common.GetResultSet(columns, false);
+            var etm = Common.GetStandardMetadata(columns);
+            RowDelete rd = new RowDelete(0, rs, etm);
+
+            // If: I attempt to get an edit row
+            DbCellValue[] cells = rs.GetRow(0).ToArray();
+            EditRow er = rd.GetEditRow(cells);
+
+            // Then:
+            // ... The state should be dirty
+            Assert.True(er.IsDirty);
+            Assert.Equal(EditRow.EditRowState.DirtyDelete, er.State);
+
+            // ... The ID should be the same as the one provided
+            Assert.Equal(0, er.Id);
+
+            // ... The row should match the cells that were given
+            Assert.Equal(cells.Length, er.Cells.Length);
+            for (int i = 0; i < cells.Length; i++)
+            {
+                DbCellValue originalCell = cells[i];
+                DbCellValue outputCell = er.Cells[i];
+
+                Assert.Equal(originalCell.DisplayValue, outputCell.DisplayValue);
+                Assert.Equal(originalCell.IsNull, outputCell.IsNull);
+                // Note: No real need to check the RawObject property
+            }
+        }
+
+        [Fact]
+        public void GetEditNullRow()
+        {
+            // Setup: Create a row delete
+            RowDelete rd = GetStandardRowDelete();
+
+            // If: I attempt to get an edit row with a null cached row
+            // Then: I should get an exception
+            Assert.Throws<ArgumentNullException>(() => rd.GetEditRow(null));
+        }
+
+        [Fact]
         public void SetCell()
         {
-            DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = Common.GetResultSet(columns, true);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns, false);
+            // Setup: Create a row delete
+            RowDelete rd = GetStandardRowDelete();
 
             // If: I set a cell on a delete row edit
             // Then: It should throw as invalid operation
-            RowDelete rd = new RowDelete(0, rs, etm);
             Assert.Throws<InvalidOperationException>(() => rd.SetCell(0, null));
         }
 
@@ -158,14 +198,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void RevertCell()
         {
             // Setup: Create a row delete
-            DbColumn[] cols = Common.GetColumns(false);
-            ResultSet rs = Common.GetResultSet(cols, false);
-            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
-            RowDelete rd = new RowDelete(0, rs, etm);
+            RowDelete rd = GetStandardRowDelete();
 
             // If: I revert a cell on a delete row edit
             // Then: It should throw
             Assert.Throws<InvalidOperationException>(() => rd.RevertCell(0));
+        }
+
+        private RowDelete GetStandardRowDelete()
+        {
+            var cols = Common.GetColumns(false);
+            var rs = Common.GetResultSet(cols, false);
+            var etm = Common.GetStandardMetadata(cols);
+            return new RowDelete(0, rs, etm);
         }
     }
 }
