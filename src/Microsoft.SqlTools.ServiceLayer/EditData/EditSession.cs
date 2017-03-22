@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
@@ -29,25 +30,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         private readonly IEditMetadataFactory metadataFactory;
         private EditTableMetadata objectMetadata;
-        private readonly string objectName;
-        private readonly string objectType;
 
         /// <summary>
         /// Constructs a new edit session bound to the result set and metadat object provided
         /// </summary>
         /// <param name="metaFactory">Factory for creating metadata</param>
-        /// <param name="objName">The name of the object to edit</param>
-        /// <param name="objType">The type of the object to edit</param>
-        public EditSession(IEditMetadataFactory metaFactory, string objName, string objType)
+        public EditSession(IEditMetadataFactory metaFactory)
         {
             Validate.IsNotNull(nameof(metaFactory), metaFactory);
-            Validate.IsNotNullOrWhitespaceString(nameof(objName), objName);
-            Validate.IsNotNullOrWhitespaceString(nameof(objType), objType);
 
             // Setup the internal state
             metadataFactory = metaFactory;
-            objectName = objName;
-            objectType = objType;
         }
 
         #region Properties
@@ -86,7 +79,22 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #region Public Methods
 
-        public void Initialize(Connector connector, QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> errorHandler)
+        /// <summary>
+        /// Initializes the edit session, asynchronously, by retrieving metadata about the table to
+        /// edit and querying the table for the rows of the table.
+        /// </summary>
+        /// <param name="initParams">Parameters for initializing the edit session</param>
+        /// <param name="connector">Delegate that will return a DbConnection when executed</param>
+        /// <param name="queryRunner">
+        /// Delegate that will run the requested query and return a
+        /// <see cref="EditSessionQueryExecutionState"/> object on execution
+        /// </param>
+        /// <param name="successHandler">Func to call when initialization has completed successfully</param>
+        /// <param name="errorHandler">Func to call when initialization has completed with errors</param>
+        /// <exception cref="InvalidOperationException">
+        /// When session is already initialized or in progress of initializing
+        /// </exception>
+        public void Initialize(EditInitializeParams initParams, Connector connector, QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> errorHandler)
         {
             if (IsInitialized)
             {
@@ -98,13 +106,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataSessionAlreadyInitializing);
             }
 
+            Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
+            Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectType), initParams.ObjectType);
+            Validate.IsNotNull(nameof(initParams.Filters), initParams.Filters);
+
             Validate.IsNotNull(nameof(connector), connector);
             Validate.IsNotNull(nameof(queryRunner), queryRunner);
             Validate.IsNotNull(nameof(successHandler), successHandler);
             Validate.IsNotNull(nameof(errorHandler), errorHandler);
 
             // Start up the initialize process
-            InitializeTask = InitializeInternal(connector, queryRunner, successHandler, errorHandler);
+            InitializeTask = InitializeInternal(initParams, connector, queryRunner, successHandler, errorHandler);
         }
 
         /// <summary>
@@ -403,16 +415,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
         #endregion
 
-        private async Task InitializeInternal(Connector connector, QueryRunner queryRunner,
-            Func<Task> successHandler, Func<Exception, Task> failureHandler)
+        #region Private Helpers
+
+        private async Task InitializeInternal(EditInitializeParams initParams, Connector connector,
+            QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> failureHandler)
         {
             try
             {
                 // Step 1) Look up the SMO metadata
-                objectMetadata = metadataFactory.GetObjectMetadata(await connector(), objectName, objectType);
+                objectMetadata = metadataFactory.GetObjectMetadata(await connector(), initParams.ObjectName,
+                    initParams.ObjectType);
 
                 // Step 2) Get and execute a query for the rows in the object we're looking up
-                EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery());
+                EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery(initParams.Filters));
                 if (state.Query == null)
                 {
                     // TODO: Move to SR file
@@ -467,13 +482,25 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        private string ConstructInitializeQuery()
+        private string ConstructInitializeQuery(EditInitializeFiltering initFilters)
         {
-            // Using the columns we know, put together a query for the rows in the table
+            StringBuilder queryBuilder = new StringBuilder("SELECT ");
+
+            // If there is a filter for top n rows, then apply it
+            if (initFilters.LimitResults.HasValue)
+            {
+                queryBuilder.AppendFormat("TOP {0} ", initFilters.LimitResults.Value);
+            }
+
+            // Using the columns we know, add them to the query
             var columns = objectMetadata.Columns.Select(col => col.EscapedName);
             var columnClause = string.Join(", ", columns);
+            queryBuilder.Append(columnClause);
 
-            return $"SELECT ${columnClause} FROM ${objectMetadata.EscapedMultipartName}";
+            // Add the FROM
+            queryBuilder.AppendFormat(" FROM ", objectMetadata.EscapedMultipartName);
+
+            return queryBuilder.ToString();
         }
 
         private void ThrowIfNotInitialized()
@@ -483,6 +510,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
             }
         }
+
+        #endregion
 
         /// <summary>
         /// State object to return upon completion of an edit session intialization query
