@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="rowId">Internal ID of the row to be deleted</param>
         /// <param name="associatedResultSet">Result set that is being edited</param>
         /// <param name="associatedMetadata">Improved metadata of the object being edited</param>
-        public RowDelete(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+        public RowDelete(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
         }

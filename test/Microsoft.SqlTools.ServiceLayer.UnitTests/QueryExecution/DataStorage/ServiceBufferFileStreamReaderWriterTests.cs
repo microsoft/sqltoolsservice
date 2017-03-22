@@ -302,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATE column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTe"));
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTe"});
             
             foreach (DateTime value in testValues)
             {
@@ -324,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe"));
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe"});
 
             foreach (DateTime value in testValues)
             {
@@ -353,7 +353,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe2", precision));
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn
+            {
+                DataTypeName = "DaTeTiMe2",
+                NumericScale = precision
+            });
 
             foreach (DateTime value in testValues)
             {
@@ -379,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME2 column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe2", 0));
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe2", NumericScale = 0});
 
             foreach (DateTime value in testValues)
             {
@@ -401,7 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME2 column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn("col", "DaTeTiMe2", 255));
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe2", NumericScale = 255});
 
             foreach (DateTime value in testValues)
             {

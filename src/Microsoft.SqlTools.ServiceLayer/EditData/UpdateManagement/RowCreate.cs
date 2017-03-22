@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="rowId">Internal ID of the row that is being created</param>
         /// <param name="associatedResultSet">The result set for the rows in the table we're editing</param>
         /// <param name="associatedMetadata">The metadata for table we're editing</param>
-        public RowCreate(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+        public RowCreate(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
