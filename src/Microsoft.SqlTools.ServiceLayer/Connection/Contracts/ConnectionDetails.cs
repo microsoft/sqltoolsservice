@@ -446,9 +446,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             if (Options != null && Options.ContainsKey(name))
             {
                 object value = Options[name];
-                if(value != null && ( typeof(T) == typeof(int) || typeof(T) == typeof(int?)))
+                if (value != null && (typeof(T) != value.GetType()))
                 {
-                    value = System.Convert.ToInt32(value);
+                    if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
+                    {
+                        value = System.Convert.ToInt32(value);
+                    }
+                    else if (typeof(T) == typeof(bool) || typeof(T) == typeof(bool?))
+                    {
+                        value = System.Convert.ToBoolean(value);
+                    }
                 }
                 result = value != null ? (T)value : default(T);
             }
