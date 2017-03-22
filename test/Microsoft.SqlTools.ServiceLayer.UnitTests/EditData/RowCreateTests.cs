@@ -22,13 +22,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     public class RowCreateTests
     {
         [Fact]
-        public void RowCreateConstruction()
+        public async Task RowCreateConstruction()
         {
             // Setup: Create the values to store
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(false);
-            ResultSet rs = Common.GetResultSet(columns, false);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
+            ResultSet rs = await Common.GetResultSet(columns, false);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I create a RowCreate instance
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -42,13 +42,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GetScript(bool includeIdentity)
+        public async Task GetScript(bool includeIdentity)
         {
             // Setup: Generate the parameters for the row create
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(includeIdentity);
-            ResultSet rs = Common.GetResultSet(columns, includeIdentity);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
+            ResultSet rs = await Common.GetResultSet(columns, includeIdentity);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: I ask for a script to be generated without an identity column
             RowCreate rc = new RowCreate(rowId, rs, etm);
@@ -74,10 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetScriptMissingCell()
+        public async Task GetScriptMissingCell()
         {
             // Setup: Generate the parameters for the row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
 
             // If: I ask for a script to be generated without setting any values
             // Then: An exception should be thrown for missing cells
@@ -93,8 +93,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Generate the parameters for the row create
             const long rowId = 100;
             DbColumn[] columns = Common.GetColumns(includeIdentity);
-            ResultSet rs = Common.GetResultSet(columns, includeIdentity);
-            IEditTableMetadata etm = Common.GetStandardMetadata(columns);
+            ResultSet rs = await Common.GetResultSet(columns, includeIdentity);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // ... Setup a db reader for the result of an insert
             var newRowReader = Common.GetNewRowDataReader(columns, includeIdentity);
@@ -110,13 +110,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GetCommand(bool includeIdentity)
+        public async Task GetCommand(bool includeIdentity)
         {
             // Setup:
             // ... Create a row create with cell updates
             const long rowId = 100;
             var columns = Common.GetColumns(includeIdentity);
-            var rs = Common.GetResultSet(columns, includeIdentity);
+            var rs = await Common.GetResultSet(columns, includeIdentity);
             var etm = Common.GetStandardMetadata(columns);
             RowCreate rc = new RowCreate(rowId, rs, etm);
             Common.AddCells(rc, includeIdentity);
@@ -159,10 +159,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetCommandNullConnection()
+        public async Task GetCommandNullConnection()
         {
             // Setup: Create a row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
 
 
             // If: I attempt to create a command with a null connection
@@ -171,10 +171,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetCommandMissingCell()
+        public async Task GetCommandMissingCell()
         {
             // Setup: Generate the parameters for the row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
             var mockConn = new TestSqlConnection(null);
 
             // If: I ask for a script to be generated without setting any values
@@ -183,10 +183,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetEditRowNoAdditions()
+        public async Task GetEditRowNoAdditions()
         {
             // Setup: Generate a standard row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
 
             // If: I request an edit row from the row create
             EditRow er = rc.GetEditRow(null);
@@ -209,10 +209,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetEditRowWithAdditions()
+        public async Task GetEditRowWithAdditions()
         {
             // Setp: Generate a row create with a cell added to it
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
             rc.SetCell(0, "foo");
 
             // If: I request an edit row from the row create
@@ -244,20 +244,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [InlineData(-1)]        // Negative
         [InlineData(3)]         // At edge of acceptable values
         [InlineData(100)]       // Way too large value
-        public void SetCellOutOfRange(int columnId)
+        public async Task SetCellOutOfRange(int columnId)
         {
             // Setup: Generate a row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
 
             // If: I attempt to set a cell on a column that is out of range, I should get an exception
             Assert.Throws<ArgumentOutOfRangeException>(() => rc.SetCell(columnId, string.Empty));
         }
 
         [Fact]
-        public void SetCellNoChange()
+        public async Task SetCellNoChange()
         {
             // Setup: Generate a row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
 
             // If: I set a cell in the newly created row to something that doesn't need changing
             EditUpdateCellResult eucr = rc.SetCell(0, "1");
@@ -278,16 +278,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void SetCellHasCorrections()
+        public async Task SetCellHasCorrections()
         {
             // Setup: 
             // ... Generate a result set with a single binary column
-            DbColumn[] cols = {new TestDbColumn("bin", "binary", typeof(byte[]))};
+            DbColumn[] cols = {new TestDbColumn
+            {
+                DataType = typeof(byte[]),
+                DataTypeName = "binary"
+            }};
             object[][] rows = {};
             var testResultSet = new TestResultSet(cols, rows);
             var testReader = new TestDbDataReader(new[] {testResultSet});
             var rs = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
-            rs.ReadResultToEnd(testReader, CancellationToken.None).Wait();
+            await rs.ReadResultToEnd(testReader, CancellationToken.None);
 
             // ... Generate the metadata
             var etm = Common.GetStandardMetadata(cols);
@@ -314,10 +318,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void SetCellNull()
+        public async Task SetCellNull()
         {
             // Setup: Generate a row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
 
             // If: I set a cell in the newly created row to null
             EditUpdateCellResult eucr = rc.SetCell(0, "NULL");
@@ -341,10 +345,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [InlineData(-1)]        // Negative
         [InlineData(3)]         // At edge of acceptable values
         [InlineData(100)]       // Way too large value
-        public void RevertCellOutOfRange(int columnId)
+        public async Task RevertCellOutOfRange(int columnId)
         {
             // Setup: Generate the row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
 
             // If: I attempt to revert a cell that is out of range
             // Then: I should get an exception
@@ -352,10 +356,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void RevertCellNotSet()
+        public async Task RevertCellNotSet()
         {
             // Setup: Generate the row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
 
             // If: I attempt to revert a cell that has not been set
             string result = rc.RevertCell(0);
@@ -369,10 +373,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void RevertCellThatWasSet()
+        public async Task RevertCellThatWasSet()
         {
             // Setup: Generate the row create
-            RowCreate rc = GetStandardRowCreate();
+            RowCreate rc = await GetStandardRowCreate();
             rc.SetCell(0, "1");
 
             // If: I attempt to revert a cell that was set
@@ -386,10 +390,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Null(rc.newCells[0]);
         }
 
-        private static RowCreate GetStandardRowCreate()
+        private static async Task<RowCreate> GetStandardRowCreate()
         {
             var cols = Common.GetColumns(false);
-            var rs = Common.GetResultSet(cols, false);
+            var rs = await Common.GetResultSet(cols, false);
             var etm = Common.GetStandardMetadata(cols);
             return new RowCreate(100, rs, etm);
         }

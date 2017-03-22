@@ -4,7 +4,6 @@
 //
 
 using System.Data.Common;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
@@ -17,10 +16,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// Generates a edit-ready metadata object
         /// </summary>
         /// <param name="connection">Connection to use for getting metadata</param>
-        /// <param name="columns">List of columns from a query against the object</param>
         /// <param name="objectName">Name of the object to return metadata for</param>
         /// <param name="objectType">Type of the object to return metadata for</param>
         /// <returns>Metadata about the object requested</returns>
-        IEditTableMetadata GetObjectMetadata(DbConnection connection, DbColumnWrapper[] columns, string objectName, string objectType);
+        EditTableMetadata GetObjectMetadata(DbConnection connection, string objectName, string objectType);
     }
 }

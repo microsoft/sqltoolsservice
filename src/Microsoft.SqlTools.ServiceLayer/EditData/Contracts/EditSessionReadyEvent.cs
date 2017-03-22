@@ -15,6 +15,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
+        /// Message to explain why a session failed. Should only be set when <see cref="Success"/>
+        /// is <c>false</c>.
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
         /// Whether or not the session is ready
         /// </summary>
         public bool Success { get; set; }

@@ -58,6 +58,9 @@ cross/rootfs/
 [Bb]uild[Ll]og.*
 test*json
 
+## Project Rider ##
+.idea/
+
 #NUNIT
 *.VisualState.xml
 TestResult.xml
@@ -169,9 +172,6 @@ publish/
 *.nupkg
 **/packages/*
 
-# NuGet package restore lockfiles
-project.lock.json
-
 # Windows Azure Build Output
 csx/
 *.build.csdef
@@ -242,8 +242,6 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Linux ###
-
-*~
 
 # KDE directory preferences
 .directory
