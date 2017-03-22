@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
                         ValueType = ConnectionOption.ValueTypeString,
                         SpecialValueType = ConnectionOption.SpecialValueDatabaseName,
                         IsIdentity = true,
-                        IsRequired = true,
+                        IsRequired = false,
                         GroupName = "Source"
                     },
                     new ConnectionOption
