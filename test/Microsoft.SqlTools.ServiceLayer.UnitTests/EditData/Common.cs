@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -22,21 +23,42 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     {
         public const string OwnerUri = "testFile";
 
+        public static EditInitializeParams BasicInitializeParameters
+        {
+            get
+            {
+                return new EditInitializeParams
+                {
+                    Filters = new EditInitializeFiltering(),
+                    ObjectName = "tbl",
+                    ObjectType = "tbl"
+                };
+            }
+        }
+
         public static async Task<EditSession> GetCustomSession(Query q, EditTableMetadata etm)
         {
+            // Step 1) Create the Session object
             // Mock metadata factory
             Mock<IEditMetadataFactory> metaFactory = new Mock<IEditMetadataFactory>();
             metaFactory
                 .Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(etm);
 
-            EditSession session = new EditSession(metaFactory.Object, "tbl", "tbl");
+            EditSession session = new EditSession(metaFactory.Object);
 
+
+            // Step 2) Initialize the Session
+            // Mock connector that does nothing
             EditSession.Connector connector = () => Task.FromResult<DbConnection>(null);
+
+            // Mock query runner that returns the query we were provided
             EditSession.QueryRunner queryRunner = (s) => Task.FromResult(new EditSession.EditSessionQueryExecutionState(q));
 
-            session.Initialize(connector, queryRunner, () => Task.FromResult(0), (e) => Task.FromResult(0));
+            // Initialize
+            session.Initialize(BasicInitializeParameters, connector, queryRunner, () => Task.FromResult(0), (e) => Task.FromResult(0));
             await session.InitializeTask;
+
             return session;
         }
 
