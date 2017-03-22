@@ -205,6 +205,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceCellNull
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceCellNull);
+            }
+        }
+
         public static string QueryServiceRequestsNoQuery
         {
             get
@@ -1003,6 +1011,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceColumnNull = "QueryServiceColumnNull";
+
+
+            public const string QueryServiceCellNull = "QueryServiceCellNull";
 
 
             public const string QueryServiceRequestsNoQuery = "QueryServiceRequestsNoQuery";
