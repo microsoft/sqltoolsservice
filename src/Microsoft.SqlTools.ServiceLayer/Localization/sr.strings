@@ -176,6 +176,8 @@ EditDataSessionAlreadyInitialized = Edit session has already been initialized
 
 EditDataSessionAlreadyInitializing = Edit session has already been initialized or is in the process of initializing
 
+EditDataFilteringNegativeLimit = Result limit cannot be negative
+
 EditDataUnsupportedObjectType(string typeName) = Database object {0} cannot be used for editing.
 
 EditDataQueryFailed = Query execution failed, see messages for details

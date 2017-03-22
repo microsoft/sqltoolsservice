@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.EditData;
@@ -1066,6 +1067,91 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... The edit cache should not be empty
             Assert.NotEmpty(s.EditCache);
+        }
+
+        #endregion
+
+        #region Construct Initialize Query Tests
+
+        [Fact]
+        public void ConstructQueryWithoutLimit()
+        {
+            // Setup: Create a metadata provider for some basic columns
+            var cols = Common.GetColumns(false);
+            var etm = Common.GetStandardMetadata(cols);
+
+            // If: I generate a query for selecting rows without a limit
+            EditInitializeFiltering eif = new EditInitializeFiltering
+            {
+                LimitResults = null
+            };
+            string query = EditSession.ConstructInitializeQuery(etm, eif);
+
+            // Then:
+            // ... The query should look like a select statement
+            Regex selectRegex = new Regex("SELECT (.+) FROM (.+)", RegexOptions.IgnoreCase);
+            var match = selectRegex.Match(query);
+            Assert.True(match.Success);
+
+            // ... There should be columns in it
+            Assert.Equal(etm.Columns.Length, match.Groups[1].Value.Split(',').Length);
+
+            // ... The table name should be in it
+            Assert.Equal(etm.EscapedMultipartName, match.Groups[2].Value);
+
+            // ... It should NOT have a TOP clause in it
+            Assert.DoesNotContain("TOP", query);
+        }
+
+        [Fact]
+        public void ConstructQueryNegativeLimit()
+        {
+            // Setup: Create a metadata provider for some basic columns
+            var cols = Common.GetColumns(false);
+            var etm = Common.GetStandardMetadata(cols);
+
+            // If: I generate a query for selecting rows with a negative limit
+            // Then: An exception should be thrown
+            EditInitializeFiltering eif = new EditInitializeFiltering
+            {
+                LimitResults = -1
+            };
+            Assert.Throws<ArgumentOutOfRangeException>(() => EditSession.ConstructInitializeQuery(etm, eif));
+        }
+
+        [Theory]
+        [InlineData(0)]        // Yes, zero is valid
+        [InlineData(10)]
+        [InlineData(1000)]
+        public void ConstructQueryWithLimit(int limit)
+        {
+            // Setup: Create a metadata provider for some basic columns
+            var cols = Common.GetColumns(false);
+            var etm = Common.GetStandardMetadata(cols);
+
+            // If: I generate a query for selecting rows without a limit
+            EditInitializeFiltering eif = new EditInitializeFiltering
+            {
+                LimitResults = limit
+            };
+            string query = EditSession.ConstructInitializeQuery(etm, eif);
+
+            // Then:
+            // ... The query should look like a select statement
+            Regex selectRegex = new Regex(@"SELECT TOP (\d+) (.+) FROM (.+)", RegexOptions.IgnoreCase);
+            var match = selectRegex.Match(query);
+            Assert.True(match.Success);
+
+            // ... There should be columns in it
+            Assert.Equal(etm.Columns.Length, match.Groups[2].Value.Split(',').Length);
+
+            // ... The table name should be in it
+            Assert.Equal(etm.EscapedMultipartName, match.Groups[3].Value);
+
+            // ... The top count should be equal to what we provided
+            int limitFromQuery;
+            Assert.True(int.TryParse(match.Groups[1].Value, out limitFromQuery));
+            Assert.Equal(limit, limitFromQuery);
         }
 
         #endregion

@@ -427,7 +427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     initParams.ObjectType);
 
                 // Step 2) Get and execute a query for the rows in the object we're looking up
-                EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery(initParams.Filters));
+                EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery(objectMetadata, initParams.Filters));
                 if (state.Query == null)
                 {
                     // TODO: Move to SR file
@@ -482,23 +482,31 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
         }
 
-        private string ConstructInitializeQuery(EditInitializeFiltering initFilters)
+        /// <summary>
+        /// Constructs a query for selecting rows in a table based on the filters provided.
+        /// Internal for unit testing purposes only.
+        /// </summary>
+        internal static string ConstructInitializeQuery(EditTableMetadata metadata, EditInitializeFiltering initFilters)
         {
             StringBuilder queryBuilder = new StringBuilder("SELECT ");
 
             // If there is a filter for top n rows, then apply it
             if (initFilters.LimitResults.HasValue)
             {
+                if (initFilters.LimitResults < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(initFilters.LimitResults), SR.EditDataFilteringNegativeLimit);
+                }
                 queryBuilder.AppendFormat("TOP {0} ", initFilters.LimitResults.Value);
             }
 
             // Using the columns we know, add them to the query
-            var columns = objectMetadata.Columns.Select(col => col.EscapedName);
+            var columns = metadata.Columns.Select(col => col.EscapedName);
             var columnClause = string.Join(", ", columns);
             queryBuilder.Append(columnClause);
 
             // Add the FROM
-            queryBuilder.AppendFormat(" FROM ", objectMetadata.EscapedMultipartName);
+            queryBuilder.AppendFormat(" FROM {0}", metadata.EscapedMultipartName);
 
             return queryBuilder.ToString();
         }
