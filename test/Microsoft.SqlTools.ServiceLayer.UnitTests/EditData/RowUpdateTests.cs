@@ -40,10 +40,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void SetCell()
+        public async Task SetCell()
         {
             // Setup: Create a row update
-            RowUpdate ru = GetStandardRowUpdate();
+            RowUpdate ru = await GetStandardRowUpdate();
 
             // If: I set a cell that can be updated
             EditUpdateCellResult eucr = ru.SetCell(0, "col1");
@@ -109,11 +109,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void SetCellImplicitRevertTest()
+        public async Task SetCellImplicitRevertTest()
         {
             // Setup: Create a fake table to update
             DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = Common.GetResultSet(columns, true);
+            ResultSet rs = await Common.GetResultSet(columns, true);
             EditTableMetadata etm = Common.GetStandardMetadata(columns);
 
             // If: 
@@ -146,11 +146,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GetScriptTest(bool isMemoryOptimized)
+        public async Task GetScriptTest(bool isMemoryOptimized)
         {
             // Setup: Create a fake table to update
             DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = Common.GetResultSet(columns, true);
+            ResultSet rs = await Common.GetResultSet(columns, true);
             EditTableMetadata etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
 
             // If: I ask for a script to be generated for update
@@ -184,12 +184,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public void GetCommand(bool includeIdentity, bool isMemoryOptimized)
+        public async Task GetCommand(bool includeIdentity, bool isMemoryOptimized)
         {
             // Setup: 
             // ... Create a row update with cell updates
             var columns = Common.GetColumns(includeIdentity);
-            var rs = Common.GetResultSet(columns, includeIdentity);
+            var rs = await Common.GetResultSet(columns, includeIdentity);
             var etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             Common.AddCells(ru, includeIdentity);
@@ -238,10 +238,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetCommandNullConnection()
+        public async Task GetCommandNullConnection()
         {
             // Setup: Create a row update
-            RowUpdate ru = GetStandardRowUpdate();
+            RowUpdate ru = await GetStandardRowUpdate();
 
             // If: I attempt to create a command with a null connection
             // Then: It should throw an exception
@@ -249,11 +249,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetEditRow()
+        public async Task GetEditRow()
         {
             // Setup: Create a row update with a cell set
             var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
+            var rs = await Common.GetResultSet(columns, false);
             var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             ru.SetCell(0, "foo");
@@ -289,10 +289,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetEditNullRow()
+        public async Task GetEditNullRow()
         {
             // Setup: Create a row update
-            RowUpdate ru = GetStandardRowUpdate();
+            RowUpdate ru = await GetStandardRowUpdate();
 
             // If: I attempt to get an edit row with a null cached row
             // Then: I should get an exception
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: 
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(includeIdentity);
-            var rs = Common.GetResultSet(columns, includeIdentity);
+            var rs = await Common.GetResultSet(columns, includeIdentity);
             var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             long oldBytesWritten = rs.totalBytesWritten;
@@ -330,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: 
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(true);
-            var rs = Common.GetResultSet(columns, true);
+            var rs = await Common.GetResultSet(columns, true);
             var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
@@ -343,12 +343,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [InlineData(-1)]        // Negative
         [InlineData(3)]         // At edge of acceptable values
         [InlineData(100)]       // Way too large value
-        public void RevertCellOutOfRange(int columnId)
+        public async Task RevertCellOutOfRange(int columnId)
         {
             // Setup: 
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
+            var rs = await Common.GetResultSet(columns, false);
             var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
@@ -358,12 +358,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void RevertCellNotSet()
+        public async Task RevertCellNotSet()
         {
             // Setup: 
             // ... Create a row update (no cell updates needed)
             var columns = Common.GetColumns(true);
-            var rs = Common.GetResultSet(columns, true);
+            var rs = await Common.GetResultSet(columns, true);
             var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
@@ -378,12 +378,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void RevertCellThatWasSet()
+        public async Task RevertCellThatWasSet()
         {
             // Setup: 
             // ... Create a row update
             var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
+            var rs = await Common.GetResultSet(columns, false);
             var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
             ru.SetCell(0, "1");
@@ -399,10 +399,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.DoesNotContain(0, ru.cellUpdates.Keys);
         }
 
-        private RowUpdate GetStandardRowUpdate()
+        private async Task<RowUpdate> GetStandardRowUpdate()
         {
             var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
+            var rs = await Common.GetResultSet(columns, false);
             var etm = Common.GetStandardMetadata(columns);
             return new RowUpdate(0, rs, etm);
         }

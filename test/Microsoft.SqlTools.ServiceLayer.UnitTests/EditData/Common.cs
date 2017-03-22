@@ -83,14 +83,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             return columns.ToArray();
         }
 
-        public static Query GetQuery(DbColumn[] columns, bool includIdentity, int rowCount = 1)
+        public static async Task<Query> GetQuery(DbColumn[] columns, bool includIdentity, int rowCount = 1)
         {
             Query q = QueryExecution.Common.GetBasicExecutedQuery();
-            q.Batches[0].ResultSets[0] = GetResultSet(columns, includIdentity, rowCount);
+            q.Batches[0].ResultSets[0] = await GetResultSet(columns, includIdentity, rowCount);
             return q;
         }
 
-        public static ResultSet GetResultSet(DbColumn[] columns, bool includeIdentity, int rowCount = 1)
+        public static async Task<ResultSet> GetResultSet(DbColumn[] columns, bool includeIdentity, int rowCount = 1)
         {
             IEnumerable<object[]> rows = includeIdentity
                 ? Enumerable.Repeat(new object[] { "id", "1", "2", "3" }, rowCount)
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var testResultSet = new TestResultSet(columns, rows);
             var reader = new TestDbDataReader(new[] { testResultSet });
             var resultSet = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
-            resultSet.ReadResultToEnd(reader, CancellationToken.None).Wait();
+            await resultSet.ReadResultToEnd(reader, CancellationToken.None);
             return resultSet;
         }
 

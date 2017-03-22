@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             etm.Extend(cols);
 
             // ... Create a result set
-            var q = Common.GetQuery(cols, false);
+            var q = await Common.GetQuery(cols, false);
 
             // ... Create a session from all this
             EditSession s = await Common.GetCustomSession(q, etm);

@@ -21,11 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     public class RowDeleteTests
     {
         [Fact]
-        public void RowDeleteConstruction()
+        public async Task RowDeleteConstruction()
         {
             // Setup: Create the values to store
             DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = Common.GetResultSet(columns, true);
+            ResultSet rs = await Common.GetResultSet(columns, true);
             EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I create a RowCreate instance
@@ -40,10 +40,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GetScriptTest(bool isMemoryOptimized)
+        public async Task GetScriptTest(bool isMemoryOptimized)
         {
             DbColumn[] columns = Common.GetColumns(true);
-            ResultSet rs = Common.GetResultSet(columns, true);
+            ResultSet rs = await Common.GetResultSet(columns, true);
             EditTableMetadata etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
 
             // If: I ask for a script to be generated for delete
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Generate the parameters for the row delete object
             var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
+            var rs = await Common.GetResultSet(columns, false);
             var etm = Common.GetStandardMetadata(columns);
 
             // If: I ask for the change to be applied
@@ -84,12 +84,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [InlineData(false, true)]
         [InlineData(true, false)]
         [InlineData(false, false)]
-        public void GetCommand(bool includeIdentity, bool isMemoryOptimized)
+        public async Task GetCommand(bool includeIdentity, bool isMemoryOptimized)
         {
             // Setup:
             // ... Create a row delete
             var columns = Common.GetColumns(includeIdentity);
-            var rs = Common.GetResultSet(columns, includeIdentity);
+            var rs = await Common.GetResultSet(columns, includeIdentity);
             var etm = Common.GetStandardMetadata(columns, isMemoryOptimized);
             RowDelete rd = new RowDelete(0, rs, etm);
 
@@ -128,10 +128,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetCommandNullConnection()
+        public async Task GetCommandNullConnection()
         {
             // Setup: Create a row delete
-            RowDelete rd = GetStandardRowDelete();
+            RowDelete rd = await GetStandardRowDelete();
 
             // If: I attempt to create a command with a null connection
             // Then: It should throw an exception
@@ -139,11 +139,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetEditRow()
+        public async Task GetEditRow()
         {
             // Setup: Create a row delete
             var columns = Common.GetColumns(false);
-            var rs = Common.GetResultSet(columns, false);
+            var rs = await Common.GetResultSet(columns, false);
             var etm = Common.GetStandardMetadata(columns);
             RowDelete rd = new RowDelete(0, rs, etm);
 
@@ -173,10 +173,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void GetEditNullRow()
+        public async Task GetEditNullRow()
         {
             // Setup: Create a row delete
-            RowDelete rd = GetStandardRowDelete();
+            RowDelete rd = await GetStandardRowDelete();
 
             // If: I attempt to get an edit row with a null cached row
             // Then: I should get an exception
@@ -184,10 +184,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void SetCell()
+        public async Task SetCell()
         {
             // Setup: Create a row delete
-            RowDelete rd = GetStandardRowDelete();
+            RowDelete rd = await GetStandardRowDelete();
 
             // If: I set a cell on a delete row edit
             // Then: It should throw as invalid operation
@@ -195,20 +195,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void RevertCell()
+        public async Task RevertCell()
         {
             // Setup: Create a row delete
-            RowDelete rd = GetStandardRowDelete();
+            RowDelete rd = await GetStandardRowDelete();
 
             // If: I revert a cell on a delete row edit
             // Then: It should throw
             Assert.Throws<InvalidOperationException>(() => rd.RevertCell(0));
         }
 
-        private RowDelete GetStandardRowDelete()
+        private async Task<RowDelete> GetStandardRowDelete()
         {
             var cols = Common.GetColumns(false);
-            var rs = Common.GetResultSet(cols, false);
+            var rs = await Common.GetResultSet(cols, false);
             var etm = Common.GetStandardMetadata(cols);
             return new RowDelete(0, rs, etm);
         }

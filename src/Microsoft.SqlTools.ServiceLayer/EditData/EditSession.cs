@@ -98,8 +98,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new InvalidOperationException(SR.EditDataSessionAlreadyInitializing);
             }
 
-            Validate.IsNotNullOrWhitespaceString(nameof(objectName), objectName);
-            Validate.IsNotNullOrWhitespaceString(nameof(objectType), objectType);
+            Validate.IsNotNull(nameof(connector), connector);
+            Validate.IsNotNull(nameof(queryRunner), queryRunner);
             Validate.IsNotNull(nameof(successHandler), successHandler);
             Validate.IsNotNull(nameof(errorHandler), errorHandler);
 
