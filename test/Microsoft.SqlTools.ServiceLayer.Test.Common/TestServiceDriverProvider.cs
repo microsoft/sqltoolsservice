@@ -424,9 +424,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return result;
         }
 
-        public async Task<ScriptingResult> Script(ScriptingParams scriptDatabaseParams)
+        public async Task<ScriptingListObjectsResult> ListScriptingObjects(ScriptingListObjectsParams parameters)
         {
-            return await Driver.SendRequest(ScriptingRequest.Type, scriptDatabaseParams);
+            return await Driver.SendRequest(ScriptingListObjectsRequest.Type, parameters);
+        }
+
+        public async Task<ScriptingResult> Script(ScriptingParams parameters)
+        {
+            return await Driver.SendRequest(ScriptingRequest.Type, parameters);
         }
 
         public async Task<ScriptingCancelResult> CancelScript(string operationId)
@@ -451,21 +456,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
-        public void AssertEventNotQueued<T>(EventType<T> type)
+        public bool TryGetEvent<T>(EventType<T> eventType, out T value)
         {
+            value = default(T);
+
             try
             {
-                Task<T> t = this.Driver.WaitForEvent(type, TimeSpan.Zero);
-                t.Wait();
-                Assert.True(false, string.Format("Event {0} was unexpectedly raised by the SqlToolsService.", type.GetType()));
+                Task<T> t = this.Driver.WaitForEvent(eventType, TimeSpan.Zero);
+                value = t.Result;
+                return true;
             }
-            catch (AggregateException ae)
+            catch (Exception)
             {
-                // If the event
-                if (!(ae.InnerException is TimeoutException))
-                {
-                    throw;
-                }
+                return false;
+            }
+        }
+
+        public void AssertEventNotQueued<T>(EventType<T> eventType)
+        {
+            T temp;
+            if (TryGetEvent(eventType, out temp))
+            {
+                Assert.True(false, string.Format("Event of type {0} was found in the queue.", eventType.GetType().FullName, temp.ToString()));
             }
         }
     }

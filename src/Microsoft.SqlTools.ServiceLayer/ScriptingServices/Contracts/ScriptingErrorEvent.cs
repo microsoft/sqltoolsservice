@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ScriptingServices.Contracts
     /// <summary>
     /// Parameters to be sent to indicate a scripting operations has encountered and error.
     /// </summary>
-    public class ScriptErrorParams : ScriptingEventParams
+    public class ScriptingErrorParams : ScriptingEventParams
     {
         public string Message { get; set; }
 
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ScriptingServices.Contracts
     /// </summary>
     public class ScriptingErrorEvent
     {
-        public static readonly EventType<ScriptErrorParams> Type = 
-            EventType<ScriptErrorParams>.Create("scripting/scriptError");
+        public static readonly EventType<ScriptingErrorParams> Type = 
+            EventType<ScriptingErrorParams>.Create("scripting/scriptError");
     }
 }

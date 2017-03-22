@@ -59,6 +59,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ScriptingServices.Contracts
             return objectName;
         }
 
+        public override int GetHashCode()
+        {
+            return
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) ^
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Schema) ^
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return 
+                obj != null &&
+                this.GetType() == obj.GetType() && 
+                this.Equals((ScriptingObject)obj);
+        }
+
         public bool Equals(ScriptingObject other)
         {
             if (other == null)
@@ -67,9 +83,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ScriptingServices.Contracts
             }
 
             return
-                string.Equals(this.Type, other.Type, StringComparison.CurrentCultureIgnoreCase) &&
-                string.Equals(this.Schema, other.Schema, StringComparison.CurrentCultureIgnoreCase) &&
-                string.Equals(this.Name, other.Name, StringComparison.CurrentCultureIgnoreCase);
+                string.Equals(this.Type, other.Type, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.Schema, other.Schema, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

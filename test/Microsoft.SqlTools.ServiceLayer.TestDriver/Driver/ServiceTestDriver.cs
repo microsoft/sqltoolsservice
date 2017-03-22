@@ -129,6 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             this.QueueEventsForType(ScriptingCompleteEvent.Type);
             this.QueueEventsForType(ScriptingErrorEvent.Type);
             this.QueueEventsForType(ScriptingPlanNotificationEvent.Type);
+            this.QueueEventsForType(ScriptingListObjectsCompleteEvent.Type);
         }
 
         /// <summary>

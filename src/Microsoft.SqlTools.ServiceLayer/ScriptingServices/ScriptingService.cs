@@ -43,8 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ScriptingServices
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(ScriptingRequest.Type, HandleExecuteRequest);
-            serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, HandleDatabaseScriptCancelRequest);
+            serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleExecuteRequest);
+            serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
+            serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -55,17 +56,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ScriptingServices
         }
 
         /// <summary>
-        /// Handles request to execute start the database script operation.
+        /// Handles request to execute start the list objects operation.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Await.Warning", "CS4014:Await.Warning", Justification = "Not using await for ScriptingOperation.Execute() since this a long running operation.")]
+        private async Task HandleListObjectsRequest(ScriptingListObjectsParams parameters, RequestContext<ScriptingListObjectsResult> requestContext)
+        {
+            try
+            {
+                ScriptingOperation operation = new ScriptingListObjectsOperation(parameters, requestContext);
+                this.ActiveOperations[operation.OperationId] = operation;
+                await requestContext.SendResult(new ScriptingListObjectsResult { OperationId = operation.OperationId });
+                #pragma warning disable 4014
+                operation.Execute().ContinueWith((t) => this.ActiveOperations.TryRemove(operation.OperationId, out operation));
+                #pragma warning restore 4014
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to execute start the script operation.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Await.Warning", "CS4014:Await.Warning", Justification = "Not using await for ScriptingOperation.Execute() since this a long running operation.")]
         public async Task HandleExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
             try
             {
-                ScriptingOperation operation = new ScriptingOperation(parameters, requestContext);
+                ScriptingOperation operation = new ScriptingScriptOperation(parameters, requestContext);
                 this.ActiveOperations[operation.OperationId] = operation;
                 await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+                #pragma warning disable 4014
                 operation.Execute().ContinueWith((t) => this.ActiveOperations.TryRemove(operation.OperationId, out operation));
+                #pragma warning restore 4014
             }
             catch (Exception e)
             {
@@ -76,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ScriptingServices
         /// <summary>
         /// Handles request to cancel the database script operation
         /// </summary>
-        public async Task HandleDatabaseScriptCancelRequest(ScriptingCancelParams parameters, RequestContext<ScriptingCancelResult> requestContext)
+        public async Task HandleScriptCancelRequest(ScriptingCancelParams parameters, RequestContext<ScriptingCancelResult> requestContext)
         {
             try
             {
@@ -98,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ScriptingServices
         {
             if (!disposed)
             {
-                foreach (ScriptingOperation operation in this.ActiveOperations.Values)
+                foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values)
                 {
                     operation.Dispose();
                 }
