@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 editColumns.Add(column);
             }
 
-            // If a table is memory optimized it is Hekaton. If it's a view, then it can't be Hekaton
+            // Only tables can be memory-optimized
             Table smoTable = smoResult as Table;
             bool isMemoryOptimized = smoTable != null && smoTable.IsMemoryOptimized;
 

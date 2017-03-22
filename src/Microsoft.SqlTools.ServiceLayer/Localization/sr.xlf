@@ -562,7 +562,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="EditDataObjectNotFound">
-        <source>Table or view requested to edit could not be found</source>
+        <source>Table or view requested for edit could not be found</source>
         <target state="new">Table or view requested to edit could not be found</target>
         <note></note>
       </trans-unit>

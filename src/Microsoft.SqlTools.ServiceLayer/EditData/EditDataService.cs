@@ -303,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 return Task.FromResult(0);
             };
 
-            // Execute the
+            // Execute the query
             ExecuteStringParams executeParams = new ExecuteStringParams
             {
                 Query = query,
@@ -321,14 +321,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         private static Task SendSessionReadyEvent(IEventSender eventSender, string ownerUri, bool success,
             string message)
         {
-            var esrp = new EditSessionReadyParams
+            var sessionReadyParams = new EditSessionReadyParams
             {
                 OwnerUri = ownerUri,
                 Message = message,
                 Success = success
             };
 
-            return eventSender.SendEvent(EditSessionReadyEvent.Type, esrp);
+            return eventSender.SendEvent(EditSessionReadyEvent.Type, sessionReadyParams);
         }
 
         #endregion

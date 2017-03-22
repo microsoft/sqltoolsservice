@@ -672,6 +672,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region SubSet Tests
 
         [Fact]
+        public async Task SubsetNotInitialized()
+        {
+            // Setup:
+            // ... Create a session without initializing
+            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            EditSession s = new EditSession(emf.Object, Constants.OwnerUri, Constants.OwnerUri);
+
+            // If: I ask to update a cell without initializing
+            // Then: I should get an exception
+            await Assert.ThrowsAsync<InvalidOperationException>(() => s.GetRows(0, 100));
+        }
+
+        [Fact]
         public async Task GetRowsNoEdits()
         {
             // Setup: Create a session with a proper query and metadata

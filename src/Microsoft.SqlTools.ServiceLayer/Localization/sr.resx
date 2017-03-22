@@ -351,7 +351,7 @@
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
-    <value>Table or view requested to edit could not be found</value>
+    <value>Table or view requested for edit could not be found</value>
     <comment></comment>
   </data>
   <data name="EditDataSessionNotFound" xml:space="preserve">
