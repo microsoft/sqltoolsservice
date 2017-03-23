@@ -28,6 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
     public class PeekDefinitionTests
     {
         private const string OwnerUri = "testFile1";
+        private const string TestUri = "testFile2";
         private const string ReturnTableFunctionName = "pd_returnTable";
         private const string ReturnTableTableFunctionQuery = @"
 CREATE FUNCTION [dbo].[" + ReturnTableFunctionName + @"] ()
@@ -705,13 +706,13 @@ GO";
             // place the cursor on every token
 
             //cursor on objects
-            TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26);
+            TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26, OwnerUri);
                 
             //cursor on sys
-            TextDocumentPosition sysDocument = CreateTextDocPositionWithCursor(22);
+            TextDocumentPosition sysDocument = CreateTextDocPositionWithCursor(22, OwnerUri);
 
             //cursor on master
-            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(15);
+            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(15, OwnerUri);
 
             LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
@@ -758,13 +759,13 @@ GO";
             // place the cursor on every token
 
             //cursor on objects
-            TextDocumentPosition fnDocument = CreateTextDocPositionWithCursor(30);
+            TextDocumentPosition fnDocument = CreateTextDocPositionWithCursor(30, TestUri);
 
             //cursor on sys
-            TextDocumentPosition dboDocument = CreateTextDocPositionWithCursor(14);
+            TextDocumentPosition dboDocument = CreateTextDocPositionWithCursor(14, TestUri);
 
             //cursor on master
-            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(10);
+            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(10, TestUri);
 
             LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
@@ -780,7 +781,7 @@ GO";
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-            LanguageService.Instance.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+            LanguageService.Instance.ScriptParseInfoMap.Add(TestUri, scriptInfo);
 
             // When I call the language service
             var fnResult = LanguageService.Instance.GetDefinition(fnDocument, scriptFile, connInfo);
@@ -799,7 +800,7 @@ GO";
             Cleanup(fnResult.Locations);
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
-            LanguageService.Instance.ScriptParseInfoMap.Remove(OwnerUri);
+            LanguageService.Instance.ScriptParseInfoMap.Remove(TestUri);
         }
 
 
@@ -845,7 +846,7 @@ GO";
             return true;
         }
 
-        private TextDocumentPosition CreateTextDocPositionWithCursor(int column)
+        private TextDocumentPosition CreateTextDocPositionWithCursor(int column, string OwnerUri)
         {
             TextDocumentPosition textDocPos = new TextDocumentPosition
             {
