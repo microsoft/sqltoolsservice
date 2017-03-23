@@ -591,6 +591,11 @@
         <target state="new">Query execution failed, see messages for details</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataFilteringNegativeLimit">
+        <source>Result limit cannot be negative</source>
+        <target state="new">Result limit cannot be negative</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
