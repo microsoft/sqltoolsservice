@@ -28,7 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
     public class PeekDefinitionTests
     {
         private const string OwnerUri = "testFile1";
-        private const string TestUri = "testFile2";
         private const string ReturnTableFunctionName = "pd_returnTable";
         private const string ReturnTableTableFunctionQuery = @"
 CREATE FUNCTION [dbo].[" + ReturnTableFunctionName + @"] ()
@@ -747,6 +746,7 @@ GO";
             Cleanup(objectResult.Locations);
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
+            LanguageService.Instance.ScriptParseInfoMap.Remove(OwnerUri);
         }
 
         [Fact]
