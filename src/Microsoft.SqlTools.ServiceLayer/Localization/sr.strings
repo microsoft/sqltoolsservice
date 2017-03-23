@@ -101,6 +101,8 @@ QueryServiceQueryFailed(string message) = Query failed: {0}
 
 QueryServiceColumnNull = (No column name)
 
+QueryServiceCellNull = NULL
+
 QueryServiceRequestsNoQuery = The requested query does not exist
 
 QueryServiceQueryInvalidOwnerUri = This editor is not connected to a database

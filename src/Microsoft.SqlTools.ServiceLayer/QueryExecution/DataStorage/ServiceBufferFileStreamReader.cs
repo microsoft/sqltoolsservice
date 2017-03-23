@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             if (isNullFunc == null ? length.ValueLength == 0 : isNullFunc(length.TotalLength))
             {
                 result.RawObject = null;
-                result.DisplayValue = null;
+                result.DisplayValue = SR.QueryServiceCellNull;
                 result.IsNull = true;
             }
             else
