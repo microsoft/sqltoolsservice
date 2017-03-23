@@ -170,6 +170,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
                 // Initialize the session
                 session.Initialize(initParams, connector, queryRunner, executionSuccessHandler, executionFailureHandler);
+
+                // Send the result
+                await requestContext.SendResult(new EditInitializeResult());
             }
             catch (Exception e)
             {
