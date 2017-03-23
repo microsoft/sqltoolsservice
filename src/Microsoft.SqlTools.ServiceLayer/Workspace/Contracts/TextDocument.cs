@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            if (obj == null || GetType() != obj.GetType())
+            if (obj == null ||  (obj as Position == null))
             {
                 return false;
             }
@@ -208,7 +208,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            if (obj == null || GetType() != obj.GetType())
+           
+
+            if (obj == null || !(obj is Range))
             {
                 return false;
             }
@@ -251,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            if (obj == null || GetType() != obj.GetType())
+            if (obj == null || (obj as Location == null))
             {
                 return false;
             }

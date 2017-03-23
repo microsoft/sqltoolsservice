@@ -139,7 +139,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         {
             Stack<Token> childrenTokens = new Stack<Token>();
             Queue<Token> parentTokens = new Queue<Token>();
-            if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
+            if (scriptParseInfo != null 
+                && scriptParseInfo.ParseResult != null 
+                && scriptParseInfo.ParseResult.Script != null 
+                && scriptParseInfo.ParseResult.Script.Tokens != null)
             {
                 var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
                 if (tokenIndex >= 0)
@@ -149,7 +152,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     int currentIndex = 0;
                     foreach (var token in scriptParseInfo.ParseResult.Script.Tokens)
                     {
-
                         if (currentIndex == tokenIndex)
                         {
                             // push all parent tokens until we hit whitespace

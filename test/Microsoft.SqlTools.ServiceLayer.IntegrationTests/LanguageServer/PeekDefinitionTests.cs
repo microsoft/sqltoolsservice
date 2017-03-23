@@ -28,6 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
     public class PeekDefinitionTests
     {
         private const string OwnerUri = "testFile1";
+        private const string TestUri = "testFile2";
         private const string ReturnTableFunctionName = "pd_returnTable";
         private const string ReturnTableTableFunctionQuery = @"
 CREATE FUNCTION [dbo].[" + ReturnTableFunctionName + @"] ()
@@ -703,38 +704,15 @@ GO";
             string queryString = "select * from master.sys.objects";
 
             // place the cursor on every token
-            //cursor on objects
-            TextDocumentPosition objectDocument = new TextDocumentPosition
-            {
-                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
-                Position = new Position
-                {
-                    Line = 0,
-                    Character = 26
-                }
-            };
 
+            //cursor on objects
+            TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26);
+                
             //cursor on sys
-            TextDocumentPosition sysDocument = new TextDocumentPosition
-            {
-                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
-                Position = new Position
-                {
-                    Line = 0,
-                    Character = 22
-                }
-            };
+            TextDocumentPosition sysDocument = CreateTextDocPositionWithCursor(22);
 
             //cursor on master
-            TextDocumentPosition masterDocument = new TextDocumentPosition
-            {
-                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
-                Position = new Position
-                {
-                    Line = 0,
-                    Character = 15
-                }
-            };
+            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(15);
 
             LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
@@ -770,6 +748,60 @@ GO";
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
         }
+
+        [Fact]
+        public async void GetDefinitionFromProcedures()
+        {
+
+            string queryString = "EXEC master.dbo.sp_MSrepl_startup";
+
+            // place the cursor on every token
+
+            //cursor on objects
+            TextDocumentPosition fnDocument = CreateTextDocPositionWithCursor(30);
+
+            //cursor on sys
+            TextDocumentPosition dboDocument = CreateTextDocPositionWithCursor(14);
+
+            //cursor on master
+            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(10);
+
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
+            ScriptFile scriptFile = connectionResult.ScriptFile;
+            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            var bindingQueue = new ConnectedBindingQueue();
+            bindingQueue.AddConnectionContext(connInfo);
+            LanguageService.Instance.BindingQueue = bindingQueue;
+            scriptFile.Contents = queryString;
+
+            var service = LanguageService.Instance;
+            await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
+            Thread.Sleep(2000);
+
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
+            LanguageService.Instance.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+
+            // When I call the language service
+            var fnResult = LanguageService.Instance.GetDefinition(fnDocument, scriptFile, connInfo);
+            var sysResult = LanguageService.Instance.GetDefinition(dboDocument, scriptFile, connInfo);
+            var masterResult = LanguageService.Instance.GetDefinition(masterDocument, scriptFile, connInfo);
+
+            // Then I expect the results to be non-null
+            Assert.NotNull(fnResult);
+            Assert.NotNull(sysResult);
+            Assert.NotNull(masterResult);
+
+            // And I expect the all results to be the same
+            Assert.True(CompareLocations(fnResult.Locations, sysResult.Locations));
+            Assert.True(CompareLocations(fnResult.Locations, masterResult.Locations));
+
+            Cleanup(fnResult.Locations);
+            Cleanup(sysResult.Locations);
+            Cleanup(masterResult.Locations);
+            LanguageService.Instance.ScriptParseInfoMap.Remove(OwnerUri);
+        }
+
 
         /// <summary>
         /// Helper method to clean up script files
@@ -811,6 +843,20 @@ GO";
                 }
             }
             return true;
+        }
+
+        private TextDocumentPosition CreateTextDocPositionWithCursor(int column)
+        {
+            TextDocumentPosition textDocPos = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = column
+                }
+            };
+            return textDocPos;
         }
     }
 }

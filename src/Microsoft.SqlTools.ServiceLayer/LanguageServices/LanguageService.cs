@@ -820,96 +820,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return result;
         }
 
-        /// <summary>
-        /// Get definition for a selected sql object using SMO Scripting
-        /// </summary>
-        /// <param name="textDocumentPosition"></param>
-        /// <param name="scriptFile"></param>
-        /// <param name="connInfo"></param>
-        /// <returns> Location with the URI of the script file</returns>
-        internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
+                ScriptParseInfo scriptParseInfo, ScriptFile scriptFile, ConnectionInfo connInfo)
         {
-            // Parse sql
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
-            if (scriptParseInfo == null)
-            {
-                return null;
-            }
-
-            if (RequiresReparse(scriptParseInfo, scriptFile))
-            {
-                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo);
-            }
-
-            // Get token from selected text
-            var selectedToken = ScriptDocumentInfo.GetPeekDefinitionTokens(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character + 1);
-            if (selectedToken == null)
-            {
-                return null;
-            }
 
             DefinitionResult lastResult = null;
-
-            //try children tokens first
-            foreach (var i in selectedToken.Item1.ToList())
+            foreach (var token in tokenList)
             {
-                var token = selectedToken.Item1.Pop();
+
                 // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
                 // The suggestion title does not contain any sql punctuation
                 string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
                 textDocumentPosition.Position.Line = token.StartLocation.LineNumber;
                 textDocumentPosition.Position.Character = token.StartLocation.ColumnNumber;
-                if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
                     try
-                    {                    
-                        var result = QueueTask(textDocumentPosition, scriptParseInfo, connInfo, scriptFile, tokenText);
-                        if (!result.IsErrorResult)
-                        {
-                            return result;
-                        }                       
-                    }
-                    catch (Exception ex)
                     {
-                        // if any exceptions are raised return error result with message
-                        Logger.Write(LogLevel.Error, "Exception in GetDefinition " + ex.ToString());
-                        return new DefinitionResult
-                        {
-                            IsErrorResult = true,
-                            Message = SR.PeekDefinitionError(ex.Message),
-                            Locations = null
-                        };
-                    }
-                    finally
-                    {
-                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
-                    }
-                }
-                else
-                {
-                    // User is not connected.
-                    return new DefinitionResult
-                    {
-                        IsErrorResult = true,
-                        Message = SR.PeekDefinitionNotConnectedError,
-                        Locations = null
-                    };
-                }
-            }
-
-            // then check the parents 
-            foreach (var i in selectedToken.Item2.ToList())
-            {
-                var token = selectedToken.Item2.Dequeue();
-                // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
-                // The suggestion title does not contain any sql punctuation
-                string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
-                textDocumentPosition.Position.Line = token.StartLocation.LineNumber;
-                textDocumentPosition.Position.Character = token.StartLocation.ColumnNumber;
-                if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
-                {
-                    try
-                    {                    
                         var result = QueueTask(textDocumentPosition, scriptParseInfo, connInfo, scriptFile, tokenText);
                         lastResult = result;
                         if (!result.IsErrorResult)
@@ -935,16 +862,73 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    // User is not connected.
-                    return new DefinitionResult
-                    {
-                        IsErrorResult = true,
-                        Message = SR.PeekDefinitionNotConnectedError,
-                        Locations = null
-                    };
+                    Logger.Write(LogLevel.Error, "Timeout waiting to query metadata from server");
                 }
             }
             return (lastResult != null) ? lastResult : null;
+        }
+
+        /// <summary>
+        /// Get definition for a selected sql object using SMO Scripting
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="connInfo"></param>
+        /// <returns> Location with the URI of the script file</returns>
+        internal DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        {
+            // Parse sql
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(textDocumentPosition.TextDocument.Uri);
+            if (scriptParseInfo == null)
+            {
+                return null;
+            }
+
+            if (RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo);
+            }
+
+            // Get token from selected text
+            Tuple<Stack<Token>, Queue<Token>> selectedToken = ScriptDocumentInfo.GetPeekDefinitionTokens(scriptParseInfo, 
+                textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character + 1);
+
+            if (selectedToken == null)
+            {
+                return null;
+            }
+
+            if (scriptParseInfo.IsConnected)
+            {
+                //try children tokens first
+                Stack<Token> childrenTokens = selectedToken.Item1;
+                List<Token> tokenList = childrenTokens.ToList();
+                DefinitionResult childrenResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
+
+                // if the children peak definition returned null then 
+                // try the parents
+                if (childrenResult == null || childrenResult.IsErrorResult)
+                {
+                    Queue<Token> parentTokens = selectedToken.Item2;
+                    tokenList = parentTokens.ToList();
+                    DefinitionResult parentResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
+                    return (parentResult == null) ? null : parentResult;
+                }
+                else
+                {
+                    return childrenResult;
+                }    
+            }
+            else
+            {
+                // User is not connected.
+                return new DefinitionResult
+                {
+                    IsErrorResult = true,
+                    Message = SR.PeekDefinitionNotConnectedError,
+                    Locations = null
+                };
+            }
         }
    
         /// <summary>
@@ -954,7 +938,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="startLine"></param>
         /// <param name="startColumn"></param>
         /// <returns> token index</returns>
-        private int FindTokenWrapper(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
+        private int FindTokenWithCorrectOffset(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
         {
             var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
             var end = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex).EndLocation;
@@ -981,7 +965,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Get schema name
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
             {
-                var tokenIndex = FindTokenWrapper(scriptParseInfo, startLine, startColumn);
+                var tokenIndex = FindTokenWithCorrectOffset(scriptParseInfo, startLine, startColumn);
                 var prevTokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
                 var prevTokenText = scriptParseInfo.ParseResult.Script.TokenManager.GetText(prevTokenIndex);
                 if (prevTokenText != null && prevTokenText.Equals("."))
