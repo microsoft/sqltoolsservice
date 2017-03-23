@@ -162,14 +162,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectType), initParams.ObjectType);
 
                 // Create a session and add it to the session list
-                EditSession session = new EditSession(metadataFactory, initParams.ObjectName, initParams.ObjectType);
+                EditSession session = new EditSession(metadataFactory);
                 if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
                 {
                     throw new InvalidOperationException(SR.EditDataSessionAlreadyExists);
                 }
 
                 // Initialize the session
-                session.Initialize(connector, queryRunner, executionSuccessHandler, executionFailureHandler);
+                session.Initialize(initParams, connector, queryRunner, executionSuccessHandler, executionFailureHandler);
             }
             catch (Exception e)
             {

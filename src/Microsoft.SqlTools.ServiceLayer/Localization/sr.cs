@@ -421,6 +421,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataFilteringNegativeLimit
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataFilteringNegativeLimit);
+            }
+        }
+
         public static string EditDataQueryFailed
         {
             get
@@ -1107,6 +1115,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataSessionAlreadyInitializing = "EditDataSessionAlreadyInitializing";
+
+
+            public const string EditDataFilteringNegativeLimit = "EditDataFilteringNegativeLimit";
 
 
             public const string EditDataUnsupportedObjectType = "EditDataUnsupportedObjectType";
