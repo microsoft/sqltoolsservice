@@ -245,6 +245,10 @@
     <value>(No column name)</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
     <value>The requested query does not exist</value>
     <comment></comment>
