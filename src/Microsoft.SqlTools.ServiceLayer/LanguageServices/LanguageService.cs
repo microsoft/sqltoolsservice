@@ -774,6 +774,100 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return completionItem;
         }
 
+        
+        /// <summary>
+        /// Queue a task to the binding queue
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="scriptParseInfo"></param>
+        /// <param name="connectionInfo"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="tokenText"></param>
+        /// <returns> Returns the result of the task as a DefinitionResult </returns>
+        private DefinitionResult QueueTask(TextDocumentPosition textDocumentPosition, ScriptParseInfo scriptParseInfo, 
+                                            ConnectionInfo connInfo, ScriptFile scriptFile, string tokenText)
+        {
+            // Queue the task with the binding queue
+            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                key: scriptParseInfo.ConnectionKey,
+                bindingTimeout: LanguageService.PeekDefinitionTimeout,
+                bindOperation: (bindingContext, cancelToken) =>
+                {
+                    string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
+                    // Script object using SMO
+                    Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
+                    return scripter.GetScript(
+                        scriptParseInfo.ParseResult, 
+                        textDocumentPosition.Position, 
+                        bindingContext.MetadataDisplayInfoProvider, 
+                        tokenText, 
+                        schemaName);
+                },
+                timeoutOperation: (bindingContext) =>
+                {
+                    // return error result
+                    return new DefinitionResult
+                    {
+                        IsErrorResult = true,
+                        Message = SR.PeekDefinitionTimedoutError,
+                        Locations = null
+                    };
+                });
+                           
+            // wait for the queue item
+            queueItem.ItemProcessed.WaitOne();
+            var result = queueItem.GetResultAsT<DefinitionResult>();
+            return result;
+        }
+
+        private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
+                ScriptParseInfo scriptParseInfo, ScriptFile scriptFile, ConnectionInfo connInfo)
+        {
+
+            DefinitionResult lastResult = null;
+            foreach (var token in tokenList)
+            {
+
+                // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
+                // The suggestion title does not contain any sql punctuation
+                string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
+                textDocumentPosition.Position.Line = token.StartLocation.LineNumber;
+                textDocumentPosition.Position.Character = token.StartLocation.ColumnNumber;
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+                {
+                    try
+                    {
+                        var result = QueueTask(textDocumentPosition, scriptParseInfo, connInfo, scriptFile, tokenText);
+                        lastResult = result;
+                        if (!result.IsErrorResult)
+                        {
+                            return result;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // if any exceptions are raised return error result with message
+                        Logger.Write(LogLevel.Error, "Exception in GetDefinition " + ex.ToString());
+                        return new DefinitionResult
+                        {
+                            IsErrorResult = true,
+                            Message = SR.PeekDefinitionError(ex.Message),
+                            Locations = null
+                        };
+                    }
+                    finally
+                    {
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                    }
+                }
+                else
+                {
+                    Logger.Write(LogLevel.Error, "Timeout waiting to query metadata from server");
+                }
+            }
+            return (lastResult != null) ? lastResult : null;
+        }
+
         /// <summary>
         /// Get definition for a selected sql object using SMO Scripting
         /// </summary>
@@ -796,65 +890,34 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Get token from selected text
-            Token selectedToken = ScriptDocumentInfo.GetToken(scriptParseInfo, textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character);
+            Tuple<Stack<Token>, Queue<Token>> selectedToken = ScriptDocumentInfo.GetPeekDefinitionTokens(scriptParseInfo, 
+                textDocumentPosition.Position.Line + 1, textDocumentPosition.Position.Character + 1);
+
             if (selectedToken == null)
             {
                 return null;
             }
-            // Strip "[" and "]"(if present) from the token text to enable matching with the suggestions.
-            // The suggestion title does not contain any sql punctuation
-            string tokenText = TextUtilities.RemoveSquareBracketSyntax(selectedToken.Text);
 
-            if (scriptParseInfo.IsConnected && Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+            if (scriptParseInfo.IsConnected)
             {
-                try
-                {
-                    // Queue the task with the binding queue
-                    QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
-                        key: scriptParseInfo.ConnectionKey,
-                        bindingTimeout: LanguageService.PeekDefinitionTimeout,
-                        bindOperation: (bindingContext, cancelToken) =>
-                        {
-                            string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
-                            // Script object using SMO
-                            Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
-                            return scripter.GetScript(
-                                scriptParseInfo.ParseResult, 
-                                textDocumentPosition.Position, 
-                                bindingContext.MetadataDisplayInfoProvider, 
-                                tokenText, 
-                                schemaName);
-                        },
-                        timeoutOperation: (bindingContext) =>
-                        {
-                            // return error result
-                            return new DefinitionResult
-                            {
-                                IsErrorResult = true,
-                                Message = SR.PeekDefinitionTimedoutError,
-                                Locations = null
-                            };
-                        });
+                //try children tokens first
+                Stack<Token> childrenTokens = selectedToken.Item1;
+                List<Token> tokenList = childrenTokens.ToList();
+                DefinitionResult childrenResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
 
-                    // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
-                    return queueItem.GetResultAsT<DefinitionResult>();
-                }
-                catch (Exception ex)
+                // if the children peak definition returned null then 
+                // try the parents
+                if (childrenResult == null || childrenResult.IsErrorResult)
                 {
-                    // if any exceptions are raised return error result with message
-                    Logger.Write(LogLevel.Error, "Exception in GetDefinition " + ex.ToString());
-                    return new DefinitionResult
-                    {
-                        IsErrorResult = true,
-                        Message = SR.PeekDefinitionError(ex.Message),
-                        Locations = null
-                    };
+                    Queue<Token> parentTokens = selectedToken.Item2;
+                    tokenList = parentTokens.ToList();
+                    DefinitionResult parentResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
+                    return (parentResult == null) ? null : parentResult;
                 }
-                finally
+                else
                 {
-                    Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
-                }
+                    return childrenResult;
+                }    
             }
             else
             {
@@ -867,6 +930,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 };
             }
         }
+   
+        /// <summary>
+        /// Wrapper around find token method 
+        /// </summary>
+        /// <param name="scriptParseInfo"></param>
+        /// <param name="startLine"></param>
+        /// <param name="startColumn"></param>
+        /// <returns> token index</returns>
+        private int FindTokenWithCorrectOffset(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
+        {
+            var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
+            var end = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex).EndLocation;
+            if (end.LineNumber == startLine && end.ColumnNumber == startColumn)
+            {
+                return tokenIndex + 1;
+            }
+            return tokenIndex;
+        }
 
         /// <summary>
         /// Extract schema name for a token, if present
@@ -878,13 +959,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private string GetSchemaName(ScriptParseInfo scriptParseInfo, Position position, ScriptFile scriptFile)
         {
             // Offset index by 1 for sql parser
-            int startLine = position.Line + 1;
-            int startColumn = position.Character + 1;
+            int startLine = position.Line;
+            int startColumn = position.Character;
 
             // Get schema name
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null && scriptParseInfo.ParseResult.Script != null && scriptParseInfo.ParseResult.Script.Tokens != null)
             {
-                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
+                var tokenIndex = FindTokenWithCorrectOffset(scriptParseInfo, startLine, startColumn);
                 var prevTokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.GetPreviousSignificantTokenIndex(tokenIndex);
                 var prevTokenText = scriptParseInfo.ParseResult.Script.TokenManager.GetText(prevTokenIndex);
                 if (prevTokenText != null && prevTokenText.Equals("."))
