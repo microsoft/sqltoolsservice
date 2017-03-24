@@ -207,5 +207,60 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             int? expectedValue = null;
             Assert.Equal(details.ConnectTimeout, expectedValue);
         }
+
+        [Fact]
+        public void SettingEncryptToStringShouldStillReturnBoolean()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+
+            string encrypt = "True";
+            bool? expectedValue = true;
+            details.Options["encrypt"] = encrypt;
+
+            Assert.Equal(details.Encrypt, expectedValue);
+        }
+
+        [Fact]
+        public void SettingEncryptToLowecaseStringShouldStillReturnBoolean()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+
+            string encrypt = "true";
+            bool? expectedValue = true;
+            details.Options["encrypt"] = encrypt;
+
+            Assert.Equal(details.Encrypt, expectedValue);
+        }
+
+        [Fact]
+        public void EncryptShouldReturnNullIfNotSet()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+            bool? expectedValue = null;
+            Assert.Equal(details.Encrypt, expectedValue);
+        }
+
+        [Fact]
+        public void EncryptShouldReturnNullIfSetToNull()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+            details.Options["encrypt"] = null;
+            int? expectedValue = null;
+            Assert.Equal(details.ConnectTimeout, expectedValue);
+        }
+
+        [Fact]
+        public void SettingConnectiomTimeoutToLongWhichCannotBeConvertedToIntShouldNotCrash()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+
+            long timeout = long.MaxValue;
+            int? expectedValue = null;
+            details.Options["connectTimeout"] = timeout;
+            details.Options["encrypt"] = true;
+
+            Assert.Equal(details.ConnectTimeout, expectedValue);
+            Assert.Equal(details.Encrypt, true);
+        }
     }
 }
