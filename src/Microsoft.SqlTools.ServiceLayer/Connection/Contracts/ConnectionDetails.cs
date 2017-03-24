@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
@@ -446,18 +449,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             if (Options != null && Options.ContainsKey(name))
             {
                 object value = Options[name];
-                if (value != null && (typeof(T) != value.GetType()))
+                try
                 {
-                    if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
+                    if (value != null && (typeof(T) != value.GetType()))
                     {
-                        value = System.Convert.ToInt32(value);
+                        if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
+                        {
+                            value = Convert.ToInt32(value);
+                        }
+                        else if (typeof(T) == typeof(bool) || typeof(T) == typeof(bool?))
+                        {
+                            value = Convert.ToBoolean(value);
+                        }
                     }
-                    else if (typeof(T) == typeof(bool) || typeof(T) == typeof(bool?))
-                    {
-                        value = System.Convert.ToBoolean(value);
-                    }
+                    result = value != null ? (T)value : default(T);
                 }
-                result = value != null ? (T)value : default(T);
+                catch
+                {
+                    result = default(T);
+                    Logger.Write(LogLevel.Warning, string.Format(CultureInfo.InvariantCulture, 
+                        "Cannot convert option value {0}:{1} to {2}", name, value ?? "", typeof(T)));
+                }
             }
             return result;
         }

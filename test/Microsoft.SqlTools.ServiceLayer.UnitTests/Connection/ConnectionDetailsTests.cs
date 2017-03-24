@@ -248,5 +248,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             int? expectedValue = null;
             Assert.Equal(details.ConnectTimeout, expectedValue);
         }
+
+        [Fact]
+        public void SettingConnectiomTimeoutToLongWhichCannotBeConvertedToIntShouldNotCrash()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+
+            long timeout = long.MaxValue;
+            int? expectedValue = null;
+            details.Options["connectTimeout"] = timeout;
+            details.Options["encrypt"] = true;
+
+            Assert.Equal(details.ConnectTimeout, expectedValue);
+            Assert.Equal(details.Encrypt, true);
+        }
     }
 }
