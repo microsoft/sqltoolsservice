@@ -82,6 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest);
             serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest);
             serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest);
+            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest);
         }
 
         #region Request Handlers
