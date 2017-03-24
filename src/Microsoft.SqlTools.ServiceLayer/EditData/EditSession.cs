@@ -440,6 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 NextRowId = associatedResultSet.RowCount;
                 EditCache = new ConcurrentDictionary<long, RowEditBase>();
                 IsInitialized = true;
+                objectMetadata.Extend(associatedResultSet.Columns);
 
                 // Step 4) Return our success
                 await successHandler();
