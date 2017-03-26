@@ -19,7 +19,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
-using Microsoft.SqlTools.ServiceLayer.ScriptingServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
 {

@@ -3,9 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 {
@@ -128,6 +130,63 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Returns the token that is used for Peek Definition objects
+        /// </summary>
+        internal static Tuple<Stack<Token>, Queue<Token>> GetPeekDefinitionTokens(ScriptParseInfo scriptParseInfo, int startLine, int startColumn)
+        {
+            Stack<Token> childrenTokens = new Stack<Token>();
+            Queue<Token> parentTokens = new Queue<Token>();
+            if (scriptParseInfo != null 
+                && scriptParseInfo.ParseResult != null 
+                && scriptParseInfo.ParseResult.Script != null 
+                && scriptParseInfo.ParseResult.Script.Tokens != null)
+            {
+                var tokenIndex = scriptParseInfo.ParseResult.Script.TokenManager.FindToken(startLine, startColumn);
+                if (tokenIndex >= 0)
+                {
+                    // return the current token and the ones to its right
+                    // until we hit a whitespace token
+                    int currentIndex = 0;
+                    foreach (var token in scriptParseInfo.ParseResult.Script.Tokens)
+                    {
+                        if (currentIndex == tokenIndex)
+                        {
+                            // push all parent tokens until we hit whitespace
+                            int parentIndex = currentIndex;
+                            while (true)
+                            {
+                                if (scriptParseInfo.ParseResult.Script.TokenManager.GetToken(parentIndex).Type != "LEX_WHITE")
+                                {
+                                    parentTokens.Enqueue(scriptParseInfo.ParseResult.Script.TokenManager.GetToken(parentIndex));
+                                    parentIndex--;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        else if (currentIndex > tokenIndex)
+                        {
+                            // push all children tokens until we hit whitespace
+                            if (scriptParseInfo.ParseResult.Script.TokenManager.GetToken(currentIndex).Type != "LEX_WHITE")
+                            {
+                                childrenTokens.Push(token);
+                            }
+                            else 
+                            {
+                                break;
+                            }
+                        }
+                        ++currentIndex;
+                    }
+                    return Tuple.Create(childrenTokens, parentTokens);
+                }
+            }
+          return null;
         }
     }
 }

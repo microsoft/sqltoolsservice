@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="rowId">Internal ID of the row that will be updated with this object</param>
         /// <param name="associatedResultSet">Result set for the rows of the object to update</param>
         /// <param name="associatedMetadata">Metadata provider for the object to update</param>
-        public RowUpdate(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+        public RowUpdate(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
             cellUpdates = new ConcurrentDictionary<int, CellUpdate>();
@@ -111,6 +111,30 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 outColumnsJoined, where.CommandText);
             command.CommandType = CommandType.Text;
             return command;
+        }
+
+        /// <summary>
+        /// Generates a edit row that represents a row with pending update. The cells pending
+        /// updates are merged into the unchanged cells.
+        /// </summary>
+        /// <param name="cachedRow">Original, cached cell contents</param>
+        /// <returns>EditRow with pending updates</returns>
+        public override EditRow GetEditRow(DbCellValue[] cachedRow)
+        {
+            Validate.IsNotNull(nameof(cachedRow), cachedRow);
+
+            // For each cell that is pending update, replace the db cell value with a new one
+            foreach (var cellUpdate in cellUpdates)
+            {
+                cachedRow[cellUpdate.Key] = cellUpdate.Value.AsDbCellValue;
+            }
+
+            return new EditRow
+            {
+                Id = RowId,
+                Cells = cachedRow,
+                State = EditRow.EditRowState.DirtyUpdate
+            };
         }
 
         /// <summary>

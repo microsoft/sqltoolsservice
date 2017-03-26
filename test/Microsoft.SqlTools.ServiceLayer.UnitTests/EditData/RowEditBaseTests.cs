@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
@@ -22,44 +23,64 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class RowEditBaseTests
     {
+        [Fact]
+        public void ConstructWithoutExtendedMetadata()
+        {
+            // Setup: Create a table metadata that has not been extended
+            EditTableMetadata etm = new EditTableMetadata();
+
+            // If: I construct a new EditRowBase implementation without an extended metadata
+            // Then: I should get an exception
+            Assert.Throws<ArgumentException>(() => new RowEditTester(null, etm));
+        }
+
         [Theory]
         [InlineData(-1)]        // Negative index
+        [InlineData(2)]         // Equal to count of columns
         [InlineData(100)]       // Index larger than number of columns
-        public void ValidateUpdatableColumnOutOfRange(int columnId)
+        public async Task ValidateUpdatableColumnOutOfRange(int columnId)
         {
             // Setup: Create a result set
-            ResultSet rs = GetResultSet(
-                new DbColumn[] { new TestDbColumn("id", true), new TestDbColumn("col1")}, 
+            var rs = await GetResultSet(
+                new DbColumn[] {
+                    new TestDbColumn("id") {IsKey = true, IsAutoIncrement = true, IsIdentity = true},
+                    new TestDbColumn("col1")
+                },
                 new object[] { "id", "1" });
+            var etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I validate a column ID that is out of range
             // Then: It should throw
-            RowEditTester tester = new RowEditTester(rs, null);
+            RowEditTester tester = new RowEditTester(rs, etm);
             Assert.Throws<ArgumentOutOfRangeException>(() => tester.ValidateColumn(columnId));
         }
 
         [Fact]
-        public void ValidateUpdatableColumnNotUpdatable()
+        public async Task ValidateUpdatableColumnNotUpdatable()
         {
             // Setup: Create a result set with an identity column
-            ResultSet rs = GetResultSet(
-                new DbColumn[] { new TestDbColumn("id", true), new TestDbColumn("col1") },
+            var rs = await GetResultSet(
+                new DbColumn[] {
+                    new TestDbColumn("id") {IsKey = true, IsAutoIncrement = true, IsIdentity = true},
+                    new TestDbColumn("col1")
+                },
                 new object[] { "id", "1" });
+            var etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I validate a column ID that is not updatable
             // Then: It should throw
-            RowEditTester tester = new RowEditTester(rs, null);
+            RowEditTester tester = new RowEditTester(rs, etm);
             Assert.Throws<InvalidOperationException>(() => tester.ValidateColumn(0));
         }
 
         [Theory]
         [MemberData(nameof(GetWhereClauseIsNotNullData))]
-        public void GetWhereClauseSimple(DbColumn col, object val, string nullClause)
+        public async Task GetWhereClauseSimple(DbColumn col, object val, string nullClause)
         {
             // Setup: Create a result set and metadata provider with a single column
             var cols = new[] {col};
-            ResultSet rs = GetResultSet(cols, new[] {val});
-            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
+            ResultSet rs = await GetResultSet(cols, new[] {val});
+            EditTableMetadata etm = Common.GetStandardMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseSingleKey(nullClause);
@@ -70,42 +91,69 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             get
             {
                 yield return new object[] {new TestDbColumn("col"), DBNull.Value, "IS NULL"};
-                yield return new object[] {new TestDbColumn("col", "VARBINARY", typeof(byte[])), new byte[5], "IS NOT NULL"};
-                yield return new object[] {new TestDbColumn("col", "TEXT", typeof(string)), "abc", "IS NOT NULL"};
-                yield return new object[] {new TestDbColumn("col", "NTEXT", typeof(string)), "abc", "IS NOT NULL"};
+                yield return new object[] {
+                    new TestDbColumn
+                    {
+                        DataTypeName = "BINARY",
+                        DataType = typeof(byte[])
+                    },
+                    new byte[5],
+                    "IS NOT NULL"
+                };
+                yield return new object[]
+                {
+                    new TestDbColumn
+                    {
+                        DataType = typeof(string),
+                        DataTypeName = "TEXT"
+                    },
+                    "abc",
+                    "IS NOT NULL"
+                };
+                yield return new object[]
+                {
+                    new TestDbColumn
+                    {
+                        DataType = typeof(string),
+                        DataTypeName = "NTEXT",
+
+                    },
+                    "abc",
+                    "IS NOT NULL"
+                };
             }
         }
 
         [Fact]
-        public void GetWhereClauseMultipleKeyColumns()
+        public async Task GetWhereClauseMultipleKeyColumns()
         {
             // Setup: Create a result set and metadata provider with multiple key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
-            ResultSet rs = GetResultSet(cols, new object[] {"abc", "def"});
-            IEditTableMetadata etm = Common.GetStandardMetadata(cols);
+            ResultSet rs = await GetResultSet(cols, new object[] {"abc", "def"});
+            EditTableMetadata etm = Common.GetStandardMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseMultipleKeys();
         }
 
         [Fact]
-        public void GetWhereClauseNoKeyColumns()
+        public async Task GetWhereClauseNoKeyColumns()
         {
             // Setup: Create a result set and metadata provider with no key columns
             DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
-            ResultSet rs = GetResultSet(cols, new object[] {"abc", "def"});
-            IEditTableMetadata etm = Common.GetStandardMetadata(new DbColumn[] {});
+            ResultSet rs = await GetResultSet(cols, new object[] {"abc", "def"});
+            EditTableMetadata etm = Common.GetStandardMetadata(new DbColumn[] {});
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseNoKeys();
         }
 
         [Fact]
-        public void SortingByTypeTest()
+        public async Task SortingByTypeTest()
         {
             // Setup: Create a result set and metadata we can reuse
             var cols = Common.GetColumns(false);
-            var rs = Common.GetResultSet(cols, false);
+            var rs = await Common.GetResultSet(cols, false);
             var etm = Common.GetStandardMetadata(cols);
 
             // If: I request to sort a list of the three different edit operations
@@ -123,11 +171,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void SortingUpdatesByRowIdTest()
+        public async Task SortingUpdatesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
             var cols = Common.GetColumns(false);
-            var rs = Common.GetResultSet(cols, false, 4);
+            var rs = await Common.GetResultSet(cols, false, 4);
             var etm = Common.GetStandardMetadata(cols);
 
             // If: I sort 3 edit operations of the same type
@@ -146,11 +194,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void SortingCreatesByRowIdTest()
+        public async Task SortingCreatesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
             var cols = Common.GetColumns(false);
-            var rs = Common.GetResultSet(cols, false);
+            var rs = await Common.GetResultSet(cols, false);
             var etm = Common.GetStandardMetadata(cols);
 
             // If: I sort 3 edit operations of the same type
@@ -169,11 +217,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public void SortingDeletesByRowIdTest()
+        public async Task SortingDeletesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
             var cols = Common.GetColumns(false);
-            var rs = Common.GetResultSet(cols, false);
+            var rs = await Common.GetResultSet(cols, false);
             var etm = Common.GetStandardMetadata(cols);
 
             // If: I sort 3 delete operations of the same type
@@ -191,19 +239,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(1, rowEdits[2].RowId);
         }
 
-        private static ResultSet GetResultSet(DbColumn[] columns, object[] row)
+        private static async Task<ResultSet> GetResultSet(DbColumn[] columns, object[] row)
         {
             object[][] rows = {row};
             var testResultSet = new TestResultSet(columns, rows);
             var testReader = new TestDbDataReader(new [] {testResultSet});
             var resultSet = new ResultSet(0,0, MemoryFileSystem.GetFileStreamFactory());
-            resultSet.ReadResultToEnd(testReader, CancellationToken.None).Wait();
+            await resultSet.ReadResultToEnd(testReader, CancellationToken.None);
             return resultSet;
         }
 
         private class RowEditTester : RowEditBase
         {
-            public RowEditTester(ResultSet rs, IEditTableMetadata meta) : base(0, rs, meta) { }
+            public RowEditTester(ResultSet rs, EditTableMetadata meta) : base(0, rs, meta) { }
 
             public void ValidateColumn(int columnId)
             {
@@ -263,6 +311,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
 
             public override string GetScript()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override EditRow GetEditRow(DbCellValue[] cells)
             {
                 throw new NotImplementedException();
             }

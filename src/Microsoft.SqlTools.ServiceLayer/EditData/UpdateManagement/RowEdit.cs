@@ -36,8 +36,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="rowId">The internal ID of the row that is being edited</param>
         /// <param name="associatedResultSet">The result set that will be updated</param>
         /// <param name="associatedMetadata">Metadata provider for the object to edit</param>
-        protected RowEditBase(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+        protected RowEditBase(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
         {
+            if (!associatedMetadata.HasExtendedProperties)
+            {
+                throw new ArgumentException(SR.EditDataMetadataNotExtended);
+            }
+
             RowId = rowId;
             AssociatedResultSet = associatedResultSet;
             AssociatedObjectMetadata = associatedMetadata;
@@ -58,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <summary>
         /// The metadata for the table this edit is associated to
         /// </summary>
-        public IEditTableMetadata AssociatedObjectMetadata { get; }
+        public EditTableMetadata AssociatedObjectMetadata { get; }
 
         /// <summary>
         /// Sort ID for a row edit. Ensures that when a collection of RowEditBase objects are
@@ -84,6 +89,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="connection">The connection to associate the command to</param>
         /// <returns>Command to commit the change to the db</returns>
         public abstract DbCommand GetCommand(DbConnection connection);
+
+        /// <summary>
+        /// Generates a row that has the pending update applied. The dirty status of the row is
+        /// reflected in the returned EditRow.
+        /// </summary>
+        /// <param name="cachedRow">The original, cached row values</param>
+        /// <returns>An EditRow with the pending changes applied</returns>
+        public abstract EditRow GetEditRow(DbCellValue[] cachedRow);
 
         /// <summary>
         /// Converts the row edit into a SQL statement
@@ -154,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             }
 
             IList<DbCellValue> row = AssociatedResultSet.GetRow(RowId);
-            foreach (EditColumnWrapper col in AssociatedObjectMetadata.KeyColumns)
+            foreach (EditColumnMetadata col in AssociatedObjectMetadata.KeyColumns)
             {
                 // Put together a clause for the value of the cell
                 DbCellValue cellData = row[col.Ordinal];

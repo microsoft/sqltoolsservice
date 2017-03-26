@@ -205,6 +205,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string QueryServiceCellNull
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryServiceCellNull);
+            }
+        }
+
         public static string QueryServiceRequestsNoQuery
         {
             get
@@ -365,11 +373,75 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataObjectNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataObjectNotFound);
+            }
+        }
+
         public static string EditDataSessionNotFound
         {
             get
             {
                 return Keys.GetString(Keys.EditDataSessionNotFound);
+            }
+        }
+
+        public static string EditDataSessionAlreadyExists
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionAlreadyExists);
+            }
+        }
+
+        public static string EditDataSessionNotInitialized
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionNotInitialized);
+            }
+        }
+
+        public static string EditDataSessionAlreadyInitialized
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionAlreadyInitialized);
+            }
+        }
+
+        public static string EditDataSessionAlreadyInitializing
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataSessionAlreadyInitializing);
+            }
+        }
+
+        public static string EditDataMetadataNotExtended
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataNotExtended);
+            }
+        }
+
+        public static string EditDataFilteringNegativeLimit
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataFilteringNegativeLimit);
+            }
+        }
+
+        public static string EditDataQueryFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataQueryFailed);
             }
         }
 
@@ -957,6 +1029,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string QueryServiceColumnNull = "QueryServiceColumnNull";
 
 
+            public const string QueryServiceCellNull = "QueryServiceCellNull";
+
+
             public const string QueryServiceRequestsNoQuery = "QueryServiceRequestsNoQuery";
 
 
@@ -1032,10 +1107,34 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
 
 
+            public const string EditDataObjectNotFound = "EditDataObjectNotFound";
+
+
             public const string EditDataSessionNotFound = "EditDataSessionNotFound";
 
 
+            public const string EditDataSessionAlreadyExists = "EditDataSessionAlreadyExists";
+
+
+            public const string EditDataSessionNotInitialized = "EditDataSessionNotInitialized";
+
+
+            public const string EditDataSessionAlreadyInitialized = "EditDataSessionAlreadyInitialized";
+
+
+            public const string EditDataSessionAlreadyInitializing = "EditDataSessionAlreadyInitializing";
+
+
+            public const string EditDataMetadataNotExtended = "EditDataMetadataNotExtended";
+
+
+            public const string EditDataFilteringNegativeLimit = "EditDataFilteringNegativeLimit";
+
+
             public const string EditDataUnsupportedObjectType = "EditDataUnsupportedObjectType";
+
+
+            public const string EditDataQueryFailed = "EditDataQueryFailed";
 
 
             public const string EditDataQueryNotCompleted = "EditDataQueryNotCompleted";

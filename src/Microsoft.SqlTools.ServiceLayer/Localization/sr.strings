@@ -101,6 +101,8 @@ QueryServiceQueryFailed(string message) = Query failed: {0}
 
 QueryServiceColumnNull = (No column name)
 
+QueryServiceCellNull = NULL
+
 QueryServiceRequestsNoQuery = The requested query does not exist
 
 QueryServiceQueryInvalidOwnerUri = This editor is not connected to a database
@@ -164,9 +166,25 @@ WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCo
 ############################################################################
 # Edit Data Service
 
+EditDataObjectNotFound = Table or view requested for edit could not be found
+
 EditDataSessionNotFound = Edit session does not exist.
 
+EditDataSessionAlreadyExists = Edit session already exists.
+
+EditDataSessionNotInitialized = Edit session has not been initialized
+
+EditDataSessionAlreadyInitialized = Edit session has already been initialized
+
+EditDataSessionAlreadyInitializing = Edit session has already been initialized or is in the process of initializing
+
+EditDataMetadataNotExtended = Table metadata does not have extended properties
+
+EditDataFilteringNegativeLimit = Result limit cannot be negative
+
 EditDataUnsupportedObjectType(string typeName) = Database object {0} cannot be used for editing.
+
+EditDataQueryFailed = Query execution failed, see messages for details
 
 EditDataQueryNotCompleted = Query has not completed execution
 

@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
@@ -27,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="rowId">Internal ID of the row to be deleted</param>
         /// <param name="associatedResultSet">Result set that is being edited</param>
         /// <param name="associatedMetadata">Improved metadata of the object being edited</param>
-        public RowDelete(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+        public RowDelete(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
         }
@@ -70,6 +71,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             command.Parameters.AddRange(where.Parameters.ToArray());
 
             return command;
+        }
+
+        /// <summary>
+        /// Generates a edit row that represents a row pending deletion. All the original cells are
+        /// intact but the state is dirty.
+        /// </summary>
+        /// <param name="cachedRow">Original, cached cell contents</param>
+        /// <returns>EditRow that is pending deletion</returns>
+        public override EditRow GetEditRow(DbCellValue[] cachedRow)
+        {
+            Validate.IsNotNull(nameof(cachedRow), cachedRow);
+
+            return new EditRow
+            {
+                Id = RowId,
+                Cells = cachedRow,
+                State = EditRow.EditRowState.DirtyDelete
+            };
         }
 
         /// <summary>

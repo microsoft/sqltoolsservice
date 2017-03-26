@@ -58,6 +58,9 @@ cross/rootfs/
 [Bb]uild[Ll]og.*
 test*json
 
+## Project Rider ##
+.idea/
+
 #NUNIT
 *.VisualState.xml
 TestResult.xml
@@ -169,9 +172,6 @@ publish/
 *.nupkg
 **/packages/*
 
-# NuGet package restore lockfiles
-project.lock.json
-
 # Windows Azure Build Output
 csx/
 *.build.csdef
@@ -243,8 +243,6 @@ $RECYCLE.BIN/
 
 ### Linux ###
 
-*~
-
 # KDE directory preferences
 .directory
 
@@ -284,7 +282,7 @@ Session.vim
 
 # docfx generated files
 _site
-metadata
+docs/metadata
 
 # Stuff from cake
 /artifacts/
@@ -292,3 +290,7 @@ metadata
 /.dotnet/
 /test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Properties/launchSettings.json
 /test/Microsoft.SqlTools.ServiceLayer.PerfTests/Properties/launchSettings.json
+
+# Test output files
+*cycle*txt*
+*input*txt*

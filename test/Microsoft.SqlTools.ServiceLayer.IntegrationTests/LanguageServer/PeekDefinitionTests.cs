@@ -2,21 +2,23 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using System;
-using System.Data.Common;
-using System.IO;
-using System.Threading;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
+using System;
+using System.Data.Common;
+using System.IO;
+using System.Threading;
 using Xunit;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 {
@@ -26,6 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
     public class PeekDefinitionTests
     {
         private const string OwnerUri = "testFile1";
+        private const string TestUri = "testFile2";
         private const string ReturnTableFunctionName = "pd_returnTable";
         private const string ReturnTableTableFunctionQuery = @"
 CREATE FUNCTION [dbo].[" + ReturnTableFunctionName + @"] ()
@@ -88,14 +91,14 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "spt_monitor";
 
             string schemaName = null;
             string objectType = "TABLE";
 
             // Get locations for valid table object
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetTableScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -110,13 +113,13 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "test_invalid";
             string schemaName = null;
             string objectType = "TABLE";
 
             // Get locations for invalid table object
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetTableScripts, objectName, schemaName, objectType);
             Assert.Null(locations);
         }
 
@@ -130,14 +133,14 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "spt_monitor";
 
             string schemaName = "dbo";
             string objectType = "TABLE";
 
             // Get locations for valid table object with schema name
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetTableScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetTableScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -151,11 +154,11 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = "sys";
             // When I try to get definition for 'Collation'
-            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.Collation, "master.sys.objects", objectName, schemaName);
+            DefinitionResult result = scripter.GetDefinitionUsingDeclarationType(DeclarationType.Collation, "master.sys.objects", objectName, schemaName);
             // Then I expect non null result with error flag set
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
@@ -170,7 +173,7 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "from";
             Position position = new Position()
             {
@@ -179,7 +182,7 @@ GO";
             };
             ScriptParseInfo scriptParseInfo = new ScriptParseInfo() { IsConnected = true };
             Mock<IBindingContext> bindingContextMock = new Mock<IBindingContext>();
-            DefinitionResult result = peekDefinition.GetScript(scriptParseInfo.ParseResult, position, bindingContextMock.Object.MetadataDisplayInfoProvider, objectName, null);
+            DefinitionResult result = scripter.GetScript(scriptParseInfo.ParseResult, position, bindingContextMock.Object.MetadataDisplayInfoProvider, objectName, null);
 
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
@@ -252,12 +255,12 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = "sys";
             string objectType = "VIEW";
 
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetViewScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetViewScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -272,12 +275,12 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = null;
             string objectType = "VIEW";
 
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetViewScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetViewScripts, objectName, schemaName, objectType);
             Assert.Null(locations);
         }
 
@@ -291,13 +294,13 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "sp_MSrepl_startup";
 
             string schemaName = "dbo";
             string objectType = "PROCEDURE";
 
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetStoredProcedureScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -312,12 +315,12 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "SP2";
             string schemaName = "dbo";
             string objectType = "PROCEDURE";
 
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetStoredProcedureScripts, objectName, schemaName, objectType);
             Assert.Null(locations);
         }
 
@@ -331,12 +334,12 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "sp_MSrepl_startup";
             string schemaName = null;
             string objectType = "PROCEDURE";
 
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(peekDefinition.GetStoredProcedureScripts, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(scripter.GetStoredProcedureScripts, objectName, schemaName, objectType);
             Assert.NotNull(locations);
             Cleanup(locations);
         }
@@ -371,42 +374,42 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition(databaseName);
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
 
-            PeekDefinition.ScriptGetter sqlScriptGetter = null;
+            Scripter.ScriptGetter sqlScriptGetter = null;
             switch (objectType)
             {
                 case SynonymTypeName:
-                    sqlScriptGetter = peekDefinition.GetSynonymScripts;
+                    sqlScriptGetter = scripter.GetSynonymScripts;
                     break;
                 case ScalarValuedFunctionTypeName:
-                    sqlScriptGetter = peekDefinition.GetScalarValuedFunctionScripts;
+                    sqlScriptGetter = scripter.GetScalarValuedFunctionScripts;
                     objectType = "Function";
                     break;
                 case TableValuedFunctionTypeName:
-                    sqlScriptGetter = peekDefinition.GetTableValuedFunctionScripts;
+                    sqlScriptGetter = scripter.GetTableValuedFunctionScripts;
                     objectType = "Function";
                     break;
                 case TableTypeName:
-                    sqlScriptGetter = peekDefinition.GetTableScripts;
+                    sqlScriptGetter = scripter.GetTableScripts;
                     break;
                 case ViewTypeName:
-                    sqlScriptGetter = peekDefinition.GetViewScripts;
+                    sqlScriptGetter = scripter.GetViewScripts;
                     break;
                 case StoredProcedureTypeName:
-                    sqlScriptGetter = peekDefinition.GetStoredProcedureScripts;
+                    sqlScriptGetter = scripter.GetStoredProcedureScripts;
                     break;
                 case UserDefinedDataTypeTypeName:
-                    sqlScriptGetter = peekDefinition.GetUserDefinedDataTypeScripts;
+                    sqlScriptGetter = scripter.GetUserDefinedDataTypeScripts;
                     objectType = "Type";
                     break;
                 case UserDefinedTableTypeTypeName:
-                    sqlScriptGetter = peekDefinition.GetUserDefinedTableTypeScripts;
+                    sqlScriptGetter = scripter.GetUserDefinedTableTypeScripts;
                     objectType = "Type";
                     break;
             }
 
-            Location[] locations = peekDefinition.GetSqlObjectDefinition(sqlScriptGetter, objectName, schemaName, objectType);
+            Location[] locations = scripter.GetSqlObjectDefinition(sqlScriptGetter, objectName, schemaName, objectType);
             if (shouldReturnValidResult)
             {
                 Assert.NotNull(locations);
@@ -573,11 +576,11 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = "sys";
 
-            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.View, "master.sys.objects", objectName, schemaName);
+            DefinitionResult result = scripter.GetDefinitionUsingDeclarationType(DeclarationType.View, "master.sys.objects", objectName, schemaName);
             Assert.NotNull(result);
             Assert.NotNull(result.Locations);
             Assert.False(result.IsErrorResult);
@@ -595,11 +598,11 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "doesNotExist";
             string schemaName = "sys";
 
-            DefinitionResult result = peekDefinition.GetDefinitionUsingDeclarationType(DeclarationType.View, "master.sys.objects", objectName, schemaName);
+            DefinitionResult result = scripter.GetDefinitionUsingDeclarationType(DeclarationType.View, "master.sys.objects", objectName, schemaName);
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
         }
@@ -614,12 +617,12 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "objects";
             string schemaName = "sys";
             string quickInfoText = "view master.sys.objects";
 
-            DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, schemaName);
+            DefinitionResult result = scripter.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, schemaName);
             Assert.NotNull(result);
             Assert.NotNull(result.Locations);
             Assert.False(result.IsErrorResult);
@@ -637,12 +640,12 @@ GO";
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
             ServerConnection serverConnection = LiveConnectionHelper.InitLiveServerConnectionForDefinition(connInfo);
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             string objectName = "doesNotExist";
             string schemaName = "sys";
             string quickInfoText = "view master.sys.objects";
 
-            DefinitionResult result = peekDefinition.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, schemaName);
+            DefinitionResult result = scripter.GetDefinitionUsingQuickInfoText(quickInfoText, objectName, schemaName);
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
         }
@@ -661,9 +664,9 @@ GO";
             //Check if query connection is present
             Assert.False(connInfo.TryGetConnection(ConnectionType.Query, out connection));
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             //Check if database name is the default server connection database name
-            Assert.Equal(peekDefinition.Database.Name, "master");
+            Assert.Equal(scripter.Database.Name, "master");
         }
 
         /// <summary>
@@ -684,12 +687,120 @@ GO";
             //Check if query connection is present
             Assert.True(connInfo.TryGetConnection(ConnectionType.Query, out connection));
 
-            PeekDefinition peekDefinition = new PeekDefinition(serverConnection, connInfo);
+            Scripter scripter = new Scripter(serverConnection, connInfo);
             //Check if database name is the database name in the query connection
-            Assert.Equal(peekDefinition.Database.Name, "testdb");
+            Assert.Equal(scripter.Database.Name, "testdb");
 
             // remove mock from ConnectionInfo
             Assert.True(connInfo.ConnectionTypeToConnectionMap.TryRemove(ConnectionType.Query, out connection));
+        }
+
+        /// <summary>
+        /// Get Definition for a object with no definition. Expect a error result
+        /// </summary>
+        [Fact]
+        public async void GetDefinitionFromChildrenAndParents()
+        {
+            string queryString = "select * from master.sys.objects";
+
+            // place the cursor on every token
+
+            //cursor on objects
+            TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26, OwnerUri);
+                
+            //cursor on sys
+            TextDocumentPosition sysDocument = CreateTextDocPositionWithCursor(22, OwnerUri);
+
+            //cursor on master
+            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(15, OwnerUri);
+
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
+            ScriptFile scriptFile = connectionResult.ScriptFile;
+            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            var bindingQueue = new ConnectedBindingQueue();
+            bindingQueue.AddConnectionContext(connInfo);
+            LanguageService.Instance.BindingQueue = bindingQueue;
+            scriptFile.Contents = queryString;
+
+            var service = LanguageService.Instance;
+            await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
+            Thread.Sleep(2000);
+
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
+            LanguageService.Instance.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+
+            // When I call the language service
+            var objectResult = LanguageService.Instance.GetDefinition(objectDocument, scriptFile, connInfo);
+            var sysResult = LanguageService.Instance.GetDefinition(sysDocument, scriptFile, connInfo);
+            var masterResult = LanguageService.Instance.GetDefinition(masterDocument, scriptFile, connInfo);
+
+            // Then I expect the results to be non-null
+            Assert.NotNull(objectResult);
+            Assert.NotNull(sysResult);
+            Assert.NotNull(masterResult);
+
+            // And I expect the all results to be the same
+            Assert.True(CompareLocations(objectResult.Locations, sysResult.Locations));
+            Assert.True(CompareLocations(objectResult.Locations, masterResult.Locations));
+
+            Cleanup(objectResult.Locations);
+            Cleanup(sysResult.Locations);
+            Cleanup(masterResult.Locations);
+            LanguageService.Instance.ScriptParseInfoMap.Remove(OwnerUri);
+        }
+
+        [Fact]
+        public async void GetDefinitionFromProcedures()
+        {
+
+            string queryString = "EXEC master.dbo.sp_MSrepl_startup";
+
+            // place the cursor on every token
+
+            //cursor on objects
+            TextDocumentPosition fnDocument = CreateTextDocPositionWithCursor(30, TestUri);
+
+            //cursor on sys
+            TextDocumentPosition dboDocument = CreateTextDocPositionWithCursor(14, TestUri);
+
+            //cursor on master
+            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(10, TestUri);
+
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
+            ScriptFile scriptFile = connectionResult.ScriptFile;
+            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            var bindingQueue = new ConnectedBindingQueue();
+            bindingQueue.AddConnectionContext(connInfo);
+            LanguageService.Instance.BindingQueue = bindingQueue;
+            scriptFile.Contents = queryString;
+
+            var service = LanguageService.Instance;
+            await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
+            Thread.Sleep(2000);
+
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
+            LanguageService.Instance.ScriptParseInfoMap.Add(TestUri, scriptInfo);
+
+            // When I call the language service
+            var fnResult = LanguageService.Instance.GetDefinition(fnDocument, scriptFile, connInfo);
+            var sysResult = LanguageService.Instance.GetDefinition(dboDocument, scriptFile, connInfo);
+            var masterResult = LanguageService.Instance.GetDefinition(masterDocument, scriptFile, connInfo);
+
+            // Then I expect the results to be non-null
+            Assert.NotNull(fnResult);
+            Assert.NotNull(sysResult);
+            Assert.NotNull(masterResult);
+
+            // And I expect the all results to be the same
+            Assert.True(CompareLocations(fnResult.Locations, sysResult.Locations));
+            Assert.True(CompareLocations(fnResult.Locations, masterResult.Locations));
+
+            Cleanup(fnResult.Locations);
+            Cleanup(sysResult.Locations);
+            Cleanup(masterResult.Locations);
+            LanguageService.Instance.ScriptParseInfoMap.Remove(TestUri);
         }
 
 
@@ -710,6 +821,43 @@ GO";
 
                 }
             }
+        }
+
+        /// <summary>
+        /// Helper method to compare 2 Locations arrays
+        /// </summary>
+        /// <param name="locationsA"></param>
+        /// <param name="locationsB"></param>
+        /// <returns></returns>
+        private bool CompareLocations(Location[] locationsA, Location[] locationsB)
+        {
+            HashSet<Location> locationSet = new HashSet<Location>();
+            foreach (var location in locationsA)
+            {
+                locationSet.Add(location);
+            }
+            foreach (var location in locationsB)
+            {
+                if (!locationSet.Contains(location))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private TextDocumentPosition CreateTextDocPositionWithCursor(int column, string OwnerUri)
+        {
+            TextDocumentPosition textDocPos = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = OwnerUri },
+                Position = new Position
+                {
+                    Line = 0,
+                    Character = column
+                }
+            };
+            return textDocPos;
         }
     }
 }

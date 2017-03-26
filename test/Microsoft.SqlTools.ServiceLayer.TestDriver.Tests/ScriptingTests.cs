@@ -6,9 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Xunit;
-using Microsoft.SqlTools.ServiceLayer.ScriptingServices.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {

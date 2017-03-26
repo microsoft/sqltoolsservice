@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
@@ -223,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="startRow">The starting row of the results</param>
         /// <param name="rowCount">How many rows to retrieve</param>
         /// <returns>A subset of results</returns>
-        public Task<ResultSetSubset> GetSubset(int startRow, int rowCount)
+        public Task<ResultSetSubset> GetSubset(long startRow, int rowCount)
         {
             // Sanity check to make sure that the results have been read beforehand
             if (!hasBeenRead)
@@ -244,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return Task.Factory.StartNew(() =>
             {
 
-                string[][] rows;
+                DbCellValue[][] rows;
 
                 using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
                 {
@@ -255,19 +256,23 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // Iterate over all the rows and process them into a list of string builders
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
                         IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
-                        rows = new[] { new[] { string.Join(string.Empty, rowValues) } };
+                        string singleString = string.Join(string.Empty, rowValues);
+                        DbCellValue cellValue = new DbCellValue
+                        {
+                            DisplayValue = singleString,
+                            IsNull = false,
+                            RawObject = singleString
+                        };
+                        rows = new[] { new[] { cellValue } };
                     }
                     else
                     {
                         // Figure out which rows we need to read back
-                        IEnumerable<long> rowOffsets = fileOffsets.Skip(startRow).Take(rowCount);
+                        IEnumerable<long> rowOffsets = fileOffsets.LongSkip(startRow).Take(rowCount);
 
                         // Iterate over the rows we need and process them into output
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in .ToArray call
-                        rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)
-                            .Select(cell => cell.DisplayValue).ToArray())
-                            .ToArray();
-
+                        rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns).ToArray()).ToArray();
                     }
                 }
                 // Retrieve the subset of the results as per the request

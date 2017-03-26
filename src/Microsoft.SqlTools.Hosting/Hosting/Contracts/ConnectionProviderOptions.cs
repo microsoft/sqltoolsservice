@@ -15,6 +15,13 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public ConnectionOption[] Options { get; set; }
     }
 
+    public class CategoryValue
+    {
+        public string DisplayName { get; set; }
+
+        public string Name { get; set; }
+    }
+
     public class ConnectionOption
     {
         public static readonly string ValueTypeString = "string";
@@ -48,10 +55,10 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// <summary>
         /// Set of permitted values if ValueType is category.
         /// </summary>
-        public string[] CategoryValues { get; set; }
+        public CategoryValue[] CategoryValues { get; set; }
 
         /// <summary>
-        /// Determines if the parameter is one of the 'specical' known values.
+        /// Determines if the parameter is one of the 'special' known values.
         /// Can be either Server Name, Database Name, Authentication Type,
         /// User Name, or Password
         /// </summary>

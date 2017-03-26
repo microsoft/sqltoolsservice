@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="rowId">Internal ID of the row that is being created</param>
         /// <param name="associatedResultSet">The result set for the rows in the table we're editing</param>
         /// <param name="associatedMetadata">The metadata for table we're editing</param>
-        public RowCreate(long rowId, ResultSet associatedResultSet, IEditTableMetadata associatedMetadata)
+        public RowCreate(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
             : base(rowId, associatedResultSet, associatedMetadata)
         {
             newCells = new CellUpdate[associatedResultSet.Columns.Length];
@@ -120,6 +120,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             command.CommandType = CommandType.Text;
                 
             return command;
+        }
+
+        /// <summary>
+        /// Generates a edit row that represents a row pending insertion
+        /// </summary>
+        /// <param name="cachedRow">Original, cached cell contents. (Should be null in this case)</param>
+        /// <returns>EditRow of pending update</returns>
+        public override EditRow GetEditRow(DbCellValue[] cachedRow)
+        {
+            // Iterate over the new cells. If they are null, generate a blank value
+            DbCellValue[] editCells = newCells.Select(cell => cell == null
+                    ? new DbCellValue {DisplayValue = string.Empty, IsNull = false, RawObject = null}
+                    : cell.AsDbCellValue)
+                .ToArray();
+            return new EditRow
+            {
+                Id = RowId,
+                Cells = editCells,
+                State = EditRow.EditRowState.DirtyInsert
+            };
         }
 
         /// <summary>

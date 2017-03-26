@@ -13,6 +13,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     public class EditInitializeParams : SessionOperationParams
     {
         /// <summary>
+        /// Filtering parameters
+        /// </summary>
+        public EditInitializeFiltering Filters { get; set; }
+
+        /// <summary>
         /// The object to use for generating an edit script
         /// </summary>
         public string ObjectName { get; set; }

@@ -245,6 +245,10 @@
     <value>(No column name)</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
     <value>The requested query does not exist</value>
     <comment></comment>
@@ -350,14 +354,46 @@
     <comment>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>Table or view requested for edit could not be found</value>
+    <comment></comment>
+  </data>
   <data name="EditDataSessionNotFound" xml:space="preserve">
     <value>Edit session does not exist.</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>Edit session already exists.</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>Edit session has not been initialized</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>Edit session has already been initialized</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>Edit session has already been initialized or is in the process of initializing</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>Table metadata does not have extended properties</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>Result limit cannot be negative</value>
     <comment></comment>
   </data>
   <data name="EditDataUnsupportedObjectType" xml:space="preserve">
     <value>Database object {0} cannot be used for editing.</value>
     <comment>.
  Parameters: 0 - typeName (string) </comment>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>Query execution failed, see messages for details</value>
+    <comment></comment>
   </data>
   <data name="EditDataQueryNotCompleted" xml:space="preserve">
     <value>Query has not completed execution</value>

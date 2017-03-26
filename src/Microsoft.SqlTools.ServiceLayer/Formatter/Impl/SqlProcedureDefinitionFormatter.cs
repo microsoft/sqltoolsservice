@@ -21,16 +21,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         }
     }
 
-    class SqlProcedureDefinitionFormatter : CommaSeparatedListFormatter
+    class SqlProcedureDefinitionFormatter : ASTNodeFormatterT<SqlProcedureDefinition>
     {
         NewLineSeparatedListFormatter NewLineSeparatedListFormatter { get; set; }
+        CommaSeparatedListFormatter CommaSeparatedListFormatter { get; set; }
         bool foundTokenWith;
 
         internal SqlProcedureDefinitionFormatter(FormatterVisitor visitor, SqlProcedureDefinition codeObject)
-            : base(visitor, codeObject, true)
+            : base(visitor, codeObject)
         {
-            NewLineSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, false);
+            NewLineSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, true);
+            CommaSeparatedListFormatter = new CommaSeparatedListFormatter(visitor, codeObject, true);
             foundTokenWith = false;
+        }
+
+        internal override void ProcessPrefixRegion(int startTokenNumber, int firstChildStartTokenNumber)
+        {
+            NewLineSeparatedListFormatter.ProcessPrefixRegion(startTokenNumber, firstChildStartTokenNumber);
+        }
+
+        internal override void ProcessChild(SqlCodeObject child)
+        {
+            CommaSeparatedListFormatter.ProcessChild(child);
         }
 
         internal override void ProcessInterChildRegion(SqlCodeObject previousChild, SqlCodeObject nextChild)
@@ -60,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             }
             else
             {
-                base.ProcessInterChildRegion(previousChild, nextChild);
+                CommaSeparatedListFormatter.ProcessInterChildRegion(previousChild, nextChild);
             }
         }
 

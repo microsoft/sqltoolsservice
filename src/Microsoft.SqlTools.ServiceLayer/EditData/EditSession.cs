@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
@@ -24,27 +26,28 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
     public class EditSession
     {
 
-        private readonly ResultSet associatedResultSet;
-        private readonly IEditTableMetadata objectMetadata;
+        private ResultSet associatedResultSet;
+
+        private readonly IEditMetadataFactory metadataFactory;
+        private EditTableMetadata objectMetadata;
 
         /// <summary>
         /// Constructs a new edit session bound to the result set and metadat object provided
         /// </summary>
-        /// <param name="resultSet">The result set of the table to be edited</param>
-        /// <param name="objMetadata">Metadata provider for the table to be edited</param>
-        public EditSession(ResultSet resultSet, IEditTableMetadata objMetadata)
+        /// <param name="metaFactory">Factory for creating metadata</param>
+        public EditSession(IEditMetadataFactory metaFactory)
         {
-            Validate.IsNotNull(nameof(resultSet), resultSet);
-            Validate.IsNotNull(nameof(objMetadata), objMetadata);
+            Validate.IsNotNull(nameof(metaFactory), metaFactory);
 
             // Setup the internal state
-            associatedResultSet = resultSet;
-            objectMetadata = objMetadata;
-            NextRowId = associatedResultSet.RowCount;
-            EditCache = new ConcurrentDictionary<long, RowEditBase>();
+            metadataFactory = metaFactory;
         }
 
         #region Properties
+
+        public delegate Task<DbConnection> Connector();
+
+        public delegate Task<EditSessionQueryExecutionState> QueryRunner(string query);
 
         /// <summary>
         /// The task that is running to commit the changes to the db
@@ -60,11 +63,61 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <summary>
         /// The cache of pending updates. Internal for unit test purposes only
         /// </summary>
-        internal ConcurrentDictionary<long, RowEditBase> EditCache { get; }
+        internal ConcurrentDictionary<long, RowEditBase> EditCache { get; private set; }
+
+        /// <summary>
+        /// The task that is running to initialize the edit session
+        /// </summary>
+        internal Task InitializeTask { get; set; }
+
+        /// <summary>
+        /// Whether or not the session has been initialized
+        /// </summary>
+        public bool IsInitialized { get; internal set; }
 
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Initializes the edit session, asynchronously, by retrieving metadata about the table to
+        /// edit and querying the table for the rows of the table.
+        /// </summary>
+        /// <param name="initParams">Parameters for initializing the edit session</param>
+        /// <param name="connector">Delegate that will return a DbConnection when executed</param>
+        /// <param name="queryRunner">
+        /// Delegate that will run the requested query and return a
+        /// <see cref="EditSessionQueryExecutionState"/> object on execution
+        /// </param>
+        /// <param name="successHandler">Func to call when initialization has completed successfully</param>
+        /// <param name="errorHandler">Func to call when initialization has completed with errors</param>
+        /// <exception cref="InvalidOperationException">
+        /// When session is already initialized or in progress of initializing
+        /// </exception>
+        public void Initialize(EditInitializeParams initParams, Connector connector, QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> errorHandler)
+        {
+            if (IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionAlreadyInitialized);
+            }
+
+            if (InitializeTask != null)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionAlreadyInitializing);
+            }
+
+            Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
+            Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectType), initParams.ObjectType);
+            Validate.IsNotNull(nameof(initParams.Filters), initParams.Filters);
+
+            Validate.IsNotNull(nameof(connector), connector);
+            Validate.IsNotNull(nameof(queryRunner), queryRunner);
+            Validate.IsNotNull(nameof(successHandler), successHandler);
+            Validate.IsNotNull(nameof(errorHandler), errorHandler);
+
+            // Start up the initialize process
+            InitializeTask = InitializeInternal(initParams, connector, queryRunner, successHandler, errorHandler);
+        }
 
         /// <summary>
         /// Validates that a query can be used for an edit session. The target result set is returned
@@ -99,6 +152,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <returns>The internal ID of the newly created row</returns>
         public EditCreateRowResult CreateRow()
         {
+            ThrowIfNotInitialized();
+
             // Create a new row ID (atomically, since this could be accesses concurrently)
             long newRowId = NextRowId++;
 
@@ -112,13 +167,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             }
 
             // Set the default values of the row if we know them
-            string[] defaultValues = new string[objectMetadata.Columns.Count];
-            for(int i = 0; i < objectMetadata.Columns.Count; i++)
+            string[] defaultValues = new string[objectMetadata.Columns.Length];
+            for(int i = 0; i < objectMetadata.Columns.Length; i++)
             {
-                EditColumnWrapper col = objectMetadata.Columns[i];
+                EditColumnMetadata col = objectMetadata.Columns[i];
 
                 // If the column is calculated, return the calculated placeholder as the display value
-                if (col.IsCalculated)
+                if (col.IsCalculated.HasTrue())
                 {
                     defaultValues[i] = SR.EditDataComputedColumnPlaceholder;
                 }
@@ -149,6 +204,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="errorHandler">Callback to perform if the commit process has failed at some point</param>
         public void CommitEdits(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
         {
+            ThrowIfNotInitialized();
+
             Validate.IsNotNull(nameof(connection), connection);
             Validate.IsNotNull(nameof(successHandler), successHandler);
             Validate.IsNotNull(nameof(errorHandler), errorHandler);
@@ -172,6 +229,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="rowId">The internal ID of the row to delete</param>
         public void DeleteRow(long rowId)
         {
+            ThrowIfNotInitialized();
+
             // Sanity check the row ID
             if (rowId >= NextRowId || rowId < 0)
             {
@@ -187,6 +246,62 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         /// <summary>
+        /// Retrieves a subset of rows with the pending updates applied. If more rows than exist
+        /// are requested, only the rows that exist will be returned.
+        /// </summary>
+        /// <param name="startIndex">Index to start returning rows from</param>
+        /// <param name="rowCount">The number of rows to return.</param>
+        /// <returns>An array of rows with pending edits applied</returns>
+        public async Task<EditRow[]> GetRows(long startIndex, int rowCount)
+        {
+            ThrowIfNotInitialized();
+
+            // Get the cached rows from the result set
+            ResultSetSubset cachedRows = startIndex < associatedResultSet.RowCount
+                ? await associatedResultSet.GetSubset(startIndex, rowCount)
+                : new ResultSetSubset
+                {
+                    RowCount = 0,
+                    Rows = new DbCellValue[][] { }
+                };
+
+            // Convert the rows into EditRows and apply the changes we have
+            List<EditRow> editRows = new List<EditRow>();
+            for (int i = 0; i < cachedRows.RowCount; i++)
+            {
+                long rowId = i + startIndex;
+                RowEditBase edr;
+                if (EditCache.TryGetValue(rowId, out edr))
+                {
+                    // Ask the edit object to generate an edit row
+                    editRows.Add(edr.GetEditRow(cachedRows.Rows[i]));
+                }
+                else
+                {
+                    // Package up the existing row into a clean edit row
+                    EditRow er = new EditRow
+                    {
+                        Id = rowId,
+                        Cells = cachedRows.Rows[i],
+                        State = EditRow.EditRowState.Clean
+                    };
+                    editRows.Add(er);
+                }
+            }
+
+            // If the requested range of rows was at the end of the original cell set and we have
+            // added new rows, we need to reflect those changes
+            if (rowCount > cachedRows.RowCount)
+            {
+                long endIndex = startIndex + cachedRows.RowCount;
+                var newRows = EditCache.Where(edit => edit.Key >= endIndex).Take(rowCount - cachedRows.RowCount);
+                editRows.AddRange(newRows.Select(newRow => newRow.Value.GetEditRow(null)));
+            }
+
+            return editRows.ToArray();
+        }
+
+        /// <summary>
         /// Reverts a cell in a pending edit
         /// </summary>
         /// <param name="rowId">Internal ID of the row to have its edits reverted</param>
@@ -194,6 +309,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <returns>String version of the old value for the cell</returns>
         public string RevertCell(long rowId, int columnId)
         {
+            ThrowIfNotInitialized();
+
             // Attempt to get the row edit with the given ID
             RowEditBase pendingEdit;
             if (!EditCache.TryGetValue(rowId, out pendingEdit))
@@ -214,6 +331,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="rowId">The internal ID of the row to reset</param>
         public void RevertRow(long rowId)
         {
+            ThrowIfNotInitialized();
+
             // Attempt to remove the row with the given ID
             RowEditBase removedEdit;
             if (!EditCache.TryRemove(rowId, out removedEdit))
@@ -229,6 +348,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <returns></returns>
         public string ScriptEdits(string outputPath)
         {
+            ThrowIfNotInitialized();
+
             // Validate the output path
             // @TODO: Reinstate this code once we have an interface around file generation
             //if (outputPath == null)
@@ -273,6 +394,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="newValue">The new string value of the cell to update</param>
         public EditUpdateCellResult UpdateCell(long rowId, int columnId, string newValue)
         {
+            ThrowIfNotInitialized();
+
             // Sanity check to make sure that the row ID is in the range of possible values
             if (rowId >= NextRowId || rowId < 0)
             {
@@ -291,6 +414,42 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         }
 
         #endregion
+
+        #region Private Helpers
+
+        private async Task InitializeInternal(EditInitializeParams initParams, Connector connector,
+            QueryRunner queryRunner, Func<Task> successHandler, Func<Exception, Task> failureHandler)
+        {
+            try
+            {
+                // Step 1) Look up the SMO metadata
+                objectMetadata = metadataFactory.GetObjectMetadata(await connector(), initParams.ObjectName,
+                    initParams.ObjectType);
+
+                // Step 2) Get and execute a query for the rows in the object we're looking up
+                EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery(objectMetadata, initParams.Filters));
+                if (state.Query == null)
+                {
+                    // TODO: Move to SR file
+                    string message = state.Message ?? SR.EditDataQueryFailed;
+                    throw new Exception(message);
+                }
+
+                // Step 3) Setup the internal state
+                associatedResultSet = ValidateQueryForSession(state.Query);
+                NextRowId = associatedResultSet.RowCount;
+                EditCache = new ConcurrentDictionary<long, RowEditBase>();
+                IsInitialized = true;
+                objectMetadata.Extend(associatedResultSet.Columns);
+
+                // Step 4) Return our success
+                await successHandler();
+            }
+            catch (Exception e)
+            {
+                await failureHandler(e);
+            }
+        }
 
         private async Task CommitEditsInternal(DbConnection connection, Func<Task> successHandler, Func<Exception, Task> errorHandler)
         {
@@ -321,6 +480,73 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             catch (Exception e)
             {
                 await errorHandler(e);
+            }
+        }
+
+        /// <summary>
+        /// Constructs a query for selecting rows in a table based on the filters provided.
+        /// Internal for unit testing purposes only.
+        /// </summary>
+        internal static string ConstructInitializeQuery(EditTableMetadata metadata, EditInitializeFiltering initFilters)
+        {
+            StringBuilder queryBuilder = new StringBuilder("SELECT ");
+
+            // If there is a filter for top n rows, then apply it
+            if (initFilters.LimitResults.HasValue)
+            {
+                if (initFilters.LimitResults < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(initFilters.LimitResults), SR.EditDataFilteringNegativeLimit);
+                }
+                queryBuilder.AppendFormat("TOP {0} ", initFilters.LimitResults.Value);
+            }
+
+            // Using the columns we know, add them to the query
+            var columns = metadata.Columns.Select(col => col.EscapedName);
+            var columnClause = string.Join(", ", columns);
+            queryBuilder.Append(columnClause);
+
+            // Add the FROM
+            queryBuilder.AppendFormat(" FROM {0}", metadata.EscapedMultipartName);
+
+            return queryBuilder.ToString();
+        }
+
+        private void ThrowIfNotInitialized()
+        {
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// State object to return upon completion of an edit session intialization query
+        /// </summary>
+        public class EditSessionQueryExecutionState
+        {
+            /// <summary>
+            /// The query object that was used to execute the edit initialization query. If
+            /// <c>null</c> the query was not successfully executed.
+            /// </summary>
+            public Query Query { get; set; }
+
+            /// <summary>
+            /// Any message that may have occurred during execution of the query (ie, exceptions).
+            /// If this is and <see cref="Query"/> are <c>null</c> then the error messages were
+            /// returned via message events.
+            /// </summary>
+            public string Message { get; set; }
+
+            /// <summary>
+            /// Constructs a new instance. Sets the values of the properties.
+            /// </summary>
+            public EditSessionQueryExecutionState(Query query, string message = null)
+            {
+                Query = query;
+                Message = message;
             }
         }
     }

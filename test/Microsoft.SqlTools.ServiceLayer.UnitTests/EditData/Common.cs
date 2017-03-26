@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Microsoft.SqlTools.Utility;
 using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
@@ -22,18 +23,70 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     {
         public const string OwnerUri = "testFile";
 
-        public static IEditTableMetadata GetStandardMetadata(DbColumn[] columns, bool allKeys = true, bool isMemoryOptimized = false)
+        public static EditInitializeParams BasicInitializeParameters
         {
-            // Create a Column Metadata Provider
-            var columnMetas = columns.Select((c, i) =>
-                new EditColumnWrapper
+            get
+            {
+                return new EditInitializeParams
                 {
-                    DbColumn = new DbColumnWrapper(c),
+                    Filters = new EditInitializeFiltering(),
+                    ObjectName = "tbl",
+                    ObjectType = "tbl"
+                };
+            }
+        }
+
+        public static async Task<EditSession> GetCustomSession(Query q, EditTableMetadata etm)
+        {
+            // Step 1) Create the Session object
+            // Mock metadata factory
+            Mock<IEditMetadataFactory> metaFactory = new Mock<IEditMetadataFactory>();
+            metaFactory
+                .Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(etm);
+
+            EditSession session = new EditSession(metaFactory.Object);
+
+
+            // Step 2) Initialize the Session
+            // Mock connector that does nothing
+            EditSession.Connector connector = () => Task.FromResult<DbConnection>(null);
+
+            // Mock query runner that returns the query we were provided
+            EditSession.QueryRunner queryRunner = (s) => Task.FromResult(new EditSession.EditSessionQueryExecutionState(q));
+
+            // Initialize
+            session.Initialize(BasicInitializeParameters, connector, queryRunner, () => Task.FromResult(0), (e) => Task.FromResult(0));
+            await session.InitializeTask;
+
+            return session;
+        }
+
+        public static EditTableMetadata GetStandardMetadata(DbColumn[] columns, bool isMemoryOptimized = false)
+        {
+            // Create column metadata providers
+            var columnMetas = columns.Select((c, i) =>
+            {
+                var ecm = new EditColumnMetadata
+                {
                     EscapedName = c.ColumnName,
-                    Ordinal = i,
-                    IsKey = c.IsIdentity.HasTrue()
-                }).ToArray();
-            return GetMetadataProvider(columnMetas, allKeys, isMemoryOptimized);
+                    Ordinal = i
+                };
+                return ecm;
+            }).ToArray();
+
+            // Create column wrappers
+            var columnWrappers = columns.Select(c => new DbColumnWrapper(c)).ToArray();
+
+            // Create the table metadata
+            EditTableMetadata editTableMetadata = new EditTableMetadata
+            {
+                Columns = columnMetas,
+                EscapedMultipartName = "tbl",
+                IsMemoryOptimized = isMemoryOptimized
+            };
+            editTableMetadata.Extend(columnWrappers);
+            return editTableMetadata;
         }
 
         public static DbColumn[] GetColumns(bool includeIdentity)
@@ -42,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             if (includeIdentity)
             {
-                columns.Add(new TestDbColumn("id", true));
+                columns.Add(new TestDbColumn("id") {IsKey = true, IsIdentity = true, IsAutoIncrement = true});
             }
 
             for (int i = 0; i < 3; i++)
@@ -52,7 +105,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             return columns.ToArray();
         }
 
-        public static ResultSet GetResultSet(DbColumn[] columns, bool includeIdentity, int rowCount = 1)
+        public static async Task<Query> GetQuery(DbColumn[] columns, bool includIdentity, int rowCount = 1)
+        {
+            Query q = QueryExecution.Common.GetBasicExecutedQuery();
+            q.Batches[0].ResultSets[0] = await GetResultSet(columns, includIdentity, rowCount);
+            return q;
+        }
+
+        public static async Task<ResultSet> GetResultSet(DbColumn[] columns, bool includeIdentity, int rowCount = 1)
         {
             IEnumerable<object[]> rows = includeIdentity
                 ? Enumerable.Repeat(new object[] { "id", "1", "2", "3" }, rowCount)
@@ -60,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var testResultSet = new TestResultSet(columns, rows);
             var reader = new TestDbDataReader(new[] { testResultSet });
             var resultSet = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
-            resultSet.ReadResultToEnd(reader, CancellationToken.None).Wait();
+            await resultSet.ReadResultToEnd(reader, CancellationToken.None);
             return resultSet;
         }
 
@@ -81,27 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             {
                 rc.SetCell(i, "123");
             }
-        }
-
-        public static IEditTableMetadata GetMetadataProvider(EditColumnWrapper[] columnMetas, bool allKeys = false, bool isMemoryOptimized = false)
-        {
-            // Create a table metadata provider
-            var tableMetaMock = new Mock<IEditTableMetadata>();
-            if (allKeys)
-            {
-                // All columns should be returned as "keys"
-                tableMetaMock.Setup(m => m.KeyColumns).Returns(columnMetas);
-            }
-            else
-            {
-                // All identity columns should be returned as keys
-                tableMetaMock.Setup(m => m.KeyColumns).Returns(columnMetas.Where(c => c.DbColumn.IsIdentity.HasTrue()).ToList());
-            }
-            tableMetaMock.Setup(m => m.Columns).Returns(columnMetas);
-            tableMetaMock.Setup(m => m.IsMemoryOptimized).Returns(isMemoryOptimized);
-            tableMetaMock.Setup(m => m.EscapedMultipartName).Returns("tbl");
-
-            return tableMetaMock.Object;
         }
     }
 }

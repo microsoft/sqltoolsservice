@@ -157,6 +157,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// Gets or sets the zero-based column number.
         /// </summary>
         public int Character { get; set; }
+
+        /// <summary>
+        /// Overrides the base equality method
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null ||  (obj as Position == null))
+            {
+                return false;
+            }
+            Position p = (Position) obj;
+            bool result = (Line == p.Line) && (Character == p.Character);
+            return result;
+        }
+
+
+        /// <summary>
+        /// Overrides the base GetHashCode method
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash = hash * 23 + Line.GetHashCode();
+            hash = hash * 23 + Character.GetHashCode();
+            return hash;
+        }
     }
 
     [DebuggerDisplay("Start = {Start.Line}:{Start.Character}, End = {End.Line}:{End.Character}")]
@@ -171,6 +200,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// Gets or sets the ending position of the range.
         /// </summary>
         public Position End { get; set; }
+
+        /// <summary>
+        /// Overrides the base equality method
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+           
+
+            if (obj == null || !(obj is Range))
+            {
+                return false;
+            }
+            Range range = (Range) obj;
+            bool sameStart = range.Start.Equals(Start);
+            bool sameEnd = range.End.Equals(End);
+            return (sameStart && sameEnd);
+        }
+
+        /// <summary>
+        /// Overrides the base GetHashCode method
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash = hash * 23 + Start.GetHashCode();
+            hash = hash * 23 + End.GetHashCode();
+            return hash;
+        }
     }
 
     [DebuggerDisplay("Range = {Range.Start.Line}:{Range.Start.Character} - {Range.End.Line}:{Range.End.Character}, Uri = {Uri}")]
@@ -185,6 +245,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// Gets or sets the Range indicating the range in which location refers.
         /// </summary>
         public Range Range { get; set; }
+
+        /// <summary>
+        /// Overrides the base equality method
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null || (obj as Location == null))
+            {
+                return false;
+            }
+            Location loc = (Location)obj;
+            bool sameUri = string.Equals(loc.Uri, Uri);
+            bool sameRange = loc.Range.Equals(Range);
+            return (sameUri && sameRange);
+        }
+
+        /// <summary>
+        /// Overrides the base GetHashCode method
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash = hash * 23 + Uri.GetHashCode();
+            hash = hash * 23 + Range.GetHashCode();
+            return hash;
+        }
     }
 
     public enum FileChangeType
