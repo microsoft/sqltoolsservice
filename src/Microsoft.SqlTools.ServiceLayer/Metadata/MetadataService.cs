@@ -53,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
+            serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest);
         }
 
         /// <summary>
@@ -79,6 +80,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 await requestContext.SendResult(new MetadataQueryResult
                 {
                     Metadata = metadata.ToArray()
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handle a table metadata query request
+        /// </summary>        
+        internal static async Task HandleGetTableRequest(
+            TableMetadataParams metadataParams,
+            RequestContext<TableMetadataResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                MetadataService.ConnectionServiceInstance.TryFindConnection(
+                    metadataParams.OwnerUri,
+                    out connInfo);
+
+                ColumnMetadata[] metadata = null;
+                if (connInfo != null) 
+                {
+                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);                    
+                    GetTable(sqlConn, metadataParams.Schema, metadataParams.TableName, out metadata);
+                }
+
+                await requestContext.SendResult(new TableMetadataResult
+                {
+                    Metadata = metadata    
                 });
             }
             catch (Exception ex)
@@ -162,6 +195,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     }
                 }
             }
-        }        
+        }
+
+        /// <summary>
+        /// Get the metadata for the requested object
+        /// </summary>
+        internal static void GetTable(
+            SqlConnection sqlConn,             
+            string objectName,
+            string objectType,
+            out ColumnMetadata[] metadata)
+        {
+            var factory = new SmoMetadataFactory();
+            TableMetadata table = factory.GetObjectMetadata(sqlConn, objectName, objectType);
+            metadata = table.Columns;
+        }
+
     }
 }
