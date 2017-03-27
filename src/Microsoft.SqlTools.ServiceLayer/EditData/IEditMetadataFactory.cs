@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// </summary>
         /// <param name="connection">Connection to use for getting metadata</param>
         /// <param name="objectNamedParts">
-        /// The multipart namefor the object split and unwrapped. At most two components can be
+        /// The multipart name for the object split and unwrapped. At most two components can be
         /// provided (schema, table/view name). At minimum table/view name can be provided, and
         /// default schema will be used for schema name.
         /// </param>

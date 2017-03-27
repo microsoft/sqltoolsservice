@@ -342,6 +342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 yield return new object[] {"[escaped.dot]", new[] {"escaped.dot"}};
                 yield return new object[] {"mixed.[escaped]", new[] {"mixed", "escaped"}};
                 yield return new object[] {"[escaped].mixed", new[] {"escaped", "mixed"}};
+                yield return new object[] {"dbo.[[].weird", new[] {"dbo", "[", "weird"}};
             }
         }
 
