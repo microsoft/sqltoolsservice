@@ -378,6 +378,10 @@
     <value>Edit session has already been initialized or is in the process of initializing</value>
     <comment></comment>
   </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>Table metadata does not have extended properties</value>
+    <comment></comment>
+  </data>
   <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
     <value>A object name must be provided</value>
     <comment></comment>

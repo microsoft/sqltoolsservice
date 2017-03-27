@@ -421,6 +421,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataMetadataNotExtended
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataNotExtended);
+            }
+        }
+
         public static string EditDataMetadataObjectNameRequired
         {
             get
@@ -1139,6 +1147,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataSessionAlreadyInitializing = "EditDataSessionAlreadyInitializing";
+
+
+            public const string EditDataMetadataNotExtended = "EditDataMetadataNotExtended";
 
 
             public const string EditDataMetadataObjectNameRequired = "EditDataMetadataObjectNameRequired";

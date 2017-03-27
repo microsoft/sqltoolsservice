@@ -616,6 +616,11 @@
         <target state="new">Explicitly specifying server or database is not supported</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataMetadataNotExtended">
+        <source>Table metadata does not have extended properties</source>
+        <target state="new">Table metadata does not have extended properties</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
