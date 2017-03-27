@@ -853,6 +853,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlScriptFormatterMultipartDecodeFail
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlScriptFormatterMultipartDecodeFail);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -1280,6 +1288,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SqlScriptFormatterDecimalMissingPrecision = "SqlScriptFormatterDecimalMissingPrecision";
+
+
+            public const string SqlScriptFormatterMultipartDecodeFail = "SqlScriptFormatterMultipartDecodeFail";
 
 
             private Keys()

@@ -11,6 +11,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
 {
@@ -23,11 +24,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// Generates a edit-ready metadata object using SMO
         /// </summary>
         /// <param name="connection">Connection to use for getting metadata</param>
-        /// <param name="objectName">Name of the object to return metadata for</param>
+        /// <param name="objectNamedParts">Split and unwrapped name parts</param>
         /// <param name="objectType">Type of the object to return metadata for</param>
         /// <returns>Metadata about the object requested</returns>
-        public EditTableMetadata GetObjectMetadata(DbConnection connection, string objectName, string objectType)
+        public EditTableMetadata GetObjectMetadata(DbConnection connection, string[] objectNamedParts, string objectType)
         {
+            Validate.IsNotNull(nameof(objectNamedParts), objectNamedParts);
+            if (objectNamedParts.Length <= 0)
+            {
+                throw new ArgumentNullException(nameof(objectNamedParts), "A object name must be provided");
+            }
+            if (objectNamedParts.Length > 2)
+            {
+                throw new InvalidOperationException("Explicitly specifying server or database is not supported");
+            }
+
             // Get a connection to the database for SMO purposes
             SqlConnection sqlConn = connection as SqlConnection;
             if (sqlConn == null)
@@ -46,21 +57,22 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Connect with SMO and get the metadata for the table
             Server server = new Server(new ServerConnection(sqlConn));
+            Database db = new Database(server, sqlConn.Database);
             TableViewTableTypeBase smoResult;
             switch (objectType.ToLowerInvariant())
             {
                 case "table":
-                    smoResult = server.Databases[sqlConn.Database].Tables[objectName];
+                    smoResult = objectNamedParts.Length == 1
+                        ? new Table(db, objectNamedParts[0])                        // No schema provided
+                        : new Table(db, objectNamedParts[1], objectNamedParts[0]);  // Schema provided
                     break;
                 case "view":
-                    smoResult = server.Databases[sqlConn.Database].Views[objectName];
+                    smoResult = objectNamedParts.Length == 1
+                        ? new View(db, objectNamedParts[0])                         // No schema provided
+                        : new View(db, objectNamedParts[1], objectNamedParts[0]);   // Schema provided
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
-            }
-            if (smoResult == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(objectName), SR.EditDataObjectMetadataNotFound);
             }
 
             // Generate the edit column metadata

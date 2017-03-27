@@ -599,4 +599,8 @@
     <value>Decimal column is missing numeric precision or numeric scale</value>
     <comment></comment>
   </data>
+  <data name="SqlScriptFormatterMultipartDecodeFail" xml:space="preserve">
+    <value>Multipart identifier is incorrectly formatted</value>
+    <comment></comment>
+  </data>
 </root>

@@ -601,6 +601,11 @@
         <target state="new">NULL</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlScriptFormatterMultipartDecodeFail">
+        <source>Multipart identifier is incorrectly formatted</source>
+        <target state="new">Multipart identifier is incorrectly formatted</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -296,3 +296,5 @@ TestLocalizationConstant = EN_LOCALIZATION
 # Utilities
 
 SqlScriptFormatterDecimalMissingPrecision = Decimal column is missing numeric precision or numeric scale
+
+SqlScriptFormatterMultipartDecodeFail = Multipart identifier is incorrectly formatted
