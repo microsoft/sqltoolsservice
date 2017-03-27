@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <param name="objectName">Name of the object to return metadata for</param>
         /// <param name="objectType">Type of the object to return metadata for</param>
         /// <returns>Metadata about the object requested</returns>
-        TableMetadata GetObjectMetadata(DbConnection connection, string objectName, string objectType);
+        TableMetadata GetObjectMetadata(DbConnection connection, string schemaName, string objectName, string objectType);
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <param name="objectName">Name of the object to return metadata for</param>
         /// <param name="objectType">Type of the object to return metadata for</param>
         /// <returns>Metadata about the object requested</returns>
-        public TableMetadata GetObjectMetadata(DbConnection connection, string objectName, string objectType)
+        public TableMetadata GetObjectMetadata(DbConnection connection, string schemaName, string objectName, string objectType)
         {
             // Get a connection to the database for SMO purposes
             SqlConnection sqlConn = connection as SqlConnection;
@@ -65,7 +65,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             switch (objectType.ToLowerInvariant())
             {
                 case "table":
-                    smoResult = server.Databases[sqlConn.Database].Tables[objectName];
+                    Database database = server.Databases[sqlConn.Database];
+                    Table smoObject = string.IsNullOrEmpty(schemaName) ? new Table(database, objectName) : new Table(database, objectName, schemaName);
+                    smoObject.Refresh();
+                    smoResult = smoObject;
                     break;
                 case "view":
                     smoResult = server.Databases[sqlConn.Database].Views[objectName];

@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                 await requestContext.SendResult(new TableMetadataResult
                 {
-                    Metadata = metadata    
+                    Columns = metadata    
                 });
             }
             catch (Exception ex)
@@ -202,12 +202,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// </summary>
         internal static void GetTable(
             SqlConnection sqlConn,             
+            string objectSchema,
             string objectName,
-            string objectType,
             out ColumnMetadata[] metadata)
         {
             var factory = new SmoMetadataFactory();
-            TableMetadata table = factory.GetObjectMetadata(sqlConn, objectName, objectType);
+            TableMetadata table = factory.GetObjectMetadata(sqlConn, objectSchema, objectName, "table");
             metadata = table.Columns;
         }
 

@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 
     public class TableMetadataResult
     {
-        public ColumnMetadata[] Metadata { get; set; }
+        public ColumnMetadata[] Columns { get; set; }
     }
 
     /// <summary>
