@@ -178,6 +178,10 @@ EditDataSessionAlreadyInitialized = Edit session has already been initialized
 
 EditDataSessionAlreadyInitializing = Edit session has already been initialized or is in the process of initializing
 
+EditDataMetadataObjectNameRequired = A object name must be provided
+
+EditDataMetadataTooManyIdentifiers = Explicitly specifying server or database is not supported
+
 EditDataFilteringNegativeLimit = Result limit cannot be negative
 
 EditDataUnsupportedObjectType(string typeName) = Database object {0} cannot be used for editing.

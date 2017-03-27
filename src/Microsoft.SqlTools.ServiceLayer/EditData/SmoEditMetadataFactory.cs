@@ -32,11 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             Validate.IsNotNull(nameof(objectNamedParts), objectNamedParts);
             if (objectNamedParts.Length <= 0)
             {
-                throw new ArgumentNullException(nameof(objectNamedParts), "A object name must be provided");
+                throw new ArgumentNullException(nameof(objectNamedParts), SR.EditDataMetadataObjectNameRequired);
             }
             if (objectNamedParts.Length > 2)
             {
-                throw new InvalidOperationException("Explicitly specifying server or database is not supported");
+                throw new InvalidOperationException(SR.EditDataMetadataTooManyIdentifiers);
             }
 
             // Get a connection to the database for SMO purposes

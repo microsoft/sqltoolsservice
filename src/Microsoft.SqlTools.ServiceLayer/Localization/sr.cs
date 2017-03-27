@@ -421,6 +421,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataMetadataObjectNameRequired
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataObjectNameRequired);
+            }
+        }
+
+        public static string EditDataMetadataTooManyIdentifiers
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataTooManyIdentifiers);
+            }
+        }
+
         public static string EditDataFilteringNegativeLimit
         {
             get
@@ -1123,6 +1139,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataSessionAlreadyInitializing = "EditDataSessionAlreadyInitializing";
+
+
+            public const string EditDataMetadataObjectNameRequired = "EditDataMetadataObjectNameRequired";
+
+
+            public const string EditDataMetadataTooManyIdentifiers = "EditDataMetadataTooManyIdentifiers";
 
 
             public const string EditDataFilteringNegativeLimit = "EditDataFilteringNegativeLimit";

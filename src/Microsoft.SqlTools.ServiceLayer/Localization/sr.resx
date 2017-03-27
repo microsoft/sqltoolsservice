@@ -378,6 +378,14 @@
     <value>Edit session has already been initialized or is in the process of initializing</value>
     <comment></comment>
   </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>A object name must be provided</value>
+    <comment></comment>
+  </data>
+  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
+    <value>Explicitly specifying server or database is not supported</value>
+    <comment></comment>
+  </data>
   <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
     <value>Result limit cannot be negative</value>
     <comment></comment>
