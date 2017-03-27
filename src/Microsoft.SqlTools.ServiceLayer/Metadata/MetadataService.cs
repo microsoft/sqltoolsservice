@@ -54,6 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         {
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
             serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest);
+            serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest);
         }
 
         /// <summary>
@@ -95,6 +96,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             TableMetadataParams metadataParams,
             RequestContext<TableMetadataResult> requestContext)
         {
+            await HandleGetTableOrViewRequest(metadataParams, "table", requestContext);
+        }
+
+        /// <summary>
+        /// Handle a view metadata query request
+        /// </summary>        
+        internal static async Task HandleGetViewRequest(
+            TableMetadataParams metadataParams,
+            RequestContext<TableMetadataResult> requestContext)
+        {
+            await HandleGetTableOrViewRequest(metadataParams, "view", requestContext);
+        }
+
+        /// <summary>
+        /// Handle a table pr view metadata query request
+        /// </summary>        
+        private static async Task HandleGetTableOrViewRequest(
+            TableMetadataParams metadataParams,
+            string objectType,
+            RequestContext<TableMetadataResult> requestContext)
+        {
             try
             {
                 ConnectionInfo connInfo;
@@ -106,7 +128,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 if (connInfo != null) 
                 {
                     SqlConnection sqlConn = OpenMetadataConnection(connInfo);                    
-                    GetTable(sqlConn, metadataParams.Schema, metadataParams.TableName, out metadata);
+                    TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
+                        sqlConn, metadataParams.Schema, 
+                        metadataParams.ObjectName, objectType);
+                    metadata = table.Columns;               
                 }
 
                 await requestContext.SendResult(new TableMetadataResult
@@ -196,20 +221,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 }
             }
         }
-
-        /// <summary>
-        /// Get the metadata for the requested object
-        /// </summary>
-        internal static void GetTable(
-            SqlConnection sqlConn,             
-            string objectSchema,
-            string objectName,
-            out ColumnMetadata[] metadata)
-        {
-            var factory = new SmoMetadataFactory();
-            TableMetadata table = factory.GetObjectMetadata(sqlConn, objectSchema, objectName, "table");
-            metadata = table.Columns;
-        }
-
     }
 }

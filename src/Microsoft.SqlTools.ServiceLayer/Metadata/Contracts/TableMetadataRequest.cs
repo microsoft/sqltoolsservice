@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 
         public string Schema { get; set; }  
 
-        public string TableName { get; set; }  
+        public string ObjectName { get; set; }  
     }
 
     public class TableMetadataResult

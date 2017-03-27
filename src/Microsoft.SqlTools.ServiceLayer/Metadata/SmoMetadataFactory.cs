@@ -61,17 +61,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             // Connect with SMO and get the metadata for the table
             Server server = new Server(new ServerConnection(sqlConn));
+            Database database = server.Databases[sqlConn.Database];
             TableViewTableTypeBase smoResult;
             switch (objectType.ToLowerInvariant())
             {
-                case "table":
-                    Database database = server.Databases[sqlConn.Database];
-                    Table smoObject = string.IsNullOrEmpty(schemaName) ? new Table(database, objectName) : new Table(database, objectName, schemaName);
-                    smoObject.Refresh();
-                    smoResult = smoObject;
+                case "table":                    
+                    Table table = string.IsNullOrEmpty(schemaName) ? new Table(database, objectName) : new Table(database, objectName, schemaName);
+                    table.Refresh();
+                    smoResult = table;
                     break;
                 case "view":
-                    smoResult = server.Databases[sqlConn.Database].Views[objectName];
+                    View view = string.IsNullOrEmpty(schemaName) ? new View(database, objectName) : new View(database, objectName, schemaName);
+                    view.Refresh();
+                    smoResult = view;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
