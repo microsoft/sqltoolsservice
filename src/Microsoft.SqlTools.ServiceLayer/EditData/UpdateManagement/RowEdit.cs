@@ -38,6 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="associatedMetadata">Metadata provider for the object to edit</param>
         protected RowEditBase(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
         {
+            if (!associatedMetadata.HasExtendedProperties)
+            {
+                throw new ArgumentException(SR.EditDataMetadataNotExtended);
+            }
+
             RowId = rowId;
             AssociatedResultSet = associatedResultSet;
             AssociatedObjectMetadata = associatedMetadata;
