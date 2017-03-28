@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The cell should be clean
             Assert.False(eucr.UpdatedCell.IsDirty);
 
-            // ... The row is still clean
+            // ... The row is still dirty
             Assert.True(eucr.IsRowDirty);
 
             // ... It should be formatted as an update script
@@ -159,7 +159,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.All(updateSplit, s => Assert.Equal(2, s.Split('=').Length));
         }
 
-        // @TODO Add test for row implicit revert
+        public async Task SetCellImplicitRowRevertTests()
+        {
+            // Setup: Create a fake column to update
+            DbColumn[] columns = Common.GetColumns(true);
+            ResultSet rs = await Common.GetResultSet(columns, true);
+            EditTableMetadata etm = Common.GetStandardMetadata(columns);
+
+            // If:
+            // ... I add updates to one cell in the row
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+            ru.SetCell(1, "qqq");
+
+            // ... Then I update the cell to its original value
+            var eucr = ru.SetCell(1, (string) rs.GetRow(0)[1].RawObject);
+
+            // Then:
+            // ... An edit cell should have been returned
+            Assert.NotNull(eucr);
+            Assert.NotNull(eucr.UpdatedCell);
+
+            // ... The old value should be returned
+            Assert.Equal(rs.GetRow(0)[1].DisplayValue, eucr.UpdatedCell.DisplayValue);
+            Assert.False(eucr.UpdatedCell.IsNull);
+
+            // ... The cell should be clean
+            Assert.False(eucr.UpdatedCell.IsDirty);
+
+            // ... The row should be clean
+            Assert.False(eucr.IsRowDirty);
+
+            // TODO: Make sure that the script and command things will return null
+        }
 
         [Theory]
         [InlineData(true)]

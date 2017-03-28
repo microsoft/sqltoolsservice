@@ -410,8 +410,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // doesn't already exist in the cache
             RowEditBase editRow = EditCache.GetOrAdd(rowId, key => new RowUpdate(rowId, associatedResultSet, objectMetadata));
 
-            // Pass the call to the row update
-            return editRow.SetCell(columnId, newValue);
+            // Update the row
+            EditUpdateCellResult updateResult = editRow.SetCell(columnId, newValue);
+            if (!updateResult.IsRowDirty)
+            {
+                // Make an attempt to remove the clean row edit. If this fails, it'll be handled on commit attempt.
+                RowEditBase removedRow;
+                EditCache.TryRemove(rowId, out removedRow);
+            }
+            return updateResult;
         }
 
         #endregion
