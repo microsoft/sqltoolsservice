@@ -5,13 +5,15 @@
 
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using System.Data.SqlClient;
 using System;
+using Moq;
+using Microsoft.SqlTools.Hosting.Protocol;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 {
@@ -27,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         {
             var textDocument = new TextDocumentPosition
             {
-                TextDocument = new TextDocumentIdentifier { Uri = Constants.OwnerUri },
+                TextDocument = new TextDocumentIdentifier { Uri = Test.Common.Constants.OwnerUri },
                 Position = new Position
                 {
                     Line = 0,
@@ -92,5 +94,52 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             DeleteTestTable(sqlConn);
         }
+
+        [Fact]
+        public async void GetTableInfoReturnsValidResults()
+        {
+            this.testTableName += new Random().Next(1000000, 9999999).ToString();
+                   
+            var result = GetLiveAutoCompleteTestObjects();
+            var sqlConn = MetadataService.OpenMetadataConnection(result.ConnectionInfo);
+
+            CreateTestTable(sqlConn);
+
+            var requestContext = new Mock<RequestContext<TableMetadataResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<TableMetadataResult>())).Returns(Task.FromResult(new object()));
+
+            var metadataParmas = new TableMetadataParams
+            {
+                OwnerUri = result.ConnectionInfo.OwnerUri,
+                Schema = this.testTableSchema,
+                ObjectName = this.testTableName
+            };
+
+            await MetadataService.HandleGetTableRequest(metadataParmas, requestContext.Object);
+
+            DeleteTestTable(sqlConn);
+
+            requestContext.VerifyAll();
+        }
+
+        [Fact]
+        public async void GetViewInfoReturnsValidResults()
+        {           
+            var result = GetLiveAutoCompleteTestObjects();         
+            var requestContext = new Mock<RequestContext<TableMetadataResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<TableMetadataResult>())).Returns(Task.FromResult(new object()));
+
+            var metadataParmas = new TableMetadataParams
+            {
+                OwnerUri = result.ConnectionInfo.OwnerUri,
+                Schema = "sys",
+                ObjectName = "all_objects"
+            };
+
+            await MetadataService.HandleGetViewRequest(metadataParmas, requestContext.Object);
+
+            requestContext.VerifyAll();
+        }
+
     }
 }
