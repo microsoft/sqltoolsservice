@@ -29,28 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     public class EditUpdateCellResult
     {
         /// <summary>
-        /// Whether or not the cell value was modified from the provided string.
-        /// If <c>true</c>, the client should replace the display value of the cell with the value
-        /// in <see cref="NewValue"/>
+        /// The cell after the update was applied
         /// </summary>
-        public bool HasCorrections { get; set; }
+        public EditCell UpdatedCell { get; set; }
 
         /// <summary>
-        /// Whether or not the cell was reverted with the change.
-        /// If <c>true</c>, the client should unmark the cell as having an update and replace the
-        /// display value of the cell with the value in <see cref="NewValue"/>
+        /// Whether or not the row is dirty after the update has been applied
         /// </summary>
-        public bool IsRevert { get; set; }
-
-        /// <summary>
-        /// Whether or not the new value of the cell is null
-        /// </summary>
-        public bool IsNull { get; set; }
-
-        /// <summary>
-        /// The new string value of the cell
-        /// </summary>
-        public string NewValue { get; set; }
+        public bool IsRowDirty { get; set; }
     }
 
     public class EditUpdateCellRequest

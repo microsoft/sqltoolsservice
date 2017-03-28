@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
@@ -190,10 +191,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>())).Returns(new EditUpdateCellResult
             {
-                NewValue = string.Empty,
-                HasCorrections = true,
-                IsRevert = false,
-                IsNull = false
+                IsRowDirty = true,
+                UpdatedCell = new EditCell(new DbCellValue(), true)
             });
             session.EditCache[0] = edit.Object;
 
@@ -202,9 +201,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 .AddResultValidation(eucr =>
                 {
                     Assert.NotNull(eucr);
-                    Assert.NotNull(eucr.NewValue);
-                    Assert.False(eucr.IsRevert);
-                    Assert.False(eucr.IsNull);
+                    Assert.NotNull(eucr.UpdatedCell);
+                    Assert.True(eucr.IsRowDirty);
                 })
                 .Complete();
             await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);

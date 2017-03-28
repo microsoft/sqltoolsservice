@@ -203,10 +203,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 cellUpdates.TryRemove(columnId, out cu);
                 return new EditUpdateCellResult
                 {
-                    HasCorrections = false,
-                    NewValue = associatedRow[columnId].DisplayValue,
-                    IsRevert = true,
-                    IsNull = associatedRow[columnId].IsNull
+                    IsRowDirty = cellUpdates.Count > 0,
+                    UpdatedCell = new EditCell(associatedRow[columnId], false)
                 };
             }
 
@@ -214,10 +212,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             cellUpdates.AddOrUpdate(columnId, update, (i, cu) => update);
             return new EditUpdateCellResult
             {
-                HasCorrections = update.ValueAsString != newValue,
-                NewValue = update.ValueAsString != newValue ? update.ValueAsString : null,
-                IsNull = update.Value == DBNull.Value,
-                IsRevert = false            // If we're in this branch, it is not a revert
+                IsRowDirty = true,
+                UpdatedCell = update.AsEditCell
             };
         }
 

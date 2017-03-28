@@ -214,10 +214,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Put together a result of the change
             EditUpdateCellResult eucr = new EditUpdateCellResult
             {
-                HasCorrections = update.ValueAsString != newValue,
-                NewValue = update.ValueAsString != newValue ? update.ValueAsString : null,
-                IsNull = update.Value == DBNull.Value,
-                IsRevert = false            // Editing cells of new rows cannot be reverts
+                IsRowDirty = true,                // Row creates will always be dirty
+                UpdatedCell = update.AsEditCell
             }; 
             return eucr;
         }

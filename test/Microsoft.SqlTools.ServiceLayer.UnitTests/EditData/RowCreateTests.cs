@@ -263,15 +263,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditUpdateCellResult eucr = rc.SetCell(0, "1");
 
             // Then:
-            // ... The returned value should not have corrections
-            Assert.False(eucr.HasCorrections);
-            Assert.Null(eucr.NewValue);
-            
-            // ... The set value is not null
-            Assert.False(eucr.IsNull);
+            // ... The returned value should be equal to what we provided
+            Assert.NotNull(eucr);
+            Assert.NotNull(eucr.UpdatedCell);
+            Assert.Equal("1", eucr.UpdatedCell.DisplayValue);
+            Assert.False(eucr.UpdatedCell.IsNull);
 
-            // ... The result is not an implicit revert
-            Assert.False(eucr.IsRevert);
+            // ... The returned value should be dirty
+            Assert.NotNull(eucr.UpdatedCell.IsDirty);
+
+            // ... The row should still be dirty
+            Assert.True(eucr.IsRowDirty);
 
             // ... There should be a cell update in the cell list
             Assert.NotNull(rc.newCells[0]);
@@ -303,15 +305,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditUpdateCellResult eucr = rc.SetCell(0, "1000");
 
             // Then:
-            // ... The returned value should have corrections
-            Assert.True(eucr.HasCorrections);
-            Assert.NotEmpty(eucr.NewValue);
+            // ... The returned value should be equal to what we provided
+            Assert.NotNull(eucr);
+            Assert.NotNull(eucr.UpdatedCell);
+            Assert.NotEqual("1000", eucr.UpdatedCell.DisplayValue);
+            Assert.False(eucr.UpdatedCell.IsNull);
 
-            // ... The set value is not null
-            Assert.False(eucr.IsNull);
+            // ... The returned value should be dirty
+            Assert.NotNull(eucr.UpdatedCell.IsDirty);
 
-            // ... The result is not an implicit revert
-            Assert.False(eucr.IsRevert);
+            // ... The row should still be dirty
+            Assert.True(eucr.IsRowDirty);
 
             // ... There should be a cell update in the cell list
             Assert.NotNull(rc.newCells[0]);
@@ -327,15 +331,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditUpdateCellResult eucr = rc.SetCell(0, "NULL");
 
             // Then:
-            // ... The returned value should not have corrections
-            Assert.False(eucr.HasCorrections);
-            Assert.Null(eucr.NewValue);
+            // ... The returned value should be equal to what we provided
+            Assert.NotNull(eucr);
+            Assert.NotNull(eucr.UpdatedCell);
+            Assert.NotEmpty(eucr.UpdatedCell.DisplayValue);
+            Assert.True(eucr.UpdatedCell.IsNull);
 
-            // ... The set value is null
-            Assert.True(eucr.IsNull);
+            // ... The returned value should be dirty
+            Assert.NotNull(eucr.UpdatedCell.IsDirty);
 
-            // ... The result is not an implicit revert
-            Assert.False(eucr.IsRevert);
+            // ... The row should still be dirty
+            Assert.True(eucr.IsRowDirty);
 
             // ... There should be a cell update in the cell list
             Assert.NotNull(rc.newCells[0]);
