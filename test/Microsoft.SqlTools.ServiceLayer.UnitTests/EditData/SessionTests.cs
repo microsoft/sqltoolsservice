@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup:
             // ... Create a metadata factory that throws
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Throws<Exception>();
 
             // ... Create a session that hasn't been initialized
@@ -412,7 +412,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var b = QueryExecution.Common.GetBasicExecutedBatch();
             var etm = Common.GetStandardMetadata(b.ResultSets[0].Columns);
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized
@@ -451,7 +451,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var b = QueryExecution.Common.GetBasicExecutedBatch();
             var etm = Common.GetStandardMetadata(b.ResultSets[0].Columns);
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized
@@ -490,7 +490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var rs = q.Batches[0].ResultSets[0];
             var etm = Common.GetStandardMetadata(rs.Columns);
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized

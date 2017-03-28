@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
@@ -423,14 +424,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             try
             {
                 // Step 1) Look up the SMO metadata
-                objectMetadata = metadataFactory.GetObjectMetadata(await connector(), initParams.ObjectName,
+                string[] namedParts = SqlScriptFormatter.DecodeMultipartIdenfitier(initParams.ObjectName);
+                objectMetadata = metadataFactory.GetObjectMetadata(await connector(), namedParts,
                     initParams.ObjectType);
 
                 // Step 2) Get and execute a query for the rows in the object we're looking up
                 EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery(objectMetadata, initParams.Filters));
                 if (state.Query == null)
                 {
-                    // TODO: Move to SR file
                     string message = state.Message ?? SR.EditDataQueryFailed;
                     throw new Exception(message);
                 }

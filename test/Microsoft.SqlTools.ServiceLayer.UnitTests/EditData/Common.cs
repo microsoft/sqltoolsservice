@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Mock metadata factory
             Mock<IEditMetadataFactory> metaFactory = new Mock<IEditMetadataFactory>();
             metaFactory
-                .Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             EditSession session = new EditSession(metaFactory.Object);
