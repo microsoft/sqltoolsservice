@@ -7,8 +7,16 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
 {
+    /// <summary>
+    /// Cell that wraps info from <see cref="DbCellValue"/> for edit purposes
+    /// </summary>
     public class EditCell : DbCellValue
     {
+        /// <summary>
+        /// Constructs a new EditCell based on a DbCellValue
+        /// </summary>
+        /// <param name="dbCellValue">The DbCellValue that will be enhanced</param>
+        /// <param name="isDirty">Whether or not the edit cell is dirty</param>
         public EditCell(DbCellValue dbCellValue, bool isDirty)
         {
             IsDirty = isDirty;
@@ -19,6 +27,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
             RawObject = dbCellValue.RawObject;
         }
 
+        /// <summary>
+        /// Whether or not the cell is considered dirty
+        /// </summary>
         public bool IsDirty { get; set; }
     }
 }
