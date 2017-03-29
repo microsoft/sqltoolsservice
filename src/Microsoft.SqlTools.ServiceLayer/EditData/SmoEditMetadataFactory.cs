@@ -75,6 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
             }
 
+            smoResult.Refresh();
+            
             // Generate the edit column metadata
             List<EditColumnMetadata> editColumns = new List<EditColumnMetadata>();
             for (int i = 0; i < smoResult.Columns.Count; i++)
