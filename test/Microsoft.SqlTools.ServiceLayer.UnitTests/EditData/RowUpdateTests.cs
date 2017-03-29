@@ -417,10 +417,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             RowUpdate ru = new RowUpdate(0, rs, etm);
 
             // If: I attempt to revert a cell that has not been set
-            string result = ru.RevertCell(0);
+            EditRevertCellResult result = ru.RevertCell(0);
 
-            // Then: We should get the original value back
-            Assert.NotEmpty(result);
+            // Then:
+            // ... We should get a result back
+            Assert.NotNull(result);
+
+            // ... We should get the original value back
+            // @TODO: Check for a default value when we support it
+            Assert.NotNull(result.RevertedCell);
+            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.RevertedCell.DisplayValue);
+
+            // ... The row should be clean
+            Assert.False(result.IsRowDirty);
 
             // ... The cell should no longer be set
             Assert.DoesNotContain(0, ru.cellUpdates.Keys);
@@ -435,14 +444,53 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var rs = await Common.GetResultSet(columns, false);
             var etm = Common.GetStandardMetadata(columns);
             RowUpdate ru = new RowUpdate(0, rs, etm);
-            ru.SetCell(0, "1");
+            ru.SetCell(0, "qqq");
+            ru.SetCell(1, "qqq");
 
             // If: I attempt to revert a cell that was set
-            string result = ru.RevertCell(0);
+            EditRevertCellResult result = ru.RevertCell(0);
 
             // Then:
+            // ... We should get a result back
+            Assert.NotNull(result);
+
             // ... We should get the original value back
-            Assert.NotEmpty(result);
+            // @TODO: Check for a default value when we support it
+            Assert.NotNull(result.RevertedCell);
+            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.RevertedCell.DisplayValue);
+
+            // ... The row should be dirty still
+            Assert.True(result.IsRowDirty);
+
+            // ... The cell should no longer be set
+            Assert.DoesNotContain(0, ru.cellUpdates.Keys);
+        }
+
+        [Fact]
+        public async Task RevertCellRevertsRow()
+        {
+            // Setup:
+            // ... Create a row update
+            var columns = Common.GetColumns(false);
+            var rs = await Common.GetResultSet(columns, false);
+            var etm = Common.GetStandardMetadata(columns);
+            RowUpdate ru = new RowUpdate(0, rs, etm);
+            ru.SetCell(0, "qqq");
+
+            // If: I attempt to revert a cell that was set
+            EditRevertCellResult result = ru.RevertCell(0);
+
+            // Then:
+            // ... We should get a result back
+            Assert.NotNull(result);
+
+            // ... We should get the original value back
+            // @TODO: Check for a default value when we support it
+            Assert.NotNull(result.RevertedCell);
+            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.RevertedCell.DisplayValue);
+
+            // ... The row should now be reverted
+            Assert.False(result.IsRowDirty);
 
             // ... The cell should no longer be set
             Assert.DoesNotContain(0, ru.cellUpdates.Keys);

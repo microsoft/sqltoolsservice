@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// deletion.
         /// </summary>
         /// <param name="columnId">Ordinal of the column to update</param>
-        public override string RevertCell(int columnId)
+        public override EditRevertCellResult RevertCell(int columnId)
         {
             throw new InvalidOperationException(SR.EditDataDeleteSetCell);
         }

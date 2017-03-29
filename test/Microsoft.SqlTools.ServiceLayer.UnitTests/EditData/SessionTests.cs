@@ -627,6 +627,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.RevertCell(0, 0));
         }
 
+        [Fact]
+        public async Task RevertCellRowRevert()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            EditSession s = await GetBasicSession();
+
+            // ... Add a edit that we will say the edit was reverted if we update a cell
+            var mockEdit = new Mock<RowEditBase>();
+            mockEdit.Setup(e => e.RevertCell(It.IsAny<int>()))
+                .Returns(new EditRevertCellResult {IsRowDirty = false});
+            s.EditCache[0] = mockEdit.Object;
+
+            // If: I update a cell that will return an implicit revert
+            s.RevertCell(0, 0);
+
+            // Then:
+            // ... Set cell should have been called on the mock update once
+            mockEdit.Verify(e => e.RevertCell(0), Times.Once);
+
+            // ... The mock update should no longer be in the edit cache
+            Assert.Empty(s.EditCache);
+        }
+
         #endregion
 
         #region Update Cell Tests
@@ -705,6 +729,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The mock update should no longer be in the edit cache
             Assert.Empty(s.EditCache);
         }
+
+
 
         #endregion
 

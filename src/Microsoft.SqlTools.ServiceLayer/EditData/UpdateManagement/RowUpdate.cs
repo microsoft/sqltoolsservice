@@ -167,15 +167,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         /// <param name="columnId">Ordinal of the column to revert</param>
         /// <returns>The value that was </returns>
-        public override string RevertCell(int columnId)
+        public override EditRevertCellResult RevertCell(int columnId)
         {
             Validate.IsWithinRange(nameof(columnId), columnId, 0, associatedRow.Count - 1);
 
             // Remove the cell update
+            // NOTE: This is best effort. The only way TryRemove can fail is if it is already
+            //       removed. If this happens, it is OK.
             CellUpdate cellUpdate;
             cellUpdates.TryRemove(columnId, out cellUpdate);
 
-            return associatedRow[columnId].DisplayValue;
+            return new EditRevertCellResult
+            {
+                IsRowDirty = cellUpdates.Count > 0,
+                RevertedCell = new EditCell(associatedRow[columnId], false)
+            };
         }
 
         /// <summary>

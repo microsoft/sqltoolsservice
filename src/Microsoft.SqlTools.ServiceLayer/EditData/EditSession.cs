@@ -308,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="rowId">Internal ID of the row to have its edits reverted</param>
         /// <param name="columnId">Ordinal ID of the column to revert</param>
         /// <returns>String version of the old value for the cell</returns>
-        public string RevertCell(long rowId, int columnId)
+        public EditRevertCellResult RevertCell(long rowId, int columnId)
         {
             ThrowIfNotInitialized();
 
@@ -319,8 +319,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataUpdateNotPending);
             }
 
+            // Update the row
+            EditRevertCellResult revertResult = pendingEdit.RevertCell(columnId);
+            if (!revertResult.IsRowDirty)
+            {
+                // Make an attempt to remove the clean row edit. If this fails, it'll be handled on commit attempt.
+                RowEditBase removedRow;
+                EditCache.TryRemove(rowId, out removedRow);
+            }
+
             // Have the edit base revert the cell
-            return pendingEdit.RevertCell(columnId);
+            return revertResult;
         }
 
         /// <summary>

@@ -7,14 +7,28 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
 {
+    /// <summary>
+    /// Parameters for the cell revert request
+    /// </summary>
     public class EditRevertCellParams : RowOperationParams
     {
         public int ColumnId { get; set; }
     }
 
+    /// <summary>
+    /// Parameters to return upon successful revert of the cell
+    /// </summary>
     public class EditRevertCellResult
     {
-        public string NewValue { get; set; }
+        /// <summary>
+        /// The cell after the revert was applied
+        /// </summary>
+        public EditCell RevertedCell { get; set; }
+
+        /// <summary>
+        /// Whether or not the row is dirty after the revert has been applied
+        /// </summary>
+        public bool IsRowDirty { get; set; }
     }
 
     public class EditRevertCellRequest
