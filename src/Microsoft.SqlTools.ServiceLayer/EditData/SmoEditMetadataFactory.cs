@@ -75,6 +75,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
             }
 
+            // A bug in SMO makes it necessary to call refresh to attain certain properties (such as IsMemoryOptimized)
+            smoResult.Refresh();
+            
             // Generate the edit column metadata
             List<EditColumnMetadata> editColumns = new List<EditColumnMetadata>();
             for (int i = 0; i < smoResult.Columns.Count; i++)
