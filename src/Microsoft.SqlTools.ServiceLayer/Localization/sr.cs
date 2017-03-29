@@ -77,14 +77,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ErrorUnexpectedCodeObjectType
-        {
-            get
-            {
-                return Keys.GetString(Keys.ErrorUnexpectedCodeObjectType);
-            }
-        }
-
         public static string QueryServiceCancelAlreadyCompleted
         {
             get
@@ -373,14 +365,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string EditDataObjectNotFound
-        {
-            get
-            {
-                return Keys.GetString(Keys.EditDataObjectNotFound);
-            }
-        }
-
         public static string EditDataSessionNotFound
         {
             get
@@ -509,14 +493,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string EditDataColumnUpdateNotPending
-        {
-            get
-            {
-                return Keys.GetString(Keys.EditDataColumnUpdateNotPending);
-            }
-        }
-
         public static string EditDataObjectMetadataNotFound
         {
             get
@@ -602,14 +578,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.EditDataComputedColumnPlaceholder);
-            }
-        }
-
-        public static string EditDataInitializeInProgress
-        {
-            get
-            {
-                return Keys.GetString(Keys.EditDataInitializeInProgress);
             }
         }
 
@@ -877,14 +845,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string SqlScriptFormatterMultipartDecodeFail
-        {
-            get
-            {
-                return Keys.GetString(Keys.SqlScriptFormatterMultipartDecodeFail);
-            }
-        }
-
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -994,9 +954,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionParamsValidateNullSqlAuth = "ConnectionParamsValidateNullSqlAuth";
-
-
-            public const string ErrorUnexpectedCodeObjectType = "ErrorUnexpectedCodeObjectType";
 
 
             public const string QueryServiceCancelAlreadyCompleted = "QueryServiceCancelAlreadyCompleted";
@@ -1131,9 +1088,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
 
 
-            public const string EditDataObjectNotFound = "EditDataObjectNotFound";
-
-
             public const string EditDataSessionNotFound = "EditDataSessionNotFound";
 
 
@@ -1185,9 +1139,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EditDataUpdateNotPending = "EditDataUpdateNotPending";
 
 
-            public const string EditDataColumnUpdateNotPending = "EditDataColumnUpdateNotPending";
-
-
             public const string EditDataObjectMetadataNotFound = "EditDataObjectMetadataNotFound";
 
 
@@ -1219,9 +1170,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataComputedColumnPlaceholder = "EditDataComputedColumnPlaceholder";
-
-
-            public const string EditDataInitializeInProgress = "EditDataInitializeInProgress";
 
 
             public const string EditDataTimeOver24Hrs = "EditDataTimeOver24Hrs";
@@ -1321,9 +1269,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SqlScriptFormatterDecimalMissingPrecision = "SqlScriptFormatterDecimalMissingPrecision";
-
-
-            public const string SqlScriptFormatterMultipartDecodeFail = "SqlScriptFormatterMultipartDecodeFail";
 
 
             private Keys()

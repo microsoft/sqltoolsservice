@@ -48,11 +48,6 @@ ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
 ConnectionParamsValidateNullSqlAuth(string component) = {0} cannot be null or empty when using SqlLogin authentication
 
 ############################################################################
-# Formatter
-
-ErrorUnexpectedCodeObjectType = Cannot convert SqlCodeObject Type {0} to Type {1}
-
-############################################################################
 # Query Execution Service
 
 ### Cancel Request
@@ -166,8 +161,6 @@ WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCo
 ############################################################################
 # Edit Data Service
 
-EditDataObjectNotFound = Table or view requested for edit could not be found
-
 EditDataSessionNotFound = Edit session does not exist.
 
 EditDataSessionAlreadyExists = Edit session already exists.
@@ -202,8 +195,6 @@ EditDataUpdatePending = An update is already pending for this row and must be re
 
 EditDataUpdateNotPending = Given row ID does not have pending update
 
-EditDataColumnUpdateNotPending = Give column ID does not have pending update
-
 EditDataObjectMetadataNotFound = Table or view metadata could not be found
 
 EditDataInvalidFormatBinary = Invalid format for binary column
@@ -225,8 +216,6 @@ EditDataScriptFilePathNull = An output filename must be provided
 EditDataCommitInProgress = A commit task is in progress. Please wait for completion.
 
 EditDataComputedColumnPlaceholder = <TBD>
-
-EditDataInitializeInProgress = Another edit data initialize is in progress for this owner URI. Please wait for completion.
 
 EditDataTimeOver24Hrs = TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999
 
@@ -302,5 +291,3 @@ TestLocalizationConstant = EN_LOCALIZATION
 # Utilities
 
 SqlScriptFormatterDecimalMissingPrecision = Decimal column is missing numeric precision or numeric scale
-
-SqlScriptFormatterMultipartDecodeFail = Multipart identifier is incorrectly formatted
