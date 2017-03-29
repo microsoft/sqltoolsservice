@@ -184,14 +184,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         /// <param name="columnId">The ordinal ID of the cell to reset</param>
         /// <returns>The default value for the column, or null if no default is defined</returns>
-        public override string RevertCell(int columnId)
+        public override EditRevertCellResult RevertCell(int columnId)
         {
             // Validate that the column can be reverted
             Validate.IsWithinRange(nameof(columnId), columnId, 0, newCells.Length - 1);
 
             // Remove the cell update from list of set cells
             newCells[columnId] = null;
-            return null;                // @TODO: Return default value when we have support checked in
+            return new EditRevertCellResult {IsRowDirty = true, Cell = null};
+            // @TODO: Return default value when we have support checked in
+            // @TODO: RETURN THE DEFAULT VALUE
         }
 
         /// <summary>
@@ -212,14 +214,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             newCells[columnId] = update;
 
             // Put together a result of the change
-            EditUpdateCellResult eucr = new EditUpdateCellResult
+            return new EditUpdateCellResult
             {
-                HasCorrections = update.ValueAsString != newValue,
-                NewValue = update.ValueAsString != newValue ? update.ValueAsString : null,
-                IsNull = update.Value == DBNull.Value,
-                IsRevert = false            // Editing cells of new rows cannot be reverts
-            }; 
-            return eucr;
+                IsRowDirty = true,                // Row creates will always be dirty
+                Cell = update.AsEditCell
+            };
         }
 
         #endregion

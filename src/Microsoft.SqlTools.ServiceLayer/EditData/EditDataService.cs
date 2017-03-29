@@ -184,14 +184,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal Task HandleRevertCellRequest(EditRevertCellParams revertParams,
             RequestContext<EditRevertCellResult> requestContext)
         {
-            return HandleSessionRequest(revertParams, requestContext, session =>
-            {
-                string newValue = session.RevertCell(revertParams.RowId, revertParams.ColumnId);
-                return new EditRevertCellResult
-                {
-                    NewValue = newValue
-                };
-            });
+            return HandleSessionRequest(revertParams, requestContext,
+                session => session.RevertCell(revertParams.RowId, revertParams.ColumnId));
         }
 
         internal Task HandleRevertRowRequest(EditRevertRowParams revertParams,

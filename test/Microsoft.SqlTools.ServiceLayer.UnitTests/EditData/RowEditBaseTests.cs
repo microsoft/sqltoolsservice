@@ -320,7 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 throw new NotImplementedException();
             }
 
-            public override string RevertCell(int columnId)
+            public override EditRevertCellResult RevertCell(int columnId)
             {
                 throw new NotImplementedException();
             }
