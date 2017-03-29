@@ -51,17 +51,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then:
             // ... A edit cell was returned
             Assert.NotNull(eucr);
-            Assert.NotNull(eucr.UpdatedCell);
+            Assert.NotNull(eucr.Cell);
 
             // ... The new value we provided should be returned
-            Assert.Equal("col1", eucr.UpdatedCell.DisplayValue);
-            Assert.False(eucr.UpdatedCell.IsNull);
+            Assert.Equal("col1", eucr.Cell.DisplayValue);
+            Assert.False(eucr.Cell.IsNull);
 
             // ... The row is still dirty
             Assert.True(eucr.IsRowDirty);
 
             // ... The cell should be dirty
-            Assert.True(eucr.UpdatedCell.IsDirty);
+            Assert.True(eucr.Cell.IsDirty);
 
             // ... There should be a cell update in the cell list
             Assert.Contains(0, ru.cellUpdates.Keys);
@@ -99,15 +99,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then:
             // ... A edit cell was returned
             Assert.NotNull(eucr);
-            Assert.NotNull(eucr.UpdatedCell);
+            Assert.NotNull(eucr.Cell);
 
             // ... The value we used won't be returned
-            Assert.NotEmpty(eucr.UpdatedCell.DisplayValue);
-            Assert.NotEqual("1000", eucr.UpdatedCell.DisplayValue);
-            Assert.False(eucr.UpdatedCell.IsNull);
+            Assert.NotEmpty(eucr.Cell.DisplayValue);
+            Assert.NotEqual("1000", eucr.Cell.DisplayValue);
+            Assert.False(eucr.Cell.IsNull);
 
             // ... The cell should be dirty
-            Assert.True(eucr.UpdatedCell.IsDirty);
+            Assert.True(eucr.Cell.IsDirty);
 
             // ... The row is still dirty
             Assert.True(eucr.IsRowDirty);
@@ -136,14 +136,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then:
             // ... A edit cell was returned
             Assert.NotNull(eucr);
-            Assert.NotNull(eucr.UpdatedCell);
+            Assert.NotNull(eucr.Cell);
 
             // ... The new value we provided should be returned
-            Assert.Equal(rs.GetRow(0)[1].DisplayValue, eucr.UpdatedCell.DisplayValue);
-            Assert.False(eucr.UpdatedCell.IsNull);
+            Assert.Equal(rs.GetRow(0)[1].DisplayValue, eucr.Cell.DisplayValue);
+            Assert.False(eucr.Cell.IsNull);
 
             // ... The cell should be clean
-            Assert.False(eucr.UpdatedCell.IsDirty);
+            Assert.False(eucr.Cell.IsDirty);
 
             // ... The row is still dirty
             Assert.True(eucr.IsRowDirty);
@@ -177,14 +177,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then:
             // ... An edit cell should have been returned
             Assert.NotNull(eucr);
-            Assert.NotNull(eucr.UpdatedCell);
+            Assert.NotNull(eucr.Cell);
 
             // ... The old value should be returned
-            Assert.Equal(rs.GetRow(0)[1].DisplayValue, eucr.UpdatedCell.DisplayValue);
-            Assert.False(eucr.UpdatedCell.IsNull);
+            Assert.Equal(rs.GetRow(0)[1].DisplayValue, eucr.Cell.DisplayValue);
+            Assert.False(eucr.Cell.IsNull);
 
             // ... The cell should be clean
-            Assert.False(eucr.UpdatedCell.IsDirty);
+            Assert.False(eucr.Cell.IsDirty);
 
             // ... The row should be clean
             Assert.False(eucr.IsRowDirty);
@@ -425,8 +425,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... We should get the original value back
             // @TODO: Check for a default value when we support it
-            Assert.NotNull(result.RevertedCell);
-            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.RevertedCell.DisplayValue);
+            Assert.NotNull(result.Cell);
+            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.Cell.DisplayValue);
 
             // ... The row should be clean
             Assert.False(result.IsRowDirty);
@@ -456,8 +456,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... We should get the original value back
             // @TODO: Check for a default value when we support it
-            Assert.NotNull(result.RevertedCell);
-            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.RevertedCell.DisplayValue);
+            Assert.NotNull(result.Cell);
+            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.Cell.DisplayValue);
 
             // ... The row should be dirty still
             Assert.True(result.IsRowDirty);
@@ -486,8 +486,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... We should get the original value back
             // @TODO: Check for a default value when we support it
-            Assert.NotNull(result.RevertedCell);
-            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.RevertedCell.DisplayValue);
+            Assert.NotNull(result.Cell);
+            Assert.Equal(rs.GetRow(0)[0].DisplayValue, result.Cell.DisplayValue);
 
             // ... The row should now be reverted
             Assert.False(result.IsRowDirty);

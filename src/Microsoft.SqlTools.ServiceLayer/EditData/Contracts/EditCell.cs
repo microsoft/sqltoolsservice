@@ -13,6 +13,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     public class EditCell : DbCellValue
     {
         /// <summary>
+        /// Default, parameterless constructor to make sure that JSON serializing is happy
+        /// </summary>
+        public EditCell() {}
+
+        /// <summary>
         /// Constructs a new EditCell based on a DbCellValue
         /// </summary>
         /// <param name="dbCellValue">The DbCellValue that will be enhanced</param>
@@ -20,7 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         public EditCell(DbCellValue dbCellValue, bool isDirty)
         {
             IsDirty = isDirty;
-
 
             DisplayValue = dbCellValue.DisplayValue;
             IsNull = dbCellValue.IsNull;

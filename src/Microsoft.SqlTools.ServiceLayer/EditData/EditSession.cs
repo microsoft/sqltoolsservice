@@ -321,12 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Update the row
             EditRevertCellResult revertResult = pendingEdit.RevertCell(columnId);
-            if (!revertResult.IsRowDirty)
-            {
-                // Make an attempt to remove the clean row edit. If this fails, it'll be handled on commit attempt.
-                RowEditBase removedRow;
-                EditCache.TryRemove(rowId, out removedRow);
-            }
+            CleanupEditIfRowClean(rowId, revertResult);
 
             // Have the edit base revert the cell
             return revertResult;
@@ -420,14 +415,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             RowEditBase editRow = EditCache.GetOrAdd(rowId, key => new RowUpdate(rowId, associatedResultSet, objectMetadata));
 
             // Update the row
-            EditUpdateCellResult updateResult = editRow.SetCell(columnId, newValue);
-            if (!updateResult.IsRowDirty)
-            {
-                // Make an attempt to remove the clean row edit. If this fails, it'll be handled on commit attempt.
-                RowEditBase removedRow;
-                EditCache.TryRemove(rowId, out removedRow);
-            }
-            return updateResult;
+            EditUpdateCellResult result = editRow.SetCell(columnId, newValue);
+            CleanupEditIfRowClean(rowId, result);
+
+            return result;
         }
 
         #endregion
@@ -535,6 +526,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
             }
+        }
+
+        /// <summary>
+        /// Removes the edit from the edit cache if the row is no longer dirty
+        /// </summary>
+        /// <param name="rowId">ID of the update to cleanup</param>
+        /// <param name="editCellResult">Result with row dirty flag</param>
+        private void CleanupEditIfRowClean(long rowId, EditCellResult editCellResult)
+        {
+            // If the row is still dirty, don't do anything
+            if (editCellResult.IsRowDirty)
+            {
+                return;
+            }
+
+            // Make an attempt to remove the clean row edit. If this fails, it'll be handled on commit attempt.
+            RowEditBase removedRow;
+            EditCache.TryRemove(rowId, out removedRow);
         }
 
         #endregion

@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             edit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>())).Returns(new EditUpdateCellResult
             {
                 IsRowDirty = true,
-                UpdatedCell = new EditCell(new DbCellValue(), true)
+                Cell = new EditCell(new DbCellValue(), true)
             });
             session.EditCache[0] = edit.Object;
 
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 .AddResultValidation(eucr =>
                 {
                     Assert.NotNull(eucr);
-                    Assert.NotNull(eucr.UpdatedCell);
+                    Assert.NotNull(eucr.Cell);
                     Assert.True(eucr.IsRowDirty);
                 })
                 .Complete();

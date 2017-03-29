@@ -26,17 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     /// <summary>
     /// Parameters to return upon successful update of the cell
     /// </summary>
-    public class EditUpdateCellResult
+    public class EditUpdateCellResult : EditCellResult
     {
-        /// <summary>
-        /// The cell after the update was applied
-        /// </summary>
-        public EditCell UpdatedCell { get; set; }
-
-        /// <summary>
-        /// Whether or not the row is dirty after the update has been applied
-        /// </summary>
-        public bool IsRowDirty { get; set; }
     }
 
     public class EditUpdateCellRequest

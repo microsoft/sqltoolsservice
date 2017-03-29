@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             // Remove the cell update from list of set cells
             newCells[columnId] = null;
-            return new EditRevertCellResult {IsRowDirty = true, RevertedCell = null};
+            return new EditRevertCellResult {IsRowDirty = true, Cell = null};
             // @TODO: Return default value when we have support checked in
             // @TODO: RETURN THE DEFAULT VALUE
         }
@@ -214,12 +214,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             newCells[columnId] = update;
 
             // Put together a result of the change
-            EditUpdateCellResult eucr = new EditUpdateCellResult
+            return new EditUpdateCellResult
             {
                 IsRowDirty = true,                // Row creates will always be dirty
-                UpdatedCell = update.AsEditCell
-            }; 
-            return eucr;
+                Cell = update.AsEditCell
+            };
         }
 
         #endregion

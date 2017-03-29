@@ -18,17 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
     /// <summary>
     /// Parameters to return upon successful revert of the cell
     /// </summary>
-    public class EditRevertCellResult
+    public class EditRevertCellResult : EditCellResult
     {
-        /// <summary>
-        /// The cell after the revert was applied
-        /// </summary>
-        public EditCell RevertedCell { get; set; }
-
-        /// <summary>
-        /// Whether or not the row is dirty after the revert has been applied
-        /// </summary>
-        public bool IsRowDirty { get; set; }
     }
 
     public class EditRevertCellRequest

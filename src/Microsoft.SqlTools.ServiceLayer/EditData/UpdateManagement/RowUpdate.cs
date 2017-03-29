@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
@@ -180,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             return new EditRevertCellResult
             {
                 IsRowDirty = cellUpdates.Count > 0,
-                RevertedCell = new EditCell(associatedRow[columnId], false)
+                Cell = new EditCell(associatedRow[columnId], false)
             };
         }
 
@@ -210,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 return new EditUpdateCellResult
                 {
                     IsRowDirty = cellUpdates.Count > 0,
-                    UpdatedCell = new EditCell(associatedRow[columnId], false)
+                    Cell = new EditCell(associatedRow[columnId], false)
                 };
             }
 
@@ -219,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             return new EditUpdateCellResult
             {
                 IsRowDirty = true,
-                UpdatedCell = update.AsEditCell
+                Cell = update.AsEditCell
             };
         }
 
