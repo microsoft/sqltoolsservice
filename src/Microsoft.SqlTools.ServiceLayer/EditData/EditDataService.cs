@@ -198,18 +198,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             });
         }
 
-        internal Task HandleSubsetRequest(EditSubsetParams subsetParams,
+        internal async Task HandleSubsetRequest(EditSubsetParams subsetParams,
             RequestContext<EditSubsetResult> requestContext)
         {
-            return HandleSessionRequest(subsetParams, requestContext, session =>
+            try
             {
-                EditRow[] rows = session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount).Result;
-                return new EditSubsetResult
+                EditSession session = GetActiveSessionOrThrow(subsetParams.OwnerUri);
+
+                EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
+                EditSubsetResult result = new EditSubsetResult
                 {
                     RowCount = rows.Length,
                     Subset = rows
                 };
-            });
+
+                await requestContext.SendResult(result);
+            }
+            catch(Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         internal Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,
