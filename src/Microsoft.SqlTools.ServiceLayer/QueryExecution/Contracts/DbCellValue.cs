@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.Utility;
+
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
@@ -24,5 +26,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// The raw object for the cell, for use internally
         /// </summary>
         internal object RawObject { get; set; }
+
+        /// <summary>
+        /// Copies the values of this DbCellValue into another DbCellValue (or child object)
+        /// </summary>
+        /// <param name="other">The DbCellValue (or child) that will receive the values</param>
+        public virtual void CopyTo(DbCellValue other)
+        {
+            Validate.IsNotNull(nameof(other), other);
+
+            other.DisplayValue = DisplayValue;
+            other.IsNull = IsNull;
+            other.RawObject = RawObject;
+        }
     }
 }
