@@ -12,7 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Xunit;
@@ -199,12 +198,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(er.IsDirty);
             Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
 
-            // ... The row should have a bunch of empty cells (equal to number of columns)
+            // ... The row should have a bunch of empty cells (equal to number of columns) and all are dirty
             Assert.Equal(rc.newCells.Length, er.Cells.Length);
-            Assert.All(er.Cells, dbc =>
+            Assert.All(er.Cells, ec =>
             {
-                Assert.Equal(string.Empty, dbc.DisplayValue);
-                Assert.False(dbc.IsNull);
+                Assert.Equal(string.Empty, ec.DisplayValue);
+                Assert.False(ec.IsNull);
+                Assert.True(ec.IsDirty);
             });
         }
 
@@ -227,16 +227,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(er.IsDirty);
             Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
 
-            // ... The row should have a single non-empty cell at the beginning
+            // ... The row should have a single non-empty cell at the beginning that is dirty
             Assert.Equal("foo", er.Cells[0].DisplayValue);
             Assert.False(er.Cells[0].IsNull);
+            Assert.True(er.Cells[0].IsDirty);
 
-            // ... The rest of the cells should be blank
+            // ... The rest of the cells should be blank, but dirty
             for (int i = 1; i < er.Cells.Length; i++)
             {
-                DbCellValue dbc = er.Cells[i];
-                Assert.Equal(string.Empty, dbc.DisplayValue);
-                Assert.False(dbc.IsNull);
+                EditCell ec = er.Cells[i];
+                Assert.Equal(string.Empty, ec.DisplayValue);
+                Assert.False(ec.IsNull);
+                Assert.True(ec.IsDirty);
             }
         }
 

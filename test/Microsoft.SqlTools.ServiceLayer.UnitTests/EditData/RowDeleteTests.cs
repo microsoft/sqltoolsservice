@@ -159,15 +159,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The ID should be the same as the one provided
             Assert.Equal(0, er.Id);
 
-            // ... The row should match the cells that were given
+            // ... The row should match the cells that were given and should be dirty
             Assert.Equal(cells.Length, er.Cells.Length);
             for (int i = 0; i < cells.Length; i++)
             {
                 DbCellValue originalCell = cells[i];
-                DbCellValue outputCell = er.Cells[i];
+                EditCell outputCell = er.Cells[i];
 
                 Assert.Equal(originalCell.DisplayValue, outputCell.DisplayValue);
                 Assert.Equal(originalCell.IsNull, outputCell.IsNull);
+                Assert.True(outputCell.IsDirty);
                 // Note: No real need to check the RawObject property
             }
         }

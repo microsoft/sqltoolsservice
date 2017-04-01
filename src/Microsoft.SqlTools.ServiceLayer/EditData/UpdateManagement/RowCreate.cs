@@ -130,9 +130,13 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         public override EditRow GetEditRow(DbCellValue[] cachedRow)
         {
             // Iterate over the new cells. If they are null, generate a blank value
-            DbCellValue[] editCells = newCells.Select(cell => cell == null
-                    ? new DbCellValue {DisplayValue = string.Empty, IsNull = false, RawObject = null}
-                    : cell.AsDbCellValue)
+            EditCell[] editCells = newCells.Select(cell =>
+                {
+                    DbCellValue dbCell = cell == null
+                        ? new DbCellValue {DisplayValue = string.Empty, IsNull = false, RawObject = null}
+                        : cell.AsDbCellValue;
+                    return new EditCell(dbCell, true);
+                })
                 .ToArray();
             return new EditRow
             {

@@ -331,10 +331,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 // Note: No real need to check the RawObject property
             }
 
-            // ... The updated cell should match what it was set to
-            DbCellValue newCell = er.Cells[0];
-            Assert.Equal(newCell.DisplayValue, "foo");
-            Assert.Equal(newCell.IsNull, false);
+            // ... The updated cell should match what it was set to and be dirty
+            EditCell newCell = er.Cells[0];
+            Assert.Equal("foo", newCell.DisplayValue);
+            Assert.False(newCell.IsNull);
+            Assert.True(newCell.IsDirty);
         }
 
         [Fact]
