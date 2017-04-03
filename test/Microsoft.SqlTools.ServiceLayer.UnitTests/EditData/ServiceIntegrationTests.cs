@@ -265,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... And I initialize an edit session with that
             var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddErrorValidation<string>(Assert.NotNull)
+                .AddStandardErrorValidation()
                 .Complete();
             await eds.HandleInitializeRequest(initParams, efv.Object);
 
@@ -285,18 +285,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = await Common.GetCustomSession(q, etm);
             return s;
-        }
-    }
-
-    public static class EditServiceEventFlowValidatorExtensions
-    {
-        public static EventFlowValidator<T> AddStandardErrorValidation<T>(this EventFlowValidator<T> evf)
-        {
-            return evf.AddErrorValidation<string>(p =>
-            {
-                Assert.NotNull(p);
-                Assert.NotEmpty(p);
-            });
         }
     }
 }

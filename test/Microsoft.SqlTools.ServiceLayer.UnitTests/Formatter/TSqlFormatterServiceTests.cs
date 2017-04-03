@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         public static void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action verify)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
             verify();
         }
 

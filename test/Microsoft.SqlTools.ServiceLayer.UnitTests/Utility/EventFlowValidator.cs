@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Moq;
@@ -66,17 +67,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddErrorValidation<TParams>(Action<TParams> paramValidation)
+        public EventFlowValidator<TRequestContext> AddErrorValidation(Action<Error> paramValidation)
         {
             // Add the expected result
             expectedEvents.Add(new ExpectedEvent
             {
                 EventType = EventTypes.Error,
-                ParamType = typeof(TParams),
+                ParamType = typeof(Error),
                 Validator = paramValidation
             });
 
             return this;
+        }
+
+        public EventFlowValidator<TRequestContext> AddStandardErrorValidation()
+        {
+            // Add an error validator that just ensures a non-empty error message
+            return AddErrorValidation(e => Assert.NotEmpty(e.Message));
         }
 
         public EventFlowValidator<TRequestContext> Complete()
@@ -91,11 +98,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 .Returns(Task.FromResult(0));
 
             // Add general handler for error event
-            requestContext.AddErrorHandling(o =>
+            requestContext.AddErrorHandling((msg, code) =>
             {
                 receivedEvents.Add(new ReceivedEvent
                 {
-                    EventObject = o,
+                    EventObject = new Error {Message = msg, Code = code},
                     EventType = EventTypes.Error
                 });
             });

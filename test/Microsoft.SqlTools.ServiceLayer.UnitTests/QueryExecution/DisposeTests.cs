@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var disposeParams = new QueryDisposeParams {OwnerUri = Constants.OwnerUri};
 
             var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
-                .AddErrorValidation<string>(Assert.NotEmpty)
+                .AddStandardErrorValidation()
                 .Complete();
             await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
 

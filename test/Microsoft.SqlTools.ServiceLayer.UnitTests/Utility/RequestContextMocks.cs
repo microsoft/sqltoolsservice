@@ -48,10 +48,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public static Mock<RequestContext<TResponse>> AddErrorHandling<TResponse>(
             this Mock<RequestContext<TResponse>> mock,
-            Action<object> errorCallback)
+            Action<string, int> errorCallback)
         {
             // Setup the mock for SendError
-            var sendErrorFlow = mock.Setup(rc => rc.SendError(It.IsAny<object>()))
+            var sendErrorFlow = mock.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Task.FromResult(0));
             if (errorCallback != null)
             {
@@ -60,17 +60,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
             return mock;
         }
-
-        public static Mock<RequestContext<TResponse>> SetupRequestContextMock<TResponse, TParams>(
-            Action<TResponse> resultCallback,
-            EventType<TParams> expectedEvent,
-            Action<EventType<TParams>, TParams> eventCallback,
-            Action<object> errorCallback)
-        {
-            return Create(resultCallback)
-                .AddEventHandling(expectedEvent, eventCallback)
-                .AddErrorHandling(errorCallback);            
-        }
-
     }
 }

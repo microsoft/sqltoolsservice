@@ -40,20 +40,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public static void VerifyErrorSent<T>(Mock<RequestContext<T>> contextMock)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>()), Times.Once);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
         }
 
         public static void VerifyResult<T, U>(Mock<RequestContext<T>> contextMock, U expected, U actual)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
             Assert.Equal(expected, actual);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
         }
 
         public static void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action<T> verify, T actual)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
             verify(actual);
         }
 

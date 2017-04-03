@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 OwnerUri = Constants.OwnerUri  // Won't exist because nothing has executed
             };
             var evf = new EventFlowValidator<SaveResultRequestResult>()
-                .AddStandardErrorValidator()
+                .AddStandardErrorValidation()
                 .Complete();
             await qes.HandleSaveResultsAsCsvRequest(saveParams, evf.Object);
 
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             };
             qes.CsvFileFactory = GetCsvStreamFactory(storage, saveParams);
             var efv = new EventFlowValidator<SaveResultRequestResult>()
-                .AddStandardErrorValidator()
+                .AddStandardErrorValidation()
                 .Complete();
 
 
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 OwnerUri = Constants.OwnerUri  // Won't exist because nothing has executed
             };
             var efv = new EventFlowValidator<SaveResultRequestResult>()
-                .AddStandardErrorValidator()
+                .AddStandardErrorValidation()
                 .Complete();
             await qes.HandleSaveResultsAsJsonRequest(saveParams, efv.Object);
 
@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             };
             qes.JsonFileFactory = GetJsonStreamFactory(storage, saveParams);
             var efv = new EventFlowValidator<SaveResultRequestResult>()
-                .AddStandardErrorValidator()
+                .AddStandardErrorValidation()
                 .Complete();
             await qes.HandleSaveResultsAsJsonRequest(saveParams, efv.Object);
             await qes.ActiveQueries[saveParams.OwnerUri]
@@ -280,16 +280,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
     public static class SaveResultEventFlowValidatorExtensions
     {
-        public static EventFlowValidator<SaveResultRequestResult> AddStandardErrorValidator(
-            this EventFlowValidator<SaveResultRequestResult> efv)
-        {
-            return efv.AddErrorValidation<SaveResultRequestError>(e =>
-            {
-                Assert.NotNull(e);
-                Assert.NotNull(e.message);
-            });
-        }
-
         public static EventFlowValidator<SaveResultRequestResult> AddStandardResultValidator(
             this EventFlowValidator<SaveResultRequestResult> efv)
         {
