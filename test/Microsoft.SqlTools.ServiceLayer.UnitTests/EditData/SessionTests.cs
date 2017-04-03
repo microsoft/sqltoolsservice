@@ -780,6 +780,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 {
                     Assert.Equal(cachedRow[j].DisplayValue, er.Cells[j].DisplayValue);
                     Assert.Equal(cachedRow[j].IsNull, er.Cells[j].IsNull);
+                    Assert.False(er.Cells[j].IsDirty);
                 }
 
                 // ... Be clean, since we didn't apply any updates

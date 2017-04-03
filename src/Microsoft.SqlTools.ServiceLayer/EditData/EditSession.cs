@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     EditRow er = new EditRow
                     {
                         Id = rowId,
-                        Cells = cachedRows.Rows[i],
+                        Cells = cachedRows.Rows[i].Select(cell => new EditCell(cell, false)).ToArray(),
                         State = EditRow.EditRowState.Clean
                     };
                     editRows.Add(er);
