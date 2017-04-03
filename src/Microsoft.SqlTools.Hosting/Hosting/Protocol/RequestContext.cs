@@ -5,6 +5,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using ErrorContract = Microsoft.SqlTools.Hosting.Contracts.Error;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
@@ -37,13 +38,21 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventParams);
         }
 
-        public virtual async Task SendError(object errorDetails)
+        public virtual async Task SendError(string errorMessage, int errorCode = 0)
         {
+            // Build the error message
+            ErrorContract error = new ErrorContract
+            {
+                Message = errorMessage,
+                Code = errorCode
+            };
+
+            // Send the message
             await this.messageWriter.WriteMessage(
                 Message.ResponseError(
                     requestMessage.Id,
                     requestMessage.Method,
-                    JToken.FromObject(errorDetails)));
+                    JToken.FromObject(error)));
         }
     }
 }
