@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 .Returns(Task.FromResult(0));
 
             // Add general handler for error event
-            requestContext.AddErrorHandling((msg, code) =>
+            requestContext.AddErrorHandling((msg, code, obj) =>
             {
                 receivedEvents.Add(new ReceivedEvent
                 {

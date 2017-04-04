@@ -38,13 +38,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventParams);
         }
 
-        public virtual async Task SendError(string errorMessage, int errorCode = 0)
+        public virtual async Task SendError(string errorMessage, int errorCode = 0, object data = null)
         {
             // Build the error message
             ErrorContract error = new ErrorContract
             {
                 Message = errorMessage,
-                Code = errorCode
+                Code = errorCode,
+                Data = data
             };
 
             // Send the message

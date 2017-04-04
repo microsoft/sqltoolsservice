@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         public async Task SaveCredentialThrowsIfCredentialIdMissing()
         {
             string errorResponse = null;
-            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code) => errorResponse = msg);
+            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code, obj) => errorResponse = msg);
 
             await service.HandleSaveCredentialRequest(new Credential(null), contextMock.Object);
             TestUtils.VerifyErrorSent(contextMock);
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         public async Task SaveCredentialThrowsIfPasswordMissing()
         {
             string errorResponse = null;
-            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code) => errorResponse = msg);
+            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code, obj) => errorResponse = msg);
             
             await service.HandleSaveCredentialRequest(new Credential(CredentialId), contextMock.Object);
             TestUtils.VerifyErrorSent(contextMock);
@@ -186,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         public async Task ReadCredentialThrowsIfCredentialIsNull()
         {
             string errorResponse = null;
-            var contextMock = RequestContextMocks.Create<Credential>(null).AddErrorHandling((msg, code) => errorResponse = msg);
+            var contextMock = RequestContextMocks.Create<Credential>(null).AddErrorHandling((msg, code, obj) => errorResponse = msg);
 
             // Verify throws on null, and this is sent as an error
             await service.HandleReadCredentialRequest(null, contextMock.Object);
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         public async Task ReadCredentialThrowsIfIdMissing()
         {
             string errorResponse = null;
-            var contextMock = RequestContextMocks.Create<Credential>(null).AddErrorHandling((msg, code) => errorResponse = msg);
+            var contextMock = RequestContextMocks.Create<Credential>(null).AddErrorHandling((msg, code, obj) => errorResponse = msg);
 
             // Verify throws with no ID
             await service.HandleReadCredentialRequest(new Credential(), contextMock.Object);
@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         public async Task DeleteCredentialThrowsIfIdMissing()
         {
             object errorResponse = null;
-            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code) => errorResponse = msg);
+            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code, obj) => errorResponse = msg);
 
             // Verify throws with no ID
             await service.HandleDeleteCredentialRequest(new Credential(), contextMock.Object);
