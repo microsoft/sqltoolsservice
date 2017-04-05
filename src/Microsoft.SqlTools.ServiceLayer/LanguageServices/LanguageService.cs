@@ -319,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     if (definitionResult.IsErrorResult)
                     {
-                        await requestContext.SendError( new DefinitionError { message = definitionResult.Message });
+                        await requestContext.SendError(definitionResult.Message);
                     }
                     else
                     {

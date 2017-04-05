@@ -122,16 +122,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
             Validate.IsNotNull(nameof(cachedRow), cachedRow);
 
-            // For each cell that is pending update, replace the db cell value with a new one
+            // Treat all the cells as clean initially
+            EditCell[] editCells = cachedRow.Select(cell => new EditCell(cell, false)).ToArray();
+
+            // For each cell that is pending update, replace the db cell value with a dirty one
             foreach (var cellUpdate in cellUpdates)
             {
-                cachedRow[cellUpdate.Key] = cellUpdate.Value.AsDbCellValue;
+                editCells[cellUpdate.Key] = cellUpdate.Value.AsEditCell;
             }
 
             return new EditRow
             {
                 Id = RowId,
-                Cells = cachedRow,
+                Cells = editCells,
                 State = EditRow.EditRowState.DirtyUpdate
             };
         }

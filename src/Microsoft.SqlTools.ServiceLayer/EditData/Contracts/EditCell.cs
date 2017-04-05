@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
 {
@@ -24,11 +25,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// <param name="isDirty">Whether or not the edit cell is dirty</param>
         public EditCell(DbCellValue dbCellValue, bool isDirty)
         {
-            IsDirty = isDirty;
+            Validate.IsNotNull(nameof(dbCellValue), dbCellValue);
+            dbCellValue.CopyTo(this);
 
-            DisplayValue = dbCellValue.DisplayValue;
-            IsNull = dbCellValue.IsNull;
-            RawObject = dbCellValue.RawObject;
+            IsDirty = isDirty;
         }
 
         /// <summary>

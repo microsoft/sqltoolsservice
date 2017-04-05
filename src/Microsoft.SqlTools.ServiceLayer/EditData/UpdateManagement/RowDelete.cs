@@ -6,6 +6,7 @@
 using System;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -86,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             return new EditRow
             {
                 Id = RowId,
-                Cells = cachedRow,
+                Cells = cachedRow.Select(cell => new EditCell(cell, true)).ToArray(),
                 State = EditRow.EditRowState.DirtyDelete
             };
         }
