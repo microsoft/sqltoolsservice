@@ -161,6 +161,8 @@ WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCo
 ############################################################################
 # Edit Data Service
 
+EditDataObjectNotFound = Table or view requested for edit could not be found
+
 EditDataSessionNotFound = Edit session does not exist.
 
 EditDataSessionAlreadyExists = Edit session already exists.

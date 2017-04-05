@@ -365,6 +365,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataObjectNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataObjectNotFound);
+            }
+        }
+
         public static string EditDataSessionNotFound
         {
             get
@@ -1086,6 +1094,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
+
+
+            public const string EditDataObjectNotFound = "EditDataObjectNotFound";
 
 
             public const string EditDataSessionNotFound = "EditDataSessionNotFound";

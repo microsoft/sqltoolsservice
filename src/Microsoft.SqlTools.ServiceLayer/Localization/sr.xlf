@@ -596,6 +596,11 @@
         <target state="new">Table metadata does not have extended properties</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="EditDataObjectNotFound">
+        <source>Table or view requested for edit could not be found</source>
+        <target state="new">Table or view requested for edit could not be found</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
