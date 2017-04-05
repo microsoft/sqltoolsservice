@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.Equal(options.Locale, locale);
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
-            Assert.Equal(TestLocalizationConstant, "EN_LOCALIZATION");
+            Assert.Equal(TestLocalizationConstant, "test");
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.Equal(options.Locale, "");
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
-            Assert.Equal(TestLocalizationConstant, "EN_LOCALIZATION");
+            Assert.Equal(TestLocalizationConstant, "test");
         }
     }
 }

@@ -285,7 +285,7 @@ BatchParser_VariableNotDefined = Variable {0} is not defined.
 ############################################################################
 # Workspace Service
 
-TestLocalizationConstant = EN_LOCALIZATION
+TestLocalizationConstant = test
 
 ############################################################################
 # Utilities
