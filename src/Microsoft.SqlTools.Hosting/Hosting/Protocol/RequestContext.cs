@@ -3,9 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using ErrorContract = Microsoft.SqlTools.Hosting.Contracts.Error;
+using Error = Microsoft.SqlTools.Hosting.Contracts.Error;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
@@ -38,22 +39,26 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventParams);
         }
 
-        public virtual async Task SendError(string errorMessage, int errorCode = 0, object data = null)
+        public virtual Task SendError(string errorMessage, int errorCode = 0, object data = null)
         {
             // Build the error message
-            ErrorContract error = new ErrorContract
+            Error error = new Error
             {
                 Message = errorMessage,
                 Code = errorCode,
                 Data = data
             };
-
-            // Send the message
-            await this.messageWriter.WriteMessage(
+            return this.messageWriter.WriteMessage(
                 Message.ResponseError(
                     requestMessage.Id,
                     requestMessage.Method,
                     JToken.FromObject(error)));
+        }
+
+        public virtual Task SendError(Exception e)
+        {
+            // Overload to use the parameterized error handler
+            return SendError(e.Message, e.HResult, e.ToString());
         }
     }
 }
