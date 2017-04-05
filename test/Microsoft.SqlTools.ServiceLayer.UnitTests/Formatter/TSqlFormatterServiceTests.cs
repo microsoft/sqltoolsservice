@@ -154,13 +154,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         public static void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action verify)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<object>()), Times.Never);
             verify();
         }
 
         private static void AssertFormattingEqual(string expected, string actual)
         {
-            if (string.Compare(expected, actual) != 0)
+            if (expected != actual)
             {
                 StringBuilder error = new StringBuilder();
                 error.AppendLine("======================");

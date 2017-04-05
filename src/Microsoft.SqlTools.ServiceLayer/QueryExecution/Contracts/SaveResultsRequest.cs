@@ -111,17 +111,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     }
 
     /// <summary>
-    /// Error object for save result 
-    /// </summary>
-    public class SaveResultRequestError
-    {
-        /// <summary>
-        /// Error message 
-        /// </summary>
-        public string message { get; set; }
-    }
-
-    /// <summary>
     /// Request type to save results as CSV
     /// </summary>
     public class SaveResultsAsCsvRequest
