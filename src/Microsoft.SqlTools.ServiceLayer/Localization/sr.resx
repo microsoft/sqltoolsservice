@@ -166,10 +166,6 @@
     <comment>.
  Parameters: 0 - component (string) </comment>
   </data>
-  <data name="ErrorUnexpectedCodeObjectType" xml:space="preserve">
-    <value>Cannot convert SqlCodeObject Type {0} to Type {1}</value>
-    <comment></comment>
-  </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
     <value>The query has already completed, it cannot be cancelled</value>
     <comment></comment>
@@ -427,10 +423,6 @@
     <value>Given row ID does not have pending update</value>
     <comment></comment>
   </data>
-  <data name="EditDataColumnUpdateNotPending" xml:space="preserve">
-    <value>Give column ID does not have pending update</value>
-    <comment></comment>
-  </data>
   <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
     <value>Table or view metadata could not be found</value>
     <comment></comment>
@@ -473,10 +465,6 @@
   </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
     <value>&lt;TBD&gt;</value>
-    <comment></comment>
-  </data>
-  <data name="EditDataInitializeInProgress" xml:space="preserve">
-    <value>Another edit data initialize is in progress for this owner URI. Please wait for completion.</value>
     <comment></comment>
   </data>
   <data name="EditDataTimeOver24Hrs" xml:space="preserve">
@@ -604,15 +592,11 @@
     <comment></comment>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>EN_LOCALIZATION</value>
+    <value>test</value>
     <comment></comment>
   </data>
   <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
     <value>Decimal column is missing numeric precision or numeric scale</value>
-    <comment></comment>
-  </data>
-  <data name="SqlScriptFormatterMultipartDecodeFail" xml:space="preserve">
-    <value>Multipart identifier is incorrectly formatted</value>
     <comment></comment>
   </data>
 </root>
