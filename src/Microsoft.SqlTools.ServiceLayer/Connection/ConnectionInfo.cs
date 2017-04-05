@@ -99,6 +99,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
+        public bool HasConnectionType(string connectionType)
+        {
+            if (connectionType == null)
+            {
+                connectionType = ConnectionType.Default;
+            }
+            return ConnectionTypeToConnectionMap.ContainsKey(connectionType);
+        }
+
         /// <summary>
         /// The count of DbConnectioninstances held by this ConnectionInfo 
         /// </summary>
@@ -155,7 +164,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 DbConnection connection;
                 ConnectionTypeToConnectionMap.TryRemove(type, out connection);
             }
-        }
-
+        } 
     }
 }

@@ -314,9 +314,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             bool callbackInvoked = false;
 
-            // first connect
             string ownerUri = "file://my/sample/file.sql";
-            var connectionService = TestObjects.GetTestConnectionService();
+            const string masterDbName = "master";
+            const string otherDbName = "other";
+            // Given a connection that returns the database name
+            var dummySqlConnection = new TestSqlConnection(null);
+            
+            var mockFactory = new Mock<ISqlConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>()))
+            .Returns((string connString) => 
+            {
+                dummySqlConnection.ConnectionString = connString;
+                SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
+
+                // Database name is respected. Follow heuristic where empty DB name really means Master
+                var dbName = string.IsNullOrEmpty(scsb.InitialCatalog) ? masterDbName : scsb.InitialCatalog;
+                dummySqlConnection.SetDatabase(dbName);
+                return dummySqlConnection;
+            });
+
+            var connectionService = new ConnectionService(mockFactory.Object);
+
+            // register disconnect callback
+            connectionService.RegisterOnDisconnectTask(
+                (result, uri) => {
+                    callbackInvoked = true;
+                    Assert.True(uri.Equals(ownerUri));
+                    return Task.FromResult(true);
+                }
+            );
+
+            // When I connect to default
             var connectionResult = await
                 connectionService
                 .Connect(new ConnectParams()
@@ -325,32 +353,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     Connection = TestObjects.GetTestConnectionDetails()
                 });
 
-            // verify that we are connected
+            // Then I expect to be connected to master
             Assert.NotEmpty(connectionResult.ConnectionId);
 
-            // register disconnect callback
-            connectionService.RegisterOnDisconnectTask(
-                (result, uri) => { 
-                    callbackInvoked = true;
-                    Assert.True(uri.Equals(ownerUri));
-                    return Task.FromResult(true);
-                }
-            );
-
-            // send annother connect request
+            // And when I then connect to another DB
+            var updatedConnectionDetails = TestObjects.GetTestConnectionDetails();
+            updatedConnectionDetails.DatabaseName = otherDbName;
             connectionResult = await
                 connectionService
                 .Connect(new ConnectParams()
                 {
                     OwnerUri = ownerUri,
-                    Connection = TestObjects.GetTestConnectionDetails()
+                    Connection = updatedConnectionDetails
                 });
 
+            // Then I expect to be disconnected from master, and connected to the new DB
             // verify that the event was fired (we disconnected first before connecting)
             Assert.True(callbackInvoked);
 
             // verify that we connected again
             Assert.NotEmpty(connectionResult.ConnectionId);
+            Assert.Equal(otherDbName, connectionResult.ConnectionSummary.DatabaseName);
         }
 
         /// <summary>
