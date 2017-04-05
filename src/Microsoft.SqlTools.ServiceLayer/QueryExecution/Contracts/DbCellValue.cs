@@ -28,6 +28,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         internal object RawObject { get; set; }
 
         /// <summary>
+        /// The internal ID for the row. Should be used when directly referencing the row for edit
+        /// or other purposes.
+        /// </summary>
+        public long RowId { get; set; }
+
+        /// <summary>
         /// Copies the values of this DbCellValue into another DbCellValue (or child object)
         /// </summary>
         /// <param name="other">The DbCellValue (or child) that will receive the values</param>
@@ -38,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             other.DisplayValue = DisplayValue;
             other.IsNull = IsNull;
             other.RawObject = RawObject;
+            other.RowId = RowId;
         }
     }
 }
