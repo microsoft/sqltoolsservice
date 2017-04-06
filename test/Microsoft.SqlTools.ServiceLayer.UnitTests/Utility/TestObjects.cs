@@ -161,6 +161,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class TestSqlConnection : DbConnection
     {
+        private string _database;
+
         internal TestSqlConnection(TestResultSet[] data)
         {
             Data = data;
@@ -188,7 +190,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         public override string ConnectionString { get; set; }
-        public override string Database { get; }
+        public override string Database
+        { 
+            get { return _database; }
+        }
+
         public override ConnectionState State { get; }
         public override string DataSource { get; }
         public override string ServerVersion { get; }
@@ -201,6 +207,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public override void ChangeDatabase(string databaseName)
         {
             // No Op
+        }
+
+        /// <summary>
+        /// Test helper method to set the database value
+        /// </summary>
+        /// <param name="database"></param>
+        public void SetDatabase(string database)
+        {
+            this._database = database;
         }
     }
 
