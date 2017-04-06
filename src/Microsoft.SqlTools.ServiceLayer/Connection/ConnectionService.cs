@@ -385,10 +385,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         cancelTupleToCancellationTokenSourceMap.TryRemove(cancelKey, out sourceValue);
                     }
-                    if (source != null)
-                    {
-                        source.Dispose();
-                    }
+                    source?.Dispose();
                 }
             }
 

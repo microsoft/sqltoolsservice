@@ -101,10 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public bool HasConnectionType(string connectionType)
         {
-            if (connectionType == null)
-            {
-                connectionType = ConnectionType.Default;
-            }
+            connectionType = connectionType ?? ConnectionType.Default;
             return ConnectionTypeToConnectionMap.ContainsKey(connectionType);
         }
 
