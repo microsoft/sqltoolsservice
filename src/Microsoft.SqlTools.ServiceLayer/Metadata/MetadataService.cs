@@ -174,6 +174,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return null;
         }
 
+        internal static bool IsSystemDatabase(string database)
+        {
+            // compare against master for now
+            return string.Compare("master", database, StringComparison.OrdinalIgnoreCase) == 0;
+        }
+
         /// <summary>
         /// Read metadata for the current connection
         /// </summary>
@@ -183,9 +189,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 @"SELECT s.name AS schema_name, o.[name] AS object_name, o.[type] AS object_type
                   FROM sys.all_objects o
                     INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
-                  WHERE o.is_ms_shipped != 1
-                    AND (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U')
-                  ORDER BY object_type, schema_name, object_name";
+                  WHERE (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U') ";
+   
+            if (!IsSystemDatabase(sqlConn.Database))
+            {
+                sql += @"AND o.is_ms_shipped != 1 ";
+            }
+            
+            sql += @"ORDER BY object_type, schema_name, object_name";
 
             using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConn))
             {
