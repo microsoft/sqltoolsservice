@@ -27,11 +27,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 
         }
 
-        public static TestConnectionResult InitLiveConnectionInfo()
+        public static TestConnectionResult InitLiveConnectionInfo(string databaseName = null)
         {
             string sqlFilePath = GetTestSqlFile();
             ScriptFile scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(sqlFilePath);
-            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem);
+            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
 
             string ownerUri = scriptFile.ClientFilePath;
             var connectionService = GetLiveTestConnectionService();

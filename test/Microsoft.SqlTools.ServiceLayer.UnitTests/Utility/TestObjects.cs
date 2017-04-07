@@ -53,6 +53,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             };
         }
 
+        public static ServerInfo GetTestServerInfo()
+        {
+            return new ServerInfo()
+            {
+                ServerVersion = "14.0.1.0",
+                ServerMajorVersion = 14,
+                ServerMinorVersion = 0,
+                EngineEditionId = 3,
+                OsVersion = "Linux (Ubuntu 15.10)",
+                IsCloud = false,
+                ServerEdition = "Developer Edition",
+                ServerLevel = ""
+            };
+        }
+
+        /// <summary>
+        /// Creates a test sql connection factory instance
+        /// </summary>
+        public static ISqlConnectionFactory GetTestSqlConnectionFactory()
+        {
+            // use mock database connection
+            return new TestSqlConnectionFactory();
+        }
+
         /// <summary>
         /// Creates a test connection details object
         /// </summary>
