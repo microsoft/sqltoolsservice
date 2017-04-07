@@ -63,9 +63,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         public override int GetHashCode()
         {
             return
-                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) ^
-                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Schema) ^
-                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name);
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type ?? string.Empty) ^
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Schema ?? string.Empty) ^
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name ?? string.Empty);
         }
 
         public override bool Equals(object obj)
