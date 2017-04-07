@@ -520,9 +520,10 @@ Task("SRGen")
 	.Does(() =>
 {
     var projects = System.IO.Directory.GetFiles(sourceFolder, "project.json", SearchOption.AllDirectories).ToList();
+    var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization"); 
 
     foreach(var project in projects) {
-        var projectDir = System.IO.Path.GetDirectoryName(project);
+        var projectDir = System.IO.Path.GetDirectoryName(project); 
         var localizationDir = System.IO.Path.Combine(projectDir, "Localization");  
         var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
         var projectNameSpace = projectName + ".Localization";
@@ -531,7 +532,7 @@ Task("SRGen")
         if (!System.IO.File.Exists(projectStrings))
         {
             Information("Project {0} doesn't contain 'sr.strings' file", projectName);
-            continue;
+            continue; 
         }
 
         var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
@@ -566,9 +567,27 @@ Task("SRGen")
         var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
         foreach(var docName in xlfDocNames)
         {
+            // load our language XLIFF
             var xlfDoc = new XliffParser.XlfDocument(docName);
+            var xlfFile = xlfDoc.Files.Single();
+
+            // load a language template 
+            var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
+            var templateDoc = new XliffParser.XlfDocument(templateFileLocation);
+            var templateFile = templateDoc.Files.Single(); 
+
+            // iterate through our tranlation units and prune invalid units
+            foreach (var unit in xlfFile.TransUnits)
+            {
+                // if a unit does not have a target it is invalid 
+                if (unit.Target != null) {
+                    templateFile.AddTransUnit(unit.Id, unit.Source, unit.Target, 0, 0);
+                }
+            } 
+
+            // export modified template to RESX
             var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
-            xlfDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
+            templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
         }
     }
 });
