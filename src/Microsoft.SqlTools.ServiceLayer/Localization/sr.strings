@@ -623,10 +623,3 @@ SchemaHierarchy_ColumnMasterKeys = Column Master Keys
 
 SchemaHierarchy_ColumnEncryptionKeys = Column Encryption Keys
 
-############################################################################
-# Extensibility
-ServiceAlreadyRegistered = Cannot register service for type {0}, one or more services already registered
-MultipleServicesFound = Multiple services found for type {0}, expected only 1
-IncompatibleServiceForExtensionLoader = Service of type {0} cannot be created by ExtensionLoader<{1}>
-ServiceProviderNotSet = SetServiceProvider() was not called to establish the required service provider
-ServiceNotFound = Service {0} was not found in the service provider

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using Xunit;
 

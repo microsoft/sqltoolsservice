@@ -73,12 +73,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             if (ServiceProvider == null)
             {
-                throw new InvalidOperationException(SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SqlTools.Hosting.Localization.sr.ServiceProviderNotSet);
             }
             ObjectExplorerService service = ServiceProvider.GetService<ObjectExplorerService>();
             if (service == null)
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, SR.ServiceNotFound, nameof(ObjectExplorerService)));
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, 
+                    SqlTools.Hosting.Localization.sr.ServiceNotFound, nameof(ObjectExplorerService)));
             }
 
             return service;

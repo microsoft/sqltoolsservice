@@ -2157,46 +2157,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ServiceAlreadyRegistered
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceAlreadyRegistered);
-            }
-        }
-
-        public static string MultipleServicesFound
-        {
-            get
-            {
-                return Keys.GetString(Keys.MultipleServicesFound);
-            }
-        }
-
-        public static string IncompatibleServiceForExtensionLoader
-        {
-            get
-            {
-                return Keys.GetString(Keys.IncompatibleServiceForExtensionLoader);
-            }
-        }
-
-        public static string ServiceProviderNotSet
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceProviderNotSet);
-            }
-        }
-
-        public static string ServiceNotFound
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceNotFound);
-            }
-        }
-
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -3113,21 +3073,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_ColumnEncryptionKeys = "SchemaHierarchy_ColumnEncryptionKeys";
-
-
-            public const string ServiceAlreadyRegistered = "ServiceAlreadyRegistered";
-
-
-            public const string MultipleServicesFound = "MultipleServicesFound";
-
-
-            public const string IncompatibleServiceForExtensionLoader = "IncompatibleServiceForExtensionLoader";
-
-
-            public const string ServiceProviderNotSet = "ServiceProviderNotSet";
-
-
-            public const string ServiceNotFound = "ServiceNotFound";
 
 
             private Keys()

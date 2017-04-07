@@ -1416,31 +1416,6 @@
         <target state="new">Column Encryption Keys</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ServiceAlreadyRegistered">
-        <source>Cannot register service for type {0}, one or more services already registered</source>
-        <target state="new">Cannot register service for type {0}, one or more services already registered</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="MultipleServicesFound">
-        <source>Multiple services found for type {0}, expected only 1</source>
-        <target state="new">Multiple services found for type {0}, expected only 1</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IncompatibleServiceForExtensionLoader">
-        <source>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</source>
-        <target state="new">Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceProviderNotSet">
-        <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="new">SetServiceProvider() was not called to establish the required service provider</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceNotFound">
-        <source>Service {0} was not found in the service provider</source>
-        <target state="new">Service {0} was not found in the service provider</target>
-        <note></note>
-      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -40,6 +40,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             return VisitChildAndParents(child.Parent, visitor);
         }
 
+        /// <summary>
+        /// Finds a node by traversing the tree starting from the given node through all the children
+        /// </summary>
+        /// <param name="node">node to start traversing at</param>
+        /// <param name="condition">Predicate function that accesses the tree and
+        /// determines whether to stop going further up the tree</param>
+        /// <param name="filter">Predicate function to filter the children when traversing</param>
+        /// <returns>A Tree Node that matches the condition</returns>
         public static TreeNode FindNode(TreeNode node, Predicate<TreeNode> condition, Predicate<TreeNode> filter)
         {
             if(node == null)

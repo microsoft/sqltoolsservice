@@ -34,7 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private Dictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
-        private static ObjectExplorerService instance = new ObjectExplorerService();
 
         /// <summary>
         /// Singleton constructor
@@ -43,14 +42,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             sessionMap = new Dictionary<string, ObjectExplorerSession>();
             applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => PopulateFactories());
-        }
-
-        public static ObjectExplorerService Instance
-        {
-            get
-            {
-                return instance;
-            }
         }
 
         /// <summary>
@@ -300,11 +291,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             if (serviceProvider == null)
             {
-                throw new InvalidOperationException(SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SqlTools.Hosting.Localization.sr.ServiceProviderNotSet);
             }
             if (connectionService == null)
             {
-                throw new InvalidOperationException(SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SqlTools.Hosting.Localization.sr.ServiceProviderNotSet);
             }
         }
 

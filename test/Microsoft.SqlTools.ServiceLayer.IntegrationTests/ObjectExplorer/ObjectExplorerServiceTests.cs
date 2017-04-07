@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
     public class ObjectExplorerServiceTests
     {
         [Fact]
-        public async void CreateSessionAndExpladOnTheServerShouldReturnTheDatabases()
+        public async void CreateSessionAndExpandOnTheServerShouldReturnTheDatabases()
         {
             var query = "";
             string uri = "DatabaseChangesAffectAllConnections";

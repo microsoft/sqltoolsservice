@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Xunit;
@@ -32,6 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private ServerInfo defaultServerInfo;
         private ConnectionDetails defaultConnectionDetails;
         private ConnectionCompleteParams defaultConnParams;
+        private string fakeConnectionString = "Data Source=server;Initial Catalog=database;Integrated Security=False;User Id=user";
+
         public NodeTests()
         {
             defaultServerInfo = TestObjects.GetTestServerInfo();
@@ -202,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             // given a successful Server creation
             SetupAndRegisterTestConnectionService();
-            Server smoServer = new Server();
+            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             ServerNode node = SetupServerNodeWithServer(smoServer);
 
             // When I get the context for a ServerNode
@@ -223,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             ConnectionService connService = SetupAndRegisterTestConnectionService();
             connService.OwnerToConnectionMap.Remove(defaultOwnerUri);
 
-            Server smoServer = new Server();
+            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             ServerNode node = SetupServerNodeWithServer(smoServer);
 
             // When I get the context for a ServerNode
@@ -242,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // given a connectionInfo with no SqlConnection to use for queries
             SetupAndRegisterTestConnectionService();
 
-            Server smoServer = new Server();
+            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             string expectedMsg = "ConnFailed!";
             ServerNode node = SetupServerNodeWithExceptionCreator(new ConnectionFailureException(expectedMsg));
 
@@ -262,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // given a connectionInfo with no SqlConnection to use for queries
             SetupAndRegisterTestConnectionService();
 
-            Server smoServer = new Server();
+            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             string expectedMsg = "Failed!";
             ServerNode node = SetupServerNodeWithExceptionCreator(new Exception(expectedMsg));
 
@@ -331,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             ServiceProvider.Register<SmoQuerier>(() => new[] { querierMock.Object });
 
-            Server smoServer = new Server();
+            Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             ServerNode node = SetupServerNodeWithServer(smoServer);
 
             // When I populate its children

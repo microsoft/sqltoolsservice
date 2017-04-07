@@ -1251,24 +1251,4 @@
     <value>Column Encryption Keys</value>
     <comment></comment>
   </data>
-  <data name="ServiceAlreadyRegistered" xml:space="preserve">
-    <value>Cannot register service for type {0}, one or more services already registered</value>
-    <comment></comment>
-  </data>
-  <data name="MultipleServicesFound" xml:space="preserve">
-    <value>Multiple services found for type {0}, expected only 1</value>
-    <comment></comment>
-  </data>
-  <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
-    <value>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</value>
-    <comment></comment>
-  </data>
-  <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() was not called to establish the required service provider</value>
-    <comment></comment>
-  </data>
-  <data name="ServiceNotFound" xml:space="preserve">
-    <value>Service {0} was not found in the service provider</value>
-    <comment></comment>
-  </data>
 </root>

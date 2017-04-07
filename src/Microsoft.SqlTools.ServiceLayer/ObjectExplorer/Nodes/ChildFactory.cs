@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public abstract bool CanCreateChild(TreeNode parent, object context);
         public abstract TreeNode CreateChild(TreeNode parent, object context);
 
-        // TOFO Consider whether Remove operations need to be supported
+        // TODO Consider whether Remove operations need to be supported
         //public abstract bool CanRemoveChild(TreeNode parent, object context);
         //public abstract int GetChildIndexToRemove(TreeNode parent, object context);
     }

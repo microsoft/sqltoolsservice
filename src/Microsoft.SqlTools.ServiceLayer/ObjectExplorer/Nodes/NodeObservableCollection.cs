@@ -10,6 +10,9 @@ using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
+    /// <summary>
+    /// A collection class for <see cref="TreeNode"/>
+    /// </summary>
     public sealed class NodeObservableCollection : ObservableCollection<TreeNode>
     {
         public event EventHandler Initialized;
