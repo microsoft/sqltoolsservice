@@ -523,8 +523,8 @@ Task("SRGen")
     var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization"); 
 
     foreach(var project in projects) {
-        var projectDir = System.IO.Path.GetDirectoryName(project); 
-        var localizationDir = System.IO.Path.Combine(projectDir, "Localization");  
+        var projectDir = System.IO.Path.GetDirectoryName(project);
+        var localizationDir = System.IO.Path.Combine(projectDir, "Localization");
         var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
         var projectNameSpace = projectName + ".Localization";
         var projectStrings = System.IO.Path.Combine(localizationDir, "sr.strings");
@@ -532,7 +532,7 @@ Task("SRGen")
         if (!System.IO.File.Exists(projectStrings))
         {
             Information("Project {0} doesn't contain 'sr.strings' file", projectName);
-            continue; 
+            continue;
         }
 
         var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.DataTools.SrGen", "lib", "netcoreapp1.0", "srgen.dll");
