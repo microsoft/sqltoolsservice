@@ -19,6 +19,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 
         public List<ScriptingObject> DatabaseObjects { get; set; }
 
+        public List<ScriptingObject> IncludeObjectCriteria { get; set; }
+
+        public List<ScriptingObject> ExcludeObjectCriteria { get; set; }
+
         public ScriptOptions ScriptOptions { get; set; }
     }
 

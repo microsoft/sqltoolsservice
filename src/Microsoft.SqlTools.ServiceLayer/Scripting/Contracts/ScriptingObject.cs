@@ -4,13 +4,14 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
     /// Class to represent a database object that can be scripted.
     /// </summary>
-    public class ScriptingObject : IEquatable<ScriptingObject>
+    public sealed class ScriptingObject : IEquatable<ScriptingObject>
     {
         /// <summary>
         /// Gets or sets the database object type.  

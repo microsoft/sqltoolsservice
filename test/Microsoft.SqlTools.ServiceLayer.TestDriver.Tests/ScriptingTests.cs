@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -73,6 +74,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
                 ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
                 Assert.Equal<int>(NorthwindObjectCount, planEvent.Count);
+                Assert.True(File.Exists(tempFile.FilePath));
+                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
@@ -100,6 +103,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
                 ScriptingCompleteParameters completeParameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
                 Assert.Equal<int>(NorthwindObjectCount, planEvent.Count);
+                Assert.True(File.Exists(tempFile.FilePath));
+                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
@@ -136,6 +141,46 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
                 ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
                 Assert.Equal<int>(1, planEvent.Count);
+                Assert.True(File.Exists(tempFile.FilePath));
+                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
+                testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
+            }
+        }
+
+        [Fact]
+        public async Task ScriptTableUsingIncludeFilter()
+        {
+            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
+            using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            {
+                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
+
+                ScriptingParams requestParams = new ScriptingParams
+                {
+                    FilePath = tempFile.FilePath,
+                    ConnectionString = testDatabase.ConnectionString,
+                    ScriptOptions = new ScriptOptions
+                    {
+                        TypeOfDataToScript = "SchemaOnly",
+                    },
+                    IncludeObjectCriteria = new List<ScriptingObject>
+                    {
+                        new ScriptingObject
+                        {
+                            Type = "Table",
+                            Schema = "dbo",
+                            Name = "Customers",
+                        },
+                    }
+                };
+
+                ScriptingResult result = await testService.Script(requestParams);
+                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
+                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
+                Assert.Equal<int>(1, planEvent.Count);
+                Assert.True(File.Exists(tempFile.FilePath));
+                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
@@ -172,6 +217,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
                 ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
                 Assert.Equal<int>(1, planEvent.Count);
+                Assert.True(File.Exists(tempFile.FilePath));
+                Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }

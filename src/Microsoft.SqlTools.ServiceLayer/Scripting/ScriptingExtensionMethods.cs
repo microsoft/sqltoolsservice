@@ -8,12 +8,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
     public static class ScriptingExtensionMethods
     {
+        public static List<ScriptingObject> GetDatabaseObjects(this SqlScriptPublishModel publishModel)
+        {
+            List<ScriptingObject> databaseObjects = new List<ScriptingObject>();
+
+            IEnumerable<DatabaseObjectType> objectTypes = publishModel.GetDatabaseObjectTypes();
+            foreach (DatabaseObjectType objectType in objectTypes)
+            {
+                IEnumerable<KeyValuePair<string, string>> databaseObjectsOfType = publishModel.EnumChildrenForDatabaseObjectType(objectType);
+                foreach (KeyValuePair<string, string> databaseObjectOfType in databaseObjectsOfType)
+                {
+                    databaseObjects.Add(new Urn(databaseObjectOfType.Value).ToScriptingObject());
+                }
+            }
+
+            return databaseObjects;
+        }
+
         public static bool IsOperationCanceledException(this Exception e)
         {
             Exception current = e;

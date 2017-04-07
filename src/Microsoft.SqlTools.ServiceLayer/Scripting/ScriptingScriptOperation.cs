@@ -129,12 +129,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             PopulateAdvancedScriptOptions(publishModel.AdvancedOptions);
             publishModel.ScriptAllObjects = true;
 
+            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
+
+            bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Count > 0;
+            bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Count > 0;
+            if (hasIncludeCriteria || hasExcludeCriteria)
+            {
+                List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
+                selectedObjects = ScriptingObjectMatchProcessor.Match(
+                    this.Parameters.IncludeObjectCriteria,
+                    this.Parameters.ExcludeObjectCriteria,
+                    databaseObjects);
+            }
+
             if (this.Parameters.DatabaseObjects != null && this.Parameters.DatabaseObjects.Count > 0)
+            {
+                selectedObjects = selectedObjects.Union(this.Parameters.DatabaseObjects);
+            }
+
+            if (selectedObjects.Count() > 0)
             {
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
                 string server = builder.DataSource;
                 string database = builder.InitialCatalog;
-                foreach (ScriptingObject scriptingObject in this.Parameters.DatabaseObjects)
+                foreach (ScriptingObject scriptingObject in selectedObjects)
                 {
                     publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
                 }

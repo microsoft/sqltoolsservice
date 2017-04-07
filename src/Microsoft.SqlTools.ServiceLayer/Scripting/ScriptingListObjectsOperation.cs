@@ -84,15 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 try
                 {
-                    IEnumerable<DatabaseObjectType> objectTypes = publishModel.GetDatabaseObjectTypes();
-                    foreach (DatabaseObjectType objectType in objectTypes)
-                    {
-                        IEnumerable<KeyValuePair<string, string>> databaseObjectsOfType = publishModel.EnumChildrenForDatabaseObjectType(objectType);
-                        foreach (KeyValuePair<string, string> databaseObjectOfType in databaseObjectsOfType)
-                        {
-                            databaseObjects.Add(new Urn(databaseObjectOfType.Value).ToScriptingObject());
-                        }
-                    }
+                    databaseObjects = publishModel.GetDatabaseObjects();
                 }
                 finally
                 {
