@@ -149,6 +149,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             if (selectedObjects.Count() > 0)
             {
+                Logger.Write(
+                    LogLevel.Normal,
+                    string.Format("ScriptingOperation.BuildPublishModel scripting objects: {0}", string.Join(",", selectedObjects)));
+
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
                 string server = builder.DataSource;
                 string database = builder.InitialCatalog;
