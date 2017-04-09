@@ -129,13 +129,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             PopulateAdvancedScriptOptions(publishModel.AdvancedOptions);
             publishModel.ScriptAllObjects = true;
 
+            string serverName = null;
+            string databaseName = null;
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
 
             bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Count > 0;
             bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Count > 0;
             if (hasIncludeCriteria || hasExcludeCriteria)
             {
-                List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
+                List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects(out serverName, out databaseName);
                 selectedObjects = ScriptingObjectMatchProcessor.Match(
                     this.Parameters.IncludeObjectCriteria,
                     this.Parameters.ExcludeObjectCriteria,
@@ -151,14 +153,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 Logger.Write(
                     LogLevel.Normal,
-                    string.Format("ScriptingOperation.BuildPublishModel scripting objects: {0}", string.Join(",", selectedObjects)));
+                    string.Format(
+                        "Scripting object count {0}, objects: {1}", 
+                        selectedObjects.Count(),
+                        string.Join(", ", selectedObjects)));
 
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
-                string server = builder.DataSource;
-                string database = builder.InitialCatalog;
                 foreach (ScriptingObject scriptingObject in selectedObjects)
                 {
-                    publishModel.SelectedObjects.Add(scriptingObject.ToUrn(server, database));
+                    publishModel.SelectedObjects.Add(scriptingObject.ToUrn(serverName, databaseName));
                 }
 
                 publishModel.ScriptAllObjects = false;

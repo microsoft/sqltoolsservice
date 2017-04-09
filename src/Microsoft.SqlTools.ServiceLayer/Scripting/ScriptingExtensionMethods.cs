@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -17,14 +18,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     {
         public static List<ScriptingObject> GetDatabaseObjects(this SqlScriptPublishModel publishModel)
         {
+            string serverName = null;
+            string databaseName = null;
+            return GetDatabaseObjects(publishModel, out serverName, out databaseName);
+        }
+
+        public static List<ScriptingObject> GetDatabaseObjects(this SqlScriptPublishModel publishModel, out string serverName, out string databaseName)
+        {
             List<ScriptingObject> databaseObjects = new List<ScriptingObject>();
+            serverName = null;
+            databaseName = null;
+            bool serverAndDatabaseInitialized = false;
 
             IEnumerable<DatabaseObjectType> objectTypes = publishModel.GetDatabaseObjectTypes();
             foreach (DatabaseObjectType objectType in objectTypes)
             {
                 IEnumerable<KeyValuePair<string, string>> databaseObjectsOfType = publishModel.EnumChildrenForDatabaseObjectType(objectType);
+
+                Logger.Write(
+                    LogLevel.Normal,
+                    string.Format(
+                        "Loaded SMO urn object count {0} for type {1}, urns: {2}",
+                        objectType,
+                        databaseObjectsOfType.Count(),
+                        string.Join(", ", databaseObjectsOfType.Select(p => p.Value))));
+
                 foreach (KeyValuePair<string, string> databaseObjectOfType in databaseObjectsOfType)
                 {
+                    if (!serverAndDatabaseInitialized)
+                    {
+                        Urn urn = new Urn(databaseObjectOfType.Value);
+                        serverName = urn.GetNameForType("Server");
+                        databaseName = urn.GetNameForType("Database");
+                        serverAndDatabaseInitialized = true;
+                    }
+
                     databaseObjects.Add(new Urn(databaseObjectOfType.Value).ToScriptingObject());
                 }
             }
