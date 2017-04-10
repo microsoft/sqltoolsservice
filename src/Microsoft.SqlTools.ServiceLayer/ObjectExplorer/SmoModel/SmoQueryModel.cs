@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Composition;
+using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
 
@@ -33,9 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.Databases;
-                return new SmoCollectionWrapper<Database>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Database>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -52,9 +56,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.LinkedServers;
-                return new SmoCollectionWrapper<LinkedServer>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<LinkedServer>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -71,9 +78,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.Logins;
-                return new SmoCollectionWrapper<Login>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Login>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -90,9 +100,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.Roles;
-                return new SmoCollectionWrapper<ServerRole>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ServerRole>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -109,9 +122,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.Credentials;
-                return new SmoCollectionWrapper<Credential>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Credential>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -128,9 +144,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.CryptographicProviders;
-                return new SmoCollectionWrapper<CryptographicProvider>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<CryptographicProvider>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -147,9 +166,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.Audits;
-                return new SmoCollectionWrapper<Audit>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Audit>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -166,9 +188,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.ServerAuditSpecifications;
-                return new SmoCollectionWrapper<ServerAuditSpecification>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ServerAuditSpecification>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -185,9 +210,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.Endpoints;
-                return new SmoCollectionWrapper<Endpoint>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Endpoint>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -204,9 +232,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.LinkedServers;
-                return new SmoCollectionWrapper<LinkedServer>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<LinkedServer>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -223,9 +254,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.Triggers;
-                return new SmoCollectionWrapper<ServerDdlTrigger>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ServerDdlTrigger>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -242,9 +276,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.UserDefinedMessages;
-                return new SmoCollectionWrapper<UserDefinedMessage>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<UserDefinedMessage>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -261,9 +298,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Tables;
-                return new SmoCollectionWrapper<Table>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Table>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -280,9 +320,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Views;
-                return new SmoCollectionWrapper<View>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<View>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -299,9 +342,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Synonyms;
-                return new SmoCollectionWrapper<Synonym>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Synonym>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -318,9 +364,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentTableViewTableTypeBase != null)
             {
                 var retValue = parentTableViewTableTypeBase.Columns;
-                return new SmoCollectionWrapper<Column>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Column>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -337,9 +386,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentTableViewTableTypeBase != null)
             {
                 var retValue = parentTableViewTableTypeBase.Indexes;
-                return new SmoCollectionWrapper<Index>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Index>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -356,9 +408,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentTable != null)
             {
                 var retValue = parentTable.Checks;
-                return new SmoCollectionWrapper<Check>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Check>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -375,9 +430,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentTable != null)
             {
                 var retValue = parentTable.ForeignKeys;
-                return new SmoCollectionWrapper<ForeignKey>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ForeignKey>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -394,9 +452,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentColumn != null)
             {
                 var retValue = parentColumn.DefaultConstraint;
-                return new SqlSmoObject[] { retValue };
+                if(retValue != null)
+                {
+                    return new SqlSmoObject[] { retValue };
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -413,9 +474,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentTable != null)
             {
                 var retValue = parentTable.Triggers;
-                return new SmoCollectionWrapper<Trigger>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Trigger>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -432,9 +496,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentTable != null)
             {
                 var retValue = parentTable.FullTextIndex;
-                return new SqlSmoObject[] { retValue };
+                if(retValue != null)
+                {
+                    return new SqlSmoObject[] { retValue };
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -451,9 +518,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentTableViewBase != null)
             {
                 var retValue = parentTableViewBase.Statistics;
-                return new SmoCollectionWrapper<Statistic>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Statistic>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -470,9 +540,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Triggers;
-                return new SmoCollectionWrapper<Trigger>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Trigger>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -489,9 +562,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Assemblies;
-                return new SmoCollectionWrapper<SqlAssembly>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<SqlAssembly>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -508,9 +584,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Rules;
-                return new SmoCollectionWrapper<Rule>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Rule>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -527,9 +606,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Defaults;
-                return new SmoCollectionWrapper<Default>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Default>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -546,9 +628,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Sequences;
-                return new SmoCollectionWrapper<Sequence>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Sequence>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -565,9 +650,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.SystemDataTypes;
-                return new SmoCollectionWrapper<SystemDataType>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<SystemDataType>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -584,9 +672,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedDataTypes;
-                return new SmoCollectionWrapper<UserDefinedDataType>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<UserDefinedDataType>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -603,9 +694,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedTableTypes;
-                return new SmoCollectionWrapper<UserDefinedTableType>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<UserDefinedTableType>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -622,9 +716,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.XmlSchemaCollections;
-                return new SmoCollectionWrapper<XmlSchemaCollection>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<XmlSchemaCollection>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -641,9 +738,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedTypes;
-                return new SmoCollectionWrapper<UserDefinedType>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<UserDefinedType>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -660,9 +760,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedFunctions;
-                return new SmoCollectionWrapper<UserDefinedFunction>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<UserDefinedFunction>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -679,9 +782,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedAggregates;
-                return new SmoCollectionWrapper<UserDefinedAggregate>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<UserDefinedAggregate>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -698,9 +804,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.FileGroups;
-                return new SmoCollectionWrapper<FileGroup>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<FileGroup>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -717,9 +826,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentFileGroup != null)
             {
                 var retValue = parentFileGroup.Files;
-                return new SmoCollectionWrapper<DataFile>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<DataFile>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -736,9 +848,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.FullTextCatalogs;
-                return new SmoCollectionWrapper<FullTextCatalog>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<FullTextCatalog>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -755,9 +870,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.FullTextStopLists;
-                return new SmoCollectionWrapper<FullTextStopList>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<FullTextStopList>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -774,9 +892,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.PartitionFunctions;
-                return new SmoCollectionWrapper<PartitionFunction>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<PartitionFunction>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -793,9 +914,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.PartitionSchemes;
-                return new SmoCollectionWrapper<PartitionScheme>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<PartitionScheme>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -812,9 +936,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.SearchPropertyLists;
-                return new SmoCollectionWrapper<SearchPropertyList>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<SearchPropertyList>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -831,9 +958,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Users;
-                return new SmoCollectionWrapper<User>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<User>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -850,9 +980,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Schemas;
-                return new SmoCollectionWrapper<Schema>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Schema>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -869,9 +1002,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.AsymmetricKeys;
-                return new SmoCollectionWrapper<AsymmetricKey>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<AsymmetricKey>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -888,9 +1024,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Certificates;
-                return new SmoCollectionWrapper<Certificate>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Certificate>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -907,9 +1046,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.SymmetricKeys;
-                return new SmoCollectionWrapper<SymmetricKey>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<SymmetricKey>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -926,9 +1068,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.DatabaseEncryptionKey;
-                return new SqlSmoObject[] { retValue };
+                if(retValue != null)
+                {
+                    return new SqlSmoObject[] { retValue };
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -945,9 +1090,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.MasterKey;
-                return new SqlSmoObject[] { retValue };
+                if(retValue != null)
+                {
+                    return new SqlSmoObject[] { retValue };
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -964,9 +1112,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.DatabaseAuditSpecifications;
-                return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -983,9 +1134,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.SecurityPolicies;
-                return new SmoCollectionWrapper<SecurityPolicy>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<SecurityPolicy>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1002,9 +1156,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.DatabaseScopedCredentials;
-                return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1021,9 +1178,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Roles;
-                return new SmoCollectionWrapper<DatabaseRole>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<DatabaseRole>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1040,9 +1200,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ApplicationRoles;
-                return new SmoCollectionWrapper<ApplicationRole>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ApplicationRole>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1059,9 +1222,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ColumnMasterKeys;
-                return new SmoCollectionWrapper<ColumnMasterKey>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ColumnMasterKey>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1078,9 +1244,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ColumnEncryptionKeys;
-                return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1097,9 +1266,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ServiceBroker;
-                return new SqlSmoObject[] { retValue };
+                if(retValue != null)
+                {
+                    return new SqlSmoObject[] { retValue };
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1116,9 +1288,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.Services;
-                return new SmoCollectionWrapper<BrokerService>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<BrokerService>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1135,9 +1310,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.ServiceContracts;
-                return new SmoCollectionWrapper<ServiceContract>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ServiceContract>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1154,9 +1332,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.Queues;
-                return new SmoCollectionWrapper<ServiceQueue>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ServiceQueue>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1173,9 +1354,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.RemoteServiceBindings;
-                return new SmoCollectionWrapper<RemoteServiceBinding>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<RemoteServiceBinding>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1192,9 +1376,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.Priorities;
-                return new SmoCollectionWrapper<BrokerPriority>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<BrokerPriority>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1211,9 +1398,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.MessageTypes;
-                return new SmoCollectionWrapper<MessageType>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<MessageType>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1230,9 +1420,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ExternalDataSources;
-                return new SmoCollectionWrapper<ExternalDataSource>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ExternalDataSource>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1249,9 +1442,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ExternalFileFormats;
-                return new SmoCollectionWrapper<ExternalFileFormat>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ExternalFileFormat>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1268,9 +1464,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.StoredProcedures;
-                return new SmoCollectionWrapper<StoredProcedure>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<StoredProcedure>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1287,9 +1486,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ExtendedStoredProcedures;
-                return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1306,21 +1508,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentStoredProcedure != null)
             {
                 var retValue = parentStoredProcedure.Parameters;
-                return new SmoCollectionWrapper<Parameter>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Parameter>(retValue);
+                }
             }
             UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
             if (parentUserDefinedAggregate != null)
             {
                 var retValue = parentUserDefinedAggregate.Parameters;
-                return new SmoCollectionWrapper<Parameter>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Parameter>(retValue);
+                }
             }
             UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
             if (parentUserDefinedFunction != null)
             {
                 var retValue = parentUserDefinedFunction.Parameters;
-                return new SmoCollectionWrapper<Parameter>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<Parameter>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1337,9 +1548,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentPartitionFunction != null)
             {
                 var retValue = parentPartitionFunction.PartitionFunctionParameters;
-                return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 
@@ -1356,9 +1570,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (parentServer != null)
             {
                 var retValue = parentServer.SystemDataTypes;
-                return new SmoCollectionWrapper<SystemDataType>(retValue);
+                if(retValue != null)
+                {
+                    return new SmoCollectionWrapper<SystemDataType>(retValue);
+                }
             }
-            return null;
+            return Enumerable.Empty<SqlSmoObject>();
         }
     }
 

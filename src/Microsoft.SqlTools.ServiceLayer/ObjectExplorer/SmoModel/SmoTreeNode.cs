@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             if (context == null)
             {
-                SmoObjectBase smoParent = ParentAs<SmoTreeNode>()?.SmoObject;
+                SmoObjectBase smoParent = GetParentSmoObject();
                 SmoQueryContext parentContext = Parent?.GetContextAs<SmoQueryContext>();
                 if (smoParent != null && parentContext != null)
                 {

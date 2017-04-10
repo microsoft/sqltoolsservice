@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.SqlServer.Management.Smo;
@@ -67,6 +68,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 foreach(var smoObject in querier.Query(context))
                 {
+                    if (smoObject == null)
+                    {
+                        Console.WriteLine("smoObject should not be null");
+                    }
                     TreeNode childNode = CreateChild(parent, smoObject);
                     if (childNode != null)
                     {
@@ -122,10 +127,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         protected virtual void InitializeChild(TreeNode child, object context)
         {
-            NamedSmoObject smoObj = (NamedSmoObject) context;
-
-            SmoTreeNode childAsMeItem = (SmoTreeNode)child;
-            childAsMeItem.CacheInfoFromModel(smoObj);
+            NamedSmoObject smoObj = context as NamedSmoObject;
+            if (smoObj == null)
+            {
+                Debug.WriteLine("context is not a NamedSmoObject. type: " + context.GetType());
+            }
+            else
+            {
+                SmoTreeNode childAsMeItem = (SmoTreeNode)child;
+                childAsMeItem.CacheInfoFromModel(smoObj);
+            }
         }
 
         internal virtual Type[] ChildQuerierTypes { 
