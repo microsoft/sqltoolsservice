@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             var query = "";
             string uri = "CreateSessionAndExpand";
             string databaseName = null;
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query))
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
                 await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
@@ -39,9 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
         private async Task<ObjectExplorerSession> CreateSession(string databaseName, string uri)
         {
-            var result = await LiveConnectionHelper.InitLiveConnectionInfoAsync(databaseName, uri);
-            ConnectionInfo connectionInfo = result.ConnectionInfo;
-            ConnectionDetails details = connectionInfo.ConnectionDetails;
+            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
+            ConnectionDetails details = connectParams.Connection;
 
             return await _service.DoCreateSession(details, uri);
         }
@@ -74,11 +72,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
         private void CancelConnection(string uri)
         {
-            ConnectionService.Instance.CancelConnect(new CancelConnectParams
-            {
-                OwnerUri = uri,
-                Type = ConnectionType.Default
-            });
+            //ConnectionService.Instance.CancelConnect(new CancelConnectParams
+            //{
+            //    OwnerUri = uri,
+            //    Type = ConnectionType.Default
+            //});
         }
 
         private async Task ExpandTree(NodeInfo node, ObjectExplorerSession session)
@@ -113,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             string uri = "VerifyAdventureWorksDatabaseObjects";
             string databaseName = null;
 
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query))
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
                 var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
@@ -122,14 +120,46 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
         }
 
-        [Fact]
+       // [Fact]
         public async void VerifySql2016Objects()
         {
             var query = LoadScript("Sql_2016_Additions.sql");
             string uri = "VerifySql2016Objects";
             string databaseName = null;
 
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query))
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            {
+                var session = await CreateSession(testDb.DatabaseName, uri);
+                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                await ExpandTree(databaseNodeInfo, session);
+                CancelConnection(uri);
+            }
+        }
+
+       // [Fact]
+        public async void VerifySqlObjects()
+        {
+            var query = LoadScript("Sql_Additions.sql");
+            string uri = "VerifySqlObjects";
+            string databaseName = null;
+
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            {
+                var session = await CreateSession(testDb.DatabaseName, uri);
+                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                await ExpandTree(databaseNodeInfo, session);
+                CancelConnection(uri);
+            }
+        }
+
+       // [Fact]
+        public async void VerifyFileTableTest()
+        {
+            var query = LoadScript("FileTableTest.sql");
+            string uri = "VerifyFileTableTest";
+            string databaseName = null;
+
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
                 var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
@@ -139,45 +169,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         }
 
         //[Fact]
-        public async void VerifySqlObjects()
-        {
-            var query = LoadScript("Sql_Additions.sql");
-            string uri = "VerifySqlObjects";
-            string databaseName = null;
-
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query))
-            {
-                var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
-                await ExpandTree(databaseNodeInfo, session);
-                CancelConnection(uri);
-            }
-        }
-
-        [Fact]
-        public async void VerifyFileTableTest()
-        {
-            var query = LoadScript("FileTableTest.sql");
-            string uri = "VerifyFileTableTest";
-            string databaseName = null;
-
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query))
-            {
-                var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
-                await ExpandTree(databaseNodeInfo, session);
-                CancelConnection(uri);
-            }
-        }
-
-        [Fact]
         public async void VerifyColumnstoreindexSql16()
         {
             var query = LoadScript("ColumnstoreindexSql16.sql");
             string uri = "VerifyColumnstoreindexSql16";
             string databaseName = null;
 
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query))
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
                 var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
