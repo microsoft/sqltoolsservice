@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 }
                 foreach (var child in children)
                 {
-                    Console.WriteLine(child.Label);
+                    //Console.WriteLine(child.Label);
                     await ExpandTree(child, session);
                 }
             }
