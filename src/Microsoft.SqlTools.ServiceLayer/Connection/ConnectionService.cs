@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Open a connection with the specified ConnectParams
         /// </summary>
-        public async Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
+        public virtual async Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
         {
             // Validate parameters
             ConnectionCompleteParams validationResults = ValidateConnectParams(connectionParams);

@@ -6,7 +6,8 @@
       "includeFiles": [
         "Scripts/CreateTestDatabaseObjects.sql",
         "Scripts/CreateTestDatabase.sql",
-        "Scripts/TestDbTableQueries.sql"
+        "Scripts/TestDbTableQueries.sql",
+        "Scripts/AdventureWorks.sql"
       ]
     }
   },

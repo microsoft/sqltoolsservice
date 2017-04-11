@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.Hosting
 
         protected IMultiServiceProvider ServiceProvider { get; private set; }
 
-        public void SetServiceProvider(IMultiServiceProvider provider)
+        public virtual void SetServiceProvider(IMultiServiceProvider provider)
         {
             ServiceProvider = provider;
         }
