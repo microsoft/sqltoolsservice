@@ -1,7 +1,10 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -44,6 +47,35 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 });
 
             connectionResult.Wait();
+
+            ConnectionInfo connInfo = null;
+            connectionService.TryFindConnection(ownerUri, out connInfo);
+            return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
+        }
+
+        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = null, string ownerUri = null)
+        {
+            ScriptFile scriptFile = null;
+            if (string.IsNullOrEmpty(ownerUri))
+            {
+                string sqlFilePath = GetTestSqlFile();
+                scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(sqlFilePath);
+                ownerUri = scriptFile.ClientFilePath;
+            }
+            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
+
+            var connectionService = GetLiveTestConnectionService();
+            var connectionResult =
+                await connectionService
+                .Connect(new ConnectParams
+                {
+                    OwnerUri = ownerUri,
+                    Connection = connectParams.Connection
+                });
+            if (!string.IsNullOrEmpty(connectionResult.ErrorMessage))
+            {
+                Console.WriteLine(connectionResult.ErrorMessage);
+            }
 
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
