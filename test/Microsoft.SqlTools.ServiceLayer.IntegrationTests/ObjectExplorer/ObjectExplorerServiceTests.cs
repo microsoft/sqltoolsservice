@@ -76,6 +76,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             {
                 var children = await _service.ExpandNode(session, node.NodePath);
                 Assert.NotNull(children);
+                if(children.Count() == 0 && !node.NodePath.Contains("System") &&
+                    !node.NodePath.Contains("FileTables") && !node.NodePath.Contains("External Tables"))
+                {
+                    var labaleToUpper = node.Label.ToUpper();
+                    if (labaleToUpper.Contains("TABLE") || labaleToUpper.Contains("StoredProcedure") 
+                        || labaleToUpper.Contains("VIEW"))
+                    {
+                        //TOOD: Add a better validation. For now at least check tables not to be empty 
+                        Assert.True(false, "The list of tables, procedure and views cannot be empty");
+                    }
+                }
                 foreach (var child in children)
                 {
                     Console.WriteLine(child.Label);
