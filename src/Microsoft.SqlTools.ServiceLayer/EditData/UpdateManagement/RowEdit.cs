@@ -38,6 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// <param name="associatedMetadata">Metadata provider for the object to edit</param>
         protected RowEditBase(long rowId, ResultSet associatedResultSet, EditTableMetadata associatedMetadata)
         {
+            if (!associatedMetadata.HasExtendedProperties)
+            {
+                throw new ArgumentException(SR.EditDataMetadataNotExtended);
+            }
+
             RowId = rowId;
             AssociatedResultSet = associatedResultSet;
             AssociatedObjectMetadata = associatedMetadata;
@@ -104,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         /// <param name="columnId">Ordinal ID of the column to revert</param>
         /// <returns>String value of the original value of the cell</returns>
-        public abstract string RevertCell(int columnId);
+        public abstract EditRevertCellResult RevertCell(int columnId);
 
         /// <summary>
         /// Changes the value a cell in the row.

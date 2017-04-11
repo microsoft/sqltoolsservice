@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup:
             // ... Create a metadata factory that throws
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Throws<Exception>();
 
             // ... Create a session that hasn't been initialized
@@ -412,7 +412,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var b = QueryExecution.Common.GetBasicExecutedBatch();
             var etm = Common.GetStandardMetadata(b.ResultSets[0].Columns);
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized
@@ -451,7 +451,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var b = QueryExecution.Common.GetBasicExecutedBatch();
             var etm = Common.GetStandardMetadata(b.ResultSets[0].Columns);
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized
@@ -490,7 +490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var rs = q.Batches[0].ResultSets[0];
             var etm = Common.GetStandardMetadata(rs.Columns);
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string>(), It.IsAny<string>()))
+            emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized
@@ -627,6 +627,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.RevertCell(0, 0));
         }
 
+        [Fact]
+        public async Task RevertCellRowRevert()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            EditSession s = await GetBasicSession();
+
+            // ... Add a edit that we will say the edit was reverted if we update a cell
+            var mockEdit = new Mock<RowEditBase>();
+            mockEdit.Setup(e => e.RevertCell(It.IsAny<int>()))
+                .Returns(new EditRevertCellResult {IsRowDirty = false});
+            s.EditCache[0] = mockEdit.Object;
+
+            // If: I update a cell that will return an implicit revert
+            s.RevertCell(0, 0);
+
+            // Then:
+            // ... Set cell should have been called on the mock update once
+            mockEdit.Verify(e => e.RevertCell(0), Times.Once);
+
+            // ... The mock update should no longer be in the edit cache
+            Assert.Empty(s.EditCache);
+        }
+
         #endregion
 
         #region Update Cell Tests
@@ -653,7 +677,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... Add a mock edit to the edit cache to cause the .TryAdd to fail
             var mockEdit = new Mock<RowEditBase>();
-            mockEdit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>()));
+            mockEdit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>()))
+                .Returns(new EditUpdateCellResult {IsRowDirty = true});
             s.EditCache[0] = mockEdit.Object;
 
             // If: I update a cell on a row that already has a pending edit
@@ -680,6 +705,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Contains(0, s.EditCache.Keys);
             Assert.IsType<RowUpdate>(s.EditCache[0]);
         }
+
+        [Fact]
+        public async Task UpdateCellRowRevert()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            EditSession s = await GetBasicSession();
+
+            // ... Add a edit that we will say the edit was reverted if we update a cell
+            var mockEdit = new Mock<RowEditBase>();
+            mockEdit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>()))
+                .Returns(new EditUpdateCellResult {IsRowDirty = false});
+            s.EditCache[0] = mockEdit.Object;
+
+            // If: I update a cell that will return an implicit revert
+            s.UpdateCell(0, 0, null);
+
+            // Then:
+            // ... Set cell should have been called on the mock update once
+            mockEdit.Verify(e => e.SetCell(0, null), Times.Once);
+
+            // ... The mock update should no longer be in the edit cache
+            Assert.Empty(s.EditCache);
+        }
+
+
 
         #endregion
 
@@ -729,6 +780,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 {
                     Assert.Equal(cachedRow[j].DisplayValue, er.Cells[j].DisplayValue);
                     Assert.Equal(cachedRow[j].IsNull, er.Cells[j].IsNull);
+                    Assert.False(er.Cells[j].IsDirty);
                 }
 
                 // ... Be clean, since we didn't apply any updates

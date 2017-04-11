@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text.RegularExpressions;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Xunit;
@@ -304,6 +306,56 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // Then: The output string should match the output string
             Regex regex = new Regex(@"N'[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}'", RegexOptions.IgnoreCase);
             Assert.True(regex.IsMatch(output));
+        }
+
+        #endregion
+
+        #region DecodeMultipartIdentifier Tests
+
+        [Theory]
+        [MemberData(nameof(DecodeMultipartIdentifierTestData))]
+        public void DecodeMultipartIdentifierTest(string input, string[] output)
+        {
+            // If: I decode the input
+            string[] decoded = SqlScriptFormatter.DecodeMultipartIdenfitier(input);
+
+            // Then: The output should match what was expected
+            Assert.Equal(output, decoded);
+        }
+
+        public static IEnumerable<object> DecodeMultipartIdentifierTestData
+        {
+            get
+            {
+                yield return new object[] {"identifier", new[] {"identifier"}};
+                yield return new object[] {"simple.split", new[] {"simple", "split"}};
+                yield return new object[] {"multi.simple.split", new[] {"multi", "simple", "split"}};
+                yield return new object[] {"[escaped]", new[] {"escaped"}};
+                yield return new object[] {"[escaped].[split]", new[] {"escaped", "split"}};
+                yield return new object[] {"[multi].[escaped].[split]", new[] {"multi", "escaped", "split"}};
+                yield return new object[] {"[escaped]]characters]", new[] {"escaped]characters"}};
+                yield return new object[] {"[multi]]escaped]]chars]", new[] {"multi]escaped]chars"}};
+                yield return new object[] {"[multi]]]]chars]", new[] {"multi]]chars"}};
+                yield return new object[] {"unescaped]chars", new[] {"unescaped]chars"}};
+                yield return new object[] {"multi]unescaped]chars", new[] {"multi]unescaped]chars"}};
+                yield return new object[] {"multi]]chars", new[] {"multi]]chars"}};
+                yield return new object[] {"[escaped.dot]", new[] {"escaped.dot"}};
+                yield return new object[] {"mixed.[escaped]", new[] {"mixed", "escaped"}};
+                yield return new object[] {"[escaped].mixed", new[] {"escaped", "mixed"}};
+                yield return new object[] {"dbo.[[].weird", new[] {"dbo", "[", "weird"}};
+            }
+        }
+
+        [Theory]
+        [InlineData("[bracket]closed")]
+        [InlineData("[bracket][closed")]
+        [InlineData(".stuff")]
+        [InlineData(".")]
+        public void DecodeMultipartIdentifierFailTest(string input)
+        {
+            // If: I decode an invalid input
+            // Then: It should throw an exception
+            Assert.Throws<FormatException>(() => SqlScriptFormatter.DecodeMultipartIdenfitier(input));
         }
 
         #endregion

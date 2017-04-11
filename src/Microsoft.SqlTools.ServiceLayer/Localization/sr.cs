@@ -421,6 +421,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataMetadataNotExtended
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataNotExtended);
+            }
+        }
+
+        public static string EditDataMetadataObjectNameRequired
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataObjectNameRequired);
+            }
+        }
+
+        public static string EditDataMetadataTooManyIdentifiers
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataTooManyIdentifiers);
+            }
+        }
+
         public static string EditDataFilteringNegativeLimit
         {
             get
@@ -853,6 +877,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlScriptFormatterMultipartDecodeFail
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlScriptFormatterMultipartDecodeFail);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -1117,6 +1149,15 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EditDataSessionAlreadyInitializing = "EditDataSessionAlreadyInitializing";
 
 
+            public const string EditDataMetadataNotExtended = "EditDataMetadataNotExtended";
+
+
+            public const string EditDataMetadataObjectNameRequired = "EditDataMetadataObjectNameRequired";
+
+
+            public const string EditDataMetadataTooManyIdentifiers = "EditDataMetadataTooManyIdentifiers";
+
+
             public const string EditDataFilteringNegativeLimit = "EditDataFilteringNegativeLimit";
 
 
@@ -1280,6 +1321,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SqlScriptFormatterDecimalMissingPrecision = "SqlScriptFormatterDecimalMissingPrecision";
+
+
+            public const string SqlScriptFormatterMultipartDecodeFail = "SqlScriptFormatterMultipartDecodeFail";
 
 
             private Keys()

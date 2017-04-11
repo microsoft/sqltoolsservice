@@ -23,6 +23,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class RowEditBaseTests
     {
+        [Fact]
+        public void ConstructWithoutExtendedMetadata()
+        {
+            // Setup: Create a table metadata that has not been extended
+            EditTableMetadata etm = new EditTableMetadata();
+
+            // If: I construct a new EditRowBase implementation without an extended metadata
+            // Then: I should get an exception
+            Assert.Throws<ArgumentException>(() => new RowEditTester(null, etm));
+        }
+
         [Theory]
         [InlineData(-1)]        // Negative index
         [InlineData(2)]         // Equal to count of columns
@@ -30,16 +41,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task ValidateUpdatableColumnOutOfRange(int columnId)
         {
             // Setup: Create a result set
-            ResultSet rs = await GetResultSet(
+            var rs = await GetResultSet(
                 new DbColumn[] {
                     new TestDbColumn("id") {IsKey = true, IsAutoIncrement = true, IsIdentity = true},
                     new TestDbColumn("col1")
                 },
                 new object[] { "id", "1" });
+            var etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I validate a column ID that is out of range
             // Then: It should throw
-            RowEditTester tester = new RowEditTester(rs, null);
+            RowEditTester tester = new RowEditTester(rs, etm);
             Assert.Throws<ArgumentOutOfRangeException>(() => tester.ValidateColumn(columnId));
         }
 
@@ -47,16 +59,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task ValidateUpdatableColumnNotUpdatable()
         {
             // Setup: Create a result set with an identity column
-            ResultSet rs = await GetResultSet(
+            var rs = await GetResultSet(
                 new DbColumn[] {
                     new TestDbColumn("id") {IsKey = true, IsAutoIncrement = true, IsIdentity = true},
                     new TestDbColumn("col1")
                 },
                 new object[] { "id", "1" });
+            var etm = Common.GetStandardMetadata(rs.Columns);
 
             // If: I validate a column ID that is not updatable
             // Then: It should throw
-            RowEditTester tester = new RowEditTester(rs, null);
+            RowEditTester tester = new RowEditTester(rs, etm);
             Assert.Throws<InvalidOperationException>(() => tester.ValidateColumn(0));
         }
 
@@ -307,7 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 throw new NotImplementedException();
             }
 
-            public override string RevertCell(int columnId)
+            public override EditRevertCellResult RevertCell(int columnId)
             {
                 throw new NotImplementedException();
             }

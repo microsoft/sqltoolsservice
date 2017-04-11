@@ -601,6 +601,26 @@
         <target state="new">NULL</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlScriptFormatterMultipartDecodeFail">
+        <source>Multipart identifier is incorrectly formatted</source>
+        <target state="new">Multipart identifier is incorrectly formatted</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataObjectNameRequired">
+        <source>A object name must be provided</source>
+        <target state="new">A object name must be provided</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataTooManyIdentifiers">
+        <source>Explicitly specifying server or database is not supported</source>
+        <target state="new">Explicitly specifying server or database is not supported</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataNotExtended">
+        <source>Table metadata does not have extended properties</source>
+        <target state="new">Table metadata does not have extended properties</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

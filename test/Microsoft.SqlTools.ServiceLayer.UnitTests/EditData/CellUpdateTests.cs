@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Xunit;
@@ -241,6 +242,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... We don't care *too* much about the raw value, but we'll check it anyhow
             Assert.Equal(isNull ? (object)DBNull.Value : value, dbc.RawObject);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AsEditCellValue(bool isNull)
+        {
+            // Setup: Create a cell update
+            var value = isNull ? "NULL" : "foo";
+            var col = GetWrapper<string>("NTEXT");
+            CellUpdate cu = new CellUpdate(col, value);
+
+            // If: I convert the cell update to an EditCell
+            EditCell ec = cu.AsEditCell;
+
+            // Then:
+            // ... It should not be null
+            Assert.NotNull(ec);
+
+            // ... The display value should be the same as the value we supplied
+            Assert.Equal(value, ec.DisplayValue);
+
+            // ... The null-ness of the value should be the same as what we supplied
+            Assert.Equal(isNull, ec.IsNull);
+
+            // ... We don't care *too* much about the raw value, but we'll check it anyhow
+            Assert.Equal(isNull ? (object)DBNull.Value : value, ec.RawObject);
+
+            // ... The edit cell should be dirty
+            Assert.True(ec.IsDirty);
         }
 
         private static DbColumnWrapper GetWrapper<T>(string dataTypeName, bool allowNull = true)

@@ -11,34 +11,38 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.EditData
+namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
+    /// <summary>
+    /// Interface for a factory that generates metadata for an object to edit
+    /// </summary>
+    public interface IMetadataFactory
+    {
+        /// <summary>
+        /// Generates a edit-ready metadata object
+        /// </summary>
+        /// <param name="connection">Connection to use for getting metadata</param>
+        /// <param name="objectName">Name of the object to return metadata for</param>
+        /// <param name="objectType">Type of the object to return metadata for</param>
+        /// <returns>Metadata about the object requested</returns>
+        TableMetadata GetObjectMetadata(DbConnection connection, string schemaName, string objectName, string objectType);
+    }
+
     /// <summary>
     /// Factory that generates metadata using a combination of SMO and SqlClient metadata
     /// </summary>
-    public class SmoEditMetadataFactory : IEditMetadataFactory
+    public class SmoMetadataFactory : IMetadataFactory
     {
         /// <summary>
         /// Generates a edit-ready metadata object using SMO
         /// </summary>
         /// <param name="connection">Connection to use for getting metadata</param>
-        /// <param name="objectNamedParts">Split and unwrapped name parts</param>
+        /// <param name="objectName">Name of the object to return metadata for</param>
         /// <param name="objectType">Type of the object to return metadata for</param>
         /// <returns>Metadata about the object requested</returns>
-        public EditTableMetadata GetObjectMetadata(DbConnection connection, string[] objectNamedParts, string objectType)
+        public TableMetadata GetObjectMetadata(DbConnection connection, string schemaName, string objectName, string objectType)
         {
-            Validate.IsNotNull(nameof(objectNamedParts), objectNamedParts);
-            if (objectNamedParts.Length <= 0)
-            {
-                throw new ArgumentNullException(nameof(objectNamedParts), SR.EditDataMetadataObjectNameRequired);
-            }
-            if (objectNamedParts.Length > 2)
-            {
-                throw new InvalidOperationException(SR.EditDataMetadataTooManyIdentifiers);
-            }
-
             // Get a connection to the database for SMO purposes
             SqlConnection sqlConn = connection as SqlConnection;
             if (sqlConn == null)
@@ -57,33 +61,30 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
 
             // Connect with SMO and get the metadata for the table
             Server server = new Server(new ServerConnection(sqlConn));
-            Database db = new Database(server, sqlConn.Database);
+            Database database = server.Databases[sqlConn.Database];
             TableViewTableTypeBase smoResult;
             switch (objectType.ToLowerInvariant())
             {
-                case "table":
-                    smoResult = objectNamedParts.Length == 1
-                        ? new Table(db, objectNamedParts[0])                        // No schema provided
-                        : new Table(db, objectNamedParts[1], objectNamedParts[0]);  // Schema provided
+                case "table":                    
+                    Table table = string.IsNullOrEmpty(schemaName) ? new Table(database, objectName) : new Table(database, objectName, schemaName);
+                    table.Refresh();
+                    smoResult = table;
                     break;
                 case "view":
-                    smoResult = objectNamedParts.Length == 1
-                        ? new View(db, objectNamedParts[0])                         // No schema provided
-                        : new View(db, objectNamedParts[1], objectNamedParts[0]);   // Schema provided
+                    View view = string.IsNullOrEmpty(schemaName) ? new View(database, objectName) : new View(database, objectName, schemaName);
+                    view.Refresh();
+                    smoResult = view;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
             }
-
-            // A bug in SMO makes it necessary to call refresh to attain certain properties (such as IsMemoryOptimized)
-            smoResult.Refresh();
-            if (smoResult.State != SqlSmoState.Existing)
+            if (smoResult == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(objectNamedParts), SR.EditDataObjectNotFound);
+                throw new ArgumentOutOfRangeException(nameof(objectName), SR.EditDataObjectMetadataNotFound);
             }
-            
+
             // Generate the edit column metadata
-            List<EditColumnMetadata> editColumns = new List<EditColumnMetadata>();
+            List<ColumnMetadata> editColumns = new List<ColumnMetadata>();
             for (int i = 0; i < smoResult.Columns.Count; i++)
             {
                 Column smoColumn = smoResult.Columns[i];
@@ -93,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     ? null
                     : SqlScriptFormatter.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
 
-                EditColumnMetadata column = new EditColumnMetadata
+                ColumnMetadata column = new ColumnMetadata
                 {
                     DefaultValue = defaultValue,
                     EscapedName = SqlScriptFormatter.FormatIdentifier(smoColumn.Name),
@@ -110,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             string[] objectNameParts = {smoResult.Schema, smoResult.Name};
             string escapedMultipartName = SqlScriptFormatter.FormatMultipartIdentifier(objectNameParts);
 
-            return new EditTableMetadata
+            return new TableMetadata
             {
                 Columns = editColumns.ToArray(),
                 EscapedMultipartName = escapedMultipartName,

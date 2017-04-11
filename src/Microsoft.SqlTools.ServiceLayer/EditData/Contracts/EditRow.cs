@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
         /// The cells in the row. If the row has pending changes, they will be represented in
         /// this list
         /// </summary>
-        public DbCellValue[] Cells { get; set; }
+        public EditCell[] Cells { get; set; }
 
         /// <summary>
         /// Internal ID of the row. This should be used whenever referencing a row in row edit operations.

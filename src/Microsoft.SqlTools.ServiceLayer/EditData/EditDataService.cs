@@ -82,6 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest);
             serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest);
             serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest);
+            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest);
         }
 
         #region Request Handlers
@@ -183,14 +184,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal Task HandleRevertCellRequest(EditRevertCellParams revertParams,
             RequestContext<EditRevertCellResult> requestContext)
         {
-            return HandleSessionRequest(revertParams, requestContext, session =>
-            {
-                string newValue = session.RevertCell(revertParams.RowId, revertParams.ColumnId);
-                return new EditRevertCellResult
-                {
-                    NewValue = newValue
-                };
-            });
+            return HandleSessionRequest(revertParams, requestContext,
+                session => session.RevertCell(revertParams.RowId, revertParams.ColumnId));
         }
 
         internal Task HandleRevertRowRequest(EditRevertRowParams revertParams,
@@ -203,18 +198,26 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             });
         }
 
-        internal Task HandleSubsetRequest(EditSubsetParams subsetParams,
+        internal async Task HandleSubsetRequest(EditSubsetParams subsetParams,
             RequestContext<EditSubsetResult> requestContext)
         {
-            return HandleSessionRequest(subsetParams, requestContext, session =>
+            try
             {
-                EditRow[] rows = session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount).Result;
-                return new EditSubsetResult
+                EditSession session = GetActiveSessionOrThrow(subsetParams.OwnerUri);
+
+                EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
+                EditSubsetResult result = new EditSubsetResult
                 {
                     RowCount = rows.Length,
                     Subset = rows
                 };
-            });
+
+                await requestContext.SendResult(result);
+            }
+            catch(Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         internal Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,

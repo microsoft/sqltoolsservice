@@ -6,6 +6,7 @@
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -99,6 +100,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                     RawObject = Value
                 };
             }
+        }
+
+        /// <summary>
+        /// Generates a new EditCell that represents the contents of the cell update
+        /// </summary>
+        public EditCell AsEditCell
+        {
+            get { return new EditCell(AsDbCellValue, true); }
         }
 
         /// <summary>

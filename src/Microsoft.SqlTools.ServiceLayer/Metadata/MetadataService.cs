@@ -53,6 +53,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
+            serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest);
+            serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest);
         }
 
         /// <summary>
@@ -79,6 +81,62 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 await requestContext.SendResult(new MetadataQueryResult
                 {
                     Metadata = metadata.ToArray()
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handle a table metadata query request
+        /// </summary>        
+        internal static async Task HandleGetTableRequest(
+            TableMetadataParams metadataParams,
+            RequestContext<TableMetadataResult> requestContext)
+        {
+            await HandleGetTableOrViewRequest(metadataParams, "table", requestContext);
+        }
+
+        /// <summary>
+        /// Handle a view metadata query request
+        /// </summary>        
+        internal static async Task HandleGetViewRequest(
+            TableMetadataParams metadataParams,
+            RequestContext<TableMetadataResult> requestContext)
+        {
+            await HandleGetTableOrViewRequest(metadataParams, "view", requestContext);
+        }
+
+        /// <summary>
+        /// Handle a table pr view metadata query request
+        /// </summary>        
+        private static async Task HandleGetTableOrViewRequest(
+            TableMetadataParams metadataParams,
+            string objectType,
+            RequestContext<TableMetadataResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                MetadataService.ConnectionServiceInstance.TryFindConnection(
+                    metadataParams.OwnerUri,
+                    out connInfo);
+
+                ColumnMetadata[] metadata = null;
+                if (connInfo != null) 
+                {
+                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);                    
+                    TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
+                        sqlConn, metadataParams.Schema, 
+                        metadataParams.ObjectName, objectType);
+                    metadata = table.Columns;               
+                }
+
+                await requestContext.SendResult(new TableMetadataResult
+                {
+                    Columns = metadata    
                 });
             }
             catch (Exception ex)
@@ -162,6 +220,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     }
                 }
             }
-        }        
+        }
     }
 }

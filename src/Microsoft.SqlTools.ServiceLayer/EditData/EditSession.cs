@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData
@@ -282,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     EditRow er = new EditRow
                     {
                         Id = rowId,
-                        Cells = cachedRows.Rows[i],
+                        Cells = cachedRows.Rows[i].Select(cell => new EditCell(cell, false)).ToArray(),
                         State = EditRow.EditRowState.Clean
                     };
                     editRows.Add(er);
@@ -307,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         /// <param name="rowId">Internal ID of the row to have its edits reverted</param>
         /// <param name="columnId">Ordinal ID of the column to revert</param>
         /// <returns>String version of the old value for the cell</returns>
-        public string RevertCell(long rowId, int columnId)
+        public EditRevertCellResult RevertCell(long rowId, int columnId)
         {
             ThrowIfNotInitialized();
 
@@ -318,8 +319,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataUpdateNotPending);
             }
 
+            // Update the row
+            EditRevertCellResult revertResult = pendingEdit.RevertCell(columnId);
+            CleanupEditIfRowClean(rowId, revertResult);
+
             // Have the edit base revert the cell
-            return pendingEdit.RevertCell(columnId);
+            return revertResult;
         }
 
         /// <summary>
@@ -409,8 +414,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             // doesn't already exist in the cache
             RowEditBase editRow = EditCache.GetOrAdd(rowId, key => new RowUpdate(rowId, associatedResultSet, objectMetadata));
 
-            // Pass the call to the row update
-            return editRow.SetCell(columnId, newValue);
+            // Update the row
+            EditUpdateCellResult result = editRow.SetCell(columnId, newValue);
+            CleanupEditIfRowClean(rowId, result);
+
+            return result;
         }
 
         #endregion
@@ -423,14 +431,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             try
             {
                 // Step 1) Look up the SMO metadata
-                objectMetadata = metadataFactory.GetObjectMetadata(await connector(), initParams.ObjectName,
+                string[] namedParts = SqlScriptFormatter.DecodeMultipartIdenfitier(initParams.ObjectName);
+                objectMetadata = metadataFactory.GetObjectMetadata(await connector(), namedParts,
                     initParams.ObjectType);
 
                 // Step 2) Get and execute a query for the rows in the object we're looking up
                 EditSessionQueryExecutionState state = await queryRunner(ConstructInitializeQuery(objectMetadata, initParams.Filters));
                 if (state.Query == null)
                 {
-                    // TODO: Move to SR file
                     string message = state.Message ?? SR.EditDataQueryFailed;
                     throw new Exception(message);
                 }
@@ -440,6 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 NextRowId = associatedResultSet.RowCount;
                 EditCache = new ConcurrentDictionary<long, RowEditBase>();
                 IsInitialized = true;
+                objectMetadata.Extend(associatedResultSet.Columns);
 
                 // Step 4) Return our success
                 await successHandler();
@@ -517,6 +526,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 throw new InvalidOperationException(SR.EditDataSessionNotInitialized);
             }
+        }
+
+        /// <summary>
+        /// Removes the edit from the edit cache if the row is no longer dirty
+        /// </summary>
+        /// <param name="rowId">ID of the update to cleanup</param>
+        /// <param name="editCellResult">Result with row dirty flag</param>
+        private void CleanupEditIfRowClean(long rowId, EditCellResult editCellResult)
+        {
+            // If the row is still dirty, don't do anything
+            if (editCellResult.IsRowDirty)
+            {
+                return;
+            }
+
+            // Make an attempt to remove the clean row edit. If this fails, it'll be handled on commit attempt.
+            RowEditBase removedRow;
+            EditCache.TryRemove(rowId, out removedRow);
         }
 
         #endregion

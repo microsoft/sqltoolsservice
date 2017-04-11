@@ -7,14 +7,19 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
 {
+    /// <summary>
+    /// Parameters for the cell revert request
+    /// </summary>
     public class EditRevertCellParams : RowOperationParams
     {
         public int ColumnId { get; set; }
     }
 
-    public class EditRevertCellResult
+    /// <summary>
+    /// Parameters to return upon successful revert of the cell
+    /// </summary>
+    public class EditRevertCellResult : EditCellResult
     {
-        public string NewValue { get; set; }
     }
 
     public class EditRevertCellRequest
