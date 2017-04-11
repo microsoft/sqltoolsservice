@@ -2,7 +2,7 @@
   "name": "Microsoft.SqlTools.Credentials",
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable",
+    "debugType": "full",
     "emitEntryPoint": true,
     "embed": [
       "../Microsoft.SqlTools.ServiceLayer/Localization/sr.es.resx",

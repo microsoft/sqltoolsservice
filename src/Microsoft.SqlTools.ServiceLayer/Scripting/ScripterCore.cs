@@ -9,8 +9,8 @@ using System.Collections.Specialized;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -20,8 +20,8 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
-using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -151,6 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     }
                     StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
                     // if declarationItem matches the selected token, script SMO using that type
+
                     if (declarationItem.Title.Equals(tokenText, caseSensitivity))
                     {
                         return GetDefinitionUsingDeclarationType(declarationItem.Type, declarationItem.DatabaseQualifiedName, tokenText, schemaName);

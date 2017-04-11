@@ -2,7 +2,7 @@
   "name": "Microsoft.SqlTools.Hosting",
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable",
+    "debugType": "full",
     "emitEntryPoint": false
   },
   "configurations": {
