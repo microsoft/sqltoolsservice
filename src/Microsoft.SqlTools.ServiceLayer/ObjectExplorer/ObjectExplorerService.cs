@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Composition;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
     /// A Service to support querying server and database information as an Object Explorer tree.
     /// The APIs used for this are modeled closely on the VSCode TreeExplorerNodeProvider API.
     /// </summary>
+    [Export(typeof(IHostedService))]
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService
     {
         internal const string uriPrefix = "objectexplorer://";
