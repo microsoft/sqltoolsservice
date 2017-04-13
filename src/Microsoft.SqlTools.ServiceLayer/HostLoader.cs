@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -85,6 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
+            serviceHost.ServiceProvider = serviceProvider;
 
             serviceHost.InitializeRequestHandlers();
         }

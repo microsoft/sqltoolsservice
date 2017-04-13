@@ -45,6 +45,8 @@ END
 
         public static string TestDbComplexSelectQueries { get { return TestDbSelectQueriesInstance.Value; } }
 
+        public static string AdventureWorksScript { get { return AdventureWorksScriptInstance.Value; } }
+
         private static readonly Lazy<string> CreateDatabaseObjectsQueryInstance = new Lazy<string>(() =>
         {
             return GetScriptFileContent(ResourceNameRefix + "CreateTestDatabaseObjects.sql");
@@ -58,6 +60,11 @@ END
         private static readonly Lazy<string> TestDbSelectQueriesInstance = new Lazy<string>(() =>
         {
             return GetScriptFileContent(ResourceNameRefix + "TestDbTableQueries.sql");
+        });
+
+        private static readonly Lazy<string> AdventureWorksScriptInstance = new Lazy<string>(() =>
+        {
+            return GetScriptFileContent(ResourceNameRefix + "AdventureWorks.sql");
         });
 
         private static string GetScriptFileContent(string fileName)

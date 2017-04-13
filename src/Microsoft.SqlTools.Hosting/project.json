@@ -2,8 +2,9 @@
   "name": "Microsoft.SqlTools.Hosting",
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "full",
-    "emitEntryPoint": false
+    "debugType": "portable",
+    "emitEntryPoint": false,
+    "preserveCompilationContext": true
   },
   "configurations": {
     "Integration": {

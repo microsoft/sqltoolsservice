@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddErrorValidation<string>(Assert.NotEmpty)
+                .AddStandardErrorValidation()
                 .Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
             subsetRequest.Validate();
@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I then ask for a valid set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddErrorValidation<string>(Assert.NotEmpty)
+                .AddStandardErrorValidation()
                 .Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
             subsetRequest.Validate();
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I then ask for a set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
             var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddErrorValidation<string>(Assert.NotEmpty)
+                .AddStandardErrorValidation()
                 .Complete();
             await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
             subsetRequest.Validate();

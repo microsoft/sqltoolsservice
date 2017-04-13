@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  This XML file defines how to query for a given SMO type based on a parent/child or
+  XPath relationship. From this file, the paths to query each type should be buildable
+  into code using a T4 template.
+  
+  Key properties:
+  Name: This maps 
+  Type: Optional SMO type. If not specified, the Name without the Sql prefix is used
+  Parent: Expected parent type. Needed to codegen the response. if there are multiple parents
+    then each one
+  NavigationPath: For types whose access path differs based on parent or needs custom navigation
+    this can be used.
+  
+-->
+<SmoQueryModel>
+  <!--<Node Name="SqlServer"/> -->
+  <Node Name="SqlDatabase" Type="Database" Parent="Server" />
+  <Node Name="SqlLinkedServerLogin" Type="LinkedServer" Parent="Server"/>
+  <Node Name="SqlLogin" Type="Login" Parent="Server" />
+  <Node Name="SqlServerRole" Type="" Parent="Server" >
+    <NavigationPath Parent="Server" Field="Roles" />
+  </Node>
+  
+  <Node Name="SqlCredential" Parent="Server" />
+  <Node Name="SqlCryptographicProvider" Parent="Server" />
+  <Node Name="SqlServerAudit" Type="Audit" Parent="Server" />
+  <Node Name="SqlServerAuditSpecification" Type="ServerAuditSpecification" Parent="Server"/>
+  
+  <Node Name="SqlEndpoint" Parent="Server"/>
+  <Node Name="SqlLinkedServer" Parent="Server" />
+  <Node Name="SqlServerDdlTrigger" Parent="Server" >
+    <NavigationPath Parent="Server" Field="Triggers" />
+  </Node>
+
+  <Node Name="SqlErrorMessage" Type="UserDefinedMessage" Parent="Server" />
+
+  <Node Name="SqlTable" Parent="Database" />
+  <Node Name="SqlView" Parent="Database" />
+
+  <Node Name="SqlSynonym" Parent="Database" />
+
+  <Node Name="SqlColumn" Parent="TableViewTableTypeBase"/>
+  <Node Name="SqlIndex" Parent="TableViewTableTypeBase">
+    <NavigationPath Parent="TableViewTableTypeBase" Field="Indexes" />
+  </Node>
+
+  <Node Name="SqlCheck" Parent="Table"/>
+  <Node Name="SqlForeignKeyConstraint" Type="ForeignKey" Parent="Table" />
+  <Node Name="SqlDefaultConstraint" Parent="Column" Collection="False" />
+  <Node Name="SqlDmlTrigger" Type="Trigger" Parent="Table" />
+  <Node Name="SqlFullTextIndex" Parent="Table" Collection="False" />
+  <Node Name="SqlStatistic" Parent="TableViewBase"/>
+
+  <Node Name="SqlDatabaseDdlTrigger" Type="Trigger" Parent="Database"/>
+  <Node Name="SqlAssembly" Type="SqlAssembly" Parent="Database" >
+    <NavigationPath Parent="Database" Field="Assemblies" />
+  </Node>
+
+  <Node Name="SqlRule" Parent="Database" />
+  <Node Name="SqlDefault" Parent="Database" />
+  <Node Name="SqlSequence" Parent="Database" />
+
+  <Node Name="SqlSystemDataType" Parent="Server" />
+  <Node Name="SqlUserDefinedDataType" Parent="Database" />
+
+  <Node Name="SqlUserDefinedTableType" Parent="Database" />
+  <Node Name="SqlXmlSchemaCollection" />
+  <Node Name="SqlUserDefinedType" />
+
+  <Node Name="SqlUserDefinedFunction" />
+
+  <Node Name="SqlUserDefinedAggregate" />
+
+  <Node Name="SqlFileGroup" />
+  <Node Name="SqlFile" Type="DataFile" Parent="FileGroup" >
+    <NavigationPath Parent="FileGroup" Field="Files" />
+  </Node>
+  
+  <Node Name="SqlFullTextCatalog"/>
+  <Node Name="SqlFullTextStopList" />
+  <Node Name="SqlPartitionFunction"/>
+  <Node Name="SqlPartitionScheme"/>
+  <Node Name="SqlSearchPropertyList" />
+  <Node Name="SqlUser"/>
+  <Node Name="SqlSchema"/>
+  <Node Name="SqlAsymmetricKey" />
+  <Node Name="SqlCertificate" />
+  <Node Name="SqlSymmetricKey" />
+  <Node Name="SqlDatabaseEncryptionKey" Collection="False" />
+  <Node Name="SqlMasterKey" Collection="False" />
+  <Node Name="SqlDatabaseAuditSpecification" />
+  <Node Name="SqlSecurityPolicy" >
+    <NavigationPath Parent="Database" Field="SecurityPolicies" />
+  </Node>
+  <Node Name="SqlDatabaseCredential" Type="DatabaseScopedCredential"/>
+  <Node Name="SqlRole" Type="DatabaseRole" >
+    <NavigationPath Parent="Database" Field="Roles" />
+  </Node>
+  <Node Name="SqlApplicationRole" />
+  <Node Name="SqlColumnMasterKey" />
+  <Node Name="SqlColumnEncryptionKey" />
+  
+  <Node Name="SqlServiceBroker" Type="ServiceBroker" Collection="False" />
+  <Node Name="SqlService" Type="BrokerService" Parent="ServiceBroker" >
+    <NavigationPath Parent="ServiceBroker" Field="Services" />
+  </Node>
+  <Node Name="SqlContract" Type="ServiceContract" Parent="ServiceBroker" />
+  <Node Name="SqlQueue" Type="ServiceQueue" Parent="ServiceBroker" >
+    <NavigationPath Parent="ServiceBroker" Field="Queues" />
+  </Node>
+  <Node Name="SqlRemoteServiceBinding" Parent="ServiceBroker" />
+  <Node Name="SqlBrokerPriority" Parent="ServiceBroker" >
+    <NavigationPath Parent="ServiceBroker" Field="Priorities" />
+  </Node>
+  
+  <Node Name="SqlMessageType" Parent="ServiceBroker"/>
+
+  <Node Name="SqlExternalDataSource" />
+  <Node Name="SqlExternalFileFormat" />
+
+  <Node Name="SqlProcedure" Type="StoredProcedure"/>
+  <Node Name="SqlExtendedStoredProcedure" />
+  <Node Name="SqlSubroutineParameter" Type="Parameter" >
+    <Parent>StoredProcedure</Parent>
+    <Parent>UserDefinedAggregate</Parent>
+    <Parent>UserDefinedFunction</Parent>
+  </Node>
+
+  <Node Name="SqlPartitionFunctionParameter" Parent="PartitionFunction" />
+
+  <Node Name="SqlBuiltInType" Type="SystemDataType" Parent="Server"/>
+  <!-- TODO Enable all types
+  <Node Name="SqlRoute"/>
+  -->
+  <!-- Signatures appear to be missing entirely from SMO and SSMS object explorer...
+  <Node Name="SqlSignature" />
+  -->
+  <!-- TODO find mapping - exists in SSDT but not SSMS / SMO?
+  <Node Name="SqlEventNotification" Parent="ServiceBroker" />
+   -->
+  <!-- TODO Requires XEvents SMO DLL in .Net Core 
+  <Node Name="SqlEventSession" Type="Session" />
+  <Node Name="SqlServerEventNotification" Type="Event" Parent="Server" />
+  -->
+</SmoQueryModel>

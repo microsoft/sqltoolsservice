@@ -695,6 +695,8 @@ GO";
             Assert.True(connInfo.ConnectionTypeToConnectionMap.TryRemove(ConnectionType.Query, out connection));
         }
 
+        // Temporily commented out until a fix is pushed.
+
         /// <summary>
         /// Get Definition for a object with no definition. Expect a error result
         /// </summary>
@@ -717,7 +719,7 @@ GO";
             LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
-
+            connInfo.RemoveAllConnections();
             var bindingQueue = new ConnectedBindingQueue();
             bindingQueue.AddConnectionContext(connInfo);
             scriptFile.Contents = queryString;
@@ -749,6 +751,7 @@ GO";
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
             service.ScriptParseInfoMap.Remove(OwnerUri);
+            connInfo.RemoveAllConnections();
         }
 
         [Fact]
@@ -771,6 +774,7 @@ GO";
             LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            connInfo.RemoveAllConnections();
             var bindingQueue = new ConnectedBindingQueue();
             bindingQueue.AddConnectionContext(connInfo);
             scriptFile.Contents = queryString;
@@ -802,6 +806,7 @@ GO";
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
             service.ScriptParseInfoMap.Remove(TestUri);
+            connInfo.RemoveAllConnections();
         }
 
 

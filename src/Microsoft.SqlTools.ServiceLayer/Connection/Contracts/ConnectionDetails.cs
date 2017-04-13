@@ -486,5 +486,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 Options.Add(name, value);
             }
         }
+
+        public bool IsComparableTo(ConnectionDetails other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (!string.Equals(ServerName, other.ServerName)
+                || !string.Equals(AuthenticationType, other.AuthenticationType)
+                || !string.Equals(UserName, other.UserName))
+            {
+                return false;
+            }
+
+            // For database name, only compare if neither is empty. This is important
+            // Since it allows for handling of connections to the default database, but is
+            // not a 100% accurate heuristic.
+            if (!string.IsNullOrEmpty(DatabaseName)
+                && !string.IsNullOrEmpty(other.DatabaseName)
+                && !string.Equals(DatabaseName, other.DatabaseName))
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

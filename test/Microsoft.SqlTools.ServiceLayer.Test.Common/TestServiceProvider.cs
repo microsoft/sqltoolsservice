@@ -8,6 +8,7 @@ using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -42,6 +43,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             get
             {
                 return CredentialService.Instance;
+            }
+        }
+
+        public ObjectExplorerService ObjectExplorerService
+        {
+            get
+            {
+                var serviceProvider = ServiceHost.Instance.ServiceProvider;
+                return serviceProvider.GetService<ObjectExplorerService>();
             }
         }
 
