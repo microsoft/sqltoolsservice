@@ -115,6 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             return new ConnectionCompleteParams()
             {
+                ConnectionId = Guid.NewGuid().ToString(),
                 OwnerUri = uri,
                 ConnectionSummary = new ConnectionSummary()
                 {
