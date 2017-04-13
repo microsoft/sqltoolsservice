@@ -1008,7 +1008,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Invokes the fianl on-disconnect activities if the provided DisconnectParams represents the default
+        /// Invokes the final on-disconnect activities if the provided DisconnectParams represents the default
         /// connection or is null - representing that all connections are being disconnected.
         /// </summary>
         private void InvokeOnDisconnectionActivities(ConnectionInfo connectionInfo)
