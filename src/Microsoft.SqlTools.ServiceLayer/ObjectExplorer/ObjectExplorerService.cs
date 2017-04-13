@@ -168,7 +168,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 // open connection based on request details
                 ConnectionCompleteParams result = await connectionService.Connect(connectParams);
-                return result;
+                if(result != null && !string.IsNullOrEmpty(result.ConnectionId))
+                {
+                    return result;
+                }
+                else
+                {
+                    await serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                    return null;
+                }
+               
             }
             catch (Exception ex)
             {
