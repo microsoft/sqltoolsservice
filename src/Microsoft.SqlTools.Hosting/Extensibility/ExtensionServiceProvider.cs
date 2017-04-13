@@ -220,7 +220,8 @@ namespace Microsoft.SqlTools.Extensibility
                 var apiApplicationFileInfo = new FileInfo($"{folderPath}{Path.DirectorySeparatorChar}{assemblyName.Name}.dll");
                 if (File.Exists(apiApplicationFileInfo.FullName))
                 {
-                    return LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
+                    var asl = new AssemblyLoader(apiApplicationFileInfo.DirectoryName);
+                    return asl.LoadFromAssemblyPath(apiApplicationFileInfo.FullName);
                 }
             }
             return Assembly.Load(assemblyName);

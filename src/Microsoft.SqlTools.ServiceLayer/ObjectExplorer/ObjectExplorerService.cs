@@ -81,6 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <param name="serviceHost">The service host instance to register with</param>
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
+            Logger.Write(LogLevel.Verbose, "ObjectExplorer service initialized");
             this.serviceHost = serviceHost;
             // Register handlers for requests
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
