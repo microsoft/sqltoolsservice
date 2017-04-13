@@ -3,7 +3,8 @@
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable",
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "preserveCompilationContext": true
   },
   "configurations": {
     "Integration": {
@@ -33,7 +34,7 @@
     "System.Threading.Thread": "4.0.0",
     "System.Runtime.Loader": "4.0.0",
     "System.Composition": "1.0.31-beta-24326-02",
-    "Microsoft.Extensions.DependencyModel":  "1.0.0",
+    "Microsoft.Extensions.DependencyModel": "1.0.0",
     "Microsoft.SqlTools.Hosting": {
       "target": "project"
     },
