@@ -175,7 +175,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var queryService = Common.GetPrimedExecutionService(null, true, false, workspaceService);
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddErrorValidation<string>(Assert.NotNull).Complete();
+                .AddStandardErrorValidation()
+                .Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();
         }
@@ -205,7 +206,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I then ask for a valid execution plan from it 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddErrorValidation<string>(Assert.NotNull).Complete();
+                .AddStandardErrorValidation()
+                .Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();
         }
@@ -234,7 +236,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I then ask for an execution plan from a result set 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
             var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddErrorValidation<string>(Assert.NotNull).Complete();
+                .AddStandardErrorValidation()
+                .Complete();
             await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
             executionPlanRequest.Validate();
         }

@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await requestContext.SendResult(new ExecuteRequestResult());
                 return true;
             };
-            Func<string, Task> queryCreateFailureAction = requestContext.SendError;
+            Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
 
             // Use the internal handler to launch the query
             return InterServiceExecuteQuery(executeParams, requestContext, queryCreateSuccessAction, queryCreateFailureAction, null, null);
@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             // Setup action for success and failure
             Func<Task> successAction = () => requestContext.SendResult(new QueryDisposeResult());
-            Func<string, Task> failureAction = requestContext.SendError;
+            Func<string, Task> failureAction = message => requestContext.SendError(message);
 
             // Use the inter-service dispose functionality
             await InterServiceDisposeQuery(disposeParams.OwnerUri, successAction, failureAction);
@@ -559,10 +559,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Query query;
             if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out query))
             {
-                await requestContext.SendError(new SaveResultRequestError
-                {
-                    message = SR.QueryServiceQueryInvalidOwnerUri
-                });
+                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                 return;
             }
 
@@ -574,7 +571,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ResultSet.SaveAsFailureAsyncEventHandler errorHandler = async (parameters, reason) =>
             {
                 string message = SR.QueryServiceSaveAsFail(Path.GetFileName(parameters.FilePath), reason);
-                await requestContext.SendError(new SaveResultRequestError { message = message });
+                await requestContext.SendError(message);
             };
 
             try

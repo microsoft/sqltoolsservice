@@ -72,7 +72,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.EE_ScriptError_ParsingSyntax);
             Assert.NotNull(ServiceLayerSr.EE_ScriptError_Warning);
             Assert.NotNull(ServiceLayerSr.ErrorEmptyStringReplacement);
-            Assert.NotNull(ServiceLayerSr.ErrorUnexpectedCodeObjectType);
             Assert.Null(ServiceLayerSr.HostingHeaderMissingColon);
             Assert.Null(ServiceLayerSr.HostingHeaderMissingContentLengthHeader);
             Assert.Null(ServiceLayerSr.HostingHeaderMissingContentLengthValue);

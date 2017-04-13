@@ -311,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = "notConnected", QuerySelection = Common.WholeDocument };
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
-                .AddErrorValidation<string>(Assert.NotEmpty)
+                .AddStandardErrorValidation()
                 .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -339,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... And then I request another query without waiting for the first to complete
             queryService.ActiveQueries[Constants.OwnerUri].HasExecuted = false; // Simulate query hasn't finished
             var efv = new EventFlowValidator<ExecuteRequestResult>()
-                .AddErrorValidation<string>(Assert.NotEmpty)
+                .AddStandardErrorValidation()
                 .Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -395,7 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = null};
 
             var efv = new EventFlowValidator<ExecuteRequestResult>()
-                .AddErrorValidation<string>(Assert.NotEmpty)
+                .AddStandardErrorValidation()
                 .Complete();
             await queryService.HandleExecuteRequest(queryParams, efv.Object);
 

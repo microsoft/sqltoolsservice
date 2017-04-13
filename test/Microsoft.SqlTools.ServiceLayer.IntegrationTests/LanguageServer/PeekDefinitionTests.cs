@@ -695,6 +695,8 @@ GO";
             Assert.True(connInfo.ConnectionTypeToConnectionMap.TryRemove(ConnectionType.Query, out connection));
         }
 
+        // Temporily commented out until a fix is pushed.
+
         /// <summary>
         /// Get Definition for a object with no definition. Expect a error result
         /// </summary>
