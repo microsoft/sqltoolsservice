@@ -7,6 +7,7 @@ using System.Globalization;
 using Xunit;
 
 using ServiceLayerSr = Microsoft.SqlTools.ServiceLayer.Localization.sr;
+using HostingSr = Microsoft.SqlTools.Hosting.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -49,11 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.ConnectionServiceDbErrorDefaultNotConnected);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceListDbErrorNotConnected);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceListDbErrorNullOwnerUri);
-            Assert.Null(ServiceLayerSr.CredentialServiceWin32CredentialDisposed);
-            Assert.Null(ServiceLayerSr.CredentialsServiceInvalidCriticalHandle);
-            Assert.Null(ServiceLayerSr.CredentialsServicePasswordLengthExceeded);
-            Assert.Null(ServiceLayerSr.CredentialsServiceTargetForDelete);
-            Assert.Null(ServiceLayerSr.CredentialsServiceTargetForLookup);
+            Assert.NotNull(HostingSr.CredentialServiceWin32CredentialDisposed);
+            Assert.NotNull(HostingSr.CredentialsServiceInvalidCriticalHandle);
+            Assert.NotNull(HostingSr.CredentialsServicePasswordLengthExceeded);
+            Assert.NotNull(HostingSr.CredentialsServiceTargetForDelete);
+            Assert.NotNull(HostingSr.CredentialsServiceTargetForLookup);
             Assert.NotNull(ServiceLayerSr.EE_BatchError_Exception);
             Assert.NotNull(ServiceLayerSr.EE_BatchExecutionError_Halting);
             Assert.NotNull(ServiceLayerSr.EE_BatchExecutionError_Ignoring);
@@ -72,12 +73,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.EE_ScriptError_ParsingSyntax);
             Assert.NotNull(ServiceLayerSr.EE_ScriptError_Warning);
             Assert.NotNull(ServiceLayerSr.ErrorEmptyStringReplacement);
-            Assert.Null(ServiceLayerSr.HostingHeaderMissingColon);
-            Assert.Null(ServiceLayerSr.HostingHeaderMissingContentLengthHeader);
-            Assert.Null(ServiceLayerSr.HostingHeaderMissingContentLengthValue);
-            Assert.Null(ServiceLayerSr.HostingUnexpectedEndOfStream);
-            Assert.Null(ServiceLayerSr.IncompatibleServiceForExtensionLoader);
-            Assert.Null(ServiceLayerSr.MultipleServicesFound);
+            Assert.NotNull(HostingSr.HostingHeaderMissingColon);
+            Assert.NotNull(HostingSr.HostingHeaderMissingContentLengthHeader);
+            Assert.NotNull(HostingSr.HostingHeaderMissingContentLengthValue);
+            Assert.NotNull(HostingSr.HostingUnexpectedEndOfStream);
+            Assert.NotNull(HostingSr.IncompatibleServiceForExtensionLoader);
+            Assert.NotNull(HostingSr.MultipleServicesFound);
             Assert.NotNull(ServiceLayerSr.PeekDefinitionAzureError);
             Assert.NotNull(ServiceLayerSr.PeekDefinitionDatabaseError);
             Assert.NotNull(ServiceLayerSr.PeekDefinitionError);
@@ -106,7 +107,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.QueryServiceRequestsNoQuery);
             Assert.NotNull(ServiceLayerSr.QueryServiceResultSetNoColumnSchema);
             Assert.NotNull(ServiceLayerSr.QueryServiceResultSetNotRead);
-            Assert.Null(ServiceLayerSr.QueryServiceResultSetReaderNull);
             Assert.NotNull(ServiceLayerSr.QueryServiceResultSetRowCountOutOfRange);
             Assert.NotNull(ServiceLayerSr.QueryServiceResultSetStartRowOutOfRange);
             Assert.NotNull(ServiceLayerSr.QueryServiceSaveAsFail);
@@ -116,10 +116,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.QueryServiceSubsetBatchNotCompleted);
             Assert.NotNull(ServiceLayerSr.QueryServiceSubsetBatchOutOfRange);
             Assert.NotNull(ServiceLayerSr.QueryServiceSubsetResultSetOutOfRange);
-            Assert.Null(ServiceLayerSr.ServiceAlreadyRegistered);
-            Assert.Null(ServiceLayerSr.ServiceNotFound);
-            Assert.Null(ServiceLayerSr.ServiceNotOfExpectedType);
-            Assert.Null(ServiceLayerSr.ServiceProviderNotSet);
+            Assert.NotNull(HostingSr.ServiceAlreadyRegistered);
+            Assert.NotNull(HostingSr.ServiceNotFound);
+            Assert.NotNull(HostingSr.ServiceNotOfExpectedType);
+            Assert.NotNull(HostingSr.ServiceProviderNotSet);
             Assert.NotNull(ServiceLayerSr.TestLocalizationConstant);
             Assert.NotNull(ServiceLayerSr.TroubleshootingAssistanceMessage);
             Assert.NotNull(ServiceLayerSr.WorkspaceServiceBufferPositionOutOfOrder);

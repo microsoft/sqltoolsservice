@@ -258,47 +258,281 @@ namespace Microsoft.SqlTools.ServiceLayer.Localization {
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Win32Credential object is already disposed.
+        ///    Looks up a localized string similar to Column cannot be edited.
         /// </summary>
-        public static string CredentialServiceWin32CredentialDisposed {
+        public static string EditDataColumnCannotBeEdited {
             get {
-                return ResourceManager.GetString("CredentialServiceWin32CredentialDisposed", resourceCulture);
+                return ResourceManager.GetString("EditDataColumnCannotBeEdited", resourceCulture);
             }
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Invalid CriticalHandle!.
+        ///    Looks up a localized string similar to Column ID must be in the range of columns for the query.
         /// </summary>
-        public static string CredentialsServiceInvalidCriticalHandle {
+        public static string EditDataColumnIdOutOfRange {
             get {
-                return ResourceManager.GetString("CredentialsServiceInvalidCriticalHandle", resourceCulture);
+                return ResourceManager.GetString("EditDataColumnIdOutOfRange", resourceCulture);
             }
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to The password has exceeded 512 bytes.
+        ///    Looks up a localized string similar to No key columns were found.
         /// </summary>
-        public static string CredentialsServicePasswordLengthExceeded {
+        public static string EditDataColumnNoKeyColumns {
             get {
-                return ResourceManager.GetString("CredentialsServicePasswordLengthExceeded", resourceCulture);
+                return ResourceManager.GetString("EditDataColumnNoKeyColumns", resourceCulture);
             }
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Target must be specified to delete a credential.
+        ///    Looks up a localized string similar to A commit task is in progress. Please wait for completion..
         /// </summary>
-        public static string CredentialsServiceTargetForDelete {
+        public static string EditDataCommitInProgress {
             get {
-                return ResourceManager.GetString("CredentialsServiceTargetForDelete", resourceCulture);
+                return ResourceManager.GetString("EditDataCommitInProgress", resourceCulture);
             }
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Target must be specified to check existance of a credential.
+        ///    Looks up a localized string similar to &lt;TBD&gt;.
         /// </summary>
-        public static string CredentialsServiceTargetForLookup {
+        public static string EditDataComputedColumnPlaceholder {
             get {
-                return ResourceManager.GetString("CredentialsServiceTargetForLookup", resourceCulture);
+                return ResourceManager.GetString("EditDataComputedColumnPlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to A required cell value is missing.
+        /// </summary>
+        public static string EditDataCreateScriptMissingValue {
+            get {
+                return ResourceManager.GetString("EditDataCreateScriptMissingValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to A delete is pending for this row, a cell update cannot be applied..
+        /// </summary>
+        public static string EditDataDeleteSetCell {
+            get {
+                return ResourceManager.GetString("EditDataDeleteSetCell", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Failed to add new row to update cache.
+        /// </summary>
+        public static string EditDataFailedAddRow {
+            get {
+                return ResourceManager.GetString("EditDataFailedAddRow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Result limit cannot be negative.
+        /// </summary>
+        public static string EditDataFilteringNegativeLimit {
+            get {
+                return ResourceManager.GetString("EditDataFilteringNegativeLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Invalid format for binary column.
+        /// </summary>
+        public static string EditDataInvalidFormatBinary {
+            get {
+                return ResourceManager.GetString("EditDataInvalidFormatBinary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Allowed values for boolean columns are 0, 1, &quot;true&quot;, or &quot;false&quot;.
+        /// </summary>
+        public static string EditDataInvalidFormatBoolean {
+            get {
+                return ResourceManager.GetString("EditDataInvalidFormatBoolean", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Table metadata does not have extended properties.
+        /// </summary>
+        public static string EditDataMetadataNotExtended {
+            get {
+                return ResourceManager.GetString("EditDataMetadataNotExtended", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to A object name must be provided.
+        /// </summary>
+        public static string EditDataMetadataObjectNameRequired {
+            get {
+                return ResourceManager.GetString("EditDataMetadataObjectNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Explicitly specifying server or database is not supported.
+        /// </summary>
+        public static string EditDataMetadataTooManyIdentifiers {
+            get {
+                return ResourceManager.GetString("EditDataMetadataTooManyIdentifiers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to NULL is not allowed for this column.
+        /// </summary>
+        public static string EditDataNullNotAllowed {
+            get {
+                return ResourceManager.GetString("EditDataNullNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Table or view metadata could not be found.
+        /// </summary>
+        public static string EditDataObjectMetadataNotFound {
+            get {
+                return ResourceManager.GetString("EditDataObjectMetadataNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Table or view requested for edit could not be found.
+        /// </summary>
+        public static string EditDataObjectNotFound {
+            get {
+                return ResourceManager.GetString("EditDataObjectNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Query execution failed, see messages for details.
+        /// </summary>
+        public static string EditDataQueryFailed {
+            get {
+                return ResourceManager.GetString("EditDataQueryFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Query did not generate exactly one result set.
+        /// </summary>
+        public static string EditDataQueryImproperResultSets {
+            get {
+                return ResourceManager.GetString("EditDataQueryImproperResultSets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Query has not completed execution.
+        /// </summary>
+        public static string EditDataQueryNotCompleted {
+            get {
+                return ResourceManager.GetString("EditDataQueryNotCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Given row ID is outside the range of rows in the edit cache.
+        /// </summary>
+        public static string EditDataRowOutOfRange {
+            get {
+                return ResourceManager.GetString("EditDataRowOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to An output filename must be provided.
+        /// </summary>
+        public static string EditDataScriptFilePathNull {
+            get {
+                return ResourceManager.GetString("EditDataScriptFilePathNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Edit session already exists..
+        /// </summary>
+        public static string EditDataSessionAlreadyExists {
+            get {
+                return ResourceManager.GetString("EditDataSessionAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Edit session has already been initialized.
+        /// </summary>
+        public static string EditDataSessionAlreadyInitialized {
+            get {
+                return ResourceManager.GetString("EditDataSessionAlreadyInitialized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Edit session has already been initialized or is in the process of initializing.
+        /// </summary>
+        public static string EditDataSessionAlreadyInitializing {
+            get {
+                return ResourceManager.GetString("EditDataSessionAlreadyInitializing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Edit session does not exist..
+        /// </summary>
+        public static string EditDataSessionNotFound {
+            get {
+                return ResourceManager.GetString("EditDataSessionNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Edit session has not been initialized.
+        /// </summary>
+        public static string EditDataSessionNotInitialized {
+            get {
+                return ResourceManager.GetString("EditDataSessionNotInitialized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999.
+        /// </summary>
+        public static string EditDataTimeOver24Hrs {
+            get {
+                return ResourceManager.GetString("EditDataTimeOver24Hrs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Database object {0} cannot be used for editing..
+        /// </summary>
+        public static string EditDataUnsupportedObjectType {
+            get {
+                return ResourceManager.GetString("EditDataUnsupportedObjectType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Given row ID does not have pending update.
+        /// </summary>
+        public static string EditDataUpdateNotPending {
+            get {
+                return ResourceManager.GetString("EditDataUpdateNotPending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to An update is already pending for this row and must be reverted first.
+        /// </summary>
+        public static string EditDataUpdatePending {
+            get {
+                return ResourceManager.GetString("EditDataUpdatePending", resourceCulture);
             }
         }
         
@@ -465,65 +699,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Localization {
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Cannot convert SqlCodeObject Type {0} to Type {1}.
+        ///    Looks up a localized string similar to Missing Caption.
         /// </summary>
-        public static string ErrorUnexpectedCodeObjectType {
+        public static string MissingCaption {
             get {
-                return ResourceManager.GetString("ErrorUnexpectedCodeObjectType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to Message header must separate key and value using &apos;:&apos;.
-        /// </summary>
-        public static string HostingHeaderMissingColon {
-            get {
-                return ResourceManager.GetString("HostingHeaderMissingColon", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to Fatal error: Content-Length header must be provided.
-        /// </summary>
-        public static string HostingHeaderMissingContentLengthHeader {
-            get {
-                return ResourceManager.GetString("HostingHeaderMissingContentLengthHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to Fatal error: Content-Length value is not an integer.
-        /// </summary>
-        public static string HostingHeaderMissingContentLengthValue {
-            get {
-                return ResourceManager.GetString("HostingHeaderMissingContentLengthValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to MessageReader&apos;s input stream ended unexpectedly, terminating.
-        /// </summary>
-        public static string HostingUnexpectedEndOfStream {
-            get {
-                return ResourceManager.GetString("HostingUnexpectedEndOfStream", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;.
-        /// </summary>
-        public static string IncompatibleServiceForExtensionLoader {
-            get {
-                return ResourceManager.GetString("IncompatibleServiceForExtensionLoader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to Multiple services found for type {0}, expected only 1.
-        /// </summary>
-        public static string MultipleServicesFound {
-            get {
-                return ResourceManager.GetString("MultipleServicesFound", resourceCulture);
+                return ResourceManager.GetString("MissingCaption", resourceCulture);
             }
         }
         
@@ -623,6 +803,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Localization {
         public static string QueryServiceCancelDisposeFailed {
             get {
                 return ResourceManager.GetString("QueryServiceCancelDisposeFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to NULL.
+        /// </summary>
+        public static string QueryServiceCellNull {
+            get {
+                return ResourceManager.GetString("QueryServiceCellNull", resourceCulture);
             }
         }
         
@@ -771,6 +960,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Localization {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to Cannot add row to result buffer, data reader does not contain rows.
+        /// </summary>
+        public static string QueryServiceResultSetAddNoRows {
+            get {
+                return ResourceManager.GetString("QueryServiceResultSetAddNoRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to Could not retrieve column schema for result set.
         /// </summary>
         public static string QueryServiceResultSetNoColumnSchema {
@@ -785,15 +983,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Localization {
         public static string QueryServiceResultSetNotRead {
             get {
                 return ResourceManager.GetString("QueryServiceResultSetNotRead", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to Reader cannot be null.
-        /// </summary>
-        public static string QueryServiceResultSetReaderNull {
-            get {
-                return ResourceManager.GetString("QueryServiceResultSetReaderNull", resourceCulture);
             }
         }
         
@@ -879,47 +1068,1478 @@ namespace Microsoft.SqlTools.ServiceLayer.Localization {
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Cannot register service for type {0}, one or more services already registered.
+        ///    Looks up a localized string similar to Aggregate Functions.
         /// </summary>
-        public static string ServiceAlreadyRegistered {
+        public static string SchemaHierarchy_AggregateFunctions {
             get {
-                return ResourceManager.GetString("ServiceAlreadyRegistered", resourceCulture);
+                return ResourceManager.GetString("SchemaHierarchy_AggregateFunctions", resourceCulture);
             }
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Service {0} was not found in the service provider.
+        ///    Looks up a localized string similar to Aggregates.
         /// </summary>
-        public static string ServiceNotFound {
+        public static string SchemaHierarchy_Aggregates {
             get {
-                return ResourceManager.GetString("ServiceNotFound", resourceCulture);
+                return ResourceManager.GetString("SchemaHierarchy_Aggregates", resourceCulture);
             }
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Service of Type {0} is not compatible with registered Type {1}.
+        ///    Looks up a localized string similar to Always Encrypted Keys.
         /// </summary>
-        public static string ServiceNotOfExpectedType {
+        public static string SchemaHierarchy_AlwaysEncryptedKeys {
             get {
-                return ResourceManager.GetString("ServiceNotOfExpectedType", resourceCulture);
+                return ResourceManager.GetString("SchemaHierarchy_AlwaysEncryptedKeys", resourceCulture);
             }
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to SetServiceProvider() was not called to establish the required service provider.
+        ///    Looks up a localized string similar to Application Roles.
         /// </summary>
-        public static string ServiceProviderNotSet {
+        public static string SchemaHierarchy_ApplicationRoles {
             get {
-                return ResourceManager.GetString("ServiceProviderNotSet", resourceCulture);
+                return ResourceManager.GetString("SchemaHierarchy_ApplicationRoles", resourceCulture);
             }
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to EN_LOCALIZATION.
+        ///    Looks up a localized string similar to Assemblies.
+        /// </summary>
+        public static string SchemaHierarchy_Assemblies {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Assemblies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Assembly Files.
+        /// </summary>
+        public static string SchemaHierarchy_AssemblyFiles {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_AssemblyFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Asymmetric Keys.
+        /// </summary>
+        public static string SchemaHierarchy_AsymmetricKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_AsymmetricKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Broker Priorities.
+        /// </summary>
+        public static string SchemaHierarchy_BrokerPriorities {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_BrokerPriorities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Built-in Server Roles.
+        /// </summary>
+        public static string SchemaHierarchy_BuiltInServerRole {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_BuiltInServerRole", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Built-in Types.
+        /// </summary>
+        public static string SchemaHierarchy_BuiltInType {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_BuiltInType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Certificates.
+        /// </summary>
+        public static string SchemaHierarchy_Certificates {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Certificates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Check Constraints.
+        /// </summary>
+        public static string SchemaHierarchy_CheckConstraints {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_CheckConstraints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Column Encryption Keys.
+        /// </summary>
+        public static string SchemaHierarchy_ColumnEncryptionKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ColumnEncryptionKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Column Master Keys.
+        /// </summary>
+        public static string SchemaHierarchy_ColumnMasterKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ColumnMasterKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Columns.
+        /// </summary>
+        public static string SchemaHierarchy_Columns {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Columns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Column Store Indexes.
+        /// </summary>
+        public static string SchemaHierarchy_ColumnStoreIndexes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ColumnStoreIndexes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Constraints.
+        /// </summary>
+        public static string SchemaHierarchy_Constraints {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Constraints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Contracts.
+        /// </summary>
+        public static string SchemaHierarchy_Contracts {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Contracts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Credentials.
+        /// </summary>
+        public static string SchemaHierarchy_Credentials {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Credentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Cryptographic Providers.
+        /// </summary>
+        public static string SchemaHierarchy_CryptographicProviders {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_CryptographicProviders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Asymmetric Keys.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseAsymmetricKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseAsymmetricKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Database Audit Specifications.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseAuditSpecifications {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseAuditSpecifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Certificates.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseCertificates {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseCertificates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Database Diagrams.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseDiagrams {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseDiagrams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Database Encryption Keys.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseEncryptionKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseEncryptionKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Database Options.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseOptions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Database Roles.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseRoles {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseRoles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Databases.
+        /// </summary>
+        public static string SchemaHierarchy_Databases {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Databases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Database Scoped Credentials.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseScopedCredentials {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseScopedCredentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Database Triggers.
+        /// </summary>
+        public static string SchemaHierarchy_DatabaseTriggers {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DatabaseTriggers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Data Compression Options.
+        /// </summary>
+        public static string SchemaHierarchy_DataCompressionOptions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DataCompressionOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Data-tier Applications.
+        /// </summary>
+        public static string SchemaHierarchy_DataTierApplications {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DataTierApplications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Default Constraints.
+        /// </summary>
+        public static string SchemaHierarchy_DefaultConstraints {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_DefaultConstraints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Defaults.
+        /// </summary>
+        public static string SchemaHierarchy_Defaults {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Defaults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Endpoints.
+        /// </summary>
+        public static string SchemaHierarchy_Endpoints {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Endpoints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Error Messages.
+        /// </summary>
+        public static string SchemaHierarchy_ErrorMessages {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ErrorMessages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Event Notifications.
+        /// </summary>
+        public static string SchemaHierarchy_EventNotifications {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_EventNotifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Event Sessions.
+        /// </summary>
+        public static string SchemaHierarchy_EventSessions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_EventSessions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Extended Properties.
+        /// </summary>
+        public static string SchemaHierarchy_ExtendedProperties {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ExtendedProperties", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Extended Stored Procedures.
+        /// </summary>
+        public static string SchemaHierarchy_ExtendedStoredProcedures {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ExtendedStoredProcedures", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to External Data Sources.
+        /// </summary>
+        public static string SchemaHierarchy_ExternalDataSources {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ExternalDataSources", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to External File Formats.
+        /// </summary>
+        public static string SchemaHierarchy_ExternalFileFormats {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ExternalFileFormats", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to External Resources.
+        /// </summary>
+        public static string SchemaHierarchy_ExternalResources {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ExternalResources", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to External Tables.
+        /// </summary>
+        public static string SchemaHierarchy_ExternalTables {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ExternalTables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Files.
+        /// </summary>
+        public static string SchemaHierarchy_FilegroupFiles {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_FilegroupFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Filegroups.
+        /// </summary>
+        public static string SchemaHierarchy_FileGroups {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_FileGroups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to FileTables.
+        /// </summary>
+        public static string SchemaHierarchy_FileTables {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_FileTables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Foreign Keys.
+        /// </summary>
+        public static string SchemaHierarchy_ForeignKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ForeignKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Full-Text Catalogs.
+        /// </summary>
+        public static string SchemaHierarchy_FullTextCatalogs {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_FullTextCatalogs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Full-Text Indexes.
+        /// </summary>
+        public static string SchemaHierarchy_FullTextIndexes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_FullTextIndexes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Full Text Stoplists.
+        /// </summary>
+        public static string SchemaHierarchy_FullTextStopLists {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_FullTextStopLists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Functions.
+        /// </summary>
+        public static string SchemaHierarchy_Functions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Functions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Indexes.
+        /// </summary>
+        public static string SchemaHierarchy_Indexes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Indexes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Inline Functions.
+        /// </summary>
+        public static string SchemaHierarchy_InlineFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_InlineFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Keys.
+        /// </summary>
+        public static string SchemaHierarchy_Keys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Keys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Linked Server Logins.
+        /// </summary>
+        public static string SchemaHierarchy_LinkedServerLogins {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_LinkedServerLogins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Linked Servers.
+        /// </summary>
+        public static string SchemaHierarchy_LinkedServers {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_LinkedServers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Log Files.
+        /// </summary>
+        public static string SchemaHierarchy_LogFiles {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_LogFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Logins.
+        /// </summary>
+        public static string SchemaHierarchy_Logins {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Logins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Management.
+        /// </summary>
+        public static string SchemaHierarchy_Management {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Management", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Master Key.
+        /// </summary>
+        public static string SchemaHierarchy_MasterKey {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_MasterKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Master Keys.
+        /// </summary>
+        public static string SchemaHierarchy_MasterKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_MasterKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Message Types.
+        /// </summary>
+        public static string SchemaHierarchy_MessageTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_MessageTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Table-Valued Functions.
+        /// </summary>
+        public static string SchemaHierarchy_MultiSelectFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_MultiSelectFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Parameters.
+        /// </summary>
+        public static string SchemaHierarchy_Parameters {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Parameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Partition Functions.
+        /// </summary>
+        public static string SchemaHierarchy_PartitionFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_PartitionFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Partition Schemes.
+        /// </summary>
+        public static string SchemaHierarchy_PartitionSchemes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_PartitionSchemes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Permissions.
+        /// </summary>
+        public static string SchemaHierarchy_Permissions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Permissions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Primary Keys.
+        /// </summary>
+        public static string SchemaHierarchy_PrimaryKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_PrimaryKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Programmability.
+        /// </summary>
+        public static string SchemaHierarchy_Programmability {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Programmability", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Queues.
+        /// </summary>
+        public static string SchemaHierarchy_Queues {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Queues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Remote Service Bindings.
+        /// </summary>
+        public static string SchemaHierarchy_RemoteServiceBindings {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_RemoteServiceBindings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Resource Pools.
+        /// </summary>
+        public static string SchemaHierarchy_ResourcePools {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ResourcePools", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Returned Columns.
+        /// </summary>
+        public static string SchemaHierarchy_ReturnedColumns {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ReturnedColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Role Memberships.
+        /// </summary>
+        public static string SchemaHierarchy_RoleMemberships {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_RoleMemberships", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Roles.
+        /// </summary>
+        public static string SchemaHierarchy_Roles {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Roles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Routes.
+        /// </summary>
+        public static string SchemaHierarchy_Routes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Routes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Rules.
+        /// </summary>
+        public static string SchemaHierarchy_Rules {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Rules", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Scalar-valued Functions.
+        /// </summary>
+        public static string SchemaHierarchy_ScalarValuedFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ScalarValuedFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Schemas.
+        /// </summary>
+        public static string SchemaHierarchy_Schemas {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Schemas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Search Property List.
+        /// </summary>
+        public static string SchemaHierarchy_SearchPropertyList {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SearchPropertyList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Search Property Lists.
+        /// </summary>
+        public static string SchemaHierarchy_SearchPropertyLists {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SearchPropertyLists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Security.
+        /// </summary>
+        public static string SchemaHierarchy_Security {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Security", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Security Policies.
+        /// </summary>
+        public static string SchemaHierarchy_SecurityPolicies {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SecurityPolicies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Security Predicates.
+        /// </summary>
+        public static string SchemaHierarchy_SecurityPredicates {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SecurityPredicates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Selective XML Indexes.
+        /// </summary>
+        public static string SchemaHierarchy_SelectiveXmlIndexes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SelectiveXmlIndexes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Sequences.
+        /// </summary>
+        public static string SchemaHierarchy_Sequences {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Sequences", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Audits.
+        /// </summary>
+        public static string SchemaHierarchy_ServerAudits {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerAudits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Server Audit Specifications.
+        /// </summary>
+        public static string SchemaHierarchy_ServerAuditSpecifications {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerAuditSpecifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Server Event Notifications.
+        /// </summary>
+        public static string SchemaHierarchy_ServerEventNotifications {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerEventNotifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Server Functions.
+        /// </summary>
+        public static string SchemaHierarchy_ServerFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to ServerInstance.
+        /// </summary>
+        public static string SchemaHierarchy_ServerInstance {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Server Objects.
+        /// </summary>
+        public static string SchemaHierarchy_ServerObjects {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerObjects", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Server Options.
+        /// </summary>
+        public static string SchemaHierarchy_ServerOptions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Server Role.
+        /// </summary>
+        public static string SchemaHierarchy_ServerRole {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerRole", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Server Role Membership.
+        /// </summary>
+        public static string SchemaHierarchy_ServerRoleMembership {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerRoleMembership", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Server Roles.
+        /// </summary>
+        public static string SchemaHierarchy_ServerRoles {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerRoles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Triggers.
+        /// </summary>
+        public static string SchemaHierarchy_ServerTriggers {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServerTriggers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Service Broker.
+        /// </summary>
+        public static string SchemaHierarchy_ServiceBroker {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_ServiceBroker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Services.
+        /// </summary>
+        public static string SchemaHierarchy_Services {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Services", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Signatures.
+        /// </summary>
+        public static string SchemaHierarchy_Signatures {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Signatures", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Spatial Indexes.
+        /// </summary>
+        public static string SchemaHierarchy_SpatialIndexes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SpatialIndexes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to SQL Files.
+        /// </summary>
+        public static string SchemaHierarchy_SqlFiles {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SqlFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to SQL Type.
+        /// </summary>
+        public static string SchemaHierarchy_SqlType {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SqlType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to T-SQL Typed Promoted Paths.
+        /// </summary>
+        public static string SchemaHierarchy_SqlTypedPromotedPaths {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SqlTypedPromotedPaths", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Statistics.
+        /// </summary>
+        public static string SchemaHierarchy_Statistics {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Statistics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Storage.
+        /// </summary>
+        public static string SchemaHierarchy_Storage {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Storage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Stored Procedures.
+        /// </summary>
+        public static string SchemaHierarchy_StoredProcedures {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_StoredProcedures", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Symmetric Keys.
+        /// </summary>
+        public static string SchemaHierarchy_SymmetricKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SymmetricKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Synonyms.
+        /// </summary>
+        public static string SchemaHierarchy_Synonyms {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Synonyms", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Aggregate Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemAggregateFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemAggregateFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Approximate Numerics.
+        /// </summary>
+        public static string SchemaHierarchy_SystemApproximateNumerics {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemApproximateNumerics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Binary Strings.
+        /// </summary>
+        public static string SchemaHierarchy_SystemBinaryStrings {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemBinaryStrings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Character Strings.
+        /// </summary>
+        public static string SchemaHierarchy_SystemCharacterStrings {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemCharacterStrings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to CLR Data Types.
+        /// </summary>
+        public static string SchemaHierarchy_SystemCLRDataTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemCLRDataTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Configuration Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemConfigurationFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemConfigurationFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Contracts.
+        /// </summary>
+        public static string SchemaHierarchy_SystemContracts {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemContracts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Cursor Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemCursorFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemCursorFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Databases.
+        /// </summary>
+        public static string SchemaHierarchy_SystemDatabases {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemDatabases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Data Types.
+        /// </summary>
+        public static string SchemaHierarchy_SystemDataTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemDataTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Date and Time.
+        /// </summary>
+        public static string SchemaHierarchy_SystemDateAndTime {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemDateAndTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Date and Time Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemDateAndTimeFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemDateAndTimeFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Exact Numerics.
+        /// </summary>
+        public static string SchemaHierarchy_SystemExactNumerics {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemExactNumerics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Extended Stored Procedures.
+        /// </summary>
+        public static string SchemaHierarchy_SystemExtendedStoredProcedures {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemExtendedStoredProcedures", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Hierarchy Id Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemHierarchyIdFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemHierarchyIdFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Mathematical Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemMathematicalFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemMathematicalFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Message Types.
+        /// </summary>
+        public static string SchemaHierarchy_SystemMessageTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemMessageTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Metadata Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemMetadataFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemMetadataFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Other Data Types.
+        /// </summary>
+        public static string SchemaHierarchy_SystemOtherDataTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemOtherDataTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Other Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemOtherFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemOtherFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Queues.
+        /// </summary>
+        public static string SchemaHierarchy_SystemQueues {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemQueues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Rowset Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemRowsetFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemRowsetFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Security Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemSecurityFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemSecurityFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Services.
+        /// </summary>
+        public static string SchemaHierarchy_SystemServices {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemServices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Spatial Data Types.
+        /// </summary>
+        public static string SchemaHierarchy_SystemSpatialDataTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemSpatialDataTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Stored Procedures.
+        /// </summary>
+        public static string SchemaHierarchy_SystemStoredProcedures {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemStoredProcedures", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to String Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemStringFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemStringFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Statistical Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemSystemStatisticalFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemSystemStatisticalFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Tables.
+        /// </summary>
+        public static string SchemaHierarchy_SystemTables {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemTables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Text and Image Functions.
+        /// </summary>
+        public static string SchemaHierarchy_SystemTextAndImageFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemTextAndImageFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Unicode Character Strings.
+        /// </summary>
+        public static string SchemaHierarchy_SystemUnicodeCharacterStrings {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemUnicodeCharacterStrings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to System Views.
+        /// </summary>
+        public static string SchemaHierarchy_SystemViews {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_SystemViews", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Tables.
+        /// </summary>
+        public static string SchemaHierarchy_Tables {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Tables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Table Type Indexes.
+        /// </summary>
+        public static string SchemaHierarchy_TableTypeIndexes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_TableTypeIndexes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Table-valued Functions.
+        /// </summary>
+        public static string SchemaHierarchy_TableValuedFunctions {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_TableValuedFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Triggers.
+        /// </summary>
+        public static string SchemaHierarchy_Triggers {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Triggers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Types.
+        /// </summary>
+        public static string SchemaHierarchy_Types {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Types", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Unique Keys.
+        /// </summary>
+        public static string SchemaHierarchy_UniqueKeys {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_UniqueKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to User-Defined Data Types.
+        /// </summary>
+        public static string SchemaHierarchy_UserDefinedDataTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_UserDefinedDataTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to User-Defined Table Types.
+        /// </summary>
+        public static string SchemaHierarchy_UserDefinedTableTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_UserDefinedTableTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to User-Defined Types (CLR).
+        /// </summary>
+        public static string SchemaHierarchy_UserDefinedTypes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_UserDefinedTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Users.
+        /// </summary>
+        public static string SchemaHierarchy_Users {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Users", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to User with Password.
+        /// </summary>
+        public static string SchemaHierarchy_UserWithPassword {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_UserWithPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Views.
+        /// </summary>
+        public static string SchemaHierarchy_Views {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_Views", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Workload Groups.
+        /// </summary>
+        public static string SchemaHierarchy_WorkloadGroups {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_WorkloadGroups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to XML Indexes.
+        /// </summary>
+        public static string SchemaHierarchy_XmlIndexes {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_XmlIndexes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to XML Namespaces.
+        /// </summary>
+        public static string SchemaHierarchy_XmlNamespaces {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_XmlNamespaces", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to XML Schema Collections.
+        /// </summary>
+        public static string SchemaHierarchy_XMLSchemaCollections {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_XMLSchemaCollections", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to XML Typed Promoted Paths.
+        /// </summary>
+        public static string SchemaHierarchy_XmlTypedPromotedPaths {
+            get {
+                return ResourceManager.GetString("SchemaHierarchy_XmlTypedPromotedPaths", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Error connecting to {0}.
+        /// </summary>
+        public static string ServerNodeConnectionError {
+            get {
+                return ResourceManager.GetString("ServerNodeConnectionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Decimal column is missing numeric precision or numeric scale.
+        /// </summary>
+        public static string SqlScriptFormatterDecimalMissingPrecision {
+            get {
+                return ResourceManager.GetString("SqlScriptFormatterDecimalMissingPrecision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to test.
         /// </summary>
         public static string TestLocalizationConstant {
             get {
                 return ResourceManager.GetString("TestLocalizationConstant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Error expanding: {0}.
+        /// </summary>
+        public static string TreeNodeError {
+            get {
+                return ResourceManager.GetString("TreeNodeError", resourceCulture);
             }
         }
         
