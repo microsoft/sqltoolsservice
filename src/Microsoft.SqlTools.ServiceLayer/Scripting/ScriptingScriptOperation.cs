@@ -11,7 +11,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
@@ -70,11 +72,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 throw new OperationCanceledException(this.cancellation.Token);
             }
 
+            SqlScriptPublishModel publishModel = null;
+
             try
             {
                 this.ValidateScriptDatabaseParams();
 
-                SqlScriptPublishModel publishModel = BuildPublishModel();
+                publishModel = BuildPublishModel();
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
@@ -86,19 +90,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
 
-                try
-                {
-                    publishModel.GenerateScript(outputOptions);
-                }
-                finally
-                {
-                    publishModel.ScriptItemsCollected -= this.OnPublishModelScriptItemsCollected;
-                    publishModel.ScriptProgress -= this.OnPublishModelScriptProgress;
-                    publishModel.ScriptError -= this.OnPublishModelScriptError;
-                }
+                publishModel.GenerateScript(outputOptions);
 
                 this.SendJsonRpcEventAsync(
-                    ScriptingCompleteEvent.Type, 
+                    ScriptingCompleteEvent.Type,
                     new ScriptingCompleteParameters { OperationId = this.OperationId });
             }
             catch (Exception e)
@@ -106,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 if (e.IsOperationCanceledException())
                 {
                     this.SendJsonRpcEventAsync(
-                        ScriptingCancelEvent.Type, 
+                        ScriptingCancelEvent.Type,
                         new ScriptingCancelParameters { OperationId = this.OperationId });
                 }
                 else
@@ -121,50 +116,77 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     this.SendJsonRpcEventAsync(ScriptingErrorEvent.Type, eventParams);
                 }
             }
+            finally
+            {
+                if (publishModel != null)
+                {
+                    publishModel.ScriptItemsCollected -= this.OnPublishModelScriptItemsCollected;
+                    publishModel.ScriptProgress -= this.OnPublishModelScriptProgress;
+                    publishModel.ScriptError -= this.OnPublishModelScriptError;
+                }
+            }
         }
 
         private SqlScriptPublishModel BuildPublishModel()
         {
             SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
             PopulateAdvancedScriptOptions(publishModel.AdvancedOptions);
-            publishModel.ScriptAllObjects = true;
-
-            string serverName = null;
-            string databaseName = null;
-            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
 
             bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Count > 0;
             bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Count > 0;
+            bool hasObjectsSpecified = this.Parameters.DatabaseObjects != null && this.Parameters.DatabaseObjects.Count > 0;
+
+            // If no object selection criteria was specified, we're scripting the entire database
+            publishModel.ScriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
+            if (publishModel.ScriptAllObjects)
+            {
+                return publishModel;
+            }
+
+            // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
+            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
+
+            // The serverName and databaseName are needed to construct the SMO Urn instances we wan't to include/exclude.  We 
+            // lazily load these these values, hopefully piggy-backing on the the publishModel.GetDatabaseObjects()  method 
+            // call.  This avoids a roundtrip to the server for just the serverName.
+            string serverName = null;
+            string databaseName = null;
+
             if (hasIncludeCriteria || hasExcludeCriteria)
             {
-                List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects(out serverName, out databaseName);
+                List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects(out serverName, out databaseName);
                 selectedObjects = ScriptingObjectMatchProcessor.Match(
                     this.Parameters.IncludeObjectCriteria,
                     this.Parameters.ExcludeObjectCriteria,
-                    databaseObjects);
+                    allObjects);
             }
 
-            if (this.Parameters.DatabaseObjects != null && this.Parameters.DatabaseObjects.Count > 0)
+            // If specific objects are specified, include them.
+            if (hasObjectsSpecified)
             {
                 selectedObjects = selectedObjects.Union(this.Parameters.DatabaseObjects);
             }
 
-            if (selectedObjects.Count() > 0)
+            Logger.Write(
+                LogLevel.Normal,
+                string.Format(
+                    "Scripting object count {0}, objects: {1}",
+                    selectedObjects.Count(),
+                    string.Join(", ", selectedObjects)));
+
+            if (string.IsNullOrEmpty(serverName))
             {
-                Logger.Write(
-                    LogLevel.Normal,
-                    string.Format(
-                        "Scripting object count {0}, objects: {1}", 
-                        selectedObjects.Count(),
-                        string.Join(", ", selectedObjects)));
+                serverName = GetServerName(this.Parameters.ConnectionString);
+            }
 
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
-                foreach (ScriptingObject scriptingObject in selectedObjects)
-                {
-                    publishModel.SelectedObjects.Add(scriptingObject.ToUrn(serverName, databaseName));
-                }
+            if (string.IsNullOrEmpty(databaseName))
+            {
+                databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            }
 
-                publishModel.ScriptAllObjects = false;
+            foreach (ScriptingObject scriptingObject in selectedObjects)
+            {
+                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(serverName, databaseName));
             }
 
             return publishModel;
@@ -189,11 +211,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         catch (Exception e)
                         {
                             Logger.Write(
-                                LogLevel.Warning, 
+                                LogLevel.Warning,
                                 string.Format("ScriptingOperation.PopulateAdvancedScriptOptions exception {0} {1}: {2}", optionName, optionStringValue, e));
                         }
-                    }              
-                }              
+                    }
+                }
             }
         }
 
@@ -293,6 +315,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private void SendJsonRpcEventAsync<TParams>(EventType<TParams> eventType, TParams eventParams)
         {
             Task.Run(async () => await this.RequestContext.SendEvent(eventType, eventParams));
+        }
+
+        /// <summary>
+        /// Gets the server name from using SMO using the passed connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns>The server name.</returns>
+        /// <remarks>
+        /// We resolve the server name using SMO instead of connection string due to docker.  When connecting
+        /// to a docker instance, the connection string Server='localhost' however the server name used to construct
+        /// the SMO Urn instances must user the docker server name, which is a random name and is not generally specified
+        /// in the connection string.
+        /// </remarks>
+        private static string GetServerName(string connectionString)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                Server server = new Server(new ServerConnection(connection));
+                return server.Name;
+            }
         }
     }
 }
