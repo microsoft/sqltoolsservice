@@ -1,13 +1,4 @@
-﻿
-
-
-
-
-
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlTools.ServiceLayer;
@@ -3460,7 +3451,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return child;
         }
     }
-
 
 }
 
