@@ -79,16 +79,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.ValidateScriptDatabaseParams();
 
                 publishModel = BuildPublishModel();
+                publishModel.ScriptItemsCollected += this.OnPublishModelScriptItemsCollected;
+                publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
+                publishModel.ScriptError += this.OnPublishModelScriptError;
+
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
                     SaveFileType = ScriptFileType.Unicode,
                     SaveFileName = this.Parameters.FilePath,
                 };
-
-                publishModel.ScriptItemsCollected += this.OnPublishModelScriptItemsCollected;
-                publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
-                publishModel.ScriptError += this.OnPublishModelScriptError;
 
                 publishModel.GenerateScript(outputOptions);
 

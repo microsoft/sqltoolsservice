@@ -70,28 +70,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 throw new OperationCanceledException(this.cancellation.Token);
             }
 
+            SqlScriptPublishModel publishModel = null;
+
             try
             {
                 this.ValidateScriptDatabaseParams();
 
-                SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
-
+                publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
                 publishModel.ScriptItemsCollected += this.OnPublishModelScriptItemsCollected;
                 publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
                 publishModel.ScriptError += this.OnPublishModelScriptError;
 
-                List<ScriptingObject> databaseObjects = new List<ScriptingObject>();
-
-                try
-                {
-                    databaseObjects = publishModel.GetDatabaseObjects();
-                }
-                finally
-                {
-                    publishModel.ScriptItemsCollected -= this.OnPublishModelScriptItemsCollected;
-                    publishModel.ScriptProgress -= this.OnPublishModelScriptProgress;
-                    publishModel.ScriptError -= this.OnPublishModelScriptError;
-                }
+                List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
 
                 ScriptingListObjectsCompleteParameters eventParameters = new ScriptingListObjectsCompleteParameters
                 {
@@ -120,6 +110,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     };
 
                     this.SendJsonRpcEventAsync(ScriptingErrorEvent.Type, eventParams);
+                }
+            }
+            finally
+            {
+                if (publishModel != null)
+                {
+                    publishModel.ScriptItemsCollected -= this.OnPublishModelScriptItemsCollected;
+                    publishModel.ScriptProgress -= this.OnPublishModelScriptProgress;
+                    publishModel.ScriptError -= this.OnPublishModelScriptError;
                 }
             }
         }
