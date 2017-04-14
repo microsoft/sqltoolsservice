@@ -77,14 +77,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ErrorUnexpectedCodeObjectType
-        {
-            get
-            {
-                return Keys.GetString(Keys.ErrorUnexpectedCodeObjectType);
-            }
-        }
-
         public static string QueryServiceCancelAlreadyCompleted
         {
             get
@@ -429,6 +421,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EditDataMetadataObjectNameRequired
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataObjectNameRequired);
+            }
+        }
+
+        public static string EditDataMetadataTooManyIdentifiers
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditDataMetadataTooManyIdentifiers);
+            }
+        }
+
         public static string EditDataFilteringNegativeLimit
         {
             get
@@ -490,14 +498,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.EditDataUpdateNotPending);
-            }
-        }
-
-        public static string EditDataColumnUpdateNotPending
-        {
-            get
-            {
-                return Keys.GetString(Keys.EditDataColumnUpdateNotPending);
             }
         }
 
@@ -586,14 +586,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.EditDataComputedColumnPlaceholder);
-            }
-        }
-
-        public static string EditDataInitializeInProgress
-        {
-            get
-            {
-                return Keys.GetString(Keys.EditDataInitializeInProgress);
             }
         }
 
@@ -861,6 +853,1310 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TreeNodeError
+        {
+            get
+            {
+                return Keys.GetString(Keys.TreeNodeError);
+            }
+        }
+
+        public static string ServerNodeConnectionError
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServerNodeConnectionError);
+            }
+        }
+
+        public static string SchemaHierarchy_Aggregates
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Aggregates);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerRoles
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerRoles);
+            }
+        }
+
+        public static string SchemaHierarchy_ApplicationRoles
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ApplicationRoles);
+            }
+        }
+
+        public static string SchemaHierarchy_Assemblies
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Assemblies);
+            }
+        }
+
+        public static string SchemaHierarchy_AssemblyFiles
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_AssemblyFiles);
+            }
+        }
+
+        public static string SchemaHierarchy_AsymmetricKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_AsymmetricKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseAsymmetricKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseAsymmetricKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_DataCompressionOptions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DataCompressionOptions);
+            }
+        }
+
+        public static string SchemaHierarchy_Certificates
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Certificates);
+            }
+        }
+
+        public static string SchemaHierarchy_FileTables
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_FileTables);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseCertificates
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseCertificates);
+            }
+        }
+
+        public static string SchemaHierarchy_CheckConstraints
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_CheckConstraints);
+            }
+        }
+
+        public static string SchemaHierarchy_Columns
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Columns);
+            }
+        }
+
+        public static string SchemaHierarchy_Constraints
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Constraints);
+            }
+        }
+
+        public static string SchemaHierarchy_Contracts
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Contracts);
+            }
+        }
+
+        public static string SchemaHierarchy_Credentials
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Credentials);
+            }
+        }
+
+        public static string SchemaHierarchy_ErrorMessages
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ErrorMessages);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerRoleMembership
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerRoleMembership);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseOptions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseOptions);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseRoles
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseRoles);
+            }
+        }
+
+        public static string SchemaHierarchy_RoleMemberships
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_RoleMemberships);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseTriggers
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseTriggers);
+            }
+        }
+
+        public static string SchemaHierarchy_DefaultConstraints
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DefaultConstraints);
+            }
+        }
+
+        public static string SchemaHierarchy_Defaults
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Defaults);
+            }
+        }
+
+        public static string SchemaHierarchy_Sequences
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Sequences);
+            }
+        }
+
+        public static string SchemaHierarchy_Endpoints
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Endpoints);
+            }
+        }
+
+        public static string SchemaHierarchy_EventNotifications
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_EventNotifications);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerEventNotifications
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerEventNotifications);
+            }
+        }
+
+        public static string SchemaHierarchy_ExtendedProperties
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ExtendedProperties);
+            }
+        }
+
+        public static string SchemaHierarchy_FileGroups
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_FileGroups);
+            }
+        }
+
+        public static string SchemaHierarchy_ForeignKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ForeignKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_FullTextCatalogs
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_FullTextCatalogs);
+            }
+        }
+
+        public static string SchemaHierarchy_FullTextIndexes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_FullTextIndexes);
+            }
+        }
+
+        public static string SchemaHierarchy_Functions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Functions);
+            }
+        }
+
+        public static string SchemaHierarchy_Indexes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Indexes);
+            }
+        }
+
+        public static string SchemaHierarchy_InlineFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_InlineFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_Keys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Keys);
+            }
+        }
+
+        public static string SchemaHierarchy_LinkedServers
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_LinkedServers);
+            }
+        }
+
+        public static string SchemaHierarchy_LinkedServerLogins
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_LinkedServerLogins);
+            }
+        }
+
+        public static string SchemaHierarchy_Logins
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Logins);
+            }
+        }
+
+        public static string SchemaHierarchy_MasterKey
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_MasterKey);
+            }
+        }
+
+        public static string SchemaHierarchy_MasterKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_MasterKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_MessageTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_MessageTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_MultiSelectFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_MultiSelectFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_Parameters
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Parameters);
+            }
+        }
+
+        public static string SchemaHierarchy_PartitionFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_PartitionFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_PartitionSchemes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_PartitionSchemes);
+            }
+        }
+
+        public static string SchemaHierarchy_Permissions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Permissions);
+            }
+        }
+
+        public static string SchemaHierarchy_PrimaryKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_PrimaryKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_Programmability
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Programmability);
+            }
+        }
+
+        public static string SchemaHierarchy_Queues
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Queues);
+            }
+        }
+
+        public static string SchemaHierarchy_RemoteServiceBindings
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_RemoteServiceBindings);
+            }
+        }
+
+        public static string SchemaHierarchy_ReturnedColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ReturnedColumns);
+            }
+        }
+
+        public static string SchemaHierarchy_Roles
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Roles);
+            }
+        }
+
+        public static string SchemaHierarchy_Routes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Routes);
+            }
+        }
+
+        public static string SchemaHierarchy_Rules
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Rules);
+            }
+        }
+
+        public static string SchemaHierarchy_Schemas
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Schemas);
+            }
+        }
+
+        public static string SchemaHierarchy_Security
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Security);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerObjects
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerObjects);
+            }
+        }
+
+        public static string SchemaHierarchy_Management
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Management);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerTriggers
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerTriggers);
+            }
+        }
+
+        public static string SchemaHierarchy_ServiceBroker
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServiceBroker);
+            }
+        }
+
+        public static string SchemaHierarchy_Services
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Services);
+            }
+        }
+
+        public static string SchemaHierarchy_Signatures
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Signatures);
+            }
+        }
+
+        public static string SchemaHierarchy_LogFiles
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_LogFiles);
+            }
+        }
+
+        public static string SchemaHierarchy_Statistics
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Statistics);
+            }
+        }
+
+        public static string SchemaHierarchy_Storage
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Storage);
+            }
+        }
+
+        public static string SchemaHierarchy_StoredProcedures
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_StoredProcedures);
+            }
+        }
+
+        public static string SchemaHierarchy_SymmetricKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SymmetricKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_Synonyms
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Synonyms);
+            }
+        }
+
+        public static string SchemaHierarchy_Tables
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Tables);
+            }
+        }
+
+        public static string SchemaHierarchy_Triggers
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Triggers);
+            }
+        }
+
+        public static string SchemaHierarchy_Types
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Types);
+            }
+        }
+
+        public static string SchemaHierarchy_UniqueKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_UniqueKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_UserDefinedDataTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_UserDefinedDataTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_UserDefinedTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_UserDefinedTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_Users
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Users);
+            }
+        }
+
+        public static string SchemaHierarchy_Views
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Views);
+            }
+        }
+
+        public static string SchemaHierarchy_XmlIndexes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_XmlIndexes);
+            }
+        }
+
+        public static string SchemaHierarchy_XMLSchemaCollections
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_XMLSchemaCollections);
+            }
+        }
+
+        public static string SchemaHierarchy_UserDefinedTableTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_UserDefinedTableTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_FilegroupFiles
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_FilegroupFiles);
+            }
+        }
+
+        public static string MissingCaption
+        {
+            get
+            {
+                return Keys.GetString(Keys.MissingCaption);
+            }
+        }
+
+        public static string SchemaHierarchy_BrokerPriorities
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_BrokerPriorities);
+            }
+        }
+
+        public static string SchemaHierarchy_CryptographicProviders
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_CryptographicProviders);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseAuditSpecifications
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseAuditSpecifications);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseEncryptionKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseEncryptionKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_EventSessions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_EventSessions);
+            }
+        }
+
+        public static string SchemaHierarchy_FullTextStopLists
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_FullTextStopLists);
+            }
+        }
+
+        public static string SchemaHierarchy_ResourcePools
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ResourcePools);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerAudits
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerAudits);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerAuditSpecifications
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerAuditSpecifications);
+            }
+        }
+
+        public static string SchemaHierarchy_SpatialIndexes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SpatialIndexes);
+            }
+        }
+
+        public static string SchemaHierarchy_WorkloadGroups
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_WorkloadGroups);
+            }
+        }
+
+        public static string SchemaHierarchy_SqlFiles
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SqlFiles);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SqlType
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SqlType);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerOptions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerOptions);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseDiagrams
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseDiagrams);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemTables
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemTables);
+            }
+        }
+
+        public static string SchemaHierarchy_Databases
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_Databases);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemContracts
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemContracts);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemDatabases
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemDatabases);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemMessageTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemMessageTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemQueues
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemQueues);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemServices
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemServices);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemStoredProcedures
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemStoredProcedures);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemViews
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemViews);
+            }
+        }
+
+        public static string SchemaHierarchy_DataTierApplications
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DataTierApplications);
+            }
+        }
+
+        public static string SchemaHierarchy_ExtendedStoredProcedures
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ExtendedStoredProcedures);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemAggregateFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemAggregateFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemApproximateNumerics
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemApproximateNumerics);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemBinaryStrings
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemBinaryStrings);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemCharacterStrings
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemCharacterStrings);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemCLRDataTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemCLRDataTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemConfigurationFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemConfigurationFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemCursorFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemCursorFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemDataTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemDataTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemDateAndTime
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemDateAndTime);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemDateAndTimeFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemDateAndTimeFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemExactNumerics
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemExactNumerics);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemHierarchyIdFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemHierarchyIdFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemMathematicalFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemMathematicalFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemMetadataFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemMetadataFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemOtherDataTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemOtherDataTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemOtherFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemOtherFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemRowsetFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemRowsetFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemSecurityFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemSecurityFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemSpatialDataTypes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemSpatialDataTypes);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemStringFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemStringFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemSystemStatisticalFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemSystemStatisticalFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemTextAndImageFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemTextAndImageFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemUnicodeCharacterStrings
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemUnicodeCharacterStrings);
+            }
+        }
+
+        public static string SchemaHierarchy_AggregateFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_AggregateFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_ScalarValuedFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ScalarValuedFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_TableValuedFunctions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_TableValuedFunctions);
+            }
+        }
+
+        public static string SchemaHierarchy_SystemExtendedStoredProcedures
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SystemExtendedStoredProcedures);
+            }
+        }
+
+        public static string SchemaHierarchy_BuiltInType
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_BuiltInType);
+            }
+        }
+
+        public static string SchemaHierarchy_BuiltInServerRole
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_BuiltInServerRole);
+            }
+        }
+
+        public static string SchemaHierarchy_UserWithPassword
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_UserWithPassword);
+            }
+        }
+
+        public static string SchemaHierarchy_SearchPropertyList
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SearchPropertyList);
+            }
+        }
+
+        public static string SchemaHierarchy_SecurityPolicies
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SecurityPolicies);
+            }
+        }
+
+        public static string SchemaHierarchy_SecurityPredicates
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SecurityPredicates);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerRole
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerRole);
+            }
+        }
+
+        public static string SchemaHierarchy_SearchPropertyLists
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SearchPropertyLists);
+            }
+        }
+
+        public static string SchemaHierarchy_ColumnStoreIndexes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ColumnStoreIndexes);
+            }
+        }
+
+        public static string SchemaHierarchy_TableTypeIndexes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_TableTypeIndexes);
+            }
+        }
+
+        public static string SchemaHierarchy_ServerInstance
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ServerInstance);
+            }
+        }
+
+        public static string SchemaHierarchy_SelectiveXmlIndexes
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SelectiveXmlIndexes);
+            }
+        }
+
+        public static string SchemaHierarchy_XmlNamespaces
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_XmlNamespaces);
+            }
+        }
+
+        public static string SchemaHierarchy_XmlTypedPromotedPaths
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_XmlTypedPromotedPaths);
+            }
+        }
+
+        public static string SchemaHierarchy_SqlTypedPromotedPaths
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_SqlTypedPromotedPaths);
+            }
+        }
+
+        public static string SchemaHierarchy_DatabaseScopedCredentials
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DatabaseScopedCredentials);
+            }
+        }
+
+        public static string SchemaHierarchy_ExternalDataSources
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ExternalDataSources);
+            }
+        }
+
+        public static string SchemaHierarchy_ExternalFileFormats
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ExternalFileFormats);
+            }
+        }
+
+        public static string SchemaHierarchy_ExternalResources
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ExternalResources);
+            }
+        }
+
+        public static string SchemaHierarchy_ExternalTables
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ExternalTables);
+            }
+        }
+
+        public static string SchemaHierarchy_AlwaysEncryptedKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_AlwaysEncryptedKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_ColumnMasterKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ColumnMasterKeys);
+            }
+        }
+
+        public static string SchemaHierarchy_ColumnEncryptionKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_ColumnEncryptionKeys);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -970,9 +2266,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionParamsValidateNullSqlAuth = "ConnectionParamsValidateNullSqlAuth";
-
-
-            public const string ErrorUnexpectedCodeObjectType = "ErrorUnexpectedCodeObjectType";
 
 
             public const string QueryServiceCancelAlreadyCompleted = "QueryServiceCancelAlreadyCompleted";
@@ -1128,6 +2421,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EditDataMetadataNotExtended = "EditDataMetadataNotExtended";
 
 
+            public const string EditDataMetadataObjectNameRequired = "EditDataMetadataObjectNameRequired";
+
+
+            public const string EditDataMetadataTooManyIdentifiers = "EditDataMetadataTooManyIdentifiers";
+
+
             public const string EditDataFilteringNegativeLimit = "EditDataFilteringNegativeLimit";
 
 
@@ -1153,9 +2452,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataUpdateNotPending = "EditDataUpdateNotPending";
-
-
-            public const string EditDataColumnUpdateNotPending = "EditDataColumnUpdateNotPending";
 
 
             public const string EditDataObjectMetadataNotFound = "EditDataObjectMetadataNotFound";
@@ -1189,9 +2485,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EditDataComputedColumnPlaceholder = "EditDataComputedColumnPlaceholder";
-
-
-            public const string EditDataInitializeInProgress = "EditDataInitializeInProgress";
 
 
             public const string EditDataTimeOver24Hrs = "EditDataTimeOver24Hrs";
@@ -1291,6 +2584,495 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SqlScriptFormatterDecimalMissingPrecision = "SqlScriptFormatterDecimalMissingPrecision";
+
+
+            public const string TreeNodeError = "TreeNodeError";
+
+
+            public const string ServerNodeConnectionError = "ServerNodeConnectionError";
+
+
+            public const string SchemaHierarchy_Aggregates = "SchemaHierarchy_Aggregates";
+
+
+            public const string SchemaHierarchy_ServerRoles = "SchemaHierarchy_ServerRoles";
+
+
+            public const string SchemaHierarchy_ApplicationRoles = "SchemaHierarchy_ApplicationRoles";
+
+
+            public const string SchemaHierarchy_Assemblies = "SchemaHierarchy_Assemblies";
+
+
+            public const string SchemaHierarchy_AssemblyFiles = "SchemaHierarchy_AssemblyFiles";
+
+
+            public const string SchemaHierarchy_AsymmetricKeys = "SchemaHierarchy_AsymmetricKeys";
+
+
+            public const string SchemaHierarchy_DatabaseAsymmetricKeys = "SchemaHierarchy_DatabaseAsymmetricKeys";
+
+
+            public const string SchemaHierarchy_DataCompressionOptions = "SchemaHierarchy_DataCompressionOptions";
+
+
+            public const string SchemaHierarchy_Certificates = "SchemaHierarchy_Certificates";
+
+
+            public const string SchemaHierarchy_FileTables = "SchemaHierarchy_FileTables";
+
+
+            public const string SchemaHierarchy_DatabaseCertificates = "SchemaHierarchy_DatabaseCertificates";
+
+
+            public const string SchemaHierarchy_CheckConstraints = "SchemaHierarchy_CheckConstraints";
+
+
+            public const string SchemaHierarchy_Columns = "SchemaHierarchy_Columns";
+
+
+            public const string SchemaHierarchy_Constraints = "SchemaHierarchy_Constraints";
+
+
+            public const string SchemaHierarchy_Contracts = "SchemaHierarchy_Contracts";
+
+
+            public const string SchemaHierarchy_Credentials = "SchemaHierarchy_Credentials";
+
+
+            public const string SchemaHierarchy_ErrorMessages = "SchemaHierarchy_ErrorMessages";
+
+
+            public const string SchemaHierarchy_ServerRoleMembership = "SchemaHierarchy_ServerRoleMembership";
+
+
+            public const string SchemaHierarchy_DatabaseOptions = "SchemaHierarchy_DatabaseOptions";
+
+
+            public const string SchemaHierarchy_DatabaseRoles = "SchemaHierarchy_DatabaseRoles";
+
+
+            public const string SchemaHierarchy_RoleMemberships = "SchemaHierarchy_RoleMemberships";
+
+
+            public const string SchemaHierarchy_DatabaseTriggers = "SchemaHierarchy_DatabaseTriggers";
+
+
+            public const string SchemaHierarchy_DefaultConstraints = "SchemaHierarchy_DefaultConstraints";
+
+
+            public const string SchemaHierarchy_Defaults = "SchemaHierarchy_Defaults";
+
+
+            public const string SchemaHierarchy_Sequences = "SchemaHierarchy_Sequences";
+
+
+            public const string SchemaHierarchy_Endpoints = "SchemaHierarchy_Endpoints";
+
+
+            public const string SchemaHierarchy_EventNotifications = "SchemaHierarchy_EventNotifications";
+
+
+            public const string SchemaHierarchy_ServerEventNotifications = "SchemaHierarchy_ServerEventNotifications";
+
+
+            public const string SchemaHierarchy_ExtendedProperties = "SchemaHierarchy_ExtendedProperties";
+
+
+            public const string SchemaHierarchy_FileGroups = "SchemaHierarchy_FileGroups";
+
+
+            public const string SchemaHierarchy_ForeignKeys = "SchemaHierarchy_ForeignKeys";
+
+
+            public const string SchemaHierarchy_FullTextCatalogs = "SchemaHierarchy_FullTextCatalogs";
+
+
+            public const string SchemaHierarchy_FullTextIndexes = "SchemaHierarchy_FullTextIndexes";
+
+
+            public const string SchemaHierarchy_Functions = "SchemaHierarchy_Functions";
+
+
+            public const string SchemaHierarchy_Indexes = "SchemaHierarchy_Indexes";
+
+
+            public const string SchemaHierarchy_InlineFunctions = "SchemaHierarchy_InlineFunctions";
+
+
+            public const string SchemaHierarchy_Keys = "SchemaHierarchy_Keys";
+
+
+            public const string SchemaHierarchy_LinkedServers = "SchemaHierarchy_LinkedServers";
+
+
+            public const string SchemaHierarchy_LinkedServerLogins = "SchemaHierarchy_LinkedServerLogins";
+
+
+            public const string SchemaHierarchy_Logins = "SchemaHierarchy_Logins";
+
+
+            public const string SchemaHierarchy_MasterKey = "SchemaHierarchy_MasterKey";
+
+
+            public const string SchemaHierarchy_MasterKeys = "SchemaHierarchy_MasterKeys";
+
+
+            public const string SchemaHierarchy_MessageTypes = "SchemaHierarchy_MessageTypes";
+
+
+            public const string SchemaHierarchy_MultiSelectFunctions = "SchemaHierarchy_MultiSelectFunctions";
+
+
+            public const string SchemaHierarchy_Parameters = "SchemaHierarchy_Parameters";
+
+
+            public const string SchemaHierarchy_PartitionFunctions = "SchemaHierarchy_PartitionFunctions";
+
+
+            public const string SchemaHierarchy_PartitionSchemes = "SchemaHierarchy_PartitionSchemes";
+
+
+            public const string SchemaHierarchy_Permissions = "SchemaHierarchy_Permissions";
+
+
+            public const string SchemaHierarchy_PrimaryKeys = "SchemaHierarchy_PrimaryKeys";
+
+
+            public const string SchemaHierarchy_Programmability = "SchemaHierarchy_Programmability";
+
+
+            public const string SchemaHierarchy_Queues = "SchemaHierarchy_Queues";
+
+
+            public const string SchemaHierarchy_RemoteServiceBindings = "SchemaHierarchy_RemoteServiceBindings";
+
+
+            public const string SchemaHierarchy_ReturnedColumns = "SchemaHierarchy_ReturnedColumns";
+
+
+            public const string SchemaHierarchy_Roles = "SchemaHierarchy_Roles";
+
+
+            public const string SchemaHierarchy_Routes = "SchemaHierarchy_Routes";
+
+
+            public const string SchemaHierarchy_Rules = "SchemaHierarchy_Rules";
+
+
+            public const string SchemaHierarchy_Schemas = "SchemaHierarchy_Schemas";
+
+
+            public const string SchemaHierarchy_Security = "SchemaHierarchy_Security";
+
+
+            public const string SchemaHierarchy_ServerObjects = "SchemaHierarchy_ServerObjects";
+
+
+            public const string SchemaHierarchy_Management = "SchemaHierarchy_Management";
+
+
+            public const string SchemaHierarchy_ServerTriggers = "SchemaHierarchy_ServerTriggers";
+
+
+            public const string SchemaHierarchy_ServiceBroker = "SchemaHierarchy_ServiceBroker";
+
+
+            public const string SchemaHierarchy_Services = "SchemaHierarchy_Services";
+
+
+            public const string SchemaHierarchy_Signatures = "SchemaHierarchy_Signatures";
+
+
+            public const string SchemaHierarchy_LogFiles = "SchemaHierarchy_LogFiles";
+
+
+            public const string SchemaHierarchy_Statistics = "SchemaHierarchy_Statistics";
+
+
+            public const string SchemaHierarchy_Storage = "SchemaHierarchy_Storage";
+
+
+            public const string SchemaHierarchy_StoredProcedures = "SchemaHierarchy_StoredProcedures";
+
+
+            public const string SchemaHierarchy_SymmetricKeys = "SchemaHierarchy_SymmetricKeys";
+
+
+            public const string SchemaHierarchy_Synonyms = "SchemaHierarchy_Synonyms";
+
+
+            public const string SchemaHierarchy_Tables = "SchemaHierarchy_Tables";
+
+
+            public const string SchemaHierarchy_Triggers = "SchemaHierarchy_Triggers";
+
+
+            public const string SchemaHierarchy_Types = "SchemaHierarchy_Types";
+
+
+            public const string SchemaHierarchy_UniqueKeys = "SchemaHierarchy_UniqueKeys";
+
+
+            public const string SchemaHierarchy_UserDefinedDataTypes = "SchemaHierarchy_UserDefinedDataTypes";
+
+
+            public const string SchemaHierarchy_UserDefinedTypes = "SchemaHierarchy_UserDefinedTypes";
+
+
+            public const string SchemaHierarchy_Users = "SchemaHierarchy_Users";
+
+
+            public const string SchemaHierarchy_Views = "SchemaHierarchy_Views";
+
+
+            public const string SchemaHierarchy_XmlIndexes = "SchemaHierarchy_XmlIndexes";
+
+
+            public const string SchemaHierarchy_XMLSchemaCollections = "SchemaHierarchy_XMLSchemaCollections";
+
+
+            public const string SchemaHierarchy_UserDefinedTableTypes = "SchemaHierarchy_UserDefinedTableTypes";
+
+
+            public const string SchemaHierarchy_FilegroupFiles = "SchemaHierarchy_FilegroupFiles";
+
+
+            public const string MissingCaption = "MissingCaption";
+
+
+            public const string SchemaHierarchy_BrokerPriorities = "SchemaHierarchy_BrokerPriorities";
+
+
+            public const string SchemaHierarchy_CryptographicProviders = "SchemaHierarchy_CryptographicProviders";
+
+
+            public const string SchemaHierarchy_DatabaseAuditSpecifications = "SchemaHierarchy_DatabaseAuditSpecifications";
+
+
+            public const string SchemaHierarchy_DatabaseEncryptionKeys = "SchemaHierarchy_DatabaseEncryptionKeys";
+
+
+            public const string SchemaHierarchy_EventSessions = "SchemaHierarchy_EventSessions";
+
+
+            public const string SchemaHierarchy_FullTextStopLists = "SchemaHierarchy_FullTextStopLists";
+
+
+            public const string SchemaHierarchy_ResourcePools = "SchemaHierarchy_ResourcePools";
+
+
+            public const string SchemaHierarchy_ServerAudits = "SchemaHierarchy_ServerAudits";
+
+
+            public const string SchemaHierarchy_ServerAuditSpecifications = "SchemaHierarchy_ServerAuditSpecifications";
+
+
+            public const string SchemaHierarchy_SpatialIndexes = "SchemaHierarchy_SpatialIndexes";
+
+
+            public const string SchemaHierarchy_WorkloadGroups = "SchemaHierarchy_WorkloadGroups";
+
+
+            public const string SchemaHierarchy_SqlFiles = "SchemaHierarchy_SqlFiles";
+
+
+            public const string SchemaHierarchy_ServerFunctions = "SchemaHierarchy_ServerFunctions";
+
+
+            public const string SchemaHierarchy_SqlType = "SchemaHierarchy_SqlType";
+
+
+            public const string SchemaHierarchy_ServerOptions = "SchemaHierarchy_ServerOptions";
+
+
+            public const string SchemaHierarchy_DatabaseDiagrams = "SchemaHierarchy_DatabaseDiagrams";
+
+
+            public const string SchemaHierarchy_SystemTables = "SchemaHierarchy_SystemTables";
+
+
+            public const string SchemaHierarchy_Databases = "SchemaHierarchy_Databases";
+
+
+            public const string SchemaHierarchy_SystemContracts = "SchemaHierarchy_SystemContracts";
+
+
+            public const string SchemaHierarchy_SystemDatabases = "SchemaHierarchy_SystemDatabases";
+
+
+            public const string SchemaHierarchy_SystemMessageTypes = "SchemaHierarchy_SystemMessageTypes";
+
+
+            public const string SchemaHierarchy_SystemQueues = "SchemaHierarchy_SystemQueues";
+
+
+            public const string SchemaHierarchy_SystemServices = "SchemaHierarchy_SystemServices";
+
+
+            public const string SchemaHierarchy_SystemStoredProcedures = "SchemaHierarchy_SystemStoredProcedures";
+
+
+            public const string SchemaHierarchy_SystemViews = "SchemaHierarchy_SystemViews";
+
+
+            public const string SchemaHierarchy_DataTierApplications = "SchemaHierarchy_DataTierApplications";
+
+
+            public const string SchemaHierarchy_ExtendedStoredProcedures = "SchemaHierarchy_ExtendedStoredProcedures";
+
+
+            public const string SchemaHierarchy_SystemAggregateFunctions = "SchemaHierarchy_SystemAggregateFunctions";
+
+
+            public const string SchemaHierarchy_SystemApproximateNumerics = "SchemaHierarchy_SystemApproximateNumerics";
+
+
+            public const string SchemaHierarchy_SystemBinaryStrings = "SchemaHierarchy_SystemBinaryStrings";
+
+
+            public const string SchemaHierarchy_SystemCharacterStrings = "SchemaHierarchy_SystemCharacterStrings";
+
+
+            public const string SchemaHierarchy_SystemCLRDataTypes = "SchemaHierarchy_SystemCLRDataTypes";
+
+
+            public const string SchemaHierarchy_SystemConfigurationFunctions = "SchemaHierarchy_SystemConfigurationFunctions";
+
+
+            public const string SchemaHierarchy_SystemCursorFunctions = "SchemaHierarchy_SystemCursorFunctions";
+
+
+            public const string SchemaHierarchy_SystemDataTypes = "SchemaHierarchy_SystemDataTypes";
+
+
+            public const string SchemaHierarchy_SystemDateAndTime = "SchemaHierarchy_SystemDateAndTime";
+
+
+            public const string SchemaHierarchy_SystemDateAndTimeFunctions = "SchemaHierarchy_SystemDateAndTimeFunctions";
+
+
+            public const string SchemaHierarchy_SystemExactNumerics = "SchemaHierarchy_SystemExactNumerics";
+
+
+            public const string SchemaHierarchy_SystemFunctions = "SchemaHierarchy_SystemFunctions";
+
+
+            public const string SchemaHierarchy_SystemHierarchyIdFunctions = "SchemaHierarchy_SystemHierarchyIdFunctions";
+
+
+            public const string SchemaHierarchy_SystemMathematicalFunctions = "SchemaHierarchy_SystemMathematicalFunctions";
+
+
+            public const string SchemaHierarchy_SystemMetadataFunctions = "SchemaHierarchy_SystemMetadataFunctions";
+
+
+            public const string SchemaHierarchy_SystemOtherDataTypes = "SchemaHierarchy_SystemOtherDataTypes";
+
+
+            public const string SchemaHierarchy_SystemOtherFunctions = "SchemaHierarchy_SystemOtherFunctions";
+
+
+            public const string SchemaHierarchy_SystemRowsetFunctions = "SchemaHierarchy_SystemRowsetFunctions";
+
+
+            public const string SchemaHierarchy_SystemSecurityFunctions = "SchemaHierarchy_SystemSecurityFunctions";
+
+
+            public const string SchemaHierarchy_SystemSpatialDataTypes = "SchemaHierarchy_SystemSpatialDataTypes";
+
+
+            public const string SchemaHierarchy_SystemStringFunctions = "SchemaHierarchy_SystemStringFunctions";
+
+
+            public const string SchemaHierarchy_SystemSystemStatisticalFunctions = "SchemaHierarchy_SystemSystemStatisticalFunctions";
+
+
+            public const string SchemaHierarchy_SystemTextAndImageFunctions = "SchemaHierarchy_SystemTextAndImageFunctions";
+
+
+            public const string SchemaHierarchy_SystemUnicodeCharacterStrings = "SchemaHierarchy_SystemUnicodeCharacterStrings";
+
+
+            public const string SchemaHierarchy_AggregateFunctions = "SchemaHierarchy_AggregateFunctions";
+
+
+            public const string SchemaHierarchy_ScalarValuedFunctions = "SchemaHierarchy_ScalarValuedFunctions";
+
+
+            public const string SchemaHierarchy_TableValuedFunctions = "SchemaHierarchy_TableValuedFunctions";
+
+
+            public const string SchemaHierarchy_SystemExtendedStoredProcedures = "SchemaHierarchy_SystemExtendedStoredProcedures";
+
+
+            public const string SchemaHierarchy_BuiltInType = "SchemaHierarchy_BuiltInType";
+
+
+            public const string SchemaHierarchy_BuiltInServerRole = "SchemaHierarchy_BuiltInServerRole";
+
+
+            public const string SchemaHierarchy_UserWithPassword = "SchemaHierarchy_UserWithPassword";
+
+
+            public const string SchemaHierarchy_SearchPropertyList = "SchemaHierarchy_SearchPropertyList";
+
+
+            public const string SchemaHierarchy_SecurityPolicies = "SchemaHierarchy_SecurityPolicies";
+
+
+            public const string SchemaHierarchy_SecurityPredicates = "SchemaHierarchy_SecurityPredicates";
+
+
+            public const string SchemaHierarchy_ServerRole = "SchemaHierarchy_ServerRole";
+
+
+            public const string SchemaHierarchy_SearchPropertyLists = "SchemaHierarchy_SearchPropertyLists";
+
+
+            public const string SchemaHierarchy_ColumnStoreIndexes = "SchemaHierarchy_ColumnStoreIndexes";
+
+
+            public const string SchemaHierarchy_TableTypeIndexes = "SchemaHierarchy_TableTypeIndexes";
+
+
+            public const string SchemaHierarchy_ServerInstance = "SchemaHierarchy_ServerInstance";
+
+
+            public const string SchemaHierarchy_SelectiveXmlIndexes = "SchemaHierarchy_SelectiveXmlIndexes";
+
+
+            public const string SchemaHierarchy_XmlNamespaces = "SchemaHierarchy_XmlNamespaces";
+
+
+            public const string SchemaHierarchy_XmlTypedPromotedPaths = "SchemaHierarchy_XmlTypedPromotedPaths";
+
+
+            public const string SchemaHierarchy_SqlTypedPromotedPaths = "SchemaHierarchy_SqlTypedPromotedPaths";
+
+
+            public const string SchemaHierarchy_DatabaseScopedCredentials = "SchemaHierarchy_DatabaseScopedCredentials";
+
+
+            public const string SchemaHierarchy_ExternalDataSources = "SchemaHierarchy_ExternalDataSources";
+
+
+            public const string SchemaHierarchy_ExternalFileFormats = "SchemaHierarchy_ExternalFileFormats";
+
+
+            public const string SchemaHierarchy_ExternalResources = "SchemaHierarchy_ExternalResources";
+
+
+            public const string SchemaHierarchy_ExternalTables = "SchemaHierarchy_ExternalTables";
+
+
+            public const string SchemaHierarchy_AlwaysEncryptedKeys = "SchemaHierarchy_AlwaysEncryptedKeys";
+
+
+            public const string SchemaHierarchy_ColumnMasterKeys = "SchemaHierarchy_ColumnMasterKeys";
+
+
+            public const string SchemaHierarchy_ColumnEncryptionKeys = "SchemaHierarchy_ColumnEncryptionKeys";
 
 
             private Keys()

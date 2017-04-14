@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
@@ -190,10 +191,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>())).Returns(new EditUpdateCellResult
             {
-                NewValue = string.Empty,
-                HasCorrections = true,
-                IsRevert = false,
-                IsNull = false
+                IsRowDirty = true,
+                Cell = new EditCell(new DbCellValue(), true)
             });
             session.EditCache[0] = edit.Object;
 
@@ -202,9 +201,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 .AddResultValidation(eucr =>
                 {
                     Assert.NotNull(eucr);
-                    Assert.NotNull(eucr.NewValue);
-                    Assert.False(eucr.IsRevert);
-                    Assert.False(eucr.IsNull);
+                    Assert.NotNull(eucr.Cell);
+                    Assert.True(eucr.IsRowDirty);
                 })
                 .Complete();
             await eds.HandleUpdateCellRequest(new EditUpdateCellParams { OwnerUri = Constants.OwnerUri, RowId = 0}, efv.Object);
@@ -267,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... And I initialize an edit session with that
             var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddErrorValidation<string>(Assert.NotNull)
+                .AddStandardErrorValidation()
                 .Complete();
             await eds.HandleInitializeRequest(initParams, efv.Object);
 
@@ -287,18 +285,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditTableMetadata etm = Common.GetStandardMetadata(rs.Columns);
             EditSession s = await Common.GetCustomSession(q, etm);
             return s;
-        }
-    }
-
-    public static class EditServiceEventFlowValidatorExtensions
-    {
-        public static EventFlowValidator<T> AddStandardErrorValidation<T>(this EventFlowValidator<T> evf)
-        {
-            return evf.AddErrorValidation<string>(p =>
-            {
-                Assert.NotNull(p);
-                Assert.NotEmpty(p);
-            });
         }
     }
 }

@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Moq;
@@ -25,10 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             requestContext = new Mock<RequestContext<TRequestContext>>(MockBehavior.Strict);
         }
 
-        public RequestContext<TRequestContext> Object
-        {
-            get { return requestContext.Object; }
-        }
+        public RequestContext<TRequestContext> Object => requestContext.Object;
 
         public EventFlowValidator<TRequestContext> AddEventValidation<TParams>(EventType<TParams> expectedEvent, Action<TParams> paramValidation)
         {
@@ -66,17 +64,58 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddErrorValidation<TParams>(Action<TParams> paramValidation)
+        public EventFlowValidator<TRequestContext> AddCompleteErrorValidation<TErrorObj>(Action<string, int> paramValidation,
+            Action<TErrorObj> dataValidation)
         {
+            // Put together a validator that checks for null and adds the provided validators
+            Action<Error> validator = e =>
+            {
+                Assert.NotNull(e);
+                paramValidation(e.Message, e.Code);
+
+                Assert.IsType<TErrorObj>(e.Data);
+                dataValidation((TErrorObj) e.Data);
+            };
+
+            // Add the expected error
+            expectedEvents.Add(new ExpectedEvent
+            {
+                EventType = EventTypes.Error,
+                ParamType = typeof(Error),
+                Validator = validator
+            });
+
+            return this;
+        }
+
+        public EventFlowValidator<TRequestContext> AddSimpleErrorValidation(Action<string, int> paramValidation)
+        {
+            // Put together a validator that ensures a null data
+            Action<Error> validator = e =>
+            {
+                Assert.NotNull(e);
+                Assert.Null(e.Data);
+                paramValidation(e.Message, e.Code);
+            };
+
             // Add the expected result
             expectedEvents.Add(new ExpectedEvent
             {
                 EventType = EventTypes.Error,
-                ParamType = typeof(TParams),
-                Validator = paramValidation
+                ParamType = typeof(Error),
+                Validator = validator
             });
 
             return this;
+        }
+
+        public EventFlowValidator<TRequestContext> AddStandardErrorValidation()
+        {
+            // Add an error validator that just ensures a non-empty error message and null data obj
+            return AddSimpleErrorValidation((msg, code) =>
+            {
+                Assert.NotEmpty(msg);
+            });
         }
 
         public EventFlowValidator<TRequestContext> Complete()
@@ -91,11 +130,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 .Returns(Task.FromResult(0));
 
             // Add general handler for error event
-            requestContext.AddErrorHandling(o =>
+            requestContext.AddErrorHandling((msg, code, obj) =>
             {
                 receivedEvents.Add(new ReceivedEvent
                 {
-                    EventObject = o,
+                    EventObject = new Error {Message = msg, Code = code},
                     EventType = EventTypes.Error
                 });
             });

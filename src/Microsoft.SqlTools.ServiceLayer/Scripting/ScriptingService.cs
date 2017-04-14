@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.Message);
+                await requestContext.SendError(e);
             }
         }
 
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.Message);
+                await requestContext.SendError(e);
             }
         }
 
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e.Message);
+                await requestContext.SendError(e);
             }
         }
 

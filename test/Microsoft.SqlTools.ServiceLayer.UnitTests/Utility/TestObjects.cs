@@ -53,6 +53,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             };
         }
 
+        public static ServerInfo GetTestServerInfo()
+        {
+            return new ServerInfo()
+            {
+                ServerVersion = "14.0.1.0",
+                ServerMajorVersion = 14,
+                ServerMinorVersion = 0,
+                EngineEditionId = 3,
+                OsVersion = "Linux (Ubuntu 15.10)",
+                IsCloud = false,
+                ServerEdition = "Developer Edition",
+                ServerLevel = ""
+            };
+        }
+
+        /// <summary>
+        /// Creates a test sql connection factory instance
+        /// </summary>
+        public static ISqlConnectionFactory GetTestSqlConnectionFactory()
+        {
+            // use mock database connection
+            return new TestSqlConnectionFactory();
+        }
+
         /// <summary>
         /// Creates a test connection details object
         /// </summary>
@@ -161,6 +185,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class TestSqlConnection : DbConnection
     {
+        private string _database;
+
         internal TestSqlConnection(TestResultSet[] data)
         {
             Data = data;
@@ -188,7 +214,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         public override string ConnectionString { get; set; }
-        public override string Database { get; }
+        public override string Database
+        { 
+            get { return _database; }
+        }
+
         public override ConnectionState State { get; }
         public override string DataSource { get; }
         public override string ServerVersion { get; }
@@ -201,6 +231,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public override void ChangeDatabase(string databaseName)
         {
             // No Op
+        }
+
+        /// <summary>
+        /// Test helper method to set the database value
+        /// </summary>
+        /// <param name="database"></param>
+        public void SetDatabase(string database)
+        {
+            this._database = database;
         }
     }
 

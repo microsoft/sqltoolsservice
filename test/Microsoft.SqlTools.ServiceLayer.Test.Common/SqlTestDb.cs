@@ -53,13 +53,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// <summary>
         /// Create the test db if not already exists
         /// </summary>
-        public static SqlTestDb CreateNew(TestServerType serverType, bool doNotCleanupDb = false, string databaseName = null, string query = null)
+        public static SqlTestDb CreateNew(
+            TestServerType serverType, 
+            bool doNotCleanupDb = false, 
+            string databaseName = null, 
+            string query = null, 
+            string dbNamePrefix = null)
         {
             SqlTestDb testDb = new SqlTestDb();
 
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
-                databaseName = databaseName ?? GetUniqueDBName("");
+                databaseName = databaseName ?? GetUniqueDBName(dbNamePrefix);
                 string createDatabaseQuery = Scripts.CreateDatabaseQuery.Replace("#DatabaseName#", databaseName);
                 TestServiceProvider.Instance.RunQuery(serverType, MasterDatabaseName, createDatabaseQuery);
                 Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' is created", databaseName));

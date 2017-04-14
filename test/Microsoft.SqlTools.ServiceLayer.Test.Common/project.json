@@ -6,8 +6,9 @@
       "includeFiles": [
         "Scripts/CreateTestDatabaseObjects.sql",
         "Scripts/CreateTestDatabase.sql",
-        "Scripts/TestDbTableQueries.sql",
-        "Scripts/CreateNorthwindSchema.sql"
+        "Scripts/AdventureWorks.sql",
+        "Scripts/CreateNorthwindSchema.sql",
+        "Scripts/TestDbTableQueries.sql"
       ]
     }
   },

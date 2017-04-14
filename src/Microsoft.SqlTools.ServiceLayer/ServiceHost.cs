@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -29,6 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         /// </summary>
         private const int ShutdownTimeoutInSeconds = 120;
         public static readonly string[] CompletionTriggerCharacters = new string[] { ".", "-", ":", "\\", "[", "\"" };
+        private IMultiServiceProvider serviceProvider;
 
         #region Singleton Instance Code
 
@@ -54,6 +56,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
             // Initialize the shutdown activities
             shutdownCallbacks = new List<ShutdownCallback>();
             initializeCallbacks = new List<InitializeCallback>();
+        }
+
+        public IMultiServiceProvider ServiceProvider
+        {
+            get
+            {
+                return serviceProvider;
+            }
+            internal set
+            {
+                serviceProvider = value;
+            }
         }
 
         /// <summary>

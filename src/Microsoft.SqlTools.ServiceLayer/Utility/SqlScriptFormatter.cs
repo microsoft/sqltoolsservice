@@ -176,6 +176,83 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             return literal;
         }
 
+        public static string[] DecodeMultipartIdenfitier(string multipartIdentifier)
+        {
+            StringBuilder sb = new StringBuilder();
+            List<string> namedParts = new List<string>();
+            bool insideBrackets = false;
+            bool bracketsClosed = false;
+            for (int i = 0; i < multipartIdentifier.Length; i++)
+            {
+                char iChar = multipartIdentifier[i];
+                if (insideBrackets)
+                {
+                    if (iChar == ']')
+                    {
+                        if (HasNextCharacter(multipartIdentifier, ']', i))
+                        {
+                            // This is an escaped ]
+                            sb.Append(iChar);
+                            i++;
+                        }
+                        else
+                        {
+                            // This bracket closes the bracket we were in
+                            insideBrackets = false;
+                            bracketsClosed = true;
+                        }
+                    }
+                    else
+                    {
+                        // This is a standard character
+                        sb.Append(iChar);
+                    }
+                }
+                else
+                {
+                    switch (iChar)
+                    {
+                        case '[':
+                            if (bracketsClosed)
+                            {
+                                throw new FormatException();
+                            }
+
+                            // We're opening a set of brackets
+                            insideBrackets = true;
+                            bracketsClosed = false;
+                            break;
+                        case '.':
+                            if (sb.Length == 0)
+                            {
+                                throw new FormatException();
+                            }
+
+                            // We're splitting the identifier into a new part
+                            namedParts.Add(sb.ToString());
+                            sb = new StringBuilder();
+                            bracketsClosed = false;
+                            break;
+                        default:
+                            if (bracketsClosed)
+                            {
+                                throw new FormatException();
+                            }
+
+                            // This is a standard character
+                            sb.Append(iChar);
+                            break;
+                    }
+                }
+            }
+            if (sb.Length == 0)
+            {
+                throw new FormatException();
+            }
+            namedParts.Add(sb.ToString());
+            return namedParts.ToArray();
+        }
+
         #region Private Helpers
 
         private static string SimpleFormatter(object value)
@@ -258,6 +335,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
 
             return "0x" + BitConverter.ToString(bytes).Replace("-", string.Empty);
+        }
+
+        private static bool HasNextCharacter(string haystack, char needle, int position)
+        {
+            return position + 1 < haystack.Length
+                   && haystack[position + 1] == needle;
         }
 
         /// <summary>

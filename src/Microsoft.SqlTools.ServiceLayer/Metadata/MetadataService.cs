@@ -53,6 +53,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
+            serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest);
+            serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest);
         }
 
         /// <summary>
@@ -79,6 +81,62 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 await requestContext.SendResult(new MetadataQueryResult
                 {
                     Metadata = metadata.ToArray()
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Handle a table metadata query request
+        /// </summary>        
+        internal static async Task HandleGetTableRequest(
+            TableMetadataParams metadataParams,
+            RequestContext<TableMetadataResult> requestContext)
+        {
+            await HandleGetTableOrViewRequest(metadataParams, "table", requestContext);
+        }
+
+        /// <summary>
+        /// Handle a view metadata query request
+        /// </summary>        
+        internal static async Task HandleGetViewRequest(
+            TableMetadataParams metadataParams,
+            RequestContext<TableMetadataResult> requestContext)
+        {
+            await HandleGetTableOrViewRequest(metadataParams, "view", requestContext);
+        }
+
+        /// <summary>
+        /// Handle a table pr view metadata query request
+        /// </summary>        
+        private static async Task HandleGetTableOrViewRequest(
+            TableMetadataParams metadataParams,
+            string objectType,
+            RequestContext<TableMetadataResult> requestContext)
+        {
+            try
+            {
+                ConnectionInfo connInfo;
+                MetadataService.ConnectionServiceInstance.TryFindConnection(
+                    metadataParams.OwnerUri,
+                    out connInfo);
+
+                ColumnMetadata[] metadata = null;
+                if (connInfo != null) 
+                {
+                    SqlConnection sqlConn = OpenMetadataConnection(connInfo);                    
+                    TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
+                        sqlConn, metadataParams.Schema, 
+                        metadataParams.ObjectName, objectType);
+                    metadata = table.Columns;               
+                }
+
+                await requestContext.SendResult(new TableMetadataResult
+                {
+                    Columns = metadata    
                 });
             }
             catch (Exception ex)
@@ -116,6 +174,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return null;
         }
 
+        internal static bool IsSystemDatabase(string database)
+        {
+            // compare against master for now
+            return string.Compare("master", database, StringComparison.OrdinalIgnoreCase) == 0;
+        }
+
         /// <summary>
         /// Read metadata for the current connection
         /// </summary>
@@ -125,9 +189,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 @"SELECT s.name AS schema_name, o.[name] AS object_name, o.[type] AS object_type
                   FROM sys.all_objects o
                     INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
-                  WHERE o.is_ms_shipped != 1
-                    AND (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U')
-                  ORDER BY object_type, schema_name, object_name";
+                  WHERE (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U') ";
+   
+            if (!IsSystemDatabase(sqlConn.Database))
+            {
+                sql += @"AND o.is_ms_shipped != 1 ";
+            }
+            
+            sql += @"ORDER BY object_type, schema_name, object_name";
 
             using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConn))
             {
@@ -162,6 +231,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     }
                 }
             }
-        }        
+        }
     }
 }

@@ -48,11 +48,6 @@ ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
 ConnectionParamsValidateNullSqlAuth(string component) = {0} cannot be null or empty when using SqlLogin authentication
 
 ############################################################################
-# Formatter
-
-ErrorUnexpectedCodeObjectType = Cannot convert SqlCodeObject Type {0} to Type {1}
-
-############################################################################
 # Query Execution Service
 
 ### Cancel Request
@@ -180,6 +175,10 @@ EditDataSessionAlreadyInitializing = Edit session has already been initialized o
 
 EditDataMetadataNotExtended = Table metadata does not have extended properties
 
+EditDataMetadataObjectNameRequired = A object name must be provided
+
+EditDataMetadataTooManyIdentifiers = Explicitly specifying server or database is not supported
+
 EditDataFilteringNegativeLimit = Result limit cannot be negative
 
 EditDataUnsupportedObjectType(string typeName) = Database object {0} cannot be used for editing.
@@ -197,8 +196,6 @@ EditDataRowOutOfRange = Given row ID is outside the range of rows in the edit ca
 EditDataUpdatePending = An update is already pending for this row and must be reverted first
 
 EditDataUpdateNotPending = Given row ID does not have pending update
-
-EditDataColumnUpdateNotPending = Give column ID does not have pending update
 
 EditDataObjectMetadataNotFound = Table or view metadata could not be found
 
@@ -221,8 +218,6 @@ EditDataScriptFilePathNull = An output filename must be provided
 EditDataCommitInProgress = A commit task is in progress. Please wait for completion.
 
 EditDataComputedColumnPlaceholder = <TBD>
-
-EditDataInitializeInProgress = Another edit data initialize is in progress for this owner URI. Please wait for completion.
 
 EditDataTimeOver24Hrs = TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999
 
@@ -292,9 +287,339 @@ BatchParser_VariableNotDefined = Variable {0} is not defined.
 ############################################################################
 # Workspace Service
 
-TestLocalizationConstant = EN_LOCALIZATION
+TestLocalizationConstant = test
 
 ############################################################################
 # Utilities
 
 SqlScriptFormatterDecimalMissingPrecision = Decimal column is missing numeric precision or numeric scale
+
+############################################################################
+# Object Explorer Service
+
+TreeNodeError = Error expanding: {0}
+
+ServerNodeConnectionError = Error connecting to {0}
+
+SchemaHierarchy_Aggregates = Aggregates
+
+SchemaHierarchy_ServerRoles = Server Roles
+
+SchemaHierarchy_ApplicationRoles = Application Roles
+
+SchemaHierarchy_Assemblies = Assemblies
+
+SchemaHierarchy_AssemblyFiles = Assembly Files
+
+SchemaHierarchy_AsymmetricKeys = Asymmetric Keys
+
+SchemaHierarchy_DatabaseAsymmetricKeys = Asymmetric Keys
+
+SchemaHierarchy_DataCompressionOptions = Data Compression Options
+
+SchemaHierarchy_Certificates = Certificates
+
+SchemaHierarchy_FileTables = FileTables
+
+SchemaHierarchy_DatabaseCertificates = Certificates
+
+SchemaHierarchy_CheckConstraints = Check Constraints
+
+SchemaHierarchy_Columns = Columns
+
+SchemaHierarchy_Constraints = Constraints
+
+SchemaHierarchy_Contracts = Contracts
+
+SchemaHierarchy_Credentials = Credentials
+
+SchemaHierarchy_ErrorMessages = Error Messages
+
+SchemaHierarchy_ServerRoleMembership = Server Role Membership
+
+SchemaHierarchy_DatabaseOptions = Database Options
+
+SchemaHierarchy_DatabaseRoles = Database Roles
+
+SchemaHierarchy_RoleMemberships = Role Memberships
+
+SchemaHierarchy_DatabaseTriggers = Database Triggers
+
+SchemaHierarchy_DefaultConstraints = Default Constraints
+
+SchemaHierarchy_Defaults = Defaults
+
+SchemaHierarchy_Sequences = Sequences
+
+SchemaHierarchy_Endpoints = Endpoints
+
+SchemaHierarchy_EventNotifications = Event Notifications
+
+SchemaHierarchy_ServerEventNotifications = Server Event Notifications
+
+SchemaHierarchy_ExtendedProperties = Extended Properties
+
+SchemaHierarchy_FileGroups = Filegroups
+
+SchemaHierarchy_ForeignKeys = Foreign Keys
+
+SchemaHierarchy_FullTextCatalogs = Full-Text Catalogs
+
+SchemaHierarchy_FullTextIndexes = Full-Text Indexes
+
+SchemaHierarchy_Functions = Functions
+
+SchemaHierarchy_Indexes = Indexes
+
+SchemaHierarchy_InlineFunctions = Inline Functions
+
+SchemaHierarchy_Keys = Keys
+
+SchemaHierarchy_LinkedServers = Linked Servers
+
+SchemaHierarchy_LinkedServerLogins = Linked Server Logins
+
+SchemaHierarchy_Logins = Logins
+
+SchemaHierarchy_MasterKey = Master Key
+
+SchemaHierarchy_MasterKeys = Master Keys
+
+SchemaHierarchy_MessageTypes = Message Types
+
+SchemaHierarchy_MultiSelectFunctions = Table-Valued Functions
+
+SchemaHierarchy_Parameters = Parameters
+
+SchemaHierarchy_PartitionFunctions = Partition Functions
+
+SchemaHierarchy_PartitionSchemes = Partition Schemes
+
+SchemaHierarchy_Permissions = Permissions
+
+SchemaHierarchy_PrimaryKeys = Primary Keys
+
+SchemaHierarchy_Programmability = Programmability
+
+SchemaHierarchy_Queues = Queues
+
+SchemaHierarchy_RemoteServiceBindings = Remote Service Bindings
+
+SchemaHierarchy_ReturnedColumns = Returned Columns
+
+SchemaHierarchy_Roles = Roles
+
+SchemaHierarchy_Routes = Routes
+
+SchemaHierarchy_Rules = Rules
+
+SchemaHierarchy_Schemas = Schemas
+
+SchemaHierarchy_Security = Security
+
+SchemaHierarchy_ServerObjects = Server Objects
+
+SchemaHierarchy_Management = Management
+
+SchemaHierarchy_ServerTriggers = Triggers
+
+SchemaHierarchy_ServiceBroker = Service Broker
+
+SchemaHierarchy_Services = Services
+
+SchemaHierarchy_Signatures = Signatures
+
+SchemaHierarchy_LogFiles = Log Files
+
+SchemaHierarchy_Statistics = Statistics
+
+SchemaHierarchy_Storage = Storage
+
+SchemaHierarchy_StoredProcedures = Stored Procedures
+
+SchemaHierarchy_SymmetricKeys = Symmetric Keys
+
+SchemaHierarchy_Synonyms = Synonyms
+
+SchemaHierarchy_Tables = Tables
+
+SchemaHierarchy_Triggers = Triggers
+
+SchemaHierarchy_Types = Types
+
+SchemaHierarchy_UniqueKeys = Unique Keys
+
+SchemaHierarchy_UserDefinedDataTypes = User-Defined Data Types
+
+SchemaHierarchy_UserDefinedTypes = User-Defined Types (CLR)
+
+SchemaHierarchy_Users = Users
+
+SchemaHierarchy_Views = Views
+
+SchemaHierarchy_XmlIndexes = XML Indexes
+
+SchemaHierarchy_XMLSchemaCollections = XML Schema Collections
+
+SchemaHierarchy_UserDefinedTableTypes = User-Defined Table Types
+
+SchemaHierarchy_FilegroupFiles = Files
+
+MissingCaption = Missing Caption
+
+SchemaHierarchy_BrokerPriorities = Broker Priorities
+
+SchemaHierarchy_CryptographicProviders = Cryptographic Providers
+
+SchemaHierarchy_DatabaseAuditSpecifications = Database Audit Specifications
+
+SchemaHierarchy_DatabaseEncryptionKeys = Database Encryption Keys
+
+SchemaHierarchy_EventSessions = Event Sessions
+
+SchemaHierarchy_FullTextStopLists = Full Text Stoplists
+
+SchemaHierarchy_ResourcePools = Resource Pools
+
+SchemaHierarchy_ServerAudits = Audits
+
+SchemaHierarchy_ServerAuditSpecifications = Server Audit Specifications
+
+SchemaHierarchy_SpatialIndexes = Spatial Indexes
+
+SchemaHierarchy_WorkloadGroups = Workload Groups
+
+SchemaHierarchy_SqlFiles = SQL Files
+
+SchemaHierarchy_ServerFunctions = Server Functions
+
+SchemaHierarchy_SqlType = SQL Type
+
+SchemaHierarchy_ServerOptions = Server Options
+
+SchemaHierarchy_DatabaseDiagrams = Database Diagrams
+
+SchemaHierarchy_SystemTables = System Tables
+
+SchemaHierarchy_Databases = Databases
+
+SchemaHierarchy_SystemContracts = System Contracts
+
+SchemaHierarchy_SystemDatabases = System Databases
+
+SchemaHierarchy_SystemMessageTypes = System Message Types
+
+SchemaHierarchy_SystemQueues = System Queues
+
+SchemaHierarchy_SystemServices = System Services
+
+SchemaHierarchy_SystemStoredProcedures = System Stored Procedures
+
+SchemaHierarchy_SystemViews = System Views
+
+SchemaHierarchy_DataTierApplications = Data-tier Applications
+
+SchemaHierarchy_ExtendedStoredProcedures = Extended Stored Procedures
+
+SchemaHierarchy_SystemAggregateFunctions = Aggregate Functions
+
+SchemaHierarchy_SystemApproximateNumerics = Approximate Numerics
+
+SchemaHierarchy_SystemBinaryStrings = Binary Strings
+
+SchemaHierarchy_SystemCharacterStrings = Character Strings
+
+SchemaHierarchy_SystemCLRDataTypes = CLR Data Types
+
+SchemaHierarchy_SystemConfigurationFunctions = Configuration Functions
+
+SchemaHierarchy_SystemCursorFunctions = Cursor Functions
+
+SchemaHierarchy_SystemDataTypes = System Data Types
+
+SchemaHierarchy_SystemDateAndTime = Date and Time
+
+SchemaHierarchy_SystemDateAndTimeFunctions = Date and Time Functions
+
+SchemaHierarchy_SystemExactNumerics = Exact Numerics
+
+SchemaHierarchy_SystemFunctions = System Functions
+
+SchemaHierarchy_SystemHierarchyIdFunctions = Hierarchy Id Functions
+
+SchemaHierarchy_SystemMathematicalFunctions = Mathematical Functions
+
+SchemaHierarchy_SystemMetadataFunctions = Metadata Functions
+
+SchemaHierarchy_SystemOtherDataTypes = Other Data Types
+
+SchemaHierarchy_SystemOtherFunctions = Other Functions
+
+SchemaHierarchy_SystemRowsetFunctions = Rowset Functions
+
+SchemaHierarchy_SystemSecurityFunctions = Security Functions
+
+SchemaHierarchy_SystemSpatialDataTypes = Spatial Data Types
+
+SchemaHierarchy_SystemStringFunctions = String Functions
+
+SchemaHierarchy_SystemSystemStatisticalFunctions = System Statistical Functions
+
+SchemaHierarchy_SystemTextAndImageFunctions = Text and Image Functions
+
+SchemaHierarchy_SystemUnicodeCharacterStrings = Unicode Character Strings
+
+SchemaHierarchy_AggregateFunctions = Aggregate Functions
+
+SchemaHierarchy_ScalarValuedFunctions = Scalar-valued Functions
+
+SchemaHierarchy_TableValuedFunctions = Table-valued Functions
+
+SchemaHierarchy_SystemExtendedStoredProcedures = System Extended Stored Procedures
+
+SchemaHierarchy_BuiltInType = Built-in Types
+
+SchemaHierarchy_BuiltInServerRole = Built-in Server Roles
+
+SchemaHierarchy_UserWithPassword = User with Password
+
+SchemaHierarchy_SearchPropertyList = Search Property List
+
+SchemaHierarchy_SecurityPolicies = Security Policies
+
+SchemaHierarchy_SecurityPredicates = Security Predicates
+
+SchemaHierarchy_ServerRole = Server Role
+
+SchemaHierarchy_SearchPropertyLists = Search Property Lists
+
+SchemaHierarchy_ColumnStoreIndexes = Column Store Indexes
+
+SchemaHierarchy_TableTypeIndexes = Table Type Indexes
+
+SchemaHierarchy_ServerInstance = ServerInstance
+
+SchemaHierarchy_SelectiveXmlIndexes = Selective XML Indexes
+
+SchemaHierarchy_XmlNamespaces = XML Namespaces
+
+SchemaHierarchy_XmlTypedPromotedPaths = XML Typed Promoted Paths
+
+SchemaHierarchy_SqlTypedPromotedPaths = T-SQL Typed Promoted Paths
+
+SchemaHierarchy_DatabaseScopedCredentials = Database Scoped Credentials
+
+SchemaHierarchy_ExternalDataSources = External Data Sources
+
+SchemaHierarchy_ExternalFileFormats = External File Formats
+
+SchemaHierarchy_ExternalResources = External Resources
+
+SchemaHierarchy_ExternalTables = External Tables
+
+SchemaHierarchy_AlwaysEncryptedKeys = Always Encrypted Keys
+
+SchemaHierarchy_ColumnMasterKeys = Column Master Keys
+
+SchemaHierarchy_ColumnEncryptionKeys = Column Encryption Keys
+

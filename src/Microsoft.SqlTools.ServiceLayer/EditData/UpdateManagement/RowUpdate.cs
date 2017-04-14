@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
@@ -123,16 +122,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         {
             Validate.IsNotNull(nameof(cachedRow), cachedRow);
 
-            // For each cell that is pending update, replace the db cell value with a new one
+            // Treat all the cells as clean initially
+            EditCell[] editCells = cachedRow.Select(cell => new EditCell(cell, false)).ToArray();
+
+            // For each cell that is pending update, replace the db cell value with a dirty one
             foreach (var cellUpdate in cellUpdates)
             {
-                cachedRow[cellUpdate.Key] = cellUpdate.Value.AsDbCellValue;
+                editCells[cellUpdate.Key] = cellUpdate.Value.AsEditCell;
             }
 
             return new EditRow
             {
                 Id = RowId,
-                Cells = cachedRow,
+                Cells = editCells,
                 State = EditRow.EditRowState.DirtyUpdate
             };
         }
@@ -167,15 +169,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         /// <param name="columnId">Ordinal of the column to revert</param>
         /// <returns>The value that was </returns>
-        public override string RevertCell(int columnId)
+        public override EditRevertCellResult RevertCell(int columnId)
         {
             Validate.IsWithinRange(nameof(columnId), columnId, 0, associatedRow.Count - 1);
 
             // Remove the cell update
+            // NOTE: This is best effort. The only way TryRemove can fail is if it is already
+            //       removed. If this happens, it is OK.
             CellUpdate cellUpdate;
             cellUpdates.TryRemove(columnId, out cellUpdate);
 
-            return associatedRow[columnId].DisplayValue;
+            return new EditRevertCellResult
+            {
+                IsRowDirty = cellUpdates.Count > 0,
+                Cell = new EditCell(associatedRow[columnId], false)
+            };
         }
 
         /// <summary>
@@ -203,10 +211,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 cellUpdates.TryRemove(columnId, out cu);
                 return new EditUpdateCellResult
                 {
-                    HasCorrections = false,
-                    NewValue = associatedRow[columnId].DisplayValue,
-                    IsRevert = true,
-                    IsNull = associatedRow[columnId].IsNull
+                    IsRowDirty = cellUpdates.Count > 0,
+                    Cell = new EditCell(associatedRow[columnId], false)
                 };
             }
 
@@ -214,10 +220,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             cellUpdates.AddOrUpdate(columnId, update, (i, cu) => update);
             return new EditUpdateCellResult
             {
-                HasCorrections = update.ValueAsString != newValue,
-                NewValue = update.ValueAsString != newValue ? update.ValueAsString : null,
-                IsNull = update.Value == DBNull.Value,
-                IsRevert = false            // If we're in this branch, it is not a revert
+                IsRowDirty = true,
+                Cell = update.AsEditCell
             };
         }
 

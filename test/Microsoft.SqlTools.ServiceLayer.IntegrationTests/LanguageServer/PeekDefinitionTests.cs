@@ -695,6 +695,8 @@ GO";
             Assert.True(connInfo.ConnectionTypeToConnectionMap.TryRemove(ConnectionType.Query, out connection));
         }
 
+        // Temporily commented out until a fix is pushed.
+
         /// <summary>
         /// Get Definition for a object with no definition. Expect a error result
         /// </summary>
@@ -717,23 +719,24 @@ GO";
             LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            connInfo.RemoveAllConnections();
             var bindingQueue = new ConnectedBindingQueue();
             bindingQueue.AddConnectionContext(connInfo);
-            LanguageService.Instance.BindingQueue = bindingQueue;
             scriptFile.Contents = queryString;
 
-            var service = LanguageService.Instance;
+            var service = new LanguageService();
+            service.BindingQueue = bindingQueue;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
             Thread.Sleep(2000);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-            LanguageService.Instance.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+            service.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
 
             // When I call the language service
-            var objectResult = LanguageService.Instance.GetDefinition(objectDocument, scriptFile, connInfo);
-            var sysResult = LanguageService.Instance.GetDefinition(sysDocument, scriptFile, connInfo);
-            var masterResult = LanguageService.Instance.GetDefinition(masterDocument, scriptFile, connInfo);
+            var objectResult = service.GetDefinition(objectDocument, scriptFile, connInfo);
+            var sysResult = service.GetDefinition(sysDocument, scriptFile, connInfo);
+            var masterResult = service.GetDefinition(masterDocument, scriptFile, connInfo);
 
             // Then I expect the results to be non-null
             Assert.NotNull(objectResult);
@@ -747,7 +750,8 @@ GO";
             Cleanup(objectResult.Locations);
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
-            LanguageService.Instance.ScriptParseInfoMap.Remove(OwnerUri);
+            service.ScriptParseInfoMap.Remove(OwnerUri);
+            connInfo.RemoveAllConnections();
         }
 
         [Fact]
@@ -770,23 +774,24 @@ GO";
             LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            connInfo.RemoveAllConnections();
             var bindingQueue = new ConnectedBindingQueue();
             bindingQueue.AddConnectionContext(connInfo);
-            LanguageService.Instance.BindingQueue = bindingQueue;
             scriptFile.Contents = queryString;
 
-            var service = LanguageService.Instance;
+            var service = new LanguageService();
+            service.BindingQueue = bindingQueue;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
             Thread.Sleep(2000);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
             scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-            LanguageService.Instance.ScriptParseInfoMap.Add(TestUri, scriptInfo);
+            service.ScriptParseInfoMap.Add(TestUri, scriptInfo);
 
             // When I call the language service
-            var fnResult = LanguageService.Instance.GetDefinition(fnDocument, scriptFile, connInfo);
-            var sysResult = LanguageService.Instance.GetDefinition(dboDocument, scriptFile, connInfo);
-            var masterResult = LanguageService.Instance.GetDefinition(masterDocument, scriptFile, connInfo);
+            var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
+            var sysResult = service.GetDefinition(dboDocument, scriptFile, connInfo);
+            var masterResult = service.GetDefinition(masterDocument, scriptFile, connInfo);
 
             // Then I expect the results to be non-null
             Assert.NotNull(fnResult);
@@ -800,7 +805,8 @@ GO";
             Cleanup(fnResult.Locations);
             Cleanup(sysResult.Locations);
             Cleanup(masterResult.Locations);
-            LanguageService.Instance.ScriptParseInfoMap.Remove(TestUri);
+            service.ScriptParseInfoMap.Remove(TestUri);
+            connInfo.RemoveAllConnections();
         }
 
 

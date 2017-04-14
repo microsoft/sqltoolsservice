@@ -45,8 +45,9 @@ END
 
         public static string TestDbComplexSelectQueries { get { return TestDbSelectQueriesInstance.Value; } }
 
-        public static string CreateNorthwindSchema { get { return CreateNorthwindSchemaInstance.Value; } }
+        public static string AdventureWorksScript { get { return AdventureWorksScriptInstance.Value; } }
 
+        public static string CreateNorthwindSchema { get { return CreateNorthwindSchemaInstance.Value; } }
 
         private static readonly Lazy<string> CreateDatabaseObjectsQueryInstance = new Lazy<string>(() =>
         {
@@ -61,6 +62,11 @@ END
         private static readonly Lazy<string> TestDbSelectQueriesInstance = new Lazy<string>(() =>
         {
             return GetScriptFileContent(ResourceNameRefix + "TestDbTableQueries.sql");
+        });
+
+        private static readonly Lazy<string> AdventureWorksScriptInstance = new Lazy<string>(() =>
+        {
+            return GetScriptFileContent(ResourceNameRefix + "AdventureWorks.sql");
         });
 
         private static readonly Lazy<string> CreateNorthwindSchemaInstance = new Lazy<string>(() =>
@@ -88,6 +94,6 @@ END
             return fileContent;
         }
 
-
+       
     }
 }
