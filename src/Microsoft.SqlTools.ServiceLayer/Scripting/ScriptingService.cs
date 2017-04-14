@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(ScriptingScriptAsRequest.Type, HandleScriptingScriptAsRequest);
-            serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleExecuteRequest);
+            serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
 
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// Handles request to execute start the script operation.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Await.Warning", "CS4014:Await.Warning", Justification = "Not using await for ScriptingOperation.Execute() since this a long running operation.")]
-        public async Task HandleExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
             try
             {
