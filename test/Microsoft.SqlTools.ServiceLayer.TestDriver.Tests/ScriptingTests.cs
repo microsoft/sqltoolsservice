@@ -18,6 +18,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// </summary>
     public class ScriptingTests : IDisposable
     {
+        public ScriptingTests()
+        {
+            // Setup the northwind database which will be reused by all scripting tests.
+            this.NorthwindDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem);
+            this.NorthwindDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
+        }
+
         /// <summary>
         /// The count of object when scripting the entire database, which includes the database as an object.
         /// </summary>
@@ -28,20 +35,28 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// </summary>
         public const int NorthwindSchemaObjectCount = 45;
 
-        public void Dispose() {}
+        public SqlTestDb NorthwindDatabase
+        {
+            get; set;
+        }
+
+        public void Dispose()
+        {
+            if (this.NorthwindDatabase != null)
+            {
+                this.NorthwindDatabase.Dispose();
+            }
+        }
 
         [Fact]
         public async Task ListSchemaObjects()
         {
-            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-
                 ScriptingListObjectsParams requestParams = new ScriptingListObjectsParams
                 {
-                    ConnectionString = testDatabase.ConnectionString,
+                    ConnectionString = this.NorthwindDatabase.ConnectionString,
                 };
 
                 ScriptingListObjectsResult result = await testService.ListScriptingObjects(requestParams);
@@ -54,16 +69,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptDatabaseSchema()
         {
-            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = testDatabase.ConnectionString,
+                    ConnectionString = this.NorthwindDatabase.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
@@ -83,16 +95,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptDatabaseSchemaAndData()
         {
-            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = testDatabase.ConnectionString,
+                    ConnectionString = this.NorthwindDatabase.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaAndData",
@@ -112,16 +121,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptTable()
         {
-            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-
                 ScriptingParams requestParams = new ScriptingParams
                 {                    
                     FilePath = tempFile.FilePath,
-                    ConnectionString = testDatabase.ConnectionString,
+                    ConnectionString = this.NorthwindDatabase.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
@@ -150,16 +156,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptTableUsingIncludeFilter()
         {
-            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = testDatabase.ConnectionString,
+                    ConnectionString = this.NorthwindDatabase.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
@@ -188,16 +191,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptTableAndData()
         {
-            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = testDatabase.ConnectionString,
+                    ConnectionString = this.NorthwindDatabase.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaAndData",
@@ -226,16 +226,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptTableDoesNotExist()
         {
-            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = testDatabase.ConnectionString,
+                    ConnectionString = this.NorthwindDatabase.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
@@ -261,16 +258,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptSchemaCancel()
         {
-            using (SqlTestDb testDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem))
             using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                testDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = testDatabase.ConnectionString,
+                    ConnectionString = this.NorthwindDatabase.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaAndData",
