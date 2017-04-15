@@ -14,8 +14,16 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
-    public static class ScriptingExtensionMethods
+    /// <summary>
+    /// Extension methods used by the scripting service.
+    /// </summary>
+    internal static class ScriptingExtensionMethods
     {
+        /// <summary>
+        /// Returns a list of ScriptingObject instances for the passed SqlScriptPublishModel instance.
+        /// </summary>
+        /// <param name="publishModel">The sql script publish model instance.</param>
+        /// <returns>The list of scripting objects.</returns>
         public static List<ScriptingObject> GetDatabaseObjects(this SqlScriptPublishModel publishModel)
         {
             string serverName = null;
@@ -23,6 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return GetDatabaseObjects(publishModel, out serverName, out databaseName);
         }
 
+        /// <summary>
+        /// Returns a list of ScriptingObject instances for the passed SqlScriptPublishModel instance.
+        /// </summary>
+        /// <param name="publishModel">The sql script publish model instance.</param>
+        /// <param name="serverName">The server name of the sql instance returned from SMO.</param>
+        /// <param name="databaseName">The database name of the database returned from SMO.</param>
+        /// <returns>The list of scripting objects.</returns>
         public static List<ScriptingObject> GetDatabaseObjects(this SqlScriptPublishModel publishModel, out string serverName, out string databaseName)
         {
             List<ScriptingObject> databaseObjects = new List<ScriptingObject>();
@@ -60,6 +75,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return databaseObjects;
         }
 
+        /// <summary>
+        /// Returns true if the passed exception or any inner exception is an OperationCanceledException instance.
+        /// </summary>
         public static bool IsOperationCanceledException(this Exception e)
         {
             Exception current = e;
@@ -76,6 +94,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return false;
         }
 
+        /// <summary>
+        /// Creates a SMO Urn instance based on the passed ScriptingObject instance.
+        /// </summary>
+        /// <param name="scriptingObject">The scripting object instance.</param>
+        /// <param name="server">The server of the target Urn instance.</param>
+        /// <param name="database">The database of the target Urn instance.</param>
+        /// <returns>The Urn instance.</returns>
         public static Urn ToUrn(this ScriptingObject scriptingObject, string server, string database)
         {
             if (scriptingObject == null)
@@ -114,6 +139,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return new Urn(urn);
         }
 
+        /// <summary>
+        /// Creates a ScriptingObject instance based on the passed SMO Urn instance.
+        /// </summary>
+        /// <param name="urn">The urn instance.</param>
+        /// <returns>The scripting object instance.</returns>
         public static ScriptingObject ToScriptingObject(this Urn urn)
         {
             if (urn == null)
