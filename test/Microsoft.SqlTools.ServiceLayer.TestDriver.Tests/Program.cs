@@ -63,6 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                                 MethodInfo methodInfo = type.GetMethod(methodName);
                                 await RunTest(type, methodInfo, test);
                             }
+
+                            RunTestCleanup(type);
                         }
                     }
                     catch (Exception ex)
@@ -90,6 +92,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     await (Task)methodInfo.Invoke(typeInstance, null);
                     Console.WriteLine("Test ran successfully: " + testName);
                 }
+            }
+        }
+
+        private static void RunTestCleanup(Type type)
+        {
+            try
+            {
+                MethodInfo cleanupMethod = type.GetMethod("Cleanup");
+                if (cleanupMethod != null)
+                {
+                    cleanupMethod.Invoke(null, null);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(
+                    "An exception occurred running Cleanup for type {0}: {1}",
+                    type.FullName,
+                    e);
             }
         }
     }
