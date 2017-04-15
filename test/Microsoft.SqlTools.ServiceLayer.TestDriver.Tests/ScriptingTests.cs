@@ -18,11 +18,24 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
     /// </summary>
     public class ScriptingTests : IDisposable
     {
-        public ScriptingTests()
+        private static Lazy<SqlTestDb> _northwind = new Lazy<SqlTestDb>(() =>
         {
             // Setup the northwind database which will be reused by all scripting tests.
-            this.NorthwindDatabase = SqlTestDb.CreateNew(TestServerType.OnPrem);
-            this.NorthwindDatabase.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
+            SqlTestDb northwind = SqlTestDb.CreateNew(TestServerType.OnPrem);
+            northwind.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
+            Console.WriteLine("Northwind setup complete, database name: {0}", northwind.DatabaseName);
+            return northwind;
+        });
+
+        public static void Cleanup()
+        {
+            if (_northwind.IsValueCreated)
+            {
+                Console.WriteLine(
+                    "Northwind cleanup, deleting database name: {0}", 
+                    _northwind.Value.DatabaseName);
+                _northwind.Value.Dispose();
+            }
         }
 
         /// <summary>
@@ -35,18 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// </summary>
         public const int NorthwindSchemaObjectCount = 45;
 
-        public SqlTestDb NorthwindDatabase
-        {
-            get; set;
-        }
-
-        public void Dispose()
-        {
-            if (this.NorthwindDatabase != null)
-            {
-                this.NorthwindDatabase.Dispose();
-            }
-        }
+        public SqlTestDb NorthwindDatabase { get { return _northwind.Value; } }
 
         [Fact]
         public async Task ListSchemaObjects()
@@ -321,5 +323,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 Assert.Equal("Invalid directory specified by the FilePath property.", errorEvent.Message);
             }
         }
+
+        public void Dispose() { }
     }
 }
