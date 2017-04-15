@@ -10,8 +10,25 @@ using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
+    /// <summary>
+    /// Implementes the matchin logic to filter scripting objects based on
+    /// an include/exclude criteria.
+    /// </summary>
+    /// <remarks>
+    /// First, objects are included by the include filter.  Then, objects are removed by
+    /// the exclude filter.  Matches are made by comparing case insensitive strings.  
+    /// Wildcard '*' are supported for all scripting object fields.
+    /// </remarks>
     public static class ScriptingObjectMatchProcessor
     {
+        /// <summary>
+        /// Given a collection of candidate scripting objects, filters the items that match 
+        /// based on the passed include and exclude criteria.
+        /// </summary>
+        /// <param name="includeCriteria">The include object criteria.</param>
+        /// <param name="excludeCriteria">The exclude object criteria.</param>
+        /// <param name="candidates">The candidate object to filter.</param>
+        /// <returns>The matching scripting objects.</returns>
         public static IEnumerable<ScriptingObject> Match(
             ScriptingObject includeCriteria,
             ScriptingObject excludeCriteria,
@@ -23,6 +40,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 candidates);
         }
 
+        /// <summary>
+        /// Given a collection of candidate scripting objects, filters the items that match 
+        /// based on the passed include and exclude criteria.
+        /// </summary>
+        /// <param name="includeCriteria">The collection of include object criteria items.</param>
+        /// <param name="excludeCriteria">The collection of exclude object criteria items.</param>
+        /// <param name="candidates">The candidate object to filter.</param>
+        /// <returns>The matching scripting objects.</returns>
         public static IEnumerable<ScriptingObject> Match(
             IEnumerable<ScriptingObject> includeCriteria,
             IEnumerable<ScriptingObject> excludeCriteria,
