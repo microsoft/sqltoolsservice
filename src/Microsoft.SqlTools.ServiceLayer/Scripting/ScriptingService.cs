@@ -106,17 +106,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Handles request to execute start the list objects operation.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Await.Warning", "CS4014:Await.Warning", Justification = "Not using await for ScriptingOperation.Execute() since this a long running operation.")]
         private async Task HandleListObjectsRequest(ScriptingListObjectsParams parameters, RequestContext<ScriptingListObjectsResult> requestContext)
         {
             try
             {
-                ScriptingOperation operation = new ScriptingListObjectsOperation(parameters, requestContext);
-                this.ActiveOperations[operation.OperationId] = operation;
+                ScriptingListObjectsOperation operation = new ScriptingListObjectsOperation(parameters, requestContext);
+                RunListObjectsTask(operation);
                 await requestContext.SendResult(new ScriptingListObjectsResult { OperationId = operation.OperationId });
-#pragma warning disable 4014
-                operation.Execute().ContinueWith((t) => this.ActiveOperations.TryRemove(operation.OperationId, out operation));
-#pragma warning restore 4014
             }
             catch (Exception e)
             {
@@ -127,17 +123,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Handles request to execute start the script operation.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Await.Warning", "CS4014:Await.Warning", Justification = "Not using await for ScriptingOperation.Execute() since this a long running operation.")]
         public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
             try
             {
-                ScriptingOperation operation = new ScriptingScriptOperation(parameters, requestContext);
-                this.ActiveOperations[operation.OperationId] = operation;
+                ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters, requestContext);
+                RunScriptTask(operation);
                 await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
-#pragma warning disable 4014
-                operation.Execute().ContinueWith((t) => this.ActiveOperations.TryRemove(operation.OperationId, out operation));
-#pragma warning restore 4014
             }
             catch (Exception e)
             {
@@ -166,6 +158,53 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
+        /// <summary>
+        /// Runs the async task to list scriptable objects.
+        /// </summary>
+        private void RunListObjectsTask(ScriptingListObjectsOperation operation)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    this.ActiveOperations[operation.OperationId] = operation;
+                    await operation.Execute();
+                }
+                catch (Exception e)
+                {
+                    await operation.RequestContext.SendError(e);
+                }
+                finally
+                {
+                    ScriptingOperation temp;
+                    this.ActiveOperations.TryRemove(operation.OperationId, out temp);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Runs the async task to script objects.
+        /// </summary>
+        private void RunScriptTask(ScriptingScriptOperation operation)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    this.ActiveOperations[operation.OperationId] = operation;
+                    await operation.Execute();
+                }
+                catch (Exception e)
+                {
+                    await operation.RequestContext.SendError(e);
+                }
+                finally
+                {
+                    ScriptingOperation temp;
+                    this.ActiveOperations.TryRemove(operation.OperationId, out temp);
+                }
+            });
+        }
         public void Dispose()
         {
             if (!disposed)

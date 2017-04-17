@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -14,56 +15,33 @@ using Xunit;
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
     /// <summary>
-    /// Scripting service end-to-end integration tests.
+    /// Scripting service end-to-end integration tests that use the SqlScriptPublishModel type to generate scripts.
     /// </summary>
-    public class ScriptingTests : IDisposable
+    public class SqlScriptPublishModelTests : IClassFixture<SqlScriptPublishModelTests.ScriptingFixture>
     {
-        private static Lazy<SqlTestDb> _northwind = new Lazy<SqlTestDb>(() =>
+        public SqlScriptPublishModelTests(ScriptingFixture scriptingFixture)
         {
-            // Setup the northwind database which will be reused by all scripting tests.
-            SqlTestDb northwind = SqlTestDb.CreateNew(TestServerType.OnPrem);
-            northwind.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
-            Console.WriteLine("Northwind setup complete, database name: {0}", northwind.DatabaseName);
-            return northwind;
-        });
-
-        public static void Cleanup()
-        {
-            if (_northwind.IsValueCreated)
-            {
-                Console.WriteLine(
-                    "Northwind cleanup, deleting database name: {0}", 
-                    _northwind.Value.DatabaseName);
-                _northwind.Value.Dispose();
-            }
+            this.Fixture = scriptingFixture;
         }
 
-        /// <summary>
-        /// The count of object when scripting the entire database, which includes the database as an object.
-        /// </summary>
-        public const int NorthwindObjectCount = 46;
+        public ScriptingFixture Fixture { get; private set; }
 
-        /// <summary>
-        /// The count of schema object, which excludes the database object.
-        /// </summary>
-        public const int NorthwindSchemaObjectCount = 45;
-
-        public SqlTestDb NorthwindDatabase { get { return _northwind.Value; } }
+        public SqlTestDb Northwind { get { return this.Fixture.Database; } }
 
         [Fact]
         public async Task ListSchemaObjects()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingListObjectsParams requestParams = new ScriptingListObjectsParams
                 {
-                    ConnectionString = this.NorthwindDatabase.ConnectionString,
+                    ConnectionString = this.Northwind.ConnectionString,
                 };
 
                 ScriptingListObjectsResult result = await testService.ListScriptingObjects(requestParams);
-                ScriptingListObjectsCompleteParameters completeParameters = await testService.Driver.WaitForEvent(ScriptingListObjectsCompleteEvent.Type, TimeSpan.FromMinutes(1));
-                Assert.Equal<int>(NorthwindSchemaObjectCount, completeParameters.DatabaseObjects.Count);
+                ScriptingListObjectsCompleteParameters completeParameters = await testService.Driver.WaitForEvent(ScriptingListObjectsCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.Equal<int>(ScriptingFixture.ObjectCountWithoutDatabase, completeParameters.DatabaseObjects.Count);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
@@ -71,13 +49,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptDatabaseSchema()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = this.NorthwindDatabase.ConnectionString,
+                    ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
@@ -85,9 +63,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
-                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
-                Assert.Equal<int>(NorthwindObjectCount, planEvent.Count);
+                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.Equal<int>(ScriptingFixture.ObjectCountWithDatabase, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
@@ -97,13 +75,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptDatabaseSchemaAndData()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = this.NorthwindDatabase.ConnectionString,
+                    ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaAndData",
@@ -111,9 +89,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
-                ScriptingCompleteParameters completeParameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
-                Assert.Equal<int>(NorthwindObjectCount, planEvent.Count);
+                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParameters completeParameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.Equal<int>(ScriptingFixture.ObjectCountWithDatabase, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
@@ -123,13 +101,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptTable()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {                    
                     FilePath = tempFile.FilePath,
-                    ConnectionString = this.NorthwindDatabase.ConnectionString,
+                    ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
@@ -146,9 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
-                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
-                Assert.Equal<int>(1, planEvent.Count);
+                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.Equal<int>(2, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
@@ -158,13 +136,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptTableUsingIncludeFilter()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = this.NorthwindDatabase.ConnectionString,
+                    ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
@@ -181,9 +159,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
-                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
-                Assert.Equal<int>(1, planEvent.Count);
+                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.Equal<int>(2, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
@@ -193,13 +171,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptTableAndData()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = this.NorthwindDatabase.ConnectionString,
+                    ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaAndData",
@@ -216,9 +194,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromMinutes(1));
-                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromMinutes(1));
-                Assert.Equal<int>(1, planEvent.Count);
+                ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.Equal<int>(2, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
@@ -228,13 +206,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptTableDoesNotExist()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = this.NorthwindDatabase.ConnectionString,
+                    ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaOnly",
@@ -251,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingErrorParams parameters = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromMinutes(1));
+                ScriptingErrorParams parameters = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.Equal("An error occurred while scripting the objects.", parameters.Message);
                 Assert.Contains("The Table '[dbo].[TableDoesNotExist]' does not exist on the server.", parameters.DiagnosticMessage);
             }
@@ -260,13 +238,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptSchemaCancel()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
                     FilePath = tempFile.FilePath,
-                    ConnectionString = this.NorthwindDatabase.ConnectionString,
+                    ConnectionString = this.Northwind.ConnectionString,
                     ScriptOptions = new ScriptOptions
                     {
                         TypeOfDataToScript = "SchemaAndData",
@@ -275,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingCancelResult cancelResult = await testService.CancelScript(result.OperationId);
-                ScriptingCancelParameters cancelEvent = await testService.Driver.WaitForEvent(ScriptingCancelEvent.Type, TimeSpan.FromMinutes(1));
+                ScriptingCancelParameters cancelEvent = await testService.Driver.WaitForEvent(ScriptingCancelEvent.Type, TimeSpan.FromSeconds(30));
                 testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
@@ -284,8 +262,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         [Fact]
         public async Task ScriptSchemaInvalidConnectionString()
         {
-            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
+            using (SelfCleaningTempFile tempFile = new SelfCleaningTempFile())
             {
                 ScriptingParams requestParams = new ScriptingParams
                 {
@@ -298,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingErrorParams errorEvent = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromMinutes(1));
+                ScriptingErrorParams errorEvent = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.Equal("Error parsing ConnectionString property", errorEvent.Message);
             }
         }
@@ -319,11 +297,42 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingErrorParams errorEvent = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromMinutes(1));
+                ScriptingErrorParams errorEvent = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.Equal("Invalid directory specified by the FilePath property.", errorEvent.Message);
             }
         }
 
         public void Dispose() { }
-    }
+
+        public class ScriptingFixture : IDisposable
+        {
+            public ScriptingFixture()
+            {
+                this.Database = SqlTestDb.CreateNew(TestServerType.OnPrem);
+                this.Database.RunQuery(Scripts.CreateNorthwindSchema, throwOnError: true);
+                Console.WriteLine("Northwind setup complete, database name: {0}", this.Database.DatabaseName);
+            }
+
+            /// <summary>
+            /// The count of object when scripting the entire database including the database object.
+            /// </summary>
+            public const int ObjectCountWithDatabase = 46;
+
+            /// <summary>
+            /// The count of objects when scripting the entire database excluding the database object.
+            /// </summary>
+            public const int ObjectCountWithoutDatabase = 45;
+
+            public SqlTestDb Database { get; private set; }
+
+            public void Dispose()
+            {
+                if (this.Database != null)
+                {
+                    Console.WriteLine("Northwind cleanup, deleting database name: {0}", this.Database.DatabaseName);
+                    this.Database.Dispose();
+                }
+            }
+        }
+   }
 }

@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     /// </remarks>
     public static class ScriptingObjectMatchProcessor
     {
+        private const string Wildcard = "*";
+
         /// <summary>
         /// Given a collection of candidate scripting objects, filters the items that match 
         /// based on the passed include and exclude criteria.
@@ -60,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             IEnumerable<ScriptingObject> matchedObjects = new List<ScriptingObject>();
 
-            if (includeCriteria != null && includeCriteria.Count() > 0)
+            if (includeCriteria != null && includeCriteria.Any())
             {
                 foreach (ScriptingObject scriptingObjectCriteria in includeCriteria)
                 {
@@ -96,11 +98,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             if (!string.IsNullOrWhiteSpace(criteria.Schema))
             {
-                if (criteria.Schema.Equals("*", StringComparison.OrdinalIgnoreCase))
+                if (criteria.Schema.Equals(Wildcard, StringComparison.OrdinalIgnoreCase))
                 {
                     // Don't filter any objects
                 }
-                if (criteria.Schema.EndsWith("*", StringComparison.OrdinalIgnoreCase))
+                if (criteria.Schema.EndsWith(Wildcard, StringComparison.OrdinalIgnoreCase))
                 {
                     matchedObjects = matchedObjects.Where(o => o.Schema.StartsWith(
                         criteria.Schema.Substring(0, criteria.Schema.Length - 1), 
@@ -114,11 +116,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             if (!string.IsNullOrWhiteSpace(criteria.Name))
             {
-                if (criteria.Name.Equals("*", StringComparison.OrdinalIgnoreCase))
+                if (criteria.Name.Equals(Wildcard, StringComparison.OrdinalIgnoreCase))
                 {
                     // Don't filter any objects
                 }
-                else if (criteria.Name.EndsWith("*", StringComparison.OrdinalIgnoreCase))
+                else if (criteria.Name.EndsWith(Wildcard, StringComparison.OrdinalIgnoreCase))
                 {
                     matchedObjects = matchedObjects.Where(o => o.Name.StartsWith(
                         criteria.Name.Substring(0, criteria.Name.Length - 1), 

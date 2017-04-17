@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private ScriptingListObjectsParams Parameters { get; set; }
 
-        private RequestContext<ScriptingListObjectsResult> RequestContext { get; set; }
+        public RequestContext<ScriptingListObjectsResult> RequestContext { get; private set; }
 
         public ScriptingListObjectsOperation(ScriptingListObjectsParams parameters, RequestContext<ScriptingListObjectsResult> requestContext)
         {

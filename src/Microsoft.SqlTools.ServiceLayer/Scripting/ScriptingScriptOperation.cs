@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private ScriptingParams Parameters { get; set; }
 
-        private RequestContext<ScriptingResult> RequestContext { get; set; }
+        public RequestContext<ScriptingResult> RequestContext { get; private set; }
 
         public ScriptingScriptOperation(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
@@ -92,20 +92,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 publishModel.GenerateScript(outputOptions);
 
+                Logger.Write(
+                    LogLevel.Verbose,
+                    string.Format(
+                        "Sending script complete notification event with total count {0} and scripted count {1}",
+                        this.totalScriptedObjectCount,
+                        this.scriptedObjectCount));
+
                 this.SendJsonRpcEventAsync(
                     ScriptingCompleteEvent.Type,
                     new ScriptingCompleteParameters { OperationId = this.OperationId });
             }
             catch (Exception e)
             {
+
                 if (e.IsOperationCanceledException())
                 {
+                    Logger.Write(LogLevel.Normal, string.Format("Scripting operation {0} failed was canceled", this.OperationId));
+
                     this.SendJsonRpcEventAsync(
                         ScriptingCancelEvent.Type,
                         new ScriptingCancelParameters { OperationId = this.OperationId });
                 }
                 else
                 {
+                    Logger.Write(LogLevel.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
+
                     ScriptingErrorParams eventParams = new ScriptingErrorParams
                     {
                         OperationId = this.OperationId,
@@ -132,9 +144,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
             PopulateAdvancedScriptOptions(publishModel.AdvancedOptions);
 
-            bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Count > 0;
-            bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Count > 0;
-            bool hasObjectsSpecified = this.Parameters.DatabaseObjects != null && this.Parameters.DatabaseObjects.Count > 0;
+            bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any();
+            bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any();
+            bool hasObjectsSpecified = this.Parameters.DatabaseObjects != null && this.Parameters.DatabaseObjects.Any();
 
             // If no object selection criteria was specified, we're scripting the entire database
             publishModel.ScriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
@@ -146,15 +158,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // An object selection criteria was specified, so now we need to resolve the SMO Urn instances to script.
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>();
 
-            // The serverName and databaseName are needed to construct the SMO Urn instances we wan't to include/exclude.  We 
-            // lazily load these these values, hopefully piggy-backing on the the publishModel.GetDatabaseObjects()  method 
-            // call.  This avoids a roundtrip to the server for just the serverName.
-            string serverName = null;
-            string databaseName = null;
-
             if (hasIncludeCriteria || hasExcludeCriteria)
             {
-                List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects(out serverName, out databaseName);
+                List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
                 selectedObjects = ScriptingObjectMatchProcessor.Match(
                     this.Parameters.IncludeObjectCriteria,
                     this.Parameters.ExcludeObjectCriteria,
@@ -174,19 +180,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
 
-            if (string.IsNullOrEmpty(serverName))
-            {
-                serverName = GetServerName(this.Parameters.ConnectionString);
-            }
-
-            if (string.IsNullOrEmpty(databaseName))
-            {
-                databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
-            }
-
+            string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {
-                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(serverName, databaseName));
+                publishModel.SelectedObjects.Add(scriptingObject.ToUrn(database));
             }
 
             return publishModel;
@@ -265,6 +262,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 Count = scriptingObjects.Count,
             };
 
+            Logger.Write(
+                LogLevel.Verbose,
+                string.Format(
+                    "Sending plan notification event with count {0}, objects: {1}", 
+                    this.totalScriptedObjectCount, 
+                    string.Join(", ", e.Urns)));
+
             this.SendJsonRpcEventAsync(ScriptingPlanNotificationEvent.Type, eventParams);
         }
 
@@ -291,6 +295,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 TotalCount = this.totalScriptedObjectCount,
             };
 
+            Logger.Write(
+                LogLevel.Verbose,
+                string.Format(
+                    "Sending progress event, Urn={0}, OperationId={1}, Completed={2}, Error={3}",
+                    e.Urn,
+                    this.OperationId,
+                    e.Completed,
+                    e.Error));
+
             this.SendJsonRpcEventAsync(ScriptingProgressNotificationEvent.Type, eventParams);
         }
 
@@ -298,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             if (this.cancellation != null && !this.cancellation.IsCancellationRequested)
             {
-                Logger.Write(LogLevel.Normal, string.Format("ScriptingOperation.Cancel invoked for OperationId {0}", this.OperationId));
+                Logger.Write(LogLevel.Verbose, string.Format("ScriptingOperation.Cancel invoked for OperationId {0}", this.OperationId));
                 this.cancellation.Cancel();
             }
         }
@@ -315,26 +328,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private void SendJsonRpcEventAsync<TParams>(EventType<TParams> eventType, TParams eventParams)
         {
             Task.Run(async () => await this.RequestContext.SendEvent(eventType, eventParams));
-        }
-
-        /// <summary>
-        /// Gets the server name from using SMO using the passed connection string.
-        /// </summary>
-        /// <param name="connectionString">The connection string.</param>
-        /// <returns>The server name.</returns>
-        /// <remarks>
-        /// We resolve the server name using SMO instead of connection string due to docker.  When connecting
-        /// to a docker instance, the connection string Server='localhost' however the server name used to construct
-        /// the SMO Urn instances must user the docker server name, which is a random name and is not generally specified
-        /// in the connection string.
-        /// </remarks>
-        private static string GetServerName(string connectionString)
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                Server server = new Server(new ServerConnection(connection));
-                return server.Name;
-            }
         }
     }
 }
