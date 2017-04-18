@@ -7,6 +7,8 @@ using System.Globalization;
 using Xunit;
 
 using ServiceLayerSr = Microsoft.SqlTools.ServiceLayer.Localization.sr;
+using HostingSr = Microsoft.SqlTools.Hosting.Localization.sr;
+using CredentialSr = Microsoft.SqlTools.Credentials.Localization.sr;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -23,7 +25,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(SR.QueryServiceFileWrapperNotInitialized);
             Assert.NotNull(SR.QueryServiceColumnNull);
 
-            var sr = new ServiceLayerSr();
+            var serviceLayerSr = new ServiceLayerSr();
+            var hostingSr = new HostingSr();
+            var credentialSr = new CredentialSr();
             Assert.NotNull(ServiceLayerSr.ResourceManager);
             ServiceLayerSr.Culture = CultureInfo.CurrentCulture;
             Assert.NotNull(ServiceLayerSr.Culture);
@@ -49,11 +53,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.ConnectionServiceDbErrorDefaultNotConnected);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceListDbErrorNotConnected);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceListDbErrorNullOwnerUri);
-            Assert.Null(ServiceLayerSr.CredentialServiceWin32CredentialDisposed);
-            Assert.Null(ServiceLayerSr.CredentialsServiceInvalidCriticalHandle);
-            Assert.Null(ServiceLayerSr.CredentialsServicePasswordLengthExceeded);
-            Assert.Null(ServiceLayerSr.CredentialsServiceTargetForDelete);
-            Assert.Null(ServiceLayerSr.CredentialsServiceTargetForLookup);
+            Assert.Null(CredentialSr.CredentialServiceWin32CredentialDisposed);
+            Assert.Null(CredentialSr.CredentialsServiceInvalidCriticalHandle);
+            Assert.Null(CredentialSr.CredentialsServicePasswordLengthExceeded);
+            Assert.Null(CredentialSr.CredentialsServiceTargetForDelete);
+            Assert.Null(CredentialSr.CredentialsServiceTargetForLookup);
             Assert.NotNull(ServiceLayerSr.EE_BatchError_Exception);
             Assert.NotNull(ServiceLayerSr.EE_BatchExecutionError_Halting);
             Assert.NotNull(ServiceLayerSr.EE_BatchExecutionError_Ignoring);

@@ -49,8 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             NodeValue = connectionSummary.ServerName;
             IsAlwaysLeaf = false;
-            NodeType = NodeTypes.ServerInstance.ToString();
-            NodeTypeId = NodeTypes.ServerInstance;
+            NodeType = NodeTypes.Server.ToString();
+            NodeTypeId = NodeTypes.Server;
             Label = GetConnectionLabel();
         }
 
