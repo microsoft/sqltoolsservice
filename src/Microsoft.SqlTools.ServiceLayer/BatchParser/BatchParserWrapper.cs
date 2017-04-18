@@ -117,10 +117,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             return batchDefinitionList;
         }
 
-        private static int GetMaxStartLine(IList<Tuple<int, int>> positions) {
+        private static int GetMaxStartLine(IList<Tuple<int, int>> positions) 
+        {
             int highest = 0;
-            foreach (var position in positions) {
-                if (position.Item1 > highest) {
+            foreach (var position in positions) 
+            {
+                if (position.Item1 > highest) 
+                {
                     highest = position.Item1;
                 }
             }
@@ -130,14 +133,16 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <summary>
         /// Gets offsets for all batches
         /// </summary>
-        private static List<int> GetOffsets(string content, IList<Tuple<int, int>> positions) {
+        private static List<int> GetOffsets(string content, IList<Tuple<int, int>> positions) 
+        {
 
             List<int> offsets = new List<int>();
             int count = 0;
             int offset = 0;
             bool foundAllOffsets = false;
             using (StringReader reader = new StringReader(content)) {
-                while (!foundAllOffsets) {
+                while (!foundAllOffsets)
+                 {
                     for (int i = 0; i <= GetMaxStartLine(positions); i++)
                     {
                         int ch;
@@ -167,7 +172,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                                 offset++;
                             }
                         }
-                        if (foundAllOffsets) {
+                        if (foundAllOffsets) 
+                        {
                             break;
                         }
 
