@@ -140,47 +140,64 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             int count = 0;
             int offset = 0;
             bool foundAllOffsets = false;
-            using (StringReader reader = new StringReader(content)) {
+            int maxStartLine = GetMaxStartLine(positions);
+            using (StringReader reader = new StringReader(content))
+            {
+                // go until we have found offsets for all batches
                 while (!foundAllOffsets)
-                 {
-                    for (int i = 0; i <= GetMaxStartLine(positions); i++)
+                {
+                    // go until the last start line of the batches
+                    for (int i = 0; i <= maxStartLine ; i++)
                     {
-                        int ch;
-                        while (true)
-                        {
-                            if (positions[count].Item1 == i) {
-                                count++;
-                                offsets.Add(offset);
-                                if (count == positions.Count) 
-                                {
-                                    foundAllOffsets = true;
-                                    break;
-                                }
-                            }
-                            ch = reader.Read();
-                            if (ch == -1) // EOF do nothing
-                            {
-                                break;
-                            }
-                            else if (ch == 10 /* for \n */) // End of line increase and break
-                            {
-                                offset++;
-                                break;
-                            }
-                            else // regular char just increase
-                            {
-                                offset++;
-                            }
-                        }
-                        if (foundAllOffsets) 
+                        // get offset for the current batch
+                        ReadLines(reader, ref count, ref offset, ref foundAllOffsets, positions, offsets, i);
+
+                        // if we found all the offsets, then we're done
+                        if (foundAllOffsets)
                         {
                             break;
                         }
 
-                    } 
-                }       
+                    }
+                }
             }             
             return offsets;
+        }
+
+        /// <summary>
+        /// Helper function to read lines of batches to get offsets
+        /// </summary>
+        private static void ReadLines(StringReader reader, ref int count, ref int offset, ref bool foundAllOffsets, 
+                        IList<Tuple<int, int>> positions, List<int> offsets, int iteration)
+        {
+            int ch;
+            while (true)
+            {
+                if (positions[count].Item1 == iteration)
+                {
+                    count++;
+                    offsets.Add(offset);
+                    if (count == positions.Count)
+                    {
+                        foundAllOffsets = true;
+                        break;
+                    }
+                }
+                ch = reader.Read();
+                if (ch == -1) // EOF do nothing
+                {
+                    break;
+                }
+                else if (ch == 10 /* for \n */) // End of line increase and break
+                {
+                    offset++;
+                    break;
+                }
+                else // regular char just increase
+                {
+                    offset++;
+                }
+            }
         }
 
 
