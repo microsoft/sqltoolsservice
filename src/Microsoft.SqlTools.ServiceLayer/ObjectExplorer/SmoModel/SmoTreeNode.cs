@@ -56,6 +56,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             SmoObject = smoObject;
             NodeValue = smoObject.Name;
+            ScriptSchemaObjectBase schemaBasecObject = smoObject as ScriptSchemaObjectBase;
+            ObjectMetadata = new Metadata.Contracts.ObjectMetadata();
+            if (schemaBasecObject != null)
+            {
+                ObjectMetadata.MetadataTypeName = schemaBasecObject.Urn?.Type;
+                ObjectMetadata.Name = schemaBasecObject.Name;
+                ObjectMetadata.Schema = schemaBasecObject.Schema;
+                if (!string.IsNullOrEmpty(ObjectMetadata.Schema))
+                {
+                    NodeValue = $"{ObjectMetadata.Schema}.{smoObject.Name}";
+                }
+            }
         }
         
         public virtual NamedSmoObject GetParentSmoObject()

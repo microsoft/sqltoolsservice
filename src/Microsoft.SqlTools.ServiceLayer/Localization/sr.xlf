@@ -1351,11 +1351,6 @@
         <target state="new">Table Type Indexes</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerInstance">
-        <source>ServerInstance</source>
-        <target state="new">ServerInstance</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_SelectiveXmlIndexes">
         <source>Selective XML Indexes</source>
         <target state="new">Selective XML Indexes</target>
@@ -1414,6 +1409,11 @@
       <trans-unit id="SchemaHierarchy_ColumnEncryptionKeys">
         <source>Column Encryption Keys</source>
         <target state="new">Column Encryption Keys</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Server">
+        <source>Server</source>
+        <target state="new">Server</target>
         <note></note>
       </trans-unit>
     </body>

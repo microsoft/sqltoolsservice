@@ -12,8 +12,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public DatabaseInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "DatabaseInstance";
-    		this.NodeTypeId = NodeTypes.DatabaseInstance;
+    		this.NodeType = "Database";
+    		this.NodeTypeId = NodeTypes.Database;
 	    	OnInitialize();
     	}
     }
@@ -23,8 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public TableInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "TableInstance";
-    		this.NodeTypeId = NodeTypes.TableInstance;
+    		this.NodeType = "Table";
+    		this.NodeTypeId = NodeTypes.Table;
 	    	OnInitialize();
     	}
     }
@@ -34,8 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public ViewInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "ViewInstance";
-    		this.NodeTypeId = NodeTypes.ViewInstance;
+    		this.NodeType = "View";
+    		this.NodeTypeId = NodeTypes.View;
 	    	OnInitialize();
     	}
     }
@@ -45,8 +45,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public UserDefinedTableTypeInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "UserDefinedTableTypeInstance";
-    		this.NodeTypeId = NodeTypes.UserDefinedTableTypeInstance;
+    		this.NodeType = "UserDefinedTableType";
+    		this.NodeTypeId = NodeTypes.UserDefinedTableType;
 	    	OnInitialize();
     	}
     }
@@ -56,8 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public StoredProcedureInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "StoredProcedureInstance";
-    		this.NodeTypeId = NodeTypes.StoredProcedureInstance;
+    		this.NodeType = "StoredProcedure";
+    		this.NodeTypeId = NodeTypes.StoredProcedure;
 	    	OnInitialize();
     	}
     }
@@ -67,8 +67,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public TableValuedFunctionInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "TableValuedFunctionInstance";
-    		this.NodeTypeId = NodeTypes.TableValuedFunctionInstance;
+    		this.NodeType = "TableValuedFunction";
+    		this.NodeTypeId = NodeTypes.TableValuedFunction;
 	    	OnInitialize();
     	}
     }
@@ -78,8 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public ScalarValuedFunctionInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "ScalarValuedFunctionInstance";
-    		this.NodeTypeId = NodeTypes.ScalarValuedFunctionInstance;
+    		this.NodeType = "ScalarValuedFunction";
+    		this.NodeTypeId = NodeTypes.ScalarValuedFunction;
 	    	OnInitialize();
     	}
     }
@@ -89,8 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public AggregateFunctionInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "AggregateFunctionInstance";
-    		this.NodeTypeId = NodeTypes.AggregateFunctionInstance;
+    		this.NodeType = "AggregateFunction";
+    		this.NodeTypeId = NodeTypes.AggregateFunction;
 	    	OnInitialize();
     	}
     }
@@ -111,8 +111,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public ExternalTableInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "ExternalTableInstance";
-    		this.NodeTypeId = NodeTypes.ExternalTableInstance;
+    		this.NodeType = "ExternalTable";
+    		this.NodeTypeId = NodeTypes.ExternalTable;
 	    	OnInitialize();
     	}
     }
@@ -122,8 +122,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public ExternalResourceInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "ExternalResourceInstance";
-    		this.NodeTypeId = NodeTypes.ExternalResourceInstance;
+    		this.NodeType = "ExternalResource";
+    		this.NodeTypeId = NodeTypes.ExternalResource;
 	    	OnInitialize();
     	}
     }
@@ -133,8 +133,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     	public HistoryTableInstanceTreeNode() : base()
     	{
     		NodeValue = string.Empty;
-    		this.NodeType = "HistoryTableInstance";
-    		this.NodeTypeId = NodeTypes.HistoryTableInstance;
+    		this.NodeType = "HistoryTable";
+    		this.NodeTypeId = NodeTypes.HistoryTable;
 	    	OnInitialize();
     	}
     }
@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class ServerInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ServerInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "Server" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -578,7 +578,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class DatabaseInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "DatabaseInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "Database" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -1147,7 +1147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class TableInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "TableInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "Table" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -1209,7 +1209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class HistoryTableInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "HistoryTableInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "HistoryTable" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -1254,7 +1254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class ExternalTableInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalTableInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ExternalTable" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -1454,7 +1454,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class ViewInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ViewInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "View" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -1875,7 +1875,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class UserDefinedTableTypeInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "UserDefinedTableTypeInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "UserDefinedTableType" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -2297,7 +2297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class StoredProcedureInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "StoredProcedureInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "StoredProcedure" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -2375,7 +2375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class TableValuedFunctionInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "TableValuedFunctionInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "TableValuedFunction" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -2453,7 +2453,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class ScalarValuedFunctionInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "ScalarValuedFunctionInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ScalarValuedFunction" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
@@ -2531,7 +2531,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class AggregateFunctionInstanceChildFactory : SmoChildFactoryBase
     {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "AggregateFunctionInstance" }; }
+        public override IEnumerable<string> ApplicableParents() { return new[] { "AggregateFunction" }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
