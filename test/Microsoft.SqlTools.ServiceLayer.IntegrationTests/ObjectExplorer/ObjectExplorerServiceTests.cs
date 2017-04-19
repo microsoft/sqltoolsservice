@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         private ObjectExplorerService _service = TestServiceProvider.Instance.ObjectExplorerService;
 
         [Fact]
-        public async void CreateSessionAndExpandOnTheServerShouldReturnTheDatabases()
+        public async void CreateSessionAndExpandOnTheServerShouldReturnServerAsTheRoot()
         {
             var query = "";
             string uri = "CreateSessionAndExpandServer";
@@ -31,13 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(null, uri);
-                await CreateSessionAndServerNode(testDb.DatabaseName, session);
+                await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
                 CancelConnection(uri);
             }
         }
 
         [Fact]
-        public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseObjects()
+        public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseAsTheRoot()
         {
             var query = "";
             string uri = "CreateSessionAndExpandDatabase";
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                ExpandAndVerifyDatabaseNode(testDb.DatabaseName, session);
                 CancelConnection(uri);
             }
         }
@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             return await _service.DoCreateSession(details, uri);
         }
 
-        private async Task<NodeInfo> CreateSessionAndServerNode(string databaseName, ObjectExplorerSession session)
+        private async Task<NodeInfo> ExpandServerNodeAndVerifyDatabaseHierachy(string databaseName, ObjectExplorerSession session)
         {
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
@@ -84,13 +84,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             return databaseNode;
         }
 
-        private void CreateSessionAndDatabaseNode(string databaseName, ObjectExplorerSession session)
+        private void ExpandAndVerifyDatabaseNode(string databaseName, ObjectExplorerSession session)
         {
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
             Assert.Equal(nodeInfo.IsLeaf, false);
-            Assert.Equal(nodeInfo.NodeType, NodeTypes.DatabaseInstance.ToString());
+            Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
             Assert.True(nodeInfo.Label.Contains(databaseName));
             var children = session.Root.Expand();
 
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }
@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }
@@ -210,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }
@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }

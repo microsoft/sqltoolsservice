@@ -5,6 +5,7 @@
 
 using System;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -71,6 +72,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
             }
             return null;
+        }
+
+        public static bool IsSystemDatabaseConnection(string databaseName)
+        {
+            return (string.IsNullOrWhiteSpace(databaseName) ||
+                string.Compare(databaseName, CommonConstants.MasterDatabaseName, StringComparison.OrdinalIgnoreCase) == 0 ||
+                string.Compare(databaseName, CommonConstants.MsdbDatabaseName, StringComparison.OrdinalIgnoreCase) == 0 ||
+                string.Compare(databaseName, CommonConstants.ModelDatabaseName, StringComparison.OrdinalIgnoreCase) == 0 ||
+                string.Compare(databaseName, CommonConstants.TempDbDatabaseName, StringComparison.OrdinalIgnoreCase) == 0);
         }
     }
 }

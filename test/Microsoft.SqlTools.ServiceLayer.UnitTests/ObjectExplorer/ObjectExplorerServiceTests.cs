@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
 
         [Fact]
-        public async Task CreateSessionRequestReturnsSuccessAndNodeInfo()
+        public async Task CreateSessionRequestReturnsServerSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
             ConnectionDetails details = new ConnectionDetails()
@@ -104,6 +104,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // And expect no error notification to be sent
             serviceHostMock.Verify(x => x.SendEvent(ConnectionCompleteNotification.Type, 
                 It.IsAny<ConnectionCompleteParams>()), Times.Never());
+        }
+
+        private void VerifyDatabaseNode(NodeInfo databaseNode, ConnectionDetails details)
+        {
+            Assert.NotNull(databaseNode);
+            Assert.Equal(NodeTypes.Database.ToString(), databaseNode.NodeType);
+            string[] pathParts = databaseNode.NodePath.Split(TreeNode.PathPartSeperator);
+            Assert.Equal(1, pathParts.Length);
+            Assert.Equal(details.ServerName, pathParts[0]);
+            Assert.True(databaseNode.Label.Contains(details.ServerName));
+            Assert.True(databaseNode.Label.Contains(details.DatabaseName));
+            Assert.False(databaseNode.IsLeaf);
         }
 
         private void VerifyServerNode(NodeInfo serverNode, ConnectionDetails details)

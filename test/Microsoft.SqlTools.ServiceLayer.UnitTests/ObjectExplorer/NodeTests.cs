@@ -58,15 +58,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Fact]
         public void ServerNodeConstructorValidatesFields()
         {
-            Assert.Throws<ArgumentNullException>(() => new RootNode(null, ServiceProvider));
-            Assert.Throws<ArgumentNullException>(() => new RootNode(defaultConnParams, null));
+            Assert.Throws<ArgumentNullException>(() => new ServerNode(null, ServiceProvider));
+            Assert.Throws<ArgumentNullException>(() => new ServerNode(defaultConnParams, null));
         }
 
         [Fact]
         public void ServerNodeConstructorShouldSetValuesCorrectly()
         {
             // Given a server node with valid inputs
-            RootNode node = new RootNode(defaultConnParams, ServiceProvider);
+            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
             // Then expect all fields set correctly
             Assert.False(node.IsAlwaysLeaf, "Server node should never be a leaf");
             Assert.Equal(defaultConnectionDetails.ServerName, node.NodeValue);
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 OwnerUri = defaultOwnerUri
             };
             // When querying label
-            string label = new RootNode(connParams, ServiceProvider).Label;
+            string label = new ServerNode(connParams, ServiceProvider).Label;
             // Then only server name and version shown
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + ")";
             Assert.Equal(expectedLabel, label);
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             defaultServerInfo.IsCloud = true;
 
             // Given a server node for a cloud DB, with master name
-            RootNode node = new RootNode(defaultConnParams, ServiceProvider);
+            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
             // Then expect label to not include db name
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
                 + defaultConnectionDetails.UserName + ")";
@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // But given a server node for a cloud DB that's not master
             defaultConnectionDetails.DatabaseName = "NotMaster";
-            node = new RootNode(defaultConnParams, ServiceProvider);
+            node = new ServerNode(defaultConnParams, ServiceProvider);
 
             // Then expect label to include db name 
             expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void ToNodeInfoIncludeAllFields()
         {
             // Given a server connection
-            RootNode node = new RootNode(defaultConnParams, ServiceProvider);
+            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
             // When converting to NodeInfo
             NodeInfo info = node.ToNodeInfo();
             // Then all fields should match
@@ -204,9 +204,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // given a successful Server creation
             SetupAndRegisterTestConnectionService();
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
-            RootNode node = SetupServerNodeWithServer(smoServer);
+            ServerNode node = SetupServerNodeWithServer(smoServer);
 
-            // When I get the context for a RootNode
+            // When I get the context for a ServerNode
             var context = node.GetContextAs<SmoQueryContext>();
 
             // Then I expect it to contain the server I created 
@@ -225,9 +225,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connService.OwnerToConnectionMap.Remove(defaultOwnerUri);
 
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
-            RootNode node = SetupServerNodeWithServer(smoServer);
+            ServerNode node = SetupServerNodeWithServer(smoServer);
 
-            // When I get the context for a RootNode
+            // When I get the context for a ServerNode
             var context = node.GetContextAs<SmoQueryContext>();
 
             // Then I expect it to be in an error state 
@@ -245,9 +245,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             string expectedMsg = "ConnFailed!";
-            RootNode node = SetupServerNodeWithExceptionCreator(new ConnectionFailureException(expectedMsg));
+            ServerNode node = SetupServerNodeWithExceptionCreator(new ConnectionFailureException(expectedMsg));
 
-            // When I get the context for a RootNode
+            // When I get the context for a ServerNode
             var context = node.GetContextAs<SmoQueryContext>();
 
             // Then I expect it to be in an error state 
@@ -265,9 +265,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             string expectedMsg = "Failed!";
-            RootNode node = SetupServerNodeWithExceptionCreator(new Exception(expectedMsg));
+            ServerNode node = SetupServerNodeWithExceptionCreator(new Exception(expectedMsg));
 
-            // When I get the context for a RootNode
+            // When I get the context for a ServerNode
             var context = node.GetContextAs<SmoQueryContext>();
 
             // Then I expect it to be in an error state 
@@ -289,28 +289,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             return connService;
         }
 
-        private RootNode SetupServerNodeWithServer(Server smoServer)
+        private ServerNode SetupServerNodeWithServer(Server smoServer)
         {
             Mock<SmoServerCreator> creator = new Mock<SmoServerCreator>();
             creator.Setup(c => c.Create(It.IsAny<SqlConnection>()))
                 .Returns(() => smoServer);
-            RootNode node = SetupServerNodeWithCreator(creator.Object);
+            ServerNode node = SetupServerNodeWithCreator(creator.Object);
             return node;
         }
 
-        private RootNode SetupServerNodeWithExceptionCreator(Exception ex)
+        private ServerNode SetupServerNodeWithExceptionCreator(Exception ex)
         {
             Mock<SmoServerCreator> creator = new Mock<SmoServerCreator>();
             creator.Setup(c => c.Create(It.IsAny<SqlConnection>()))
                 .Throws(ex);
 
-            RootNode node = SetupServerNodeWithCreator(creator.Object);
+            ServerNode node = SetupServerNodeWithCreator(creator.Object);
             return node;
         }
 
-        private RootNode SetupServerNodeWithCreator(SmoServerCreator creator)
+        private ServerNode SetupServerNodeWithCreator(SmoServerCreator creator)
         {
-            RootNode node = new RootNode(defaultConnParams, ServiceProvider);
+            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider);
             node.ServerCreator = creator;
             return node;
         }
@@ -333,7 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             ServiceProvider.Register<SmoQuerier>(() => new[] { querierMock.Object });
 
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
-            RootNode node = SetupServerNodeWithServer(smoServer);
+            ServerNode node = SetupServerNodeWithServer(smoServer);
 
             // When I populate its children
             IList<TreeNode> children = node.Expand();
