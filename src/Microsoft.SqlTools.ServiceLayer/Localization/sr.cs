@@ -2053,11 +2053,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string SchemaHierarchy_ServerInstance
+        public static string SchemaHierarchy_Server
         {
             get
             {
-                return Keys.GetString(Keys.SchemaHierarchy_ServerInstance);
+                return Keys.GetString(Keys.SchemaHierarchy_Server);
             }
         }
 
@@ -3036,7 +3036,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string SchemaHierarchy_TableTypeIndexes = "SchemaHierarchy_TableTypeIndexes";
 
 
-            public const string SchemaHierarchy_ServerInstance = "SchemaHierarchy_ServerInstance";
+            public const string SchemaHierarchy_Server = "SchemaHierarchy_Server";
 
 
             public const string SchemaHierarchy_SelectiveXmlIndexes = "SchemaHierarchy_SelectiveXmlIndexes";

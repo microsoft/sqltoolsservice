@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ServerExplorerTree>
-  <Node Name="ServerInstance" LocLabel="SR.SchemaHierarchy_ServerInstance" Image="Server">
+  <Node Name="Server" LocLabel="SR.SchemaHierarchy_ServerInstance" Image="Server">
     <Child Name="Databases"/>
     <Child Name="ServerLevelSecurity"/>
     <Child Name="ServerLevelServerObjects"/>
@@ -49,7 +49,7 @@
   <Node Name="ServerLevelServerTriggers" LocLabel="SR.SchemaHierarchy_ServerTriggers" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlServerDdlTrigger"/>
   <Node Name="ServerLevelErrorMessages" LocLabel="SR.SchemaHierarchy_ErrorMessages" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlErrorMessage"/>
   
-  <Node Name="DatabaseInstance" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" IsAsyncLoad="" Strategy="CreateModel">
+  <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" IsAsyncLoad="" Strategy="CreateModel">
     <Child Name="Tables"/>
     <Child Name="Views"/>
     <Child Name="Synonyms"/>
@@ -142,7 +142,7 @@
     </Filters>
   </Node>
 
-  <Node Name="TableInstance" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="HistoryTableInstanceTreeNode">
+  <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="HistoryTableInstanceTreeNode">
     <!-- TODO Add special history table handling to only return related history table instead of all! Under Table, we directly show any related history tables.-->
     <Filters>
       <Filter Property="TemporalType" Type="Enum" ValidFor="Sql2016|SqlvNext|AzureV12">
@@ -158,14 +158,14 @@
   </Node>
 
   <!-- TODO This should use display item not ChildQuerierTypes -->
-  <Node Name="HistoryTableInstance" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|SqlvNext|AzureV12">
+  <Node Name="HistoryTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|SqlvNext|AzureV12">
     <Child Name="Columns"/>
     <Child Name="Indexes"/>
     <Child Name="Statistics"/>
   </Node>
 
   <!-- TODO This should use display item not ChildQuerierTypes -->
-  <Node Name="ExternalTableInstance" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|SqlvNext|AzureV12">
+  <Node Name="ExternalTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|SqlvNext|AzureV12">
     <Child Name="Columns"/>
     <Child Name="Statistics"/>
   </Node>
@@ -192,7 +192,7 @@
 
   <Node Name="SystemViews" LocLabel="SR.SchemaHierarchy_SystemViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewInstanceTreeNode"/>
 
-  <Node Name="ViewInstance" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails">
+  <Node Name="View" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="Columns"/>
     <Child Name="Triggers"/>
     <Child Name="Indexes"/>
@@ -233,7 +233,7 @@
   <Node Name="UserDefinedTypes" LocLabel="SR.SchemaHierarchy_UserDefinedTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedType" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext|AzureV12"/>
   <Node Name="XmlSchemaCollections" LocLabel="SR.SchemaHierarchy_XMLSchemaCollections" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlXmlSchemaCollection" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext|AzureV12"/>
 
-  <Node Name="UserDefinedTableTypeInstance" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
+  <Node Name="UserDefinedTableType" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="UserDefinedTableTypeColumns"/>
     <Child Name="UserDefinedTableTypeKeys"/>
     <Child Name="UserDefinedTableTypeConstraints"/>
@@ -267,7 +267,7 @@
     <Child Name="SystemStoredProcedures"/>
   </Node>
   <Node Name="SystemStoredProcedures" LocLabel="SR.SchemaHierarchy_SystemStoredProcedures" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlProcedure" TreeNode="StoredProcedureInstanceTreeNode"/>
-  <Node Name="StoredProcedureInstance" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
+  <Node Name="StoredProcedure" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="StoredProcedureParameters"/>
   </Node>
   <Node Name="StoredProcedureParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" Strategy="StoredProcedureParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>
@@ -279,7 +279,7 @@
       </Filter>
     </Filters>
   </Node>
-  <Node Name="TableValuedFunctionInstance" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
+  <Node Name="TableValuedFunction" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="TableValuedFunctionParameters"/>
   </Node>
   <Node Name="TableValuedFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" Strategy="FunctionParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>
@@ -291,13 +291,13 @@
       </Filter>
     </Filters>
   </Node>
-  <Node Name="ScalarValuedFunctionInstance" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
+  <Node Name="ScalarValuedFunction" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="ScalarValuedFunctionParameters"/>
   </Node>
   <Node Name="ScalarValuedFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" Strategy="FunctionParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>
 
   <Node Name="AggregateFunctions" LocLabel="SR.SchemaHierarchy_AggregateFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedAggregate" TreeNode="AggregateFunctionInstanceTreeNode" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|SqlvNext|AzureV12"/>
-  <Node Name="AggregateFunctionInstance" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
+  <Node Name="AggregateFunction" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
     <Child Name="AggregateFunctionParameters"/>
   </Node>
   <Node Name="AggregateFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" Strategy="PopulateParentDetails" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>
