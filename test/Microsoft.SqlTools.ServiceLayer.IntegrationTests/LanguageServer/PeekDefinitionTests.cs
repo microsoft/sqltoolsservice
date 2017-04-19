@@ -713,9 +713,6 @@ GO";
         //     //cursor on sys
         //     TextDocumentPosition sysDocument = CreateTextDocPositionWithCursor(22, OwnerUri);
 
-        //     //cursor on master
-        //     TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(15, OwnerUri);
-
         //     LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
         //     ScriptFile scriptFile = connectionResult.ScriptFile;
         //     ConnectionInfo connInfo = connectionResult.ConnectionInfo;

@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
             {
-                return fileStreamReader.ReadRow(fileOffsets[rowId], Columns);
+                return fileStreamReader.ReadRow(fileOffsets[rowId], rowId, Columns);
             }
         }
 
@@ -255,13 +255,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     {
                         // Iterate over all the rows and process them into a list of string builders
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
-                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns)[0].DisplayValue);
+                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, 0, Columns)[0].DisplayValue);
                         string singleString = string.Join(string.Empty, rowValues);
                         DbCellValue cellValue = new DbCellValue
                         {
                             DisplayValue = singleString,
                             IsNull = false,
-                            RawObject = singleString
+                            RawObject = singleString,
+                            RowId = 0
                         };
                         rows = new[] { new[] { cellValue } };
                     }
@@ -272,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Iterate over the rows we need and process them into output
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in .ToArray call
-                        rows = rowOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, Columns).ToArray()).ToArray();
+                        rows = rowOffsets.Select((offset, id) => fileStreamReader.ReadRow(offset, id, Columns).ToArray()).ToArray();
                     }
                 }
                 // Retrieve the subset of the results as per the request
@@ -313,7 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
                 {
                     // Determine the format and get the first col/row of XML
-                    content = fileStreamReader.ReadRow(0, Columns)[0].DisplayValue;
+                    content = fileStreamReader.ReadRow(0, 0, Columns)[0].DisplayValue;
 
                     if (specialAction.ExpectYukonXMLShowPlan) 
                     {
@@ -482,7 +483,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
                         {
-                            var row = fileReader.ReadRow(fileOffsets[i], Columns);
+                            var row = fileReader.ReadRow(fileOffsets[i], i, Columns);
                             fileWriter.WriteRow(row, Columns);
                         }
                         if (successHandler != null)

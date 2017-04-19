@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		doc.Load(xmlFile);
 		XmlElement navPathElement = (XmlElement)doc.SelectSingleNode(string.Format("/SmoQueryModel/Node[@Name='{0}']/NavigationPath[@Parent='{1}']", nodeName, parent));
 		
-		return navPathElement?.GetAttribute("Field");
+		return navPathElement == null ? null : navPathElement.GetAttribute("Field");
 	}
 
 	public static string GetNavigationPath(XmlElement nodeElement, string xmlFile, string nodeName, string parentName)
@@ -181,7 +181,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		if (parentNodes != null && parentNodes.Count > 0)
 		{
 			List<string> parents = new List<string>();
-			int i = 0;
 			foreach(var node in parentNodes)
 			{
 				parents.Add(node.InnerText);
