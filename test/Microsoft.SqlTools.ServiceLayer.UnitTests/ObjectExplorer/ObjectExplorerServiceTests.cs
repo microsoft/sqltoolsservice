@@ -78,7 +78,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public async Task CreateSessionRequestReturnsSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
-            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "master",
+                ServerName = "serverName"
+            };
             serviceHostMock.AddEventHandling(ConnectionCompleteNotification.Type, null);
             
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))

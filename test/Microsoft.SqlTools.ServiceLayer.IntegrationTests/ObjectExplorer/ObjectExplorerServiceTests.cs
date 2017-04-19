@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
             Assert.Equal(nodeInfo.IsLeaf, false);
             Assert.Equal(nodeInfo.NodeType, NodeTypes.DatabaseInstance.ToString());
-            Assert.Equal(nodeInfo.Label.Contains(databaseName), true);
+            Assert.True(nodeInfo.Label.Contains(databaseName));
             var children = session.Root.Expand();
 
             //All server children should be folder nodes
