@@ -8,7 +8,7 @@ using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
-    internal partial class DatabaseInstanceTreeNode
+    internal partial class DatabaseTreeNode
     {
 
         /// <summary>

@@ -89,14 +89,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     !node.NodePath.Contains("FileTables") && !node.NodePath.Contains("External Tables"))
                 {
                     var labaleToUpper = node.Label.ToUpper();
-                    if (labaleToUpper.Contains("TABLE") || labaleToUpper.Contains("StoredProcedure") 
-                        || labaleToUpper.Contains("VIEW"))
+                    foreach (var child in children)
                     {
-                        foreach (var child in children)
+                        if (child.NodeType != "Folder")
                         {
-                            if (child.NodeType != "Folder")
+                            Assert.NotNull(child.NodeType);
+                            if (child.Metadata != null && !string.IsNullOrEmpty(child.Metadata.MetadataTypeName))
                             {
-                                Assert.NotNull(child.Metadata);
                                 if (!string.IsNullOrEmpty(child.Metadata.Schema))
                                 {
                                     Assert.Equal($"{child.Metadata.Schema}.{child.Metadata.Name}", child.Label);
@@ -106,8 +105,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                                     Assert.Equal(child.Metadata.Name, child.Label);
                                 }
                             }
+                            else
+                            {
+
+                            }
                         }
-                       
                     }
                 }
                 foreach (var child in children)
