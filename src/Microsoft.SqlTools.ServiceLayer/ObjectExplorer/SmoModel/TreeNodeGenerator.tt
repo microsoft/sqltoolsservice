@@ -179,6 +179,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				{
 					WriteLine("            var child = new SmoTreeNode();");
 					WriteLine("            child.IsAlwaysLeaf = true;");
+					if(type.EndsWith("s")) 
+					{
+						var typeName = type.Substring(0, type.Length - 1);
+						WriteLine(string.Format("            child.NodeType = \"{0}\";", typeName));
+					}
+						
 				}
 				else
 				{
