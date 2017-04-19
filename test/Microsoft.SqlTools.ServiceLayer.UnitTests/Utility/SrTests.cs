@@ -7,6 +7,8 @@ using System.Globalization;
 using Xunit;
 
 using ServiceLayerSr = Microsoft.SqlTools.ServiceLayer.Localization.sr;
+using HostingSr = Microsoft.SqlTools.Hosting.Localization.sr;
+using CredentialSr = Microsoft.SqlTools.Credentials.Localization.sr;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -23,7 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(SR.QueryServiceFileWrapperNotInitialized);
             Assert.NotNull(SR.QueryServiceColumnNull);
 
-            var sr = new ServiceLayerSr();
             Assert.NotNull(ServiceLayerSr.ResourceManager);
             ServiceLayerSr.Culture = CultureInfo.CurrentCulture;
             Assert.NotNull(ServiceLayerSr.Culture);

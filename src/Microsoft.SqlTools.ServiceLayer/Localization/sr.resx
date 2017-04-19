@@ -1199,8 +1199,8 @@
     <value>Table Type Indexes</value>
     <comment></comment>
   </data>
-  <data name="SchemaHierarchy_ServerInstance" xml:space="preserve">
-    <value>ServerInstance</value>
+  <data name="SchemaHierarchy_Server" xml:space="preserve">
+    <value>Server</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
