@@ -18,12 +18,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         [Fact]
         public void SrPropertiesTest()
         {
-            Assert.NotNull(SR.QueryServiceSubsetBatchNotCompleted);
-            Assert.NotNull(SR.QueryServiceFileWrapperWriteOnly);
-            Assert.NotNull(SR.QueryServiceFileWrapperNotInitialized);
-            Assert.NotNull(SR.QueryServiceColumnNull);
-
             ServiceLayerSr.Culture = CultureInfo.CurrentCulture;
+
+            // Assert all needed constants exist 
+            Assert.NotNull(ServiceLayerSr.QueryServiceSubsetBatchNotCompleted);
+            Assert.NotNull(ServiceLayerSr.QueryServiceFileWrapperWriteOnly);
+            Assert.NotNull(ServiceLayerSr.QueryServiceFileWrapperNotInitialized);
+            Assert.NotNull(ServiceLayerSr.QueryServiceColumnNull);
             Assert.NotNull(ServiceLayerSr.Culture);
             Assert.NotNull(ServiceLayerSr.BatchParser_CircularReference);
             Assert.NotNull(ServiceLayerSr.BatchParser_CommentNotTerminated);

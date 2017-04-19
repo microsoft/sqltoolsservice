@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private void VerifyServerNode(NodeInfo serverNode, ConnectionDetails details)
         {
             Assert.NotNull(serverNode);
-            Assert.Equal(NodeTypes.ServerInstance.ToString(), serverNode.NodeType);
+            Assert.Equal(NodeTypes.Server.ToString(), serverNode.NodeType);
             string[] pathParts = serverNode.NodePath.Split(TreeNode.PathPartSeperator);
             Assert.Equal(1, pathParts.Length);
             Assert.Equal(details.ServerName, pathParts[0]);
