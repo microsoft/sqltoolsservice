@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Action<string, int, object> errorCallback)
         {
             // Setup the mock for SendError
-            var sendErrorFlow = mock.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<object>()))
+            var sendErrorFlow = mock.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Task.FromResult(0));
             if (errorCallback != null)
             {
