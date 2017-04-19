@@ -21,9 +21,9 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
     /// <summary>
-    /// Server node implementation 
+    /// Root node implementation 
     /// </summary>
-    public class ServerNode : TreeNode
+    public class RootNode : TreeNode
     {
         private ConnectionSummary connectionSummary;
         private ServerInfo serverInfo;
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private ConnectionService connectionService;
         private SmoServerCreator serverCreator;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider)
+        public RootNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider)
             : base()
         {
             Validate.IsNotNull(nameof(connInfo), connInfo);
@@ -47,10 +47,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider));
 
-            NodeValue = connectionSummary.ServerName;
+            if (IsMasterConnection())
+            {
+                NodeType = NodeTypes.ServerInstance.ToString();
+                NodeTypeId = NodeTypes.ServerInstance;
+                NodeValue = connectionSummary.ServerName;
+            }
+            else
+            {
+                NodeType = NodeTypes.DatabaseInstance.ToString();
+                NodeTypeId = NodeTypes.DatabaseInstance;
+                NodeValue = connectionSummary.DatabaseName;
+            }
             IsAlwaysLeaf = false;
-            NodeType = NodeTypes.ServerInstance.ToString();
-            NodeTypeId = NodeTypes.ServerInstance;
             Label = GetConnectionLabel();
         }
 
@@ -70,6 +79,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
+        internal bool IsMasterConnection()
+        {
+            return (string.IsNullOrWhiteSpace(connectionSummary.DatabaseName) ||
+                string.Compare(connectionSummary.DatabaseName, CommonConstants.MasterDatabaseName, StringComparison.OrdinalIgnoreCase) == 0);
+        }
+
         /// <summary>
         /// Returns the label to display to the user.
         /// </summary>
@@ -86,9 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             // TODO Consider adding IsAuthenticatingDatabaseMaster check in the code and
             // referencing result here
-            if (!string.IsNullOrWhiteSpace(connectionSummary.DatabaseName) &&
-                string.Compare(connectionSummary.DatabaseName, CommonConstants.MasterDatabaseName, StringComparison.OrdinalIgnoreCase) != 0 &&
-                (serverInfo.IsCloud /* || !ci.IsAuthenticatingDatabaseMaster */))
+            if (!IsMasterConnection())
             {
                 // We either have an azure with a database specified or a Denali database using a contained user
                 userName += ", " + connectionSummary.DatabaseName;
@@ -167,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 exceptionMessage = ex.Message;
             }
 
-            Logger.Write(LogLevel.Error, "Exception at ServerNode.CreateContext() : " + exceptionMessage);
+            Logger.Write(LogLevel.Error, "Exception at RootNode.CreateContext() : " + exceptionMessage);
             this.ErrorStateMessage = string.Format(SR.TreeNodeError, exceptionMessage);
             return null;
         }

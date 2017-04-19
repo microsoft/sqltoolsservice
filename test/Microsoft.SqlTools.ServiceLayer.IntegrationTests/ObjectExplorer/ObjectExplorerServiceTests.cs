@@ -26,12 +26,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         public async void CreateSessionAndExpandOnTheServerShouldReturnTheDatabases()
         {
             var query = "";
-            string uri = "CreateSessionAndExpand";
+            string uri = "CreateSessionAndExpandServer";
+            string databaseName = null;
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            {
+                var session = await CreateSession(null, uri);
+                await CreateSessionAndServerNode(testDb.DatabaseName, session);
+                CancelConnection(uri);
+            }
+        }
+
+        [Fact]
+        public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseObjects()
+        {
+            var query = "";
+            string uri = "CreateSessionAndExpandDatabase";
             string databaseName = null;
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
                 CancelConnection(uri);
             }
         }
@@ -44,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             return await _service.DoCreateSession(details, uri);
         }
 
-        private async Task<NodeInfo> CreateSessionAndDatabaseNode(string databaseName, ObjectExplorerSession session)
+        private async Task<NodeInfo> CreateSessionAndServerNode(string databaseName, ObjectExplorerSession session)
         {
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
@@ -68,6 +82,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             var databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
             Assert.NotNull(databaseNode);
             return databaseNode;
+        }
+
+        private void CreateSessionAndDatabaseNode(string databaseName, ObjectExplorerSession session)
+        {
+            Assert.NotNull(session);
+            Assert.NotNull(session.Root);
+            NodeInfo nodeInfo = session.Root.ToNodeInfo();
+            Assert.Equal(nodeInfo.IsLeaf, false);
+            Assert.Equal(nodeInfo.NodeType, NodeTypes.DatabaseInstance.ToString());
+            Assert.Equal(nodeInfo.Label.Contains(databaseName), true);
+            var children = session.Root.Expand();
+
+            //All server children should be folder nodes
+            foreach (var item in children)
+            {
+                Assert.Equal(item.NodeType, "Folder");
+            }
+
+            var tablesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Tables);
+            Assert.NotNull(tablesRoot);
         }
 
         private void CancelConnection(string uri)
@@ -114,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }
@@ -130,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }
@@ -146,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }
@@ -162,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }
@@ -178,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, uri);
-                var databaseNodeInfo = await CreateSessionAndDatabaseNode(testDb.DatabaseName, session);
+                var databaseNodeInfo = await CreateSessionAndServerNode(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
             }

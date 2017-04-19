@@ -346,8 +346,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider)
             {
-                TreeNode serverNode = new ServerNode(response, serviceProvider);
-                return new ObjectExplorerSession(response.OwnerUri, serverNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
+                TreeNode rootNode = new RootNode(response, serviceProvider);
+                return new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
             }
             
         }
