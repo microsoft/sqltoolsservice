@@ -303,11 +303,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             if (serviceProvider == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.Localization.sr.ServiceProviderNotSet);
+                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
             }
             if (connectionService == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.Localization.sr.ServiceProviderNotSet);
+                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
             }
         }
 
