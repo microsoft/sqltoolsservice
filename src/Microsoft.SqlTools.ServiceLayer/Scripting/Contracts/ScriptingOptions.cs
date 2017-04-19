@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
-    /// Database scripting options
+    /// Defines the scripting options.
     /// </summary>
     public class ScriptOptions
     {

@@ -8,16 +8,17 @@
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
-    /// Parameters to be sent to a indicate a scripting operations has completed.
+    /// Parameters sent to when a scripting operation has completed.
     /// </summary>
     public class ScriptingCompleteParameters : ScriptingEventParams {}
 
 
     /// <summary>
-    /// Event sent to a indicate a scripting operation has completed.
+    /// Event sent to indicate a scripting operation has completed.
     /// </summary>
     public class ScriptingCompleteEvent
     {
-        public static readonly EventType<ScriptingCompleteParameters> Type = EventType<ScriptingCompleteParameters>.Create("scripting/scriptComplete");
+        public static readonly EventType<ScriptingCompleteParameters> Type = 
+            EventType<ScriptingCompleteParameters>.Create("scripting/scriptComplete");
     }
 }

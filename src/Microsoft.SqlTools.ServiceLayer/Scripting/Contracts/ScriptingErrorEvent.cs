@@ -8,17 +8,23 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
-    /// Parameters to be sent to indicate a scripting operations has encountered and error.
+    /// Parameters sent when a scripting operation has encountered an error.
     /// </summary>
     public class ScriptingErrorParams : ScriptingEventParams
     {
+        /// <summary>
+        /// Gets or sets error message.
+        /// </summary>
         public string Message { get; set; }
 
-        public string DiagnosticMessage { get; set; }
+        /// <summary>
+        /// Gets or sets error details.
+        /// </summary>
+        public string Details { get; set; }
     }
 
     /// <summary>
-    /// Event sent to indicate a scripting database operation has encountered an error.
+    /// Event sent to indicate a scripting operation has encountered an error.
     /// </summary>
     public class ScriptingErrorEvent
     {

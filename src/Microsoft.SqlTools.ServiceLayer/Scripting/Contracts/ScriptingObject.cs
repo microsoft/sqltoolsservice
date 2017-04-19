@@ -17,7 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Gets or sets the database object type.  
         /// </summary>
         /// <remarks>
-        /// Values can be: 
+        /// This underlying values are determined by the SqlScriptPublishModel.GetDatabaseObjectTypes() and
+        /// can change depending on the version of SMO used by the tools service.  Values can be: 
         ///     Table,
         ///     View,
         ///     StoredProcedure,

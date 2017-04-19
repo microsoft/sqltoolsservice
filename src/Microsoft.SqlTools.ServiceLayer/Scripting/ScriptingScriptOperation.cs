@@ -41,15 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         public ScriptingScriptOperation(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
-            if (parameters == null)
-            {
-                throw new ArgumentNullException("parameters");
-            }
-
-            if (requestContext == null)
-            {
-                throw new ArgumentNullException("requestContext");
-            }
+            Validate.IsNotNull("parameters", parameters);
+            Validate.IsNotNull("requestContext", requestContext);
 
             this.OperationId = Guid.NewGuid().ToString();
             this.Parameters = parameters;
@@ -122,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     {
                         OperationId = this.OperationId,
                         Message = e.Message,
-                        DiagnosticMessage = e.ToString(),
+                        Details = e.ToString(),
                     };
 
                     this.SendJsonRpcEventAsync(ScriptingErrorEvent.Type, eventParams);
@@ -146,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             bool hasIncludeCriteria = this.Parameters.IncludeObjectCriteria != null && this.Parameters.IncludeObjectCriteria.Any();
             bool hasExcludeCriteria = this.Parameters.ExcludeObjectCriteria != null && this.Parameters.ExcludeObjectCriteria.Any();
-            bool hasObjectsSpecified = this.Parameters.DatabaseObjects != null && this.Parameters.DatabaseObjects.Any();
+            bool hasObjectsSpecified = this.Parameters.ScriptingObjects != null && this.Parameters.ScriptingObjects.Any();
 
             // If no object selection criteria was specified, we're scripting the entire database
             publishModel.ScriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
@@ -170,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // If specific objects are specified, include them.
             if (hasObjectsSpecified)
             {
-                selectedObjects = selectedObjects.Union(this.Parameters.DatabaseObjects);
+                selectedObjects = selectedObjects.Union(this.Parameters.ScriptingObjects);
             }
 
             Logger.Write(
@@ -239,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 OperationId = this.OperationId,
                 Message = e.Error.Message,
-                DiagnosticMessage = e.Error.ToString(),
+                Details = e.Error.ToString(),
             };
 
             this.SendJsonRpcEventAsync(ScriptingErrorEvent.Type, eventParams);
@@ -258,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ScriptingPlanNotificationParams eventParams = new ScriptingPlanNotificationParams
             {
                 OperationId = this.OperationId,
-                DatabaseObjects = scriptingObjects,
+                ScriptingObjects = scriptingObjects,
                 Count = scriptingObjects.Count,
             };
 
@@ -291,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 OperationId = this.OperationId,
                 ScriptingObject = e.Urn.ToScriptingObject(),
                 Status = e.Completed ? "Completed" : "Progress",
-                Count = this.scriptedObjectCount,
+                CompletedCount = this.scriptedObjectCount,
                 TotalCount = this.totalScriptedObjectCount,
             };
 

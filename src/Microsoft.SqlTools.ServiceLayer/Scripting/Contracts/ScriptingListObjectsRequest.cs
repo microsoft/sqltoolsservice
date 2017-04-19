@@ -17,13 +17,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
     }
 
     /// <summary>
-    /// Parameters for list object result.
+    /// Parameters returned from a list objects request.
     /// </summary>
     public class ScriptingListObjectsResult
     {
         public string OperationId { get; set; }
     }
 
+    /// <summary>
+    /// Defines the scripting list objects request type.
+    /// </summary>
     public class ScriptingListObjectsRequest
     {
         public static readonly RequestType<ScriptingListObjectsParams, ScriptingListObjectsResult> Type = 

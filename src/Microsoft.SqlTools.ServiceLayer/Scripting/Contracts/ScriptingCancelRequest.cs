@@ -8,18 +8,24 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
-    /// Parameters for the script database request
+    /// Parameters to cancel a scripting request.
     /// </summary>
     public class ScriptingCancelParams
     {
+        /// <summary>
+        /// Gets or sets the operation id of the scripting operation to cancel.
+        /// </summary>
         public string OperationId { get; set; }
     }
 
     /// <summary>
-    /// Parameters for the script database result
+    /// Parameters returned from a scripting request.
     /// </summary>
     public class ScriptingCancelResult { }
 
+    /// <summary>
+    /// Defines the scripting cancel request type.
+    /// </summary>
     public class ScriptingCancelRequest
     {
         public static readonly RequestType<ScriptingCancelParams, ScriptingCancelResult> Type = 

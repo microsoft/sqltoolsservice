@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -55,10 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             IEnumerable<ScriptingObject> excludeCriteria,
             IEnumerable<ScriptingObject> candidates)
         {
-            if (candidates == null)
-            {
-                throw new ArgumentNullException("candidates");
-            }
+            Validate.IsNotNull("candidates", candidates);
 
             IEnumerable<ScriptingObject> matchedObjects = new List<ScriptingObject>();
 
@@ -87,48 +85,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return matchedObjects;
         }
 
-        private static IEnumerable<ScriptingObject> MatchCriteria(ScriptingObject criteria, IEnumerable<ScriptingObject> databaseObjects)
+        private static IEnumerable<ScriptingObject> MatchCriteria(ScriptingObject criteria, IEnumerable<ScriptingObject> candidates)
         {
-            IEnumerable<ScriptingObject> matchedObjects = databaseObjects;
+            Validate.IsNotNull("criteria", criteria);
+            Validate.IsNotNull("candidates", candidates);
+
+            IEnumerable<ScriptingObject> matchedObjects = candidates;
 
             if (!string.IsNullOrWhiteSpace(criteria.Type))
             {
                 matchedObjects = matchedObjects.Where(o => string.Equals(criteria.Type, o.Type, StringComparison.OrdinalIgnoreCase));
             }
 
-            if (!string.IsNullOrWhiteSpace(criteria.Schema))
-            {
-                if (criteria.Schema.Equals(Wildcard, StringComparison.OrdinalIgnoreCase))
-                {
-                    // Don't filter any objects
-                }
-                if (criteria.Schema.EndsWith(Wildcard, StringComparison.OrdinalIgnoreCase))
-                {
-                    matchedObjects = matchedObjects.Where(o => o.Schema.StartsWith(
-                        criteria.Schema.Substring(0, criteria.Schema.Length - 1), 
-                        StringComparison.CurrentCultureIgnoreCase));
-                }
-                else
-                {
-                    matchedObjects = matchedObjects.Where(o => string.Equals(criteria.Schema, o.Schema, StringComparison.OrdinalIgnoreCase));
-                }
-            }
+            matchedObjects = MatchCriteria(criteria.Schema, (candidate) => { return candidate.Schema; }, matchedObjects);
+            matchedObjects = MatchCriteria(criteria.Name, (candidate) => { return candidate.Name; }, matchedObjects);
 
-            if (!string.IsNullOrWhiteSpace(criteria.Name))
+            return matchedObjects;
+        }
+
+        private static IEnumerable<ScriptingObject> MatchCriteria(string property, Func<ScriptingObject, string> propertySelector, IEnumerable<ScriptingObject> candidates)
+        {
+            IEnumerable<ScriptingObject> matchedObjects = candidates;
+
+            if (!string.IsNullOrWhiteSpace(property))
             {
-                if (criteria.Name.Equals(Wildcard, StringComparison.OrdinalIgnoreCase))
+                if (property.Equals(Wildcard, StringComparison.OrdinalIgnoreCase))
                 {
                     // Don't filter any objects
                 }
-                else if (criteria.Name.EndsWith(Wildcard, StringComparison.OrdinalIgnoreCase))
+                if (property.EndsWith(Wildcard, StringComparison.OrdinalIgnoreCase))
                 {
-                    matchedObjects = matchedObjects.Where(o => o.Name.StartsWith(
-                        criteria.Name.Substring(0, criteria.Name.Length - 1), 
+                    matchedObjects = candidates.Where(o => propertySelector(o).StartsWith(
+                        propertySelector(o).Substring(0, propertySelector(o).Length - 1),
                         StringComparison.CurrentCultureIgnoreCase));
                 }
                 else
                 {
-                    matchedObjects = matchedObjects.Where(o => string.Equals(criteria.Name, o.Name, StringComparison.OrdinalIgnoreCase));
+                    matchedObjects = matchedObjects.Where(o => string.Equals(property, propertySelector(o), StringComparison.CurrentCultureIgnoreCase));
                 }
             }
 

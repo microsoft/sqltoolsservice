@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     {
                         TypeOfDataToScript = "SchemaOnly",
                     },
-                    DatabaseObjects = new List<ScriptingObject>
+                    ScriptingObjects = new List<ScriptingObject>
                     {
                         new ScriptingObject
                         {
@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     {
                         TypeOfDataToScript = "SchemaAndData",
                     },
-                    DatabaseObjects = new List<ScriptingObject>
+                    ScriptingObjects = new List<ScriptingObject>
                     {
                         new ScriptingObject
                         {
@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     {
                         TypeOfDataToScript = "SchemaOnly",
                     },
-                    DatabaseObjects = new List<ScriptingObject>
+                    ScriptingObjects = new List<ScriptingObject>
                     {
                         new ScriptingObject
                         {
@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingErrorParams parameters = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.Equal("An error occurred while scripting the objects.", parameters.Message);
-                Assert.Contains("The Table '[dbo].[TableDoesNotExist]' does not exist on the server.", parameters.DiagnosticMessage);
+                Assert.Contains("The Table '[dbo].[TableDoesNotExist]' does not exist on the server.", parameters.Details);
             }
         }
 

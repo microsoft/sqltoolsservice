@@ -8,12 +8,12 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
-    /// Parameters to be sent to a indicate a scripting operations has been canceled.
+    /// Parameters sent when a scripting operation has been canceled.
     /// </summary>
     public class ScriptingCancelParameters : ScriptingEventParams { }
 
     /// <summary>
-    /// Event sent to a indicate that a scripting operation has been canceled.
+    /// Event sent to indicate that a scripting operation has been canceled.
     /// </summary>
     public class ScriptingCancelEvent
     {

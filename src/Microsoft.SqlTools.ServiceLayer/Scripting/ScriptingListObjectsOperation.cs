@@ -39,15 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         public ScriptingListObjectsOperation(ScriptingListObjectsParams parameters, RequestContext<ScriptingListObjectsResult> requestContext)
         {
-            if (parameters == null)
-            {
-                throw new ArgumentNullException("parameters");
-            }
-
-            if (requestContext == null)
-            {
-                throw new ArgumentNullException("requestContext");
-            }
+            Validate.IsNotNull("parameters", parameters);
+            Validate.IsNotNull("requestContext", requestContext);
 
             this.OperationId = Guid.NewGuid().ToString();
             this.Parameters = parameters;
@@ -106,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     {
                         OperationId = this.OperationId,
                         Message = e.Message,
-                        DiagnosticMessage = e.ToString(),
+                        Details = e.ToString(),
                     };
 
                     this.SendJsonRpcEventAsync(ScriptingErrorEvent.Type, eventParams);
@@ -141,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 OperationId = this.OperationId,
                 Message = e.Error.Message,
-                DiagnosticMessage = e.Error.ToString(),
+                Details = e.Error.ToString(),
             };
 
             this.SendJsonRpcEventAsync(ScriptingErrorEvent.Type, eventParams);
@@ -160,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             ScriptingPlanNotificationParams eventParams = new ScriptingPlanNotificationParams
             {
                 OperationId = this.OperationId,
-                DatabaseObjects = scriptingObjects,
+                ScriptingObjects = scriptingObjects,
                 Count = scriptingObjects.Count,
             };
 
@@ -186,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 OperationId = this.OperationId,
                 ScriptingObject = e.Urn.ToScriptingObject(),
                 Status = e.Completed ? "Completed" : "Progress",
-                Count = this.scriptedObjectCount,
+                CompletedCount = this.scriptedObjectCount,
                 TotalCount = this.totalScriptedObjectCount,
             };
 

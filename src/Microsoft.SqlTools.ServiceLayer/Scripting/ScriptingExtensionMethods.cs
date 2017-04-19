@@ -26,6 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <returns>The list of scripting objects.</returns>
         public static List<ScriptingObject> GetDatabaseObjects(this SqlScriptPublishModel publishModel)
         {
+            Validate.IsNotNull("publishModel", publishModel);
+
             List<ScriptingObject> databaseObjects = new List<ScriptingObject>();
 
             IEnumerable<DatabaseObjectType> objectTypes = publishModel.GetDatabaseObjectTypes();
@@ -77,25 +79,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <returns>The Urn instance.</returns>
         public static Urn ToUrn(this ScriptingObject scriptingObject, string database)
         {
-            if (scriptingObject == null)
-            {
-                throw new ArgumentNullException("scriptingObjectc");
-            }
+            Validate.IsNotNull("scriptingObject", scriptingObject);
+            Validate.IsNotNullOrWhitespaceString("database", database);
 
-            if (database == null)
-            {
-                throw new ArgumentNullException("database");
-            }
-
-            if (string.IsNullOrWhiteSpace(scriptingObject.Name))
-            {
-                throw new ArgumentException("Property scriptingObject.Name must have a value", "scriptingObject");
-            }
-
-            if (string.IsNullOrWhiteSpace(scriptingObject.Type))
-            {
-                throw new ArgumentException("Property scriptingObject.Type must have a value", "scriptingObject");
-            }
+            Validate.IsNotNullOrWhitespaceString("scriptingObject.Name", scriptingObject.Name);
+            Validate.IsNotNullOrWhitespaceString("scriptingObject.Type", scriptingObject.Type);
 
             // Leaving the server name blank will automatically match whatever the server SMO is running against.
             string urn = string.Format(
@@ -115,10 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <returns>The scripting object instance.</returns>
         public static ScriptingObject ToScriptingObject(this Urn urn)
         {
-            if (urn == null)
-            {
-                throw new ArgumentNullException("urn");
-            }
+            Validate.IsNotNull("urn", urn);
 
             return new ScriptingObject
             {
