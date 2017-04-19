@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             var schemaHierarchySearchPropertyLists = SR.SchemaHierarchy_SearchPropertyLists;
             var schemaHierarchyColumnStoreIndexes = SR.SchemaHierarchy_ColumnStoreIndexes;
             var schemaHierarchyTableTypeIndexes = SR.SchemaHierarchy_TableTypeIndexes;
-            var schemaHierarchyServerInstance = SR.SchemaHierarchy_ServerInstance;
+            var schemaHierarchyServerInstance = SR.SchemaHierarchy_Server;
             var schemaHierarchySelectiveXmlIndexes = SR.SchemaHierarchy_SelectiveXmlIndexes;
             var schemaHierarchyXmlNamespaces = SR.SchemaHierarchy_XmlNamespaces;
             var schemaHierarchyXmlTypedPromotedPaths = SR.SchemaHierarchy_XmlTypedPromotedPaths;
@@ -232,6 +232,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
             Assert.Equal(TestLocalizationConstant, "prueba");
+
+            // Reset the locale
+            locale = "en";
+            args = new string[] { "--locale " + locale };
+            options = new CommandOptions(args);
         }
 
         [Fact]

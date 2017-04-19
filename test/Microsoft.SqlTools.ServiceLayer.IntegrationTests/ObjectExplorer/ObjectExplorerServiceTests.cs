@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
             Assert.Equal(nodeInfo.IsLeaf, false);
-            Assert.Equal(nodeInfo.NodeType, NodeTypes.ServerInstance.ToString());
+            Assert.Equal(nodeInfo.NodeType, NodeTypes.Server.ToString());
             var children = session.Root.Expand();
 
             //All server children should be folder nodes
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
             var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
             var databasesChildren = await _service.ExpandNode(session, databasesRoot.GetNodePath());
-            var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.DatabaseInstance.ToString());
+            var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
 
             //Verify the test databases is in the list
             Assert.NotNull(databases);
@@ -85,15 +85,31 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             {
                 var children = await _service.ExpandNode(session, node.NodePath);
                 Assert.NotNull(children);
-                if(children.Count() == 0 && !node.NodePath.Contains("System") &&
+                if(!node.NodePath.Contains("System") &&
                     !node.NodePath.Contains("FileTables") && !node.NodePath.Contains("External Tables"))
                 {
                     var labaleToUpper = node.Label.ToUpper();
-                    if (labaleToUpper.Contains("TABLE") || labaleToUpper.Contains("StoredProcedure") 
-                        || labaleToUpper.Contains("VIEW"))
+                    foreach (var child in children)
                     {
-                        //TOOD: Add a better validation. For now at least check tables not to be empty 
-                        //Assert.True(false, "The list of tables, procedure and views cannot be empty");
+                        if (child.NodeType != "Folder")
+                        {
+                            Assert.NotNull(child.NodeType);
+                            if (child.Metadata != null && !string.IsNullOrEmpty(child.Metadata.MetadataTypeName))
+                            {
+                                if (!string.IsNullOrEmpty(child.Metadata.Schema))
+                                {
+                                    Assert.Equal($"{child.Metadata.Schema}.{child.Metadata.Name}", child.Label);
+                                }
+                                else
+                                {
+                                    Assert.Equal(child.Metadata.Name, child.Label);
+                                }
+                            }
+                            else
+                            {
+
+                            }
+                        }
                     }
                 }
                 foreach (var child in children)

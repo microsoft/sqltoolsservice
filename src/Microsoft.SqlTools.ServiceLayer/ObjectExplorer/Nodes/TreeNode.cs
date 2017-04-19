@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.Utility;
@@ -25,7 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         private TreeNode parent;
         private string nodePath;
         private string label;
-        private ObjectExplorerService objectExplorerService;
         public const char PathPartSeperator = '/';
 
         /// <summary>
@@ -51,6 +50,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Value describing this node
         /// </summary>
         public string NodeValue { get; set; }
+
+
+        /// <summary>
+        /// Object metadata for smo objects
+        /// </summary>
+        public ObjectMetadata ObjectMetadata { get; set; }
 
         /// <summary>
         /// The type of the node - for example Server, Database, Folder, Table
@@ -170,7 +175,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 IsLeaf = this.IsAlwaysLeaf,
                 Label = this.Label,
                 NodePath = this.GetNodePath(),
-                NodeType = this.NodeType
+                NodeType = this.NodeType,
+                Metadata = this.ObjectMetadata
             };
         }
 

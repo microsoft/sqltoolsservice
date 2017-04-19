@@ -294,3 +294,6 @@ docs/metadata
 # Test output files
 *cycle*txt*
 *input*txt*
+
+# Designer Files
+*.Designer.cs
