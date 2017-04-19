@@ -232,6 +232,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
             Assert.Equal(TestLocalizationConstant, "prueba");
+
+            // Reset the locale
+            locale = "en";
+            args = new string[] { "--locale " + locale };
+            options = new CommandOptions(args);
         }
 
         [Fact]

@@ -495,7 +495,7 @@
       </trans-unit>
       <trans-unit id="TestLocalizationConstant">
         <source>test</source>
-        <target state="new">EN_LOCALIZATION</target>
+        <target state="new">prueba</target>
         
         <note/>
       </trans-unit>
