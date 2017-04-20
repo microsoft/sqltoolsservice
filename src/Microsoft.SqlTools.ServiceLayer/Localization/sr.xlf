@@ -416,7 +416,7 @@
       </trans-unit>
       <trans-unit id="TestLocalizationConstant">
         <source>test</source>
-        <target state="new">EN_LOCALIZATION</target>
+        <target state="new">test</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ErrorEmptyStringReplacement">

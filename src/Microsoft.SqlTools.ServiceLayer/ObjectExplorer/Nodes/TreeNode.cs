@@ -25,7 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         private TreeNode parent;
         private string nodePath;
         private string label;
-        private ObjectExplorerService objectExplorerService;
         public const char PathPartSeperator = '/';
 
         /// <summary>
