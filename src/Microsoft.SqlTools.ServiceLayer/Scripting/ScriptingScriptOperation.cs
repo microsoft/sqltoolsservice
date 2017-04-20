@@ -237,12 +237,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             catch (Exception e)
             {
-                throw new ArgumentException("Error parsing ScriptingParams.ConnectionString property", e);
+                throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid, e);
             }
 
             if (!Directory.Exists(Path.GetDirectoryName(this.Parameters.FilePath)))
             {
-                throw new ArgumentException("Invalid directory specified by the ScriptingParams.FilePath property.");
+                throw new ArgumentException(SR.ScriptingParams_FilePath_Property_Invalid);
             }
         }
 

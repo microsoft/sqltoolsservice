@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <remarks>
         /// An event can be completed by the following conditions: success, cancel, error.
         /// </remarks>
-        public event EventHandler<ScriptingListObjectsCompleteParameters> CompleteNotification;
+        public event EventHandler<ScriptingListObjectsCompleteParams> CompleteNotification;
 
         public override void Execute()
         {
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         databaseObjects,
                         string.Join(", ", databaseObjects)));
 
-                this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParameters
+                this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
                 {
                     OperationId = this.OperationId,
                     DatabaseObjects = databaseObjects,
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 Logger.Write(LogLevel.Normal, string.Format("Scripting operation {0} was canceled", this.OperationId));
                 if (e.IsOperationCanceledException())
                 {
-                    this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParameters
+                    this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
                     {
                         OperationId = this.OperationId,
                         Canceled = true,
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 else
                 {
                     Logger.Write(LogLevel.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
-                    this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParameters
+                    this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParams
                     {
                         OperationId = this.OperationId,
                         HasError = true,
@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private void SendCompletionNotificationEvent(ScriptingListObjectsCompleteParameters parameters)
+        private void SendCompletionNotificationEvent(ScriptingListObjectsCompleteParams parameters)
         {
             this.CompleteNotification?.Invoke(this, parameters);
         }
@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
             catch (Exception e)
             {
-                throw new ArgumentException("Error parsing ConnectionString property", e);
+                throw new ArgumentException(SR.ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid, e);
             }
         }
 

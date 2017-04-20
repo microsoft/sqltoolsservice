@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingListObjectsResult result = await testService.ListScriptingObjects(requestParams);
-                ScriptingListObjectsCompleteParameters completeParameters = await testService.Driver.WaitForEvent(ScriptingListObjectsCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingListObjectsCompleteParams completeParameters = await testService.Driver.WaitForEvent(ScriptingListObjectsCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.Equal<int>(ScriptingFixture.ObjectCountWithoutDatabase, completeParameters.DatabaseObjects.Count);
             }
         }

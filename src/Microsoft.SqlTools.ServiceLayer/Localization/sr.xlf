@@ -1416,6 +1416,21 @@
         <target state="new">Server</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingParams.ConnectionString property.</source>
+        <target state="new">Error parsing ScriptingParams.ConnectionString property.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
+        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
+        <target state="new">Invalid directory specified by the ScriptingParams.FilePath property.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="new">Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
