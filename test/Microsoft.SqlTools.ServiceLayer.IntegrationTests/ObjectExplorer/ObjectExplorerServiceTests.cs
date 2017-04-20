@@ -177,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
-                var session = await CreateSession(testDb.DatabaseName, uri);
+                var session = await CreateSession(null, uri);
                 var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
                 await ExpandTree(databaseNodeInfo, session);
                 CancelConnection(uri);
