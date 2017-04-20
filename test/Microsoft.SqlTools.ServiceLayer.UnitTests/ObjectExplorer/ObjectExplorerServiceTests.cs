@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<CreateSessionResponse>(null)
-                                                 .AddErrorHandling((errorMessage, errorCode, obj) => errorResponse = errorMessage);
+                                                 .AddErrorHandling((errorMessage, errorCode) => errorResponse = errorMessage);
 
             await service.HandleCreateSessionRequest(null, contextMock.Object);
             VerifyErrorSent(contextMock);
