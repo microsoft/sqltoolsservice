@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -110,8 +111,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             try
             {
-                ScriptingListObjectsOperation operation = new ScriptingListObjectsOperation(parameters, requestContext);
-                RunListObjectsTask(operation);
+                ScriptingListObjectsOperation operation = new ScriptingListObjectsOperation(parameters);
+                RunTask(requestContext, operation);
                 await requestContext.SendResult(new ScriptingListObjectsResult { OperationId = operation.OperationId });
             }
             catch (Exception e)
@@ -127,8 +128,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             try
             {
-                ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters, requestContext);
-                RunScriptTask(operation);
+                ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
+
+                operation.PlanNotification += (sender, e) =>
+                {
+                    Task.Run(async () => await requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e));
+                };
+
+                operation.ProgressNotification += (sender, e) =>
+                {
+                    Task.Run(async () => await requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e));
+                };
+
+                operation.CompleteNotification += (sender, e) =>
+                {
+                    Task.Run(async () => await requestContext.SendEvent(ScriptingCompleteEvent.Type, e));
+                };
+
+                RunTask(requestContext, operation);
+
                 await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
             }
             catch (Exception e)
@@ -138,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         /// <summary>
-        /// Handles request to cancel the database script operation
+        /// Handles request to cancel a script operation.
         /// </summary>
         public async Task HandleScriptCancelRequest(ScriptingCancelParams parameters, RequestContext<ScriptingCancelResult> requestContext)
         {
@@ -159,20 +177,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         }
 
         /// <summary>
-        /// Runs the async task to list scriptable objects.
+        /// Runs the async task that performs the scripting operation.
         /// </summary>
-        private void RunListObjectsTask(ScriptingListObjectsOperation operation)
+        private void RunTask<T>(RequestContext<T> context, ScriptingOperation operation)
         {
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 try
                 {
+                    Debug.Assert(!this.ActiveOperations.ContainsKey(operation.OperationId), "Operation id must be unique");
                     this.ActiveOperations[operation.OperationId] = operation;
-                    await operation.Execute();
+                    operation.Execute();
                 }
                 catch (Exception e)
                 {
-                    await operation.RequestContext.SendError(e);
+                    context.SendError(e);
                 }
                 finally
                 {
@@ -182,29 +201,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             });
         }
 
-        /// <summary>
-        /// Runs the async task to script objects.
-        /// </summary>
-        private void RunScriptTask(ScriptingScriptOperation operation)
-        {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    this.ActiveOperations[operation.OperationId] = operation;
-                    await operation.Execute();
-                }
-                catch (Exception e)
-                {
-                    await operation.RequestContext.SendError(e);
-                }
-                finally
-                {
-                    ScriptingOperation temp;
-                    this.ActiveOperations.TryRemove(operation.OperationId, out temp);
-                }
-            });
-        }
         public void Dispose()
         {
             if (!disposed)

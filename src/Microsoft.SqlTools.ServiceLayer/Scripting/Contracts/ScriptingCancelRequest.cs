@@ -10,13 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
     /// <summary>
     /// Parameters to cancel a scripting request.
     /// </summary>
-    public class ScriptingCancelParams
-    {
-        /// <summary>
-        /// Gets or sets the operation id of the scripting operation to cancel.
-        /// </summary>
-        public string OperationId { get; set; }
-    }
+    public class ScriptingCancelParams : ScriptingEventParams { }
 
     /// <summary>
     /// Parameters returned from a scripting request.

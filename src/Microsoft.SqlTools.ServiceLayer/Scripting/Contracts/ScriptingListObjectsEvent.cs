@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
     /// <summary>
     /// Parameters sent when a list objects operation has completed.
     /// </summary>
-    public class ScriptingListObjectsCompleteParameters : ScriptingEventParams
+    public class ScriptingListObjectsCompleteParameters : ScriptingCompleteParams
     {
         /// <summary>
         /// Gets or sets the list of database objects returned from the list objects operation.

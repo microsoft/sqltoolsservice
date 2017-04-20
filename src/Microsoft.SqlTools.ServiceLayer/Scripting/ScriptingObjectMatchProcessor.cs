@@ -117,11 +117,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     matchedObjects = candidates.Where(o => propertySelector(o).StartsWith(
                         propertySelector(o).Substring(0, propertySelector(o).Length - 1),
-                        StringComparison.CurrentCultureIgnoreCase));
+                        StringComparison.OrdinalIgnoreCase));
                 }
                 else
                 {
-                    matchedObjects = matchedObjects.Where(o => string.Equals(property, propertySelector(o), StringComparison.CurrentCultureIgnoreCase));
+                    matchedObjects = matchedObjects.Where(o => string.Equals(property, propertySelector(o), StringComparison.OrdinalIgnoreCase));
                 }
             }
 

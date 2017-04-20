@@ -42,7 +42,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingListObjectsResult result = await testService.ListScriptingObjects(requestParams);
                 ScriptingListObjectsCompleteParameters completeParameters = await testService.Driver.WaitForEvent(ScriptingListObjectsCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.Equal<int>(ScriptingFixture.ObjectCountWithoutDatabase, completeParameters.DatabaseObjects.Count);
-                testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
 
@@ -64,11 +63,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
-                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(parameters.Success);
                 Assert.Equal<int>(ScriptingFixture.ObjectCountWithDatabase, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
-                testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
 
@@ -90,11 +89,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
-                ScriptingCompleteParameters completeParameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParams completeParameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(completeParameters.Success);
                 Assert.Equal<int>(ScriptingFixture.ObjectCountWithDatabase, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
-                testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
 
@@ -125,11 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
-                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(parameters.Success);
                 Assert.Equal<int>(2, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
-                testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
 
@@ -160,11 +159,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
-                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(parameters.Success);
                 Assert.Equal<int>(2, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
-                testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
 
@@ -195,11 +194,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
-                ScriptingCompleteParameters parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(parameters.Success);
                 Assert.Equal<int>(2, planEvent.Count);
                 Assert.True(File.Exists(tempFile.FilePath));
                 Assert.True(new FileInfo(tempFile.FilePath).Length > 0);
-                testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
             }
         }
 
@@ -229,9 +228,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingErrorParams parameters = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromSeconds(10));
-                Assert.Equal("An error occurred while scripting the objects.", parameters.Message);
-                Assert.Contains("The Table '[dbo].[TableDoesNotExist]' does not exist on the server.", parameters.Details);
+                ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(parameters.HasError);
+                Assert.Equal("An error occurred while scripting the objects.", parameters.ErrorMessage);
+                Assert.Contains("The Table '[dbo].[TableDoesNotExist]' does not exist on the server.", parameters.ErrorDetails);
+                Assert.True(parameters.Success);
             }
         }
 
@@ -253,8 +254,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingCancelResult cancelResult = await testService.CancelScript(result.OperationId);
-                ScriptingCancelParameters cancelEvent = await testService.Driver.WaitForEvent(ScriptingCancelEvent.Type, TimeSpan.FromSeconds(30));
-                testService.AssertEventNotQueued(ScriptingErrorEvent.Type);
+                ScriptingCompleteParams cancelEvent = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(cancelEvent.Canceled);
             }
         }
 
@@ -276,8 +277,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingErrorParams errorEvent = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromSeconds(30));
-                Assert.Equal("Error parsing ConnectionString property", errorEvent.Message);
+                ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(parameters.HasError);
+                Assert.Equal("Error parsing ConnectionString property", parameters.ErrorMessage);
             }
         }
 
@@ -297,8 +299,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 ScriptingResult result = await testService.Script(requestParams);
-                ScriptingErrorParams errorEvent = await testService.Driver.WaitForEvent(ScriptingErrorEvent.Type, TimeSpan.FromSeconds(30));
-                Assert.Equal("Invalid directory specified by the FilePath property.", errorEvent.Message);
+                ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
+                Assert.True(parameters.HasError);
+                Assert.Equal("Invalid directory specified by the FilePath property.", parameters.ErrorMessage);
             }
         }
 

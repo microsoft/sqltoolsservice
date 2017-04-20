@@ -31,6 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             List<ScriptingObject> databaseObjects = new List<ScriptingObject>();
 
             IEnumerable<DatabaseObjectType> objectTypes = publishModel.GetDatabaseObjectTypes();
+            Logger.Write(
+                LogLevel.Verbose,
+                string.Format(
+                    "Loaded SMO object type count {0}, types: {1}",
+                    objectTypes.Count(),
+                    string.Join(", ", objectTypes)));
+
             foreach (DatabaseObjectType objectType in objectTypes)
             {
                 IEnumerable<KeyValuePair<string, string>> databaseObjectsOfType = publishModel.EnumChildrenForDatabaseObjectType(objectType);
@@ -43,32 +50,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         databaseObjectsOfType.Count(),
                         string.Join(", ", databaseObjectsOfType.Select(p => p.Value))));
 
-                foreach (KeyValuePair<string, string> databaseObjectOfType in databaseObjectsOfType)
-                {
-                    databaseObjects.Add(new Urn(databaseObjectOfType.Value).ToScriptingObject());
-                }
+                databaseObjects.AddRange(databaseObjectsOfType.Select(d => new Urn(d.Value).ToScriptingObject()));
             }
 
             return databaseObjects;
-        }
-
-        /// <summary>
-        /// Returns true if the passed exception or any inner exception is an OperationCanceledException instance.
-        /// </summary>
-        public static bool IsOperationCanceledException(this Exception e)
-        {
-            Exception current = e;
-            while (current != null)
-            {
-                if (current is OperationCanceledException)
-                {
-                    return true;
-                }
-
-                current = current.InnerException;
-            }
-
-            return false;
         }
 
         /// <summary>

@@ -20,6 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <summary>
         /// Gets or sets the status of the scripting operation for the scripting object.
         /// </summary>
+        /// <remarks>
+        /// Values can be: 'Completed', 'Progress', and 'Error'.
+        /// </remarks>
         public string Status { get; set; }
 
         /// <summary>
@@ -31,6 +34,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// Gets this total count of objects to script.
         /// </summary>
         public int TotalCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the error details if an error occurred scripting a database object.
+        /// </summary>
+        public string ErrorDetails { get; set; }
     }
 
     /// <summary>

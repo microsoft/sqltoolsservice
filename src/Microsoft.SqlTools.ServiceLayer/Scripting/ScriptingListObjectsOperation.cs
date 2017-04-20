@@ -25,42 +25,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     /// </summary>
     public sealed class ScriptingListObjectsOperation : ScriptingOperation
     {
-        private CancellationTokenSource cancellation = new CancellationTokenSource();
-
         private bool disposed = false;
 
-        private int scriptedObjectCount = 0;
+        public ScriptingListObjectsOperation(ScriptingListObjectsParams parameters)
+        {
+            Validate.IsNotNull("parameters", parameters);
 
-        private int totalScriptedObjectCount = 0;
+            this.Parameters = parameters;
+        }
 
         private ScriptingListObjectsParams Parameters { get; set; }
 
-        public RequestContext<ScriptingListObjectsResult> RequestContext { get; private set; }
+        /// <summary>
+        /// Event raised when a the list object operation is complete.
+        /// </summary>
+        /// <remarks>
+        /// An event can be completed by the following conditions: success, cancel, error.
+        /// </remarks>
+        public event EventHandler<ScriptingListObjectsCompleteParameters> CompleteNotification;
 
-        public ScriptingListObjectsOperation(ScriptingListObjectsParams parameters, RequestContext<ScriptingListObjectsResult> requestContext)
+        public override void Execute()
         {
-            Validate.IsNotNull("parameters", parameters);
-            Validate.IsNotNull("requestContext", requestContext);
-
-            this.OperationId = Guid.NewGuid().ToString();
-            this.Parameters = parameters;
-            this.RequestContext = requestContext;
-        }
-
-        public Task ActiveTask { get; private set; }
-
-        public override Task Execute()
-        {
-            string operationId = Guid.NewGuid().ToString();
-            this.ActiveTask = Task.Run(() => this.InternalExecute(), this.cancellation.Token);
-            return this.ActiveTask;
-        }
-
-        private void InternalExecute()
-        {
-            if (this.cancellation.IsCancellationRequested)
+            if (this.CancellationToken.IsCancellationRequested)
             {
-                throw new OperationCanceledException(this.cancellation.Token);
+                throw new OperationCanceledException(this.CancellationToken);
             }
 
             SqlScriptPublishModel publishModel = null;
@@ -70,50 +58,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.ValidateScriptDatabaseParams();
 
                 publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
-                publishModel.ScriptItemsCollected += this.OnPublishModelScriptItemsCollected;
-                publishModel.ScriptProgress += this.OnPublishModelScriptProgress;
-                publishModel.ScriptError += this.OnPublishModelScriptError;
-
                 List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
-
-                ScriptingListObjectsCompleteParameters eventParameters = new ScriptingListObjectsCompleteParameters
+                this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParameters
                 {
                     OperationId = this.OperationId,
                     DatabaseObjects = databaseObjects,
                     Count = databaseObjects.Count,
-                };
-
-                this.SendJsonRpcEventAsync(ScriptingListObjectsCompleteEvent.Type, eventParameters);
+                    Success = true,
+                });
             }
             catch (Exception e)
             {
+                Logger.Write(LogLevel.Normal, string.Format("Scripting operation {0} was canceled", this.OperationId));
                 if (e.IsOperationCanceledException())
                 {
-                    this.SendJsonRpcEventAsync(
-                        ScriptingCancelEvent.Type,
-                        new ScriptingCancelParameters { OperationId = this.OperationId });
+                    this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParameters
+                    {
+                        OperationId = this.OperationId,
+                        Canceled = true,
+                    });
                 }
                 else
                 {
-                    ScriptingErrorParams eventParams = new ScriptingErrorParams
+                    Logger.Write(LogLevel.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
+                    this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParameters
                     {
                         OperationId = this.OperationId,
-                        Message = e.Message,
-                        Details = e.ToString(),
-                    };
+                        HasError = true,
+                        ErrorMessage = e.Message,
+                        ErrorDetails = e.ToString(),
+                    });
+                }
+            }
+        }
 
-                    this.SendJsonRpcEventAsync(ScriptingErrorEvent.Type, eventParams);
-                }
-            }
-            finally
-            {
-                if (publishModel != null)
-                {
-                    publishModel.ScriptItemsCollected -= this.OnPublishModelScriptItemsCollected;
-                    publishModel.ScriptProgress -= this.OnPublishModelScriptProgress;
-                    publishModel.ScriptError -= this.OnPublishModelScriptError;
-                }
-            }
+        private void SendCompletionNotificationEvent(ScriptingListObjectsCompleteParameters parameters)
+        {
+            this.CompleteNotification?.Invoke(this, parameters);
         }
 
         private void ValidateScriptDatabaseParams()
@@ -128,73 +109,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private void OnPublishModelScriptError(object sender, ScriptEventArgs e)
-        {
-            ScriptingErrorParams eventParams = new ScriptingErrorParams
-            {
-                OperationId = this.OperationId,
-                Message = e.Error.Message,
-                Details = e.Error.ToString(),
-            };
-
-            this.SendJsonRpcEventAsync(ScriptingErrorEvent.Type, eventParams);
-        }
-
-        private void OnPublishModelScriptItemsCollected(object sender, ScriptItemsArgs e)
-        {
-            if (this.cancellation.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(this.cancellation.Token);
-            }
-
-            List<ScriptingObject> scriptingObjects = e.Urns.Select(urn => urn.ToScriptingObject()).ToList();
-            this.totalScriptedObjectCount = scriptingObjects.Count;
-
-            ScriptingPlanNotificationParams eventParams = new ScriptingPlanNotificationParams
-            {
-                OperationId = this.OperationId,
-                ScriptingObjects = scriptingObjects,
-                Count = scriptingObjects.Count,
-            };
-
-            this.SendJsonRpcEventAsync(ScriptingPlanNotificationEvent.Type, eventParams);
-        }
-
-        private void OnPublishModelScriptProgress(object sender, ScriptEventArgs e)
-        {
-            if (this.cancellation.IsCancellationRequested)
-            {
-                e.ContinueScripting = false;
-                throw new OperationCanceledException(this.cancellation.Token);
-            }
-
-            if (e.Completed)
-            {
-                this.scriptedObjectCount += 1;
-            }
-
-            // TODO: Handle the e.Error case.
-            ScriptingProgressNotificationParams eventParams = new ScriptingProgressNotificationParams
-            {
-                OperationId = this.OperationId,
-                ScriptingObject = e.Urn.ToScriptingObject(),
-                Status = e.Completed ? "Completed" : "Progress",
-                CompletedCount = this.scriptedObjectCount,
-                TotalCount = this.totalScriptedObjectCount,
-            };
-
-            this.SendJsonRpcEventAsync(ScriptingProgressNotificationEvent.Type, eventParams);
-        }
-
-        public override void Cancel()
-        {
-            if (this.cancellation != null && !this.cancellation.IsCancellationRequested)
-            {
-                Logger.Write(LogLevel.Normal, string.Format("ScriptingOperation.Cancel invoked for OperationId {0}", this.OperationId));
-                this.cancellation.Cancel();
-            }
-        }
-
+        /// <summary>
+        /// Disposes the scripting operation.
+        /// </summary>
         public override void Dispose()
         {
             if (!disposed)
@@ -202,11 +119,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 this.Cancel();
                 disposed = true;
             }
-        }
-
-        private void SendJsonRpcEventAsync<TParams>(EventType<TParams> eventType, TParams eventParams)
-        {
-            Task.Run(async () => await this.RequestContext.SendEvent(eventType, eventParams));
         }
     }
 }
