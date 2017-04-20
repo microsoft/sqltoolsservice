@@ -19,6 +19,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -163,6 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             publishModel.ScriptAllObjects = !(hasIncludeCriteria || hasExcludeCriteria || hasObjectsSpecified);
             if (publishModel.ScriptAllObjects)
             {
+                publishModel.AdvancedOptions.GenerateScriptForDependentObjects = BooleanTypeOptions.True;
                 return publishModel;
             }
 
@@ -206,25 +208,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             foreach (PropertyInfo optionPropInfo in this.Parameters.ScriptOptions.GetType().GetProperties())
             {
-                string optionName = optionPropInfo.Name;
-                object optionValue = optionPropInfo.GetValue(this.Parameters.ScriptOptions, index: null);
-                string optionStringValue = optionValue != null ? optionValue.ToString() : null;
-                if (optionStringValue != null)
+                PropertyInfo advancedOptionPropInfo = advancedOptions.GetType().GetProperty(optionPropInfo.Name);
+                if (advancedOptionPropInfo == null)
                 {
-                    PropertyInfo advancedOptionPropInfo = advancedOptions.GetType().GetProperty(optionName);
-                    if (advancedOptionPropInfo != null)
+                    Logger.Write(LogLevel.Warning, string.Format("Invalid property info name {0} could not be mapped to a property on SqlScriptOptions.", optionPropInfo.Name));
+                    continue;
+                }
+
+                object optionValue = optionPropInfo.GetValue(this.Parameters.ScriptOptions, index: null);
+                if (optionValue == null)
+                {
+#if DEBUG
+                    Logger.Write(LogLevel.Verbose, string.Format("Skipping ScriptOptions.{0} since value is null", optionPropInfo.Name));
+#endif
+                    continue;
+                }
+
+                //
+                // The ScriptOptions property types from the request will be either a string or a bool?.  
+                // The SqlScriptOptions property types from SMO will all be an Enum.  Using reflection, we
+                // map the request ScriptOptions values to the SMO SqlScriptOptions values.
+                //
+
+                try
+                {
+                    object smoValue = null;
+                    if (optionPropInfo.PropertyType == typeof(bool?))
                     {
-                        try
-                        {
-                            advancedOptionPropInfo.SetValue(advancedOptions, Enum.Parse(advancedOptionPropInfo.PropertyType, optionStringValue, ignoreCase: true));
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Write(
-                                LogLevel.Warning,
-                                string.Format("ScriptingOperation.PopulateAdvancedScriptOptions exception {0} {1}: {2}", optionName, optionStringValue, e));
-                        }
+                        smoValue = (bool)optionValue ? BooleanTypeOptions.True : BooleanTypeOptions.False;
                     }
+                    else
+                    {
+                        smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, (string)optionValue, ignoreCase: true);
+                    }
+
+#if DEBUG
+                    Logger.Write(LogLevel.Verbose, string.Format("Setting ScriptOptions.{0} to value {1}", optionPropInfo.Name, smoValue));
+#endif
+                    advancedOptionPropInfo.SetValue(advancedOptions, smoValue);
+                }
+                catch (Exception e)
+                {
+                    Logger.Write(
+                        LogLevel.Warning,
+                        string.Format("An exception occurred setting option {0} to value {1}: {2}", optionPropInfo.Name, optionValue, e));
                 }
             }
         }

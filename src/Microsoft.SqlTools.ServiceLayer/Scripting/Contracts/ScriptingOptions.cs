@@ -13,166 +13,246 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// <summary>
         /// Generate ANSI padding statements
         /// </summary>
-        public string ScriptAnsiPadding { get; set; }
+        public bool? ScriptAnsiPadding { get; set; } = false;
 
         /// <summary>
         /// Append the generated script to a file
         /// </summary>
-        public string AppendToFile { get; set; }
-
-        /// <summary>
-        /// Check that an object with the given name exists before dropping or altering or that an object with the given name does not exist before creating.
-        /// </summary>
-        public string CheckForObjectExistence { get; set; }
+        public bool? AppendToFile { get; set; } = false;
 
         /// <summary>
         /// Continue to script if an error occurs. Otherwise, stop.
         /// </summary>
-        public string ContinueScriptingOnError { get; set; }
+        /// <remarks>
+        /// The default is true.
+        /// </remarks>
+        public bool? ContinueScriptingOnError { get; set; } = true;
 
         /// <summary>
         /// Convert user-defined data types to base types.
         /// </summary>
-        public string ConvertUDDTToBaseType { get; set; }
+        public bool? ConvertUDDTToBaseType { get; set; } = false;
 
         /// <summary>
         /// Generate script for dependent objects for each object scripted.
         /// </summary>
-        public string GenerateScriptForDependentObjects { get; set; }
+        /// <remarks>
+        /// The default is false.
+        /// </remarks>
+        public bool? GenerateScriptForDependentObjects { get; set; } = false;
 
         /// <summary>
         /// Include descriptive headers for each object generated.
         /// </summary>
-        public string IncludeDescriptiveHeaders { get; set; }
+        /// <remarks>
+        /// The default is true.
+        /// </remarks>
+        public bool? IncludeDescriptiveHeaders { get; set; } = true;
+
+        /// <summary>
+        /// Check that an object with the given name exists before dropping or altering or that an object with the given name does not exist before creating.
+        /// </summary>
+        public bool? IncludeIfNotExists { get; set; } = false;
+
+        /// <summary>
+        /// Script options to set vardecimal storage format.
+        /// </summary>
+        public bool? IncludeVarDecimal { get; set; } = true;
 
         /// <summary>
         /// Include system generated constraint names to enforce declarative referential integrity.
         /// </summary>
-        public string IncludeSystemConstraintNames { get; set; }
+        public bool? ScriptDriIncludeSystemNames { get; set; } = false;
 
         /// <summary>
         /// Include statements in the script that are not supported on the specified SQL Server database engine type.
         /// </summary>
-        public string IncludeUnsupportedStatements { get; set; }
+        public bool? IncludeUnsupportedStatements { get; set; } = true;
 
         /// <summary>
         /// Prefix object names with the object schema.
         /// </summary>
-        public string SchemaQualify { get; set; }
+        /// <remarks>
+        /// The default is true.
+        /// </remarks>
+        public bool? SchemaQualify { get; set; } = true;
 
         /// <summary>
         /// Script options to set bindings option.
         /// </summary>
-        public string Bindings { get; set; }
+        public bool? Bindings { get; set; } = false;
 
         /// <summary>
         /// Script the objects that use collation.
         /// </summary>
-        public string Collation { get; set; }
+        public bool? Collation { get; set; } = false;
 
         /// <summary>
         /// Script the default values.
         /// </summary>
-        public string Default { get; set; }
+        /// <remarks>
+        /// The default is true.
+        /// </remarks>
+        public bool? Default { get; set; } = true;
 
         /// <summary>
-        /// Script Object CREATE/DROP statements.
+        /// Script Object CREATE/DROP statements.  
+        /// Possible values: 
+        ///   ScriptCreate
+        ///   ScriptDrop
+        ///   ScriptCreateDrop
         /// </summary>
-        public string ScriptCreateDrop { get; set; }
+        /// <remarks>
+        /// The default is ScriptCreate.
+        /// </remarks>
+        public string ScriptCreateDrop { get; set; } = "ScriptCreate";
 
         /// <summary>
         /// Script the Extended Properties for each object scripted.
         /// </summary>
-        public string ScriptExtendedProperties { get; set; }
+        /// <remarks>
+        /// The default is true.
+        /// </remarks>
+        public bool? ScriptExtendedProperties { get; set; } = true;
 
         /// <summary>
-        /// Script only features compatible with the specified version of SQL Server.
+        /// Script only features compatible with the specified version of SQL Server.  Possible values:
+        ///   Script90Compat
+        ///   Script100Compat
+        ///   Script105Compat
+        ///   Script110Compat
+        ///   Script120Compat
+        ///   Script130Compat
+        ///   Script140Compat  
         /// </summary>
-        public string ScriptForServerVersion { get; set; }
+        /// <remarks>
+        /// The default is Script140Compat.
+        /// </remarks>
+        public string ScriptCompatibilityOption { get; set; } = "Script140Compat";
 
         /// <summary>
         /// Script only features compatible with the specified SQL Server database engine edition.
+        /// Possible Values:
+        ///   SqlServerPersonalEdition
+        ///   SqlServerStandardEdition 
+        ///   SqlServerEnterpriseEdition 
+        ///   SqlServerExpressEdition
+        ///   SqlAzureDatabaseEdition
+        ///   SqlDatawarehouseEdition
+        ///   SqlServerStretchEdition 
         /// </summary>
-        public string TargetDatabaseEngineEdition { get; set; }
+        public string TargetDatabaseEngineEdition { get; set; } = "SqlServerEnterpriseEdition";
 
         /// <summary>
         /// Script only features compatible with the specified SQL Server database engine type.
+        /// Possible Values:
+        ///   SingleInstance
+        ///   SqlAzure
         /// </summary>
-        public string TargetDatabaseEngineType { get; set; }
+        public string TargetDatabaseEngineType { get; set; } = "SingleInstance";
 
         /// <summary>
         /// Script all logins available on the server. Passwords will not be scripted.
         /// </summary>
-        public string ScriptLogins { get; set; }
+        public bool? ScriptLogins { get; set; } = false;
 
         /// <summary>
         /// Generate object-level permissions.
         /// </summary>
-        public string ScriptObjectLevelPermissions { get; set; }
+        public bool? ScriptObjectLevelPermissions { get; set; } = false;
 
         /// <summary>
         /// Script owner for the objects.
         /// </summary>
-        public string ScriptOwner { get; set; }
+        public bool? ScriptOwner { get; set; } = false;
 
         /// <summary>
         /// Script statistics, and optionally include histograms, for each selected table or view.
+        /// Possible values:
+        ///   ScriptStatsNone
+        ///   ScriptStatsDDL
+        ///   ScriptStatsAll
         /// </summary>
-        public string ScriptStatistics { get; set; }
+        /// <remarks>
+        /// The default value is ScriptStatsNone.
+        /// </remarks>
+        public string ScriptStatistics { get; set; } = "ScriptStatsNone";
 
         /// <summary>
         /// Generate USE DATABASE statement.
         /// </summary>
-        public string ScriptUseDatabase { get; set; }
+        public bool? ScriptUseDatabase { get; set; } = true;
 
         /// <summary>
         /// Generate script that contains schema only or schema and data.
+        /// Possible Values:
+        ///   SchemaAndData
+        ///   DataOnly
+        ///   SchemaOnly
         /// </summary>
-        public string TypeOfDataToScript { get; set; }
+        /// <remarks>
+        /// The default value is SchemaOnly.
+        /// </remarks>
+        public string TypeOfDataToScript { get; set; } = "SchemaOnly";
 
         /// <summary>
         /// Scripts the change tracking information.
         /// </summary>
-        public string ScriptChangeTracking { get; set; }
+        public bool? ScriptChangeTracking { get; set; } = false;
 
         /// <summary>
         /// Script the check constraints for each table or view scripted.
         /// </summary>
-        public string ScriptCheckConstraints { get; set; }
+        /// <remarks>
+        /// The default value is true.
+        /// </remarks>
+        public bool? ScriptCheckConstraints { get; set; } = true;
 
         /// <summary>
         /// Scripts the data compression information.
         /// </summary>
-        public string ScriptDataCompressionOptions { get; set; }
+        public bool? ScriptDataCompressionOptions { get; set; } = false;
 
         /// <summary>
         /// Script the foreign keys for each table scripted.
         /// </summary>
-        public string ScriptForeignKey { get; set; }
+        /// <remarks>
+        /// The default value is true.
+        /// </remarks>
+        public bool? ScriptForeignKeys { get; set; } = true;
 
         /// <summary>
         /// Script the full-text indexes for each table or indexed view scripted.
         /// </summary>
-        public string ScriptFullTextIndexes { get; set; }
+        public bool? ScriptFullTextIndexes { get; set; } = false;
 
         /// <summary>
         /// Script the indexes (including XML and clustered indexes) for each table or indexed view scripted.
         /// </summary>
-        public string ScriptIndexes { get; set; }
+        /// <remarks>
+        /// The default value is true.
+        /// </remarks>
+        public bool? ScriptIndexes { get; set; } = true;
 
         /// <summary>
         /// Script the primary keys for each table or view scripted
         /// </summary>
-        public string ScriptPrimaryKeys { get; set; }
+        /// <remarks>
+        /// The default value is true.
+        /// </remarks>
+        public bool? ScriptPrimaryKeys { get; set; } = true;
 
         /// <summary>
         /// Script the triggers for each table or view scripted
         /// </summary>
-        public string ScriptTriggers { get; set; }
+        public bool? ScriptTriggers { get; set; } = false;
 
         /// <summary>
         /// Script the unique keys for each table or view scripted.
         /// </summary>
-        public string UniqueKeys { get; set; }
+        /// <remarks>
+        /// The default value is true.
+        /// </remarks>
+        public bool? UniqueKeys { get; set; } = true;
     }
 }
