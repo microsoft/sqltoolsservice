@@ -106,18 +106,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 It.IsAny<ConnectionCompleteParams>()), Times.Never());
         }
 
-        private void VerifyDatabaseNode(NodeInfo databaseNode, ConnectionDetails details)
-        {
-            Assert.NotNull(databaseNode);
-            Assert.Equal(NodeTypes.Database.ToString(), databaseNode.NodeType);
-            string[] pathParts = databaseNode.NodePath.Split(TreeNode.PathPartSeperator);
-            Assert.Equal(1, pathParts.Length);
-            Assert.Equal(details.ServerName, pathParts[0]);
-            Assert.True(databaseNode.Label.Contains(details.ServerName));
-            Assert.True(databaseNode.Label.Contains(details.DatabaseName));
-            Assert.False(databaseNode.IsLeaf);
-        }
-
         private void VerifyServerNode(NodeInfo serverNode, ConnectionDetails details)
         {
             Assert.NotNull(serverNode);

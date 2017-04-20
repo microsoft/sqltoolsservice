@@ -350,6 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!ObjectExplorerUtils.IsSystemDatabaseConnection(response.ConnectionSummary.DatabaseName))
                 {
+                    // Assuming the databases are in a folder under server node
                     var children = rootNode.Expand();
                     var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
                     var databasesChildren = databasesRoot.Expand();
