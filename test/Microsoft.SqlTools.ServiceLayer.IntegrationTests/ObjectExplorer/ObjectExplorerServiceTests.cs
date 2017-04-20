@@ -37,6 +37,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         }
 
         [Fact]
+        public async void CreateSessionWithTempdbAndExpandOnTheServerShouldReturnServerAsTheRoot()
+        {
+            var query = "";
+            string uri = "CreateSessionAndExpandServer";
+            string databaseName = null;
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            {
+                var session = await CreateSession("tempdb", uri);
+                await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
+                CancelConnection(uri);
+            }
+        }
+
+        [Fact]
         public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseAsTheRoot()
         {
             var query = "";

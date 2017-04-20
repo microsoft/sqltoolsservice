@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
 
         [Fact]
-        public async Task CreateSessionRequestReturnsServerSuccessAndNodeInfo()
+        public async Task CreateSessionRequestWithMasterConnectionReturnsServerSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
             ConnectionDetails details = new ConnectionDetails()
@@ -85,6 +85,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 DatabaseName = "master",
                 ServerName = "serverName"
             };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        [Fact]
+        public async Task CreateSessionRequestWithEmptyConnectionReturnsServerSuccessAndNodeInfo()
+        {
+            // Given the connection service fails to connect
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "",
+                ServerName = "serverName"
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        [Fact]
+        public async Task CreateSessionRequestWithMsdbConnectionReturnsServerSuccessAndNodeInfo()
+        {
+            // Given the connection service fails to connect
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "msdb",
+                ServerName = "serverName"
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        private async Task CreateSessionRequestAndVerifyServerNodeHelper(ConnectionDetails details)
+        {
             serviceHostMock.AddEventHandling(ConnectionCompleteNotification.Type, null);
             
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
