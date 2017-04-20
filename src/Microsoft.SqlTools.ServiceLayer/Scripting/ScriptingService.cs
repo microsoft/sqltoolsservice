@@ -10,13 +10,14 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -112,7 +113,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             try
             {
                 ScriptingListObjectsOperation operation = new ScriptingListObjectsOperation(parameters);
+                operation.CompleteNotification += (sender, e) => this.SendEvent(requestContext, ScriptingListObjectsCompleteEvent.Type, e);
+
                 RunTask(requestContext, operation);
+
                 await requestContext.SendResult(new ScriptingListObjectsResult { OperationId = operation.OperationId });
             }
             catch (Exception e)
@@ -129,21 +133,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             try
             {
                 ScriptingScriptOperation operation = new ScriptingScriptOperation(parameters);
-
-                operation.PlanNotification += (sender, e) =>
-                {
-                    Task.Run(async () => await requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e));
-                };
-
-                operation.ProgressNotification += (sender, e) =>
-                {
-                    Task.Run(async () => await requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e));
-                };
-
-                operation.CompleteNotification += (sender, e) =>
-                {
-                    Task.Run(async () => await requestContext.SendEvent(ScriptingCompleteEvent.Type, e));
-                };
+                operation.PlanNotification += (sender, e) => this.SendEvent(requestContext, ScriptingPlanNotificationEvent.Type, e);
+                operation.ProgressNotification += (sender, e) => this.SendEvent(requestContext, ScriptingProgressNotificationEvent.Type, e);
+                operation.CompleteNotification += (sender, e) => this.SendEvent(requestContext, ScriptingCompleteEvent.Type, e);
 
                 RunTask(requestContext, operation);
 
@@ -167,6 +159,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {
                     operation.Cancel();
                 }
+                else
+                {
+                    Logger.Write(LogLevel.Normal, string.Format("Operation {0} was not found", operation.OperationId));
+                }
 
                 await requestContext.SendResult(new ScriptingCancelResult());
             }
@@ -174,6 +170,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 await requestContext.SendError(e);
             }
+        }
+
+        /// <summary>
+        /// Sends a JSON-RPC event.
+        /// </summary>
+        private void SendEvent<TParams>(IEventSender requestContext, EventType<TParams> eventType, TParams parameters)
+        {
+            Task.Run(async () => await requestContext.SendEvent(eventType, parameters));
         }
 
         /// <summary>
@@ -201,6 +205,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             });
         }
 
+        /// <summary>
+        /// Disposes the scripting service and all active scripting operations.
+        /// </summary>
         public void Dispose()
         {
             if (!disposed)

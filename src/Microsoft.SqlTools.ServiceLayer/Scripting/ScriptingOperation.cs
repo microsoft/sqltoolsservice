@@ -41,9 +41,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         public virtual void Cancel()
         {
-            if (this.cancellation != null && !this.cancellation.IsCancellationRequested)
+            if (!this.cancellation.IsCancellationRequested)
             {
-                Logger.Write(LogLevel.Verbose, string.Format("ScriptingOperation.Cancel invoked for OperationId {0}", this.OperationId));
+                Logger.Write(LogLevel.Verbose, string.Format("Cancel invoked for OperationId {0}", this.OperationId));
                 this.cancellation.Cancel();
             }
         }

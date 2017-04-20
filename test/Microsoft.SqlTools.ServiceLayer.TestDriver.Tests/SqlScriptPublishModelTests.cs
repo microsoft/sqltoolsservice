@@ -232,7 +232,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 Assert.True(parameters.HasError);
                 Assert.Equal("An error occurred while scripting the objects.", parameters.ErrorMessage);
                 Assert.Contains("The Table '[dbo].[TableDoesNotExist]' does not exist on the server.", parameters.ErrorDetails);
-                Assert.True(parameters.Success);
             }
         }
 
@@ -279,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.HasError);
-                Assert.Equal("Error parsing ConnectionString property", parameters.ErrorMessage);
+                Assert.Equal("Error parsing ScriptingParams.ConnectionString property", parameters.ErrorMessage);
             }
         }
 
@@ -301,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.HasError);
-                Assert.Equal("Invalid directory specified by the FilePath property.", parameters.ErrorMessage);
+                Assert.Equal("Invalid directory specified by the ScriptingParams.FilePath property.", parameters.ErrorMessage);
             }
         }
 

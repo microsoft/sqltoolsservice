@@ -59,6 +59,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
                 List<ScriptingObject> databaseObjects = publishModel.GetDatabaseObjects();
+
+                Logger.Write(
+                    LogLevel.Verbose,
+                    string.Format(
+                        "Sending list object completion notification count {0}, objects: {1}",
+                        databaseObjects,
+                        string.Join(", ", databaseObjects)));
+
                 this.SendCompletionNotificationEvent(new ScriptingListObjectsCompleteParameters
                 {
                     OperationId = this.OperationId,

@@ -62,15 +62,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         public override void Execute()
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(this.CancellationToken);
-            }
-
             SqlScriptPublishModel publishModel = null;
 
             try
             {
+                this.CancellationToken.ThrowIfCancellationRequested();
+
                 this.ValidateScriptDatabaseParams();
 
                 publishModel = BuildPublishModel();
@@ -81,11 +78,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 ScriptOutputOptions outputOptions = new ScriptOutputOptions
                 {
                     SaveFileMode = ScriptFileMode.Overwrite,
-                    SaveFileType = ScriptFileType.Unicode,
+                    SaveFileType = ScriptFileType.Unicode,          // UTF-16
                     SaveFileName = this.Parameters.FilePath,
                 };
 
+                this.CancellationToken.ThrowIfCancellationRequested();
+
                 publishModel.GenerateScript(outputOptions);
+
+                this.CancellationToken.ThrowIfCancellationRequested();
 
                 Logger.Write(
                     LogLevel.Verbose,
@@ -247,11 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private void OnPublishModelScriptError(object sender, ScriptEventArgs e)
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                e.ContinueScripting = false;
-                throw new OperationCanceledException(this.CancellationToken);
-            }
+            this.CancellationToken.ThrowIfCancellationRequested();
 
             Logger.Write(
                 LogLevel.Verbose,
@@ -278,10 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private void OnPublishModelScriptItemsCollected(object sender, ScriptItemsArgs e)
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(this.CancellationToken);
-            }
+            this.CancellationToken.ThrowIfCancellationRequested();
 
             List<ScriptingObject> scriptingObjects = e.Urns.Select(urn => urn.ToScriptingObject()).ToList();
             this.totalScriptedObjectCount = scriptingObjects.Count;
@@ -303,11 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private void OnPublishModelScriptProgress(object sender, ScriptEventArgs e)
         {
-            if (this.CancellationToken.IsCancellationRequested)
-            {
-                e.ContinueScripting = false;
-                throw new OperationCanceledException(this.CancellationToken);
-            }
+            this.CancellationToken.ThrowIfCancellationRequested();
 
             if (e.Completed)
             {
@@ -334,13 +324,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             });
         }
         
-        /// <summary>
-        /// Cancels the scripting operation.
-        /// </summary>
-        public override void Cancel()
-        {
-        }
-
         /// <summary>
         /// Disposes the scripting operation.
         /// </summary>
