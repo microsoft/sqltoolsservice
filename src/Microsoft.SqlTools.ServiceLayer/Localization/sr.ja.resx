@@ -1,0 +1,954 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>接続パラメーターを null にすることはできません。</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri を null または空にすることはできません。</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>SpecifiedUri '{0}' には、既存の接続はありません。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>AuthenticationType の値 '{0}' が無効です。有効な値は 'Integrated' または 'SqlLogin' です。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>ApplicationIntent の値 '{0}' が無効です。有効な値は 'ReadWrite' または 'ReadOnly' です。</value>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>接続がキャンセルされました。</value>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri を null または空にすることはできません。</value>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>接続の詳細オブジェクトを null にすることはできません。</value>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>ServerName を null または空にすることはできません。</value>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>SqlLogin 認証を使用する場合に、{0} を null または空にすることはできません。</value>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>クエリは既に完了して、取り消すことができません。</value>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>クエリのキャンセルに成功しましたが、クエリの処理に失敗しました。OwnerURIが見つかりません。</value>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>クエリは、ユーザーによってキャンセルされました</value>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>バッチがまだ完了していません、</value>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>バッチのインデックスは、0 未満あるいは、バッチの数より大きい値にすることはできません。</value>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>結果セットのインデックスは、0 未満あるいは、結果セットの数より大きい値にすることはできません</value>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>戻り値の最大バイト数は 0 より大きくする必要があります。</value>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>戻り値の最大文字数は 0 より大きくする必要があります。</value>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>戻り値の最大のXMLバイト数は 0 より大きくする必要があります。</value>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>アクセス メソッドを書き込み専用にすることはできません。</value>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>FileStreamWrapper は、操作を実行する前に初期化されなければなりません。</value>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>この FileStreamWrapper は、書き込みには利用できません。</value>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 件処理されました)</value>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>({0} 行処理されました)</value>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>コマンドが正常に完了しました。</value>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</value>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>クエリに失敗しました: {0}</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(列名なし)</value>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>要求されたクエリは存在しません</value>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>このエディターは、データベースに接続されていません。</value>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>このエディターのクエリは既に実行中です。クエリをキャンセルするか完了まで待って下さい。</value>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>OnInfoMessage イベントのSenderは、SqlConnectionである必要があります。</value>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>クエリの実行が完了するまで、結果を保存することはできません。</value>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>保存タスクの開始中に内部エラーが発生しました。</value>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>同一のパスへの保存リクエストを実行中です。</value>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>{0} を保存できませんでした: {1}</value>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>サーバーから結果が受信されていないため、サブセットを読み取ることができません。</value>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>開始行は 0 未満か、結果セット内の行数より大きい値にすることはできません。</value>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>行数は正の整数でなければなりません。</value>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>結果セットの列のスキーマを取得できませんでした。</value>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>結果セットから実行プランを取得できませんでした。</value>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>この機能はAzure SQL DBとData Warehouseでは、現在サポートされていません: {0}</value>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>Peek Definitionの実行中に予期しないエラーが発生しました: {0}</value>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>結果は見つかりませんでした。</value>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>データベース オブジェクトを取得できませんでした。</value>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>サーバーに接続してください。</value>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>操作がタイムアウトになりました。</value>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>このオブジェクトの種類は現在この機能ではサポートされていません。</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>位置がファイルの行の範囲外です。</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>位置が行 {0} の列の範囲外です。</value>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>開始位置 ({0}, {1}) は、終了位置 ({2}, {3}) より前、または同じでなければなりません。</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Msg {0}, Level {1}, State {2}</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>バッチを処理中にエラーが発生しました。エラー メッセージ: {0}</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} 件処理されました)</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>前回の実行がまだ完了していません。</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>スクリプト エラーが発生しました。</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>{0} の解析中に不正な構文が見つかりました。</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>致命的なエラーが発生しました。</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>{0} 回の実行が完了...</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>クエリをキャンセルしました。</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>バッチの実行中にエラーが発生しました。</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>バッチの実行中にエラーが発生しましたが、エラーを無視しました。</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitilizingLoop" xml:space="preserve">
+    <value>{0} 回の実行ループを開始しています.</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>コマンド {0} はサポートされていません。</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>変数 {0} が見つかりませんでした。</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
+    <value>SQL の実行エラー: {0}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>バッチ パーサー ラッパーの実行: 行 {1}: {2} で {0} を検出... 説明: {3}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>バッチ パーサー ラッパー実行エンジンのバッチ メッセージを受信しました: メッセージ: {0} 詳細メッセージ: {1}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>バッチ パーサー ラッパー実行エンジンのバッチ ResultSet 処理: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>バッチ パーサー ラッパー実行エンジンのバッチ ResultSet が終了しました。</value>
+  </data>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>バッチ パーサー ラッパーのバッチ実行をキャンセルしています。</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>スクリプトの警告。</value>
+  </data>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>このエラーの詳細については、製品ドキュメントのトラブルシューティングに関するトピックを参照してください。</value>
+  </data>
+  <data name="BatchParser_CircularReference" xml:space="preserve">
+    <value>ファイル '{0}' が再帰的に含まれています。</value>
+  </data>
+  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
+    <value>'*/' でマークされたコメントの終端がありません。</value>
+  </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>文字列の引用符が閉じていません。</value>
+  </data>
+  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
+    <value>'{0}' の解析中に無効な構文が見つかりました。</value>
+  </data>
+  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
+    <value>変数 {0} が定義されていません。</value>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>EN_LOCALIZATION</value>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>空の文字列で空の文字列を置換しています。</value>
+  </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>編集セッションは存在しません。</value>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>クエリの実行が完了していません。</value>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>クエリは 1 つの結果セットを生成できませんでした。</value>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>キャッシュを更新する新しい行を追加できませんでした。</value>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>与えられた行IDは、編集キャッシュに存在する行の範囲外です。</value>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>この行に対する更新がすでに保留されています。まず更新を戻す必要があります。</value>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>与えられた行IDには保留中の更新はありません。</value>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>テーブルまたはビューのメタデータが見つかりませんでした。</value>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>バイナリ列の形式が無効です。</value>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>ブール列の型は1もしくは0の数値、または true もしくは false の文字列でなければいけません。</value>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>必須なセルの値が入力されていません。</value>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>この行の削除が保留中であるため、セルの更新は適用できません。</value>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>列 ID がクエリの列の範囲である必要があります。</value>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>列を編集できません。</value>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>キー列が見つかりませんでした。</value>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>出力ファイル名を指定する必要があります。</value>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>データベース オブジェクト {0} は、編集のため使用できません。</value>
+  </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>指定された URI '{0}' には既定の接続はありません。</value>
+  </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>コミット処理は実行中です。完了するまで待機してください。</value>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>Decimal 型の列に有効桁数もしくは小数点以下桁数のどちらかが存在していません。</value>
+  </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;TBD&gt;</value>
+  </data>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>結果バッファーへ行を追加できません。データリーダーは行を含んでいません。</value>
+  </data>
+  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
+    <value>time 型の値は 00:00:00.0000000 と 23:59:59.9999999 の範囲内になければなりません。</value>
+  </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>この列では NULL は許可されていません。</value>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>編集セッションがすでに存在します。</value>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>編集セッションが初期化されていません。</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>編集セッションはすでに初期化されました。</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>編集セッションはすでに初期化されたか、初期化中です。</value>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>クエリーの実行が失敗しました。詳細メッセージを確認してください。</value>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>結果の上限は負の値にできません。</value>
+  </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+  </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>オブジェクトの名前を指定する必要があります。</value>
+  </data>
+  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
+    <value>明示的なサーバーもしくはデータベースの指定はサポートされていません。</value>
+  </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>テーブルメタデータは拡張プロパティを持っていません。</value>
+  </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>編集を要求したテーブルもしくはビューが見つかりませんでした。</value>
+  </data>
+  <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
+    <value>集約</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
+    <value>サーバー ロール</value>
+  </data>
+  <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
+    <value>アプリケーション ロール</value>
+  </data>
+  <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
+    <value>アセンブリ</value>
+  </data>
+  <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
+    <value>アセンブリ ファイル</value>
+  </data>
+  <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
+    <value>非対称キー</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
+    <value>非対称キー</value>
+  </data>
+  <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
+    <value>データ圧縮オプション</value>
+  </data>
+  <data name="SchemaHierarchy_Certificates" xml:space="preserve">
+    <value>証明書</value>
+  </data>
+  <data name="SchemaHierarchy_FileTables" xml:space="preserve">
+    <value>ファイルテーブル</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
+    <value>証明書</value>
+  </data>
+  <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
+    <value>CHECK 制約</value>
+  </data>
+  <data name="SchemaHierarchy_Columns" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="SchemaHierarchy_Constraints" xml:space="preserve">
+    <value>制約</value>
+  </data>
+  <data name="SchemaHierarchy_Contracts" xml:space="preserve">
+    <value>コントラクト</value>
+  </data>
+  <data name="SchemaHierarchy_Credentials" xml:space="preserve">
+    <value>資格情報</value>
+  </data>
+  <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
+    <value>エラー メッセージ</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
+    <value>サーバー ロール メンバーシップ</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
+    <value>データベース オプション</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
+    <value>データベース ロール</value>
+  </data>
+  <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
+    <value>ロール メンバーシップ</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
+    <value>データベース トリガー</value>
+  </data>
+  <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
+    <value>既定の制約</value>
+  </data>
+  <data name="SchemaHierarchy_Defaults" xml:space="preserve">
+    <value>既定値</value>
+  </data>
+  <data name="SchemaHierarchy_Sequences" xml:space="preserve">
+    <value>シーケンス</value>
+  </data>
+  <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
+    <value>エンドポイント</value>
+  </data>
+  <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
+    <value>イベント通知</value>
+  </data>
+  <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
+    <value>サーバー イベント通知</value>
+  </data>
+  <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
+    <value>拡張プロパティ</value>
+  </data>
+  <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
+    <value>ファイル グループ</value>
+  </data>
+  <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
+    <value>外部キー</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
+    <value>フルテキスト カタログ</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
+    <value>フルテキスト インデックス</value>
+  </data>
+  <data name="SchemaHierarchy_Functions" xml:space="preserve">
+    <value>関数</value>
+  </data>
+  <data name="SchemaHierarchy_Indexes" xml:space="preserve">
+    <value>インデックス</value>
+  </data>
+  <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
+    <value>インライン関数</value>
+  </data>
+  <data name="SchemaHierarchy_Keys" xml:space="preserve">
+    <value>キー</value>
+  </data>
+  <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
+    <value>リンク サーバー</value>
+  </data>
+  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
+    <value>リンク サーバー ログイン</value>
+  </data>
+  <data name="SchemaHierarchy_Logins" xml:space="preserve">
+    <value>ログイン</value>
+  </data>
+  <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
+    <value>マスター キー</value>
+  </data>
+  <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
+    <value>マスター キー</value>
+  </data>
+  <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
+    <value>メッセージ型</value>
+  </data>
+  <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
+    <value>テーブル値関数</value>
+  </data>
+  <data name="SchemaHierarchy_Parameters" xml:space="preserve">
+    <value>パラメーター</value>
+  </data>
+  <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
+    <value>パーティション関数</value>
+  </data>
+  <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
+    <value>パーティション構成</value>
+  </data>
+  <data name="SchemaHierarchy_Permissions" xml:space="preserve">
+    <value>アクセス許可</value>
+  </data>
+  <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
+    <value>主キー</value>
+  </data>
+  <data name="SchemaHierarchy_Programmability" xml:space="preserve">
+    <value>プログラミング</value>
+  </data>
+  <data name="SchemaHierarchy_Queues" xml:space="preserve">
+    <value>キュー</value>
+  </data>
+  <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
+    <value>リモート サービスのバインド</value>
+  </data>
+  <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
+    <value>返された列</value>
+  </data>
+  <data name="SchemaHierarchy_Roles" xml:space="preserve">
+    <value>ロール</value>
+  </data>
+  <data name="SchemaHierarchy_Routes" xml:space="preserve">
+    <value>ルート</value>
+  </data>
+  <data name="SchemaHierarchy_Rules" xml:space="preserve">
+    <value>ルール</value>
+  </data>
+  <data name="SchemaHierarchy_Schemas" xml:space="preserve">
+    <value>スキーマ</value>
+  </data>
+  <data name="SchemaHierarchy_Security" xml:space="preserve">
+    <value>セキュリティ</value>
+  </data>
+  <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
+    <value>サーバー オブジェクト</value>
+  </data>
+  <data name="SchemaHierarchy_Management" xml:space="preserve">
+    <value>管理</value>
+  </data>
+  <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
+    <value>トリガー</value>
+  </data>
+  <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="SchemaHierarchy_Services" xml:space="preserve">
+    <value>サービス</value>
+  </data>
+  <data name="SchemaHierarchy_Signatures" xml:space="preserve">
+    <value>署名</value>
+  </data>
+  <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
+    <value>ログ ファイル</value>
+  </data>
+  <data name="SchemaHierarchy_Statistics" xml:space="preserve">
+    <value>統計</value>
+  </data>
+  <data name="SchemaHierarchy_Storage" xml:space="preserve">
+    <value>ストレージ</value>
+  </data>
+  <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
+    <value>ストアド プロシージャ</value>
+  </data>
+  <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
+    <value>対称キー</value>
+  </data>
+  <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
+    <value>シノニム</value>
+  </data>
+  <data name="SchemaHierarchy_Tables" xml:space="preserve">
+    <value>テーブル</value>
+  </data>
+  <data name="SchemaHierarchy_Triggers" xml:space="preserve">
+    <value>トリガー</value>
+  </data>
+  <data name="SchemaHierarchy_Types" xml:space="preserve">
+    <value>型</value>
+  </data>
+  <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
+    <value>一意キー</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
+    <value>ユーザー定義データ型</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
+    <value>ユーザー定義型 (CLR)</value>
+  </data>
+  <data name="SchemaHierarchy_Users" xml:space="preserve">
+    <value>ユーザー</value>
+  </data>
+  <data name="SchemaHierarchy_Views" xml:space="preserve">
+    <value>ビュー</value>
+  </data>
+  <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
+    <value>XML インデックス</value>
+  </data>
+  <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
+    <value>XML スキーマ コレクション</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
+    <value>ユーザー定義テーブル型</value>
+  </data>
+  <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
+    <value>ファイル</value>
+  </data>
+  <data name="MissingCaption" xml:space="preserve">
+    <value>キャプションが見つかりません</value>
+  </data>
+  <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
+    <value>Broker の優先度</value>
+  </data>
+  <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
+    <value>暗号化プロバイダー</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
+    <value>データベース監査の仕様</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
+    <value>データベース暗号化キー</value>
+  </data>
+  <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
+    <value>イベント セッション</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
+    <value>フルテキスト ストップリスト</value>
+  </data>
+  <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
+    <value>リソース プール</value>
+  </data>
+  <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
+    <value>監査</value>
+  </data>
+  <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
+    <value>サーバー監査の仕様</value>
+  </data>
+  <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
+    <value>空間インデックス</value>
+  </data>
+  <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
+    <value>ワークロード グループ</value>
+  </data>
+  <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
+    <value>SQL ファイル</value>
+  </data>
+  <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
+    <value>サーバー関数</value>
+  </data>
+  <data name="SchemaHierarchy_SqlType" xml:space="preserve">
+    <value>SQL 型</value>
+  </data>
+  <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
+    <value>サーバー オプション</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
+    <value>データベース ダイアグラム</value>
+  </data>
+  <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
+    <value>システム テーブル</value>
+  </data>
+  <data name="SchemaHierarchy_Databases" xml:space="preserve">
+    <value>データベース</value>
+  </data>
+  <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
+    <value>システム コントラクト</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
+    <value>システム データベース</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
+    <value>システム メッセージの種類</value>
+  </data>
+  <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
+    <value>システム キュー</value>
+  </data>
+  <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
+    <value>システム サービス</value>
+  </data>
+  <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
+    <value>システム ストアド プロシージャ</value>
+  </data>
+  <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
+    <value>システム ビュー</value>
+  </data>
+  <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
+    <value>データ層アプリケーション</value>
+  </data>
+  <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
+    <value>拡張ストアド プロシージャ</value>
+  </data>
+  <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
+    <value>集計関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
+    <value>概数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
+    <value>バイナリ文字列</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
+    <value>文字列</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
+    <value>CLR データ型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
+    <value>構成関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
+    <value>カーソル関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
+    <value>システム データ型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
+    <value>日付と時刻</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
+    <value>日付と時刻関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
+    <value>真数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
+    <value>システム関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
+    <value>階層 ID 関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
+    <value>数学関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
+    <value>メタデータ関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
+    <value>その他のデータ型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
+    <value>その他の関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
+    <value>行セット関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
+    <value>セキュリティ関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
+    <value>空間データ型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
+    <value>文字列関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
+    <value>システム統計関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
+    <value>テキストとイメージ関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
+    <value>Unicode 文字列</value>
+  </data>
+  <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
+    <value>集計関数</value>
+  </data>
+  <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
+    <value>スカラー値関数</value>
+  </data>
+  <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
+    <value>テーブル値関数</value>
+  </data>
+  <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
+    <value>システム拡張ストアド プロシージャ</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
+    <value>ビルトイン型</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
+    <value>組み込みのサーバー ロール</value>
+  </data>
+  <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
+    <value>ユーザーとパスワード</value>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
+    <value>検索プロパティ リスト</value>
+  </data>
+  <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
+    <value>セキュリティ ポリシー</value>
+  </data>
+  <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
+    <value>セキュリティ述語</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
+    <value>サーバー ロール</value>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
+    <value>検索プロパティ リスト</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
+    <value>列のストア インデックス</value>
+  </data>
+  <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
+    <value>テーブル型インデックス</value>
+  </data>
+  <data name="SchemaHierarchy_ServerInstance" xml:space="preserve">
+    <value>ServerInstance</value>
+  </data>
+  <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
+    <value>選択的 XML インデックス</value>
+  </data>
+  <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
+    <value>XML 名前空間</value>
+  </data>
+  <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
+    <value>XML の型指定された昇格パス</value>
+  </data>
+  <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
+    <value>T-SQL の型指定された昇格パス</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
+    <value>データベース スコープ資格情報</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
+    <value>外部データ ソース</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
+    <value>外部ファイル形式</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
+    <value>外部リソース</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
+    <value>外部テーブル</value>
+  </data>
+  <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
+    <value>Always Encrypted キー</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
+    <value>列マスター キー</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
+    <value>列暗号化キー</value>
+  </data>
+</root>

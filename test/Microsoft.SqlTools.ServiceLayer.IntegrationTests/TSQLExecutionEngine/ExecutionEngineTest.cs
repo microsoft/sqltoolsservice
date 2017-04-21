@@ -12,7 +12,9 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Moq;
 using Xunit;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 {
@@ -297,6 +299,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
+
+        [Fact]
+        public void ExecutionEngineTest_DiscardConnection()
+        {
+            ExecutionEngine engine = new ExecutionEngine();
+            Assert.True(ConnectionDiscardWrapper(engine));
+            
+        }
         #endregion
 
         #region Different execution conditions
@@ -456,6 +466,29 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             // However since that gets mapped to Failure anyhow, consider "Failure" as acceptable here
             Assert.True(executor.ExecutionResult.HasFlag(ScriptExecutionResult.Failure), "Expected failure when invalid connection is present" );
         }
+
+        /// <summary>
+        /// Test with multiple conditions true
+        /// </summary>
+        [Fact]
+        public void TestExecutionEngineConditions()
+        {
+            string sqlStatement = "select * from sys.databases\ngo\nselect name from sys.databases\ngo\nprint 'test'\ngo";
+            ExecutionEngineConditions conditions = new ExecutionEngineConditions();
+            conditions.IsNoExec = true;
+            conditions.IsStatisticsIO = true;
+            conditions.IsStatisticsTime = true;
+            conditions.IsEstimatedShowPlan = true;
+            TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions, false);
+            executor.Run();
+
+            //Get the expected values
+            List<string> batchScripts = executor.BatchScripts;
+            ExecuteSqlBatch(batchScripts, connection);
+
+            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
+        }
         #endregion
 
         #region SQL Commands
@@ -491,9 +524,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             {
                 TestExecutor executor = new TestExecutor(stmt, connection, conditions);
                 executor.Run();
-
-                //Assert.AreEqual(ScriptExecutionResult.Failure, executor.ExecutionResult);
-                //Assert.IsTrue(executor.ResultCountQueue.Count == 0);
+                Assert.True(executor.ResultCountQueue.Count == 0);
             }
 
         }
@@ -501,7 +532,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 
         #region Threading
         /// <summary>
-        /// Test synchous cancel
+        /// Test synchronous cancel
         /// </summary>
         [Fact]
         public void ExecutionEngineTest_SyncCancel()
@@ -657,6 +688,69 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 
         #endregion
 
+        #region Get/Set Methods
+
+        [Fact]
+        public void TestShowStatements()
+        {
+            Assert.NotNull(ExecutionEngineConditions.ShowPlanXmlStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.ShowPlanAllStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.ShowPlanTextStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.StatisticsXmlStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.StatisticsProfileStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.ParseOnlyStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.NoExecStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.StatisticsIOStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.StatisticsTimeStatement(true));
+            Assert.NotNull(ExecutionEngineConditions.ResetStatement);
+        }
+
+        [Fact]
+        public void TestExecutionEngineConditionsSetMethods()
+        {
+            ExecutionEngineConditions conditions = new ExecutionEngineConditions();
+            bool getValue = conditions.IsScriptExecutionTracked;
+            conditions.IsScriptExecutionTracked = !getValue;
+            Assert.Equal(conditions.IsScriptExecutionTracked, !getValue);
+
+            getValue = conditions.IsEstimatedShowPlan;
+            conditions.IsEstimatedShowPlan = !getValue;
+            Assert.Equal(conditions.IsEstimatedShowPlan, !getValue);
+
+            getValue = conditions.IsActualShowPlan;
+            conditions.IsActualShowPlan = !getValue;
+            Assert.Equal(conditions.IsActualShowPlan, !getValue);
+
+            getValue = conditions.IsSuppressProviderMessageHeaders;
+            conditions.IsSuppressProviderMessageHeaders = !getValue;
+            Assert.Equal(conditions.IsSuppressProviderMessageHeaders, !getValue);
+
+            getValue = conditions.IsNoExec;
+            conditions.IsNoExec = !getValue;
+            Assert.Equal(conditions.IsNoExec, !getValue);
+
+            getValue = conditions.IsStatisticsIO;
+            conditions.IsStatisticsIO = !getValue;
+            Assert.Equal(conditions.IsStatisticsIO, !getValue);
+
+            getValue = conditions.IsShowPlanText;
+            conditions.IsShowPlanText = !getValue;
+            Assert.Equal(conditions.IsShowPlanText, !getValue);
+
+            getValue = conditions.IsStatisticsTime;
+            conditions.IsStatisticsTime = !getValue;
+            Assert.Equal(conditions.IsStatisticsTime, !getValue);
+
+            getValue = conditions.IsSqlCmd;
+            conditions.IsSqlCmd = !getValue;
+            Assert.Equal(conditions.IsSqlCmd, !getValue);
+
+            conditions.BatchSeparator = "GO";
+            Assert.Equal(conditions.BatchSeparator, "GO");
+        }
+
+        #endregion
+
         #region Private methods
         /// <summary>
         /// Connection to a database
@@ -781,6 +875,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             }
 
             return isSame;
+        }
+
+        /// <summary>
+        /// Wrapper to test the Close method in ExecutionEngine
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <returns></returns>
+        private bool ConnectionDiscardWrapper(ExecutionEngine engine)
+        {
+            if (engine == null)
+            {
+                return false;
+            }
+            engine.Close(false, true, true);
+            return true;
         }
         #endregion
     }

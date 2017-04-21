@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         ScalarValuedFunction,
         TableValuedFunction,
         AggregateFunction,
-        FileGroupInstance,
+        FileGroup,
         StoredProcedure,
         UserDefinedTableType,
         View,
