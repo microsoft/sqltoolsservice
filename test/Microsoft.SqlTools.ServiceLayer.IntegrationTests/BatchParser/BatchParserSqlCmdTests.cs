@@ -59,7 +59,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             Assert.Equal(bpcmd.InternalVariables.Count, 4);
             bpcmd.SetVariable(testPOS, "variable4", null);
             Assert.Equal(bpcmd.InternalVariables.Count, 3);
-
         }
 
         [Fact]
