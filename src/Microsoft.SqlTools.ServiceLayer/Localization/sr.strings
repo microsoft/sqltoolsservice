@@ -597,7 +597,7 @@ SchemaHierarchy_ColumnStoreIndexes = Column Store Indexes
 
 SchemaHierarchy_TableTypeIndexes = Table Type Indexes
 
-SchemaHierarchy_ServerInstance = ServerInstance
+SchemaHierarchy_Server = Server
 
 SchemaHierarchy_SelectiveXmlIndexes = Selective XML Indexes
 

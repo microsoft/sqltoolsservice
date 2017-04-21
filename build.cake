@@ -551,6 +551,11 @@ Task("SRGen")
             System.IO.File.Delete(outputCs);
         }
 
+        if (!System.IO.Directory.Exists(inputXliff)) 
+        {
+            System.IO.Directory.CreateDirectory(inputXliff);
+        }
+
         // Run SRGen
         var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
         srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);

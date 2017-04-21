@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 + defaultConnectionDetails.UserName + ")";
             Assert.Equal(expectedLabel, node.Label);
 
-            Assert.Equal(NodeTypes.ServerInstance.ToString(), node.NodeType);
+            Assert.Equal(NodeTypes.Server.ToString(), node.NodeType);
             string[] nodePath = node.GetNodePath().Split(TreeNode.PathPartSeperator);
             Assert.Equal(1, nodePath.Length);
             Assert.Equal(defaultConnectionDetails.ServerName, nodePath[0]);
@@ -347,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             TreeNode databases = children[0];
             IList<TreeNode> dbChildren = databases.Expand();
             Assert.Equal(2, dbChildren.Count);
-            Assert.Equal("System Databases", dbChildren[0].NodeValue);
+            Assert.Equal(SR.SchemaHierarchy_SystemDatabases, dbChildren[0].NodeValue);
 
             TreeNode dbNode = dbChildren[1];
             Assert.Equal(dbName, dbNode.NodeValue);

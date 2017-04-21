@@ -75,10 +75,49 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
 
         [Fact]
-        public async Task CreateSessionRequestReturnsSuccessAndNodeInfo()
+        public async Task CreateSessionRequestWithMasterConnectionReturnsServerSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
-            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "master",
+                ServerName = "serverName"
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        [Fact]
+        public async Task CreateSessionRequestWithEmptyConnectionReturnsServerSuccessAndNodeInfo()
+        {
+            // Given the connection service fails to connect
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "",
+                ServerName = "serverName"
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        [Fact]
+        public async Task CreateSessionRequestWithMsdbConnectionReturnsServerSuccessAndNodeInfo()
+        {
+            // Given the connection service fails to connect
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "msdb",
+                ServerName = "serverName"
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        private async Task CreateSessionRequestAndVerifyServerNodeHelper(ConnectionDetails details)
+        {
             serviceHostMock.AddEventHandling(ConnectionCompleteNotification.Type, null);
             
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
@@ -103,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private void VerifyServerNode(NodeInfo serverNode, ConnectionDetails details)
         {
             Assert.NotNull(serverNode);
-            Assert.Equal(NodeTypes.ServerInstance.ToString(), serverNode.NodeType);
+            Assert.Equal(NodeTypes.Server.ToString(), serverNode.NodeType);
             string[] pathParts = serverNode.NodePath.Split(TreeNode.PathPartSeperator);
             Assert.Equal(1, pathParts.Length);
             Assert.Equal(details.ServerName, pathParts[0]);
