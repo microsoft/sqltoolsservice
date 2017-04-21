@@ -9,8 +9,8 @@ using System.Collections.Specialized;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -20,8 +20,9 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
-using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
+using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {

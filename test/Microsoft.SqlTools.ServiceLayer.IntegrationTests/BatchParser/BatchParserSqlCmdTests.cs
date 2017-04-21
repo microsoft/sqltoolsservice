@@ -4,11 +4,11 @@
 //
 
 using System;
+using System.IO;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
-using Xunit;
 using Moq;
-using System.IO;
+using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
 {

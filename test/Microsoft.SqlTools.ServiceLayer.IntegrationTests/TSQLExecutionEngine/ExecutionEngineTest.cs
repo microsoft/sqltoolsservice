@@ -12,8 +12,9 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
 using Moq;
+using Xunit;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
 {
