@@ -12,13 +12,35 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
     /// <summary>
-    /// Implementes the matchin logic to filter scripting objects based on
-    /// an include/exclude criteria.
+    /// Implements matching logic to filter scripting objects based on an 
+    /// include/exclude criteria.
     /// </summary>
     /// <remarks>
     /// First, objects are included by the include filter.  Then, objects are removed by
-    /// the exclude filter.  Matches are made by comparing case insensitive strings.  
-    /// Wildcard '*' are supported for all scripting object fields.
+    /// the exclude filter.  Matches are made by comparing case insensitive strings for the 
+    /// ScriptingObject Type, Schema, and Name properties.  Wildcards '*' are supported for 
+    /// the ScriptingObject Schema and Name properties.  Matching on ScriptingObject Type 
+    /// property must be an exact match.
+    /// 
+    /// Examples:
+    ///     
+    /// Include ScriptingObject { Type = null, Schema = "dbo", Name = null } 
+    /// -> matches all objects in the dbo schema.
+    ///     
+    /// Include ScriptingObject { Type = "Table", Schema = "dbo", Name = null } 
+    /// -> matches all tables in the dbo schema.
+    /// 
+    /// Include ScriptingObject { Type = "Table", Schema = null, Name = "Emp*" } 
+    /// -> matches all table names that start with "Emp"
+    ///
+    /// Include ScriptingObject { Type = "View", Schema = null, Name = "Emp*" } 
+    /// Include ScriptingObject { Type = "Table", Schema = null, Name = "Emp*" } 
+    /// -> matches all table and views with names that start with "Emp"
+    ///
+    /// Include ScriptingObject { Type = "Table", Schema = null, Name = null }
+    /// Exclude ScriptingObject { Type = null, Schema = "HumanResources", Name = null } 
+    /// -> matches all tables except tables in the "HumanResources" schema
+    ///
     /// </remarks>
     public static class ScriptingObjectMatchProcessor
     {
