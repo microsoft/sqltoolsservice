@@ -220,6 +220,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             conditions.IsHaltOnError = exeCondition.IsHaltOnError;
             conditions.IsParseOnly = exeCondition.IsParseOnly;
             conditions.IsTransactionWrapped = exeCondition.IsTransactionWrapped;
+            conditions.IsNoExec = exeCondition.IsNoExec;
+            conditions.IsStatisticsIO = exeCondition.IsStatisticsIO;
+            conditions.IsStatisticsTime = exeCondition.IsStatisticsTime;
 
             _cancel = cancelExecution;
             connection = conn;
