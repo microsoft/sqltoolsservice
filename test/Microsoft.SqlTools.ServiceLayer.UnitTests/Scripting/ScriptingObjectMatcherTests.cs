@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 {
-    public class ScriptingMatchProcessorTests
+    public class ScriptingMatcherTests
     {
         private static ScriptingObject Table_S1_Table1 = new ScriptingObject
         {
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeAll()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject[0],
                 excludeCriteria: new ScriptingObject[0],
                 candidates: TestData);
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeNone()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject(),
                 excludeCriteria: new ScriptingObject(),
                 candidates: TestData);
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeName()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Name = "Table1"},
                 excludeCriteria: null,
                 candidates: TestData);
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeNameWildcard()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Name = "*" },
                 excludeCriteria: null,
                 candidates: TestData);
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 
         public void ScriptingMatchIncludeNameWildcardPostfix()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Name = "Tab*" },
                 excludeCriteria: null,
                 candidates: TestData);
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeSchema()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "S2" },
                 excludeCriteria: null,
                 candidates: TestData);
@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeSchemaWildcard()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "*" },
                 excludeCriteria: null,
                 candidates: TestData);
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeSchemaWildcardPostfix()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "S*" },
                 excludeCriteria: null,
                 candidates: TestData);
@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeType()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Type="Table" },
                 excludeCriteria: null,
                 candidates: TestData);
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeNameAndSchema()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Schema = "S1", Name = "Table1" },
                 excludeCriteria: null,
                 candidates: TestData);
@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchIncludeSchemaAndType()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: new ScriptingObject { Type="View", Schema = "S1" },
                 excludeCriteria: null,
                 candidates: TestData);
@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchExcludeName()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Name = "Table1" },
                 candidates: TestData);
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchExcludeNameWildcard()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Name = "*" },
                 candidates: TestData);
@@ -210,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 
         public void ScriptingMatchExcludeNameWildcardPostfix()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Name = "Tab*" },
                 candidates: TestData);
@@ -221,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchExcludeSchema()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Schema = "S2" },
                 candidates: TestData);
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchExcludeSchemaWildcard()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Schema = "*" },
                 candidates: TestData);
@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchExcludeSchemaWildcardPostfix()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Schema = "S*" },
                 candidates: TestData);
@@ -254,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchExcludeType()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Type = "Table" },
                 candidates: TestData);
@@ -265,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchExcludeNameAndSchema()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Schema = "S1", Name = "Table1" },
                 candidates: TestData);
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Fact]
         public void ScriptingMatchExcludeSchemaAndType()
         {
-            IEnumerable<ScriptingObject> results = ScriptingObjectMatchProcessor.Match(
+            IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
                 includeCriteria: null,
                 excludeCriteria: new ScriptingObject { Type = "View", Schema = "S1" },
                 candidates: TestData);

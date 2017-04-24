@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     /// -> matches all tables except tables in the "HumanResources" schema
     ///
     /// </remarks>
-    public static class ScriptingObjectMatchProcessor
+    public static class ScriptingObjectMatcher
     {
         private const string Wildcard = "*";
 

@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // This is an expensive remote call to load all objects from the database.
                 List<ScriptingObject> allObjects = publishModel.GetDatabaseObjects();
 
-                selectedObjects = ScriptingObjectMatchProcessor.Match(
+                selectedObjects = ScriptingObjectMatcher.Match(
                     this.Parameters.IncludeObjectCriteria,
                     this.Parameters.ExcludeObjectCriteria,
                     allObjects);
