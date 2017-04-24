@@ -443,7 +443,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TSQLExecutionEngine
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions, -1);
             executor.Run();
             Assert.Equal(executor.ExecutionResult, ScriptExecutionResult.Success);
-
         }
 
         /// <summary>
