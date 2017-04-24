@@ -23,6 +23,7 @@ using Microsoft.SqlTools.Utility;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
+
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
     internal partial class Scripter
@@ -151,6 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     }
                     StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
                     // if declarationItem matches the selected token, script SMO using that type
+
                     if (declarationItem.Title.Equals(tokenText, caseSensitivity))
                     {
                         return GetDefinitionUsingDeclarationType(declarationItem.Type, declarationItem.DatabaseQualifiedName, tokenText, schemaName);

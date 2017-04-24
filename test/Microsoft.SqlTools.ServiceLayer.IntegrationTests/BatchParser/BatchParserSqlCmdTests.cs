@@ -4,8 +4,10 @@
 //
 
 using System;
+using System.IO;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
+using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
@@ -47,7 +49,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             bpcmd.SetVariable(testPOS, "variable5", "test5");
             bpcmd.SetVariable(testPOS, "variable6", "test6");
             Assert.Equal(bpcmd.InternalVariables.Count, 6);
+        }
 
+        [Fact]
+        public void CheckSetNullValueVariable()
+        {
+            Assert.Equal(bpcmd.InternalVariables.Count, 3);
+            bpcmd.SetVariable(testPOS, "variable4", "test4");
+            Assert.Equal(bpcmd.InternalVariables.Count, 4);
+            bpcmd.SetVariable(testPOS, "variable4", null);
+            Assert.Equal(bpcmd.InternalVariables.Count, 3);
         }
 
         [Fact]
@@ -59,7 +70,49 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             Assert.Equal("test2", value);
             value = bpcmd.GetVariable(testPOS, "variable3");
             Assert.Equal("test3", value);
+        }
+
+        [Fact]
+        public void CheckGetNullVariable()
+        {
+            Assert.Null(bpcmd.GetVariable(testPOS, "variable6"));
+        }
+
+        [Fact]
+        public void CheckInclude()
+        {
+            TextReader textReader = null;
+            string outString = "out";
+            var result = bpcmd.Include(null, out textReader, out outString);
+            Assert.Equal(result, BatchParserAction.Abort);
 
         }
+
+        [Fact]
+        public void CheckOnError()
+        {
+            var errorActionChanged = bpcmd.ErrorActionChanged;
+            var action = new OnErrorAction();
+            var result = bpcmd.OnError(null, action);
+            Assert.Equal(result, BatchParserAction.Continue);
+        }
+
+        [Fact]
+        public void CheckConnectionChangedDelegate()
+        {
+            var initial = bpcmd.ConnectionChanged;
+            bpcmd.ConnectionChanged = null;
+            Assert.Null(bpcmd.ConnectionChanged);
+        }
+
+        [Fact]
+        public void CheckVariableSubstitutionDisabled()
+        {
+            bpcmd.DisableVariableSubstitution();
+            bpcmd.SetVariable(testPOS, "variable1", "test");
+            var result = bpcmd.GetVariable(testPOS, "variable1");
+            Assert.Null(result);
+        }
+
     }
 }
