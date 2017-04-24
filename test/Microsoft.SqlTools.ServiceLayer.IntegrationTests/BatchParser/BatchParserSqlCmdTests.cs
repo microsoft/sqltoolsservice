@@ -49,15 +49,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             bpcmd.SetVariable(testPOS, "variable5", "test5");
             bpcmd.SetVariable(testPOS, "variable6", "test6");
             Assert.Equal(bpcmd.InternalVariables.Count, 6);
-
-            bpcmd.SetVariable(testPOS, "variable1", null);
         }
 
         [Fact]
         public void CheckSetNullValueVariable()
         {
-            bpcmd.SetVariable(testPOS, "variable6", null);
-            Assert.Equal(bpcmd.InternalVariables.Count, 5);
+            Assert.Equal(bpcmd.InternalVariables.Count, 3);
+            bpcmd.SetVariable(testPOS, "variable4", "test4");
+            Assert.Equal(bpcmd.InternalVariables.Count, 4);
+            bpcmd.SetVariable(testPOS, "variable4", null);
+            Assert.Equal(bpcmd.InternalVariables.Count, 3);
         }
 
         [Fact]
@@ -94,9 +95,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.BatchParser
             var action = new OnErrorAction();
             var result = bpcmd.OnError(null, action);
             Assert.Equal(result, BatchParserAction.Continue);
-            bpcmd.ErrorActionChanged = null;
-            result = bpcmd.OnError(null, action);
-            Assert.NotEqual(result, BatchParserAction.Continue);
         }
 
         [Fact]
