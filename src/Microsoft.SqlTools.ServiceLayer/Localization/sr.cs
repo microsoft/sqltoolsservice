@@ -2157,6 +2157,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ScriptingParams_ConnectionString_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingParams_ConnectionString_Property_Invalid);
+            }
+        }
+
+        public static string ScriptingParams_FilePath_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingParams_FilePath_Property_Invalid);
+            }
+        }
+
+        public static string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -3073,6 +3097,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_ColumnEncryptionKeys = "SchemaHierarchy_ColumnEncryptionKeys";
+
+
+            public const string ScriptingParams_ConnectionString_Property_Invalid = "ScriptingParams_ConnectionString_Property_Invalid";
+
+
+            public const string ScriptingParams_FilePath_Property_Invalid = "ScriptingParams_FilePath_Property_Invalid";
+
+
+            public const string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = "ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid";
 
 
             private Keys()

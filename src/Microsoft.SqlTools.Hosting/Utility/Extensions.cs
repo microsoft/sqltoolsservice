@@ -56,4 +56,26 @@ namespace Microsoft.SqlTools.Utility
             return obj.HasValue && obj.Value;
         }
     }
+
+    public static class ExceptionExtensions
+    {
+        /// <summary>
+        /// Returns true if the passed exception or any inner exception is an OperationCanceledException instance.
+        /// </summary>
+        public static bool IsOperationCanceledException(this Exception e)
+        {
+            Exception current = e;
+            while (current != null)
+            {
+                if (current is OperationCanceledException)
+                {
+                    return true;
+                }
+
+                current = current.InnerException;
+            }
+
+            return false;
+        }
+    }
 }

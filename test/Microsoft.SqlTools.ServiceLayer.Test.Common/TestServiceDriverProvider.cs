@@ -6,10 +6,12 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
+using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -422,6 +424,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return result;
         }
 
+        public async Task<ScriptingListObjectsResult> ListScriptingObjects(ScriptingListObjectsParams parameters)
+        {
+            return await Driver.SendRequest(ScriptingListObjectsRequest.Type, parameters);
+        }
+
+        public async Task<ScriptingResult> Script(ScriptingParams parameters)
+        {
+            return await Driver.SendRequest(ScriptingRequest.Type, parameters);
+        }
+
+        public async Task<ScriptingCancelResult> CancelScript(string operationId)
+        {
+            return await Driver.SendRequest(ScriptingCancelRequest.Type, new ScriptingCancelParams { OperationId = operationId });
+        }
+
         /// <summary>
         /// Waits for a message to be returned by the service
         /// </summary>
@@ -436,6 +453,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             lock (fileLock)
             {
                 System.IO.File.WriteAllText(ownerUri, query);
+            }
+        }
+
+        public bool TryGetEvent<T>(EventType<T> eventType, out T value)
+        {
+            value = default(T);
+
+            try
+            {
+                Task<T> t = this.Driver.WaitForEvent(eventType, TimeSpan.Zero);
+                value = t.Result;
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public void AssertEventNotQueued<T>(EventType<T> eventType)
+        {
+            T temp;
+            if (TryGetEvent(eventType, out temp))
+            {
+                Assert.True(false, string.Format("Event of type {0} was found in the queue.", eventType.GetType().FullName, temp.ToString()));
             }
         }
     }
