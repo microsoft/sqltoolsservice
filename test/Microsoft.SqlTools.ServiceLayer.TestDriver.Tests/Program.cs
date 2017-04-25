@@ -50,18 +50,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                         }
                         else
                         {
-                            if (string.IsNullOrEmpty(methodName))
+                            try
                             {
-                                var methods = type.GetMethods().Where(x => x.CustomAttributes.Any(a => a.AttributeType == typeof(FactAttribute)));
-                                foreach (var method in methods)
+                                if (string.IsNullOrEmpty(methodName))
                                 {
-                                    await RunTest(type, method, method.Name);
+                                    var methods = type.GetMethods().Where(x => x.CustomAttributes.Any(a => a.AttributeType == typeof(FactAttribute)));
+                                    foreach (var method in methods)
+                                    {
+                                        await RunTest(type, method, method.Name);
+                                    }
+                                }
+                                else
+                                {
+                                    MethodInfo methodInfo = type.GetMethod(methodName);
+                                    await RunTest(type, methodInfo, test);
                                 }
                             }
-                            else
+                            finally
                             {
-                                MethodInfo methodInfo = type.GetMethod(methodName);
-                                await RunTest(type, methodInfo, test);
+                                RunTestCleanup(type);
                             }
                         }
                     }
@@ -90,6 +97,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     await (Task)methodInfo.Invoke(typeInstance, null);
                     Console.WriteLine("Test ran successfully: " + testName);
                 }
+            }
+        }
+
+        private static void RunTestCleanup(Type type)
+        {
+            try
+            {
+                MethodInfo cleanupMethod = type.GetMethod("Cleanup");
+                if (cleanupMethod != null)
+                {
+                    cleanupMethod.Invoke(null, null);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(
+                    "An exception occurred running Cleanup for type {0}: {1}",
+                    type.FullName,
+                    e);
             }
         }
     }

@@ -85,6 +85,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
 
         public async Task<TParams> WaitForEvent<TParams>(
             EventType<TParams> eventType,
+            TimeSpan timeout)
+        {
+            return await WaitForEvent(eventType, (int) timeout.TotalMilliseconds);
+        }
+
+        public async Task<TParams> WaitForEvent<TParams>(
+            EventType<TParams> eventType,
             int timeoutMilliseconds = 5000)
         {
             Task<TParams> eventTask = null;

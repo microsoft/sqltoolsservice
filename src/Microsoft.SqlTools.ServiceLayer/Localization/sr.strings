@@ -623,3 +623,11 @@ SchemaHierarchy_ColumnMasterKeys = Column Master Keys
 
 SchemaHierarchy_ColumnEncryptionKeys = Column Encryption Keys
 
+############################################################################
+# Scripting Service
+
+ScriptingParams_ConnectionString_Property_Invalid = Error parsing ScriptingParams.ConnectionString property.
+
+ScriptingParams_FilePath_Property_Invalid = Invalid directory specified by the ScriptingParams.FilePath property.
+
+ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.

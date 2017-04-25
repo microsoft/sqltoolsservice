@@ -47,6 +47,8 @@ END
 
         public static string AdventureWorksScript { get { return AdventureWorksScriptInstance.Value; } }
 
+        public static string CreateNorthwindSchema { get { return CreateNorthwindSchemaInstance.Value; } }
+
         private static readonly Lazy<string> CreateDatabaseObjectsQueryInstance = new Lazy<string>(() =>
         {
             return GetScriptFileContent(ResourceNameRefix + "CreateTestDatabaseObjects.sql");
@@ -65,6 +67,11 @@ END
         private static readonly Lazy<string> AdventureWorksScriptInstance = new Lazy<string>(() =>
         {
             return GetScriptFileContent(ResourceNameRefix + "AdventureWorks.sql");
+        });
+
+        private static readonly Lazy<string> CreateNorthwindSchemaInstance = new Lazy<string>(() =>
+        {
+            return GetScriptFileContent(ResourceNameRefix + "CreateNorthwindSchema.sql");
         });
 
         private static string GetScriptFileContent(string fileName)

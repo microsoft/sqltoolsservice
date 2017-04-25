@@ -39,14 +39,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventParams);
         }
 
-        public virtual Task SendError(string errorMessage, int errorCode = 0, object data = null)
+        public virtual Task SendError(string errorMessage, int errorCode = 0)
         {
             // Build the error message
             Error error = new Error
             {
                 Message = errorMessage,
-                Code = errorCode,
-                Data = data
+                Code = errorCode
             };
             return this.messageWriter.WriteMessage(
                 Message.ResponseError(
@@ -58,7 +57,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public virtual Task SendError(Exception e)
         {
             // Overload to use the parameterized error handler
-            return SendError(e.Message, e.HResult, e.ToString());
+            return SendError(e.Message, e.HResult);
         }
     }
 }
