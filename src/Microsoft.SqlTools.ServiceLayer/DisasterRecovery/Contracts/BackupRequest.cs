@@ -9,6 +9,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {
     public class BackupParams
     {
+        string OwnerUri { get; set; }
+
         public BackupInfo BackupInfo { get; set; }
     }
 

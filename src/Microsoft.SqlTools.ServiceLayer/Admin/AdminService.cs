@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
+        public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(CreateDatabaseRequest.Type, HandleCreateDatabaseRequest);
             serviceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest);

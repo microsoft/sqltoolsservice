@@ -13,6 +13,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
 {
     public class CreateDatabaseParams
     {
+        string OwnerUri { get; set; }
+
         DatabaseInfo DatabaseInfo { get; set; }
     }
 

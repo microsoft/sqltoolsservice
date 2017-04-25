@@ -9,6 +9,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
 {
     public class CreateLoginParams
     {
+        string OwnerUri { get; set; }
+
         LoginInfo DatabaseInfo { get; set; }
     }
 
