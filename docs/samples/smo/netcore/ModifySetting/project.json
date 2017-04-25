@@ -5,7 +5,7 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "Microsoft.SqlServer.Smo": "14.0.17028"
+    "Microsoft.SqlServer.Smo": "140.17049.0"
   },
   "frameworks": {
     "netcoreapp1.0": {
