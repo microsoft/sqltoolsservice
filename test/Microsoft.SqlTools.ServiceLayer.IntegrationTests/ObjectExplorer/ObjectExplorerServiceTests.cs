@@ -6,9 +6,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
@@ -72,28 +70,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             return await _service.DoCreateSession(details, uri);
         }
 
-        private async Task<NodeInfo> ExpandServerNodeAndVerifyDatabaseHierachy(string databaseName, ObjectExplorerSession session)
+        private async Task<NodeInfo> ExpandServerNodeAndVerifyDatabaseHierachy(string databaseName, ObjectExplorerSession session, bool serverNode = true)
         {
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
             Assert.Equal(nodeInfo.IsLeaf, false);
-            Assert.Equal(nodeInfo.NodeType, NodeTypes.Server.ToString());
-            var children = session.Root.Expand();
+           
+            NodeInfo databaseNode = null;
 
-            //All server children should be folder nodes
-            foreach (var item in children)
+            if (serverNode)
             {
-                Assert.Equal(item.NodeType, "Folder");
+                Assert.Equal(nodeInfo.NodeType, NodeTypes.Server.ToString());
+                var children = session.Root.Expand();
+
+                //All server children should be folder nodes
+                foreach (var item in children)
+                {
+                    Assert.Equal(item.NodeType, "Folder");
+                }
+
+                var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
+                var databasesChildren = await _service.ExpandNode(session, databasesRoot.GetNodePath());
+                var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
+
+                //Verify the test databases is in the list
+                Assert.NotNull(databases);
+                databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
             }
-
-            var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
-            var databasesChildren = await _service.ExpandNode(session, databasesRoot.GetNodePath());
-            var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
-
-            //Verify the test databases is in the list
-            Assert.NotNull(databases);
-            var databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
+            else
+            {
+                Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
+                databaseNode = session.Root.ToNodeInfo();
+                Assert.True(databaseNode.Label.Contains(databaseName));
+            }
             Assert.NotNull(databaseNode);
             return databaseNode;
         }
@@ -177,9 +187,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
             {
-                var session = await CreateSession(null, uri);
-                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
+                var session = await CreateSession(testDb.DatabaseName, uri);
+                var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session, false);
                 await ExpandTree(databaseNodeInfo, session);
+
+                var tables = session.Root.GetChildren().FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Tables);
+
+                //No tables should be under System, External and Files tables folder
+                var systemTables = tables.GetChildren().FirstOrDefault(x => x.Label == SR.SchemaHierarchy_SystemTables).GetChildren();
+                
+                Assert.True(systemTables.Count() == 0);
+                var externalTables = tables.GetChildren().FirstOrDefault(x => x.Label == SR.SchemaHierarchy_ExternalTables).GetChildren();
+                Assert.True(externalTables.Count() == 0);
+                var fileTables = tables.GetChildren().FirstOrDefault(x => x.Label == SR.SchemaHierarchy_FileTables).GetChildren();
+                Assert.True(fileTables.Count() == 0);
+
+                var allTables = tables.GetChildren().Where(x => x.NodeType != NodeTypes.Folder.ToString());
+                Assert.True(allTables.Count() > 0);
                 CancelConnection(uri);
             }
         }

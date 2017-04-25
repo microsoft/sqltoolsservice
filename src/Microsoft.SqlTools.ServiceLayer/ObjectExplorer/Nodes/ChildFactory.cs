@@ -29,6 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <returns></returns>
         public abstract IEnumerable<TreeNode> Expand(TreeNode parent);
 
+        /// <summary>
+        /// The list of filters that should be applied on the smo object list
+        /// </summary>
+        public abstract IEnumerable<NodeFilter> Filters { get; }
+
         public abstract bool CanCreateChild(TreeNode parent, object context);
         public abstract TreeNode CreateChild(TreeNode parent, object context);
 

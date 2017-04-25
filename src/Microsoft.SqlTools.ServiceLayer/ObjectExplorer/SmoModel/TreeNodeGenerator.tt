@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using System.Composition;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 
@@ -84,6 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		var isAlwaysLeaf = nodeElement.GetAttributeNode("IsAlwaysLeaf");
 		var baseClass = nodeElement.GetAttribute("BaseClass");
 		var strategy = nodeElement.GetAttribute("Strategy");
+		var nodeType = nodeElement.GetAttribute("NodeType");
 		var ChildQuerierTypes = nodeElement.GetAttribute("ChildQuerierTypes");
 		var TreeNode = nodeElement.GetAttribute("TreeNode");
 		var isAsync = nodeElement.GetAttributeNode("IsAsyncLoad");
@@ -104,6 +106,81 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
  			WriteLine(string.Format("        public override IEnumerable<string> ApplicableParents() {{ return new[] {{ \"{0}\" }}; }}", type));
 			
 			List<XmlElement> children = GetChildren(xmlFile, type);
+			List<XmlElement> filters = GetNodeFilters(xmlFile, type);
+
+			
+
+
+			if (filters.Count > 0)
+				{
+					WriteLine("");
+					WriteLine("        public override IEnumerable<NodeFilter> Filters");
+					WriteLine("        {");
+					WriteLine("           get");
+					WriteLine("           {");
+
+					WriteLine("                var filters = new List<NodeFilter>();");
+					foreach (var filter in filters) 
+					{
+						var propertyName = filter.GetAttribute("Property");
+						var propertyType = filter.GetAttribute("Type");
+						var propertyValue = filter.GetAttribute("Value");
+						var validFor = filter.GetAttribute("ValidFor");
+						var typeToReverse = filter.GetAttribute("TypeToReverse");
+
+						List<XmlElement> filterValues = GetNodeFilterValues(xmlFile, type, propertyName);
+
+						
+						WriteLine("                filters.Add(new NodeFilter");
+						WriteLine("                {");
+						WriteLine(string.Format("                   Property = \"{0}\",", propertyName));
+						WriteLine(string.Format("                   Type = typeof({0}),", propertyType));
+						if (!string.IsNullOrWhiteSpace(typeToReverse))
+						{
+							WriteLine(string.Format("                   TypeToReverse = typeof({0}Querier),", typeToReverse));
+						}
+						if (!string.IsNullOrWhiteSpace(validFor))
+						{
+							WriteLine(string.Format("                   ValidFor = {0},", GetValidForFlags(validFor)));
+						}
+						if (propertyValue != null && (filterValues == null || filterValues.Count == 0)) 
+						{
+							WriteLine(string.Format("                   Values = new List<object> {{ {0} }},", propertyValue));
+						}
+						if (filterValues != null && filterValues.Count > 0) 
+						{
+							string filterValueType = "object";
+							if (propertyType == "Enum") 
+							{
+									
+							}
+							WriteLine(string.Format("                   Values = new List<object>"));
+							WriteLine(string.Format("                   {{"));
+							for(int i = 0; i < filterValues.Count; i++) 
+							{
+								string separator = "";
+								if (i != filterValues.Count - 1)
+								{
+									separator = ",";
+								}
+								var filterValue = filterValues[i];
+								WriteLine(string.Format("                      {{ {0} }}{1}", filterValue.InnerText, separator ));
+										
+							}
+							WriteLine(string.Format("                   }}"));
+						}
+						WriteLine("                });");
+
+						
+					}
+					
+					WriteLine("                return filters;");
+					WriteLine("           }");
+					WriteLine("        }");
+					
+				}
+
+			
 			if (children.Count > 0)
 			{
 				WriteLine("");
@@ -179,10 +256,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				{
 					WriteLine("            var child = new SmoTreeNode();");
 					WriteLine("            child.IsAlwaysLeaf = true;");
-					if (type.EndsWith("s")) 
+					
+					if (!string.IsNullOrEmpty(nodeType)) 
 					{
-						var typeName = type.Substring(0, type.Length - 1);
-						WriteLine(string.Format("            child.NodeType = \"{0}\";", typeName));
+						
+						WriteLine(string.Format("            child.NodeType = \"{0}\";", nodeType));
 					}
 						
 				}
@@ -200,6 +278,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					WriteLine("            child.SortPriority = SmoTreeNode.NextSortPriority;");
 				}
 				WriteLine("            InitializeChild(child, context);");
+				
+
 				WriteLine("            return child;");
 				WriteLine("        }");
 			}
@@ -380,6 +460,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 		List<XmlElement> retElements = new List<XmlElement>();
 		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Child", parentName));
+		foreach (var item in nodeList)
+		{
+		   XmlElement itemAsElement = item as XmlElement;
+		   if (itemAsElement != null)
+		   {
+		      retElements.Add(itemAsElement);
+		   }
+		}
+		return retElements;
+	}
+
+	public static List<XmlElement> GetNodeFilters(string xmlFile, string parentName)
+	{
+		XmlElement nodeElement = GetNodeElement(xmlFile, parentName);
+		XmlDocument doc = new XmlDocument();
+		doc.Load(xmlFile);
+
+		List<XmlElement> retElements = new List<XmlElement>();
+		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Filters/Filter", parentName));
+		foreach (var item in nodeList)
+		{
+		   XmlElement itemAsElement = item as XmlElement;
+		   if (itemAsElement != null)
+		   {
+		      retElements.Add(itemAsElement);
+		   }
+		}
+		return retElements;
+	}
+
+	public static List<XmlElement> GetNodeFilterValues(string xmlFile, string parentName, string filterProperty)
+	{
+		XmlElement nodeElement = GetNodeElement(xmlFile, parentName);
+		XmlDocument doc = new XmlDocument();
+		doc.Load(xmlFile);
+
+		List<XmlElement> retElements = new List<XmlElement>();
+		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Filters/Filter[@Property='{1}']/Value", parentName, filterProperty));
 		foreach (var item in nodeList)
 		{
 		   XmlElement itemAsElement = item as XmlElement;
