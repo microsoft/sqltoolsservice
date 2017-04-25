@@ -9,16 +9,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
 {
     public class CreateLoginParams
     {
-        string OwnerUri { get; set; }
+        public string OwnerUri { get; set; }
 
-        LoginInfo DatabaseInfo { get; set; }
+        public LoginInfo DatabaseInfo { get; set; }
     }
 
     public class CreateLoginResponse
     {
-        bool Result { get; set; }
+        public bool Result { get; set; }
 
-        int TaskId { get; set; }
+        public int TaskId { get; set; }
     }
 
     public class CreateLoginRequest

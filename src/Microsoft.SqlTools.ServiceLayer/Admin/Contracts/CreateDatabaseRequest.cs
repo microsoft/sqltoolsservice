@@ -13,16 +13,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
 {
     public class CreateDatabaseParams
     {
-        string OwnerUri { get; set; }
+        public string OwnerUri { get; set; }
 
-        DatabaseInfo DatabaseInfo { get; set; }
+        public DatabaseInfo DatabaseInfo { get; set; }
     }
 
     public class CreateDatabaseResponse
     {
-        bool Result { get; set;  }
+        public bool Result { get; set;  }
 
-        int TaskId { get; set;  }
+        public int TaskId { get; set;  }
     }
 
     public class CreateDatabaseRequest
