@@ -145,6 +145,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
+        private async Task ExpandTree(NodeInfo node, ObjectExplorerSession session)
+        {
+            if (node != null && !node.IsLeaf)
+            {
+                var children = await _service.ExpandNode(session, node.NodePath);
+                foreach (var child in children)
+                {
+                    await _service.ExpandNode(session, child.NodePath);
+                }
+            }
+        }
+
         /// <summary>
         /// Returns the children of a node with the given label
         /// </summary>
@@ -207,11 +219,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             string uri = "VerifyAdventureWorksDatabaseObjects";
             string databaseName = null;
 
-                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-                using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, true, databaseName, query, uri))
             {
                 var session = await CreateSession(testDb.DatabaseName, queryTempFile.FilePath);
                 var databaseNodeInfo = await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session, false);
+                await ExpandTree(session.Root.ToNodeInfo(), session);
                 var tablesChildren = await FindNodeByLabel(databaseNodeInfo, session, SR.SchemaHierarchy_Tables);
 
                 var systemTables = await FindNodeByLabel(databaseNodeInfo, session, SR.SchemaHierarchy_SystemTables);

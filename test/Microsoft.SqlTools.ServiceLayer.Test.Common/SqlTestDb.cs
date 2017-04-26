@@ -113,12 +113,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             if (!DoNotCleanupDb)
             {
-                using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-                {
-                    string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
+                string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
                     (ServerType == TestServerType.Azure ? Scripts.DropDatabaseIfExistAzure : Scripts.DropDatabaseIfExist), DatabaseName);
-                    TestServiceProvider.Instance.RunQuery(ServerType, MasterDatabaseName, dropDatabaseQuery);
-                }
+
+                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Cleaning up database {0}", DatabaseName));
+                TestServiceProvider.Instance.RunQuery(ServerType, MasterDatabaseName, dropDatabaseQuery);
             }
         }
 
