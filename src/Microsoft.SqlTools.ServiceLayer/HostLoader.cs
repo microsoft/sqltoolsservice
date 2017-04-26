@@ -6,7 +6,9 @@ using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
@@ -84,6 +86,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ScriptingService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
+
+            AdminService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(AdminService.Instance);
+
+            DisasterRecoveryService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(DisasterRecoveryService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
