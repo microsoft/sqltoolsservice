@@ -16,21 +16,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 {
     public class LiveConnectionHelper
     {
-        public static string GetTestSqlFile()
+        public static string GetTestSqlFile(string fileName = null)
         {
-            string filePath = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                "sqltest.sql");
+            string filePath = null;
+            if (string.IsNullOrEmpty(fileName))
+            {
+                filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "sqltest.sql");
+            }
+            else
+            {
+                filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), fileName + ".sql");
+            }
+
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
             }
             File.WriteAllText(filePath, "SELECT * FROM sys.objects\n");
             return filePath;
-
         }
 
-        public static TestConnectionResult InitLiveConnectionInfo(string databaseName = null)
+        public static TestConnectionResult InitLiveConnectionInfo(string databaseName = null, string fileName = null)
         {
             string sqlFilePath = GetTestSqlFile();
             ScriptFile scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(sqlFilePath);

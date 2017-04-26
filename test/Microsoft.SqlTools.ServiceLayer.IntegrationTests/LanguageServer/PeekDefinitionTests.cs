@@ -698,113 +698,121 @@ GO";
         // Temporily commented out until a fix is pushed.
 
         /// <summary>
-        /// Get Definition for a object with no definition. Expect a error result
+        /// Get Definition for a object by putting the cursor on 3 different
+        /// objects
         /// </summary>
-        // [Fact]
-        // public async void GetDefinitionFromChildrenAndParents()
-        // {
-        //     string queryString = "select * from master.sys.objects";
+        [Fact]
+        public async void GetDefinitionFromChildrenAndParents()
+        {
+            string queryString = "select * from master.sys.objects";
 
-        //     // place the cursor on every token
+            // place the cursor on every token
 
-        //     //cursor on objects
-        //     TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26, OwnerUri);
-                
-        //     //cursor on sys
-        //     TextDocumentPosition sysDocument = CreateTextDocPositionWithCursor(22, OwnerUri);
+            //cursor on objects
+            TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26, OwnerUri);
 
-        //     LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
-        //     ScriptFile scriptFile = connectionResult.ScriptFile;
-        //     ConnectionInfo connInfo = connectionResult.ConnectionInfo;
-        //     connInfo.RemoveAllConnections();
-        //     var bindingQueue = new ConnectedBindingQueue();
-        //     bindingQueue.AddConnectionContext(connInfo);
-        //     scriptFile.Contents = queryString;
+            //cursor on sys
+            TextDocumentPosition sysDocument = CreateTextDocPositionWithCursor(22, OwnerUri);
 
-        //     var service = new LanguageService();
-        //     service.BindingQueue = bindingQueue;
-        //     await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
-        //     Thread.Sleep(2000);
+            //cursor on master
+            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(17, OwnerUri);
 
-        //     ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-        //     scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-        //     service.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null, OwnerUri);
+            ScriptFile scriptFile = connectionResult.ScriptFile;
+            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            connInfo.RemoveAllConnections();
+            var bindingQueue = new ConnectedBindingQueue();
+            bindingQueue.AddConnectionContext(connInfo);
+            scriptFile.Contents = queryString;
 
-        //     // When I call the language service
-        //     var objectResult = service.GetDefinition(objectDocument, scriptFile, connInfo);
-        //     var sysResult = service.GetDefinition(sysDocument, scriptFile, connInfo);
-        //     var masterResult = service.GetDefinition(masterDocument, scriptFile, connInfo);
+            var service = new LanguageService();
+            service.RemoveScriptParseInfo(OwnerUri);
+            service.BindingQueue = bindingQueue;
+            await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
+            Thread.Sleep(2000);
 
-        //     // Then I expect the results to be non-null
-        //     Assert.NotNull(objectResult);
-        //     Assert.NotNull(sysResult);
-        //     Assert.NotNull(masterResult);
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            service.ParseAndBind(scriptFile, connInfo);
+            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
+            service.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
 
-        //     // And I expect the all results to be the same
-        //     Assert.True(CompareLocations(objectResult.Locations, sysResult.Locations));
-        //     Assert.True(CompareLocations(objectResult.Locations, masterResult.Locations));
+            // When I call the language service
+            var objectResult = service.GetDefinition(objectDocument, scriptFile, connInfo);
+            var sysResult = service.GetDefinition(sysDocument, scriptFile, connInfo);
+            var masterResult = service.GetDefinition(masterDocument, scriptFile, connInfo);
 
-        //     Cleanup(objectResult.Locations);
-        //     Cleanup(sysResult.Locations);
-        //     Cleanup(masterResult.Locations);
-        //     service.ScriptParseInfoMap.Remove(OwnerUri);
-        //     connInfo.RemoveAllConnections();
-        // }
+            // Then I expect the results to be non-null
+            Assert.NotNull(objectResult);
+            Assert.NotNull(sysResult);
+            Assert.NotNull(masterResult);
 
-        // [Fact]
-        // public async void GetDefinitionFromProcedures()
-        // {
+            // And I expect the all results to be the same
+            Assert.True(CompareLocations(objectResult.Locations, sysResult.Locations));
+            Assert.True(CompareLocations(objectResult.Locations, masterResult.Locations));
 
-        //     string queryString = "EXEC master.dbo.sp_MSrepl_startup";
+            Cleanup(objectResult.Locations);
+            Cleanup(sysResult.Locations);
+            Cleanup(masterResult.Locations);
+            service.ScriptParseInfoMap.Remove(OwnerUri);
+            connInfo.RemoveAllConnections();
+        }
 
-        //     // place the cursor on every token
+        [Fact]
+        public async void GetDefinitionFromProcedures()
+        {
 
-        //     //cursor on objects
-        //     TextDocumentPosition fnDocument = CreateTextDocPositionWithCursor(30, TestUri);
+            string queryString = "EXEC master.dbo.sp_MSrepl_startup";
 
-        //     //cursor on sys
-        //     TextDocumentPosition dboDocument = CreateTextDocPositionWithCursor(14, TestUri);
+            // place the cursor on every token
 
-        //     //cursor on master
-        //     TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(10, TestUri);
+            //cursor on objects
+            TextDocumentPosition fnDocument = CreateTextDocPositionWithCursor(30, TestUri);
 
-        //     LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
-        //     ScriptFile scriptFile = connectionResult.ScriptFile;
-        //     ConnectionInfo connInfo = connectionResult.ConnectionInfo;
-        //     connInfo.RemoveAllConnections();
-        //     var bindingQueue = new ConnectedBindingQueue();
-        //     bindingQueue.AddConnectionContext(connInfo);
-        //     scriptFile.Contents = queryString;
+            //cursor on sys
+            TextDocumentPosition dboDocument = CreateTextDocPositionWithCursor(14, TestUri);
 
-        //     var service = new LanguageService();
-        //     service.BindingQueue = bindingQueue;
-        //     await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
-        //     Thread.Sleep(2000);
+            //cursor on master
+            TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(10, TestUri);
 
-        //     ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-        //     scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
-        //     service.ScriptParseInfoMap.Add(TestUri, scriptInfo);
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null, TestUri);
+            ScriptFile scriptFile = connectionResult.ScriptFile;
+            ConnectionInfo connInfo = connectionResult.ConnectionInfo;
+            connInfo.RemoveAllConnections();
+            var bindingQueue = new ConnectedBindingQueue();
+            bindingQueue.AddConnectionContext(connInfo);
+            scriptFile.Contents = queryString;
 
-        //     // When I call the language service
-        //     var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
-        //     var sysResult = service.GetDefinition(dboDocument, scriptFile, connInfo);
-        //     var masterResult = service.GetDefinition(masterDocument, scriptFile, connInfo);
+            var service = new LanguageService();
+            service.RemoveScriptParseInfo(OwnerUri);
+            service.BindingQueue = bindingQueue;
+            await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
+            Thread.Sleep(2000);
 
-        //     // Then I expect the results to be non-null
-        //     Assert.NotNull(fnResult);
-        //     Assert.NotNull(sysResult);
-        //     Assert.NotNull(masterResult);
+            ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
+            service.ParseAndBind(scriptFile, connInfo);
+            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
+            service.ScriptParseInfoMap.Add(TestUri, scriptInfo);
 
-        //     // And I expect the all results to be the same
-        //     Assert.True(CompareLocations(fnResult.Locations, sysResult.Locations));
-        //     Assert.True(CompareLocations(fnResult.Locations, masterResult.Locations));
+            // When I call the language service
+            var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
+            var sysResult = service.GetDefinition(dboDocument, scriptFile, connInfo);
+            var masterResult = service.GetDefinition(masterDocument, scriptFile, connInfo);
 
-        //     Cleanup(fnResult.Locations);
-        //     Cleanup(sysResult.Locations);
-        //     Cleanup(masterResult.Locations);
-        //     service.ScriptParseInfoMap.Remove(TestUri);
-        //     connInfo.RemoveAllConnections();
-        // }
+            // Then I expect the results to be non-null
+            Assert.NotNull(fnResult);
+            Assert.NotNull(sysResult);
+            Assert.NotNull(masterResult);
+
+            // And I expect the all results to be the same
+            Assert.True(CompareLocations(fnResult.Locations, sysResult.Locations));
+            Assert.True(CompareLocations(fnResult.Locations, masterResult.Locations));
+
+            Cleanup(fnResult.Locations);
+            Cleanup(sysResult.Locations);
+            Cleanup(masterResult.Locations);
+            service.ScriptParseInfoMap.Remove(TestUri);
+            connInfo.RemoveAllConnections();
+        }
 
 
         /// <summary>
