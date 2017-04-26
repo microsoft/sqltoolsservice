@@ -300,9 +300,6 @@
     </Filters>
   </Node>
   <Node Name="TableValuedFunction" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="" NodeType="TableValuedFunction" IsAsyncLoad="" Strategy="PopulateDetails">
-    <Filters >
-      <Filter Property="IsSystemObject" Value="0" Type="bool" />
-    </Filters>
     <Child Name="TableValuedFunctionParameters"/>
   </Node>
   <Node Name="TableValuedFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters"  BaseClass="ModelBased" NodeType="TableValuedFunctionParameter" Strategy="FunctionParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort="">
@@ -311,15 +308,12 @@
   <Node Name="ScalarValuedFunctions" LocLabel="SR.SchemaHierarchy_ScalarValuedFunctions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedFunction" TreeNode="ScalarValuedFunctionTreeNode" >
     <Filters>
       <Filter Property="FunctionType" Type="Enum" ValidFor="Sql2016|SqlvNext|AzureV12">
-        <Value>UserDefinedFunctionType.Table</Value>
+        <Value>UserDefinedFunctionType.Scalar</Value>
       </Filter>
       <Filter  Property="IsSystemObject" Value="0" Type="bool" />
     </Filters>
   </Node>
   <Node Name="ScalarValuedFunction" LocLabel="string.Empty" BaseClass="ModelBased" NodeType="ScalarValuedFunction" ChildQuerierTypes="" IsAsyncLoad="" Strategy="PopulateDetails">
-    <Filters>
-      <Filter  Property="IsSystemObject" Value="0" Type="bool" />
-    </Filters>
     <Child Name="ScalarValuedFunctionParameters"/>
   </Node>
   <Node Name="ScalarValuedFunctionParameters" LocLabel="SR.SchemaHierarchy_Parameters" NodeType="ScalarValuedFunctionParameter"  BaseClass="ModelBased" Strategy="FunctionParameters" ChildQuerierTypes="SqlSubroutineParameter" DisableSort=""/>

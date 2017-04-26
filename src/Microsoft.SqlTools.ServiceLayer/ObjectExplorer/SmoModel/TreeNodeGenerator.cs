@@ -2675,21 +2675,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "TableValuedFunction" }; }
 
-        public override IEnumerable<NodeFilter> Filters
-        {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
-                {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
-                });
-                return filters;
-           }
-        }
-
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
@@ -2760,7 +2745,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.AzureV12,
                    Values = new List<object>
                    {
-                      { UserDefinedFunctionType.Table }
+                      { UserDefinedFunctionType.Scalar }
                    }
                 });
                 filters.Add(new NodeFilter
@@ -2794,21 +2779,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     internal partial class ScalarValuedFunctionChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "ScalarValuedFunction" }; }
-
-        public override IEnumerable<NodeFilter> Filters
-        {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
-                {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
-                });
-                return filters;
-           }
-        }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
