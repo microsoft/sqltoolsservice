@@ -56,6 +56,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             SmoObject = smoObject;
             NodeValue = smoObject.Name;
+            ScriptSchemaObjectBase schemaBasecObject = smoObject as ScriptSchemaObjectBase;
+            ObjectMetadata = new Metadata.Contracts.ObjectMetadata();
+            ObjectMetadata.Name = smoObject.Name;
+
+            try
+            {
+                if(smoObject.Urn != null)
+                {
+                    ObjectMetadata.MetadataTypeName = smoObject.Urn.Type;
+                }
+            }
+            catch
+            {
+                //Ignore the exception, sometimes the urn returns exception and I' not sure why
+            }
+            
+            if (schemaBasecObject != null)
+            {
+                ObjectMetadata.Schema = schemaBasecObject.Schema;
+                if (!string.IsNullOrEmpty(ObjectMetadata.Schema))
+                {
+                    NodeValue = $"{ObjectMetadata.Schema}.{smoObject.Name}";
+                }
+            }
         }
         
         public virtual NamedSmoObject GetParentSmoObject()

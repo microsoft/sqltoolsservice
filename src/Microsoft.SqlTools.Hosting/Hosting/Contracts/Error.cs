@@ -17,11 +17,6 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         public int Code { get; set; }
 
         /// <summary>
-        /// Optional information to return with the error
-        /// </summary>
-        public object Data { get; set; }
-
-        /// <summary>
         /// Error message
         /// </summary>
         public string Message { get; set; }

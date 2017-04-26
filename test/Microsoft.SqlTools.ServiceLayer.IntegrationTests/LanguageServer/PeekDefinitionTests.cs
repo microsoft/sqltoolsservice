@@ -708,6 +708,7 @@ GO";
 
             // place the cursor on every token
 
+
             //cursor on objects
             TextDocumentPosition objectDocument = CreateTextDocPositionWithCursor(26, OwnerUri);
 

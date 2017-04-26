@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<CreateSessionResponse>(null)
-                                                 .AddErrorHandling((errorMessage, errorCode, obj) => errorResponse = errorMessage);
+                                                 .AddErrorHandling((errorMessage, errorCode) => errorResponse = errorMessage);
 
             await service.HandleCreateSessionRequest(null, contextMock.Object);
             VerifyErrorSent(contextMock);
@@ -75,10 +75,49 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
 
         [Fact]
-        public async Task CreateSessionRequestReturnsSuccessAndNodeInfo()
+        public async Task CreateSessionRequestWithMasterConnectionReturnsServerSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
-            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "master",
+                ServerName = "serverName"
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        [Fact]
+        public async Task CreateSessionRequestWithEmptyConnectionReturnsServerSuccessAndNodeInfo()
+        {
+            // Given the connection service fails to connect
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "",
+                ServerName = "serverName"
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        [Fact]
+        public async Task CreateSessionRequestWithMsdbConnectionReturnsServerSuccessAndNodeInfo()
+        {
+            // Given the connection service fails to connect
+            ConnectionDetails details = new ConnectionDetails()
+            {
+                UserName = "user",
+                Password = "password",
+                DatabaseName = "msdb",
+                ServerName = "serverName"
+            };
+            await CreateSessionRequestAndVerifyServerNodeHelper(details);
+        }
+
+        private async Task CreateSessionRequestAndVerifyServerNodeHelper(ConnectionDetails details)
+        {
             serviceHostMock.AddEventHandling(ConnectionCompleteNotification.Type, null);
             
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
@@ -103,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private void VerifyServerNode(NodeInfo serverNode, ConnectionDetails details)
         {
             Assert.NotNull(serverNode);
-            Assert.Equal(NodeTypes.ServerInstance.ToString(), serverNode.NodeType);
+            Assert.Equal(NodeTypes.Server.ToString(), serverNode.NodeType);
             string[] pathParts = serverNode.NodePath.Split(TreeNode.PathPartSeperator);
             Assert.Equal(1, pathParts.Length);
             Assert.Equal(details.ServerName, pathParts[0]);
@@ -138,14 +177,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action<T> verify, T actual)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<object>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
             verify(actual);
         }
 
         private void VerifyErrorSent<T>(Mock<RequestContext<T>> contextMock)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<object>()), Times.Once);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
         }
 
     }

@@ -93,9 +93,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             requestContext = new Mock<RequestContext<Location[]>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<Location[]>()))
                 .Returns(Task.FromResult(0));
-            requestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<object>())).Returns(Task.FromResult(0));;
-            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.FromResult(0));;
-            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.FromResult(0));;
+            requestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(0));
+            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.FromResult(0));
+            requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.FromResult(0));
 
             // setup the IBinder mock
             binder = new Mock<IBinder>();
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             await definitionTask;
             // verify that send result was not called and send error was called
             requestContext.Verify(m => m.SendResult(It.IsAny<Location[]>()), Times.Never());
-            requestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<object>()), Times.Once());
+            requestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Once());
         }
 
         /// <summary>

@@ -1,0 +1,1664 @@
+<?xml version="1.0" ?><xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="fr">
+    <body>
+      <trans-unit id="ConnectionServiceConnectErrorNullParams">
+        <source>Connection parameters cannot be null</source>
+        <target state="new">Les paramètres de connexion ne peuvent pas être null</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceListDbErrorNullOwnerUri">
+        <source>OwnerUri cannot be null or empty</source>
+        <target state="new">OwnerUri ne peut pas être null ou vide.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceListDbErrorNotConnected">
+        <source>SpecifiedUri '{0}' does not have existing connection</source>
+        <target state="new">SpecifiedUri '{0}' n’a pas de connexion existante</target>
+        
+        <note>.
+ Parameters: 0 - uri (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAuthType">
+        <source>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</source>
+        <target state="new">Valeur non valide '{0}' pour AuthenticationType.  Les valeurs valides sont « Intégré » et « SqlLogin ».</target>
+        
+        <note>.
+ Parameters: 0 - authType (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidIntent">
+        <source>Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</source>
+        <target state="new">Valeur '{0}' non valide pour ApplicationIntent. Les valeurs valides sont 'ReadWrite' et 'ReadOnly'.</target>
+        
+        <note>.
+ Parameters: 0 - intent (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnectionCanceled">
+        <source>Connection canceled</source>
+        <target state="new">Connexion annulée</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ConnectionParamsValidateNullOwnerUri">
+        <source>OwnerUri cannot be null or empty</source>
+        <target state="new">OwnerUri ne peut pas être null ou vide.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ConnectionParamsValidateNullConnection">
+        <source>Connection details object cannot be null</source>
+        <target state="new">L'objet &quot;détails de connexion&quot; ne peut pas être null</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ConnectionParamsValidateNullServerName">
+        <source>ServerName cannot be null or empty</source>
+        <target state="new">ServerName ne peut pas être null ou vide</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ConnectionParamsValidateNullSqlAuth">
+        <source>{0} cannot be null or empty when using SqlLogin authentication</source>
+        <target state="new">{0} ne peut pas être null ou vide lors de l’utilisation de l’authentification SqlLogin</target>
+        
+        <note>.
+ Parameters: 0 - component (string) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceCancelAlreadyCompleted">
+        <source>The query has already completed, it cannot be cancelled</source>
+        <target state="new">La requête a déjà terminé, il ne peut pas être annulée</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceCancelDisposeFailed">
+        <source>Query successfully cancelled, failed to dispose query. Owner URI not found.</source>
+        <target state="new">Requête annulée avec succès, n’a pas pu supprimer la requête. Propriétaire d’URI non trouvé.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceQueryCancelled">
+        <source>Query was canceled by user</source>
+        <target state="new">La requête a été annulée par l’utilisateur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceSubsetBatchNotCompleted">
+        <source>The batch has not completed, yet</source>
+        <target state="new">Le lot n’a pas terminé encore</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceSubsetBatchOutOfRange">
+        <source>Batch index cannot be less than 0 or greater than the number of batches</source>
+        <target state="new">Index de lot ne peut pas être inférieur à 0 ou supérieur au nombre de lots</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceSubsetResultSetOutOfRange">
+        <source>Result set index cannot be less than 0 or greater than the number of result sets</source>
+        <target state="new">Index du jeu de résultats ne peut pas être inférieur à 0 ou supérieur au nombre de jeux de résultats</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceDataReaderByteCountInvalid">
+        <source>Maximum number of bytes to return must be greater than zero</source>
+        <target state="new">Nombre maximal d’octets à renvoyer doit être supérieur à zéro</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceDataReaderCharCountInvalid">
+        <source>Maximum number of chars to return must be greater than zero</source>
+        <target state="new">Nombre maximal de caractères à renvoyer doit être supérieur à zéro</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceDataReaderXmlCountInvalid">
+        <source>Maximum number of XML bytes to return must be greater than zero</source>
+        <target state="new">Nombre maximal d’octets XML pour renvoyer doit être supérieur à zéro</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceFileWrapperWriteOnly">
+        <source>Access method cannot be write-only</source>
+        <target state="new">Méthode d’accès ne peut pas être en écriture seule</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceFileWrapperNotInitialized">
+        <source>FileStreamWrapper must be initialized before performing operations</source>
+        <target state="new">FileStreamWrapper doit être initialisée avant d’effectuer des opérations</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceFileWrapperReadOnly">
+        <source>This FileStreamWrapper cannot be used for writing</source>
+        <target state="new">Ce FileStreamWrapper ne peut pas être utilisé pour l’écriture</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceAffectedOneRow">
+        <source>(1 row affected)</source>
+        <target state="new">(1 ligne affectée)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceAffectedRows">
+        <source>({0} rows affected)</source>
+        <target state="new">({0} lignes affectées)</target>
+        
+        <note>.
+ Parameters: 0 - rows (long) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceCompletedSuccessfully">
+        <source>Commands completed successfully.</source>
+        <target state="new">Commandes s’est terminées correctement.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceErrorFormat">
+        <source>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</source>
+        <target state="new">Msg {0}, au niveau état {2}, {1}, ligne {3} {4} {5}</target>
+        
+        <note>.
+ Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceQueryFailed">
+        <source>Query failed: {0}</source>
+        <target state="new">La requête a échoué : {0}</target>
+        
+        <note>.
+ Parameters: 0 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceColumnNull">
+        <source>(No column name)</source>
+        <target state="new">(Aucun nom de colonne)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceRequestsNoQuery">
+        <source>The requested query does not exist</source>
+        <target state="new">La requête demandée n’existe pas</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceQueryInvalidOwnerUri">
+        <source>This editor is not connected to a database</source>
+        <target state="new">Cet éditeur n’est pas connecté à une base de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceQueryInProgress">
+        <source>A query is already in progress for this editor session. Please cancel this query or wait for its completion.</source>
+        <target state="new">Une requête est déjà en cours pour cette session d’éditeur. Veuillez annuler cette requête, ou attendre son achèvement.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceMessageSenderNotSql">
+        <source>Sender for OnInfoMessage event must be a SqlConnection</source>
+        <target state="new">L’expéditeur de l’événement de OnInfoMessage doit être un objet SqlConnection</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceSaveAsResultSetNotComplete">
+        <source>Result cannot be saved until query execution has completed</source>
+        <target state="new">Impossible d’enregistrer les résultats jusqu'à ce que l’exécution de la requête est terminée.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceSaveAsMiscStartingError">
+        <source>Internal error occurred while starting save task</source>
+        <target state="new">Une erreur interne s’est produite lors du démarrage d’enregistrement</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceSaveAsInProgress">
+        <source>A save request to the same path is in progress</source>
+        <target state="new">Une demande vers le même chemin de sauvegarde est en cours</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceSaveAsFail">
+        <source>Failed to save {0}: {1}</source>
+        <target state="new">Impossible d’enregistrer {0} : {1}</target>
+        
+        <note>.
+ Parameters: 0 - fileName (string), 1 - message (string) </note>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetNotRead">
+        <source>Cannot read subset unless the results have been read from the server</source>
+        <target state="new">Impossible de lire le sous-ensemble, sauf si les résultats ont été lus à partir du serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetStartRowOutOfRange">
+        <source>Start row cannot be less than 0 or greater than the number of rows in the result set</source>
+        <target state="new">Début de la ligne ne peut pas être inférieur à 0 ou supérieur au nombre de lignes dans le jeu de résultats</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetRowCountOutOfRange">
+        <source>Row count must be a positive integer</source>
+        <target state="new">Nombre de lignes doit être un entier positif</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetNoColumnSchema">
+        <source>Could not retrieve column schema for result set</source>
+        <target state="new">Schéma de colonne de jeu de résultats n’a pas pu être récupérer</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceExecutionPlanNotFound">
+        <source>Could not retrieve an execution plan from the result set </source>
+        <target state="new">Impossible de récupérer un plan d’exécution le jeu de résultats</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionAzureError">
+        <source>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</source>
+        <target state="new">Cette fonctionnalité n’est actuellement pas pris en charge sur la base de données SQL Azure et entrepôt de données : {0}</target>
+        
+        <note>.
+ Parameters: 0 - errorMessage (string) </note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionError">
+        <source>An unexpected error occurred during Peek Definition execution: {0}</source>
+        <target state="new">Une erreur inattendue s’est produite lors de l’exécution de lire une définition : {0}</target>
+        
+        <note>.
+ Parameters: 0 - errorMessage (string) </note>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionNoResultsError">
+        <source>No results were found.</source>
+        <target state="new">Aucun résultat n’a été trouvé.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionDatabaseError">
+        <source>No database object was retrieved.</source>
+        <target state="new">Aucun objet de base de données a été récupérée.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionNotConnectedError">
+        <source>Please connect to a server.</source>
+        <target state="new">Veuillez vous connecter à un serveur.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionTimedoutError">
+        <source>Operation timed out.</source>
+        <target state="new">Opération a expiré.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="PeekDefinitionTypeNotSupportedError">
+        <source>This object type is currently not supported by this feature.</source>
+        <target state="new">Ce type d’objet n’est actuellement pas pris en charge par cette fonctionnalité.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="WorkspaceServicePositionLineOutOfRange">
+        <source>Position is outside of file line range</source>
+        <target state="new">Position est en dehors de la plage de ligne de fichier</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="WorkspaceServicePositionColumnOutOfRange">
+        <source>Position is outside of column range for line {0}</source>
+        <target state="new">Position est en dehors de la plage de colonnes de la ligne {0}</target>
+        
+        <note>.
+ Parameters: 0 - line (int) </note>
+      </trans-unit>
+      <trans-unit id="WorkspaceServiceBufferPositionOutOfOrder">
+        <source>Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</source>
+        <target state="new">Position de début ({0}, {1}) doit précéder ou être égale à la position de fin ({2}, {3})</target>
+        
+        <note>.
+ Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
+        <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
+        <target state="new">Msg {0}, {1}, niveau d’état {2}, ligne {3}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
+        <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
+        <target state="new">Msg {0}, {1}, niveau d’état {2}, procédure {3}, ligne {4}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageNoLineInfo">
+        <source>Msg {0}, Level {1}, State {2}</source>
+        <target state="new">Msg {0}, {1}, niveau d’état {2}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_BatchError_Exception">
+        <source>An error occurred while the batch was being processed. The error message is: {0}</source>
+        <target state="new">Une erreur s’est produite lors du traitement du lot. Le message d’erreur est : {0}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
+        <source>({0} row(s) affected)</source>
+        <target state="new">({0} lignes affectées)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionNotYetCompleteError">
+        <source>The previous execution is not yet complete.</source>
+        <target state="new">L’exécution précédente n’est pas encore terminée.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_Error">
+        <source>A scripting error occurred.</source>
+        <target state="new">Une erreur de script s’est produite.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_ParsingSyntax">
+        <source>Incorrect syntax was encountered while {0} was being parsed.</source>
+        <target state="new">Syntaxe incorrecte a été rencontrée pendant {0} était en cours d’analyse.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_FatalError">
+        <source>A fatal error occurred.</source>
+        <target state="new">Une erreur irrécupérable s’est produite.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
+        <source>Execution completed {0} times...</source>
+        <target state="new">L’exécution effectuée {0} fois...</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
+        <source>You cancelled the query.</source>
+        <target state="new">Vous avez annulé la requête.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Halting">
+        <source>An error occurred while the batch was being executed.</source>
+        <target state="new">Une erreur s’est produite pendant le traitement par lots a été exécuté.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Ignoring">
+        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
+        <target state="new">Une erreur s’est produite pendant le traitement par lots a été exécuté, mais que l’erreur a été ignorée.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_InitilizingLoop">
+        <source>Starting execution loop of {0} times...</source>
+        <target state="new">Démarrage de la boucle d’exécution de {0} fois...</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionError_CommandNotSupported">
+        <source>Command {0} is not supported.</source>
+        <target state="new">La commande {0} n’est pas pris en charge.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionError_VariableNotFound">
+        <source>The variable {0} could not be found.</source>
+        <target state="new">La variable {0} est introuvable.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineError">
+        <source>SQL Execution error: {0}</source>
+        <target state="new">Erreur d’exécution de SQL : {0}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionError">
+        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
+        <target state="new">Exécution du wrapper d’Analyseur de lot : {0} trouvé... à la ligne {1} : {2} Description : {3}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
+        <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
+        <target state="new">Lot analyseur wrapper d’exécution moteur lot message reçu : Message : {0} message détaillé : {1}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
+        <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
+        <target state="new">Traitement du moteur par lots ResultSet pour analyseur wrapper d’exécution de lot : DataReader.FieldCount : {0} DataReader.RecordsAffected : {1}</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
+        <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
+        <target state="new">Lot de moteur analyseur wrapper d’exécution terminée de jeu de résultats.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
+        <source>Canceling batch parser wrapper batch execution.</source>
+        <target state="new">Annulation de l’exécution par lots wrapper analyseur du lot.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_Warning">
+        <source>Scripting warning.</source>
+        <target state="new">Avertissement pour le script.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="TroubleshootingAssistanceMessage">
+        <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
+        <target state="new">Pour plus d’informations sur cette erreur, consultez les rubriques de dépannage dans la documentation du produit.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParser_CircularReference">
+        <source>File '{0}' recursively included.</source>
+        <target state="new">Le fichier '{0}' inclus de manière récursive.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParser_CommentNotTerminated">
+        <source>Missing end comment mark '*/'.</source>
+        <target state="new">Pas de marque de fin de commentaire ' * /'.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParser_StringNotTerminated">
+        <source>Unclosed quotation mark after the character string.</source>
+        <target state="new">Ouvrez les guillemets après la chaîne de caractères.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParser_IncorrectSyntax">
+        <source>Incorrect syntax was encountered while parsing '{0}'.</source>
+        <target state="new">Syntaxe incorrecte a été rencontrée lors de l’analyse de '{0}'.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="BatchParser_VariableNotDefined">
+        <source>Variable {0} is not defined.</source>
+        <target state="new">La variable {0} n’est pas défini.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="TestLocalizationConstant">
+        <source>test</source>
+        <target state="new">EN_LOCALIZATION</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ErrorEmptyStringReplacement">
+        <source>Replacement of an empty string by an empty string.</source>
+        <target state="new">Remplacement d’une chaîne vide à une chaîne vide.</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataSessionNotFound">
+        <source>Edit session does not exist.</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataQueryNotCompleted">
+        <source>Query has not completed execution</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataQueryImproperResultSets">
+        <source>Query did not generate exactly one result set</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataFailedAddRow">
+        <source>Failed to add new row to update cache</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataRowOutOfRange">
+        <source>Given row ID is outside the range of rows in the edit cache</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataUpdatePending">
+        <source>An update is already pending for this row and must be reverted first</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataUpdateNotPending">
+        <source>Given row ID does not have pending update</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataObjectMetadataNotFound">
+        <source>Table or view metadata could not be found</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataInvalidFormatBinary">
+        <source>Invalid format for binary column</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataInvalidFormatBoolean">
+        <source>Allowed values for boolean columns are 0, 1, &quot;true&quot;, or &quot;false&quot;</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataCreateScriptMissingValue">
+        <source>A required cell value is missing</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataDeleteSetCell">
+        <source>A delete is pending for this row, a cell update cannot be applied.</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataColumnIdOutOfRange">
+        <source>Column ID must be in the range of columns for the query</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataColumnCannotBeEdited">
+        <source>Column cannot be edited</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataColumnNoKeyColumns">
+        <source>No key columns were found</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataScriptFilePathNull">
+        <source>An output filename must be provided</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataUnsupportedObjectType">
+        <source>Database object {0} cannot be used for editing.</source>
+        
+        <note>.
+ Parameters: 0 - typeName (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceDbErrorDefaultNotConnected">
+        <source>Specified URI '{0}' does not have a default connection</source>
+        
+        <note>.
+ Parameters: 0 - uri (string) </note>
+      </trans-unit>
+      <trans-unit id="EditDataCommitInProgress">
+        <source>A commit task is in progress. Please wait for completion.</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">
+        <source>Decimal column is missing numeric precision or numeric scale</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataComputedColumnPlaceholder">
+        <source>&lt;TBD&gt;</source>
+        <target state="new">&lt;TBD&gt;</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceResultSetAddNoRows">
+        <source>Cannot add row to result buffer, data reader does not contain rows</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataTimeOver24Hrs">
+        <source>TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataNullNotAllowed">
+        <source>NULL is not allowed for this column</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyExists">
+        <source>Edit session already exists.</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataSessionNotInitialized">
+        <source>Edit session has not been initialized</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyInitialized">
+        <source>Edit session has already been initialized</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataSessionAlreadyInitializing">
+        <source>Edit session has already been initialized or is in the process of initializing</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataQueryFailed">
+        <source>Query execution failed, see messages for details</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataFilteringNegativeLimit">
+        <source>Result limit cannot be negative</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="QueryServiceCellNull">
+        <source>NULL</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataObjectNameRequired">
+        <source>A object name must be provided</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataTooManyIdentifiers">
+        <source>Explicitly specifying server or database is not supported</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataMetadataNotExtended">
+        <source>Table metadata does not have extended properties</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="EditDataObjectNotFound">
+        <source>Table or view requested for edit could not be found</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="TreeNodeError">
+        <source>Error expanding: {0}</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="ServerNodeConnectionError">
+        <source>Error connecting to {0}</source>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Aggregates">
+        <source>Aggregates</source>
+        <target state="new">Agrégats</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerRoles">
+        <source>Server Roles</source>
+        <target state="new">Rôles serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ApplicationRoles">
+        <source>Application Roles</source>
+        <target state="new">Rôles d'application</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Assemblies">
+        <source>Assemblies</source>
+        <target state="new">Assemblys</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_AssemblyFiles">
+        <source>Assembly Files</source>
+        <target state="new">Fichiers d'assembly</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_AsymmetricKeys">
+        <source>Asymmetric Keys</source>
+        <target state="new">Clés asymétriques</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseAsymmetricKeys">
+        <source>Asymmetric Keys</source>
+        <target state="new">Clés asymétriques</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DataCompressionOptions">
+        <source>Data Compression Options</source>
+        <target state="new">Options de compression de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Certificates">
+        <source>Certificates</source>
+        <target state="new">Certificats</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FileTables">
+        <source>FileTables</source>
+        <target state="new">FileTables</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseCertificates">
+        <source>Certificates</source>
+        <target state="new">Certificats</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_CheckConstraints">
+        <source>Check Constraints</source>
+        <target state="new">Contraintes de validation</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Columns">
+        <source>Columns</source>
+        <target state="new">Colonnes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Constraints">
+        <source>Constraints</source>
+        <target state="new">Contraintes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Contracts">
+        <source>Contracts</source>
+        <target state="new">Contrats</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Credentials">
+        <source>Credentials</source>
+        <target state="new">Informations d'identification</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ErrorMessages">
+        <source>Error Messages</source>
+        <target state="new">Messages d'erreur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerRoleMembership">
+        <source>Server Role Membership</source>
+        <target state="new">Appartenance au rôle de serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseOptions">
+        <source>Database Options</source>
+        <target state="new">Options de la base de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseRoles">
+        <source>Database Roles</source>
+        <target state="new">Rôles de base de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_RoleMemberships">
+        <source>Role Memberships</source>
+        <target state="new">Appartenances aux rôles</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseTriggers">
+        <source>Database Triggers</source>
+        <target state="new">Déclencheurs de base de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DefaultConstraints">
+        <source>Default Constraints</source>
+        <target state="new">Contraintes par défaut</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Defaults">
+        <source>Defaults</source>
+        <target state="new">Par défaut</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Sequences">
+        <source>Sequences</source>
+        <target state="new">Séquences</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Endpoints">
+        <source>Endpoints</source>
+        <target state="new">Points de terminaison</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_EventNotifications">
+        <source>Event Notifications</source>
+        <target state="new">Notifications d'événements</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerEventNotifications">
+        <source>Server Event Notifications</source>
+        <target state="new">Notifications d'événements du serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExtendedProperties">
+        <source>Extended Properties</source>
+        <target state="new">Propriétés étendues</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FileGroups">
+        <source>Filegroups</source>
+        <target state="new">Groupes de fichiers</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ForeignKeys">
+        <source>Foreign Keys</source>
+        <target state="new">Clés étrangères</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FullTextCatalogs">
+        <source>Full-Text Catalogs</source>
+        <target state="new">Catalogues de recherche en texte intégral</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FullTextIndexes">
+        <source>Full-Text Indexes</source>
+        <target state="new">Index de recherche en texte intégral</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Functions">
+        <source>Functions</source>
+        <target state="new">Fonctions</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Indexes">
+        <source>Indexes</source>
+        <target state="new">Index</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_InlineFunctions">
+        <source>Inline Functions</source>
+        <target state="new">Fonctions incluses</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Keys">
+        <source>Keys</source>
+        <target state="new">Clés</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_LinkedServers">
+        <source>Linked Servers</source>
+        <target state="new">Serveurs liés</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_LinkedServerLogins">
+        <source>Linked Server Logins</source>
+        <target state="new">Connexions de serveur lié</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Logins">
+        <source>Logins</source>
+        <target state="new">Connexions</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_MasterKey">
+        <source>Master Key</source>
+        <target state="new">Clé principale</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_MasterKeys">
+        <source>Master Keys</source>
+        <target state="new">Clés principales</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_MessageTypes">
+        <source>Message Types</source>
+        <target state="new">Types de messages</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_MultiSelectFunctions">
+        <source>Table-Valued Functions</source>
+        <target state="new">Fonctions table</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Parameters">
+        <source>Parameters</source>
+        <target state="new">Paramètres</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_PartitionFunctions">
+        <source>Partition Functions</source>
+        <target state="new">Fonctions de partition</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_PartitionSchemes">
+        <source>Partition Schemes</source>
+        <target state="new">Schémas de partition</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Permissions">
+        <source>Permissions</source>
+        <target state="new">Autorisations</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_PrimaryKeys">
+        <source>Primary Keys</source>
+        <target state="new">Clés primaires</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Programmability">
+        <source>Programmability</source>
+        <target state="new">Programmabilité</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Queues">
+        <source>Queues</source>
+        <target state="new">Files d'attente</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_RemoteServiceBindings">
+        <source>Remote Service Bindings</source>
+        <target state="new">Liaisons de service distant</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ReturnedColumns">
+        <source>Returned Columns</source>
+        <target state="new">Colonnes retournées</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Roles">
+        <source>Roles</source>
+        <target state="new">Rôles</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Routes">
+        <source>Routes</source>
+        <target state="new">Itinéraires </target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Rules">
+        <source>Rules</source>
+        <target state="new">Règles</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Schemas">
+        <source>Schemas</source>
+        <target state="new">Schémas</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Security">
+        <source>Security</source>
+        <target state="new">Sécurité</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerObjects">
+        <source>Server Objects</source>
+        <target state="new">Objets serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Management">
+        <source>Management</source>
+        <target state="new">Gestion</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerTriggers">
+        <source>Triggers</source>
+        <target state="new">Déclencheurs</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServiceBroker">
+        <source>Service Broker</source>
+        <target state="new">Service Broker</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Services">
+        <source>Services</source>
+        <target state="new">Services</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Signatures">
+        <source>Signatures</source>
+        <target state="new">Signatures</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_LogFiles">
+        <source>Log Files</source>
+        <target state="new">Fichiers journaux</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Statistics">
+        <source>Statistics</source>
+        <target state="new">Statistiques</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Storage">
+        <source>Storage</source>
+        <target state="new">Stockage</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_StoredProcedures">
+        <source>Stored Procedures</source>
+        <target state="new">Procédures stockées</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SymmetricKeys">
+        <source>Symmetric Keys</source>
+        <target state="new">Clés symétriques</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Synonyms">
+        <source>Synonyms</source>
+        <target state="new">Synonymes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Tables">
+        <source>Tables</source>
+        <target state="new">Tables</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Triggers">
+        <source>Triggers</source>
+        <target state="new">Déclencheurs</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Types">
+        <source>Types</source>
+        <target state="new">Types</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UniqueKeys">
+        <source>Unique Keys</source>
+        <target state="new">Clés uniques</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UserDefinedDataTypes">
+        <source>User-Defined Data Types</source>
+        <target state="new">Types de données définis par l'utilisateur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UserDefinedTypes">
+        <source>User-Defined Types (CLR)</source>
+        <target state="new">Types définis par l'utilisateur (CLR)</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Users">
+        <source>Users</source>
+        <target state="new">Utilisateurs</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Views">
+        <source>Views</source>
+        <target state="new">Vues</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_XmlIndexes">
+        <source>XML Indexes</source>
+        <target state="new">Index XML</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_XMLSchemaCollections">
+        <source>XML Schema Collections</source>
+        <target state="new">Collections de schémas XML</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UserDefinedTableTypes">
+        <source>User-Defined Table Types</source>
+        <target state="new">Types de tables définis par l'utilisateur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FilegroupFiles">
+        <source>Files</source>
+        <target state="new">Fichiers</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="MissingCaption">
+        <source>Missing Caption</source>
+        <target state="new">Légende manquante</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BrokerPriorities">
+        <source>Broker Priorities</source>
+        <target state="new">Priorités de Service Broker</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_CryptographicProviders">
+        <source>Cryptographic Providers</source>
+        <target state="new">Fournisseurs de chiffrement</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseAuditSpecifications">
+        <source>Database Audit Specifications</source>
+        <target state="new">Spécifications de l'audit de la base de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseEncryptionKeys">
+        <source>Database Encryption Keys</source>
+        <target state="new">Clés de chiffrement de la base de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_EventSessions">
+        <source>Event Sessions</source>
+        <target state="new">Sessions d'événements</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_FullTextStopLists">
+        <source>Full Text Stoplists</source>
+        <target state="new">Listes de mots vides de texte intégral</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ResourcePools">
+        <source>Resource Pools</source>
+        <target state="new">Pools de ressources</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerAudits">
+        <source>Audits</source>
+        <target state="new">Audits</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerAuditSpecifications">
+        <source>Server Audit Specifications</source>
+        <target state="new">Spécifications de l'audit du serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SpatialIndexes">
+        <source>Spatial Indexes</source>
+        <target state="new">Index spatiaux</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_WorkloadGroups">
+        <source>Workload Groups</source>
+        <target state="new">Groupes de charges de travail</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SqlFiles">
+        <source>SQL Files</source>
+        <target state="new">Fichiers SQL</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerFunctions">
+        <source>Server Functions</source>
+        <target state="new">Fonctions du serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SqlType">
+        <source>SQL Type</source>
+        <target state="new">Type SQL</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerOptions">
+        <source>Server Options</source>
+        <target state="new">Options de serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseDiagrams">
+        <source>Database Diagrams</source>
+        <target state="new">Schémas de base de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemTables">
+        <source>System Tables</source>
+        <target state="new">Tables système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Databases">
+        <source>Databases</source>
+        <target state="new">Bases de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemContracts">
+        <source>System Contracts</source>
+        <target state="new">Contrats système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemDatabases">
+        <source>System Databases</source>
+        <target state="new">Bases de données système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemMessageTypes">
+        <source>System Message Types</source>
+        <target state="new">Types de messages système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemQueues">
+        <source>System Queues</source>
+        <target state="new">Files d'attente système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemServices">
+        <source>System Services</source>
+        <target state="new">Services système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemStoredProcedures">
+        <source>System Stored Procedures</source>
+        <target state="new">Procédures stockées système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemViews">
+        <source>System Views</source>
+        <target state="new">Vues système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DataTierApplications">
+        <source>Data-tier Applications</source>
+        <target state="new">Applications de la couche Données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExtendedStoredProcedures">
+        <source>Extended Stored Procedures</source>
+        <target state="new">Procédures stockées étendues</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemAggregateFunctions">
+        <source>Aggregate Functions</source>
+        <target state="new">Fonctions d'agrégation</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemApproximateNumerics">
+        <source>Approximate Numerics</source>
+        <target state="new">Valeurs numériques approximatives</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemBinaryStrings">
+        <source>Binary Strings</source>
+        <target state="new">Chaînes binaires</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemCharacterStrings">
+        <source>Character Strings</source>
+        <target state="new">Chaînes de caractères</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemCLRDataTypes">
+        <source>CLR Data Types</source>
+        <target state="new">Types de données CLR</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemConfigurationFunctions">
+        <source>Configuration Functions</source>
+        <target state="new">Fonctions de configuration</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemCursorFunctions">
+        <source>Cursor Functions</source>
+        <target state="new">Fonctions du curseur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemDataTypes">
+        <source>System Data Types</source>
+        <target state="new">Types de données système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemDateAndTime">
+        <source>Date and Time</source>
+        <target state="new">Date et heure</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemDateAndTimeFunctions">
+        <source>Date and Time Functions</source>
+        <target state="new">Fonctions de date et d'heure</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemExactNumerics">
+        <source>Exact Numerics</source>
+        <target state="new">Valeurs numériques exactes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemFunctions">
+        <source>System Functions</source>
+        <target state="new">Fonctions système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemHierarchyIdFunctions">
+        <source>Hierarchy Id Functions</source>
+        <target state="new">Fonctions de l'ID de hiérarchie</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemMathematicalFunctions">
+        <source>Mathematical Functions</source>
+        <target state="new">Fonctions mathématiques</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemMetadataFunctions">
+        <source>Metadata Functions</source>
+        <target state="new">Fonctions de métadonnées</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemOtherDataTypes">
+        <source>Other Data Types</source>
+        <target state="new">Autres types de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemOtherFunctions">
+        <source>Other Functions</source>
+        <target state="new">Autres fonctions</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemRowsetFunctions">
+        <source>Rowset Functions</source>
+        <target state="new">Fonctions d'ensemble de lignes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemSecurityFunctions">
+        <source>Security Functions</source>
+        <target state="new">Fonctions de sécurité</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemSpatialDataTypes">
+        <source>Spatial Data Types</source>
+        <target state="new">Types de données spatiales</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemStringFunctions">
+        <source>String Functions</source>
+        <target state="new">Fonctions de chaîne</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemSystemStatisticalFunctions">
+        <source>System Statistical Functions</source>
+        <target state="new">Fonctions statistiques système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemTextAndImageFunctions">
+        <source>Text and Image Functions</source>
+        <target state="new">Fonctions de texte et d'image</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemUnicodeCharacterStrings">
+        <source>Unicode Character Strings</source>
+        <target state="new">Chaînes de caractères Unicode</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_AggregateFunctions">
+        <source>Aggregate Functions</source>
+        <target state="new">Fonctions d'agrégation</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ScalarValuedFunctions">
+        <source>Scalar-valued Functions</source>
+        <target state="new">Fonctions scalaires</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_TableValuedFunctions">
+        <source>Table-valued Functions</source>
+        <target state="new">Fonctions table</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SystemExtendedStoredProcedures">
+        <source>System Extended Stored Procedures</source>
+        <target state="new">Procédures stockées étendues système</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInType">
+        <source>Built-in Types</source>
+        <target state="new">Types intégrés</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInServerRole">
+        <source>Built-in Server Roles</source>
+        <target state="new">Rôles serveur intégrés</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_UserWithPassword">
+        <source>User with Password</source>
+        <target state="new">Utilisateur avec mot de passe</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SearchPropertyList">
+        <source>Search Property List</source>
+        <target state="new">Liste des propriétés de recherche</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SecurityPolicies">
+        <source>Security Policies</source>
+        <target state="new">Stratégies de sécurité</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SecurityPredicates">
+        <source>Security Predicates</source>
+        <target state="new">Prédicats de sécurité</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerRole">
+        <source>Server Role</source>
+        <target state="new">Rôle de serveur</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SearchPropertyLists">
+        <source>Search Property Lists</source>
+        <target state="new">Listes des propriétés de recherche</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnStoreIndexes">
+        <source>Column Store Indexes</source>
+        <target state="new">Index de stockage de colonnes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_TableTypeIndexes">
+        <source>Table Type Indexes</source>
+        <target state="new">Index de types de tables</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ServerInstance">
+        <source>ServerInstance</source>
+        <target state="new">ServerInstance</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SelectiveXmlIndexes">
+        <source>Selective XML Indexes</source>
+        <target state="new">Index XML sélectifs</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_XmlNamespaces">
+        <source>XML Namespaces</source>
+        <target state="new">Espaces de noms XML</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_XmlTypedPromotedPaths">
+        <source>XML Typed Promoted Paths</source>
+        <target state="new">Chemins d'accès promus typés XML</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_SqlTypedPromotedPaths">
+        <source>T-SQL Typed Promoted Paths</source>
+        <target state="new">Chemins d'accès promus typés T-SQL</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DatabaseScopedCredentials">
+        <source>Database Scoped Credentials</source>
+        <target state="new">Informations d'identification incluses dans l'étendue de la base de données</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExternalDataSources">
+        <source>External Data Sources</source>
+        <target state="new">Sources de données externes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExternalFileFormats">
+        <source>External File Formats</source>
+        <target state="new">Formats de fichier externes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExternalResources">
+        <source>External Resources</source>
+        <target state="new">Ressources externes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ExternalTables">
+        <source>External Tables</source>
+        <target state="new">Tables externes</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_AlwaysEncryptedKeys">
+        <source>Always Encrypted Keys</source>
+        <target state="new">Clés Always Encrypted</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnMasterKeys">
+        <source>Column Master Keys</source>
+        <target state="new">Clés principales de la colonne</target>
+        
+        <note/>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_ColumnEncryptionKeys">
+        <source>Column Encryption Keys</source>
+        <target state="new">Clés de chiffrement de la colonne</target>
+        
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

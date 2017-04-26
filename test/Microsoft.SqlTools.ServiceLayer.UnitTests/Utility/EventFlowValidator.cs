@@ -64,37 +64,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             return this;
         }
 
-        public EventFlowValidator<TRequestContext> AddCompleteErrorValidation<TErrorObj>(Action<string, int> paramValidation,
-            Action<TErrorObj> dataValidation)
-        {
-            // Put together a validator that checks for null and adds the provided validators
-            Action<Error> validator = e =>
-            {
-                Assert.NotNull(e);
-                paramValidation(e.Message, e.Code);
-
-                Assert.IsType<TErrorObj>(e.Data);
-                dataValidation((TErrorObj) e.Data);
-            };
-
-            // Add the expected error
-            expectedEvents.Add(new ExpectedEvent
-            {
-                EventType = EventTypes.Error,
-                ParamType = typeof(Error),
-                Validator = validator
-            });
-
-            return this;
-        }
-
         public EventFlowValidator<TRequestContext> AddSimpleErrorValidation(Action<string, int> paramValidation)
         {
             // Put together a validator that ensures a null data
             Action<Error> validator = e =>
             {
                 Assert.NotNull(e);
-                Assert.Null(e.Data);
                 paramValidation(e.Message, e.Code);
             };
 
@@ -130,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 .Returns(Task.FromResult(0));
 
             // Add general handler for error event
-            requestContext.AddErrorHandling((msg, code, obj) =>
+            requestContext.AddErrorHandling((msg, code) =>
             {
                 receivedEvents.Add(new ReceivedEvent
                 {

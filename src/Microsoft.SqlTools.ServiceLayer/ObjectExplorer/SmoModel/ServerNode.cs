@@ -49,8 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             NodeValue = connectionSummary.ServerName;
             IsAlwaysLeaf = false;
-            NodeType = NodeTypes.ServerInstance.ToString();
-            NodeTypeId = NodeTypes.ServerInstance;
+            NodeType = NodeTypes.Server.ToString();
+            NodeTypeId = NodeTypes.Server;
             Label = GetConnectionLabel();
         }
 
@@ -86,12 +86,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             // TODO Consider adding IsAuthenticatingDatabaseMaster check in the code and
             // referencing result here
-            if (!string.IsNullOrWhiteSpace(connectionSummary.DatabaseName) &&
-                string.Compare(connectionSummary.DatabaseName, CommonConstants.MasterDatabaseName, StringComparison.OrdinalIgnoreCase) != 0 &&
-                (serverInfo.IsCloud /* || !ci.IsAuthenticatingDatabaseMaster */))
+            if (!ObjectExplorerUtils.IsSystemDatabaseConnection(connectionSummary.DatabaseName))
             {
                 // We either have an azure with a database specified or a Denali database using a contained user
-                userName += ", " + connectionSummary.DatabaseName;
+                if (string.IsNullOrWhiteSpace(userName))
+                {
+                    userName = connectionSummary.DatabaseName;
+                }
+                else
+                {
+                    userName += ", " + connectionSummary.DatabaseName;
+                }
             }
 
             string label;

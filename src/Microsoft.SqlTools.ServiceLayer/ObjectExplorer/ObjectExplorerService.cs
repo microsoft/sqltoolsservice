@@ -303,11 +303,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             if (serviceProvider == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.Localization.sr.ServiceProviderNotSet);
+                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
             }
             if (connectionService == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.Localization.sr.ServiceProviderNotSet);
+                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
             }
         }
 
@@ -346,8 +346,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider)
             {
-                TreeNode serverNode = new ServerNode(response, serviceProvider);
-                return new ObjectExplorerSession(response.OwnerUri, serverNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
+                TreeNode rootNode = new ServerNode(response, serviceProvider);
+                var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
+                if (!ObjectExplorerUtils.IsSystemDatabaseConnection(response.ConnectionSummary.DatabaseName))
+                {
+                    // Assuming the databases are in a folder under server node
+                    var children = rootNode.Expand();
+                    var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
+                    var databasesChildren = databasesRoot.Expand();
+                    var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
+                    var databaseNode = databases.FirstOrDefault(d => d.Label == response.ConnectionSummary.DatabaseName);
+                    databaseNode.Label = rootNode.Label;
+                    session.Root = databaseNode;
+                }
+                return session;
             }
             
         }

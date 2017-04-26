@@ -2053,11 +2053,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string SchemaHierarchy_ServerInstance
+        public static string SchemaHierarchy_Server
         {
             get
             {
-                return Keys.GetString(Keys.SchemaHierarchy_ServerInstance);
+                return Keys.GetString(Keys.SchemaHierarchy_Server);
             }
         }
 
@@ -2154,6 +2154,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.SchemaHierarchy_ColumnEncryptionKeys);
+            }
+        }
+
+        public static string ScriptingParams_ConnectionString_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingParams_ConnectionString_Property_Invalid);
+            }
+        }
+
+        public static string ScriptingParams_FilePath_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingParams_FilePath_Property_Invalid);
+            }
+        }
+
+        public static string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid);
             }
         }
 
@@ -3036,7 +3060,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string SchemaHierarchy_TableTypeIndexes = "SchemaHierarchy_TableTypeIndexes";
 
 
-            public const string SchemaHierarchy_ServerInstance = "SchemaHierarchy_ServerInstance";
+            public const string SchemaHierarchy_Server = "SchemaHierarchy_Server";
 
 
             public const string SchemaHierarchy_SelectiveXmlIndexes = "SchemaHierarchy_SelectiveXmlIndexes";
@@ -3073,6 +3097,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_ColumnEncryptionKeys = "SchemaHierarchy_ColumnEncryptionKeys";
+
+
+            public const string ScriptingParams_ConnectionString_Property_Invalid = "ScriptingParams_ConnectionString_Property_Invalid";
+
+
+            public const string ScriptingParams_FilePath_Property_Invalid = "ScriptingParams_FilePath_Property_Invalid";
+
+
+            public const string ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = "ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid";
 
 
             private Keys()

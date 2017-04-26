@@ -416,7 +416,7 @@
       </trans-unit>
       <trans-unit id="TestLocalizationConstant">
         <source>test</source>
-        <target state="new">EN_LOCALIZATION</target>
+        <target state="new">test</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ErrorEmptyStringReplacement">
@@ -1351,11 +1351,6 @@
         <target state="new">Table Type Indexes</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerInstance">
-        <source>ServerInstance</source>
-        <target state="new">ServerInstance</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_SelectiveXmlIndexes">
         <source>Selective XML Indexes</source>
         <target state="new">Selective XML Indexes</target>
@@ -1414,6 +1409,26 @@
       <trans-unit id="SchemaHierarchy_ColumnEncryptionKeys">
         <source>Column Encryption Keys</source>
         <target state="new">Column Encryption Keys</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_Server">
+        <source>Server</source>
+        <target state="new">Server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingParams.ConnectionString property.</source>
+        <target state="new">Error parsing ScriptingParams.ConnectionString property.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
+        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
+        <target state="new">Invalid directory specified by the ScriptingParams.FilePath property.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
+        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
+        <target state="new">Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</target>
         <note></note>
       </trans-unit>
     </body>

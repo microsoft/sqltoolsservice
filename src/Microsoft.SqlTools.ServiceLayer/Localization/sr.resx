@@ -1199,8 +1199,8 @@
     <value>Table Type Indexes</value>
     <comment></comment>
   </data>
-  <data name="SchemaHierarchy_ServerInstance" xml:space="preserve">
-    <value>ServerInstance</value>
+  <data name="SchemaHierarchy_Server" xml:space="preserve">
+    <value>Server</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
@@ -1249,6 +1249,18 @@
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
     <value>Column Encryption Keys</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Error parsing ScriptingParams.ConnectionString property.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>Invalid directory specified by the ScriptingParams.FilePath property.</value>
+    <comment></comment>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</value>
     <comment></comment>
   </data>
 </root>
