@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
 
@@ -19,15 +21,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.Databases;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Database>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/Database" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Database>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Database>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -41,15 +61,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.LinkedServers;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<LinkedServer>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/LinkedServer" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<LinkedServer>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -63,15 +101,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.Logins;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Login>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/Login" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Login>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Login>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -85,15 +141,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.Roles;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ServerRole>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/ServerRole" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ServerRole>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ServerRole>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -107,15 +181,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.Credentials;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Credential>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/Credential" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Credential>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Credential>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -129,15 +221,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.CryptographicProviders;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<CryptographicProvider>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/CryptographicProvider" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<CryptographicProvider>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -151,15 +261,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.Audits;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Audit>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/Audit" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Audit>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Audit>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -173,15 +301,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.ServerAuditSpecifications;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ServerAuditSpecification>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/ServerAuditSpecification" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ServerAuditSpecification>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -195,15 +341,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.Endpoints;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Endpoint>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/Endpoint" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Endpoint>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Endpoint>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -217,15 +381,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.LinkedServers;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<LinkedServer>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/LinkedServer" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<LinkedServer>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -239,15 +421,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.Triggers;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ServerDdlTrigger>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/ServerDdlTrigger" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ServerDdlTrigger>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -261,15 +461,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.UserDefinedMessages;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<UserDefinedMessage>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/UserDefinedMessage" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<UserDefinedMessage>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -283,15 +501,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Tables;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Table>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/Table" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Table>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Table>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -305,15 +541,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Views;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<View>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/View" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<View>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<View>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -327,15 +581,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Synonyms;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Synonym>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/Synonym" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Synonym>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Synonym>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -349,15 +621,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
             {
                 var retValue = parentTableViewTableTypeBase.Columns;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Column>(retValue);
+                    string urn = $"{parentTableViewTableTypeBase.Urn.ToString()}/Column" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Column>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Column>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -371,15 +661,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
             {
                 var retValue = parentTableViewTableTypeBase.Indexes;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Index>(retValue);
+                    string urn = $"{parentTableViewTableTypeBase.Urn.ToString()}/Index" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Index>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Index>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -393,15 +701,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
                 var retValue = parentTable.Checks;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Check>(retValue);
+                    string urn = $"{parentTable.Urn.ToString()}/Check" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Check>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Check>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -415,15 +741,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
                 var retValue = parentTable.ForeignKeys;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ForeignKey>(retValue);
+                    string urn = $"{parentTable.Urn.ToString()}/ForeignKey" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ForeignKey>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -437,13 +781,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Column parentColumn = context.Parent as Column;
             if (parentColumn != null)
             {
                 var retValue = parentColumn.DefaultConstraint;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
+                {
+                    string urn = $"{parentColumn.Urn.ToString()}/DefaultConstraint" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
                 }
@@ -459,15 +814,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
                 var retValue = parentTable.Triggers;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Trigger>(retValue);
+                    string urn = $"{parentTable.Urn.ToString()}/Trigger" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Trigger>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Trigger>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -481,13 +854,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
                 var retValue = parentTable.FullTextIndex;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
+                {
+                    string urn = $"{parentTable.Urn.ToString()}/FullTextIndex" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
                 }
@@ -503,15 +887,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             TableViewBase parentTableViewBase = context.Parent as TableViewBase;
             if (parentTableViewBase != null)
             {
                 var retValue = parentTableViewBase.Statistics;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Statistic>(retValue);
+                    string urn = $"{parentTableViewBase.Urn.ToString()}/Statistic" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Statistic>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Statistic>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -525,15 +927,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Triggers;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Trigger>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/Trigger" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Trigger>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Trigger>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -547,15 +967,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Assemblies;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<SqlAssembly>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/SqlAssembly" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<SqlAssembly>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -569,15 +1007,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Rules;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Rule>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/Rule" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Rule>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Rule>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -591,15 +1047,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Defaults;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Default>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/Default" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Default>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Default>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -613,15 +1087,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Sequences;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Sequence>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/Sequence" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Sequence>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Sequence>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -635,15 +1127,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.SystemDataTypes;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<SystemDataType>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/SystemDataType" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<SystemDataType>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -657,15 +1167,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedDataTypes;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<UserDefinedDataType>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedDataType" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<UserDefinedDataType>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -679,15 +1207,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedTableTypes;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<UserDefinedTableType>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedTableType" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<UserDefinedTableType>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -701,15 +1247,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.XmlSchemaCollections;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<XmlSchemaCollection>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/XmlSchemaCollection" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<XmlSchemaCollection>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -723,15 +1287,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedTypes;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<UserDefinedType>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedType" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<UserDefinedType>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -745,15 +1327,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedFunctions;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<UserDefinedFunction>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedFunction" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<UserDefinedFunction>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -767,15 +1367,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.UserDefinedAggregates;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<UserDefinedAggregate>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/UserDefinedAggregate" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<UserDefinedAggregate>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -789,15 +1407,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.FileGroups;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<FileGroup>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/FileGroup" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<FileGroup>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<FileGroup>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -811,15 +1447,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             FileGroup parentFileGroup = context.Parent as FileGroup;
             if (parentFileGroup != null)
             {
                 var retValue = parentFileGroup.Files;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<DataFile>(retValue);
+                    string urn = $"{parentFileGroup.Urn.ToString()}/DataFile" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<DataFile>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<DataFile>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -833,15 +1487,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.FullTextCatalogs;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<FullTextCatalog>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/FullTextCatalog" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<FullTextCatalog>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -855,15 +1527,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.FullTextStopLists;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<FullTextStopList>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/FullTextStopList" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<FullTextStopList>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -877,15 +1567,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.PartitionFunctions;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<PartitionFunction>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/PartitionFunction" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<PartitionFunction>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -899,15 +1607,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.PartitionSchemes;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<PartitionScheme>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/PartitionScheme" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<PartitionScheme>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -921,15 +1647,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.SearchPropertyLists;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<SearchPropertyList>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/SearchPropertyList" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<SearchPropertyList>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -943,15 +1687,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Users;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<User>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/User" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<User>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<User>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -965,15 +1727,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Schemas;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Schema>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/Schema" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Schema>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Schema>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -987,15 +1767,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.AsymmetricKeys;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<AsymmetricKey>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/AsymmetricKey" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<AsymmetricKey>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1009,15 +1807,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Certificates;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Certificate>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/Certificate" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Certificate>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Certificate>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1031,15 +1847,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.SymmetricKeys;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<SymmetricKey>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/SymmetricKey" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<SymmetricKey>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1053,13 +1887,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.DatabaseEncryptionKey;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
+                {
+                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseEncryptionKey" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
                 }
@@ -1075,13 +1920,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.MasterKey;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
+                {
+                    string urn = $"{parentDatabase.Urn.ToString()}/MasterKey" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
                 }
@@ -1097,15 +1953,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.DatabaseAuditSpecifications;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseAuditSpecification" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1119,15 +1993,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.SecurityPolicies;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<SecurityPolicy>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/SecurityPolicy" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<SecurityPolicy>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1141,15 +2033,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.DatabaseScopedCredentials;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseScopedCredential" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1163,15 +2073,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.Roles;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<DatabaseRole>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseRole" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<DatabaseRole>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1185,15 +2113,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ApplicationRoles;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ApplicationRole>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/ApplicationRole" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ApplicationRole>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1207,15 +2153,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ColumnMasterKeys;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ColumnMasterKey>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/ColumnMasterKey" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ColumnMasterKey>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1229,15 +2193,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ColumnEncryptionKeys;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/ColumnEncryptionKey" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1251,13 +2233,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ServiceBroker;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
+                {
+                    string urn = $"{parentDatabase.Urn.ToString()}/ServiceBroker" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
                 {
                     return new SqlSmoObject[] { retValue };
                 }
@@ -1273,15 +2266,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.Services;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<BrokerService>(retValue);
+                    string urn = $"{parentServiceBroker.Urn.ToString()}/BrokerService" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<BrokerService>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<BrokerService>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1295,15 +2306,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.ServiceContracts;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ServiceContract>(retValue);
+                    string urn = $"{parentServiceBroker.Urn.ToString()}/ServiceContract" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ServiceContract>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1317,15 +2346,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.Queues;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ServiceQueue>(retValue);
+                    string urn = $"{parentServiceBroker.Urn.ToString()}/ServiceQueue" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ServiceQueue>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1339,15 +2386,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.RemoteServiceBindings;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<RemoteServiceBinding>(retValue);
+                    string urn = $"{parentServiceBroker.Urn.ToString()}/RemoteServiceBinding" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<RemoteServiceBinding>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1361,15 +2426,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.Priorities;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<BrokerPriority>(retValue);
+                    string urn = $"{parentServiceBroker.Urn.ToString()}/BrokerPriority" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<BrokerPriority>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1383,15 +2466,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
                 var retValue = parentServiceBroker.MessageTypes;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<MessageType>(retValue);
+                    string urn = $"{parentServiceBroker.Urn.ToString()}/MessageType" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<MessageType>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<MessageType>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1405,15 +2506,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ExternalDataSources;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ExternalDataSource>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/ExternalDataSource" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ExternalDataSource>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1427,15 +2546,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ExternalFileFormats;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ExternalFileFormat>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/ExternalFileFormat" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ExternalFileFormat>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1449,15 +2586,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.StoredProcedures;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<StoredProcedure>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/StoredProcedure" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<StoredProcedure>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1471,15 +2626,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
                 var retValue = parentDatabase.ExtendedStoredProcedures;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue);
+                    string urn = $"{parentDatabase.Urn.ToString()}/ExtendedStoredProcedure" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1493,33 +2666,87 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             StoredProcedure parentStoredProcedure = context.Parent as StoredProcedure;
             if (parentStoredProcedure != null)
             {
                 var retValue = parentStoredProcedure.Parameters;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Parameter>(retValue);
+                    string urn = $"{parentStoredProcedure.Urn.ToString()}/Parameter" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Parameter>(retValue);
+                    }
                 }
             }
             UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
             if (parentUserDefinedAggregate != null)
             {
                 var retValue = parentUserDefinedAggregate.Parameters;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Parameter>(retValue);
+                    string urn = $"{parentUserDefinedAggregate.Urn.ToString()}/Parameter" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Parameter>(retValue);
+                    }
                 }
             }
             UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
             if (parentUserDefinedFunction != null)
             {
                 var retValue = parentUserDefinedFunction.Parameters;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<Parameter>(retValue);
+                    string urn = $"{parentUserDefinedFunction.Urn.ToString()}/Parameter" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<Parameter>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<Parameter>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1533,15 +2760,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             PartitionFunction parentPartitionFunction = context.Parent as PartitionFunction;
             if (parentPartitionFunction != null)
             {
                 var retValue = parentPartitionFunction.PartitionFunctionParameters;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue);
+                    string urn = $"{parentPartitionFunction.Urn.ToString()}/PartitionFunctionParameter" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1555,15 +2800,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)
+        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
                 var retValue = parentServer.SystemDataTypes;
-                if(retValue != null)
+                bool hasFilter = !string.IsNullOrEmpty(filter);
+                HashSet<string> urns = null;
+                if (hasFilter)
                 {
-                    return new SmoCollectionWrapper<SystemDataType>(retValue);
+                    string urn = $"{parentServer.Urn.ToString()}/SystemDataType" + filter;
+                    Enumerator en = new Enumerator();
+                    Request request = new Request(new Urn(urn));
+                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
+                    EnumResult result = en.Process(serverConnection, request);
+                    urns = GetUrns(result);
+                }
+                if (retValue != null)
+                {
+                    if (hasFilter && urns != null)
+                    {
+                        return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => urns.Contains(c.Urn));
+                    }
+                    else
+                    {
+                        return new SmoCollectionWrapper<SystemDataType>(retValue);
+                    }
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();

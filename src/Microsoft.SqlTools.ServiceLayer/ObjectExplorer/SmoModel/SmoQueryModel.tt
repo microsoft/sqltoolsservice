@@ -15,6 +15,8 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
 
@@ -50,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		WriteLine("");
 
 		// Query impl
- 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context)");
+ 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)");
 		WriteLine("{");
 		PushIndent(indent);
 
@@ -65,17 +67,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			
 			string navigationPath = GetNavigationPath(nodeElement, xmlFile, nodeName, parentType);
 			WriteLine(string.Format("var retValue = {0}.{1};", parentVar, navigationPath));
-			WriteLine("if(retValue != null)");
+			WriteLine("bool hasFilter = !string.IsNullOrEmpty(filter);");
+			WriteLine("HashSet<string> urns = null;");
+
+			WriteLine("if (hasFilter)");
+			WriteLine("{");
+			PushIndent(indent);
+			WriteLine(string.Format("string urn = $\"{{{0}.Urn.ToString()}}/{1}\" + filter;", parentVar, nodeType));
+			WriteLine("Enumerator en = new Enumerator();");
+			WriteLine("Request request = new Request(new Urn(urn));");
+			WriteLine("ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);");
+			WriteLine("EnumResult result = en.Process(serverConnection, request);");
+			WriteLine("urns = GetUrns(result);");
+			PopIndent();
+			WriteLine("}");
+			WriteLine("if (retValue != null)");
 			WriteLine("{");
 			PushIndent(indent);
 			if (IsCollection(nodeElement))
 			{
+				WriteLine("if (hasFilter && urns != null)");
+				WriteLine("{");
+				PushIndent(indent);
+				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue).Where(c => urns.Contains(c.Urn));", nodeType));
+				PopIndent();
+				WriteLine("}");
+				WriteLine("else");
+				WriteLine("{");
+				PushIndent(indent);
 				WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue);", nodeType));
+				PopIndent();
+				WriteLine("}");
 			}
 			else
 			{
 				WriteLine("return new SqlSmoObject[] { retValue };");
 			}
+			
 			PopIndent();
 			WriteLine("}");
 			PopIndent();
