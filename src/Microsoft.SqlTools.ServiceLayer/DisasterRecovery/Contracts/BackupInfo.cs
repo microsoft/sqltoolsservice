@@ -7,8 +7,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {    
     public class BackupInfo
     {
-        public string OwnerUri { get; set;  }
-
         public string BackupType { get; set; }
     }
 }
