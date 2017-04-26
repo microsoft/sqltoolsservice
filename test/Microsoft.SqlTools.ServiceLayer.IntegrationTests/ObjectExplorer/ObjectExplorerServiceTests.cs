@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         private async Task<ObjectExplorerSession> CreateSession(string databaseName, string uri)
         {
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
-           // connectParams.Connection.Pooling = false;
+            connectParams.Connection.Pooling = false;
             ConnectionDetails details = connectParams.Connection;
 
             var session =  await _service.DoCreateSession(details, uri);
