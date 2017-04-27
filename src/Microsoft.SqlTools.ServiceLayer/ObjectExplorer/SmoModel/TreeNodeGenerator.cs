@@ -2393,7 +2393,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
            get
            {
-              return new [] { typeof(SqlUserDefinedTypeQuerier), };
+              return new [] { typeof(SqlBuiltInTypeQuerier), };
            }
         }
 
@@ -2417,7 +2417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
            get
            {
-              return new [] { typeof(SqlUserDefinedTypeQuerier), };
+              return new [] { typeof(SqlBuiltInTypeQuerier), };
            }
         }
 

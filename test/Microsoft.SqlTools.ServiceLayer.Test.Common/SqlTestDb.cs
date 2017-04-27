@@ -54,29 +54,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// Create the test db if not already exists
         /// </summary>
         public static SqlTestDb CreateNew(
-            TestServerType serverType, 
-            bool doNotCleanupDb = false, 
-            string databaseName = null, 
-            string query = null, 
+            TestServerType serverType,
+            bool doNotCleanupDb = false,
+            string databaseName = null,
+            string query = null,
             string dbNamePrefix = null)
         {
             SqlTestDb testDb = new SqlTestDb();
 
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            databaseName = databaseName ?? GetUniqueDBName(dbNamePrefix);
+            string createDatabaseQuery = Scripts.CreateDatabaseQuery.Replace("#DatabaseName#", databaseName);
+            TestServiceProvider.Instance.RunQuery(serverType, MasterDatabaseName, createDatabaseQuery);
+            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' is created", databaseName));
+            if (!string.IsNullOrEmpty(query))
             {
-                databaseName = databaseName ?? GetUniqueDBName(dbNamePrefix);
-                string createDatabaseQuery = Scripts.CreateDatabaseQuery.Replace("#DatabaseName#", databaseName);
-                TestServiceProvider.Instance.RunQuery(serverType, MasterDatabaseName, createDatabaseQuery);
-                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' is created", databaseName));
-                if (!string.IsNullOrEmpty(query))
-                {
-                    TestServiceProvider.Instance.RunQuery(serverType, databaseName, query);
-                    Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' SQL types are created", databaseName));
-                }
-                testDb.DatabaseName = databaseName;
-                testDb.ServerType = serverType;
-                testDb.DoNotCleanupDb = doNotCleanupDb;
+                TestServiceProvider.Instance.RunQuery(serverType, databaseName, query);
+                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' SQL types are created", databaseName));
             }
+            testDb.DatabaseName = databaseName;
+            testDb.ServerType = serverType;
+            testDb.DoNotCleanupDb = doNotCleanupDb;
 
             return testDb;
         }
@@ -111,13 +108,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public void Cleanup()
         {
-            if (!DoNotCleanupDb)
+            try
             {
-                string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
-                    (ServerType == TestServerType.Azure ? Scripts.DropDatabaseIfExistAzure : Scripts.DropDatabaseIfExist), DatabaseName);
+                if (!DoNotCleanupDb)
+                {
+                    string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
+                        (ServerType == TestServerType.Azure ? Scripts.DropDatabaseIfExistAzure : Scripts.DropDatabaseIfExist), DatabaseName);
 
-                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Cleaning up database {0}", DatabaseName));
-                TestServiceProvider.Instance.RunQuery(ServerType, MasterDatabaseName, dropDatabaseQuery);
+                    Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Cleaning up database {0}", DatabaseName));
+                    TestServiceProvider.Instance.RunQuery(ServerType, MasterDatabaseName, dropDatabaseQuery);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Failed to cleanup database: {0} error:{1}", DatabaseName, ex.Message));
             }
         }
 

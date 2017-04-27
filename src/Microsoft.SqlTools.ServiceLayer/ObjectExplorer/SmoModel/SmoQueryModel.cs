@@ -923,7 +923,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Export(typeof(SmoQuerier))]
     internal partial class SqlDatabaseDdlTriggerQuerier: SmoQuerier
     {
-        Type[] supportedTypes = new Type[] { typeof(Trigger) };
+        Type[] supportedTypes = new Type[] { typeof(DatabaseDdlTrigger) };
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
@@ -937,7 +937,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 HashSet<string> urns = null;
                 if (hasFilter)
                 {
-                    string urn = $"{parentDatabase.Urn.ToString()}/Trigger" + filter;
+                    string urn = $"{parentDatabase.Urn.ToString()}/DatabaseDdlTrigger" + filter;
                     Enumerator en = new Enumerator();
                     Request request = new Request(new Urn(urn));
                     ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
@@ -948,11 +948,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     if (hasFilter && urns != null)
                     {
-                        return new SmoCollectionWrapper<Trigger>(retValue).Where(c => urns.Contains(c.Urn));
+                        return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => urns.Contains(c.Urn));
                     }
                     else
                     {
-                        return new SmoCollectionWrapper<Trigger>(retValue);
+                        return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue);
                     }
                 }
             }
@@ -1113,46 +1113,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     else
                     {
                         return new SmoCollectionWrapper<Sequence>(retValue);
-                    }
-                }
-            }
-            return Enumerable.Empty<SqlSmoObject>();
-        }
-    }
-
-    [Export(typeof(SmoQuerier))]
-    internal partial class SqlSystemDataTypeQuerier: SmoQuerier
-    {
-        Type[] supportedTypes = new Type[] { typeof(SystemDataType) };
-
-        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
-
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
-        {
-            Server parentServer = context.Parent as Server;
-            if (parentServer != null)
-            {
-                var retValue = parentServer.SystemDataTypes;
-                bool hasFilter = !string.IsNullOrEmpty(filter);
-                HashSet<string> urns = null;
-                if (hasFilter)
-                {
-                    string urn = $"{parentServer.Urn.ToString()}/SystemDataType" + filter;
-                    Enumerator en = new Enumerator();
-                    Request request = new Request(new Urn(urn));
-                    ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
-                    EnumResult result = en.Process(serverConnection, request);
-                    urns = GetUrns(result);
-                }
-                if (retValue != null)
-                {
-                    if (hasFilter && urns != null)
-                    {
-                        return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => urns.Contains(c.Urn));
-                    }
-                    else
-                    {
-                        return new SmoCollectionWrapper<SystemDataType>(retValue);
                     }
                 }
             }
@@ -2802,15 +2762,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter)
         {
-            Server parentServer = context.Parent as Server;
-            if (parentServer != null)
+            Database parentDatabase = context.Parent as Database;
+            if (parentDatabase != null)
             {
-                var retValue = parentServer.SystemDataTypes;
+                var retValue = parentDatabase.Parent.SystemDataTypes;
                 bool hasFilter = !string.IsNullOrEmpty(filter);
                 HashSet<string> urns = null;
                 if (hasFilter)
                 {
-                    string urn = $"{parentServer.Urn.ToString()}/SystemDataType" + filter;
+                    string urn = $"{parentDatabase.Urn.ToString()}/SystemDataType" + filter;
                     Enumerator en = new Enumerator();
                     Request request = new Request(new Urn(urn));
                     ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);
