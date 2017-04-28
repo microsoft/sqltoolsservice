@@ -4,8 +4,9 @@
   "buildOptions": {
     "debugType": "portable",
     "emitEntryPoint": true,
-    "preserveCompilationContext": true
-  },
+    "preserveCompilationContext": true,
+    "allowUnsafe": true
+  },  
   "configurations": {
     "Integration": {
       "buildOptions": {

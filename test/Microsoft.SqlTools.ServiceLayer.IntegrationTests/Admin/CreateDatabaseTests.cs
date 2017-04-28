@@ -11,6 +11,10 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
+using Moq;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 {
@@ -23,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         {
             var textDocument = new TextDocumentPosition
             {
-                TextDocument = new TextDocumentIdentifier { Uri = Constants.OwnerUri },
+                TextDocument = new TextDocumentIdentifier { Uri = Test.Common.Constants.OwnerUri },
                 Position = new Position
                 {
                     Line = 0,
@@ -40,28 +44,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// 
         /// </summary>
         [Fact]
-        public void ServiceInitialization()
+        public async void CreateDatabaseWithValidInputTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            var requestContext = new Mock<RequestContext<ScriptingScriptAsResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<ScriptingScriptAsResult>())).Returns(Task.FromResult(new object()));
+            var requestContext = new Mock<RequestContext<CreateDatabaseResponse>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<CreateDatabaseResponse>())).Returns(Task.FromResult(new object()));
 
-            var scriptingParams = new ScriptingScriptAsParams
+            var dbParams = new CreateDatabaseParams
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri,
-                Operation = operation,
-                Metadata = new ObjectMetadata()
-                {
-                    MetadataType = MetadataType.Table,
-                    MetadataTypeName = "Table",
-                    Schema = SchemaName,
-                    Name = TableName
-                }
+                DatabaseInfo = new DatabaseInfo()
             };
+        
+            await AdminService.HandleCreateDatabaseRequest(dbParams, requestContext.Object);
 
-            await ScriptingService.HandleScriptingScriptAsRequest(scriptingParams, requestContext.Object);
-
-            return requestContext;
+            requestContext.VerifyAll();
         }
    
     }

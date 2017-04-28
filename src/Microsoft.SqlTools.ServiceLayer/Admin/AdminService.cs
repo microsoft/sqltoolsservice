@@ -9,6 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using System;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -43,6 +44,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest);
         }
 
+
+        private static XmlDocument CreateDataContainerDocument()
+        {
+            string xml =
+@"<?xml version=""1.0""?>
+<formdescription><params>
+<servername>sqltools100</servername>
+<connectionmoniker>sqltools100 (SQLServer, user = sa)</connectionmoniker>
+<servertype>sql</servertype>
+<urn>Server[@Name='SQLTOOLS100']</urn>
+<itemtype>Database</itemtype>
+<assemblyname>SqlManagerUi.dll</assemblyname>
+<formtype>Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabase</formtype>
+<object-name-9524b5c1-e996-4119-a433-b5b947985566>SQLTOOLS100</object-name-9524b5c1-e996-4119-a433-b5b947985566>
+</params></formdescription>
+";
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xml);
+            return xmlDoc;
+        }
+
         /// <summary>
         /// Handles a create database request
         /// </summary>
@@ -50,6 +72,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             CreateDatabaseParams databaseParams,
             RequestContext<CreateDatabaseResponse> requestContext)
         {
+
+            XmlDocument xmlDoc = CreateDataContainerDocument();
+
+            char[] passwordArray = "Katmai900".ToCharArray();
+            unsafe
+            {
+                fixed (char* passwordPtr = passwordArray)
+                {
+
+                    var dataContainer = new CDataContainer(
+                        CDataContainer.ServerType.SQL,
+                        "sqltools100",
+                        false,
+                        "sa",
+                        new System.Security.SecureString(passwordPtr, passwordArray.Length),
+                        xmlDoc.InnerXml);
+
+                    var createDb = new DatabaseTaskHelper();
+                    createDb.CreateDatabase(dataContainer);
+                }
+            }
+
             await requestContext.SendResult(new CreateDatabaseResponse());
         }
 
