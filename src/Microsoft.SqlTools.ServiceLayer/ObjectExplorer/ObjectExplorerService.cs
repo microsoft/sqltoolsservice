@@ -87,6 +87,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);
         }
+
+        public void CloseSession(string uri)
+        {
+            ObjectExplorerSession session;
+            if (sessionMap.TryGetValue(uri, out session))
+            {
+                // Establish a connection to the specified server/database
+                sessionMap.Remove(session.Uri);
+            }
+        }
         
         internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
         {

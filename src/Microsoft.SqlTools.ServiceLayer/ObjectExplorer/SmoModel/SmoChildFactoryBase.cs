@@ -23,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         
         public override IEnumerable<TreeNode> Expand(TreeNode parent)
         {
-            //parent.BeginChildrenInit();
             try
             {
                 List<TreeNode> allChildren = new List<TreeNode>();
@@ -35,7 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             finally
             {
-                //parent.EndChildrenInit();
             }
         }
         
@@ -62,10 +60,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
             Validate.IsNotNull(nameof(context), context);
+            
+            var validForFlag = ServerVersionHelper.GetValidForFlag(context.SqlServerType);
+            if (ShouldFilterNode(parent, validForFlag))
+            {
+                return;
+            }
+
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
             var filters = this.Filters;
-            var validForFlag = ServerVersionHelper.GetValidForFlag(context.SqlServerType);
-
             foreach (var querier in queriers)
             {
                 string propertyFilter = GetProperyFilter(filters, querier.GetType(), validForFlag);
@@ -77,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                         Console.WriteLine("smoObject should not be null");
                     }
                     TreeNode childNode = CreateChild(parent, smoObject);
-                    if (childNode != null && !ShouldFilterNode(childNode, validForFlag))
+                    if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, validForFlag))
                     {
                         allChildren.Add(childNode);
                     }
@@ -102,15 +105,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         private string GetProperyFilter(IEnumerable<NodeFilter> filters, Type querierType, ValidForFlag validForFlag)
         {
-            string filter = "";
+            string filter = string.Empty;
             if (filters != null)
             {
-                var filterToApply = filters.FirstOrDefault(f => f.CanApplyFilter(querierType, validForFlag));
-                filter = "";
-
-                if (filterToApply != null)
+                var filtersToApply = filters.Where(f => f.CanApplyFilter(querierType, validForFlag)).ToList();
+                filter = string.Empty;
+                if (filtersToApply.Any())
                 {
-                    filter = filterToApply.ToPropertyFilterString();
+                    filter = NodeFilter.ConcatProperties(filtersToApply);
                 }
             }
 

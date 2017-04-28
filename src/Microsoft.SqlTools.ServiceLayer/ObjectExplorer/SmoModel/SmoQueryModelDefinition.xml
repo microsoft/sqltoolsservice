@@ -52,7 +52,9 @@
   <Node Name="SqlFullTextIndex" Parent="Table" Collection="False" />
   <Node Name="SqlStatistic" Parent="TableViewBase"/>
 
-  <Node Name="SqlDatabaseDdlTrigger" Type="Trigger" Parent="Database"/>
+  <Node Name="SqlDatabaseDdlTrigger" Type="DatabaseDdlTrigger" Parent="Database">
+    <NavigationPath Parent="Database" Field="Triggers" />
+  </Node>
   <Node Name="SqlAssembly" Type="SqlAssembly" Parent="Database" >
     <NavigationPath Parent="Database" Field="Assemblies" />
   </Node>
@@ -61,7 +63,6 @@
   <Node Name="SqlDefault" Parent="Database" />
   <Node Name="SqlSequence" Parent="Database" />
 
-  <Node Name="SqlSystemDataType" Parent="Server" />
   <Node Name="SqlUserDefinedDataType" Parent="Database" />
 
   <Node Name="SqlUserDefinedTableType" Parent="Database" />
@@ -129,7 +130,9 @@
 
   <Node Name="SqlPartitionFunctionParameter" Parent="PartitionFunction" />
 
-  <Node Name="SqlBuiltInType" Type="SystemDataType" Parent="Server"/>
+  <Node Name="SqlBuiltInType" Type="SystemDataType" Parent="Database">
+    <NavigationPath Parent="Database" Field="Parent.SystemDataTypes" />
+  </Node>
   <!-- TODO Enable all types
   <Node Name="SqlRoute"/>
   -->

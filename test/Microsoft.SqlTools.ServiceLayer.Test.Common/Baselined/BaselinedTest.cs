@@ -272,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         /// <param name="actualContent">Actual string</param>
         /// <param name="baselineContent">Expected string</param>
         /// <remarks>Fails test if strings do not match; comparison is done using an InvariantCulture StringComparer</remarks>
-        public void CompareActualWithBaseline(string actualContent, string baselineContent)
+        public static void CompareActualWithBaseline(string actualContent, string baselineContent)
         {
 
             int _compareResult = string.Compare(actualContent, baselineContent, StringComparison.OrdinalIgnoreCase);

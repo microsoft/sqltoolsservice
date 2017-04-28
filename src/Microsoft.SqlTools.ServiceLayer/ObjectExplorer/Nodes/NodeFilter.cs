@@ -4,7 +4,9 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -75,6 +77,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     string orPrefix = i == 0 ? "" : "or";
                     filter = $"{filter} {orPrefix} @{Property} = {proeprtyValue}";
                 }
+            }
+            filter = $"({filter})";
+
+            return filter;
+        }
+
+        public static string ConcatProperties(IEnumerable<NodeFilter> filters)
+        {
+            string filter = "";
+            var list = filters.ToList();
+            for (int i = 0; i < list.Count; i++)
+            {
+                var value = list[i];
+                
+                string orPrefix = i == 0 ? "" : "and";
+                filter = $"{filter} {orPrefix} {value.ToPropertyFilterString()}";
             }
             filter = $"[{filter}]";
 
