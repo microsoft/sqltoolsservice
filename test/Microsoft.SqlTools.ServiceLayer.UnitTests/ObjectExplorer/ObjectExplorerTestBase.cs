@@ -6,6 +6,8 @@
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
@@ -35,7 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             CreateProvider()
                 .RegisterSingleService(connService)
-                .RegisterSingleService(new ObjectExplorerService());
+                .RegisterSingleService(new ObjectExplorerService())
+                .RegisterSingleService<ChildFactory>(new ServerChildFactory());
 
             // Create the service using the service provider, which will initialize dependencies
             return ServiceProvider.GetService<ObjectExplorerService>();

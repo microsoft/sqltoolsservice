@@ -64,28 +64,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine(string.Format("if ({0} != null)", parentVar));
 			WriteLine("{");
 			PushIndent(indent);
+			WriteLine("bool hasFilter = !string.IsNullOrEmpty(filter);");
 			
 			string navigationPath = GetNavigationPath(nodeElement, xmlFile, nodeName, parentType);
 			WriteLine(string.Format("var retValue = {0}.{1};", parentVar, navigationPath));
-			WriteLine("bool hasFilter = !string.IsNullOrEmpty(filter);");
-			WriteLine("HashSet<string> urns = null;");
-
-			WriteLine("if (hasFilter)");
-			WriteLine("{");
-			PushIndent(indent);
-			WriteLine(string.Format("string urn = $\"{{{0}.Urn.ToString()}}/{1}\" + filter;", parentVar, nodeType));
-			WriteLine("Enumerator en = new Enumerator();");
-			WriteLine("Request request = new Request(new Urn(urn));");
-			WriteLine("ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);");
-			WriteLine("EnumResult result = en.Process(serverConnection, request);");
-			WriteLine("urns = GetUrns(result);");
-			PopIndent();
-			WriteLine("}");
 			WriteLine("if (retValue != null)");
 			WriteLine("{");
 			PushIndent(indent);
+			
+			
 			if (IsCollection(nodeElement))
 			{
+				
+				WriteLine("HashSet<string> urns = null;");
+				
+				WriteLine("if (hasFilter)");
+				WriteLine("{");
+				PushIndent(indent);
+				WriteLine(string.Format("string urn = $\"{{{0}.Urn.ToString()}}/{1}\" + filter;", parentVar, nodeType));
+				WriteLine("Enumerator en = new Enumerator();");
+				WriteLine("Request request = new Request(new Urn(urn));");
+				WriteLine("ServerConnection serverConnection = new ServerConnection(context.Server.ConnectionContext.SqlConnectionObject);");
+				WriteLine("EnumResult result = en.Process(serverConnection, request);");
+				WriteLine("urns = GetUrns(result);");
+				PopIndent();
+				WriteLine("}");
 				WriteLine("if (hasFilter && urns != null)");
 				WriteLine("{");
 				PushIndent(indent);
