@@ -24,6 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             {
                 errorMessage = SR.ConnectionParamsValidateNullConnection;
             }
+            else if (!string.IsNullOrEmpty(parameters.Connection.ConnectionString))
+            {
+                // Do not check other connection parameters if a connection string is present
+                return string.IsNullOrEmpty(errorMessage);
+            }
             else if (string.IsNullOrEmpty(parameters.Connection.ServerName))
             {
                 errorMessage = SR.ConnectionParamsValidateNullServerName;

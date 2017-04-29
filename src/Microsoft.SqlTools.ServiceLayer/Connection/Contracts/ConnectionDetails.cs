@@ -443,6 +443,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
+        /// <summary>
+        /// Gets or sets a string value to be used as the connection string. If given, all other options will be ignored.
+        /// </summary>
+        public string ConnectionString
+        {
+            get
+            {
+                return GetOptionValue<string>("connectionString");
+            }
+
+            set
+            {
+                SetOptionValue("connectionString", value);
+            }
+        }
+
         private T GetOptionValue<T>(string name)
         {
             T result = default(T);

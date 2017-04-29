@@ -121,6 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Gets or sets the detailed IntelliSense settings
         /// </summary>
+        [JsonProperty("intellisense")]
         public IntelliSenseSettings IntelliSense { get; set; }
 
         /// <summary>

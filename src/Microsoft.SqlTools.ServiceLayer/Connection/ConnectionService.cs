@@ -821,7 +821,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionDetails"></param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails)
         {
-            SqlConnectionStringBuilder connectionBuilder = new SqlConnectionStringBuilder
+            SqlConnectionStringBuilder connectionBuilder;
+
+            // If connectionDetails has a connection string already, just validate and return it
+            if (!string.IsNullOrEmpty(connectionDetails.ConnectionString))
+            {
+                connectionBuilder = new SqlConnectionStringBuilder(connectionDetails.ConnectionString);
+                return connectionBuilder.ToString();
+            }
+
+            connectionBuilder = new SqlConnectionStringBuilder
             {
                 ["Data Source"] = connectionDetails.ServerName,
                 ["User Id"] = connectionDetails.UserName,
