@@ -83,7 +83,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             string uri = string.Empty;
             try
             {
-                
                 testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, testDbPrefix);
                 if (databaseName == "#testDb#")
                 {
@@ -98,10 +97,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to run OE test. uri:{uri} error:{ex.Message}");
+                Assert.False(true, ex.Message);
             }
             finally
             {
-                CloseSession(uri);
+                if (!string.IsNullOrEmpty(uri))
+                {
+                    CloseSession(uri);
+                }
                 if (testDb != null)
                 {
                     await testDb.CleanupAsync();
@@ -175,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 Assert.Equal(item.NodeType, "Folder");
             }
 
-            var tablesRoot = children.FirstOrDefault(x => x.NodeType == NodeTypes.Tables.ToString());
+            var tablesRoot = children.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Tables);
             Assert.NotNull(tablesRoot);
         }
 
