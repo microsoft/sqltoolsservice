@@ -701,7 +701,7 @@ GO";
         /// Get Definition for a object by putting the cursor on 3 different
         /// objects
         /// </summary>
-        [Fact]
+       // [Fact]
         public async void GetDefinitionFromChildrenAndParents()
         {
             string queryString = "select * from master.sys.objects";

@@ -90,9 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 }
                 var session = await CreateSession(databaseName);
                 uri = session.Uri;
-                Console.WriteLine($"Verifying the test uri:{uri}");
                 await test(testDb.DatabaseName, session);
-                Console.WriteLine($"Done verifying test uri:{uri}");
             }
             catch (Exception ex)
             {
