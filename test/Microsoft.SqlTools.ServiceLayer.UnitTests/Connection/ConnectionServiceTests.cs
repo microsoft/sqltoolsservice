@@ -1229,5 +1229,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.NotEmpty(connectionResult.ErrorMessage);
         }
+
+        [Fact]
+        public async Task ConnectionWithConnectionStringOverridesParameters()
+        {
+            var connectionParameters = TestObjects.GetTestConnectionParams();
+            connectionParameters.Connection.ServerName = "overriddenServerName";
+            var connectionString = TestObjects.GetTestConnectionParams(true).Connection.ConnectionString;
+            connectionParameters.Connection.ConnectionString = connectionString;
+
+            // Connect and verify that the server name has been overridden
+            var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
+            Assert.NotEqual(connectionParameters.Connection.ServerName, connectionResult.ConnectionSummary.ServerName);
+        }
     }
 }

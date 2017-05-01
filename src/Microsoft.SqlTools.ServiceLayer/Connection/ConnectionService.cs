@@ -277,12 +277,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // Update with the actual database name in connectionInfo and result
                 // Doing this here as we know the connection is open - expect to do this only on connecting
                 connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
-                response.ConnectionSummary = new ConnectionSummary
+                if (!string.IsNullOrEmpty(connectionInfo.ConnectionDetails.ConnectionString))
                 {
-                    ServerName = connectionInfo.ConnectionDetails.ServerName,
-                    DatabaseName = connectionInfo.ConnectionDetails.DatabaseName,
-                    UserName = connectionInfo.ConnectionDetails.UserName,
-                };
+                    // If the connection was set up with a connection string, use the connection string to get the details
+                    var connectionString = new SqlConnectionStringBuilder(connection.ConnectionString);
+                    response.ConnectionSummary = new ConnectionSummary
+                    {
+                        ServerName = connectionString.DataSource,
+                        DatabaseName = connectionString.InitialCatalog,
+                        UserName = connectionString.UserID
+                    };
+                }
+                else
+                {
+                    response.ConnectionSummary = new ConnectionSummary
+                    {
+                        ServerName = connectionInfo.ConnectionDetails.ServerName,
+                        DatabaseName = connectionInfo.ConnectionDetails.DatabaseName,
+                        UserName = connectionInfo.ConnectionDetails.UserName
+                    };
+                }
 
                 response.ConnectionId = connectionInfo.ConnectionId.ToString();
 
