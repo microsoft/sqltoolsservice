@@ -29,9 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         public async void CreateSessionAndExpandOnTheServerShouldReturnServerAsTheRoot()
         {
             var query = "";
-            string uri = "CreateSessionAndExpandServer";
             string databaseName = null;
-            await RunTest(databaseName, query, uri, async (testDbName, session) =>
+            await RunTest(databaseName, query, "EmptyDatabase", async (testDbName, session) =>
             {
                 await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session);
             });
@@ -41,9 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         public async void CreateSessionWithTempdbAndExpandOnTheServerShouldReturnServerAsTheRoot()
         {
             var query = "";
-            string uri = "CreateSessionAndExpandServer";
-            string databaseName = null;
-            await RunTest(databaseName, query, uri, async (testDbName, session) =>
+            string databaseName = "tempdb";
+            await RunTest(databaseName, query, "TepmDb", async (testDbName, session) =>
             {
                 await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session);
             });
@@ -53,9 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseAsTheRoot()
         {
             var query = "";
-            string uri = "CreateSessionAndExpandDatabase";
-            string databaseName = null;
-            await RunTest(databaseName, query, uri, async (testDbName, session) =>
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
             {
                 await ExpandAndVerifyDatabaseNode(testDbName, session);
             });
@@ -65,10 +62,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         public async void VerifyAllSqlObjects()
         {
             var queryFileName = "AllSqlObjects.sql";
-            string uri = "AllSqlObjects";
             string baselineFileName = "AllSqlObjects.txt";
-            string databaseName = null;
-            await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, queryFileName, uri, baselineFileName), true);
+            string databaseName = "#testDb#";
+            await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, "AllSqlObjects", queryFileName, baselineFileName), true);
         }
 
         //[Fact]
@@ -76,19 +72,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         public async void VerifySystemObjects()
         {
             string queryFileName = null;
-            string uri = "SystemObjects";
             string baselineFileName = null;
-            string databaseName = null;
-            await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, queryFileName, uri, baselineFileName, true), true);
+            string databaseName = "#testDb#";
+            await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, queryFileName, "SystemOBjects", baselineFileName, true), true);
         }
 
-        private async Task RunTest(string databaseName, string query, string uri, Func<string, ObjectExplorerSession, Task> test)
+        private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, ObjectExplorerSession, Task> test)
         {
             SqlTestDb testDb = null;
+            string uri = string.Empty;
             try
             {
-                testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, databaseName, query, uri);
-                var session = await CreateSession(testDb.DatabaseName, uri);
+                
+                testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, testDbPrefix);
+                if (databaseName == "#testDb#")
+                {
+                    databaseName = testDb.DatabaseName;
+                }
+                var session = await CreateSession(databaseName);
+                uri = session.Uri;
                 Console.WriteLine($"Verifying the test uri:{uri}");
                 await test(testDb.DatabaseName, session);
                 Console.WriteLine($"Done verifying test uri:{uri}");
@@ -107,11 +109,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
         }
 
-        private async Task<ObjectExplorerSession> CreateSession(string databaseName, string uri)
+        private async Task<ObjectExplorerSession> CreateSession(string databaseName)
         {
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
             //connectParams.Connection.Pooling = false;
             ConnectionDetails details = connectParams.Connection;
+            string uri = ObjectExplorerService.GenerateUri(details);
 
             var session =  await _service.DoCreateSession(details, uri);
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "OE session created for database: {0}", databaseName));
@@ -262,11 +265,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
         }
 
-        private async Task<bool> VerifyObjectExplorerTest(string databaseName, string queryFileName, string uri, string baselineFileName, bool verifySystemObjects = false)
+        private async Task<bool> VerifyObjectExplorerTest(string databaseName, string testDbPrefix, string queryFileName, string baselineFileName, bool verifySystemObjects = false)
         {
             var query = string.IsNullOrEmpty(queryFileName) ? string.Empty : LoadScript(queryFileName);
             StringBuilder stringBuilder = new StringBuilder();
-            await RunTest(databaseName, query, uri, async (testDbName, session) =>
+            await RunTest(databaseName, query, testDbPrefix, async (testDbName, session) =>
             {
                 await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session, false);
                 await ExpandTree(session.Root.ToNodeInfo(), session, stringBuilder, verifySystemObjects);
