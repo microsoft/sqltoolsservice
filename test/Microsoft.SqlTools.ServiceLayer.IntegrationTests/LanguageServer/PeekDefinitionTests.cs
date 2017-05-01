@@ -20,6 +20,7 @@ using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 {
@@ -419,6 +420,12 @@ GO";
             {
                 Assert.Null(locations);
             }
+
+            var connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
+            connectionService.Disconnect(new DisconnectParams
+            {
+                    OwnerUri = connInfo.OwnerUri
+            });
         }
 
         /// <summary>
