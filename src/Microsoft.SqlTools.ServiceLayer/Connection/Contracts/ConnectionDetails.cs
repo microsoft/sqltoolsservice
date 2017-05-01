@@ -510,9 +510,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 return false;
             }
 
-            if (!string.Equals(ServerName, other.ServerName)
-                || !string.Equals(AuthenticationType, other.AuthenticationType)
-                || !string.Equals(UserName, other.UserName))
+            if (ServerName != other.ServerName
+                || AuthenticationType != other.AuthenticationType
+                || UserName != other.UserName)
             {
                 return false;
             }
@@ -522,7 +522,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             // not a 100% accurate heuristic.
             if (!string.IsNullOrEmpty(DatabaseName)
                 && !string.IsNullOrEmpty(other.DatabaseName)
-                && !string.Equals(DatabaseName, other.DatabaseName))
+                && DatabaseName != other.DatabaseName)
             {
                 return false;
             }
