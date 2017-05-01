@@ -1219,5 +1219,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.NotEmpty(connectionResult.ConnectionId);
         }
+
+        [Fact]
+        public async Task ConnectionWithBadConnectionStringFails()
+        {
+            var connectionParameters = TestObjects.GetTestConnectionParams(true);
+            connectionParameters.Connection.ConnectionString = "thisisnotavalidconnectionstring";
+            var connectionResult = await TestObjects.GetTestConnectionService().Connect(connectionParameters);
+
+            Assert.NotEmpty(connectionResult.ErrorMessage);
+        }
     }
 }
