@@ -758,7 +758,7 @@ GO";
             connInfo.RemoveAllConnections();
         }
 
-        [Fact]
+       // [Fact]
         public async void GetDefinitionFromProcedures()
         {
 
