@@ -196,6 +196,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         }
 
         /// <summary>
+        /// Refresh this node and returns its children
+        /// </summary>
+        /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
+        public IList<TreeNode> Refresh()
+        {
+            // TODO consider why solution explorer has separate Children and Items options
+            PopulateChildren();
+            return children;
+        }
+
+        /// <summary>
         /// Gets a readonly view of the currently defined children for this node. 
         /// This does not expand the node at all
         /// Since the tree needs to keep track of parent relationships, directly 
@@ -242,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         {
             return Parent as T;
         }
-        
+
         protected void PopulateChildren()
         {
             Debug.Assert(IsAlwaysLeaf == false);

@@ -80,6 +80,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// </summary>
         public void RunQuery(TestServerType serverType, string databaseName, string queryText, bool throwOnError = false)
         {
+            RunQueryAsync(serverType, databaseName, queryText, throwOnError).Wait();
+
+        }
+
+        /// <summary>
+        /// Runs a query by calling the services directly (not using the test driver) 
+        /// </summary>
+        public async Task RunQueryAsync(TestServerType serverType, string databaseName, string queryText, bool throwOnError = false)
+        {
             string uri = "";
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -88,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 ConnectionInfo connInfo = InitLiveConnectionInfo(serverType, databaseName, uri);
                 Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory());
                 query.Execute();
-                query.ExecutionTask.Wait();
+                await query.ExecutionTask;
 
                 if (throwOnError)
                 {

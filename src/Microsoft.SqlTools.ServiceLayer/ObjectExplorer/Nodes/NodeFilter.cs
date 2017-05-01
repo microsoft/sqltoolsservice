@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     {
                         proeprtyValue = (int)Convert.ChangeType(value, Type);
                     }
-                    string orPrefix = i == 0 ? "" : "or";
+                    string orPrefix = i == 0 ? string.Empty : "or";
                     filter = $"{filter} {orPrefix} @{Property} = {proeprtyValue}";
                 }
             }
@@ -91,8 +91,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             {
                 var value = list[i];
                 
-                string orPrefix = i == 0 ? "" : "and";
-                filter = $"{filter} {orPrefix} {value.ToPropertyFilterString()}";
+                string andPrefix = i == 0 ? string.Empty : "and";
+                filter = $"{filter} {andPrefix} {value.ToPropertyFilterString()}";
             }
             filter = $"[{filter}]";
 
