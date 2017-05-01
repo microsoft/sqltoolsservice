@@ -33,12 +33,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             var query = "";
             string uri = "CreateSessionAndExpandServer";
             string databaseName = null;
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
-            {
-                var session = await CreateSession(null, uri);
-                await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                DisconnectConnection(uri);
-            }
+            SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, databaseName, query, uri);
+            var session = await CreateSession(null, uri);
+            await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
+            DisconnectConnection(uri);
+            await testDb.CleanupAsync();
         }
 
         [Fact]
@@ -47,12 +46,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             var query = "";
             string uri = "CreateSessionAndExpandServer";
             string databaseName = null;
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
-            {
-                var session = await CreateSession("tempdb", uri);
-                await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
-                DisconnectConnection(uri);
-            }
+            SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, databaseName, query, uri);
+            var session = await CreateSession("tempdb", uri);
+            await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session);
+            DisconnectConnection(uri);
+            await testDb.CleanupAsync();
         }
 
         [Fact]
@@ -61,12 +59,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             var query = "";
             string uri = "CreateSessionAndExpandDatabase";
             string databaseName = null;
-            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri))
-            {
-                var session = await CreateSession(testDb.DatabaseName, uri);
-                ExpandAndVerifyDatabaseNode(testDb.DatabaseName, session);
-                DisconnectConnection(uri);
-            }
+            SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, databaseName, query, uri);
+            var session = await CreateSession(testDb.DatabaseName, uri);
+            ExpandAndVerifyDatabaseNode(testDb.DatabaseName, session);
+            DisconnectConnection(uri);
+            await testDb.CleanupAsync();
         }
 
         [Fact]
@@ -252,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             var query = string.IsNullOrEmpty(queryFileName) ? string.Empty : LoadScript(queryFileName);
             StringBuilder stringBuilder = new StringBuilder();
-            SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName, query, uri);
+            SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, databaseName, query, uri);
             var session = await CreateSession(testDb.DatabaseName, uri);
             await ExpandServerNodeAndVerifyDatabaseHierachy(testDb.DatabaseName, session, false);
             await ExpandTree(session.Root.ToNodeInfo(), session, stringBuilder, verifySystemObjects);
@@ -265,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
             _service.CloseSession(session.Uri);
             Thread.Sleep(3000);
-            testDb.Cleanup();
+            await testDb.CleanupAsync();
             return true;
         }
 

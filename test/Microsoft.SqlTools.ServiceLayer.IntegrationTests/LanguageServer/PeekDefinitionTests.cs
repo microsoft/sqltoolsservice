@@ -19,6 +19,7 @@ using Xunit;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 {
@@ -348,19 +349,18 @@ GO";
         /// Test get definition for a scalar valued function object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetScalarValuedFunctionDefinitionWithSchemaNameSuccessTest()
+        public async Task GetScalarValuedFunctionDefinitionWithSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(AddTwoFunctionQuery, AddTwoFunctionName, ScalarValuedFunctionTypeName);
+            await ExecuteAndValidatePeekTest(AddTwoFunctionQuery, AddTwoFunctionName, ScalarValuedFunctionTypeName);
         }
 
-        private void ExecuteAndValidatePeekTest(string query, string objectName, string objectType, string schemaName = "dbo")
+        private async Task ExecuteAndValidatePeekTest(string query, string objectName, string objectType, string schemaName = "dbo")
         {
             if (!string.IsNullOrEmpty(query))
             {
-                using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, query))
-                {
-                    ValidatePeekTest(testDb.DatabaseName, objectName, objectType, schemaName, true);
-                }
+                SqlTestDb testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query);
+                ValidatePeekTest(testDb.DatabaseName, objectName, objectType, schemaName, true);
+                await testDb.CleanupAsync();
             }
             else
             {
@@ -425,52 +425,52 @@ GO";
         /// Test get definition for a table valued function object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetTableValuedFunctionDefinitionWithSchemaNameSuccessTest()
+        public async Task GetTableValuedFunctionDefinitionWithSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, TableValuedFunctionTypeName);
+            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, TableValuedFunctionTypeName);
         }
 
         /// <summary>
         /// Test get definition for a scalar valued function object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetScalarValuedFunctionDefinitionWithNonExistentFailureTest()
+        public async Task GetScalarValuedFunctionDefinitionWithNonExistentFailureTest()
         {
             string objectName = "doesNotExist";
             string schemaName = "dbo";
             string objectType = ScalarValuedFunctionTypeName;
 
-            ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
+            await ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
         }
 
         /// <summary>
         /// Test get definition for a table valued function object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetTableValuedFunctionDefinitionWithNonExistentObjectFailureTest()
+        public async Task GetTableValuedFunctionDefinitionWithNonExistentObjectFailureTest()
         {
             string objectName = "doesNotExist";
             string schemaName = "dbo";
             string objectType = TableValuedFunctionTypeName;
-            ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
+            await ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
         }
 
         /// <summary>
         /// Test get definition for a scalar valued function object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetScalarValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetScalarValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(AddTwoFunctionQuery, AddTwoFunctionName, ScalarValuedFunctionTypeName, null);
+            await ExecuteAndValidatePeekTest(AddTwoFunctionQuery, AddTwoFunctionName, ScalarValuedFunctionTypeName, null);
         }
 
         /// <summary>
         /// Test get definition for a table valued function object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetTableValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetTableValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, TableValuedFunctionTypeName, null);
+            await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, TableValuedFunctionTypeName, null);
         }
 
 
@@ -478,60 +478,60 @@ GO";
         /// Test get definition for a user defined data type object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedDataTypeDefinitionWithSchemaNameSuccessTest()
+        public async Task GetUserDefinedDataTypeDefinitionWithSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(SsnTypeQuery, SsnTypeName, UserDefinedDataTypeTypeName);
+            await ExecuteAndValidatePeekTest(SsnTypeQuery, SsnTypeName, UserDefinedDataTypeTypeName);
         }
 
         /// <summary>
         /// Test get definition for a user defined data type object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedDataTypeDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetUserDefinedDataTypeDefinitionWithoutSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(SsnTypeQuery, SsnTypeName, UserDefinedDataTypeTypeName, null);
+            await ExecuteAndValidatePeekTest(SsnTypeQuery, SsnTypeName, UserDefinedDataTypeTypeName, null);
         }
 
         /// <summary>
         /// Test get definition for a user defined data type object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedDataTypeDefinitionWithNonExistentFailureTest()
+        public async Task GetUserDefinedDataTypeDefinitionWithNonExistentFailureTest()
         {
             string objectName = "doesNotExist";
             string schemaName = "dbo";
             string objectType = UserDefinedDataTypeTypeName;
-            ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
+            await ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
         }
 
         /// <summary>
         /// Test get definition for a user defined table type object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedTableTypeDefinitionWithSchemaNameSuccessTest()
+        public async Task GetUserDefinedTableTypeDefinitionWithSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(LocationTableTypeQuery, LocationTableTypeName, UserDefinedTableTypeTypeName);
+            await ExecuteAndValidatePeekTest(LocationTableTypeQuery, LocationTableTypeName, UserDefinedTableTypeTypeName);
         }
 
         /// <summary>
         /// Test get definition for a user defined table type object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedTableTypeDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetUserDefinedTableTypeDefinitionWithoutSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(LocationTableTypeQuery, LocationTableTypeName, UserDefinedTableTypeTypeName, null);
+            await ExecuteAndValidatePeekTest(LocationTableTypeQuery, LocationTableTypeName, UserDefinedTableTypeTypeName, null);
         }
 
         /// <summary>
         /// Test get definition for a user defined table type object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetUserDefinedTableTypeDefinitionWithNonExistentFailureTest()
+        public async Task GetUserDefinedTableTypeDefinitionWithNonExistentFailureTest()
         {
             string objectName = "doesNotExist";
             string schemaName = "dbo";
             string objectType = UserDefinedTableTypeTypeName;
-            ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
+            await ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
 
         }
 
@@ -539,9 +539,9 @@ GO";
         /// Test get definition for a synonym object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetSynonymDefinitionWithSchemaNameSuccessTest()
+        public async Task GetSynonymDefinitionWithSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(TestTableSynonymQuery, TestTableSynonymName, SynonymTypeName);
+            await ExecuteAndValidatePeekTest(TestTableSynonymQuery, TestTableSynonymName, SynonymTypeName);
         }
 
 
@@ -549,21 +549,21 @@ GO";
         /// Test get definition for a Synonym object with active connection. Expect non-null locations
         /// </summary>
         [Fact]
-        public void GetSynonymDefinitionWithoutSchemaNameSuccessTest()
+        public async Task GetSynonymDefinitionWithoutSchemaNameSuccessTest()
         {
-            ExecuteAndValidatePeekTest(TestTableSynonymQuery, TestTableSynonymName, SynonymTypeName, null);
+            await ExecuteAndValidatePeekTest(TestTableSynonymQuery, TestTableSynonymName, SynonymTypeName, null);
         }
 
         /// <summary>
         /// Test get definition for a Synonym object that doesn't exist with active connection. Expect null locations
         /// </summary>
         [Fact]
-        public void GetSynonymDefinitionWithNonExistentFailureTest()
+        public async Task GetSynonymDefinitionWithNonExistentFailureTest()
         {
             string objectName = "doesNotExist";
             string schemaName = "dbo";
             string objectType = "Synonym";
-            ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
+            await ExecuteAndValidatePeekTest(null, objectName, objectType, schemaName);
         }
 
         /// <summary>
