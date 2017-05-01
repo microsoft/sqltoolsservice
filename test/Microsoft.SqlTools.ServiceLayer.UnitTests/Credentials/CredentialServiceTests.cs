@@ -93,12 +93,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             TestUtils.VerifyErrorSent(contextMock);
             Assert.Contains("ArgumentException", errorResponse);
         }
-        
+
         [Fact]
         public async Task SaveCredentialWorksForSingleCredential()
         {
             await TestUtils.RunAndVerify<bool>(
                 test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(CredentialId, Password1), requestContext),
+                verify: Assert.True);
+        }
+
+        [Fact]
+        public async Task SaveCredentialWorksForEmptyPassword()
+        {
+            await TestUtils.RunAndVerify<bool>(
+                test: (requestContext) => service.HandleSaveCredentialRequest(new Credential(CredentialId, ""), requestContext),
                 verify: Assert.True);
         }
 
