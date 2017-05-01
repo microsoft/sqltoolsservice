@@ -92,7 +92,7 @@ gulp.task('ext:nuget-restore', function() {
 
 
 gulp.task('ext:code-coverage', function(done) {
-    cproc.execFile('cmd.exe', [ '/c', 'codecoverage.bat' ], function(err, stdout) {
+    cproc.execFile('cmd.exe', [ '/c', 'codecoverage.bat' ], {maxBuffer: 1024 * 500}, function(err, stdout) {
         if (err) {
             throw new gutil.PluginError('ext:code-coverage', err);
         }
